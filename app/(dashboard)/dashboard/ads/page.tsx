@@ -13,7 +13,7 @@ export default async function AdsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [campaignsRes, rulesRes, connectionRes] = await Promise.all([
+    const [campaignsRes, rulesRes, connectionRes, recsRes] = await Promise.all([
         supabase
             .from('campaigns_cache')
             .select('*')
@@ -29,6 +29,13 @@ export default async function AdsPage() {
             .select('id, provider, status')
             .eq('organization_id', orgId)
             .in('provider', ['meta_ads', 'meta_capi']),
+        supabase
+            .from('ai_ad_recommendations')
+            .select('*')
+            .eq('organization_id', orgId)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(5),
     ])
 
     return (
@@ -36,6 +43,7 @@ export default async function AdsPage() {
             campaigns={campaignsRes.data || []}
             rules={rulesRes.data || []}
             connections={connectionRes.data || []}
+            recommendations={recsRes.data || []}
         />
     )
 }

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number
@@ -25,6 +26,75 @@ export default function SettingsPanel({ organization, stages: initialStages, pro
     const [newStage, setNewStage] = useState({ name: '', color: '#6366f1', fire_capi_event: '' })
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
+
+    // Assignment state
+    const [assignConfig, setAssignConfig] = useState<any>({ assignment_mode: 'manual', auto_assign_enabled: false, fallback_mode: 'manual' })
+    const [settersList, setSettersList] = useState<any[]>([])
+    const [assignStats, setAssignStats] = useState<Record<string, { total: number; won: number }>>({})
+    const [savingAssign, setSavingAssign] = useState(false)
+
+    useEffect(() => {
+        const loadAssignment = async () => {
+            try {
+                const res = await fetch('/api/assignment')
+                if (res.ok) {
+                    const data = await res.json()
+                    if (data.config) setAssignConfig(data.config)
+                    // Merge setter availability with member list
+                    const merged = (data.members || []).map((m: any) => {
+                        const sa = (data.setters || []).find((s: any) => s.user_id === m.user_id)
+                        return {
+                            user_id: m.user_id,
+                            role: m.role,
+                            full_name: m.profiles?.full_name || m.profiles?.email || m.user_id.slice(0, 8),
+                            is_available: sa?.is_available ?? true,
+                            max_daily_leads: sa?.max_daily_leads ?? 50,
+                            weight: sa?.weight ?? 1,
+                            leads_today: sa?.leads_today ?? 0,
+                        }
+                    })
+                    setSettersList(merged)
+                    setAssignStats(data.stats || {})
+                }
+            } catch {}
+        }
+        loadAssignment()
+    }, [])
+
+    const saveAssignConfig = async (mode?: string) => {
+        setSavingAssign(true)
+        try {
+            await fetch('/api/assignment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'update_config',
+                    assignment_mode: mode || assignConfig.assignment_mode,
+                    auto_assign_enabled: assignConfig.auto_assign_enabled,
+                    fallback_mode: assignConfig.fallback_mode,
+                }),
+            })
+            if (mode) setAssignConfig((p: any) => ({ ...p, assignment_mode: mode }))
+        } catch {}
+        setSavingAssign(false)
+    }
+
+    const updateSetter = async (userId: string, updates: any) => {
+        setSettersList(prev => prev.map(s => s.user_id === userId ? { ...s, ...updates } : s))
+        await fetch('/api/assignment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'update_setter', user_id: userId, ...updates }),
+        })
+    }
+
+    const assignModes = [
+        { value: 'round_robin', label: 'Round Robin', icon: Shuffle, desc: 'Ciclico: A→B→C→A→B→C', color: '#3b82f6' },
+        { value: 'manual', label: 'Manuale', icon: UsersIcon, desc: 'Assegna manualmente dal CRM', color: '#71717a' },
+        { value: 'availability', label: 'Disponibilità', icon: Shield, desc: 'Solo setter disponibili con limite', color: '#22c55e' },
+        { value: 'performance', label: 'Performance', icon: TrendingUp, desc: 'Priorità a chi chiude di più', color: '#f59e0b' },
+        { value: 'weighted', label: 'Weighted', icon: Gauge, desc: 'Peso configurabile per setter', color: '#a855f7' },
+    ]
 
     const saveAction = async (action: string, body: any) => {
         setSaving(action)
@@ -205,6 +275,117 @@ export default function SettingsPanel({ organization, stages: initialStages, pro
                     </div>
                 )}
             </div>
+
+            {/* Lead Assignment */}
+            {canEdit && (
+                <div className="glass-card p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Shuffle className="w-4 h-4" style={{ color: '#3b82f6' }} />
+                            <h3 className="text-sm font-bold text-white">Assegnazione Lead</h3>
+                        </div>
+                        <button
+                            onClick={() => {
+                                const next = !assignConfig.auto_assign_enabled
+                                setAssignConfig((p: any) => ({ ...p, auto_assign_enabled: next }))
+                                fetch('/api/assignment', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'update_config', ...assignConfig, auto_assign_enabled: next }),
+                                })
+                            }}
+                            className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                            style={{
+                                background: assignConfig.auto_assign_enabled ? 'rgba(34, 197, 94, 0.1)' : 'var(--color-surface-200)',
+                                color: assignConfig.auto_assign_enabled ? '#22c55e' : 'var(--color-surface-500)',
+                                border: `1px solid ${assignConfig.auto_assign_enabled ? 'rgba(34, 197, 94, 0.2)' : 'var(--color-surface-300)'}`,
+                            }}
+                        >
+                            {assignConfig.auto_assign_enabled ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                            {assignConfig.auto_assign_enabled ? 'Auto-assign ON' : 'Auto-assign OFF'}
+                        </button>
+                    </div>
+
+                    {/* Mode selector */}
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 mb-5">
+                        {assignModes.map(mode => (
+                            <button
+                                key={mode.value}
+                                onClick={() => saveAssignConfig(mode.value)}
+                                className="p-3 rounded-xl text-left transition-all"
+                                style={{
+                                    background: assignConfig.assignment_mode === mode.value ? `${mode.color}15` : 'var(--color-surface-100)',
+                                    border: `1px solid ${assignConfig.assignment_mode === mode.value ? `${mode.color}40` : 'var(--color-surface-200)'}`,
+                                }}
+                            >
+                                <mode.icon className="w-4 h-4 mb-1" style={{ color: assignConfig.assignment_mode === mode.value ? mode.color : 'var(--color-surface-500)' }} />
+                                <div className="text-xs font-bold" style={{ color: assignConfig.assignment_mode === mode.value ? mode.color : 'var(--color-surface-400)' }}>{mode.label}</div>
+                                <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{mode.desc}</div>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Setter list */}
+                    {settersList.length > 0 && (
+                        <div>
+                            <div className="text-xs font-semibold text-white mb-2">Team Setter/Closer</div>
+                            <div className="space-y-2">
+                                {settersList.map(s => (
+                                    <div key={s.user_id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                        <button
+                                            onClick={() => updateSetter(s.user_id, { is_available: !s.is_available, max_daily_leads: s.max_daily_leads, weight: s.weight })}
+                                            className="w-5 h-5 rounded-md flex-shrink-0" style={{
+                                                background: s.is_available ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                                                border: `1px solid ${s.is_available ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+                                            }}
+                                        >
+                                            <div className="w-2 h-2 rounded-full mx-auto mt-[5px]" style={{ background: s.is_available ? '#22c55e' : '#ef4444' }} />
+                                        </button>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-semibold text-white truncate">{s.full_name}</div>
+                                            <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                {s.role} • {s.leads_today} lead oggi • {assignStats[s.user_id]?.won || 0}/{assignStats[s.user_id]?.total || 0} vinti
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="text-center">
+                                                <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-600)' }}>Max/giorno</div>
+                                                <input
+                                                    type="number"
+                                                    className="w-14 text-center text-xs bg-transparent border rounded px-1 py-0.5"
+                                                    style={{ borderColor: 'var(--color-surface-300)', color: 'white' }}
+                                                    value={s.max_daily_leads}
+                                                    onChange={e => updateSetter(s.user_id, { is_available: s.is_available, max_daily_leads: parseInt(e.target.value) || 50, weight: s.weight })}
+                                                />
+                                            </div>
+                                            {assignConfig.assignment_mode === 'weighted' && (
+                                                <div className="text-center">
+                                                    <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-600)' }}>Peso</div>
+                                                    <input
+                                                        type="number"
+                                                        min={1} max={10}
+                                                        className="w-12 text-center text-xs bg-transparent border rounded px-1 py-0.5"
+                                                        style={{ borderColor: 'var(--color-surface-300)', color: 'white' }}
+                                                        value={s.weight}
+                                                        onChange={e => updateSetter(s.user_id, { is_available: s.is_available, max_daily_leads: s.max_daily_leads, weight: parseInt(e.target.value) || 1 })}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Prospecting link */}
+                    <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--color-surface-200)' }}>
+                        <Link href="/dashboard/settings/prospecting" className="flex items-center gap-2 text-xs font-semibold transition-colors hover:opacity-80" style={{ color: '#a855f7' }}>
+                            <Shield className="w-4 h-4" /> Gestisci Agenti Prospecting →
+                        </Link>
+                    </div>
+                </div>
+            )}
 
             {/* Profile */}
             <div className="glass-card p-6">

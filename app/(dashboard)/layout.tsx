@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
     LayoutDashboard, Target, Users, BarChart3, Plug, UserCircle,
-    LogOut, ChevronLeft, ChevronRight, Megaphone, Settings,
+    LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
+    Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     type LucideIcon
 } from 'lucide-react'
 
@@ -22,6 +23,7 @@ const navItems: NavItem[] = [
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
     { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
+    { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
     { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { label: 'Team', href: '/dashboard/team', icon: UserCircle },
     { label: 'Connessioni', href: '/dashboard/connections', icon: Plug },
@@ -32,9 +34,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [collapsed, setCollapsed] = useState(false)
     const [user, setUser] = useState<any>(null)
     const [orgName, setOrgName] = useState('')
+    const [notifications, setNotifications] = useState<any[]>([])
+    const [unreadCount, setUnreadCount] = useState(0)
+    const [showNotifs, setShowNotifs] = useState(false)
+    const notifRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
     const router = useRouter()
     const supabase = createClient()
+
+    const loadNotifications = async () => {
+        try {
+            const res = await fetch('/api/notifications')
+            if (res.ok) {
+                const data = await res.json()
+                setNotifications(data.notifications || [])
+                setUnreadCount(data.unreadCount || 0)
+            }
+        } catch {}
+    }
 
     useEffect(() => {
         const getUser = async () => {
@@ -52,7 +69,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         }
         getUser()
+        loadNotifications()
+        const interval = setInterval(loadNotifications, 30000)
+        return () => clearInterval(interval)
     }, [])
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false)
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
+
+    const markAllRead = async () => {
+        await fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'mark_read', id: 'all' }),
+        })
+        loadNotifications()
+    }
+
+    const notifIcon = (type: string) => {
+        if (type === 'warning') return <AlertTriangle className="w-3.5 h-3.5" style={{ color: '#f59e0b' }} />
+        if (type === 'critical') return <AlertTriangle className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+        if (type === 'success') return <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
+        if (type === 'ai') return <Sparkles className="w-3.5 h-3.5" style={{ color: '#a855f7' }} />
+        return <Info className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
+    }
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
@@ -142,7 +188,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">
-                <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
+                {/* Top bar with notifications */}
+                <div className="flex items-center justify-end gap-3 px-6 lg:px-8 pt-4 pb-0">
+                    <div className="relative" ref={notifRef}>
+                        <button
+                            onClick={() => { setShowNotifs(!showNotifs); if (!showNotifs) loadNotifications() }}
+                            className="relative p-2 rounded-xl transition-colors hover:bg-white/5"
+                        >
+                            <Bell className="w-5 h-5" style={{ color: unreadCount > 0 ? '#a855f7' : 'var(--color-surface-500)' }} />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-pulse" style={{ background: '#ef4444' }}>
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
+                        {showNotifs && (
+                            <div className="absolute right-0 top-12 w-96 max-h-[500px] overflow-y-auto glass-card shadow-2xl z-50 animate-fade-in">
+                                <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                    <h3 className="text-sm font-bold text-white">Notifiche</h3>
+                                    <div className="flex items-center gap-2">
+                                        {unreadCount > 0 && (
+                                            <button onClick={markAllRead} className="text-[11px] font-medium px-2 py-0.5 rounded" style={{ color: '#a855f7' }}>Segna tutte lette</button>
+                                        )}
+                                        <button onClick={() => setShowNotifs(false)}><X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} /></button>
+                                    </div>
+                                </div>
+                                {notifications.length === 0 ? (
+                                    <div className="p-6 text-center text-sm" style={{ color: 'var(--color-surface-500)' }}>Nessuna notifica</div>
+                                ) : (
+                                    <div className="divide-y" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                        {notifications.map((n: any) => (
+                                            <Link key={n.id} href={n.link || '#'} onClick={() => setShowNotifs(false)}
+                                                className={`flex items-start gap-3 p-3 transition-colors hover:bg-white/[0.03] ${!n.is_read ? 'bg-white/[0.02]' : ''}`}>
+                                                <div className="mt-0.5">{notifIcon(n.type)}</div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-xs font-semibold text-white truncate">{n.title}</div>
+                                                    {n.message && <div className="text-[11px] mt-0.5 line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{n.message}</div>}
+                                                    <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>
+                                                        {new Date(n.created_at).toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                                                    </div>
+                                                </div>
+                                                {!n.is_read && <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: '#a855f7' }} />}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="p-6 lg:p-8 pt-2 max-w-[1600px] mx-auto">
                     {children}
                 </div>
             </main>

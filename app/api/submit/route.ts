@@ -6,8 +6,26 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )
 
+// Rate limiting
+const rateLimits = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 10
+const RATE_WINDOW = 60_000
+
 // Public submission endpoint — no auth required
 export async function POST(req: NextRequest) {
+    // Rate limit by IP
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+    const now = Date.now()
+    const entry = rateLimits.get(ip)
+    if (entry && now < entry.resetAt && entry.count >= RATE_LIMIT) {
+        return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 })
+    }
+    if (!entry || now > (entry?.resetAt || 0)) {
+        rateLimits.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
+    } else {
+        entry.count++
+    }
+
     try {
         const body = await req.json()
         const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data } = body

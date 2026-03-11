@@ -1,6 +1,6 @@
 'use client'
 
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, Flame } from 'lucide-react'
 import Link from 'next/link'
 
 interface Campaign {
@@ -36,13 +36,24 @@ interface Connection {
     status: string
 }
 
+interface Recommendation {
+    id: string
+    recommendation_type: string
+    priority: string
+    title: string
+    description?: string
+    status: string
+    impact_estimate?: any
+}
+
 interface Props {
     campaigns: Campaign[]
     rules: Rule[]
     connections: Connection[]
+    recommendations: Recommendation[]
 }
 
-export default function AdsPanel({ campaigns, rules, connections }: Props) {
+export default function AdsPanel({ campaigns, rules, connections, recommendations }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
 
@@ -204,6 +215,51 @@ export default function AdsPanel({ campaigns, rules, connections }: Props) {
                     <p className="text-xs text-center py-4" style={{ color: 'var(--color-surface-500)' }}>Nessuna regola configurata. Saranno disponibili dopo il collegamento Meta Ads.</p>
                 )}
             </div>
+
+            {/* AI Advisor */}
+            {recommendations.length > 0 && (
+                <div className="glass-card p-5">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                                <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
+                            </div>
+                            <h3 className="text-sm font-bold text-white">AI Advisor</h3>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>SMART</span>
+                        </div>
+                        <Link href="/dashboard/ai-engine" className="text-xs flex items-center gap-1 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
+                            AI Engine <ArrowRight className="w-3 h-3" />
+                        </Link>
+                    </div>
+                    <div className="space-y-2">
+                        {recommendations.slice(0, 3).map(rec => {
+                            const priorityColors: Record<string, string> = {
+                                critical: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#22c55e',
+                            }
+                            const pColor = priorityColors[rec.priority] || '#3b82f6'
+                            return (
+                                <div key={rec.id} className="flex items-start gap-3 p-3 rounded-xl" style={{
+                                    background: `${pColor}08`, border: `1px solid ${pColor}20`,
+                                }}>
+                                    <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: pColor }} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-xs font-semibold text-white">{rec.title}</div>
+                                        {rec.description && (
+                                            <div className="text-[11px] mt-0.5 line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{rec.description}</div>
+                                        )}
+                                    </div>
+                                    <span className="badge flex-shrink-0" style={{
+                                        fontSize: '9px', background: `${pColor}15`, color: pColor, border: `1px solid ${pColor}30`,
+                                    }}>{rec.priority === 'critical' ? '🔥' : rec.priority === 'high' ? '⚠️' : '💡'} {rec.priority}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <Link href="/dashboard/ai-engine" className="flex items-center justify-center gap-1 text-xs mt-3 py-2 rounded-xl transition-colors hover:bg-white/[0.03]" style={{ color: '#a855f7' }}>
+                        Vedi tutti i consigli AI <ArrowRight className="w-3 h-3" />
+                    </Link>
+                </div>
+            )}
         </div>
     )
 }
