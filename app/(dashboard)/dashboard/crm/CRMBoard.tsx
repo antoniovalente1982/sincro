@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye } from 'lucide-react'
+import { useState, useCallback, useMemo } from 'react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
 
 interface Stage {
     id: string
@@ -43,6 +43,38 @@ interface Props {
     userRole: string
 }
 
+// ── AI Lead Scoring Algorithm ──
+function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: string; color: string; icon: any } {
+    let score = 0
+
+    // Data completeness (0-30)
+    if (lead.name) score += 10
+    if (lead.email) score += 10
+    if (lead.phone) score += 10
+
+    // Has value assigned (0-20)
+    if (lead.value && lead.value > 0) score += 20
+
+    // Recency: newer leads score higher (0-25)
+    const daysSinceCreated = (Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24)
+    if (daysSinceCreated < 1) score += 25
+    else if (daysSinceCreated < 3) score += 20
+    else if (daysSinceCreated < 7) score += 10
+    else if (daysSinceCreated < 14) score += 5
+
+    // Source quality (0-15)
+    if (lead.utm_source === 'meta' || lead.utm_source === 'facebook' || lead.utm_source === 'instagram') score += 15
+    else if (lead.utm_source === 'google') score += 12
+    else if (lead.utm_source) score += 8
+
+    // Product assigned (0-10)
+    if (lead.product) score += 10
+
+    if (score >= 70) return { score, label: 'Hot', emoji: '🔥', color: '#ef4444', icon: Flame }
+    if (score >= 40) return { score, label: 'Warm', emoji: '⚡', color: '#f59e0b', icon: Zap }
+    return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
+}
+
 export default function CRMBoard({ stages, initialLeads, members, userRole }: Props) {
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
     const [dragLead, setDragLead] = useState<string | null>(null)
@@ -61,8 +93,15 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
         (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
     )
 
+    // Sort leads by AI score (highest first) within each stage
     const getLeadsForStage = (stageId: string) =>
-        filteredLeads.filter(l => l.stage_id === stageId)
+        filteredLeads
+            .filter(l => l.stage_id === stageId)
+            .sort((a, b) => calculateLeadScore(b).score - calculateLeadScore(a).score)
+
+    // Calculate stage value totals
+    const getStageValue = (stageId: string) =>
+        filteredLeads.filter(l => l.stage_id === stageId).reduce((sum, l) => sum + (l.value || 0), 0)
 
     const getUnassignedLeads = () =>
         filteredLeads.filter(l => !l.stage_id)
@@ -173,6 +212,10 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
 
+    // Stats
+    const totalValue = leads.reduce((s, l) => s + (l.value || 0), 0)
+    const hotLeads = leads.filter(l => calculateLeadScore(l).label === 'Hot').length
+
     return (
         <div className="space-y-5 animate-fade-in">
             {/* Header */}
@@ -183,7 +226,7 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
                         CRM Pipeline
                     </h1>
                     <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                        {leads.length} lead{leads.length !== 1 ? 's' : ''} nel pipeline
+                        {leads.length} lead{leads.length !== 1 ? 's' : ''} • {hotLeads > 0 && <span style={{ color: '#ef4444' }}>🔥 {hotLeads} hot</span>}{hotLeads > 0 && ' • '}{totalValue > 0 && <span style={{ color: '#22c55e' }}>{formatCurrency(totalValue)}</span>}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -232,16 +275,26 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
                                         {stageLeads.length}
                                     </span>
                                 </div>
-                                {stage.fire_capi_event && (
-                                    <div className="text-[10px] mt-1 font-medium" style={{ color: 'var(--color-surface-500)' }}>
-                                        → Meta CAPI: {stage.fire_capi_event}
-                                    </div>
-                                )}
+                                <div className="flex items-center gap-2 mt-1">
+                                    {stage.fire_capi_event && (
+                                        <span className="text-[10px] font-medium" style={{ color: 'var(--color-surface-500)' }}>
+                                            → {stage.fire_capi_event}
+                                        </span>
+                                    )}
+                                    {getStageValue(stage.id) > 0 && (
+                                        <span className="text-[10px] font-bold ml-auto" style={{ color: '#22c55e' }}>
+                                            {formatCurrency(getStageValue(stage.id))}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Leads */}
                             <div className="flex-1 p-2 space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 320px)' }}>
-                                {stageLeads.map(lead => (
+                                {stageLeads.map(lead => {
+                                    const aiScore = calculateLeadScore(lead)
+                                    const ScoreIcon = aiScore.icon
+                                    return (
                                     <div
                                         key={lead.id}
                                         draggable
@@ -249,18 +302,29 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
                                         className="group p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all duration-200 hover:scale-[1.02]"
                                         style={{
                                             background: 'rgba(15, 15, 19, 0.8)',
-                                            border: '1px solid rgba(255,255,255,0.06)',
+                                            border: `1px solid ${aiScore.label === 'Hot' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.06)'}`,
                                             opacity: dragLead === lead.id ? 0.5 : 1,
+                                            boxShadow: aiScore.label === 'Hot' ? '0 0 20px rgba(239, 68, 68, 0.05)' : undefined,
                                         }}
                                     >
                                         <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
                                                 <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30" style={{ color: 'var(--color-surface-500)' }} />
-                                                <span className="text-sm font-semibold text-white">{lead.name}</span>
+                                                <span className="text-sm font-semibold text-white truncate">{lead.name}</span>
                                             </div>
-                                            <button onClick={() => openDetail(lead)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-white/5">
-                                                <Eye className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} />
-                                            </button>
+                                            <div className="flex items-center gap-1 flex-shrink-0">
+                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5" style={{
+                                                    background: `${aiScore.color}15`,
+                                                    color: aiScore.color,
+                                                    border: `1px solid ${aiScore.color}25`,
+                                                }}>
+                                                    <ScoreIcon className="w-2.5 h-2.5" />
+                                                    {aiScore.score}
+                                                </span>
+                                                <button onClick={() => openDetail(lead)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-white/5">
+                                                    <Eye className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} />
+                                                </button>
+                                            </div>
                                         </div>
 
                                         {lead.product && (
@@ -304,7 +368,8 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                    )
+                                })}
 
                                 {stageLeads.length === 0 && (
                                     <div className="py-8 text-center">

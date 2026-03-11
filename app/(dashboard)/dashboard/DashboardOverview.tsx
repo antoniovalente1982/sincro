@@ -26,6 +26,17 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
 
+    const getRelativeTime = (dateStr: string) => {
+        const diffMs = Date.now() - new Date(dateStr).getTime()
+        const mins = Math.floor(diffMs / 60000)
+        if (mins < 1) return 'adesso'
+        if (mins < 60) return `${mins}m fa`
+        const hrs = Math.floor(mins / 60)
+        if (hrs < 24) return `${hrs}h fa`
+        const days = Math.floor(hrs / 24)
+        return `${days}g fa`
+    }
+
     // --- AI INSIGHTS CALCULATIONS ---
     const wonStage = stages.find(s => s.is_won)
     const lostStage = stages.find(s => s.is_lost)
@@ -267,6 +278,44 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                     ))}
                 </div>
             </div>
+
+            {/* Recent Activity Feed */}
+            {recentActivities.length > 0 && (
+                <div className="glass-card p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Clock className="w-5 h-5" style={{ color: '#f59e0b' }} />
+                        <h2 className="text-base font-bold text-white">Attività Recenti</h2>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-1" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>LIVE</span>
+                    </div>
+                    <div className="space-y-3">
+                        {recentActivities.slice(0, 6).map((act: any) => {
+                            const typeConfig: Record<string, { color: string; label: string }> = {
+                                stage_changed: { color: '#3b82f6', label: 'Stage cambiato' },
+                                capi_event_sent: { color: '#8b5cf6', label: 'CAPI inviato' },
+                                note_added: { color: '#71717a', label: 'Nota aggiunta' },
+                                assigned: { color: '#f59e0b', label: 'Lead assegnato' },
+                                sale: { color: '#22c55e', label: 'Vendita!' },
+                                lost: { color: '#ef4444', label: 'Perso' },
+                            }
+                            const cfg = typeConfig[act.activity_type] || { color: '#71717a', label: act.activity_type?.replace(/_/g, ' ') }
+                            const timeAgo = getRelativeTime(act.created_at)
+
+                            return (
+                                <div key={act.id} className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: cfg.color }} />
+                                    <div className="flex-1 min-w-0">
+                                        <span className="text-xs font-medium" style={{ color: cfg.color }}>{cfg.label}</span>
+                                        {act.notes && (
+                                            <span className="text-xs ml-2" style={{ color: 'var(--color-surface-500)' }}>{act.notes}</span>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] flex-shrink-0" style={{ color: 'var(--color-surface-500)' }}>{timeAgo}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* CAPI Info */}
             <div className="glass-card p-5 animate-pulse-glow">
