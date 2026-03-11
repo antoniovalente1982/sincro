@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getOrgId(supabase: any) {
@@ -55,9 +56,11 @@ export async function PUT(req: NextRequest) {
     const body = await req.json()
     const { id, ...updates } = body
 
-    // If stage changed, create activity
-    if (updates.stage_id && updates._old_stage_id) {
+    // If stage changed, create activity + fire CAPI event
+    if (updates.stage_id && updates._old_stage_id && updates.stage_id !== updates._old_stage_id) {
         const { data: { user } } = await supabase.auth.getUser()
+
+        // Log activity
         await supabase.from('lead_activities').insert({
             organization_id: orgId,
             lead_id: id,
@@ -66,6 +69,40 @@ export async function PUT(req: NextRequest) {
             from_stage_id: updates._old_stage_id,
             to_stage_id: updates.stage_id,
         })
+
+        // Fire Meta CAPI event if the new stage has fire_capi_event configured
+        const { data: newStage } = await supabase
+            .from('pipeline_stages')
+            .select('name, fire_capi_event')
+            .eq('id', updates.stage_id)
+            .single()
+
+        if (newStage?.fire_capi_event) {
+            // Get lead data for the event
+            const { data: lead } = await supabase
+                .from('leads')
+                .select('email, phone, value')
+                .eq('id', id)
+                .single()
+
+            // Fire CAPI event asynchronously
+            fireCapiEvent(orgId, newStage.fire_capi_event, {
+                email: lead?.email,
+                phone: lead?.phone,
+                value: lead?.value,
+            }, id).catch(err => console.error('CAPI error:', err))
+
+            // Log CAPI activity
+            await supabase.from('lead_activities').insert({
+                organization_id: orgId,
+                lead_id: id,
+                user_id: user?.id,
+                activity_type: 'capi_event_sent',
+                notes: `Evento "${newStage.fire_capi_event}" inviato a Meta CAPI`,
+                meta_data: { event_name: newStage.fire_capi_event, stage: newStage.name },
+            })
+        }
+
         delete updates._old_stage_id
     }
 
@@ -97,4 +134,74 @@ export async function DELETE(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
+}
+
+// --- Meta CAPI Event Firing ---
+async function fireCapiEvent(orgId: string, eventName: string, userData: any, leadId: string) {
+    const admin = createAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+
+    // Get Meta CAPI connection
+    const { data: conn } = await admin
+        .from('connections')
+        .select('credentials, config')
+        .eq('organization_id', orgId)
+        .eq('provider', 'meta_capi')
+        .eq('status', 'active')
+        .single()
+
+    if (!conn?.credentials?.access_token) return
+    const pixelId = conn.config?.pixel_id || conn.credentials?.pixel_id
+    if (!pixelId) return
+
+    const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+    const payload = {
+        data: [{
+            event_name: eventName,
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: eventId,
+            action_source: 'system_generated',
+            user_data: {
+                em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
+                ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
+            },
+            custom_data: userData.value ? {
+                currency: 'EUR',
+                value: userData.value,
+            } : undefined,
+        }],
+    }
+
+    const res = await fetch(
+        `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${conn.credentials.access_token}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        }
+    )
+
+    const result = await res.json()
+
+    // Track the event
+    await admin.from('tracked_events').insert({
+        organization_id: orgId,
+        event_name: eventName,
+        event_id: eventId,
+        lead_id: leadId,
+        user_data_hash: { em: !!userData.email, ph: !!userData.phone },
+        event_params: { pixel_id: pixelId, value: userData.value },
+        source: 'server',
+        sent_to_provider: res.ok,
+        provider_response: result,
+    })
+}
+
+async function hashSHA256(data: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const buffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
 }

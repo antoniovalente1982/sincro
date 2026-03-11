@@ -1,0 +1,181 @@
+import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+)
+
+// Public submission endpoint — no auth required
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json()
+        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data } = body
+
+        if (!funnel_id || !name) {
+            return NextResponse.json({ error: 'Name and funnel_id are required' }, { status: 400 })
+        }
+
+        // Get funnel and its organization
+        const { data: funnel, error: funnelError } = await supabaseAdmin
+            .from('funnels')
+            .select('id, organization_id, name, status, meta_pixel_id')
+            .eq('id', funnel_id)
+            .single()
+
+        if (funnelError || !funnel) {
+            return NextResponse.json({ error: 'Funnel not found' }, { status: 404 })
+        }
+
+        if (funnel.status !== 'active') {
+            return NextResponse.json({ error: 'Funnel is not active' }, { status: 400 })
+        }
+
+        // Create submission
+        const { data: submission, error: subError } = await supabaseAdmin
+            .from('funnel_submissions')
+            .insert({
+                organization_id: funnel.organization_id,
+                funnel_id,
+                name,
+                email: email || null,
+                phone: phone || null,
+                utm_source: utm_source || null,
+                utm_medium: utm_medium || null,
+                utm_campaign: utm_campaign || null,
+                utm_content: utm_content || null,
+                utm_term: utm_term || null,
+                extra_data: extra_data || {},
+                ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null,
+                user_agent: req.headers.get('user-agent') || null,
+            })
+            .select()
+            .single()
+
+        if (subError) {
+            return NextResponse.json({ error: subError.message }, { status: 500 })
+        }
+
+        // Get first pipeline stage (sort_order = 0) to assign to the lead
+        const { data: firstStage } = await supabaseAdmin
+            .from('pipeline_stages')
+            .select('id')
+            .eq('organization_id', funnel.organization_id)
+            .order('sort_order', { ascending: true })
+            .limit(1)
+            .single()
+
+        // Create lead automatically
+        const { data: lead, error: leadError } = await supabaseAdmin
+            .from('leads')
+            .insert({
+                organization_id: funnel.organization_id,
+                funnel_id,
+                submission_id: submission.id,
+                stage_id: firstStage?.id || null,
+                name,
+                email: email || null,
+                phone: phone || null,
+                utm_source: utm_source || null,
+                utm_campaign: utm_campaign || null,
+                product: funnel.name,
+                meta_data: { source: 'funnel', funnel_name: funnel.name },
+            })
+            .select()
+            .single()
+
+        if (leadError) {
+            console.error('Lead creation error:', leadError)
+        }
+
+        // Log activity
+        if (lead && firstStage) {
+            await supabaseAdmin.from('lead_activities').insert({
+                organization_id: funnel.organization_id,
+                lead_id: lead.id,
+                activity_type: 'stage_changed',
+                to_stage_id: firstStage.id,
+                notes: `Lead catturato dal funnel "${funnel.name}"`,
+            })
+        }
+
+        // Fire Meta CAPI event if pixel configured
+        if (funnel.meta_pixel_id && lead) {
+            await fireCapiEvent(funnel.organization_id, 'Lead', {
+                email: email || undefined,
+                phone: phone || undefined,
+                fbc: body.fbc || undefined,
+                fbp: body.fbp || undefined,
+            }, funnel.meta_pixel_id, lead.id)
+        }
+
+        return NextResponse.json({ success: true, lead_id: lead?.id })
+    } catch (err: any) {
+        console.error('Submission error:', err)
+        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    }
+}
+
+async function fireCapiEvent(orgId: string, eventName: string, userData: any, pixelId: string, leadId?: string) {
+    try {
+        // Get Meta access token from connections
+        const { data: conn } = await supabaseAdmin
+            .from('connections')
+            .select('credentials')
+            .eq('organization_id', orgId)
+            .eq('provider', 'meta_capi')
+            .eq('status', 'active')
+            .single()
+
+        if (!conn?.credentials?.access_token) return
+
+        const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+        const payload = {
+            data: [{
+                event_name: eventName,
+                event_time: Math.floor(Date.now() / 1000),
+                event_id: eventId,
+                action_source: 'website',
+                user_data: {
+                    em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
+                    ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
+                    fbc: userData.fbc || undefined,
+                    fbp: userData.fbp || undefined,
+                },
+            }],
+        }
+
+        const res = await fetch(
+            `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${conn.credentials.access_token}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }
+        )
+
+        const result = await res.json()
+
+        // Log the tracked event
+        await supabaseAdmin.from('tracked_events').insert({
+            organization_id: orgId,
+            event_name: eventName,
+            event_id: eventId,
+            lead_id: leadId || null,
+            user_data_hash: { em: !!userData.email, ph: !!userData.phone },
+            event_params: { pixel_id: pixelId },
+            source: 'server',
+            sent_to_provider: res.ok,
+            provider_response: result,
+        })
+    } catch (err) {
+        console.error('CAPI event error:', err)
+    }
+}
+
+async function hashSHA256(data: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const buffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
