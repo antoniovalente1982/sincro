@@ -176,7 +176,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             {/* Header */}
             <header className="ms-header">
                 <div className="ms-header-inner">
-                    <div className="ms-logo">METODO SINCRO<sup>®</sup></div>
+                    <div className="ms-logo"><img src="/images/team/Progetto senza titolo-2.png" alt="Metodo Sincro" className="ms-logo-img" /></div>
                     <div className="ms-header-right">
                         <div className="ms-trustpilot">
                             <div className="ms-stars">
@@ -611,8 +611,13 @@ const STYLES = `
     .ms-logo {
         font-size: 16px;
         font-weight: 900;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
         color: #fff;
+    }
+    .ms-logo-img {
+        height: 32px;
+        width: auto;
+        object-fit: contain;
     }
     .ms-logo sup { color: #facc15; font-size: 10px; }
     .ms-trustpilot {
