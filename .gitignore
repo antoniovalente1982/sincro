@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# antigravity AI data (sensitive business data)
+.gemini/
+.agents/
+/data/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
