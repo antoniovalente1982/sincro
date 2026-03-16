@@ -30,15 +30,17 @@ const AGE_RANGES = [
 ]
 
 const FAMOUS_PLAYERS = [
-    { name: 'Patrick Cutrone', team: 'Ex Milan, Valencia, Como, Monza', img: 'https://metodosincro.it/wp-content/uploads/2024/06/patrick-cutrone.webp' },
-    { name: 'Matteo Brunori', team: 'Sampdoria', img: 'https://metodosincro.it/wp-content/uploads/2024/06/brunori-palermo.webp' },
-    { name: 'Barbara Bonansea', team: 'Juventus Women', img: 'https://metodosincro.it/wp-content/uploads/2024/06/barbara-bonansea.webp' },
-    { name: 'Martina Piemonte', team: 'Lazio Women', img: 'https://metodosincro.it/wp-content/uploads/2024/06/martina-piemonte.webp' },
-    { name: 'Simone Cinquegrano', team: 'Inter', img: 'https://metodosincro.it/wp-content/uploads/2024/06/simone-cinquegrano.webp' },
-    { name: 'Gianmarco Cangiano', team: 'Foggia', img: 'https://metodosincro.it/wp-content/uploads/2024/06/gianmarco-cangiano.webp' },
-    { name: 'Filippo Frison', team: 'Picerno', img: 'https://metodosincro.it/wp-content/uploads/2024/06/filippo-frison.webp' },
-    { name: 'Francesca Durante', team: 'Lazio Women', img: 'https://metodosincro.it/wp-content/uploads/2024/06/francesca-durante.webp' },
-    { name: 'Iris Rabot', team: 'Parma Women', img: 'https://metodosincro.it/wp-content/uploads/2024/06/iris-rabot.webp' },
+    { name: 'Patrick Cutrone', team: 'Ex Milan, Valencia, Como, Monza', img: '/images/calciatori/Patrick Cutrone (Monza).png' },
+    { name: 'Matteo Brunori', team: 'Sampdoria', img: '/images/calciatori/Matteo Brunori (Sampdoria).png' },
+    { name: 'Barbara Bonansea', team: 'Juventus Women', img: '/images/calciatori/Barbara Bonansea (Juventus).png' },
+    { name: 'Martina Piemonte', team: 'Lazio Women', img: '/images/calciatori/Martina Piemonte (Lazio).png' },
+    { name: 'Simone Cinquegrano', team: 'Inter', img: '/images/calciatori/Simone Cinquegrano (Inter).png' },
+    { name: 'Gianmarco Cangiano', team: 'Lega Pro', img: '/images/calciatori/Gianmarco Cangiano (Lega Pro).png' },
+    { name: 'Filippo Frison', team: 'Lega Pro', img: '/images/calciatori/Filippo Frison (Lega Pro).png' },
+    { name: 'Francesca Durante', team: 'Lazio Women', img: '/images/calciatori/Francesca Durante (Lazio).png' },
+    { name: 'Iris Rabot', team: 'Parma Women', img: '/images/calciatori/Iris Rabot (Parma).png' },
+    { name: 'Annahita Zamanian', team: 'Parma Women', img: '/images/calciatori/Annahita Zamanian (Parma).png' },
+    { name: 'Riccardo Zoia', team: 'Lega Pro', img: '/images/calciatori/Riccardo Zoia (Lega Pro).png' },
 ]
 
 const REVIEWS = [
@@ -57,6 +59,20 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
+    const [viewerCount, setViewerCount] = useState(14)
+
+    // Dynamic viewer count between 14 and 35
+    useEffect(() => {
+        const updateCount = () => {
+            setViewerCount(prev => {
+                const delta = Math.random() > 0.5 ? Math.floor(Math.random() * 4) + 1 : -(Math.floor(Math.random() * 3) + 1)
+                const next = prev + delta
+                return Math.max(14, Math.min(35, next))
+            })
+        }
+        const interval = setInterval(updateCount, (Math.random() * 7000) + 8000)
+        return () => clearInterval(interval)
+    }, [])
 
     const [utmParams, setUtmParams] = useState<any>({})
     useEffect(() => {
@@ -146,7 +162,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
                 {/* Footer banner */}
                 <div className="ms-footer-banner">
-                    <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, personalizzati per ogni giovane calciatore.</p>
+                    <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, con coach specializzati e dedicati per fascia d'età.</p>
                 </div>
 
                 <style>{STYLES}</style>
@@ -161,11 +177,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             <header className="ms-header">
                 <div className="ms-header-inner">
                     <div className="ms-logo">METODO SINCRO<sup>®</sup></div>
-                    <div className="ms-trustpilot">
-                        <div className="ms-stars">
-                            {[1,2,3,4,5].map(i => <Star key={i} size={14} fill="#facc15" color="#facc15" />)}
+                    <div className="ms-header-right">
+                        <div className="ms-trustpilot">
+                            <div className="ms-stars">
+                                {[1,2,3,4,5].map(i => <Star key={i} size={14} fill="#facc15" color="#facc15" />)}
+                            </div>
+                            <span>4.9 su TrustPilot (356)</span>
                         </div>
-                        <span>4.9 su TrustPilot (356)</span>
                     </div>
                 </div>
             </header>
@@ -183,6 +201,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         Ma il talento da solo<br />
                         <span className="ms-yellow">non basta.</span>
                     </h1>
+                    <p className="ms-hero-subtitle">Dagli accesso al segreto nascosto dei campioni professionisti</p>
                     <p>
                         L'87% degli atleti talentuosi non emerge per mancanza di preparazione mentale.
                         Il <strong>MENTAL COACHING</strong> è ciò che fa la differenza tra chi resta in panchina e chi diventa protagonista.
@@ -228,6 +247,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                             </div>
                         ))}
                     </div>
+                    <p className="ms-molti-altri">...e molti altri</p>
                     <div className="ms-stats-row">
                         <div className="ms-stat">
                             <strong>2.100+</strong>
@@ -254,7 +274,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 <div className="ms-chi-inner">
                     <div className="ms-chi-photo">
                         <img
-                            src="https://metodosincro.it/wp-content/uploads/2024/06/antonio-valente-mental-coach.webp"
+                            src="/images/team/Antonio Valente.png"
                             alt="Antonio Valente - Fondatore Metodo Sincro"
                             onError={(e) => {
                                 const el = e.target as HTMLImageElement
@@ -379,7 +399,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 <div className="ms-form-inner">
                     <div className="ms-form-urgency">
                         <span className="ms-urgency-dot" />
-                        <span>Posti limitati — 14 genitori stanno guardando ora</span>
+                        <span>Posti limitati — <strong>{viewerCount}</strong> genitori stanno guardando ora</span>
                     </div>
                     <h2>Richiedi una <span className="ms-yellow">Consulenza Gratuita</span></h2>
                     <p>Un nostro esperto ti contatterà per capire come possiamo aiutare tuo figlio.</p>
@@ -530,9 +550,15 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 </div>
             </section>
 
+            {/* Garanzia */}
+            <div className="ms-garanzia-banner">
+                <Shield size={18} />
+                <span>Gli unici nel settore con <strong>Garanzia scritta sul Contratto</strong></span>
+            </div>
+
             {/* Footer banner */}
             <div className="ms-footer-banner">
-                <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, personalizzati per ogni giovane calciatore.</p>
+                <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, con coach specializzati e dedicati per fascia d'età.</p>
             </div>
 
             {/* Meta Pixel */}
@@ -630,7 +656,22 @@ const STYLES = `
         color: #facc15;
         background: rgba(250, 204, 21, 0.1);
         border: 1px solid rgba(250, 204, 21, 0.2);
-        margin-bottom: 24px;
+        margin-bottom: 12px;
+    }
+    .ms-garanzia-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        margin-bottom: 28px;
     }
     .ms-hero h1 {
         font-size: clamp(28px, 6vw, 50px);
@@ -638,6 +679,15 @@ const STYLES = `
         line-height: 1.15;
         margin-bottom: 20px;
         letter-spacing: -1px;
+    }
+    .ms-hero-subtitle {
+        font-size: 16px;
+        font-weight: 500;
+        color: #facc15;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        opacity: 0.8;
+        margin-bottom: 20px;
     }
     .ms-hero p {
         font-size: 16px;
@@ -755,6 +805,14 @@ const STYLES = `
         font-size: 11px;
         color: #71717a;
     }
+    .ms-molti-altri {
+        text-align: center;
+        font-size: 15px;
+        font-style: italic;
+        color: #52525b;
+        margin: 16px 0 8px;
+        letter-spacing: 1px;
+    }
     .ms-stats-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -774,6 +832,26 @@ const STYLES = `
         margin-bottom: 2px;
     }
     .ms-stat span { font-size: 11px; color: #71717a; }
+    .ms-trustpilot span { font-size: 12px; color: #a1a1aa; }
+    .ms-header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .ms-garanzia-header {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #22c55e;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+    }
 
     /* Chi Siamo */
     .ms-chi-siamo {
@@ -1014,6 +1092,14 @@ const STYLES = `
         font-weight: 600;
         color: #ef4444;
         margin-bottom: 16px;
+    }
+    .ms-form-urgency strong {
+        font-size: 16px;
+        color: #fff;
+        background: #ef4444;
+        padding: 1px 8px;
+        border-radius: 6px;
+        margin: 0 2px;
     }
     .ms-urgency-dot {
         width: 8px;
@@ -1314,6 +1400,21 @@ const STYLES = `
     }
 
     /* Footer Banner */
+    .ms-garanzia-banner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 20px;
+        background: rgba(34, 197, 94, 0.06);
+        border-top: 1px solid rgba(34, 197, 94, 0.15);
+        border-bottom: 1px solid rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        font-size: 15px;
+        font-weight: 500;
+    }
+    .ms-garanzia-banner strong { color: #fff; }
+
     .ms-footer-banner {
         background: linear-gradient(135deg, #dc2626, #b91c1c);
         padding: 18px 20px;
@@ -1443,6 +1544,7 @@ const STYLES = `
         .ms-players { grid-template-columns: repeat(2, 1fr); }
         .ms-problems-grid { grid-template-columns: 1fr; }
         .ms-header-inner { padding: 10px 14px; }
+        .ms-garanzia-header { display: none; }
         .ms-logo { font-size: 14px; }
     }
 `
