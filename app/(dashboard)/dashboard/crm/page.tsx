@@ -13,7 +13,7 @@ export default async function CRMPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [stagesRes, leadsRes, membersRes] = await Promise.all([
+    const [stagesRes, leadsRes, membersRes, funnelsRes] = await Promise.all([
         supabase
             .from('pipeline_stages')
             .select('*')
@@ -21,13 +21,18 @@ export default async function CRMPage() {
             .order('sort_order'),
         supabase
             .from('leads')
-            .select('*')
+            .select('*, funnels!leads_funnel_id_fkey(id, name, objective)')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false }),
         supabase
             .from('organization_members')
             .select('user_id, role, profiles:user_id (full_name, email)')
             .eq('organization_id', orgId),
+        supabase
+            .from('funnels')
+            .select('id, name, objective')
+            .eq('organization_id', orgId)
+            .order('name'),
     ])
 
     // Flatten profiles from array to single object
@@ -36,12 +41,16 @@ export default async function CRMPage() {
         profiles: Array.isArray(m.profiles) ? m.profiles[0] || null : m.profiles,
     }))
 
+    // Extract unique objectives from funnels
+    const objectives = [...new Set((funnelsRes.data || []).map((f: any) => f.objective).filter(Boolean))]
+
     return (
         <CRMBoard
             stages={stagesRes.data || []}
             initialLeads={leadsRes.data || []}
             members={members}
             userRole={member?.role || 'viewer'}
+            objectives={objectives}
         />
     )
 }

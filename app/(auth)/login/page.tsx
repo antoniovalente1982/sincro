@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import Image from 'next/image'
 import { LogIn, Eye, EyeOff } from 'lucide-react'
 
@@ -106,10 +105,7 @@ export default function LoginPage() {
                 </form>
 
                 <p className="text-center mt-6 text-sm" style={{ color: 'var(--color-surface-600)' }}>
-                    Non hai un account?{' '}
-                    <Link href="/register" className="font-semibold hover:underline" style={{ color: 'var(--color-sincro-400)' }}>
-                        Registrati
-                    </Link>
+                    Accesso riservato ai membri del team.
                 </p>
             </div>
         </div>

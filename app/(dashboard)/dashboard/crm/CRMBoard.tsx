@@ -28,6 +28,7 @@ interface Lead {
     utm_campaign?: string
     created_at: string
     updated_at: string
+    funnels?: { id: string; name: string; objective: string } | null
 }
 
 interface Member {
@@ -41,6 +42,7 @@ interface Props {
     initialLeads: Lead[]
     members: Member[]
     userRole: string
+    objectives: string[]
 }
 
 // ── AI Lead Scoring Algorithm ──
@@ -75,11 +77,12 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ stages, initialLeads, members, userRole }: Props) {
+export default function CRMBoard({ stages, initialLeads, members, userRole, objectives }: Props) {
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
     const [dragLead, setDragLead] = useState<string | null>(null)
     const [dragOverStage, setDragOverStage] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
+    const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
     const [showModal, setShowModal] = useState(false)
     const [editingLead, setEditingLead] = useState<Lead | null>(null)
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
@@ -87,11 +90,13 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
 
-    const filteredLeads = leads.filter(l =>
-        l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (l.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredLeads = leads.filter(l => {
+        const matchSearch = l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (l.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
+        const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
+        return matchSearch && matchObjective
+    })
 
     // Sort leads by AI score (highest first) within each stage
     const getLeadsForStage = (stageId: string) =>
@@ -230,6 +235,20 @@ export default function CRMBoard({ stages, initialLeads, members, userRole }: Pr
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    {objectives.length > 0 && (
+                        <select
+                            className="input !w-[180px] text-xs"
+                            value={objectiveFilter}
+                            onChange={e => setObjectiveFilter(e.target.value)}
+                        >
+                            <option value="all">🎯 Tutti gli obiettivi</option>
+                            {objectives.map(obj => (
+                                <option key={obj} value={obj}>
+                                    {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <div className="relative">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-surface-500)' }} />
                         <input

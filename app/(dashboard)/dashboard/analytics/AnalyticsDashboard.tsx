@@ -1,6 +1,7 @@
 'use client'
 
-import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search } from 'lucide-react'
+import { useState } from 'react'
+import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search, Filter } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from 'recharts'
 
 interface Stage {
@@ -10,6 +11,7 @@ interface Stage {
 interface Lead {
     id: string; stage_id?: string; value?: number; product?: string; utm_source?: string; created_at: string
     pipeline_stages?: { name: string; slug: string; color: string; is_won?: boolean; is_lost?: boolean }
+    funnels?: { id: string; name: string; objective: string } | null
 }
 
 interface Props {
@@ -22,9 +24,24 @@ interface Props {
     leaks: any[]
     reallocations: any[]
     dnaClusters: any[]
+    objectives: string[]
 }
 
-export default function AnalyticsDashboard({ stages, leads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters }: Props) {
+export default function AnalyticsDashboard({ stages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives }: Props) {
+    const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
+
+    // Filter leads by objective
+    const leads = objectiveFilter === 'all'
+        ? allLeads
+        : allLeads.filter(l => (l.funnels?.objective || '') === objectiveFilter)
+
+    const objectiveLabel = objectiveFilter === 'all' ? 'Tutti' :
+        objectiveFilter === 'cliente' ? 'Clienti' :
+        objectiveFilter === 'partner' ? 'Partner' :
+        objectiveFilter === 'reclutamento' ? 'Reclutamento' :
+        objectiveFilter === 'brand' ? 'Brand' :
+        objectiveFilter === 'evento' ? 'Evento' : objectiveFilter
+
     // KPIs
     const totalLeads = leads.length
     const wonLeads = leads.filter(l => l.pipeline_stages?.is_won)
@@ -100,14 +117,39 @@ export default function AnalyticsDashboard({ stages, leads, activities, attribut
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <BarChart3 className="w-6 h-6" style={{ color: '#10b981' }} />
-                    Analytics
-                </h1>
-                <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                    Performance, conversione e tracciamento del pipeline
-                </p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <BarChart3 className="w-6 h-6" style={{ color: '#10b981' }} />
+                        Analytics
+                        {objectiveFilter !== 'all' && (
+                            <span className="badge text-xs" style={{
+                                background: 'rgba(99, 102, 241, 0.1)',
+                                color: '#6366f1',
+                                border: '1px solid rgba(99, 102, 241, 0.2)',
+                            }}>
+                                {objectiveLabel}
+                            </span>
+                        )}
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
+                        Performance, conversione e tracciamento del pipeline
+                    </p>
+                </div>
+                {objectives.length > 0 && (
+                    <select
+                        className="input !w-[200px] text-xs"
+                        value={objectiveFilter}
+                        onChange={e => setObjectiveFilter(e.target.value)}
+                    >
+                        <option value="all">🎯 Tutti gli obiettivi</option>
+                        {objectives.map(obj => (
+                            <option key={obj} value={obj}>
+                                {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
+                            </option>
+                        ))}
+                    </select>
+                )}
             </div>
 
             {/* KPI Cards */}

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         // Get funnel and its organization
         const { data: funnel, error: funnelError } = await supabaseAdmin
             .from('funnels')
-            .select('id, organization_id, name, status, meta_pixel_id')
+            .select('id, organization_id, name, status, meta_pixel_id, objective')
             .eq('id', funnel_id)
             .single()
 
@@ -117,13 +117,13 @@ export async function POST(req: NextRequest) {
             })
         }
 
-        // Fire Meta CAPI event if pixel configured
         if (funnel.meta_pixel_id && lead) {
             await fireCapiEvent(funnel.organization_id, 'Lead', {
                 email: email || undefined,
                 phone: phone || undefined,
                 fbc: body.fbc || undefined,
                 fbp: body.fbp || undefined,
+                content_category: funnel.objective || 'cliente',
             }, funnel.meta_pixel_id, lead.id)
         }
 
@@ -160,6 +160,9 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                     ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
                     fbc: userData.fbc || undefined,
                     fbp: userData.fbp || undefined,
+                },
+                custom_data: {
+                    content_category: userData.content_category || undefined,
                 },
             }],
         }

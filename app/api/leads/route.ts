@@ -78,18 +78,21 @@ export async function PUT(req: NextRequest) {
             .single()
 
         if (newStage?.fire_capi_event) {
-            // Get lead data for the event
-            const { data: lead } = await supabase
+            // Fire CAPI event asynchronously
+            // Fetch funnel objective for content_category
+            const leadForCapi = await supabase
                 .from('leads')
-                .select('email, phone, value')
+                .select('email, phone, value, funnel_id, funnels!leads_funnel_id_fkey(objective)')
                 .eq('id', id)
                 .single()
 
-            // Fire CAPI event asynchronously
+            const funnelObjective = (leadForCapi.data as any)?.funnels?.objective || 'cliente'
+
             fireCapiEvent(orgId, newStage.fire_capi_event, {
-                email: lead?.email,
-                phone: lead?.phone,
-                value: lead?.value,
+                email: leadForCapi.data?.email,
+                phone: leadForCapi.data?.phone,
+                value: leadForCapi.data?.value,
+                content_category: funnelObjective,
             }, id).catch(err => console.error('CAPI error:', err))
 
             // Log CAPI activity
@@ -168,10 +171,11 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
                 em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
                 ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
             },
-            custom_data: userData.value ? {
-                currency: 'EUR',
-                value: userData.value,
-            } : undefined,
+            custom_data: {
+                content_category: userData.content_category || undefined,
+                currency: userData.value ? 'EUR' : undefined,
+                value: userData.value || undefined,
+            },
         }],
     }
 

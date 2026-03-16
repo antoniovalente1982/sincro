@@ -5,6 +5,7 @@ import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, Exter
 
 interface Funnel {
     id: string; name: string; slug: string; description?: string
+    objective?: string
     status: 'draft' | 'active' | 'paused' | 'archived'
     meta_pixel_id?: string; settings?: any; created_at: string; updated_at: string
     submission_count?: number
@@ -127,6 +128,16 @@ export default function FunnelsPanel({ initialFunnels }: { initialFunnels: Funne
                                 </div>
 
                                 <h3 className="text-sm font-bold text-white mb-1">{funnel.name}</h3>
+                                {funnel.objective && (
+                                    <span className="badge mb-2 inline-flex" style={{
+                                        background: funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                        color: funnel.objective === 'partner' ? '#f59e0b' : '#3b82f6',
+                                        border: `1px solid ${funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                        fontSize: '10px',
+                                    }}>
+                                        {funnel.objective === 'partner' ? '🤝 Partner' : funnel.objective === 'cliente' ? '👤 Cliente' : `🎯 ${funnel.objective}`}
+                                    </span>
+                                )}
                                 {funnel.description && (
                                     <p className="text-xs mb-3 line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{funnel.description}</p>
                                 )}
@@ -205,6 +216,7 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
         name: funnel?.name || '',
         slug: funnel?.slug || '',
         description: funnel?.description || '',
+        objective: funnel?.objective || 'cliente',
         meta_pixel_id: funnel?.meta_pixel_id || '',
         status: funnel?.status || 'draft',
         settings: {
@@ -246,6 +258,16 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
                         <label className="label">Slug (URL)</label>
                         <input className="input" value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="landing-platinum" />
                         <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Pagina pubblica: /f/{form.slug || '...'}</p>
+                    </div>
+                    <div>
+                        <label className="label">Obiettivo campagna</label>
+                        <select className="input" value={form.objective} onChange={e => setForm({ ...form, objective: e.target.value })}>
+                            <option value="cliente">👤 Acquisizione Clienti</option>
+                            <option value="partner">🤝 Acquisizione Partner</option>
+                            <option value="brand">📢 Brand Awareness</option>
+                            <option value="evento">🎟️ Evento / Webinar</option>
+                        </select>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Meta CAPI userà questo come content_category per distinguere le campagne</p>
                     </div>
                     <div>
                         <label className="label">Descrizione</label>
