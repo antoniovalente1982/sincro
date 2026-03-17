@@ -17,12 +17,22 @@ export default async function DashboardPage() {
     const orgName = (member?.organizations as any)?.name || ''
     const userName = user?.user_metadata?.full_name || user?.email || ''
 
-    // Get data
+    // Get default pipeline
+    const { data: defaultPipeline } = await supabase
+        .from('pipelines')
+        .select('id')
+        .eq('organization_id', orgId)
+        .eq('is_default', true)
+        .single()
+
+    // Get data — stages filtered by default pipeline only
     const [leadsRes, funnelsRes, connectionsRes, stagesRes, activitiesRes] = await Promise.all([
         supabase.from('leads').select('id, value, stage_id, created_at, updated_at, funnel_id, utm_source').eq('organization_id', orgId),
         supabase.from('funnels').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'active'),
         supabase.from('connections').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
-        supabase.from('pipeline_stages').select('*').eq('organization_id', orgId).order('sort_order'),
+        defaultPipeline
+            ? supabase.from('pipeline_stages').select('*').eq('organization_id', orgId).eq('pipeline_id', defaultPipeline.id).order('sort_order')
+            : supabase.from('pipeline_stages').select('*').eq('organization_id', orgId).order('sort_order').limit(8),
         supabase.from('lead_activities').select('id, activity_type, notes, created_at, lead_id')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })

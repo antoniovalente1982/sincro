@@ -104,6 +104,39 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
 
+    // Pipeline CRUD state
+    const [showCreatePipeline, setShowCreatePipeline] = useState(false)
+    const [newPipelineName, setNewPipelineName] = useState('')
+    const [newPipelineSource, setNewPipelineSource] = useState('custom')
+    const [newPipelineColor, setNewPipelineColor] = useState('#6366f1')
+    const [pipelineLoading, setPipelineLoading] = useState(false)
+
+    const handleCreatePipeline = async () => {
+        if (!newPipelineName.trim()) return
+        setPipelineLoading(true)
+        try {
+            const res = await fetch('/api/pipelines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newPipelineName, source_type: newPipelineSource, color: newPipelineColor }),
+            })
+            if (res.ok) window.location.reload()
+            else { const err = await res.json(); alert(err.error || 'Errore') }
+        } catch { alert('Errore di rete') }
+        setPipelineLoading(false)
+    }
+
+    const handleDeletePipeline = async (pid: string) => {
+        const p = pipelines.find(pp => pp.id === pid)
+        if (p?.is_default) { alert('Non puoi eliminare la pipeline predefinita'); return }
+        if (!confirm(`Eliminare "${p?.name}"? Gli stage verranno rimossi.`)) return
+        try {
+            const res = await fetch(`/api/pipelines?id=${pid}`, { method: 'DELETE' })
+            if (res.ok) window.location.reload()
+            else { const err = await res.json(); alert(err.error || 'Errore') }
+        } catch { alert('Errore di rete') }
+    }
+
     // Filter stages by active pipeline
     const activeStages = stages.filter(s => s.pipeline_id === activePipelineId)
     const activePipeline = pipelines.find(p => p.id === activePipelineId)
@@ -285,27 +318,72 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </div>
             </div>
 
-            {/* Pipeline Tabs */}
-            {pipelines.length > 1 && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                    {pipelines.map(p => (
-                        <button
-                            key={p.id}
-                            onClick={() => setActivePipelineId(p.id)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
-                            style={{
-                                background: activePipelineId === p.id ? `${p.color}15` : 'transparent',
-                                color: activePipelineId === p.id ? p.color : 'var(--color-surface-500)',
-                                border: `1px solid ${activePipelineId === p.id ? p.color + '30' : 'var(--color-surface-200)'}`,
-                            }}
-                        >
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-                            {p.name}
-                            <span className="text-[10px] opacity-60">
-                                ({p.source_type})
-                            </span>
-                        </button>
-                    ))}
+            {/* Pipeline Tabs with CRUD */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {pipelines.map(p => {
+                    const leadCount = leads.filter(l => l.stage_id && stages.some(s => s.id === l.stage_id && s.pipeline_id === p.id)).length
+                    return (
+                        <div key={p.id} className="flex items-center group/tab">
+                            <button
+                                onClick={() => setActivePipelineId(p.id)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                                style={{
+                                    background: activePipelineId === p.id ? `${p.color}15` : 'transparent',
+                                    color: activePipelineId === p.id ? p.color : 'var(--color-surface-500)',
+                                    border: `1px solid ${activePipelineId === p.id ? p.color + '30' : 'var(--color-surface-200)'}`,
+                                }}
+                            >
+                                <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
+                                {p.name}
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: `${p.color}10`, color: p.color }}>{leadCount}</span>
+                                {!p.is_default && (
+                                    <span onClick={(e) => { e.stopPropagation(); handleDeletePipeline(p.id) }}
+                                        className="opacity-0 group-hover/tab:opacity-100 transition-opacity ml-1 hover:text-red-400 cursor-pointer">
+                                        <X className="w-3 h-3" />
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    )
+                })}
+                <button onClick={() => setShowCreatePipeline(true)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap hover:bg-white/5"
+                    style={{ color: 'var(--color-surface-500)', border: '1px dashed var(--color-surface-300)' }}>
+                    <Plus className="w-3 h-3" /> Nuova
+                </button>
+            </div>
+
+            {/* Create Pipeline Modal */}
+            {showCreatePipeline && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowCreatePipeline(false)}>
+                    <div className="w-full max-w-md glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-5">
+                            <h2 className="text-lg font-bold text-white">Nuova Pipeline</h2>
+                            <button onClick={() => setShowCreatePipeline(false)} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <div><label className="label">Nome *</label>
+                                <input className="input" value={newPipelineName} onChange={e => setNewPipelineName(e.target.value)} placeholder="Es: Google Ads, LinkedIn, Webinar..." /></div>
+                            <div><label className="label">Fonte</label>
+                                <select className="input" value={newPipelineSource} onChange={e => setNewPipelineSource(e.target.value)}>
+                                    <option value="ads">📢 ADS</option><option value="email">📧 Email</option>
+                                    <option value="outreach">📞 Outreach</option><option value="affiliate">🤝 Affiliati</option>
+                                    <option value="organic">🌱 Organico</option><option value="custom">⚙️ Custom</option>
+                                </select></div>
+                            <div><label className="label">Colore</label>
+                                <div className="flex gap-2">
+                                    {['#6366f1','#3b82f6','#22c55e','#f59e0b','#ef4444','#ec4899','#a855f7','#14b8a6'].map(c => (
+                                        <button key={c} onClick={() => setNewPipelineColor(c)} className="w-7 h-7 rounded-lg" style={{ background: c, border: newPipelineColor === c ? '2px solid white' : '2px solid transparent', transform: newPipelineColor === c ? 'scale(1.15)' : 'scale(1)' }} />
+                                    ))}
+                                </div></div>
+                            <div className="flex gap-3 pt-2">
+                                <button onClick={() => setShowCreatePipeline(false)} className="btn-secondary flex-1">Annulla</button>
+                                <button onClick={handleCreatePipeline} className="btn-primary flex-1" disabled={pipelineLoading || !newPipelineName.trim()}>
+                                    {pipelineLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Crea'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
