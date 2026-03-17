@@ -7,6 +7,7 @@ const supabaseAdmin = createClient(
 
 interface GoogleSheetsCredentials {
     spreadsheet_id: string
+    kpi_spreadsheet_id?: string   // Separate KPI spreadsheet
     service_account_key?: string  // JSON string of service account credentials
     api_key?: string              // Simple API key (read-only)
 }
@@ -26,6 +27,7 @@ async function getSheetsCredentials(orgId: string): Promise<GoogleSheetsCredenti
     if (!data?.credentials?.spreadsheet_id) return null
     return {
         spreadsheet_id: data.credentials.spreadsheet_id,
+        kpi_spreadsheet_id: data.credentials.kpi_spreadsheet_id,
         service_account_key: data.credentials.service_account_key,
         api_key: data.credentials.api_key,
     }
@@ -100,6 +102,7 @@ export async function appendLeadToSheet(orgId: string, leadData: {
     utm_source: string
     utm_campaign: string
     created_at: string
+    landing_url?: string
 }): Promise<boolean> {
     const creds = await getSheetsCredentials(orgId)
     if (!creds) return false
@@ -114,18 +117,35 @@ export async function appendLeadToSheet(orgId: string, leadData: {
     if (!token) return false
 
     try {
+        // Build origin string like: landing.metodosincro.com (utm_source=facebook | utm_campaign=...)
+        const originParts: string[] = []
+        if (leadData.landing_url) originParts.push(leadData.landing_url)
+        else originParts.push('AdPilotik')
+        
+        const utmParts: string[] = []
+        if (leadData.utm_source) utmParts.push(`utm_source=${leadData.utm_source}`)
+        if (leadData.utm_campaign) utmParts.push(`utm_campaign=${leadData.utm_campaign}`)
+        
+        const origin = utmParts.length > 0 
+            ? `${originParts[0]} (${utmParts.join(' | ')})`
+            : originParts[0]
+
+        // Format date as DD/MM/YYYY
+        const date = new Date(leadData.created_at)
+        const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
+
+        // Columns: data | NOME | NUMERO DI TELEFONO | MAIL | ORIGINE
         const values = [[
-            leadData.created_at,
+            formattedDate,
             leadData.name,
-            leadData.email,
             leadData.phone,
-            leadData.funnel,
-            leadData.utm_source,
-            leadData.utm_campaign,
+            leadData.email,
+            origin,
         ]]
 
+        const sheetTab = encodeURIComponent('Leads (social)')
         const res = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/Sheet1!A:G:append?valueInputOption=USER_ENTERED`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/${sheetTab}!A:E:append?valueInputOption=USER_ENTERED`,
             {
                 method: 'POST',
                 headers: {
@@ -153,6 +173,76 @@ export async function appendLeadToSheet(orgId: string, leadData: {
     } catch (err) {
         console.error('Google Sheets error:', err)
         return false
+    }
+}
+
+/**
+ * Read KPI data from the KPI spreadsheet (monthly tabs)
+ */
+export async function readKPIData(orgId: string, month?: string): Promise<any[] | null> {
+    const creds = await getSheetsCredentials(orgId)
+    if (!creds || !creds.kpi_spreadsheet_id || !creds.service_account_key) return null
+
+    const token = await getServiceAccountToken(creds.service_account_key)
+    if (!token) return null
+
+    try {
+        // Default to current month in Italian
+        const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+            'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
+        const now = new Date()
+        const sheetName = month || `${months[now.getMonth()]} ${now.getFullYear()}`
+        const sheetTab = encodeURIComponent(sheetName)
+
+        const res = await fetch(
+            `https://sheets.googleapis.com/v4/spreadsheets/${creds.kpi_spreadsheet_id}/values/${sheetTab}?majorDimension=ROWS`,
+            {
+                headers: { 'Authorization': `Bearer ${token}` },
+            }
+        )
+
+        if (!res.ok) {
+            console.error('KPI read error:', await res.text())
+            return null
+        }
+
+        const data = await res.json()
+        return data.values || []
+    } catch (err) {
+        console.error('KPI read error:', err)
+        return null
+    }
+}
+
+/**
+ * Read appointments data from the leads spreadsheet
+ */
+export async function readAppointments(orgId: string): Promise<any[] | null> {
+    const creds = await getSheetsCredentials(orgId)
+    if (!creds || !creds.service_account_key) return null
+
+    const token = await getServiceAccountToken(creds.service_account_key)
+    if (!token) return null
+
+    try {
+        const sheetTab = encodeURIComponent('Appuntamenti Totali Calendly')
+        const res = await fetch(
+            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/${sheetTab}?majorDimension=ROWS`,
+            {
+                headers: { 'Authorization': `Bearer ${token}` },
+            }
+        )
+
+        if (!res.ok) {
+            console.error('Appointments read error:', await res.text())
+            return null
+        }
+
+        const data = await res.json()
+        return data.values || []
+    } catch (err) {
+        console.error('Appointments read error:', err)
+        return null
     }
 }
 

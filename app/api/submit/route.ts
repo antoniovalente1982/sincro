@@ -150,6 +150,7 @@ export async function POST(req: NextRequest) {
                 utm_source: utm_source || '',
                 utm_campaign: utm_campaign || '',
                 created_at: new Date().toISOString(),
+                landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
             }).catch(() => {})
         }
 
