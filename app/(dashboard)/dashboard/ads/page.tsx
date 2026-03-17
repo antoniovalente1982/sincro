@@ -15,10 +15,10 @@ export default async function AdsPage() {
 
     const [campaignsRes, rulesRes, connectionRes, recsRes] = await Promise.all([
         supabase
-            .from('campaigns_cache')
+            .from('campaigns')
             .select('*')
             .eq('organization_id', orgId)
-            .order('synced_at', { ascending: false }),
+            .order('spend', { ascending: false }),
         supabase
             .from('automated_rules')
             .select('*')
