@@ -1,7 +1,7 @@
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 
-// "Brian" — Deep, Resonant and Comforting male voice
-const DEFAULT_VOICE_ID = 'nPczCjzI2devNBz1zQrb'
+// "Ricasco" — Warm, friendly Italian voice with clear engaging tone
+const DEFAULT_VOICE_ID = 'G1QO6RfZl0zS1DpKDReq'
 const MODEL_ID = 'eleven_multilingual_v2'
 
 /**
@@ -42,7 +42,7 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                     similarity_boost: 0.8,
                     style: 0.2,
                     use_speaker_boost: true,
-                    speed: 1.15,
+                    speed: 1.2,
                 },
             }),
         })

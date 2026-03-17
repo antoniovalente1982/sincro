@@ -13,7 +13,7 @@ export default function DanteChat() {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<Message[]>([{
         role: 'assistant',
-        content: 'Ciao! Sono **Dante**, il tuo AI Engine. Ho accesso a tutti i dati: campagne Meta, KPI aziendali, lead e appuntamenti.\n\nChiedimi qualsiasi cosa — come stanno le ADS, come ottimizzare il budget, analisi dei risultati.',
+        content: 'Ciao Anto! 🧠 Sono **Dante**, il tuo AI Engine. Ho accesso a tutti i dati: campagne ADS, KPI aziendali, lead e appuntamenti.\n\nChiedimi quello che vuoi — analisi, consigli, strategie. Sono qui per te!',
         timestamp: new Date(),
     }])
     const [input, setInput] = useState('')
