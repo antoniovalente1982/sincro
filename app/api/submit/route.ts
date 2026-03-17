@@ -76,14 +76,38 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: subError.message }, { status: 500 })
         }
 
-        // Get first pipeline stage (sort_order = 0) to assign to the lead
-        const { data: firstStage } = await supabaseAdmin
-            .from('pipeline_stages')
+        // Get first stage of the DEFAULT pipeline to assign to the lead
+        const { data: defaultPipeline } = await supabaseAdmin
+            .from('pipelines')
             .select('id')
             .eq('organization_id', funnel.organization_id)
-            .order('sort_order', { ascending: true })
-            .limit(1)
+            .eq('is_default', true)
             .single()
+
+        let firstStageId: string | null = null
+        if (defaultPipeline) {
+            const { data: firstStage } = await supabaseAdmin
+                .from('pipeline_stages')
+                .select('id')
+                .eq('organization_id', funnel.organization_id)
+                .eq('pipeline_id', defaultPipeline.id)
+                .order('sort_order', { ascending: true })
+                .limit(1)
+                .single()
+            firstStageId = firstStage?.id || null
+        }
+
+        if (!firstStageId) {
+            // Fallback: get any first stage
+            const { data: fallbackStage } = await supabaseAdmin
+                .from('pipeline_stages')
+                .select('id')
+                .eq('organization_id', funnel.organization_id)
+                .order('sort_order', { ascending: true })
+                .limit(1)
+                .single()
+            firstStageId = fallbackStage?.id || null
+        }
 
         // Create lead automatically
         const { data: lead, error: leadError } = await supabaseAdmin
@@ -92,7 +116,7 @@ export async function POST(req: NextRequest) {
                 organization_id: funnel.organization_id,
                 funnel_id,
                 submission_id: submission.id,
-                stage_id: firstStage?.id || null,
+                stage_id: firstStageId,
                 name,
                 email: email || null,
                 phone: phone || null,
@@ -109,12 +133,12 @@ export async function POST(req: NextRequest) {
         }
 
         // Log activity
-        if (lead && firstStage) {
+        if (lead && firstStageId) {
             await supabaseAdmin.from('lead_activities').insert({
                 organization_id: funnel.organization_id,
                 lead_id: lead.id,
                 activity_type: 'stage_changed',
-                to_stage_id: firstStage.id,
+                to_stage_id: firstStageId,
                 notes: `Lead catturato dal funnel "${funnel.name}"`,
             })
         }
