@@ -67,8 +67,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ ok: true })
         }
 
-        // Free-form text question → AI response (text + voice)
-        await handleAIQuestion(text, orgId, botToken, chatId, firstName, false)
+        // Check if text requests voice response
+        const wantsVoice = detectVoiceRequest(text)
+
+        // Free-form text question → response mode based on request
+        await handleAIQuestion(text, orgId, botToken, chatId, firstName, wantsVoice ? 'voice' : 'text')
 
         return NextResponse.json({ ok: true })
     } catch (err) {
@@ -80,6 +83,25 @@ export async function POST(req: NextRequest) {
 // Also handle GET for webhook verification
 export async function GET() {
     return NextResponse.json({ status: 'Telegram webhook active' })
+}
+
+// --- Response Mode Detection ---
+
+// Keywords that force text response (even from voice)
+const TEXT_KEYWORDS = ['scrivi', 'scritta', 'scritto', 'scrivimi', 'testo', 'testuale', 'rispondi per scritto', 'risposta scritta']
+// Keywords that force voice response (even from text)
+const VOICE_KEYWORDS = ['vocale', 'voce', 'parlami', 'dimmi a voce', 'rispondi a voce', 'rispondi vocale', 'audio', 'parla']
+
+type ResponseMode = 'text' | 'voice'
+
+function detectTextRequest(text: string): boolean {
+    const lower = text.toLowerCase()
+    return TEXT_KEYWORDS.some(kw => lower.includes(kw))
+}
+
+function detectVoiceRequest(text: string): boolean {
+    const lower = text.toLowerCase()
+    return VOICE_KEYWORDS.some(kw => lower.includes(kw))
 }
 
 // --- Voice Message Handler ---
@@ -118,11 +140,13 @@ async function handleVoiceMessage(message: any, orgId: string, botToken: string,
             return
         }
 
-        // Send the transcription back as confirmation
-        await sendTelegramDirect(botToken, chatId, `🎙️ <i>Ho capito: "${transcribedText}"</i>`)
+        // Step 4: Detect response mode
+        // Default for voice = voice response, unless user explicitly asks for text
+        const wantsText = detectTextRequest(transcribedText)
+        const mode: ResponseMode = wantsText ? 'text' : 'voice'
 
-        // Step 4: Process as AI question and respond with voice
-        await handleAIQuestion(transcribedText, orgId, botToken, chatId, firstName, true)
+        // Step 5: Process as AI question with the right mode
+        await handleAIQuestion(transcribedText, orgId, botToken, chatId, firstName, mode)
 
     } catch (err) {
         console.error('Voice message handling error:', err)
@@ -284,11 +308,11 @@ async function handlePipelineCommand(orgId: string, botToken: string, chatId: st
     await sendTelegramDirect(botToken, chatId, msg)
 }
 
-// --- AI Handler (text + optional voice response) ---
+// --- AI Handler (smart response mode) ---
 
-async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string, respondWithVoice: boolean) {
-    // Send "typing" or "recording" indicator
-    const action = respondWithVoice ? 'record_voice' : 'typing'
+async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string, mode: ResponseMode) {
+    // Send appropriate indicator
+    const action = mode === 'voice' ? 'record_voice' : 'typing'
     await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -301,13 +325,8 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
     // Ask AI
     const response = await askAI(question, ctx)
 
-    // Always send text response
-    const header = response.success ? '🤖' : '⚠️'
-    await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
-
-    // If voice requested, also send voice note
-    if (respondWithVoice && response.success) {
-        // Update action to "uploading voice"
+    if (mode === 'voice' && response.success) {
+        // VOICE MODE: send only voice note
         await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -317,6 +336,13 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
         const audioBuffer = await textToSpeech(response.text)
         if (audioBuffer) {
             await sendVoiceNote(botToken, chatId, audioBuffer)
+        } else {
+            // Fallback to text if TTS fails
+            await sendTelegramDirect(botToken, chatId, `🤖 ${response.text}`)
         }
+    } else {
+        // TEXT MODE: send only text
+        const header = response.success ? '🤖' : '⚠️'
+        await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
     }
 }
