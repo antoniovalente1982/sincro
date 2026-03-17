@@ -1,5 +1,5 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const MODEL = 'google/gemini-2.5-flash-preview'
+const MODEL = 'google/gemini-2.5-flash'
 
 const SYSTEM_PROMPT = `Sei l'assistente AI di Metodo Sincro, una piattaforma di gestione campagne pubblicitarie e CRM.
 Rispondi SEMPRE in italiano. Sei un analista marketing esperto.
