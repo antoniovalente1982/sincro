@@ -9,6 +9,7 @@ import {
     LayoutDashboard, Target, Users, BarChart3, Plug, UserCircle,
     LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
+    History,
     type LucideIcon
 } from 'lucide-react'
 import DanteChat from './dashboard/DanteChat'
@@ -25,6 +26,7 @@ const navItems: NavItem[] = [
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
     { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
     { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
+    { label: 'Operazioni', href: '/dashboard/operations', icon: History },
     { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { label: 'Team', href: '/dashboard/team', icon: UserCircle },
     { label: 'Connessioni', href: '/dashboard/connections', icon: Plug },
