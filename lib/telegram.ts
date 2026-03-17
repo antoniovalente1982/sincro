@@ -93,7 +93,13 @@ export async function sendTelegramDirect(
  * Get organization data context for AI analysis
  */
 export async function getOrgDataContext(orgId: string) {
-    const [leadsRes, campaignsRes, stagesRes, submissionsRes] = await Promise.all([
+    const now = new Date()
+    const todayStr = now.toISOString().split('T')[0]
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    const [leadsRes, campaignsRes, stagesRes, submissionsRes, pipelinesRes, operationsRes, paymentsRes] = await Promise.all([
         supabaseAdmin
             .from('leads')
             .select('id, name, email, phone, stage_id, value, product, utm_source, utm_campaign, created_at, source_channel, dna_priority')
@@ -106,7 +112,7 @@ export async function getOrgDataContext(orgId: string) {
             .eq('organization_id', orgId),
         supabaseAdmin
             .from('pipeline_stages')
-            .select('id, name, slug, sort_order, is_won, is_lost')
+            .select('id, name, slug, sort_order, is_won, is_lost, pipeline_id')
             .eq('organization_id', orgId)
             .order('sort_order', { ascending: true }),
         supabaseAdmin
@@ -115,47 +121,100 @@ export async function getOrgDataContext(orgId: string) {
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(100),
+        supabaseAdmin
+            .from('pipelines')
+            .select('id, name, source_type')
+            .eq('organization_id', orgId)
+            .order('sort_order'),
+        supabaseAdmin
+            .from('ai_episodes')
+            .select('action_type, target_name, reasoning, outcome, created_at')
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false })
+            .limit(10),
+        // Try to get revenue/payment data
+        supabaseAdmin
+            .from('revenue_attribution')
+            .select('amount, currency, attribution_date, source')
+            .eq('organization_id', orgId)
+            .order('attribution_date', { ascending: false })
+            .limit(30),
     ])
 
     const leads = leadsRes.data || []
     const campaigns = campaignsRes.data || []
     const stages = stagesRes.data || []
     const submissions = submissionsRes.data || []
+    const pipelines = pipelinesRes.data || []
+    const operations = operationsRes.data || []
+    const payments = paymentsRes.data || []
 
-    // Build stage map for lead enrichment
-    const stageMap = new Map(stages.map(s => [s.id, s.name]))
+    // Build stage map
+    const stageMap = new Map(stages.map(s => [s.id, s]))
 
-    // Calculate quick stats
-    const today = new Date().toISOString().split('T')[0]
-    const leadsToday = leads.filter(l => l.created_at?.startsWith(today)).length
-    const leadsThisWeek = leads.filter(l => {
-        const d = new Date(l.created_at)
-        const now = new Date()
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-        return d >= weekAgo
-    }).length
+    // TIME-BASED stats
+    const leadsToday = leads.filter(l => l.created_at?.startsWith(todayStr)).length
+    const leadsYesterday = leads.filter(l => l.created_at?.startsWith(yesterdayStr)).length
+    const leadsThisWeek = leads.filter(l => new Date(l.created_at) >= weekAgo).length
 
+    // REVENUE stats
+    const wonStages = stages.filter(s => s.is_won).map(s => s.id)
+    const wonLeads = leads.filter(l => l.stage_id && wonStages.includes(l.stage_id))
+    const totalRevenue = wonLeads.reduce((s, l) => s + (l.value || 0), 0)
+    const revenueToday = wonLeads.filter(l => l.created_at?.startsWith(todayStr)).reduce((s, l) => s + (l.value || 0), 0)
+    const revenueYesterday = wonLeads.filter(l => l.created_at?.startsWith(yesterdayStr)).reduce((s, l) => s + (l.value || 0), 0)
+    const pipelineValue = leads.filter(l => l.value && l.stage_id && !wonStages.includes(l.stage_id)).reduce((s, l) => s + (l.value || 0), 0)
+
+    // Attribution revenue
+    const attrRevenueToday = payments.filter(p => p.attribution_date?.startsWith(todayStr)).reduce((s, p) => s + (Number(p.amount) || 0), 0)
+    const attrRevenueYesterday = payments.filter(p => p.attribution_date?.startsWith(yesterdayStr)).reduce((s, p) => s + (Number(p.amount) || 0), 0)
+    const attrRevenueTotal = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0)
+
+    // Campaign stats
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
-    const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
-    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
+    const totalCampaignLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
+    const avgCPL = totalCampaignLeads > 0 ? totalSpend / totalCampaignLeads : 0
     const activeCampaigns = campaigns.filter(c => c.status === 'ACTIVE')
 
-    // Stage distribution
+    // Pipeline-grouped stage distribution
+    const pipelineMap = new Map(pipelines.map(p => [p.id, p.name]))
     const stageDist = stages.map(s => ({
         name: s.name,
+        pipeline: pipelineMap.get(s.pipeline_id || '') || 'Sconosciuta',
         count: leads.filter(l => l.stage_id === s.id).length,
+        is_won: s.is_won || false,
+        is_lost: s.is_lost || false,
     })).filter(s => s.count > 0)
 
     return {
+        current_datetime: {
+            now: now.toISOString(),
+            date: todayStr,
+            time: now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+            day_of_week: now.toLocaleDateString('it-IT', { weekday: 'long' }),
+            yesterday: yesterdayStr,
+            note: 'ATTENZIONE: usa queste date per rispondere a domande temporali. "Oggi" = ' + todayStr + ', "Ieri" = ' + yesterdayStr,
+        },
         summary: {
             total_leads: leads.length,
             leads_today: leadsToday,
+            leads_yesterday: leadsYesterday,
             leads_this_week: leadsThisWeek,
             total_submissions: submissions.length,
             total_campaigns: campaigns.length,
             active_campaigns: activeCampaigns.length,
             total_spend: totalSpend.toFixed(2),
             avg_cpl: avgCPL.toFixed(2),
+        },
+        revenue: {
+            total_revenue_from_won_leads: totalRevenue,
+            revenue_today: revenueToday,
+            revenue_yesterday: revenueYesterday,
+            pipeline_value: pipelineValue,
+            attribution_revenue_total: attrRevenueTotal,
+            attribution_revenue_today: attrRevenueToday,
+            attribution_revenue_yesterday: attrRevenueYesterday,
+            note: 'Il fatturato si calcola dai lead in stage "Vendita" (is_won=true). Se il valore e 0, non ci sono vendite registrate.',
         },
         stage_distribution: stageDist,
         campaigns: campaigns.map(c => ({
@@ -167,12 +226,22 @@ export async function getOrgDataContext(orgId: string) {
             ctr: c.ctr,
             roas: c.roas,
         })),
-        recent_leads: leads.slice(0, 10).map(l => ({
-            name: l.name,
-            stage: stageMap.get(l.stage_id) || 'Unknown',
-            source: l.utm_source || l.source_channel || 'Direct',
-            value: l.value,
-            created: l.created_at,
+        recent_leads: leads.slice(0, 10).map(l => {
+            const stage = stageMap.get(l.stage_id)
+            return {
+                name: l.name,
+                stage: stage?.name || 'Non assegnato',
+                source: l.utm_source || l.source_channel || 'Diretto',
+                value: l.value,
+                created: l.created_at,
+            }
+        }),
+        recent_operations: operations.map(o => ({
+            type: o.action_type,
+            action: o.target_name,
+            reasoning: o.reasoning,
+            outcome: o.outcome,
+            date: o.created_at,
         })),
     }
 }
