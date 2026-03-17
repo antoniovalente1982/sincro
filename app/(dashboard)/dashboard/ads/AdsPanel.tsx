@@ -1,8 +1,10 @@
 'use client'
 
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, Flame } from 'lucide-react'
+import { useState } from 'react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, Flame, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
+import { createClient } from '@/lib/supabase/client'
 
 interface Campaign {
     id: string
@@ -59,6 +61,31 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
     const campaigns = filterByDateRange(allCampaigns, range, 'synced_at' as any)
+    const [syncing, setSyncing] = useState(false)
+    const [lastSync, setLastSync] = useState<string | null>(null)
+
+    const handleSync = async () => {
+        setSyncing(true)
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            const res = await fetch('/api/meta/sync', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            })
+            const data = await res.json()
+            if (data.success) {
+                setLastSync(new Date().toLocaleTimeString('it-IT'))
+                window.location.reload()
+            } else {
+                alert('Sync error: ' + (data.error || 'Unknown'))
+            }
+        } catch (e: any) {
+            alert('Sync failed: ' + e.message)
+        } finally {
+            setSyncing(false)
+        }
+    }
 
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
@@ -115,9 +142,18 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
                         Campagne Meta Ads, performance e regole automatiche
                     </p>
                 </div>
-                <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
-                    customFrom={customFrom} customTo={customTo}
-                    onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                <div className="flex items-center gap-3">
+                    <button onClick={handleSync} disabled={syncing}
+                        className="badge badge-info flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                        style={{ padding: '6px 14px', fontSize: '12px' }}>
+                        <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                        {syncing ? 'Sincronizzando...' : '🔄 Sync Now'}
+                    </button>
+                    {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
+                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                        customFrom={customFrom} customTo={customTo}
+                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                </div>
             </div>
 
             {/* Connection Status */}

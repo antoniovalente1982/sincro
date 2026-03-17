@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
 async function buildContext(orgId: string): Promise<string> {
     const parts: string[] = []
 
-    // 1. Campaigns from Meta
+    // 1. Campaigns from Meta (live data + status)
     try {
         const { data: conn } = await supabaseAdmin
             .from('connections')
@@ -141,7 +141,24 @@ async function buildContext(orgId: string): Promise<string> {
 
         if (conn?.credentials?.access_token) {
             const token = conn.credentials.access_token
-            const adAccount = 'act_511099830249139'
+            const adAccount = `act_${conn.credentials.ad_account_id || '511099830249139'}`
+
+            // Get campaigns with status
+            const campaignsRes = await fetch(
+                `https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget,objective&limit=20&access_token=${token}`
+            )
+            let campaignStatuses: Record<string, string> = {}
+            if (campaignsRes.ok) {
+                const cData = await campaignsRes.json()
+                const activeCampaigns = (cData.data || []).map((c: any) => ({
+                    nome: c.name,
+                    status: c.status,
+                    budget_giornaliero: c.daily_budget ? `€${(parseInt(c.daily_budget) / 100).toFixed(0)}` : 'N/A',
+                    obiettivo: c.objective,
+                }))
+                parts.push(`CAMPAGNE META (stato attuale):\n${JSON.stringify(activeCampaigns, null, 2)}`)
+                cData.data?.forEach((c: any) => { campaignStatuses[c.name] = c.status })
+            }
 
             // Get campaign insights
             const insightsRes = await fetch(
@@ -155,6 +172,7 @@ async function buildContext(orgId: string): Promise<string> {
                     const cpl = c.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
                     return {
                         nome: c.campaign_name,
+                        status: campaignStatuses[c.campaign_name] || 'UNKNOWN',
                         spesa: `€${parseFloat(c.spend).toFixed(2)}`,
                         impressioni: c.impressions,
                         click: c.clicks,
@@ -163,7 +181,7 @@ async function buildContext(orgId: string): Promise<string> {
                         cpl: cpl ? `€${parseFloat(cpl).toFixed(2)}` : 'N/A',
                     }
                 })
-                parts.push(`CAMPAGNE META ADS (ultimi 14 giorni):\n${JSON.stringify(campaigns, null, 2)}`)
+                parts.push(`PERFORMANCE CAMPAGNE (ultimi 14 giorni):\n${JSON.stringify(campaigns, null, 2)}`)
             }
         }
     } catch (e) {
@@ -213,10 +231,14 @@ async function buildContext(orgId: string): Promise<string> {
 
     // 5. Budget info
     parts.push(`INFORMAZIONI BUDGET:
-- Budget giornaliero massimo: €250
+- Budget giornaliero totale: €300
 - Obiettivo CPL: €15-20
 - Obiettivo CTR: >2.5%
-- Prodotto medio: €2.250-3.000 + IVA`)
+- Prodotto Platinum: €2.250 + IVA (3 mesi)
+- Prodotto Impact: €3.000 + IVA (2+2 mesi)
+- Campagne attive: MS - Lead Immagini - Dolore, MS - Lead Immagini - Trasformazione
+- Data lancio: 17 Marzo 2026
+- Targeting: Genitori 30-55, Italia, interessi calcio/coaching, NO Advantage+`)
 
     return parts.join('\n\n---\n\n')
 }
