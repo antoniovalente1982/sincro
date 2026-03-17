@@ -1,8 +1,7 @@
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 
-// Italian voice — "Antonio" multilingual voice (warm, expressive)
-// Falls back to a default multilingual voice if not found
-const DEFAULT_VOICE_ID = 'ErXwobaYiN019PkySvjV' // "Antoni" — warm male voice
+// "Brian" — Deep, Resonant and Comforting male voice
+const DEFAULT_VOICE_ID = 'nPczCjzI2devNBz1zQrb'
 const MODEL_ID = 'eleven_multilingual_v2'
 
 /**
@@ -39,10 +38,11 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                 text: cleanText,
                 model_id: MODEL_ID,
                 voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.75,
-                    style: 0.3,
+                    stability: 0.65,
+                    similarity_boost: 0.8,
+                    style: 0.2,
                     use_speaker_boost: true,
+                    speed: 1.15,
                 },
             }),
         })
