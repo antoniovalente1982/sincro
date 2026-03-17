@@ -2,6 +2,7 @@
 
 import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, Flame } from 'lucide-react'
 import Link from 'next/link'
+import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Campaign {
     id: string
@@ -53,9 +54,11 @@ interface Props {
     recommendations: Recommendation[]
 }
 
-export default function AdsPanel({ campaigns, rules, connections, recommendations }: Props) {
+export default function AdsPanel({ campaigns: allCampaigns, rules, connections, recommendations }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const campaigns = filterByDateRange(allCampaigns, range, 'synced_at' as any)
 
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
@@ -102,14 +105,19 @@ export default function AdsPanel({ campaigns, rules, connections, recommendation
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <Megaphone className="w-6 h-6" style={{ color: '#f59e0b' }} />
-                    Ads
-                </h1>
-                <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                    Campagne Meta Ads, performance e regole automatiche
-                </p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <Megaphone className="w-6 h-6" style={{ color: '#f59e0b' }} />
+                        Ads
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
+                        Campagne Meta Ads, performance e regole automatiche
+                    </p>
+                </div>
+                <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                    customFrom={customFrom} customTo={customTo}
+                    onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
             </div>
 
             {/* Connection Status */}

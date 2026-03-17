@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search, Filter } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from 'recharts'
+import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean
@@ -29,11 +30,13 @@ interface Props {
 
 export default function AnalyticsDashboard({ stages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives }: Props) {
     const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
 
-    // Filter leads by objective
-    const leads = objectiveFilter === 'all'
+    // Filter leads by objective AND date
+    const leadsByObjective = objectiveFilter === 'all'
         ? allLeads
         : allLeads.filter(l => (l.funnels?.objective || '') === objectiveFilter)
+    const leads = filterByDateRange(leadsByObjective, range, 'created_at')
 
     const objectiveLabel = objectiveFilter === 'all' ? 'Tutti' :
         objectiveFilter === 'cliente' ? 'Clienti' :
@@ -136,20 +139,25 @@ export default function AnalyticsDashboard({ stages, leads: allLeads, activities
                         Performance, conversione e tracciamento del pipeline
                     </p>
                 </div>
-                {objectives.length > 0 && (
-                    <select
-                        className="input !w-[200px] text-xs"
-                        value={objectiveFilter}
-                        onChange={e => setObjectiveFilter(e.target.value)}
-                    >
-                        <option value="all">🎯 Tutti gli obiettivi</option>
-                        {objectives.map(obj => (
-                            <option key={obj} value={obj}>
-                                {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
-                            </option>
-                        ))}
-                    </select>
-                )}
+                <div className="flex items-center gap-3 flex-wrap">
+                    {objectives.length > 0 && (
+                        <select
+                            className="input !w-[180px] text-xs"
+                            value={objectiveFilter}
+                            onChange={e => setObjectiveFilter(e.target.value)}
+                        >
+                            <option value="all">🎯 Tutti gli obiettivi</option>
+                            {objectives.map(obj => (
+                                <option key={obj} value={obj}>
+                                    {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                        customFrom={customFrom} customTo={customTo}
+                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                </div>
             </div>
 
             {/* KPI Cards */}

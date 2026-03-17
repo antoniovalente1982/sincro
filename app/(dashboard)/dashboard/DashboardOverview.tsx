@@ -2,6 +2,7 @@
 
 import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Lead {
     id: string; value?: number; stage_id?: string; created_at: string; updated_at: string
@@ -21,10 +22,12 @@ interface Props {
     recentActivities: any[]
 }
 
-export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads, recentActivities }: Props) {
+export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads: allLeads, recentActivities }: Props) {
     const firstName = userName.split(' ')[0]
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const leads = filterByDateRange(allLeads, range, 'created_at')
 
     const getRelativeTime = (dateStr: string) => {
         const diffMs = Date.now() - new Date(dateStr).getTime()
@@ -124,7 +127,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     }
 
     const kpis = [
-        { label: 'Lead totali', value: leadCount, icon: Users, color: '#3b82f6', href: '/dashboard/crm' },
+        { label: 'Lead totali', value: leads.length, icon: Users, color: '#3b82f6', href: '/dashboard/crm' },
         { label: 'Conversion Rate', value: `${conversionRate}%`, icon: TrendingUp, color: '#22c55e', href: '/dashboard/analytics' },
         { label: 'Valore Pipeline', value: `€${pipelineValue.toLocaleString('it-IT')}`, icon: DollarSign, color: '#f59e0b', href: '/dashboard/crm' },
         { label: 'Funnel attivi', value: funnelCount, icon: Target, color: '#8b5cf6', href: '/dashboard/funnels' },
@@ -133,13 +136,18 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     return (
         <div className="space-y-6 animate-fade-in">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-white">
-                    {greeting}, {firstName} 👋
-                </h1>
-                <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                    Ecco cosa succede su <span className="font-semibold" style={{ color: 'var(--color-sincro-400)' }}>{orgName}</span>
-                </p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">
+                        {greeting}, {firstName} 👋
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
+                        Ecco cosa succede su <span className="font-semibold" style={{ color: 'var(--color-sincro-400)' }}>{orgName}</span>
+                    </p>
+                </div>
+                <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                    customFrom={customFrom} customTo={customTo}
+                    onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
             </div>
 
             {/* KPI Cards */}

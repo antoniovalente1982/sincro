@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
+import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Stage {
     id: string
@@ -104,6 +105,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
 
+    // Date range filter
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+
     // Pipeline CRUD state
     const [showCreatePipeline, setShowCreatePipeline] = useState(false)
     const [newPipelineName, setNewPipelineName] = useState('')
@@ -148,7 +152,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
-        return matchSearch && matchObjective && matchPipeline
+        const matchDate = range.key === 'all' || (() => {
+            const d = new Date(l.created_at)
+            return d >= range.from && d < range.to
+        })()
+        return matchSearch && matchObjective && matchPipeline && matchDate
     })
 
     // Sort leads by AI score (highest first) within each stage
@@ -302,6 +310,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             ))}
                         </select>
                     )}
+                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                        customFrom={customFrom} customTo={customTo}
+                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
                     <div className="relative">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-surface-500)' }} />
                         <input
