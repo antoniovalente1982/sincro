@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, AlertTriangle, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, Flame, RefreshCw } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -22,6 +22,8 @@ interface Campaign {
     conversions?: number
     roas?: number
     synced_at?: string
+    date_range_start?: string
+    date_range_end?: string
 }
 
 interface Rule {
@@ -56,13 +58,62 @@ interface Props {
     recommendations: Recommendation[]
 }
 
+type SortKey = 'status' | 'spend' | 'impressions' | 'clicks' | 'ctr' | 'leads_count' | 'cpl' | 'roas'
+type SortDir = 'asc' | 'desc'
+
 export default function AdsPanel({ campaigns: allCampaigns, rules, connections, recommendations }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
-    const campaigns = filterByDateRange(allCampaigns, range, 'synced_at' as any)
     const [syncing, setSyncing] = useState(false)
     const [lastSync, setLastSync] = useState<string | null>(null)
+    const [sortKey, setSortKey] = useState<SortKey>('status')
+    const [sortDir, setSortDir] = useState<SortDir>('desc')
+
+    // Filter campaigns by date range using date_range_start (actual Meta data period)
+    const campaigns = useMemo(() => {
+        // Only filter by date_range_start if a specific range is selected (not 'all')
+        if (activeKey === 'all') return allCampaigns
+        return filterByDateRange(allCampaigns, range, 'date_range_start' as any)
+    }, [allCampaigns, range, activeKey])
+
+    // Sort campaigns: ACTIVE first, then by selected sort key
+    const sortedCampaigns = useMemo(() => {
+        return [...campaigns].sort((a, b) => {
+            // Active campaigns always first
+            const aActive = a.status === 'ACTIVE' ? 1 : 0
+            const bActive = b.status === 'ACTIVE' ? 1 : 0
+            if (aActive !== bActive) return bActive - aActive
+
+            // Among same-status campaigns — those with spend above those without
+            const aHasSpend = (Number(a.spend) || 0) > 0 ? 1 : 0
+            const bHasSpend = (Number(b.spend) || 0) > 0 ? 1 : 0
+            if (aHasSpend !== bHasSpend) return bHasSpend - aHasSpend
+
+            // Then sort by selected column
+            let aVal = 0, bVal = 0
+            switch (sortKey) {
+                case 'spend': aVal = Number(a.spend) || 0; bVal = Number(b.spend) || 0; break
+                case 'impressions': aVal = Number(a.impressions) || 0; bVal = Number(b.impressions) || 0; break
+                case 'clicks': aVal = Number(a.clicks) || 0; bVal = Number(b.clicks) || 0; break
+                case 'ctr': aVal = Number(a.ctr) || 0; bVal = Number(b.ctr) || 0; break
+                case 'leads_count': aVal = Number(a.leads_count) || 0; bVal = Number(b.leads_count) || 0; break
+                case 'cpl': aVal = Number(a.cpl) || 0; bVal = Number(b.cpl) || 0; break
+                case 'roas': aVal = Number(a.roas) || 0; bVal = Number(b.roas) || 0; break
+                default: aVal = Number(a.spend) || 0; bVal = Number(b.spend) || 0; break
+            }
+            return sortDir === 'desc' ? bVal - aVal : aVal - bVal
+        })
+    }, [campaigns, sortKey, sortDir])
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDir(d => d === 'desc' ? 'asc' : 'desc')
+        } else {
+            setSortKey(key)
+            setSortDir('desc')
+        }
+    }
 
     const handleSync = async () => {
         setSyncing(true)
@@ -90,15 +141,35 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
     const totalClicks = campaigns.reduce((s, c) => s + (Number(c.clicks) || 0), 0)
+    const totalImpressions = campaigns.reduce((s, c) => s + (Number(c.impressions) || 0), 0)
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
-    const avgCTR = campaigns.length > 0
-        ? campaigns.reduce((s, c) => s + (Number(c.ctr) || 0), 0) / campaigns.length : 0
+    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
 
     const formatNumber = (v: number) =>
         new Intl.NumberFormat('it-IT').format(v)
+
+    const SortHeader = ({ label, sortField }: { label: string; sortField: SortKey }) => {
+        const isActive = sortKey === sortField
+        return (
+            <th
+                className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold cursor-pointer select-none hover:text-white transition-colors group"
+                style={{ color: isActive ? '#f59e0b' : 'var(--color-surface-500)' }}
+                onClick={() => handleSort(sortField)}
+            >
+                <span className="flex items-center gap-1">
+                    {label}
+                    {isActive ? (
+                        sortDir === 'desc' ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />
+                    ) : (
+                        <ChevronsUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+                    )}
+                </span>
+            </th>
+        )
+    }
 
     // No connections yet
     if (!hasMetaAds && !hasMetaCapi) {
@@ -184,36 +255,56 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
                 ))}
             </div>
 
+            {/* Data period notice */}
+            {campaigns.length > 0 && campaigns[0]?.date_range_start && (
+                <div className="text-[10px] px-3 py-1.5 rounded-lg inline-flex items-center gap-2" style={{ background: 'rgba(245, 158, 11, 0.06)', color: 'var(--color-surface-500)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
+                    ℹ️ Dati Meta: periodo {campaigns[0].date_range_start} → {campaigns[0].date_range_end}
+                    {campaigns[0].synced_at && <span>· Sync: {new Date(campaigns[0].synced_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>}
+                </div>
+            )}
+
             {/* Campaigns */}
             <div className="glass-card overflow-hidden">
-                <div className="p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
-                    <h3 className="text-sm font-bold text-white">Campagne ({campaigns.length})</h3>
+                <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                    <h3 className="text-sm font-bold text-white">Campagne ({sortedCampaigns.length})</h3>
+                    <div className="flex items-center gap-2">
+                        <ArrowUpDown className="w-3 h-3" style={{ color: 'var(--color-surface-500)' }} />
+                        <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                            Clicca sulle colonne per ordinare
+                        </span>
+                    </div>
                 </div>
-                {campaigns.length > 0 ? (
+                {sortedCampaigns.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                                    {['Campagna', 'Status', 'Spesa', 'Impression', 'Click', 'CTR', 'Lead', 'CPL', 'ROAS'].map(h => (
-                                        <th key={h} className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>{h}</th>
-                                    ))}
+                                    <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna</th>
+                                    <SortHeader label="Status" sortField="status" />
+                                    <SortHeader label="Spesa" sortField="spend" />
+                                    <SortHeader label="Impression" sortField="impressions" />
+                                    <SortHeader label="Click" sortField="clicks" />
+                                    <SortHeader label="CTR" sortField="ctr" />
+                                    <SortHeader label="Lead" sortField="leads_count" />
+                                    <SortHeader label="CPL" sortField="cpl" />
+                                    <SortHeader label="ROAS" sortField="roas" />
                                 </tr>
                             </thead>
                             <tbody>
-                                {campaigns.map(c => (
+                                {sortedCampaigns.map(c => (
                                     <tr key={c.id} className="hover:bg-white/[0.02] transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                                        <td className="px-4 py-3 text-sm font-semibold text-white max-w-[200px] truncate">{c.campaign_name || '—'}</td>
+                                        <td className="px-4 py-3 text-sm font-semibold text-white max-w-[250px] truncate">{c.campaign_name || '—'}</td>
                                         <td className="px-4 py-3">
                                             <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
                                                 {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
                                                 {c.status || '—'}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
+                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.clicks ? formatNumber(Number(c.clicks)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#3b82f6' }}>{c.leads_count || '—'}</td>
+                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#22c55e' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
                                     </tr>
