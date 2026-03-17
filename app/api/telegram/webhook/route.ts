@@ -67,6 +67,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ ok: true })
         }
 
+        // Check if it's a scheduling request (e.g., "riepilogo alle 10", "chiamami alle 15:30")
+        const scheduleResult = await tryScheduleReport(text, orgId, botToken, chatId)
+        if (scheduleResult) {
+            return NextResponse.json({ ok: true })
+        }
+
         // Check if text requests voice response
         const wantsVoice = detectVoiceRequest(text)
 
@@ -344,5 +350,79 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
         // TEXT MODE: send only text
         const header = response.success ? '🤖' : '⚠️'
         await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
+    }
+}
+
+// --- Scheduling Handler ---
+
+const SCHEDULE_PATTERNS = [
+    /(?:riepilogo|report|riassunto|chiamami|avvisami|ricordami)\s+(?:alle|alle ore|per le|a le)\s+(\d{1,2})(?::(\d{2}))?/i,
+    /(?:alle|ore)\s+(\d{1,2})(?::(\d{2}))?\s+(?:riepilogo|report|riassunto|chiamami)/i,
+]
+
+async function tryScheduleReport(text: string, orgId: string, botToken: string, chatId: string): Promise<boolean> {
+    const lower = text.toLowerCase()
+
+    // Check if this looks like a scheduling request
+    const isScheduleRequest = lower.includes('riepilogo') || lower.includes('report') ||
+        lower.includes('chiamami') || lower.includes('avvisami') || lower.includes('ricordami')
+
+    if (!isScheduleRequest) return false
+
+    // Try to extract time
+    let hours: number | null = null
+    let minutes = 0
+
+    for (const pattern of SCHEDULE_PATTERNS) {
+        const match = lower.match(pattern)
+        if (match) {
+            hours = parseInt(match[1])
+            minutes = match[2] ? parseInt(match[2]) : 0
+            break
+        }
+    }
+
+    if (hours === null || hours < 0 || hours > 23) return false
+
+    // Detect recurrence
+    const isDaily = lower.includes('ogni giorno') || lower.includes('tutti i giorni') ||
+        lower.includes('quotidiano') || lower.includes('giornaliero') ||
+        lower.includes('sempre')
+
+    // Detect report type
+    let reportType = 'summary'
+    if (lower.includes('ads') || lower.includes('az') || lower.includes('campagn')) reportType = 'ads'
+    else if (lower.includes('lead')) reportType = 'leads'
+    else if (lower.includes('pipeline') || lower.includes('vendita')) reportType = 'pipeline'
+
+    const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+
+    try {
+        // Save to database
+        await supabaseAdmin
+            .from('scheduled_reports')
+            .insert({
+                organization_id: orgId,
+                scheduled_time: timeStr,
+                recurrence: isDaily ? 'daily' : 'once',
+                report_type: reportType,
+                status: 'pending',
+            })
+
+        const timeLabel = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+        const recurrenceLabel = isDaily ? ' ogni giorno' : ''
+        const typeLabel = reportType === 'ads' ? ' sulle ADS' :
+            reportType === 'leads' ? ' sui lead' :
+                reportType === 'pipeline' ? ' sulla pipeline' : ' generale'
+
+        await sendTelegramDirect(botToken, chatId,
+            `✅ <b>Report programmato!</b>\n\n` +
+            `🕐 Dante ti manderà un vocale${typeLabel} alle <b>${timeLabel}</b>${recurrenceLabel}.\n\n` +
+            `<i>Per annullare, scrivi "annulla report"</i>`)
+
+        return true
+    } catch (err) {
+        console.error('Schedule report error:', err)
+        return false
     }
 }
