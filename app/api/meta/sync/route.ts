@@ -139,16 +139,14 @@ async function syncCampaigns(orgId: string, credentials: any) {
         const roas = spendNum > 0 && purchaseValue > 0 ? parseFloat(purchaseValue) / spendNum : 0
 
         const { error } = await supabaseAdmin
-            .from('campaigns')
+            .from('campaigns_cache')
             .upsert({
-                id: `${orgId}_${campaign.id}`,
                 organization_id: orgId,
-                meta_campaign_id: campaign.id,
+                external_campaign_id: campaign.id,
                 campaign_name: campaign.name || '',
                 status: campaign.status || 'UNKNOWN',
                 objective: campaign.objective || null,
                 daily_budget: campaign.daily_budget ? parseFloat(campaign.daily_budget) / 100 : null,
-                lifetime_budget: campaign.lifetime_budget ? parseFloat(campaign.lifetime_budget) / 100 : null,
                 spend: spendNum,
                 impressions: parseInt(insight.impressions || '0'),
                 clicks: parseInt(insight.clicks || '0'),
@@ -156,17 +154,13 @@ async function syncCampaigns(orgId: string, credentials: any) {
                 cpl: parseFloat(cplValue),
                 cpc: parseFloat(insight.cpc || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
-                cpm: parseFloat(insight.cpm || '0'),
-                reach: parseInt(insight.reach || '0'),
-                frequency: parseFloat(insight.frequency || '0'),
                 conversions: parseInt(purchaseCount),
                 roas: roas,
-                date_start: insight.date_start || null,
-                date_stop: insight.date_stop || null,
+                date_range_start: insight.date_start || null,
+                date_range_end: insight.date_stop || null,
                 synced_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
             }, {
-                onConflict: 'organization_id,meta_campaign_id',
+                onConflict: 'external_campaign_id',
             })
 
         if (error) {

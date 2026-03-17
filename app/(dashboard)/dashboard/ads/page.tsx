@@ -15,7 +15,7 @@ export default async function AdsPage() {
 
     const [campaignsRes, rulesRes, connectionRes, recsRes] = await Promise.all([
         supabase
-            .from('campaigns')
+            .from('campaigns_cache')
             .select('*')
             .eq('organization_id', orgId)
             .order('spend', { ascending: false }),
