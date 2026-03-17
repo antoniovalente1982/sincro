@@ -11,6 +11,7 @@ import {
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     type LucideIcon
 } from 'lucide-react'
+import DanteChat from './dashboard/DanteChat'
 
 interface NavItem {
     label: string
@@ -241,6 +242,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {children}
                 </div>
             </main>
+
+            {/* Dante AI Chat Widget */}
+            <DanteChat />
         </div>
     )
 }
