@@ -13,10 +13,15 @@ export default async function CRMPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [stagesRes, leadsRes, membersRes, funnelsRes] = await Promise.all([
+    const [pipelinesRes, stagesRes, leadsRes, membersRes, funnelsRes] = await Promise.all([
+        supabase
+            .from('pipelines')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('sort_order'),
         supabase
             .from('pipeline_stages')
-            .select('*')
+            .select('*, pipelines!pipeline_stages_pipeline_id_fkey(id, name, source_type)')
             .eq('organization_id', orgId)
             .order('sort_order'),
         supabase
@@ -46,6 +51,7 @@ export default async function CRMPage() {
 
     return (
         <CRMBoard
+            pipelines={pipelinesRes.data || []}
             stages={stagesRes.data || []}
             initialLeads={leadsRes.data || []}
             members={members}

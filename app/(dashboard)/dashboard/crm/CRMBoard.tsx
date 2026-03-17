@@ -12,6 +12,17 @@ interface Stage {
     is_won?: boolean
     is_lost?: boolean
     fire_capi_event?: string
+    pipeline_id?: string
+}
+
+interface Pipeline {
+    id: string
+    name: string
+    slug: string
+    source_type: string
+    color: string
+    is_default: boolean
+    sort_order: number
 }
 
 interface Lead {
@@ -38,6 +49,7 @@ interface Member {
 }
 
 interface Props {
+    pipelines: Pipeline[]
     stages: Stage[]
     initialLeads: Lead[]
     members: Member[]
@@ -77,7 +89,9 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ stages, initialLeads, members, userRole, objectives }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives }: Props) {
+    const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
+    const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
     const [dragLead, setDragLead] = useState<string | null>(null)
     const [dragOverStage, setDragOverStage] = useState<string | null>(null)
@@ -90,12 +104,18 @@ export default function CRMBoard({ stages, initialLeads, members, userRole, obje
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
 
+    // Filter stages by active pipeline
+    const activeStages = stages.filter(s => s.pipeline_id === activePipelineId)
+    const activePipeline = pipelines.find(p => p.id === activePipelineId)
+    const activeStageIds = new Set(activeStages.map(s => s.id))
+
     const filteredLeads = leads.filter(l => {
         const matchSearch = l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (l.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
-        return matchSearch && matchObjective
+        const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
+        return matchSearch && matchObjective && matchPipeline
     })
 
     // Sort leads by AI score (highest first) within each stage
@@ -265,9 +285,33 @@ export default function CRMBoard({ stages, initialLeads, members, userRole, obje
                 </div>
             </div>
 
+            {/* Pipeline Tabs */}
+            {pipelines.length > 1 && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {pipelines.map(p => (
+                        <button
+                            key={p.id}
+                            onClick={() => setActivePipelineId(p.id)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                            style={{
+                                background: activePipelineId === p.id ? `${p.color}15` : 'transparent',
+                                color: activePipelineId === p.id ? p.color : 'var(--color-surface-500)',
+                                border: `1px solid ${activePipelineId === p.id ? p.color + '30' : 'var(--color-surface-200)'}`,
+                            }}
+                        >
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
+                            {p.name}
+                            <span className="text-[10px] opacity-60">
+                                ({p.source_type})
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {/* Kanban Board */}
-            <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
-                {stages.map(stage => {
+            <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
+                {activeStages.map(stage => {
                     const stageLeads = getLeadsForStage(stage.id)
                     const isOver = dragOverStage === stage.id
                     return (
