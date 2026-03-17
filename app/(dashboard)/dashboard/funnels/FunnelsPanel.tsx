@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical } from 'lucide-react'
+import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight } from 'lucide-react'
 
 interface Funnel {
     id: string; name: string; slug: string; description?: string
@@ -13,11 +13,12 @@ interface Funnel {
 
 interface PageView {
     id: string; funnel_id?: string; page_path: string; page_variant?: string
+    visitor_id?: string; ip_hash?: string
     utm_source?: string; utm_campaign?: string; utm_content?: string; device_type?: string; created_at: string
 }
 
 interface Submission {
-    id: string; funnel_id?: string; created_at: string; utm_source?: string; utm_campaign?: string
+    id: string; funnel_id?: string; page_variant?: string; created_at: string; utm_source?: string; utm_campaign?: string
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -25,6 +26,16 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
     active: { label: 'Attivo', color: '#22c55e', icon: Play },
     paused: { label: 'In pausa', color: '#f59e0b', icon: Pause },
     archived: { label: 'Archiviato', color: '#ef4444', icon: Archive },
+}
+
+// Helper: count unique visitors from page views by visitor_id (fallback to ip_hash)
+function countUniqueVisitors(views: PageView[]): number {
+    const seen = new Set<string>()
+    views.forEach(v => {
+        const key = v.visitor_id || v.ip_hash || v.id
+        seen.add(key)
+    })
+    return seen.size
 }
 
 export default function FunnelsPanel({ initialFunnels, pageViews = [], submissions = [] }: {
@@ -58,16 +69,36 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         const funnelStats = funnels.map(f => {
             const views = filteredViews.filter(v => v.funnel_id === f.id)
             const subs = filteredSubs.filter(s => s.funnel_id === f.id)
-            const convRate = views.length > 0 ? (subs.length / views.length * 100) : 0
+            const uniqueVisitors = countUniqueVisitors(views)
+            const convRate = uniqueVisitors > 0 ? (subs.length / uniqueVisitors * 100) : 0
 
-            // Per-variant A/B
+            // A/B test settings
+            const abActive = f.settings?.ab_test_active === true
+
+            // Per-variant A/B with proper submission tracking
             const variants = ['A', 'B']
             const variantStats = variants.map(v => {
                 const vViews = views.filter(pv => (pv.page_variant || 'A') === v)
-                const vSubs = subs.length // submissions don't have variant tracking yet, use total
-                const vRate = vViews.length > 0 ? (vSubs / vViews.length * 100) : 0
-                return { variant: v, views: vViews.length, conversions: vSubs, rate: vRate }
-            }).filter(v => v.views > 0)
+                const vSubs = subs.filter(s => (s.page_variant || 'A') === v)
+                const vUniqueVisitors = countUniqueVisitors(vViews)
+                const vRate = vUniqueVisitors > 0 ? (vSubs.length / vUniqueVisitors * 100) : 0
+                return { variant: v, views: vViews.length, uniqueVisitors: vUniqueVisitors, conversions: vSubs.length, rate: vRate }
+            }).filter(v => v.views > 0 || abActive)
+
+            // Determine winner (only if both variants have data)
+            let winner: string | null = null
+            const hasEnoughData = variantStats.length >= 2 && variantStats.every(v => v.uniqueVisitors >= 30)
+            if (hasEnoughData) {
+                const sorted = [...variantStats].sort((a, b) => b.rate - a.rate)
+                const diff = sorted[0].rate - sorted[1].rate
+                // Winner if >10% relative difference and both have enough data
+                if (diff > 0 && sorted[0].rate > 0) {
+                    const relativeDiff = (diff / Math.max(sorted[1].rate, 0.01)) * 100
+                    if (relativeDiff > 10 || sorted[0].uniqueVisitors >= 100) {
+                        winner = sorted[0].variant
+                    }
+                }
+            }
 
             // Device breakdown
             const devices = { mobile: 0, desktop: 0, tablet: 0 }
@@ -89,15 +120,16 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                 if (campaignMap[camp]) campaignMap[camp].conversions++
             })
 
-            return { funnel: f, views: views.length, conversions: subs.length, convRate, variantStats, devices, campaigns: campaignMap }
+            return { funnel: f, views: views.length, uniqueVisitors, conversions: subs.length, convRate, variantStats, winner, abActive, devices, campaigns: campaignMap }
         })
 
         // Totals
         const totalViews = filteredViews.length
+        const totalUniqueVisitors = countUniqueVisitors(filteredViews)
         const totalConv = filteredSubs.length
-        const totalRate = totalViews > 0 ? (totalConv / totalViews * 100) : 0
+        const totalRate = totalUniqueVisitors > 0 ? (totalConv / totalUniqueVisitors * 100) : 0
 
-        return { funnelStats, totalViews, totalConv, totalRate }
+        return { funnelStats, totalViews, totalUniqueVisitors, totalConv, totalRate }
     }, [funnels, pageViews, submissions, timeRange])
 
     const handleSave = async (formData: any) => {
@@ -140,6 +172,34 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         if (res.ok) setFunnels(prev => prev.map(f => f.id === funnel.id ? { ...f, status: newStatus as any } : f))
     }
 
+    const toggleAbTest = async (funnel: Funnel) => {
+        const currentSettings = funnel.settings || {}
+        const newSettings = { ...currentSettings, ab_test_active: !currentSettings.ab_test_active }
+        const res = await fetch('/api/funnels', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: funnel.id, settings: newSettings }),
+        })
+        if (res.ok) setFunnels(prev => prev.map(f => f.id === funnel.id ? { ...f, settings: newSettings } : f))
+    }
+
+    const declareWinner = async (funnel: Funnel, winnerVariant: string) => {
+        if (!confirm(`Dichiarare la Variante ${winnerVariant} come vincitrice? Il test verrà disattivato.`)) return
+        const currentSettings = funnel.settings || {}
+        const newSettings = { 
+            ...currentSettings, 
+            ab_test_active: false, 
+            ab_winner: winnerVariant,
+            ab_winner_declared_at: new Date().toISOString(),
+        }
+        const res = await fetch('/api/funnels', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: funnel.id, settings: newSettings }),
+        })
+        if (res.ok) setFunnels(prev => prev.map(f => f.id === funnel.id ? { ...f, settings: newSettings } : f))
+    }
+
     const copyUrl = (slug: string, id: string) => {
         navigator.clipboard.writeText(`${baseUrl}/f/${slug}`)
         setCopiedId(id)
@@ -155,7 +215,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                         Funnel & Analytics
                     </h1>
                     <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                        Landing page, conversion rate e A/B testing
+                        Landing page, utenti unici, conversion rate e A/B testing
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -208,7 +268,15 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                     </div>
 
                     {/* Summary KPIs */}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="glass-card p-5">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Users className="w-4 h-4" style={{ color: '#8b5cf6' }} />
+                                <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Utenti Unici</span>
+                            </div>
+                            <p className="text-2xl font-bold text-white">{analytics.totalUniqueVisitors.toLocaleString()}</p>
+                            <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>{analytics.totalViews.toLocaleString()} page views totali</p>
+                        </div>
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-2">
                                 <Eye className="w-4 h-4" style={{ color: '#3b82f6' }} />
@@ -231,6 +299,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                             <p className="text-2xl font-bold" style={{ color: analytics.totalRate >= 5 ? '#22c55e' : analytics.totalRate >= 2 ? '#f59e0b' : '#ef4444' }}>
                                 {analytics.totalRate.toFixed(1)}%
                             </p>
+                            <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>su utenti unici</p>
                         </div>
                     </div>
 
@@ -247,20 +316,33 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                         <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>/f/{stat.funnel.slug}</p>
                                     </div>
                                 </div>
-                                <span className="badge" style={{
-                                    background: statusConfig[stat.funnel.status]?.color + '10',
-                                    color: statusConfig[stat.funnel.status]?.color,
-                                    border: `1px solid ${statusConfig[stat.funnel.status]?.color}20`
-                                }}>
-                                    {statusConfig[stat.funnel.status]?.label}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    {stat.abActive && (
+                                        <span className="badge" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#a855f7', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                                            <FlaskConical className="w-3 h-3" /> A/B Test Attivo
+                                        </span>
+                                    )}
+                                    {stat.funnel.settings?.ab_winner && !stat.abActive && (
+                                        <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                                            <Trophy className="w-3 h-3" /> Winner: Variante {stat.funnel.settings.ab_winner}
+                                        </span>
+                                    )}
+                                    <span className="badge" style={{
+                                        background: statusConfig[stat.funnel.status]?.color + '10',
+                                        color: statusConfig[stat.funnel.status]?.color,
+                                        border: `1px solid ${statusConfig[stat.funnel.status]?.color}20`
+                                    }}>
+                                        {statusConfig[stat.funnel.status]?.label}
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Stats Row */}
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-5 gap-3">
                                 <div className="px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
-                                    <p className="text-[10px] mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Views</p>
-                                    <p className="text-lg font-bold text-white">{stat.views.toLocaleString()}</p>
+                                    <p className="text-[10px] mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Utenti Unici</p>
+                                    <p className="text-lg font-bold text-white">{stat.uniqueVisitors.toLocaleString()}</p>
+                                    <p className="text-[9px]" style={{ color: 'var(--color-surface-600)' }}>{stat.views} views</p>
                                 </div>
                                 <div className="px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                     <p className="text-[10px] mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Lead</p>
@@ -283,40 +365,106 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                         </span>
                                     </div>
                                 </div>
+                                <div className="px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
+                                    <p className="text-[10px] mb-0.5" style={{ color: 'var(--color-surface-500)' }}>A/B Test</p>
+                                    <button 
+                                        onClick={() => toggleAbTest(stat.funnel)}
+                                        className="flex items-center gap-1.5 mt-1 text-[11px] font-medium transition-all hover:opacity-80"
+                                        style={{ color: stat.abActive ? '#a855f7' : 'var(--color-surface-500)' }}
+                                    >
+                                        {stat.abActive 
+                                            ? <><ToggleRight className="w-4 h-4" /> Attivo</>
+                                            : <><ToggleLeft className="w-4 h-4" /> Off</>
+                                        }
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* A/B Test Variants (if data exists) */}
-                            {stat.variantStats.length > 1 && (
+                            {/* A/B Test Variants — enhanced */}
+                            {(stat.variantStats.length > 1 || stat.abActive) && (
                                 <div className="pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <FlaskConical className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
-                                        <span className="text-xs font-semibold text-white">A/B Test</span>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <FlaskConical className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
+                                            <span className="text-xs font-semibold text-white">Split Test — Confronto Varianti</span>
+                                        </div>
+                                        {stat.winner && (
+                                            <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)', fontSize: '10px' }}>
+                                                <Trophy className="w-3 h-3" /> Variante {stat.winner} sta vincendo
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
-                                        {stat.variantStats.map(v => (
-                                            <div key={v.variant} className="px-3 py-3 rounded-lg" style={{ background: 'var(--color-surface-100)', border: v.variant === 'A' ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(168, 85, 247, 0.2)' }}>
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-xs font-bold" style={{ color: v.variant === 'A' ? '#3b82f6' : '#a855f7' }}>
-                                                        Variante {v.variant}
-                                                    </span>
-                                                    <span className="text-[10px] font-semibold" style={{ color: v.rate >= 5 ? '#22c55e' : '#f59e0b' }}>
-                                                        {v.rate.toFixed(1)}%
-                                                    </span>
+                                        {stat.variantStats.map(v => {
+                                            const isWinner = stat.winner === v.variant
+                                            const colorA = '#3b82f6'
+                                            const colorB = '#a855f7'
+                                            const varColor = v.variant === 'A' ? colorA : colorB
+                                            return (
+                                                <div key={v.variant} className="px-4 py-4 rounded-xl relative" style={{ 
+                                                    background: 'var(--color-surface-100)', 
+                                                    border: isWinner 
+                                                        ? '2px solid rgba(34, 197, 94, 0.4)' 
+                                                        : `1px solid ${varColor}20`,
+                                                }}>
+                                                    {isWinner && (
+                                                        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#22c55e' }}>
+                                                            <Trophy className="w-3 h-3 text-white" />
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <span className="text-sm font-bold" style={{ color: varColor }}>
+                                                            Variante {v.variant}
+                                                        </span>
+                                                        <span className="text-lg font-black" style={{ color: v.rate >= 5 ? '#22c55e' : v.rate >= 2 ? '#f59e0b' : v.rate > 0 ? '#ef4444' : 'var(--color-surface-500)' }}>
+                                                            {v.rate.toFixed(1)}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                                                        <div>
+                                                            <p className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Unici</p>
+                                                            <p className="text-sm font-bold text-white">{v.uniqueVisitors}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Lead</p>
+                                                            <p className="text-sm font-bold" style={{ color: '#22c55e' }}>{v.conversions}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Views</p>
+                                                            <p className="text-sm font-bold" style={{ color: 'var(--color-surface-600)' }}>{v.views}</p>
+                                                        </div>
+                                                    </div>
+                                                    {/* Conversion bar */}
+                                                    <div className="h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                                                        <div className="h-full rounded-full transition-all" style={{
+                                                            width: `${Math.min(v.rate * 2, 100)}%`,
+                                                            background: isWinner ? '#22c55e' : varColor,
+                                                        }} />
+                                                    </div>
+                                                    {/* Declare winner button */}
+                                                    {stat.abActive && v.uniqueVisitors >= 30 && (
+                                                        <button
+                                                            onClick={() => declareWinner(stat.funnel, v.variant)}
+                                                            className="mt-3 w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all hover:opacity-80"
+                                                            style={{ 
+                                                                background: isWinner ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.03)', 
+                                                                color: isWinner ? '#22c55e' : 'var(--color-surface-500)',
+                                                                border: `1px solid ${isWinner ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.06)'}`,
+                                                            }}
+                                                        >
+                                                            <Trophy className="w-3 h-3 inline mr-1" />
+                                                            Dichiara Winner
+                                                        </button>
+                                                    )}
                                                 </div>
-                                                <div className="flex items-center gap-4 text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                                                    <span>{v.views} views</span>
-                                                    <span>{v.conversions} conv</span>
-                                                </div>
-                                                {/* Visual bar */}
-                                                <div className="mt-2 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                                                    <div className="h-full rounded-full transition-all" style={{
-                                                        width: `${Math.min(v.rate, 100)}%`,
-                                                        background: v.variant === 'A' ? '#3b82f6' : '#a855f7'
-                                                    }} />
-                                                </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        })}
                                     </div>
+                                    {stat.abActive && stat.variantStats.every(v => v.uniqueVisitors < 30) && (
+                                        <p className="text-[10px] mt-2 text-center" style={{ color: 'var(--color-surface-500)' }}>
+                                            ⏳ Serve un minimo di 30 visitatori unici per variante per dichiarare un vincitore
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
@@ -372,6 +520,9 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                 <strong className="text-white">Come funziona:</strong> Crea un funnel → Attivalo → Copia il link pubblico → Usalo nelle ads di Meta/Google.
                                 Quando un utente compila il form, il lead viene creato automaticamente nel CRM, nella prima fase del pipeline,
                                 e l&apos;evento viene inviato a Meta CAPI per ottimizzare le campagne.
+                                <br /><br />
+                                <strong className="text-white">A/B Testing:</strong> Attiva lo split test dalla tab Analytics per dividere il traffico 50/50 tra due varianti.
+                                Imposta la variante B nelle impostazioni del funnel (campo &quot;Variante A/B&quot;). Confronta i risultati e dichiara il vincitore.
                             </div>
                         </div>
                     </div>
@@ -400,16 +551,28 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                         </div>
 
                                         <h3 className="text-sm font-bold text-white mb-1">{funnel.name}</h3>
-                                        {funnel.objective && (
-                                            <span className="badge mb-2 inline-flex" style={{
-                                                background: funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                                                color: funnel.objective === 'partner' ? '#f59e0b' : '#3b82f6',
-                                                border: `1px solid ${funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
-                                                fontSize: '10px',
-                                            }}>
-                                                {funnel.objective === 'partner' ? '🤝 Partner' : funnel.objective === 'cliente' ? '👤 Cliente' : `🎯 ${funnel.objective}`}
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                            {funnel.objective && (
+                                                <span className="badge inline-flex" style={{
+                                                    background: funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                                    color: funnel.objective === 'partner' ? '#f59e0b' : '#3b82f6',
+                                                    border: `1px solid ${funnel.objective === 'partner' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                                    fontSize: '10px',
+                                                }}>
+                                                    {funnel.objective === 'partner' ? '🤝 Partner' : funnel.objective === 'cliente' ? '👤 Cliente' : `🎯 ${funnel.objective}`}
+                                                </span>
+                                            )}
+                                            {funnel.settings?.ab_test_active && (
+                                                <span className="badge inline-flex" style={{
+                                                    background: 'rgba(139, 92, 246, 0.1)',
+                                                    color: '#a855f7',
+                                                    border: '1px solid rgba(139, 92, 246, 0.2)',
+                                                    fontSize: '10px',
+                                                }}>
+                                                    <FlaskConical className="w-3 h-3" /> A/B
+                                                </span>
+                                            )}
+                                        </div>
                                         {funnel.description && (
                                             <p className="text-xs mb-3 line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{funnel.description}</p>
                                         )}
@@ -499,6 +662,11 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
             cta_text: funnel?.settings?.cta_text || 'Invia Richiesta',
             thank_you: funnel?.settings?.thank_you || 'Grazie! Ti contatteremo il prima possibile.',
             accent_color: funnel?.settings?.accent_color || '#6366f1',
+            ab_variant: funnel?.settings?.ab_variant || 'A',
+            ab_test_active: funnel?.settings?.ab_test_active || false,
+            ab_variant_b_slug: funnel?.settings?.ab_variant_b_slug || '',
+            template: funnel?.settings?.template || '',
+            organization_id: funnel?.settings?.organization_id || '',
         },
     })
 
@@ -507,7 +675,7 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
         setForm({ ...form, name, slug })
     }
 
-    const updateSettings = (key: string, val: string) => {
+    const updateSettings = (key: string, val: any) => {
         setForm({ ...form, settings: { ...form.settings, [key]: val } })
     }
 
@@ -579,6 +747,42 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
                             <div>
                                 <label className="label">Messaggio di ringraziamento</label>
                                 <input className="input" value={form.settings.thank_you} onChange={e => updateSettings('thank_you', e.target.value)} placeholder="Grazie! Ti contatteremo..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* A/B Test Settings */}
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <FlaskConical className="w-4 h-4" style={{ color: '#a855f7' }} />
+                            <span className="text-xs font-semibold text-white">A/B Testing</span>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between px-3 py-3 rounded-xl" style={{ background: 'var(--color-surface-100)' }}>
+                                <div>
+                                    <p className="text-xs font-semibold text-white">Split Test Attivo</p>
+                                    <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Divide il traffico 50/50 tra variante A e B</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => updateSettings('ab_test_active', !form.settings.ab_test_active)}
+                                    style={{ color: form.settings.ab_test_active ? '#a855f7' : 'var(--color-surface-500)' }}
+                                >
+                                    {form.settings.ab_test_active
+                                        ? <ToggleRight className="w-8 h-8" />
+                                        : <ToggleLeft className="w-8 h-8" />
+                                    }
+                                </button>
+                            </div>
+                            <div>
+                                <label className="label">Variante di questa pagina</label>
+                                <select className="input" value={form.settings.ab_variant} onChange={e => updateSettings('ab_variant', e.target.value)}>
+                                    <option value="A">Variante A (Control)</option>
+                                    <option value="B">Variante B (Challenger)</option>
+                                </select>
+                                <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>
+                                    Imposta quale variante rappresenta questo funnel. Crea un secondo funnel per l&apos;altra variante.
+                                </p>
                             </div>
                         </div>
                     </div>

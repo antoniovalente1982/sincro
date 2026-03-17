@@ -22,13 +22,42 @@ export default function FunnelLandingPage({ funnel }: Props) {
     const [utmParams, setUtmParams] = useState<any>({})
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        setUtmParams({
+        const utms = {
             utm_source: params.get('utm_source') || undefined,
             utm_medium: params.get('utm_medium') || undefined,
             utm_campaign: params.get('utm_campaign') || undefined,
             utm_content: params.get('utm_content') || undefined,
             utm_term: params.get('utm_term') || undefined,
-        })
+        }
+        setUtmParams(utms)
+
+        // Generate or retrieve visitor_id for unique visitor tracking
+        let visitorId = localStorage.getItem('_sincro_vid')
+        if (!visitorId) {
+            visitorId = crypto.randomUUID()
+            localStorage.setItem('_sincro_vid', visitorId)
+        }
+
+        // Track PageView server-side
+        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
+        fetch('/api/track/pageview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                organization_id: orgId,
+                funnel_id: funnel.id,
+                page_path: window.location.pathname,
+                page_variant: funnel.settings?.ab_variant || 'A',
+                visitor_id: visitorId,
+                utm_source: utms.utm_source,
+                utm_medium: utms.utm_medium,
+                utm_campaign: utms.utm_campaign,
+                utm_content: utms.utm_content,
+                utm_term: utms.utm_term,
+                fbadid: params.get('fbadid') || undefined,
+                referrer: document.referrer || undefined,
+            }),
+        }).catch(() => {}) // Fire and forget
     }, [])
 
     // Get Facebook click/browser IDs from cookies
@@ -54,6 +83,7 @@ export default function FunnelLandingPage({ funnel }: Props) {
                 body: JSON.stringify({
                     funnel_id: funnel.id,
                     name, email, phone,
+                    page_variant: funnel.settings?.ab_variant || 'A',
                     ...utmParams,
                     ...getFbIds(),
                 }),

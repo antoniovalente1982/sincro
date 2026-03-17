@@ -6,16 +6,17 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Stage {
-    id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean
+    id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean; pipeline_id?: string
 }
 
 interface Lead {
     id: string; stage_id?: string; value?: number; product?: string; utm_source?: string; created_at: string
-    pipeline_stages?: { name: string; slug: string; color: string; is_won?: boolean; is_lost?: boolean }
+    pipeline_stages?: { name: string; slug: string; color: string; is_won?: boolean; is_lost?: boolean; pipeline_id?: string }
     funnels?: { id: string; name: string; objective: string } | null
 }
 
 interface Props {
+    pipelines: { id: string; name: string; is_default: boolean }[]
     stages: Stage[]
     leads: Lead[]
     activities: any[]
@@ -28,15 +29,22 @@ interface Props {
     objectives: string[]
 }
 
-export default function AnalyticsDashboard({ stages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives }: Props) {
+export default function AnalyticsDashboard({ pipelines, stages: allStages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives }: Props) {
     const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
+    const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
+    const [selectedPipelineId, setSelectedPipelineId] = useState<string>(defaultPipeline?.id || '')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
 
-    // Filter leads by objective AND date
+    // Filter stages by selected pipeline
+    const stages = allStages.filter(s => s.pipeline_id === selectedPipelineId)
+    const stageIds = new Set(stages.map(s => s.id))
+
+    // Filter leads by objective AND date AND pipeline
     const leadsByObjective = objectiveFilter === 'all'
         ? allLeads
         : allLeads.filter(l => (l.funnels?.objective || '') === objectiveFilter)
-    const leads = filterByDateRange(leadsByObjective, range, 'created_at')
+    const leadsByPipeline = leadsByObjective.filter(l => !l.stage_id || stageIds.has(l.stage_id))
+    const leads = filterByDateRange(leadsByPipeline, range, 'created_at')
 
     const objectiveLabel = objectiveFilter === 'all' ? 'Tutti' :
         objectiveFilter === 'cliente' ? 'Clienti' :
@@ -53,7 +61,7 @@ export default function AnalyticsDashboard({ stages, leads: allLeads, activities
     const totalRevenue = wonLeads.reduce((sum, l) => sum + (Number(l.value) || 0), 0)
     const avgDealValue = wonLeads.length > 0 ? totalRevenue / wonLeads.length : 0
 
-    // Pipeline Funnel Data
+    // Pipeline Funnel Data — only stages from selected pipeline
     const funnelData = stages.map(stage => ({
         name: stage.name,
         count: leads.filter(l => l.stage_id === stage.id).length,
@@ -140,6 +148,19 @@ export default function AnalyticsDashboard({ stages, leads: allLeads, activities
                     </p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
+                    {pipelines.length > 1 && (
+                        <select
+                            className="input !w-[220px] text-xs"
+                            value={selectedPipelineId}
+                            onChange={e => setSelectedPipelineId(e.target.value)}
+                        >
+                            {pipelines.map(p => (
+                                <option key={p.id} value={p.id}>
+                                    📊 {p.name}{p.is_default ? ' ★' : ''}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     {objectives.length > 0 && (
                         <select
                             className="input !w-[180px] text-xs"

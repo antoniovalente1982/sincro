@@ -21,13 +21,13 @@ export default async function FunnelsPage() {
             .order('created_at', { ascending: false }),
         supabase
             .from('page_views')
-            .select('id, funnel_id, page_path, page_variant, utm_source, utm_campaign, utm_content, device_type, created_at')
+            .select('id, funnel_id, page_path, page_variant, visitor_id, ip_hash, utm_source, utm_campaign, utm_content, device_type, created_at')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(5000),
+            .limit(10000),
         supabase
             .from('funnel_submissions')
-            .select('id, funnel_id, created_at, utm_source, utm_campaign')
+            .select('id, funnel_id, page_variant, created_at, utm_source, utm_campaign')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(5000),

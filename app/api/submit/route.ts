@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json()
-        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data } = body
+        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant } = body
 
         if (!funnel_id || !name) {
             return NextResponse.json({ error: 'Name and funnel_id are required' }, { status: 400 })
@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
                 utm_content: utm_content || null,
                 utm_term: utm_term || null,
                 extra_data: extra_data || {},
+                page_variant: page_variant || 'A',
                 ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null,
                 user_agent: req.headers.get('user-agent') || null,
             })

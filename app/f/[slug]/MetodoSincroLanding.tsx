@@ -88,6 +88,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
         }
         setUtmParams(utms)
 
+        // Generate or retrieve visitor_id for unique visitor tracking
+        let visitorId = localStorage.getItem('_sincro_vid')
+        if (!visitorId) {
+            visitorId = crypto.randomUUID()
+            localStorage.setItem('_sincro_vid', visitorId)
+        }
+
         // Track PageView server-side
         const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
         fetch('/api/track/pageview', {
@@ -98,6 +105,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 funnel_id: funnel.id,
                 page_path: window.location.pathname,
                 page_variant: funnel.settings?.ab_variant || 'A',
+                visitor_id: visitorId,
                 utm_source: utms.utm_source,
                 utm_medium: utms.utm_medium,
                 utm_campaign: utms.utm_campaign,
@@ -130,6 +138,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 body: JSON.stringify({
                     funnel_id: funnel.id,
                     name, email, phone,
+                    page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: {
                         child_age: childAge,
                         main_problem: problem,

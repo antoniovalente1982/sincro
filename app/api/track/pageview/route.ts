@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const { organization_id, funnel_id, page_path, page_variant, utm_source, utm_medium, utm_campaign, utm_content, utm_term, fbadid, referrer } = body
+        const { organization_id, funnel_id, page_path, page_variant, visitor_id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, fbadid, referrer } = body
 
         if (!organization_id || !page_path) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
             funnel_id: funnel_id || null,
             page_path,
             page_variant: page_variant || 'A',
+            visitor_id: visitor_id || null,
             utm_source: utm_source || null,
             utm_medium: utm_medium || null,
             utm_campaign: utm_campaign || null,
