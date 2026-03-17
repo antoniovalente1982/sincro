@@ -191,7 +191,7 @@ async function handleCommand(text: string, orgId: string, botToken: string, chat
 }
 
 function getHelpMessage(name: string): string {
-    return `👋 <b>Ciao ${name}!</b>\n\nSono l'assistente AI di <b>Metodo Sincro</b>. Ecco cosa posso fare:\n\n` +
+    return `👋 <b>Ciao ${name}!</b>\n\nSono <b>Dante</b>, l'assistente AI di <b>Metodo Sincro</b>. Ecco cosa posso fare:\n\n` +
         `📊 <b>Comandi rapidi:</b>\n` +
         `  /stats — Riepilogo generale\n` +
         `  /leads — Ultimi lead ricevuti\n` +
@@ -207,7 +207,7 @@ function getHelpMessage(name: string): string {
         `  • <i>"Consigliami come ottimizzare il budget"</i>\n\n` +
         `🎙️ <b>Voce:</b>\n` +
         `Invia un vocale e ti rispondo con un vocale!\n\n` +
-        `💡 Scrivi o parla e ti rispondo in tempo reale!`
+        `💡 Scrivi o parla e Dante ti risponde in tempo reale!`
 }
 
 async function handleStatsCommand(orgId: string, botToken: string, chatId: string) {
