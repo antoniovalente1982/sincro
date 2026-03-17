@@ -14,11 +14,8 @@ export default function HomePage() {
                         <span className="text-lg font-black text-white tracking-tight">ADPILOTIK</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:bg-white/5" style={{ color: '#a1a1aa' }}>
+                        <Link href="/login" className="text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:translate-y-[-2px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 30px rgba(99, 102, 241, 0.3)' }}>
                             Accedi
-                        </Link>
-                        <Link href="/register" className="text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:translate-y-[-2px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 30px rgba(99, 102, 241, 0.3)' }}>
-                            Inizia Gratis
                         </Link>
                     </div>
                 </div>
@@ -51,10 +48,10 @@ export default function HomePage() {
                     </p>
 
                     <div className="flex items-center justify-center gap-4 flex-wrap">
-                        <Link href="/register" className="inline-flex items-center gap-2 text-base font-bold px-8 py-4 rounded-2xl text-white transition-all hover:translate-y-[-3px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 50px rgba(99, 102, 241, 0.35)' }}>
-                            Inizia Gratis <ArrowRight className="w-5 h-5" />
+                        <Link href="/login" className="inline-flex items-center gap-2 text-base font-bold px-8 py-4 rounded-2xl text-white transition-all hover:translate-y-[-3px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 50px rgba(99, 102, 241, 0.35)' }}>
+                            Accedi alla Piattaforma <ArrowRight className="w-5 h-5" />
                         </Link>
-                        <span className="text-sm" style={{ color: '#52525b' }}>Nessuna carta di credito</span>
+                        <span className="text-sm" style={{ color: '#52525b' }}>Accesso riservato al team</span>
                     </div>
                 </div>
             </section>
@@ -170,21 +167,14 @@ export default function HomePage() {
                 <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at bottom, rgba(99, 102, 241, 0.12), transparent 60%)' }} />
                 <div className="relative max-w-2xl mx-auto">
                     <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-                        Pronto a vendere di più?
+                        La piattaforma AI di Metodo Sincro
                     </h2>
                     <p className="text-base mb-10" style={{ color: '#71717a' }}>
-                        Unisciti ai professionisti che usano l'AI per trasformare click in clienti.
+                        Accesso riservato al team autorizzato.
                     </p>
-                    <Link href="/register" className="inline-flex items-center gap-2 text-lg font-bold px-10 py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.4)' }}>
-                        <Rocket className="w-5 h-5" /> Inizia Gratis Adesso
+                    <Link href="/login" className="inline-flex items-center gap-2 text-lg font-bold px-10 py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px]" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.4)' }}>
+                        <Rocket className="w-5 h-5" /> Accedi
                     </Link>
-                    <div className="flex items-center justify-center gap-6 mt-6 flex-wrap">
-                        {['Zero costi iniziali', 'Setup in 5 min', 'Nessuna carta richiesta'].map(t => (
-                            <div key={t} className="flex items-center gap-1.5 text-xs" style={{ color: '#52525b' }}>
-                                <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} /> {t}
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </section>
 
