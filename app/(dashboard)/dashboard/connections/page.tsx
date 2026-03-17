@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import {
     Plug, Check, AlertCircle, Clock, ExternalLink,
-    ChevronRight, Zap, BarChart3, MessageCircle, FileSpreadsheet, Tv, Video, Megaphone, Loader2
+    ChevronRight, Zap, BarChart3, MessageCircle, FileSpreadsheet, Tv, Video, Megaphone, Loader2,
+    Send, RefreshCw, Webhook
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -22,6 +23,9 @@ interface ConnectionCard {
     color: string
     fields: ConnectionField[]
     comingSoon?: boolean
+    testable?: boolean
+    hasWebhook?: boolean
+    hasSyncButton?: boolean
 }
 
 const connectionsList: ConnectionCard[] = [
@@ -52,24 +56,27 @@ const connectionsList: ConnectionCard[] = [
     {
         provider: 'telegram',
         name: 'Telegram Bot',
-        description: 'Ricevi report e controlla tutto da Telegram con comandi rapidi',
+        description: 'Assistente AI su Telegram: ricevi notifiche lead e analizza dati con comandi',
         icon: MessageCircle,
         color: '#0088cc',
         fields: [
             { key: 'bot_token', label: 'Bot Token', placeholder: 'Token da @BotFather', type: 'password' },
-            { key: 'chat_id', label: 'Chat ID', placeholder: 'Il tuo chat ID' },
+            { key: 'chat_id', label: 'Chat ID', placeholder: 'Il tuo chat ID o ID del gruppo' },
         ],
+        testable: true,
+        hasWebhook: true,
     },
     {
         provider: 'google_sheets',
         name: 'Google Sheets',
-        description: 'Sincronizza lead e dati con i fogli Google',
+        description: 'Sincronizza lead automaticamente con i fogli Google',
         icon: FileSpreadsheet,
         color: '#0f9d58',
         fields: [
             { key: 'spreadsheet_id', label: 'Spreadsheet ID', placeholder: 'ID dal URL del foglio' },
-            { key: 'api_key', label: 'API Key', placeholder: 'Google Cloud API Key', type: 'password' },
+            { key: 'service_account_key', label: 'Service Account Key (JSON)', placeholder: 'Incolla il JSON completo del service account', type: 'password' },
         ],
+        hasSyncButton: true,
     },
     { provider: 'google_ads', name: 'Google Ads', description: 'Campagne Search, Display e YouTube', icon: BarChart3, color: '#4285f4', fields: [], comingSoon: true },
     { provider: 'tiktok_ads', name: 'TikTok Ads', description: 'Raggiungi genitori e giovani su TikTok', icon: Tv, color: '#ee1d52', fields: [], comingSoon: true },
@@ -80,6 +87,10 @@ export default function ConnectionsPage() {
     const [expanded, setExpanded] = useState<string | null>(null)
     const [formData, setFormData] = useState<Record<string, Record<string, string>>>({})
     const [saving, setSaving] = useState<string | null>(null)
+    const [testing, setTesting] = useState<string | null>(null)
+    const [syncing, setSyncing] = useState<string | null>(null)
+    const [settingWebhook, setSettingWebhook] = useState(false)
+    const [testResult, setTestResult] = useState<{ provider: string; success: boolean; message: string } | null>(null)
     const [connections, setConnections] = useState<Record<string, { id: string; status: string }>>({})
     const [loading, setLoading] = useState(true)
     const supabase = createClient()
@@ -177,6 +188,89 @@ export default function ConnectionsPage() {
         setSaving(null)
     }
 
+    const handleTestTelegram = async () => {
+        const creds = formData['telegram']
+        if (!creds?.bot_token || !creds?.chat_id) {
+            setTestResult({ provider: 'telegram', success: false, message: 'Inserisci Bot Token e Chat ID prima' })
+            return
+        }
+
+        setTesting('telegram')
+        setTestResult(null)
+        try {
+            const res = await fetch('/api/telegram/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'test',
+                    bot_token: creds.bot_token,
+                    chat_id: creds.chat_id,
+                }),
+            })
+            const data = await res.json()
+
+            if (data.success) {
+                setTestResult({ provider: 'telegram', success: true, message: '✅ Messaggio di test inviato! Controlla Telegram.' })
+            } else {
+                setTestResult({ provider: 'telegram', success: false, message: data.error || 'Test fallito' })
+            }
+        } catch {
+            setTestResult({ provider: 'telegram', success: false, message: 'Errore di connessione' })
+        }
+        setTesting(null)
+    }
+
+    const handleSetWebhook = async () => {
+        const creds = formData['telegram']
+        if (!creds?.bot_token) {
+            setTestResult({ provider: 'telegram', success: false, message: 'Inserisci Bot Token prima' })
+            return
+        }
+
+        setSettingWebhook(true)
+        try {
+            const res = await fetch('/api/telegram/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'set_webhook',
+                    bot_token: creds.bot_token,
+                }),
+            })
+            const data = await res.json()
+
+            if (data.success) {
+                setTestResult({ provider: 'telegram', success: true, message: `✅ Webhook attivato: ${data.webhook_url}` })
+            } else {
+                setTestResult({ provider: 'telegram', success: false, message: data.error || 'Webhook fallito' })
+            }
+        } catch {
+            setTestResult({ provider: 'telegram', success: false, message: 'Errore di connessione' })
+        }
+        setSettingWebhook(false)
+    }
+
+    const handleSyncSheets = async () => {
+        setSyncing('google_sheets')
+        setTestResult(null)
+        try {
+            const res = await fetch('/api/google-sheets/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            const data = await res.json()
+
+            if (data.success) {
+                setTestResult({ provider: 'google_sheets', success: true, message: data.message })
+            } else {
+                setTestResult({ provider: 'google_sheets', success: false, message: data.error || 'Sincronizzazione fallita' })
+            }
+        } catch {
+            setTestResult({ provider: 'google_sheets', success: false, message: 'Errore di connessione' })
+        }
+        setSyncing(null)
+    }
+
     const updateField = (provider: string, key: string, value: string) => {
         setFormData(prev => ({
             ...prev,
@@ -267,22 +361,128 @@ export default function ConnectionsPage() {
                                         {conn.fields.map((field) => (
                                             <div key={field.key}>
                                                 <label className="label">{field.label}</label>
-                                                <input
-                                                    type={field.type || 'text'}
-                                                    className="input"
-                                                    placeholder={field.placeholder}
-                                                    value={formData[conn.provider]?.[field.key] || ''}
-                                                    onChange={(e) => updateField(conn.provider, field.key, e.target.value)}
-                                                />
+                                                {field.key === 'service_account_key' ? (
+                                                    <textarea
+                                                        className="input"
+                                                        placeholder={field.placeholder}
+                                                        rows={4}
+                                                        value={formData[conn.provider]?.[field.key] || ''}
+                                                        onChange={(e) => updateField(conn.provider, field.key, e.target.value)}
+                                                        style={{ fontFamily: 'monospace', fontSize: '12px' }}
+                                                    />
+                                                ) : (
+                                                    <input
+                                                        type={field.type || 'text'}
+                                                        className="input"
+                                                        placeholder={field.placeholder}
+                                                        value={formData[conn.provider]?.[field.key] || ''}
+                                                        onChange={(e) => updateField(conn.provider, field.key, e.target.value)}
+                                                    />
+                                                )}
                                             </div>
                                         ))}
-                                        <button onClick={() => handleSave(conn.provider)} className="btn-primary" disabled={saving === conn.provider}>
-                                            {saving === conn.provider ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <><Check className="w-4 h-4" /> Salva e Connetti</>
+
+                                        {/* Test result message */}
+                                        {testResult && testResult.provider === conn.provider && (
+                                            <div className="text-xs p-3 rounded-lg" style={{
+                                                background: testResult.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                color: testResult.success ? '#22c55e' : '#ef4444',
+                                                border: `1px solid ${testResult.success ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                                            }}>
+                                                {testResult.message}
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <button onClick={() => handleSave(conn.provider)} className="btn-primary" disabled={saving === conn.provider}>
+                                                {saving === conn.provider ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <><Check className="w-4 h-4" /> Salva e Connetti</>
+                                                )}
+                                            </button>
+
+                                            {/* Telegram test button */}
+                                            {conn.testable && (
+                                                <button
+                                                    onClick={handleTestTelegram}
+                                                    className="btn-secondary"
+                                                    disabled={testing === conn.provider}
+                                                    style={{ fontSize: '13px' }}
+                                                >
+                                                    {testing === conn.provider ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <><Send className="w-4 h-4" /> Testa Connessione</>
+                                                    )}
+                                                </button>
                                             )}
-                                        </button>
+
+                                            {/* Telegram webhook button */}
+                                            {conn.hasWebhook && connections[conn.provider]?.status === 'active' && (
+                                                <button
+                                                    onClick={handleSetWebhook}
+                                                    className="btn-secondary"
+                                                    disabled={settingWebhook}
+                                                    style={{ fontSize: '13px' }}
+                                                >
+                                                    {settingWebhook ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <><Webhook className="w-4 h-4" /> Attiva Webhook</>
+                                                    )}
+                                                </button>
+                                            )}
+
+                                            {/* Google Sheets sync button */}
+                                            {conn.hasSyncButton && connections[conn.provider]?.status === 'active' && (
+                                                <button
+                                                    onClick={handleSyncSheets}
+                                                    className="btn-secondary"
+                                                    disabled={syncing === conn.provider}
+                                                    style={{ fontSize: '13px' }}
+                                                >
+                                                    {syncing === conn.provider ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <><RefreshCw className="w-4 h-4" /> Sincronizza Ora</>
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Telegram instructions */}
+                                        {conn.provider === 'telegram' && (
+                                            <div className="text-xs p-3 rounded-lg" style={{
+                                                background: 'rgba(99, 102, 241, 0.05)',
+                                                border: '1px solid rgba(99, 102, 241, 0.15)',
+                                                color: 'var(--color-surface-500)',
+                                            }}>
+                                                <b style={{ color: 'var(--color-sincro-400)' }}>Come configurare:</b><br />
+                                                1. Vai su Telegram e cerca <b>@BotFather</b><br />
+                                                2. Crea un bot con <code>/newbot</code> e copia il token<br />
+                                                3. Per il Chat ID: scrivi al bot, poi visita<br />
+                                                <code style={{ fontSize: '11px' }}>https://api.telegram.org/bot{'<TOKEN>'}/getUpdates</code><br />
+                                                4. Salva e poi clicca <b>"Attiva Webhook"</b> per ricevere messaggi<br />
+                                                5. Scrivi <code>/help</code> al bot per i comandi disponibili
+                                            </div>
+                                        )}
+
+                                        {/* Google Sheets instructions */}
+                                        {conn.provider === 'google_sheets' && (
+                                            <div className="text-xs p-3 rounded-lg" style={{
+                                                background: 'rgba(15, 157, 88, 0.05)',
+                                                border: '1px solid rgba(15, 157, 88, 0.15)',
+                                                color: 'var(--color-surface-500)',
+                                            }}>
+                                                <b style={{ color: '#0f9d58' }}>Come configurare:</b><br />
+                                                1. Crea un <b>Service Account</b> in Google Cloud Console<br />
+                                                2. Scarica il file JSON delle credenziali<br />
+                                                3. Condividi il foglio Google con l&apos;email del service account<br />
+                                                4. Incolla lo Spreadsheet ID (dall&apos;URL del foglio)<br />
+                                                5. Incolla il JSON completo del service account
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendTelegramMessage } from '@/lib/telegram'
+import { appendLeadToSheet } from '@/lib/google-sheets'
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,6 +127,30 @@ export async function POST(req: NextRequest) {
                 fbp: body.fbp || undefined,
                 content_category: funnel.objective || 'cliente',
             }, funnel.meta_pixel_id, lead.id)
+        }
+
+        // Send Telegram notification (non-blocking)
+        if (lead) {
+            const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
+                `👤 <b>Nome:</b> ${name}\n` +
+                (email ? `📧 <b>Email:</b> ${email}\n` : '') +
+                (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
+                `🔗 <b>Funnel:</b> ${funnel.name}\n` +
+                (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
+                (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
+
+            sendTelegramMessage(funnel.organization_id, tgMsg).catch(() => {})
+
+            // Append to Google Sheets (non-blocking)
+            appendLeadToSheet(funnel.organization_id, {
+                name,
+                email: email || '',
+                phone: phone || '',
+                funnel: funnel.name,
+                utm_source: utm_source || '',
+                utm_campaign: utm_campaign || '',
+                created_at: new Date().toISOString(),
+            }).catch(() => {})
         }
 
         return NextResponse.json({ success: true, lead_id: lead?.id })
