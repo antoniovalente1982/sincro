@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { findOrgByChatId, getOrgDataContext, sendTelegramDirect } from '@/lib/telegram'
 import { askAI } from '@/lib/openrouter'
+import { textToSpeech, speechToText } from '@/lib/elevenlabs'
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,19 +17,26 @@ export async function POST(req: NextRequest) {
 
         // Telegram sends updates in this format
         const message = body.message || body.edited_message
-        if (!message?.text || !message?.chat?.id) {
-            return NextResponse.json({ ok: true }) // Acknowledge but ignore non-text
+        if (!message?.chat?.id) {
+            return NextResponse.json({ ok: true })
         }
 
         const chatId = String(message.chat.id)
-        const text = message.text.trim()
         const firstName = message.from?.first_name || 'Utente'
+
+        // Check if it's a voice message or text
+        const isVoice = !!(message.voice || message.audio)
+        const hasText = !!message.text
+
+        if (!isVoice && !hasText) {
+            return NextResponse.json({ ok: true }) // Ignore non-text/non-voice
+        }
 
         // Find which organization this chat belongs to
         const orgId = await findOrgByChatId(chatId)
         if (!orgId) {
             console.log(`Telegram webhook: no org found for chat_id ${chatId}`)
-            return NextResponse.json({ ok: true }) // Silently ignore unknown chats
+            return NextResponse.json({ ok: true })
         }
 
         // Get the bot token for this org to reply
@@ -46,14 +54,21 @@ export async function POST(req: NextRequest) {
 
         const botToken = conn.credentials.bot_token
 
-        // Handle commands
+        // Handle voice message
+        if (isVoice) {
+            await handleVoiceMessage(message, orgId, botToken, chatId, firstName)
+            return NextResponse.json({ ok: true })
+        }
+
+        // Handle text commands
+        const text = message.text.trim()
         if (text.startsWith('/')) {
             await handleCommand(text, orgId, botToken, chatId, firstName)
             return NextResponse.json({ ok: true })
         }
 
-        // Free-form question → AI response
-        await handleAIQuestion(text, orgId, botToken, chatId, firstName)
+        // Free-form text question → AI response (text + voice)
+        await handleAIQuestion(text, orgId, botToken, chatId, firstName, false)
 
         return NextResponse.json({ ok: true })
     } catch (err) {
@@ -65,6 +80,79 @@ export async function POST(req: NextRequest) {
 // Also handle GET for webhook verification
 export async function GET() {
     return NextResponse.json({ status: 'Telegram webhook active' })
+}
+
+// --- Voice Message Handler ---
+
+async function handleVoiceMessage(message: any, orgId: string, botToken: string, chatId: string, firstName: string) {
+    // Send "recording voice" action
+    await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, action: 'record_voice' }),
+    })
+
+    const voiceData = message.voice || message.audio
+    const fileId = voiceData.file_id
+
+    try {
+        // Step 1: Get file path from Telegram
+        const fileRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`)
+        const fileInfo = await fileRes.json()
+
+        if (!fileInfo.ok || !fileInfo.result?.file_path) {
+            await sendTelegramDirect(botToken, chatId, '⚠️ Non riesco a scaricare il vocale. Riprova.')
+            return
+        }
+
+        // Step 2: Download the voice file
+        const fileUrl = `https://api.telegram.org/file/bot${botToken}/${fileInfo.result.file_path}`
+        const audioRes = await fetch(fileUrl)
+        const audioBuffer = new Uint8Array(await audioRes.arrayBuffer())
+
+        // Step 3: Transcribe voice to text using ElevenLabs STT
+        const transcribedText = await speechToText(audioBuffer, 'audio/ogg')
+
+        if (!transcribedText) {
+            await sendTelegramDirect(botToken, chatId, '⚠️ Non ho capito il vocale. Puoi ripetere o scrivere la domanda?')
+            return
+        }
+
+        // Send the transcription back as confirmation
+        await sendTelegramDirect(botToken, chatId, `🎙️ <i>Ho capito: "${transcribedText}"</i>`)
+
+        // Step 4: Process as AI question and respond with voice
+        await handleAIQuestion(transcribedText, orgId, botToken, chatId, firstName, true)
+
+    } catch (err) {
+        console.error('Voice message handling error:', err)
+        await sendTelegramDirect(botToken, chatId, '⚠️ Errore nell\'elaborazione del vocale. Prova a scrivere la domanda.')
+    }
+}
+
+// --- Send voice note to Telegram ---
+
+async function sendVoiceNote(botToken: string, chatId: string, audioBuffer: Uint8Array): Promise<boolean> {
+    try {
+        const formData = new FormData()
+        formData.append('chat_id', chatId)
+        const blob = new Blob([audioBuffer as any], { type: 'audio/mpeg' })
+        formData.append('voice', blob, 'response.mp3')
+
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendVoice`, {
+            method: 'POST',
+            body: formData,
+        })
+
+        const result = await res.json()
+        if (!result.ok) {
+            console.error('Telegram sendVoice error:', result.description)
+        }
+        return result.ok === true
+    } catch (err) {
+        console.error('Send voice note error:', err)
+        return false
+    }
 }
 
 // --- Command Handlers ---
@@ -117,7 +205,9 @@ function getHelpMessage(name: string): string {
         `  • <i>"Come vanno le campagne?"</i>\n` +
         `  • <i>"Qual è il CPL medio?"</i>\n` +
         `  • <i>"Consigliami come ottimizzare il budget"</i>\n\n` +
-        `💡 Scrivi la tua domanda e ti rispondo in tempo reale con dati aggiornati!`
+        `🎙️ <b>Voce:</b>\n` +
+        `Invia un vocale e ti rispondo con un vocale!\n\n` +
+        `💡 Scrivi o parla e ti rispondo in tempo reale!`
 }
 
 async function handleStatsCommand(orgId: string, botToken: string, chatId: string) {
@@ -159,7 +249,7 @@ async function handleCampaignsCommand(orgId: string, botToken: string, chatId: s
     const ctx = await getOrgDataContext(orgId)
 
     if (ctx.campaigns.length === 0) {
-        await sendTelegramDirect(botToken, chatId, '📢 Nessuna campagna trovata. Collega Meta Ads dalla dashbaord per sincronizzare le campagne.')
+        await sendTelegramDirect(botToken, chatId, '📢 Nessuna campagna trovata. Collega Meta Ads dalla dashboard per sincronizzare le campagne.')
         return
     }
 
@@ -194,14 +284,15 @@ async function handlePipelineCommand(orgId: string, botToken: string, chatId: st
     await sendTelegramDirect(botToken, chatId, msg)
 }
 
-// --- AI Handler ---
+// --- AI Handler (text + optional voice response) ---
 
-async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string) {
-    // Send "typing" indicator
+async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string, respondWithVoice: boolean) {
+    // Send "typing" or "recording" indicator
+    const action = respondWithVoice ? 'record_voice' : 'typing'
     await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
+        body: JSON.stringify({ chat_id: chatId, action }),
     })
 
     // Get org data context
@@ -210,7 +301,22 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
     // Ask AI
     const response = await askAI(question, ctx)
 
-    // Send response, with a header
+    // Always send text response
     const header = response.success ? '🤖' : '⚠️'
     await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
+
+    // If voice requested, also send voice note
+    if (respondWithVoice && response.success) {
+        // Update action to "uploading voice"
+        await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, action: 'upload_voice' }),
+        })
+
+        const audioBuffer = await textToSpeech(response.text)
+        if (audioBuffer) {
+            await sendVoiceNote(botToken, chatId, audioBuffer)
+        }
+    }
 }
