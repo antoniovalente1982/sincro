@@ -621,8 +621,9 @@ const STYLES = `
     }
     .ms-topbar-phone:hover { opacity: 0.8; }
     .ms-topbar-hours {
-        color: #71717a;
+        color: #a1a1aa;
         font-size: 12px;
+        font-weight: 500;
     }
 
     /* Header */
@@ -656,7 +657,7 @@ const STYLES = `
         letter-spacing: 3px;
         color: #fff;
     }
-    .ms-logo-text sup { color: #facc15; font-size: 10px; }
+    .ms-logo-text sup { color: #fff; font-size: 10px; }
     .ms-logo-sub {
         font-size: 11px;
         font-weight: 400;
@@ -1466,21 +1467,20 @@ const STYLES = `
     .ms-garanzia-banner strong { color: #fff; }
 
     .ms-footer-banner {
-        background: rgba(250, 204, 21, 0.04);
-        border-top: 1px solid rgba(250, 204, 21, 0.1);
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
         padding: 18px 20px;
         text-align: center;
     }
     .ms-footer-banner p {
-        font-size: 13px;
-        font-weight: 500;
-        color: #71717a;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
         max-width: 700px;
         margin: 0 auto;
         line-height: 1.5;
     }
     .ms-footer-banner strong {
-        color: #a1a1aa;
+        color: #fff;
         text-decoration: underline;
         text-underline-offset: 2px;
     }
