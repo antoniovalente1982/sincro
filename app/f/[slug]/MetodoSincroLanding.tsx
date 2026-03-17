@@ -36,6 +36,7 @@ const FAMOUS_PLAYERS = [
     { name: 'Martina Piemonte', team: 'Lazio Women', img: '/images/calciatori/Martina Piemonte (Lazio).png' },
     { name: 'Simone Cinquegrano', team: 'Inter', img: '/images/calciatori/Simone Cinquegrano (Inter).png' },
     { name: 'Gianmarco Cangiano', team: 'Lega Pro', img: '/images/calciatori/Gianmarco Cangiano (Lega Pro).png' },
+    { name: 'Chiara Robustellini', team: 'Inter Women', img: '/images/calciatori/Chiara Robustellini (inter).png' },
     { name: 'Filippo Frison', team: 'Lega Pro', img: '/images/calciatori/Filippo Frison (Lega Pro).png' },
     { name: 'Francesca Durante', team: 'Lazio Women', img: '/images/calciatori/Francesca Durante (Lazio).png' },
     { name: 'Iris Rabot', team: 'Parma Women', img: '/images/calciatori/Iris Rabot (Parma).png' },
@@ -158,11 +159,6 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     <p className="ms-thankyou-sub">
                         Preparati a scoprire come sbloccare il vero potenziale di tuo figlio.
                     </p>
-                </div>
-
-                {/* Footer banner */}
-                <div className="ms-footer-banner">
-                    <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, con coach specializzati e dedicati per fascia d'età.</p>
                 </div>
 
                 <style>{STYLES}</style>
@@ -397,10 +393,6 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             {/* Form Section */}
             <section className="ms-form-section" id="ms-form">
                 <div className="ms-form-inner">
-                    <div className="ms-form-urgency">
-                        <span className="ms-urgency-dot" />
-                        <span>Posti limitati — <strong>{viewerCount}</strong> genitori stanno guardando ora</span>
-                    </div>
                     <h2>Richiedi una <span className="ms-yellow">Consulenza Gratuita</span></h2>
                     <p>Un nostro esperto ti contatterà per capire come possiamo aiutare tuo figlio.</p>
                     <div className="ms-form-trust-row">
@@ -546,6 +538,11 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         <p className="ms-privacy">
                             🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.
                         </p>
+
+                        <div className="ms-form-urgency-bottom">
+                            <span className="ms-urgency-dot" />
+                            <span>Posti limitati — <strong>{viewerCount}</strong> genitori stanno guardando ora</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -803,19 +800,20 @@ const STYLES = `
     }
     .ms-player-card strong {
         display: block;
-        font-size: 13px;
+        font-size: 14px;
         margin-bottom: 3px;
+        color: #fff;
     }
     .ms-player-card span {
-        font-size: 11px;
-        color: #71717a;
+        font-size: 12px;
+        color: #a1a1aa;
     }
     .ms-molti-altri {
         text-align: center;
-        font-size: 15px;
-        font-style: italic;
-        color: #52525b;
-        margin: 16px 0 8px;
+        font-size: 17px;
+        font-weight: 600;
+        color: #a1a1aa;
+        margin: 20px 0 12px;
         letter-spacing: 1px;
     }
     .ms-stats-row {
@@ -1421,21 +1419,39 @@ const STYLES = `
     .ms-garanzia-banner strong { color: #fff; }
 
     .ms-footer-banner {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        background: rgba(250, 204, 21, 0.04);
+        border-top: 1px solid rgba(250, 204, 21, 0.1);
         padding: 18px 20px;
         text-align: center;
     }
     .ms-footer-banner p {
-        font-size: 14px;
-        font-weight: 600;
-        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        color: #71717a;
         max-width: 700px;
         margin: 0 auto;
         line-height: 1.5;
     }
     .ms-footer-banner strong {
+        color: #a1a1aa;
         text-decoration: underline;
         text-underline-offset: 2px;
+    }
+    .ms-form-urgency-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        margin-top: 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #a1a1aa;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .ms-form-urgency-bottom strong {
+        color: #facc15;
     }
 
     /* Thank you */
