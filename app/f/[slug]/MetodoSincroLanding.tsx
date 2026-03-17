@@ -170,6 +170,17 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     /* ======================== MAIN PAGE ======================== */
     return (
         <div className="ms-page">
+            {/* Top Bar */}
+            <div className="ms-topbar">
+                <div className="ms-topbar-inner">
+                    <a href="tel:+390230316517" className="ms-topbar-phone">
+                        <Phone size={14} />
+                        <span>+39 02 3031 6517</span>
+                    </a>
+                    <span className="ms-topbar-hours">Lun-Ven 9:00 — 20:00</span>
+                </div>
+            </div>
+
             {/* Header */}
             <header className="ms-header">
                 <div className="ms-header-inner">
@@ -583,6 +594,36 @@ const STYLES = `
     }
 
     .ms-yellow { color: #facc15; }
+
+    /* Top bar */
+    .ms-topbar {
+        background: rgba(250, 204, 21, 0.06);
+        border-bottom: 1px solid rgba(250, 204, 21, 0.1);
+    }
+    .ms-topbar-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 8px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        font-size: 13px;
+    }
+    .ms-topbar-phone {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #facc15;
+        font-weight: 700;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .ms-topbar-phone:hover { opacity: 0.8; }
+    .ms-topbar-hours {
+        color: #71717a;
+        font-size: 12px;
+    }
 
     /* Header */
     .ms-header {
