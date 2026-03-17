@@ -38,7 +38,17 @@ export default function FunnelLandingPage({ funnel }: Props) {
             localStorage.setItem('_sincro_vid', visitorId)
         }
 
-        // Track PageView server-side
+        // Generate event_id for PageView deduplication (pixel ↔ CAPI)
+        const pageViewEventId = `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+        // Get Facebook click/browser IDs from cookies for CAPI
+        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
+            const [k, v] = c.trim().split('=')
+            acc[k] = v
+            return acc
+        }, {})
+
+        // Track PageView server-side (also fires CAPI with same event_id)
         const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
         fetch('/api/track/pageview', {
             method: 'POST',
@@ -56,8 +66,17 @@ export default function FunnelLandingPage({ funnel }: Props) {
                 utm_term: utms.utm_term,
                 fbadid: params.get('fbadid') || undefined,
                 referrer: document.referrer || undefined,
+                event_id: pageViewEventId,
+                fbc: cookies._fbc || undefined,
+                fbp: cookies._fbp || undefined,
+                page_url: window.location.href,
             }),
         }).catch(() => {}) // Fire and forget
+
+        // Fire pixel PageView with same event_id for deduplication
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+            (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
+        }
     }, [])
 
     // Get Facebook click/browser IDs from cookies
@@ -77,6 +96,14 @@ export default function FunnelLandingPage({ funnel }: Props) {
         setError('')
 
         try {
+            // Advanced Matching: reinitialize pixel with user data (Meta hashes automatically)
+            if (funnel.meta_pixel_id && typeof window !== 'undefined' && (window as any).fbq) {
+                const matchData: any = {}
+                if (email) matchData.em = email.toLowerCase().trim()
+                if (phone) matchData.ph = phone.replace(/\D/g, '')
+                ;(window as any).fbq('init', funnel.meta_pixel_id, matchData)
+            }
+
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -84,6 +111,7 @@ export default function FunnelLandingPage({ funnel }: Props) {
                     funnel_id: funnel.id,
                     name, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
+                    landing_url: window.location.host + window.location.pathname,
                     ...utmParams,
                     ...getFbIds(),
                 }),
@@ -253,11 +281,11 @@ export default function FunnelLandingPage({ funnel }: Props) {
                 </div>
             </div>
 
-            {/* Meta Pixel Script */}
+            {/* Meta Pixel Script — PageView is fired manually with eventID for CAPI deduplication */}
             {funnel.meta_pixel_id && (
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}');fbq('track','PageView');`,
+                        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}');`,
                     }}
                 />
             )}

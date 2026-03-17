@@ -151,6 +151,9 @@ export async function POST(req: NextRequest) {
                 fbc: body.fbc || undefined,
                 fbp: body.fbp || undefined,
                 content_category: funnel.objective || 'cliente',
+                client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
+                client_user_agent: req.headers.get('user-agent') || undefined,
+                event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
             }, funnel.meta_pixel_id, lead.id)
         }
 
@@ -207,11 +210,14 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 event_time: Math.floor(Date.now() / 1000),
                 event_id: eventId,
                 action_source: 'website',
+                event_source_url: userData.event_source_url || undefined,
                 user_data: {
                     em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
                     ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
                     fbc: userData.fbc || undefined,
                     fbp: userData.fbp || undefined,
+                    client_ip_address: userData.client_ip || undefined,
+                    client_user_agent: userData.client_user_agent || undefined,
                 },
                 custom_data: {
                     content_category: userData.content_category || undefined,

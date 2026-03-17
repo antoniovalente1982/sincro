@@ -170,6 +170,8 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
             user_data: {
                 em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
                 ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
+                client_ip_address: userData.client_ip || undefined,
+                client_user_agent: userData.client_user_agent || undefined,
             },
             custom_data: {
                 content_category: userData.content_category || undefined,
