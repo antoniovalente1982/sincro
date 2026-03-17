@@ -565,6 +565,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 <p>⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>UNO a UNO</strong>, interamente <strong>ONLINE</strong>, con coach specializzati e dedicati per fascia d'età.</p>
             </div>
 
+            {/* Company Footer */}
+            <div className="ms-company-footer">
+                <p className="ms-company-name">Sincro Group S.R.L.</p>
+                <p>Via Monte Napoleone n.8 — 20121 Milano (MI)</p>
+                <p>C.F: 13508690966 · P.IVA: 13508690966</p>
+            </div>
+
             {/* Meta Pixel */}
             {funnel.meta_pixel_id && (
                 <script
@@ -1483,6 +1490,22 @@ const STYLES = `
         color: #fff;
         text-decoration: underline;
         text-underline-offset: 2px;
+    }
+    .ms-company-footer {
+        padding: 20px 20px;
+        text-align: center;
+        background: #050505;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .ms-company-footer p {
+        font-size: 11px;
+        color: #52525b;
+        line-height: 1.8;
+    }
+    .ms-company-footer .ms-company-name {
+        font-weight: 700;
+        font-size: 12px;
+        color: #71717a;
     }
     .ms-form-urgency-bottom {
         display: flex;
