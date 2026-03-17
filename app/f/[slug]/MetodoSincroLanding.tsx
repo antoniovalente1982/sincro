@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { CheckCircle, ArrowRight, ChevronRight, Star, Shield, Clock, Users, Trophy, Phone, Mail, User, ChevronDown, Gift, MessageCircle, Sparkles } from 'lucide-react'
 
 interface Props {
@@ -172,7 +173,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             {/* Header */}
             <header className="ms-header">
                 <div className="ms-header-inner">
-                    <div className="ms-logo"><img src="/images/team/Progetto senza titolo-2.png" alt="Metodo Sincro" className="ms-logo-img" /></div>
+                    <div className="ms-logo"><Image src="/images/team/Progetto senza titolo-2.png" alt="Metodo Sincro" className="ms-logo-img" width={120} height={32} priority /></div>
                     <div className="ms-header-right">
                         <div className="ms-trustpilot">
                             <div className="ms-stars">
@@ -224,18 +225,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         {FAMOUS_PLAYERS.map(p => (
                             <div key={p.name} className="ms-player-card">
                                 <div className="ms-player-avatar">
-                                    <img
+                                    <Image
                                         src={p.img}
                                         alt={p.name}
-                                        onError={(e) => {
-                                            // Fallback to initials if image fails
-                                            const el = e.target as HTMLImageElement
-                                            el.style.display = 'none'
-                                            const parent = el.parentElement
-                                            if (parent) {
-                                                parent.innerHTML = `<span class="ms-player-initials">${p.name.split(' ').map(n => n[0]).join('')}</span>`
-                                            }
-                                        }}
+                                        width={64}
+                                        height={64}
+                                        loading="lazy"
+                                        style={{ objectFit: 'cover', borderRadius: '50%' }}
                                     />
                                 </div>
                                 <strong>{p.name}</strong>
@@ -269,13 +265,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             <section className="ms-chi-siamo">
                 <div className="ms-chi-inner">
                     <div className="ms-chi-photo">
-                        <img
+                        <Image
                             src="/images/team/Antonio Valente.png"
                             alt="Antonio Valente - Fondatore Metodo Sincro"
-                            onError={(e) => {
-                                const el = e.target as HTMLImageElement
-                                el.style.display = 'none'
-                            }}
+                            width={300}
+                            height={400}
+                            loading="lazy"
+                            style={{ objectFit: 'cover', borderRadius: '16px' }}
                         />
                     </div>
                     <div className="ms-chi-text">
