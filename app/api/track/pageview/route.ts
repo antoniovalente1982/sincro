@@ -48,16 +48,21 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // Fire CAPI PageView event (non-blocking)
+        // Fire CAPI PageView event — MUST be awaited before response
+        // (Vercel kills pending promises after response is sent)
         if (funnel_id && event_id) {
-            fireCapiPageView(organization_id, {
-                event_id,
-                fbc: fbc || undefined,
-                fbp: fbp || undefined,
-                client_ip: clientIp || undefined,
-                client_user_agent: userAgent || undefined,
-                event_source_url: page_url || undefined,
-            }).catch(err => console.error('CAPI PageView error:', err))
+            try {
+                await fireCapiPageView(organization_id, {
+                    event_id,
+                    fbc: fbc || undefined,
+                    fbp: fbp || undefined,
+                    client_ip: clientIp || undefined,
+                    client_user_agent: userAgent || undefined,
+                    event_source_url: page_url || undefined,
+                })
+            } catch (err) {
+                console.error('CAPI PageView error:', err)
+            }
         }
 
         return NextResponse.json({ success: true })
