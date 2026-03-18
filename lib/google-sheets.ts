@@ -33,9 +33,12 @@ async function getSheetsCredentials(orgId: string): Promise<GoogleSheetsCredenti
     }
 }
 
-/** Convert a string to base64url (URL-safe, no padding) */
-function toBase64Url(str: string): string {
-    return btoa(str)
+/** Convert a buffer or string to base64url (URL-safe, no padding) */
+function toBase64Url(input: string | Buffer): string {
+    const b64 = typeof input === 'string' 
+        ? Buffer.from(input).toString('base64')
+        : input.toString('base64')
+    return b64
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '')
@@ -43,6 +46,7 @@ function toBase64Url(str: string): string {
 
 /**
  * Get an access token from a service account key
+ * Uses Node.js native crypto module for reliable JWT signing in serverless environments
  */
 async function getServiceAccountToken(serviceAccountKey: string): Promise<string | null> {
     try {
@@ -52,6 +56,9 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
             console.error('Google Sheets: service account key missing client_email or private_key')
             return null
         }
+
+        // Use Node.js native crypto for reliable JWT signing
+        const { createSign } = await import('crypto')
 
         // Create JWT with base64url encoding (required by Google OAuth2)
         const header = toBase64Url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
@@ -64,25 +71,10 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
             iat: now,
         }))
 
-        // Import private key and sign
-        const pemContents = key.private_key
-            .replace(/-----BEGIN PRIVATE KEY-----/g, '')
-            .replace(/-----END PRIVATE KEY-----/g, '')
-            .replace(/\n/g, '')
-
-        const binaryKey = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0))
-
-        const cryptoKey = await crypto.subtle.importKey(
-            'pkcs8',
-            binaryKey,
-            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-            false,
-            ['sign']
-        )
-
-        const signatureInput = new TextEncoder().encode(`${header}.${claim}`)
-        const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, signatureInput)
-        const sig = toBase64Url(String.fromCharCode(...new Uint8Array(signature)))
+        // Sign with RSA-SHA256 using Node.js native crypto
+        const sign = createSign('RSA-SHA256')
+        sign.update(`${header}.${claim}`)
+        const sig = toBase64Url(sign.sign(key.private_key, 'base64'))
 
         const jwt = `${header}.${claim}.${sig}`
 
@@ -98,6 +90,7 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
             console.error('Google Sheets: OAuth2 token exchange failed:', JSON.stringify(data))
             return null
         }
+        console.log('Google Sheets: OAuth2 token obtained successfully')
         return data.access_token
     } catch (err) {
         console.error('Service account token error:', err)
