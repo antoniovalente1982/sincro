@@ -167,7 +167,11 @@ export async function POST(req: NextRequest) {
                 (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
                 (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
 
-            sendTelegramMessage(funnel.organization_id, tgMsg).catch(() => {})
+            sendTelegramMessage(funnel.organization_id, tgMsg).then(ok => {
+                if (!ok) console.error('Telegram: notification failed for lead:', name)
+            }).catch(err => {
+                console.error('Telegram: exception for lead:', name, err)
+            })
 
             // Append to Google Sheets (non-blocking)
             appendLeadToSheet(funnel.organization_id, {
