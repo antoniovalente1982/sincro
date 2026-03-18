@@ -70,11 +70,18 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
     const [sortKey, setSortKey] = useState<SortKey>('status')
     const [sortDir, setSortDir] = useState<SortDir>('desc')
 
-    // Filter campaigns by date range using date_range_start (actual Meta data period)
+    // Filter campaigns by date range: check if campaign data period OVERLAPS the selected range
     const campaigns = useMemo(() => {
-        // Only filter by date_range_start if a specific range is selected (not 'all')
         if (activeKey === 'all') return allCampaigns
-        return filterByDateRange(allCampaigns, range, 'date_range_start' as any)
+        // For Ads, only hide campaigns that have a data period completely outside the selected range
+        // Campaigns without date_range are always visible
+        return allCampaigns.filter(c => {
+            if (!c.date_range_start || !c.date_range_end) return true // no date info = always show
+            const campStart = new Date(c.date_range_start)
+            const campEnd = new Date(c.date_range_end)
+            // Check overlap: campaign period overlaps with selected range
+            return campStart <= range.to && campEnd >= range.from
+        })
     }, [allCampaigns, range, activeKey])
 
     // Sort campaigns: ACTIVE first, then by selected sort key
@@ -120,9 +127,18 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
         try {
             const supabase = createClient()
             const { data: { session } } = await supabase.auth.getSession()
+            // Pass selected date range to sync API
+            const syncRange = {
+                since: range.from.toISOString().split('T')[0],
+                until: range.to.toISOString().split('T')[0],
+            }
             const res = await fetch('/api/meta/sync', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${session?.access_token}` },
+                headers: { 
+                    Authorization: `Bearer ${session?.access_token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ time_range: syncRange }),
             })
             const data = await res.json()
             if (data.success) {

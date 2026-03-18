@@ -61,6 +61,15 @@ export async function POST(req: NextRequest) {
 
         orgId = member.organization_id
 
+        // Parse optional time range from request body
+        let timeRangeOverride: { since: string; until: string } | null = null
+        try {
+            const body = await req.json()
+            if (body?.time_range?.since && body?.time_range?.until) {
+                timeRangeOverride = body.time_range
+            }
+        } catch {} // body may be empty for cron calls
+
         // Get Meta credentials
         const { data: conn } = await supabaseAdmin
             .from('connections')
@@ -74,7 +83,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Meta Ads not connected' }, { status: 400 })
         }
 
-        const result = await syncCampaigns(orgId!, conn.credentials)
+        const result = await syncCampaigns(orgId!, conn.credentials, timeRangeOverride)
         return NextResponse.json({ success: true, ...result })
     } catch (err: any) {
         console.error('Meta sync error:', err)
@@ -82,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-async function syncCampaigns(orgId: string, credentials: any) {
+async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?: { since: string; until: string } | null) {
     const { access_token, ad_account_id } = credentials
     if (!access_token || !ad_account_id) {
         return { error: 'Missing credentials', synced: 0 }
@@ -107,13 +116,18 @@ async function syncCampaigns(orgId: string, credentials: any) {
         return { message: 'No campaigns found', synced: 0 }
     }
 
-    // 2. Get insights for all campaigns (last 30 days)
-    const now = new Date()
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-    const timeRange = JSON.stringify({
-        since: thirtyDaysAgo.toISOString().split('T')[0],
-        until: now.toISOString().split('T')[0],
-    })
+    // 2. Get insights — use override range if provided, otherwise last 30 days
+    let timeRange: string
+    if (timeRangeOverride?.since && timeRangeOverride?.until) {
+        timeRange = JSON.stringify(timeRangeOverride)
+    } else {
+        const now = new Date()
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        timeRange = JSON.stringify({
+            since: thirtyDaysAgo.toISOString().split('T')[0],
+            until: now.toISOString().split('T')[0],
+        })
+    }
 
     const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,cpm,reach,frequency,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(timeRange)}&limit=100&access_token=${access_token}`
     const insightsRes = await fetch(insightsUrl)
