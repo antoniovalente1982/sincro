@@ -117,17 +117,12 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
     }
 
     // 2. Get insights — use override range if provided, otherwise last 30 days
-    let timeRange: string
-    if (timeRangeOverride?.since && timeRangeOverride?.until) {
-        timeRange = JSON.stringify(timeRangeOverride)
-    } else {
-        const now = new Date()
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-        timeRange = JSON.stringify({
-            since: thirtyDaysAgo.toISOString().split('T')[0],
-            until: now.toISOString().split('T')[0],
-        })
-    }
+    // Always fetch lifetime insights from Meta to avoid overwriting data with zeros
+    // The UI date filter only controls display, not what gets fetched
+    const timeRange = JSON.stringify({
+        since: '2024-01-01',
+        until: new Date().toISOString().split('T')[0],
+    })
 
     const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,cpm,reach,frequency,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(timeRange)}&limit=100&access_token=${access_token}`
     const insightsRes = await fetch(insightsUrl)
@@ -144,6 +139,7 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
     let synced = 0
     for (const campaign of campaigns) {
         const insight = insightsMap[campaign.id] || {}
+        const hasInsights = !!insight.spend // Only update metrics if Meta returned data
 
         const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
         const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
@@ -152,28 +148,35 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         const spendNum = parseFloat(insight.spend || '0')
         const roas = spendNum > 0 && purchaseValue > 0 ? parseFloat(purchaseValue) / spendNum : 0
 
+        // Base data: always update campaign metadata (name, status, budget)
+        const upsertData: any = {
+            organization_id: orgId,
+            external_campaign_id: campaign.id,
+            campaign_name: campaign.name || '',
+            status: campaign.status || 'UNKNOWN',
+            objective: campaign.objective || null,
+            daily_budget: campaign.daily_budget ? parseFloat(campaign.daily_budget) / 100 : null,
+            synced_at: new Date().toISOString(),
+        }
+
+        // Only overwrite metrics if Meta actually returned insights for this campaign
+        if (hasInsights) {
+            upsertData.spend = spendNum
+            upsertData.impressions = parseInt(insight.impressions || '0')
+            upsertData.clicks = parseInt(insight.clicks || '0')
+            upsertData.leads_count = parseInt(leadsCount)
+            upsertData.cpl = parseFloat(cplValue)
+            upsertData.cpc = parseFloat(insight.cpc || '0')
+            upsertData.ctr = parseFloat(insight.ctr || '0')
+            upsertData.conversions = parseInt(purchaseCount)
+            upsertData.roas = roas
+            upsertData.date_range_start = insight.date_start || null
+            upsertData.date_range_end = insight.date_stop || null
+        }
+
         const { error } = await supabaseAdmin
             .from('campaigns_cache')
-            .upsert({
-                organization_id: orgId,
-                external_campaign_id: campaign.id,
-                campaign_name: campaign.name || '',
-                status: campaign.status || 'UNKNOWN',
-                objective: campaign.objective || null,
-                daily_budget: campaign.daily_budget ? parseFloat(campaign.daily_budget) / 100 : null,
-                spend: spendNum,
-                impressions: parseInt(insight.impressions || '0'),
-                clicks: parseInt(insight.clicks || '0'),
-                leads_count: parseInt(leadsCount),
-                cpl: parseFloat(cplValue),
-                cpc: parseFloat(insight.cpc || '0'),
-                ctr: parseFloat(insight.ctr || '0'),
-                conversions: parseInt(purchaseCount),
-                roas: roas,
-                date_range_start: insight.date_start || null,
-                date_range_end: insight.date_stop || null,
-                synced_at: new Date().toISOString(),
-            }, {
+            .upsert(upsertData, {
                 onConflict: 'external_campaign_id',
             })
 
