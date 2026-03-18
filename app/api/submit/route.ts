@@ -179,7 +179,11 @@ export async function POST(req: NextRequest) {
                 utm_campaign: utm_campaign || '',
                 created_at: new Date().toISOString(),
                 landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
-            }).catch(() => {})
+            }).then(ok => {
+                if (!ok) console.error('Google Sheets: appendLeadToSheet returned false for lead:', name)
+            }).catch(err => {
+                console.error('Google Sheets: appendLeadToSheet exception for lead:', name, err)
+            })
         }
 
         return NextResponse.json({ success: true, lead_id: lead?.id })

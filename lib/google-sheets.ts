@@ -33,6 +33,14 @@ async function getSheetsCredentials(orgId: string): Promise<GoogleSheetsCredenti
     }
 }
 
+/** Convert a string to base64url (URL-safe, no padding) */
+function toBase64Url(str: string): string {
+    return btoa(str)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '')
+}
+
 /**
  * Get an access token from a service account key
  */
@@ -40,10 +48,15 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
     try {
         const key = typeof serviceAccountKey === 'string' ? JSON.parse(serviceAccountKey) : serviceAccountKey
 
-        // Create JWT
-        const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
+        if (!key.client_email || !key.private_key) {
+            console.error('Google Sheets: service account key missing client_email or private_key')
+            return null
+        }
+
+        // Create JWT with base64url encoding (required by Google OAuth2)
+        const header = toBase64Url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
         const now = Math.floor(Date.now() / 1000)
-        const claim = btoa(JSON.stringify({
+        const claim = toBase64Url(JSON.stringify({
             iss: key.client_email,
             scope: 'https://www.googleapis.com/auth/spreadsheets',
             aud: 'https://oauth2.googleapis.com/token',
@@ -69,10 +82,7 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
 
         const signatureInput = new TextEncoder().encode(`${header}.${claim}`)
         const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, signatureInput)
-        const sig = btoa(String.fromCharCode(...new Uint8Array(signature)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '')
+        const sig = toBase64Url(String.fromCharCode(...new Uint8Array(signature)))
 
         const jwt = `${header}.${claim}.${sig}`
 
@@ -84,7 +94,11 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
         })
 
         const data = await res.json()
-        return data.access_token || null
+        if (!data.access_token) {
+            console.error('Google Sheets: OAuth2 token exchange failed:', JSON.stringify(data))
+            return null
+        }
+        return data.access_token
     } catch (err) {
         console.error('Service account token error:', err)
         return null
