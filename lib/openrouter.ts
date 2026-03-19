@@ -123,3 +123,52 @@ ${JSON.stringify(orgContext.recent_operations, null, 2)}`
         }
     }
 }
+
+/**
+ * Fast version for Telegram — less context, fewer tokens, quicker response
+ */
+export async function askAIFast(question: string, orgContext: any): Promise<AIResponse> {
+    if (!OPENROUTER_API_KEY) {
+        return { text: '⚠️ OpenRouter API Key non configurata.', success: false }
+    }
+
+    try {
+        // Compact context to minimize tokens sent
+        const ctx = `Oggi: ${orgContext.current_datetime?.date || 'N/A'}
+Lead: ${orgContext.summary?.leads_today || 0} oggi, ${orgContext.summary?.leads_this_week || 0} settimana, ${orgContext.summary?.total_leads || 0} totali
+Campagne attive: ${orgContext.summary?.active_campaigns || 0} | Spesa: €${orgContext.summary?.total_spend || 0} | CPL: €${orgContext.summary?.avg_cpl || 0}
+Pipeline: ${(orgContext.stage_distribution || []).map((s: any) => `${s.name}:${s.count}`).join(', ')}
+Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.stage}, ${l.created?.slice(0,10)})`).join('; ')}`
+
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': 'https://metodosincro.com',
+                'X-Title': 'Metodo Sincro AI',
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                messages: [
+                    { role: 'system', content: SYSTEM_PROMPT },
+                    { role: 'user', content: ctx },
+                    { role: 'user', content: question },
+                ],
+                max_tokens: 800,
+                temperature: 0.7,
+            }),
+        })
+
+        if (!res.ok) {
+            return { text: `⚠️ Errore AI (${res.status}). Riprova.`, success: false }
+        }
+
+        const data = await res.json()
+        const reply = data.choices?.[0]?.message?.content
+        return reply ? { text: reply, success: true } : { text: '⚠️ Nessuna risposta. Riprova.', success: false }
+    } catch (err) {
+        console.error('OpenRouter fast call error:', err)
+        return { text: '⚠️ Errore connessione. Riprova.', success: false }
+    }
+}

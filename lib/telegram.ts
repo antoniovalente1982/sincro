@@ -245,3 +245,75 @@ export async function getOrgDataContext(orgId: string) {
         })),
     }
 }
+
+/**
+ * Lightweight version for Telegram webhook (3 queries instead of 7)
+ * Designed to fit within Vercel Hobby 10s timeout
+ */
+export async function getOrgDataContextLite(orgId: string) {
+    const now = new Date()
+    const todayStr = now.toISOString().split('T')[0]
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    const [leadsRes, campaignsRes, stagesRes] = await Promise.all([
+        supabaseAdmin
+            .from('leads')
+            .select('id, name, stage_id, value, utm_source, created_at')
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false })
+            .limit(20),
+        supabaseAdmin
+            .from('campaigns_cache')
+            .select('campaign_name, status, spend, leads_count, cpl, ctr, roas')
+            .eq('organization_id', orgId),
+        supabaseAdmin
+            .from('pipeline_stages')
+            .select('id, name, is_won, is_lost')
+            .eq('organization_id', orgId)
+            .order('sort_order', { ascending: true }),
+    ])
+
+    const leads = leadsRes.data || []
+    const campaigns = campaignsRes.data || []
+    const stages = stagesRes.data || []
+    const stageMap = new Map(stages.map(s => [s.id, s]))
+
+    const leadsToday = leads.filter(l => l.created_at?.startsWith(todayStr)).length
+    const leadsYesterday = leads.filter(l => l.created_at?.startsWith(yesterdayStr)).length
+    const leadsThisWeek = leads.filter(l => new Date(l.created_at) >= weekAgo).length
+
+    const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
+    const totalCampaignLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
+    const avgCPL = totalCampaignLeads > 0 ? totalSpend / totalCampaignLeads : 0
+
+    const stageDist = stages.map(s => ({
+        name: s.name,
+        count: leads.filter(l => l.stage_id === s.id).length,
+    })).filter(s => s.count > 0)
+
+    return {
+        current_datetime: { date: todayStr, yesterday: yesterdayStr },
+        summary: {
+            total_leads: leads.length,
+            leads_today: leadsToday,
+            leads_yesterday: leadsYesterday,
+            leads_this_week: leadsThisWeek,
+            active_campaigns: campaigns.filter(c => c.status === 'ACTIVE').length,
+            total_spend: totalSpend.toFixed(2),
+            avg_cpl: avgCPL.toFixed(2),
+        },
+        stage_distribution: stageDist,
+        campaigns: campaigns.map(c => ({
+            name: c.campaign_name, status: c.status,
+            spend: c.spend, leads: c.leads_count, cpl: c.cpl, ctr: c.ctr,
+        })),
+        recent_leads: leads.slice(0, 5).map(l => ({
+            name: l.name,
+            stage: stageMap.get(l.stage_id)?.name || 'N/A',
+            source: l.utm_source || 'Diretto',
+            created: l.created_at,
+        })),
+    }
+}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { findOrgByChatId, getOrgDataContext, sendTelegramDirect } from '@/lib/telegram'
-import { askAI } from '@/lib/openrouter'
+import { findOrgByChatId, getOrgDataContextLite, sendTelegramDirect } from '@/lib/telegram'
+import { askAI, askAIFast } from '@/lib/openrouter'
 import { textToSpeech, speechToText } from '@/lib/elevenlabs'
 
 const supabaseAdmin = createClient(
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
         // Check if text requests voice response
         const wantsVoice = detectVoiceRequest(text)
 
-        // Free-form text question → response mode based on request
-        await handleAIQuestion(text, orgId, botToken, chatId, firstName, wantsVoice ? 'voice' : 'text')
+        // Free-form text question → use fast mode (text only, no voice for speed)
+        await handleAIQuestionFast(text, orgId, botToken, chatId, firstName)
 
         return NextResponse.json({ ok: true })
     } catch (err) {
@@ -244,14 +244,14 @@ function getHelpMessage(name: string): string {
 }
 
 async function handleStatsCommand(orgId: string, botToken: string, chatId: string) {
-    const ctx = await getOrgDataContext(orgId)
+    const ctx = await getOrgDataContextLite(orgId)
     const s = ctx.summary
 
     const msg = `📊 <b>Riepilogo Metodo Sincro</b>\n\n` +
         `👥 <b>Lead totali:</b> ${s.total_leads}\n` +
         `📥 <b>Lead oggi:</b> ${s.leads_today}\n` +
         `📅 <b>Lead ultimi 7 giorni:</b> ${s.leads_this_week}\n\n` +
-        `📢 <b>Campagne:</b> ${s.active_campaigns} attive / ${s.total_campaigns} totali\n` +
+        `📢 <b>Campagne attive:</b> ${s.active_campaigns}\n` +
         `💰 <b>Spesa totale:</b> €${s.total_spend}\n` +
         `📉 <b>CPL medio:</b> €${s.avg_cpl}\n\n` +
         (ctx.stage_distribution.length > 0
@@ -262,7 +262,7 @@ async function handleStatsCommand(orgId: string, botToken: string, chatId: strin
 }
 
 async function handleLeadsCommand(orgId: string, botToken: string, chatId: string) {
-    const ctx = await getOrgDataContext(orgId)
+    const ctx = await getOrgDataContextLite(orgId)
 
     if (ctx.recent_leads.length === 0) {
         await sendTelegramDirect(botToken, chatId, '📭 Nessun lead trovato. I lead appariranno qui quando arriveranno dai tuoi funnel.')
@@ -272,14 +272,14 @@ async function handleLeadsCommand(orgId: string, botToken: string, chatId: strin
     const msg = `📥 <b>Ultimi ${Math.min(ctx.recent_leads.length, 10)} Lead</b>\n\n` +
         ctx.recent_leads.slice(0, 10).map((l, i) => {
             const date = new Date(l.created).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-            return `${i + 1}. <b>${l.name}</b>\n   📍 ${l.stage} • 📡 ${l.source}\n   🕐 ${date}${l.value ? ` • 💰 €${l.value}` : ''}`
+            return `${i + 1}. <b>${l.name}</b>\n   📍 ${l.stage} • 📡 ${l.source}\n   🕐 ${date}`
         }).join('\n\n')
 
     await sendTelegramDirect(botToken, chatId, msg)
 }
 
 async function handleCampaignsCommand(orgId: string, botToken: string, chatId: string) {
-    const ctx = await getOrgDataContext(orgId)
+    const ctx = await getOrgDataContextLite(orgId)
 
     if (ctx.campaigns.length === 0) {
         await sendTelegramDirect(botToken, chatId, '📢 Nessuna campagna trovata. Collega Meta Ads dalla dashboard per sincronizzare le campagne.')
@@ -291,15 +291,14 @@ async function handleCampaignsCommand(orgId: string, botToken: string, chatId: s
             const status = c.status === 'ACTIVE' ? '🟢' : c.status === 'PAUSED' ? '🟡' : '🔴'
             return `${status} <b>${c.name || 'Senza nome'}</b>\n` +
                 `   💰 Spesa: €${Number(c.spend || 0).toFixed(2)} • CPL: €${Number(c.cpl || 0).toFixed(2)}\n` +
-                `   👥 Lead: ${c.leads || 0} • CTR: ${Number(c.ctr || 0).toFixed(2)}%` +
-                (c.roas ? ` • ROAS: ${Number(c.roas).toFixed(1)}x` : '')
+                `   👥 Lead: ${c.leads || 0} • CTR: ${Number(c.ctr || 0).toFixed(2)}%`
         }).join('\n\n')
 
     await sendTelegramDirect(botToken, chatId, msg)
 }
 
 async function handlePipelineCommand(orgId: string, botToken: string, chatId: string) {
-    const ctx = await getOrgDataContext(orgId)
+    const ctx = await getOrgDataContextLite(orgId)
 
     if (ctx.stage_distribution.length === 0) {
         await sendTelegramDirect(botToken, chatId, '📋 Pipeline vuota. I lead verranno distribuiti negli stage automaticamente.')
@@ -317,25 +316,39 @@ async function handlePipelineCommand(orgId: string, botToken: string, chatId: st
     await sendTelegramDirect(botToken, chatId, msg)
 }
 
-// --- AI Handler (smart response mode) ---
+// --- AI Handler (fast, text-only for Hobby timeout) ---
 
-async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string, mode: ResponseMode) {
-    // Send appropriate indicator
-    const action = mode === 'voice' ? 'record_voice' : 'typing'
+async function handleAIQuestionFast(question: string, orgId: string, botToken: string, chatId: string, firstName: string) {
+    // Send typing indicator
     await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, action }),
+        body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
     })
 
-    // Get org data context
-    const ctx = await getOrgDataContext(orgId)
+    // Use lightweight context (3 queries instead of 7)
+    const ctx = await getOrgDataContextLite(orgId)
 
-    // Ask AI
-    const response = await askAI(question, ctx)
+    // Use fast AI (compact context, fewer tokens)
+    const response = await askAIFast(question, ctx)
+
+    const header = response.success ? '🤖' : '⚠️'
+    await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
+}
+
+// --- AI Handler (full, for voice messages — kept for voice responses) ---
+
+async function handleAIQuestion(question: string, orgId: string, botToken: string, chatId: string, firstName: string, mode: ResponseMode) {
+    await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, action: mode === 'voice' ? 'record_voice' : 'typing' }),
+    })
+
+    const ctx = await getOrgDataContextLite(orgId)
+    const response = await askAIFast(question, ctx)
 
     if (mode === 'voice' && response.success) {
-        // VOICE MODE: send only voice note
         await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -346,11 +359,9 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
         if (audioBuffer) {
             await sendVoiceNote(botToken, chatId, audioBuffer)
         } else {
-            // Fallback to text if TTS fails
             await sendTelegramDirect(botToken, chatId, `🤖 ${response.text}`)
         }
     } else {
-        // TEXT MODE: send only text
         const header = response.success ? '🤖' : '⚠️'
         await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
     }
