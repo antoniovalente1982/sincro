@@ -236,29 +236,41 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             <section className="ms-hero">
                 <div className="ms-hero-bg" />
                 <div className="ms-hero-content">
-                    <div className="ms-badge">
-                        <Trophy size={14} />
-                        Leader nel Mental Coaching Calcistico in Italia
+                    <div className="ms-hero-text">
+                        <div className="ms-badge">
+                            <Trophy size={14} />
+                            Leader nel Mental Coaching Calcistico in Italia
+                        </div>
+                        <h1>
+                            Tuo figlio ha <span className="ms-yellow">talento.</span><br />
+                            Ma il talento da solo<br />
+                            <span className="ms-yellow">non basta.</span>
+                        </h1>
+                        <p className="ms-hero-subtitle">Dagli accesso al segreto nascosto dei campioni professionisti</p>
+                        <p>
+                            L’87% degli atleti talentuosi non emerge per mancanza di preparazione mentale.
+                            Il <strong>MENTAL COACHING</strong> è ciò che fa la differenza tra chi resta in panchina e chi diventa protagonista.
+                        </p>
+                        <button className="ms-cta-hero" onClick={() => {
+                            document.getElementById('ms-form')?.scrollIntoView({ behavior: 'smooth' })
+                        }}>
+                            Prenota ORA la Tua Consulenza ⚽
+                            <ArrowRight size={20} />
+                        </button>
+                        <div className="ms-cta-bonus">
+                            <Sparkles size={16} />
+                            <span>Include anche accesso esclusivo ad <strong>Anthon Chat®</strong>, il nostro assistente AI</span>
+                        </div>
                     </div>
-                    <h1>
-                        Tuo figlio ha <span className="ms-yellow">talento.</span><br />
-                        Ma il talento da solo<br />
-                        <span className="ms-yellow">non basta.</span>
-                    </h1>
-                    <p className="ms-hero-subtitle">Dagli accesso al segreto nascosto dei campioni professionisti</p>
-                    <p>
-                        L'87% degli atleti talentuosi non emerge per mancanza di preparazione mentale.
-                        Il <strong>MENTAL COACHING</strong> è ciò che fa la differenza tra chi resta in panchina e chi diventa protagonista.
-                    </p>
-                    <button className="ms-cta-hero" onClick={() => {
-                        document.getElementById('ms-form')?.scrollIntoView({ behavior: 'smooth' })
-                    }}>
-                        Prenota ORA la Tua Consulenza ⚽
-                        <ArrowRight size={20} />
-                    </button>
-                    <div className="ms-cta-bonus">
-                        <Sparkles size={16} />
-                        <span>Include anche accesso esclusivo ad <strong>Anthon Chat®</strong>, il nostro assistente AI</span>
+                    <div className="ms-hero-image">
+                        <Image
+                            src="/images/landing/hero-footballer.png"
+                            alt="Giovane calciatore che celebra la vittoria - forza mentale"
+                            width={480}
+                            height={480}
+                            priority
+                            style={{ objectFit: 'cover', borderRadius: '20px' }}
+                        />
                     </div>
                 </div>
             </section>
@@ -268,6 +280,16 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 <div className="ms-form-inner">
                     <h2>Prenota ORA la Tua <span className="ms-yellow">Consulenza Gratuita</span></h2>
                     <p>Lascia i tuoi dati — ti richiamiamo entro 2 ore.</p>
+                    <div className="ms-form-visual">
+                        <Image
+                            src="/images/landing/mental-coaching.png"
+                            alt="Mental Coaching: dalla mente alla performance"
+                            width={400}
+                            height={400}
+                            loading="lazy"
+                            style={{ objectFit: 'contain', maxHeight: '120px', width: 'auto' }}
+                        />
+                    </div>
                     <div className="ms-form-trust-row">
                         <div className="ms-form-trust">
                             <div className="ms-stars">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#facc15" color="#facc15" />)}</div>
@@ -674,8 +696,31 @@ const STYLES = `
     }
     .ms-hero-content {
         position: relative;
-        max-width: 700px;
+        max-width: 1000px;
         margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 40px;
+        align-items: center;
+        text-align: left;
+    }
+    .ms-hero-text {
+        max-width: 560px;
+    }
+    .ms-hero-image {
+        flex-shrink: 0;
+        width: 320px;
+        height: 320px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow:
+            0 8px 40px rgba(0, 0, 0, 0.4),
+            0 0 60px rgba(250, 204, 21, 0.08);
+    }
+    .ms-hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     .ms-badge {
         display: inline-flex;
@@ -1143,6 +1188,11 @@ const STYLES = `
         background: #ef4444;
         animation: msPulseDot 1.5s ease-in-out infinite;
     }
+    .ms-form-visual {
+        display: flex;
+        justify-content: center;
+        margin: 8px 0 12px;
+    }
     .ms-form-inner h2 {
         font-size: 28px;
         font-weight: 800;
@@ -1551,10 +1601,14 @@ const STYLES = `
     /* ============ MOBILE RESPONSIVE ============ */
     @media (max-width: 768px) {
         .ms-hero { padding: 40px 16px 36px; }
+        .ms-hero-content { grid-template-columns: 1fr; text-align: center; gap: 24px; }
+        .ms-hero-image { width: 200px; height: 200px; margin: 0 auto; border-radius: 16px; }
+        .ms-hero-text { max-width: 100%; }
         .ms-hero h1 { font-size: 28px; }
         .ms-hero p { font-size: 14px; margin-bottom: 20px; }
         .ms-cta-hero { padding: 14px 24px; font-size: 15px; width: 100%; justify-content: center; }
         .ms-cta-bonus { font-size: 11px; padding: 6px 14px; }
+        .ms-form-visual img { max-height: 80px !important; }
 
         .ms-players { grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .ms-player-card { padding: 12px 8px; }
