@@ -34,11 +34,11 @@ ERRORS=0
 # Validazioni
 if [ "$AGE_MIN" = "38" ]; then echo "✅ Età min: $AGE_MIN"; else echo "❌ Età min: $AGE_MIN (deve essere 38)"; ERRORS=$((ERRORS+1)); fi
 if [ "$AGE_MAX" = "65" ]; then echo "✅ Età max: $AGE_MAX"; else echo "❌ Età max: $AGE_MAX (deve essere 65)"; ERRORS=$((ERRORS+1)); fi
-if [ "$LOCALES" = "[6]" ]; then echo "✅ Lingua: Italiano"; else echo "❌ Lingua: $LOCALES (deve essere [6] = Italiano)"; ERRORS=$((ERRORS+1)); fi
+if [ "$LOCALES" = "[10]" ]; then echo "✅ Lingua: Italiano"; else echo "❌ Lingua: $LOCALES (deve essere [10] = Italiano)"; ERRORS=$((ERRORS+1)); fi
 if echo "$COUNTRIES" | grep -q "IT"; then echo "✅ Paese: Italia"; else echo "❌ Paese: $COUNTRIES (deve includere IT)"; ERRORS=$((ERRORS+1)); fi
 if [ "$ADV_AUD" = "0" ]; then echo "✅ Advantage+ Audience: Disattivato"; else echo "❌ Advantage+ Audience: $ADV_AUD (deve essere 0)"; ERRORS=$((ERRORS+1)); fi
 if [ "$OPT_GOAL" = "OFFSITE_CONVERSIONS" ]; then echo "✅ Ottimizzazione: $OPT_GOAL"; else echo "❌ Ottimizzazione: $OPT_GOAL (deve essere OFFSITE_CONVERSIONS)"; ERRORS=$((ERRORS+1)); fi
-if [ "$PIXEL" = "311586900940615" ]; then echo "✅ Pixel: Metodo Sincro"; else echo "❌ Pixel: $PIXEL (deve essere 311586900940615)"; ERRORS=$((ERRORS+1)); fi
+if [ "$PIXEL" = "311586900940615" ]; then echo "✅ Pixel: Pixel Nuovo METODO SINCRO"; else echo "❌ Pixel: $PIXEL (deve essere 311586900940615)"; ERRORS=$((ERRORS+1)); fi
 if [ "$EVENT" = "LEAD" ]; then echo "✅ Evento: LEAD"; else echo "❌ Evento: $EVENT (deve essere LEAD)"; ERRORS=$((ERRORS+1)); fi
 
 echo ""

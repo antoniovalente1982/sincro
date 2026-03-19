@@ -154,14 +154,51 @@ Mix di **orgoglio, frustrazione e paura**. Vuole fare tutto il possibile per non
 
 ---
 
-## 6. DIRETTIVE TECNICHE CAMPAGNE
+## 6. DIRETTIVE TECNICHE CAMPAGNE — PARAMETRI ESATTI
 
-- Obiettivo: sempre **Contatti** | Conversione: **Sito web**
-- Prestazioni: **Massimizza conversioni** | Pixel: **Metodo Sincro**
-- Evento: **Acquisizione contatti** | Età: **38-65** o **30-55**
-- Targetizzazione: max **3-4 interessi** | Lingua: **Italiano**
-- Identità: pagina FB + IG | Link: **metodosincro.it**
-- UTM: `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}`
+### Account Meta
+| Risorsa | ID | Note |
+|---|---|---|
+| **Ad Account** | `act_511099830249139` | Antonio Valente Mental Coach |
+| **Pagina Facebook** | `108451268302248` | Antonio Valente "Mental Coach" |
+| **Instagram** | `17841449195220971` | @antoniovalente_mentalcoach |
+| **Pixel** | `311586900940615` | **Pixel Nuovo METODO SINCRO** |
+
+### Sezione Campagna
+| Parametro | Valore API | Note |
+|---|---|---|
+| Obiettivo | `OUTCOME_LEADS` | Sempre contatti |
+| Budget | Concordare con Antonio | es. €300/giorno = `daily_budget: 30000` |
+
+### Sezione Ad Set — ⚠️ NON CAMBIARE MAI
+| Parametro | Valore API | ⚠️ |
+|---|---|---|
+| Ottimizzazione | `OFFSITE_CONVERSIONS` | Massimizza conversioni |
+| Pixel | `pixel_id: 311586900940615` | Pixel Nuovo METODO SINCRO |
+| Evento | `custom_event_type: LEAD` | Acquisizione contatti |
+| **Età** | `age_min: 38, age_max: 65` | **MAI cambiare** |
+| **Lingua** | `locales: [10]` | **10 = Italiano** (6 = Inglese ❌) |
+| Advantage+ | `advantage_audience: 0` | **Sempre disattivato** |
+| Interessi | max 3-4 | Solo se confermati da Antonio |
+| Genere | `genders: [0]` | Tutti |
+| Paese | `countries: ["IT"]` | Solo Italia |
+
+### Sezione Inserzione
+| Parametro | Valore |
+|---|---|
+| Identità | Pagina FB `108451268302248` + IG |
+| Link visualizzato | `metodosincro.it` |
+| URL sito web | URL fornito da Antonio |
+| UTM (obbligatorio) | `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}` |
+
+### ⚠️ Errori da NON ripetere
+| Errore | Cosa è successo | Regola |
+|---|---|---|
+| Locale sbagliato | Ho usato `6` (Inglese) invece di `10` (Italiano) | **Italiano = locale 10** |
+| Età sbagliata | Ho messo 30-55 invece di 38-65 | **Sempre 38-65** |
+| Nome Pixel | Ho scritto "Metodo Sincro" nel playbook | **"Pixel Nuovo METODO SINCRO"** |
+| Placement invalido | `reels_overlay` non esiste | Usare posizionamenti automatici |
+| Instagram actor | `instagram_actor_id` nella creative non funziona | Non includerlo in `object_story_spec` |
 
 ---
 
