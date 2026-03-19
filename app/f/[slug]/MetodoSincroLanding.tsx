@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { CheckCircle, ArrowRight, ChevronRight, Star, Shield, Clock, Users, Trophy, Phone, Mail, User, ChevronDown, Gift, MessageCircle, Sparkles } from 'lucide-react'
+import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles } from 'lucide-react'
 
 interface Props {
     funnel: {
@@ -11,24 +11,7 @@ interface Props {
     }
 }
 
-const PROBLEMS = [
-    { value: 'ansia', label: 'Ansia da prestazione', icon: '😰' },
-    { value: 'paura_giudizio', label: 'Paura del giudizio', icon: '👀' },
-    { value: 'mancanza_fiducia', label: 'Mancanza di fiducia', icon: '💔' },
-    { value: 'panchina', label: 'Troppa panchina', icon: '🪑' },
-    { value: 'pressione', label: 'Non regge la pressione', icon: '😤' },
-    { value: 'post_infortunio', label: 'Paura post-infortunio', icon: '🏥' },
-    { value: 'concentrazione', label: 'Poca concentrazione', icon: '🎯' },
-    { value: 'altro', label: 'Altro', icon: '📝' },
-]
 
-const AGE_RANGES = [
-    { value: '10-12', label: '10-12 anni' },
-    { value: '13-14', label: '13-14 anni' },
-    { value: '15-16', label: '15-16 anni' },
-    { value: '17-18', label: '17-18 anni' },
-    { value: '19+', label: '19+ anni' },
-]
 
 const FAMOUS_PLAYERS = [
     { name: 'Patrick Cutrone', team: 'Ex Milan, Valencia, Como, Monza', img: '/images/calciatori/Patrick Cutrone (Monza).png' },
@@ -52,12 +35,9 @@ const REVIEWS = [
 ]
 
 export default function MetodoSincroLanding({ funnel }: Props) {
-    const [step, setStep] = useState(1)
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
-    const [childAge, setChildAge] = useState('')
-    const [problem, setProblem] = useState('')
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
@@ -167,8 +147,6 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     name, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: {
-                        child_age: childAge,
-                        main_problem: problem,
                         sport: 'calcio',
                     },
                     landing_url: window.location.host + window.location.pathname,
@@ -275,12 +253,108 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     <button className="ms-cta-hero" onClick={() => {
                         document.getElementById('ms-form')?.scrollIntoView({ behavior: 'smooth' })
                     }}>
-                        Richiedi una Consulenza Gratuita
+                        Prenota ORA la Tua Consulenza ⚽
                         <ArrowRight size={20} />
                     </button>
                     <div className="ms-cta-bonus">
                         <Sparkles size={16} />
                         <span>Include anche accesso esclusivo ad <strong>Anthon Chat®</strong>, il nostro assistente AI</span>
+                    </div>
+                </div>
+            </section>
+
+            {/* ========== FORM SECTION (moved here, right after hero) ========== */}
+            <section className="ms-form-section" id="ms-form">
+                <div className="ms-form-inner">
+                    <h2>Prenota ORA la Tua <span className="ms-yellow">Consulenza Gratuita</span></h2>
+                    <p>Lascia i tuoi dati — ti richiamiamo entro 2 ore.</p>
+                    <div className="ms-form-trust-row">
+                        <div className="ms-form-trust">
+                            <div className="ms-stars">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#facc15" color="#facc15" />)}</div>
+                            <span>4.9 su TrustPilot</span>
+                        </div>
+                        <div className="ms-form-trust">
+                            <Clock size={14} />
+                            <span>Compila in 30 secondi</span>
+                        </div>
+                    </div>
+
+                    <div className="ms-form-card">
+                        <div className="ms-form-step">
+                            <div className="ms-field">
+                                <label>Nome e Cognome *</label>
+                                <div className="ms-input-wrap">
+                                    <User size={18} />
+                                    <input
+                                        type="text"
+                                        placeholder="Es. Marco Rossi"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="ms-field">
+                                <label>Telefono *</label>
+                                <div className="ms-input-wrap">
+                                    <Phone size={18} />
+                                    <input
+                                        type="tel"
+                                        placeholder="+39 xxx xxx xxxx"
+                                        value={phone}
+                                        onChange={e => setPhone(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="ms-field">
+                                <label>Email</label>
+                                <div className="ms-input-wrap">
+                                    <Mail size={18} />
+                                    <input
+                                        type="email"
+                                        placeholder="la-tua@email.com"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="ms-error">{error}</div>
+                            )}
+
+                            <button
+                                className="ms-btn-submit"
+                                disabled={!name || !phone || loading}
+                                onClick={handleSubmit}
+                            >
+                                {loading ? (
+                                    <div className="ms-spinner" />
+                                ) : (
+                                    <>
+                                        Prenota la Consulenza Gratuita
+                                        <ArrowRight size={20} />
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Incentive under CTA */}
+                        <div className="ms-form-incentive">
+                            <div className="ms-incentive-pulse" />
+                            <Sparkles size={16} color="#facc15" />
+                            <span>Chi completa la consulenza riceve anche accesso ad <strong>Anthon Chat®</strong>, il nostro assistente AI per il mental coaching</span>
+                        </div>
+
+                        <p className="ms-privacy">
+                            🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.
+                        </p>
+
+                        <div className="ms-form-urgency-bottom">
+                            <span className="ms-urgency-dot" />
+                            <span>Posti limitati — <strong>{viewerCount}</strong> genitori stanno guardando ora</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -455,162 +529,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                 </div>
             </section>
 
-            {/* Form Section */}
-            <section className="ms-form-section" id="ms-form">
-                <div className="ms-form-inner">
-                    <h2>Richiedi una <span className="ms-yellow">Consulenza Gratuita</span></h2>
-                    <p>Un nostro esperto ti contatterà per capire come possiamo aiutare tuo figlio.</p>
-                    <div className="ms-form-trust-row">
-                        <div className="ms-form-trust">
-                            <div className="ms-stars">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#facc15" color="#facc15" />)}</div>
-                            <span>4.9 su TrustPilot</span>
-                        </div>
-                        <div className="ms-form-trust">
-                            <Clock size={14} />
-                            <span>Compila in 30 secondi</span>
-                        </div>
-                    </div>
-
-                    <div className="ms-form-card">
-                        {/* Step indicator */}
-                        <div className="ms-steps">
-                            <div className={`ms-step ${step >= 1 ? 'active' : ''}`}>
-                                <div className="ms-step-num">1</div>
-                                <span>I tuoi dati</span>
-                            </div>
-                            <div className="ms-step-line" />
-                            <div className={`ms-step ${step >= 2 ? 'active' : ''}`}>
-                                <div className="ms-step-num">2</div>
-                                <span>Info su tuo figlio</span>
-                            </div>
-                        </div>
-
-                        {step === 1 && (
-                            <div className="ms-form-step" style={{ animation: 'msSlideIn 0.3s ease-out' }}>
-                                <div className="ms-field">
-                                    <label>Nome e Cognome *</label>
-                                    <div className="ms-input-wrap">
-                                        <User size={18} />
-                                        <input
-                                            type="text"
-                                            placeholder="Es. Marco Rossi"
-                                            value={name}
-                                            onChange={e => setName(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="ms-field">
-                                    <label>Telefono *</label>
-                                    <div className="ms-input-wrap">
-                                        <Phone size={18} />
-                                        <input
-                                            type="tel"
-                                            placeholder="+39 xxx xxx xxxx"
-                                            value={phone}
-                                            onChange={e => setPhone(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="ms-field">
-                                    <label>Email</label>
-                                    <div className="ms-input-wrap">
-                                        <Mail size={18} />
-                                        <input
-                                            type="email"
-                                            placeholder="la-tua@email.com"
-                                            value={email}
-                                            onChange={e => setEmail(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                <button
-                                    className="ms-btn-next"
-                                    disabled={!name || !phone}
-                                    onClick={() => setStep(2)}
-                                >
-                                    Continua
-                                    <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        )}
-
-                        {step === 2 && (
-                            <div className="ms-form-step" style={{ animation: 'msSlideIn 0.3s ease-out' }}>
-                                <div className="ms-field">
-                                    <label>Età di tuo figlio</label>
-                                    <div className="ms-select-wrap">
-                                        <select value={childAge} onChange={e => setChildAge(e.target.value)}>
-                                            <option value="">Seleziona...</option>
-                                            {AGE_RANGES.map(a => (
-                                                <option key={a.value} value={a.value}>{a.label}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown size={18} />
-                                    </div>
-                                </div>
-                                <div className="ms-field">
-                                    <label>Qual è il problema principale?</label>
-                                    <div className="ms-problems-select">
-                                        {PROBLEMS.map(p => (
-                                            <button
-                                                key={p.value}
-                                                className={`ms-problem-btn ${problem === p.value ? 'selected' : ''}`}
-                                                onClick={() => setProblem(p.value)}
-                                                type="button"
-                                            >
-                                                <span>{p.icon}</span>
-                                                {p.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {error && (
-                                    <div className="ms-error">{error}</div>
-                                )}
-
-                                <div className="ms-form-actions">
-                                    <button className="ms-btn-back" onClick={() => setStep(1)}>
-                                        ← Indietro
-                                    </button>
-                                    <button
-                                        className="ms-btn-submit"
-                                        disabled={loading}
-                                        onClick={handleSubmit}
-                                    >
-                                        {loading ? (
-                                            <div className="ms-spinner" />
-                                        ) : (
-                                            <>
-                                                Invia Richiesta
-                                                <ArrowRight size={20} />
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Incentive under CTA */}
-                        <div className="ms-form-incentive">
-                            <div className="ms-incentive-pulse" />
-                            <Sparkles size={16} color="#facc15" />
-                            <span>Chi completa la consulenza riceve anche accesso ad <strong>Anthon Chat®</strong>, il nostro assistente AI per il mental coaching</span>
-                        </div>
-
-                        <p className="ms-privacy">
-                            🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.
-                        </p>
-
-                        <div className="ms-form-urgency-bottom">
-                            <span className="ms-urgency-dot" />
-                            <span>Posti limitati — <strong>{viewerCount}</strong> genitori stanno guardando ora</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* Form section is now above, right after the hero */}
 
             {/* Garanzia */}
             <div className="ms-garanzia-banner">
@@ -645,7 +564,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 }
 
 const STYLES = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    /* Google Fonts loaded via root layout.tsx <link> — no @import needed */
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1248,28 +1167,14 @@ const STYLES = `
         color: #71717a;
     }
     .ms-form-card {
-        background: linear-gradient(180deg, rgba(25, 25, 30, 0.95) 0%, rgba(18, 18, 22, 0.98) 100%);
-        backdrop-filter: blur(20px);
-        border: 1.5px solid rgba(250, 204, 21, 0.25);
+        background: #ffffff;
+        border: 1.5px solid #e4e4e7;
         border-radius: 20px;
         padding: 32px;
         box-shadow:
-            0 0 60px rgba(250, 204, 21, 0.1),
-            0 0 120px rgba(250, 204, 21, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            0 4px 24px rgba(0, 0, 0, 0.08),
+            0 1px 3px rgba(0, 0, 0, 0.04);
         position: relative;
-    }
-    .ms-form-card::before {
-        content: '';
-        position: absolute;
-        inset: -1px;
-        border-radius: 21px;
-        background: linear-gradient(180deg, rgba(250, 204, 21, 0.15), transparent 50%);
-        z-index: -1;
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        -webkit-mask-composite: xor;
-        padding: 1.5px;
     }
 
     /* Steps */
@@ -1317,44 +1222,45 @@ const STYLES = `
     .ms-field { margin-bottom: 16px; }
     .ms-field label {
         display: block;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
-        color: #a1a1aa;
+        color: #3f3f46;
         margin-bottom: 5px;
     }
     .ms-input-wrap {
         display: flex;
         align-items: center;
         gap: 10px;
-        background: #18181b;
-        border: 1px solid #27272a;
+        background: #f4f4f5;
+        border: 1.5px solid #d4d4d8;
         border-radius: 12px;
         padding: 0 14px;
         transition: all 0.2s;
-        color: #52525b;
+        color: #71717a;
     }
     .ms-input-wrap:focus-within {
         border-color: #facc15;
-        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
+        background: #fff;
     }
     .ms-input-wrap input {
         flex: 1;
         background: none;
         border: none;
         outline: none;
-        color: #fff;
+        color: #18181b;
         font-size: 15px;
         padding: 13px 0;
         font-family: inherit;
     }
-    .ms-input-wrap input::placeholder { color: #52525b; }
+    .ms-input-wrap input::placeholder { color: #a1a1aa; }
     .ms-input-wrap input:-webkit-autofill,
     .ms-input-wrap input:-webkit-autofill:hover,
     .ms-input-wrap input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0 1000px #18181b inset !important;
-        -webkit-text-fill-color: #fff !important;
+        -webkit-box-shadow: 0 0 0 1000px #f4f4f5 inset !important;
+        -webkit-text-fill-color: #18181b !important;
         transition: background-color 5000s ease-in-out 0s;
-        caret-color: #fff;
+        caret-color: #18181b;
     }
     .ms-select-wrap { position: relative; }
     .ms-select-wrap select {
@@ -1472,15 +1378,15 @@ const STYLES = `
         margin-top: 16px;
         padding: 12px 16px;
         border-radius: 12px;
-        background: rgba(250, 204, 21, 0.04);
-        border: 1px solid rgba(250, 204, 21, 0.1);
+        background: rgba(250, 204, 21, 0.08);
+        border: 1px solid rgba(250, 204, 21, 0.2);
         font-size: 12px;
-        color: #a1a1aa;
+        color: #52525b;
         text-align: left;
         position: relative;
         overflow: hidden;
     }
-    .ms-form-incentive strong { color: #facc15; }
+    .ms-form-incentive strong { color: #b45309; }
     .ms-incentive-pulse {
         position: absolute;
         left: 0;
@@ -1503,7 +1409,7 @@ const STYLES = `
     .ms-privacy {
         text-align: center;
         font-size: 11px;
-        color: #3f3f46;
+        color: #a1a1aa;
         margin-top: 14px;
     }
     .ms-spinner {
@@ -1574,12 +1480,12 @@ const STYLES = `
         margin-top: 12px;
         border-radius: 10px;
         font-size: 13px;
-        color: #a1a1aa;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #71717a;
+        background: #fafafa;
+        border: 1px solid #e4e4e7;
     }
     .ms-form-urgency-bottom strong {
-        color: #facc15;
+        color: #b45309;
     }
 
     /* Thank you */

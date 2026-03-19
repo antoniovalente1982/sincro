@@ -342,6 +342,7 @@ async function launchFullStrategy(
             name: `Dolore - Creative ${i + 1}`,
             object_story_spec: {
                 page_id: pageId,
+                instagram_user_id: '17841449195220971',
                 link_data: {
                     image_hash: hash,
                     link: LANDING_URL,
@@ -351,6 +352,7 @@ async function launchFullStrategy(
                     call_to_action: { type: adCopyPain.cta, value: { link: LANDING_URL } },
                 },
             },
+            url_tags: 'utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}',
         })
 
         // Ad in Ad Set A
@@ -381,6 +383,7 @@ async function launchFullStrategy(
             name: `Trasformazione - Creative ${i + 1}`,
             object_story_spec: {
                 page_id: pageId,
+                instagram_user_id: '17841449195220971',
                 link_data: {
                     image_hash: hash,
                     link: LANDING_URL,
@@ -390,6 +393,7 @@ async function launchFullStrategy(
                     call_to_action: { type: adCopyTransform.cta, value: { link: LANDING_URL } },
                 },
             },
+            url_tags: 'utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}',
         })
 
         // Ad in Ad Set A
