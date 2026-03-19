@@ -8,321 +8,145 @@ import {
   spring,
   Sequence,
   Easing,
+  staticFile,
 } from "remotion";
 
-// ====== CONSTANTS ======
 const GOLD = "#c9a84c";
-const DARK_GREEN = "#182f20";
+const DARK = "#0a0f0e";
 const FPS = 30;
 
-// ====== FUTURISTIC SCAN LINE ======
-const ScanLine: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { height } = useVideoConfig();
-  const y = (frame * 8) % (height + 200) - 100;
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: y,
-        left: 0,
-        right: 0,
-        height: 2,
-        background: `linear-gradient(90deg, transparent, ${GOLD}40, ${GOLD}80, ${GOLD}40, transparent)`,
-        zIndex: 50,
-        filter: "blur(1px)",
-      }}
-    />
-  );
-};
-
-// ====== PARTICLE FIELD ======
-const ParticleField: React.FC = () => {
-  const frame = useCurrentFrame();
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    x: ((i * 137.5 + frame * (0.3 + i * 0.05)) % 1080),
-    y: ((i * 89.3 + frame * (0.5 + i * 0.03)) % 1920),
-    size: 2 + (i % 3),
-    opacity: 0.2 + (Math.sin(frame * 0.05 + i) + 1) * 0.15,
-  }));
-
-  return (
-    <>
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: p.x,
-            top: p.y,
-            width: p.size,
-            height: p.size,
-            borderRadius: "50%",
-            backgroundColor: GOLD,
-            opacity: p.opacity,
-            boxShadow: `0 0 ${p.size * 3}px ${GOLD}`,
-            zIndex: 4,
-          }}
-        />
-      ))}
-    </>
-  );
-};
-
-// ====== CONCEPT FLASH — glitch + zoom punch at each concept ======
-const ConceptFlash: React.FC<{ trigger: number }> = ({ trigger }) => {
-  const frame = useCurrentFrame();
-  const localFrame = frame - trigger;
-
-  if (localFrame < 0 || localFrame > 8) return null;
-
-  const flashOpacity = interpolate(localFrame, [0, 2, 8], [0.6, 0.3, 0], {
-    extrapolateRight: "clamp",
-  });
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `radial-gradient(circle, ${GOLD}${Math.round(flashOpacity * 255).toString(16).padStart(2, "0")} 0%, transparent 70%)`,
-        zIndex: 40,
-        mixBlendMode: "screen",
-      }}
-    />
-  );
-};
-
-// ====== 3D PERSPECTIVE TEXT ======
-const Text3D: React.FC<{
-  text: string;
-  startFrame: number;
-  style?: "hero" | "impact" | "stat";
-}> = ({ text, startFrame, style = "hero" }) => {
+/* ───── KEYWORD FLASH — big word pops at key moments ───── */
+const KeywordFlash: React.FC<{ word: string; startFrame: number }> = ({
+  word,
+  startFrame,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const localFrame = frame - startFrame;
+  const local = frame - startFrame;
+  if (local < 0 || local > fps * 2.5) return null;
 
-  if (localFrame < 0) return null;
-
-  const scaleIn = spring({
-    frame: localFrame,
-    fps,
-    config: { damping: 8, stiffness: 100, mass: 0.8 },
-  });
-
-  const rotateX = interpolate(localFrame, [0, 15], [90, 0], {
-    extrapolateRight: "clamp",
-    easing: Easing.out(Easing.cubic),
-  });
-
-  const glowPulse = interpolate(
-    Math.sin(localFrame * 0.12),
-    [-1, 1],
-    [20, 50]
-  );
-
-  const styles: Record<string, React.CSSProperties> = {
-    hero: {
-      fontSize: 62,
-      fontWeight: 900,
-      color: "#FFFFFF",
-      textShadow: `0 0 ${glowPulse}px rgba(255,255,255,0.5), 0 4px 20px rgba(0,0,0,0.8)`,
-      letterSpacing: "-2px",
-      lineHeight: 1.1,
-    },
-    impact: {
-      fontSize: 72,
-      fontWeight: 900,
-      color: GOLD,
-      textShadow: `0 0 ${glowPulse}px ${GOLD}, 0 0 ${glowPulse * 2}px rgba(201,168,76,0.3)`,
-      letterSpacing: "-3px",
-      lineHeight: 1.0,
-    },
-    stat: {
-      fontSize: 110,
-      fontWeight: 900,
-      color: GOLD,
-      textShadow: `0 0 ${glowPulse}px ${GOLD}, 0 0 ${glowPulse * 2}px rgba(201,168,76,0.5)`,
-      letterSpacing: "-4px",
-    },
-  };
+  const scale = spring({ frame: local, fps, config: { damping: 8, stiffness: 120, mass: 0.6 } });
+  const fadeOut = interpolate(local, [fps * 1.5, fps * 2.5], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 80,
-        left: 30,
-        right: 30,
-        textAlign: "center",
-        zIndex: 30,
-        perspective: "800px",
-      }}
-    >
-      <div
-        style={{
-          ...styles[style],
-          fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
-          transform: `scale(${scaleIn}) rotateX(${rotateX}deg)`,
-          transformOrigin: "center bottom",
-          opacity: scaleIn,
-        }}
-      >
-        {text}
+    <div style={{
+      position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 20,
+    }}>
+      <div style={{
+        fontSize: 90, fontWeight: 900, fontFamily: "'Inter',sans-serif",
+        color: "#fff", textTransform: "uppercase", letterSpacing: "-3px",
+        textShadow: `0 0 60px rgba(201,168,76,0.6), 0 4px 30px rgba(0,0,0,0.8)`,
+        transform: `scale(${scale})`, opacity: fadeOut,
+        WebkitTextStroke: `1px ${GOLD}40`,
+      }}>
+        {word}
       </div>
     </div>
   );
 };
 
-// ====== ANIMATED STAT COUNTER ======
-const AnimatedCounter: React.FC<{
-  number: number;
-  suffix: string;
-  label: string;
-  startFrame: number;
-}> = ({ number, suffix, label, startFrame }) => {
+/* ───── ANIMATED SUBTITLE — smaller text at bottom ───── */
+const Subtitle: React.FC<{ text: string; startFrame: number; duration: number }> = ({
+  text, startFrame, duration,
+}) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const localFrame = frame - startFrame;
+  const local = frame - startFrame;
+  if (local < 0 || local > duration) return null;
 
-  if (localFrame < 0) return null;
-
-  const progress = spring({
-    frame: localFrame,
-    fps,
-    config: { damping: 30, stiffness: 60 },
-  });
-
-  const current = Math.round(number * progress);
-  const glow = interpolate(Math.sin(localFrame * 0.1), [-1, 1], [20, 60]);
-
-  const barWidth = interpolate(progress, [0, 1], [0, 100]);
+  const fadeIn = interpolate(local, [0, 8], [0, 1], { extrapolateRight: "clamp" });
+  const fadeOut = interpolate(local, [duration - 8, duration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const slideUp = interpolate(local, [0, 8], [20, 0], { extrapolateRight: "clamp" });
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 80,
-        left: 0,
-        right: 0,
-        textAlign: "center",
-        zIndex: 30,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 120,
-          fontWeight: 900,
-          fontFamily: "'Inter', sans-serif",
-          color: GOLD,
-          textShadow: `0 0 ${glow}px ${GOLD}, 0 0 ${glow * 2}px rgba(201,168,76,0.4)`,
-          transform: `scale(${progress})`,
-        }}
-      >
-        {current.toLocaleString("it-IT")}{suffix}
-      </div>
-      <div
-        style={{
-          fontSize: 26,
-          fontWeight: 700,
-          color: "#FFFFFF",
-          letterSpacing: "5px",
-          textTransform: "uppercase",
-          marginTop: 12,
-          opacity: progress,
-        }}
-      >
-        {label}
-      </div>
-      {/* Animated underline */}
-      <div
-        style={{
-          margin: "16px auto 0",
-          width: 200,
-          height: 3,
-          background: "rgba(255,255,255,0.1)",
-          borderRadius: 2,
-        }}
-      >
-        <div
-          style={{
-            width: `${barWidth}%`,
-            height: "100%",
-            background: `linear-gradient(90deg, transparent, ${GOLD})`,
-            borderRadius: 2,
-            boxShadow: `0 0 10px ${GOLD}`,
-          }}
-        />
+    <div style={{
+      position: "absolute", bottom: 300, left: 40, right: 40, zIndex: 20,
+      textAlign: "center",
+      transform: `translateY(${slideUp}px)`,
+      opacity: Math.min(fadeIn, fadeOut),
+    }}>
+      <div style={{
+        display: "inline-block",
+        background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)",
+        borderRadius: 12, padding: "14px 28px",
+        border: `1px solid ${GOLD}30`,
+      }}>
+        <span style={{
+          fontSize: 28, fontWeight: 700, color: "#fff",
+          fontFamily: "'Inter',sans-serif", lineHeight: 1.4,
+        }}>
+          {text}
+        </span>
       </div>
     </div>
   );
 };
 
-// ====== TRUSTPILOT HOLOGRAPHIC BADGE ======
-const HoloBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
+/* ───── STAT COUNTER ───── */
+const StatCounter: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const localFrame = frame - startFrame;
+  const local = frame - startFrame;
+  if (local < 0) return null;
 
-  if (localFrame < 0) return null;
-
-  const scale = spring({
-    frame: localFrame,
-    fps,
-    config: { damping: 10, stiffness: 100 },
-  });
-
-  const shimmer = (localFrame * 3) % 400;
+  const prog = spring({ frame: local, fps, config: { damping: 30, stiffness: 50 } });
+  const count = Math.round(2100 * prog);
+  const glow = interpolate(Math.sin(local * 0.1), [-1, 1], [25, 55]);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 380,
-        left: 40,
-        right: 40,
-        zIndex: 30,
-        transform: `scale(${scale})`,
-        opacity: scale,
-      }}
-    >
-      <div
-        style={{
-          background: "linear-gradient(135deg, rgba(0,0,0,0.7), rgba(24,47,32,0.8))",
-          border: "1px solid rgba(201,168,76,0.4)",
-          borderRadius: 20,
-          padding: "20px 30px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 16,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Shimmer effect */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: shimmer - 200,
-            width: 100,
-            height: "100%",
-            background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)",
-            transform: "skewX(-20deg)",
-          }}
-        />
-        <span style={{ fontSize: 32, color: "#00b67a" }}>★★★★★</span>
+    <div style={{
+      position: "absolute", top: 120, left: 0, right: 0, textAlign: "center", zIndex: 22,
+    }}>
+      <div style={{
+        fontSize: 120, fontWeight: 900, fontFamily: "'Inter',sans-serif",
+        color: GOLD,
+        textShadow: `0 0 ${glow}px ${GOLD}, 0 0 ${glow * 2}px rgba(201,168,76,0.3)`,
+        transform: `scale(${prog})`,
+      }}>
+        {count.toLocaleString("it-IT")}+
+      </div>
+      <div style={{
+        fontSize: 22, fontWeight: 700, color: "rgba(255,255,255,0.8)",
+        letterSpacing: 4, marginTop: 8, opacity: prog,
+      }}>
+        CALCIATORI TRASFORMATI
+      </div>
+    </div>
+  );
+};
+
+/* ───── TRUSTPILOT BADGE ───── */
+const TrustBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const local = frame - startFrame;
+  if (local < 0) return null;
+
+  const scale = spring({ frame: local, fps, config: { damping: 10, stiffness: 90 } });
+  const shimmer = (local * 4) % 500;
+
+  return (
+    <div style={{
+      position: "absolute", bottom: 330, left: 50, right: 50, zIndex: 22,
+      transform: `scale(${scale})`, opacity: scale,
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg,rgba(0,0,0,0.75),rgba(24,47,32,0.85))",
+        border: `1px solid ${GOLD}40`, borderRadius: 16,
+        padding: "16px 24px", display: "flex", alignItems: "center",
+        justifyContent: "center", gap: 14, position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", top: 0, left: shimmer - 200, width: 100, height: "100%",
+          background: `linear-gradient(90deg,transparent,${GOLD}18,transparent)`,
+          transform: "skewX(-20deg)",
+        }} />
+        <span style={{ fontSize: 28, color: "#00b67a" }}>★★★★★</span>
         <div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: "#FFFFFF", fontFamily: "'Inter', sans-serif" }}>
+          <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", fontFamily: "'Inter',sans-serif" }}>
             4.9 / 5 Trustpilot
           </div>
-          <div style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
             356 famiglie soddisfatte
           </div>
         </div>
@@ -331,169 +155,188 @@ const HoloBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   );
 };
 
-// ====== FUTURISTIC CTA ======
-const FuturisticCTA: React.FC<{ startFrame: number }> = ({ startFrame }) => {
+/* ───── CTA BUTTON ───── */
+const CTA: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const localFrame = frame - startFrame;
+  const local = frame - startFrame;
+  if (local < 0) return null;
 
-  if (localFrame < 0) return null;
-
-  const slideUp = spring({
-    frame: localFrame,
-    fps,
-    config: { damping: 12, stiffness: 80 },
-  });
-
-  const borderGlow = interpolate(Math.sin(localFrame * 0.15), [-1, 1], [0.3, 0.8]);
-  const pulse = interpolate(Math.sin(localFrame * 0.2), [-1, 1], [1, 1.04]);
-  const arrowX = interpolate(Math.sin(localFrame * 0.3), [-1, 1], [0, 8]);
+  const slideUp = spring({ frame: local, fps, config: { damping: 12, stiffness: 80 } });
+  const pulse = interpolate(Math.sin(local * 0.2), [-1, 1], [1, 1.03]);
+  const arrowX = interpolate(Math.sin(local * 0.3), [-1, 1], [0, 8]);
+  const shimmer = ((local * 5) % 700) - 200;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 100,
-        left: 30,
-        right: 30,
-        zIndex: 30,
-        transform: `translateY(${(1 - slideUp) * 120}px)`,
-        opacity: slideUp,
-      }}
-    >
-      <div
-        style={{
-          background: `linear-gradient(135deg, ${GOLD}, #e8c968, ${GOLD})`,
-          borderRadius: 20,
-          padding: "24px 40px",
-          textAlign: "center",
-          transform: `scale(${pulse})`,
-          boxShadow: `0 0 30px rgba(201,168,76,${borderGlow}), 0 10px 40px rgba(0,0,0,0.4)`,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Inner shimmer */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: ((localFrame * 4) % 600) - 200,
-            width: 120,
-            height: "100%",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-            transform: "skewX(-20deg)",
-          }}
-        />
-        <div
-          style={{
-            fontSize: 36,
-            fontWeight: 900,
-            color: DARK_GREEN,
-            fontFamily: "'Inter', sans-serif",
-            letterSpacing: "-1px",
-            position: "relative",
-          }}
-        >
+    <div style={{
+      position: "absolute", bottom: 80, left: 40, right: 40, zIndex: 30,
+      transform: `translateY(${(1 - slideUp) * 100}px)`, opacity: slideUp,
+    }}>
+      <div style={{
+        background: `linear-gradient(135deg,${GOLD},#e8c968,${GOLD})`,
+        borderRadius: 18, padding: "22px 36px", textAlign: "center",
+        transform: `scale(${pulse})`,
+        boxShadow: `0 0 30px rgba(201,168,76,0.5),0 10px 40px rgba(0,0,0,0.4)`,
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", top: 0, left: shimmer, width: 120, height: "100%",
+          background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)",
+          transform: "skewX(-20deg)",
+        }} />
+        <div style={{
+          fontSize: 34, fontWeight: 900, color: DARK,
+          fontFamily: "'Inter',sans-serif", letterSpacing: "-1px", position: "relative",
+        }}>
           CONSULENZA GRATUITA{" "}
           <span style={{ display: "inline-block", transform: `translateX(${arrowX}px)` }}>→</span>
         </div>
       </div>
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: 14,
-          fontSize: 18,
-          color: `rgba(201,168,76,${0.4 + borderGlow * 0.3})`,
-          fontWeight: 700,
-          letterSpacing: "6px",
-          textTransform: "uppercase",
-          fontFamily: "'Inter', sans-serif",
-        }}
-      >
+      <div style={{
+        textAlign: "center", marginTop: 12, fontSize: 16,
+        color: `${GOLD}99`, fontWeight: 700, letterSpacing: 6,
+        fontFamily: "'Inter',sans-serif",
+      }}>
         METODO SINCRO®
       </div>
     </div>
   );
 };
 
-// ====== PROGRESS BAR ======
+/* ───── PIP AVATAR (appears/disappears) ───── */
+const PipAvatar: React.FC<{ startFrame: number; duration: number }> = ({
+  startFrame, duration,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const local = frame - startFrame;
+  if (local < 0 || local > duration) return null;
+
+  const fadeIn = interpolate(local, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+  const fadeOut = interpolate(local, [duration - 12, duration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const scaleIn = spring({ frame: local, fps, config: { damping: 12, stiffness: 100 } });
+  const glow = interpolate(Math.sin(local * 0.1), [-1, 1], [0.3, 0.6]);
+
+  return (
+    <div style={{
+      position: "absolute", bottom: 200, right: 30, zIndex: 25,
+      width: 220, height: 220,
+      borderRadius: "50%", overflow: "hidden",
+      border: `3px solid ${GOLD}`,
+      boxShadow: `0 0 20px rgba(201,168,76,${glow}),0 8px 30px rgba(0,0,0,0.5)`,
+      transform: `scale(${scaleIn})`,
+      opacity: Math.min(fadeIn, fadeOut),
+    }}>
+      <Video
+        src={staticFile("pip.mp4")}
+        startFrom={startFrame}
+        style={{
+          width: "100%", height: "100%", objectFit: "cover",
+        }}
+      />
+    </div>
+  );
+};
+
+/* ───── PROGRESS BAR ───── */
 const ProgressBar: React.FC = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const progress = frame / durationInFrames;
-
   return (
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "rgba(255,255,255,0.08)", zIndex: 100 }}>
+    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "rgba(255,255,255,0.06)", zIndex: 100 }}>
       <div style={{
-        height: "100%",
-        width: `${progress * 100}%`,
-        background: `linear-gradient(90deg, ${GOLD}60, ${GOLD})`,
-        boxShadow: `0 0 15px ${GOLD}80`,
+        height: "100%", width: `${progress * 100}%`,
+        background: `linear-gradient(90deg,${GOLD}60,${GOLD})`,
+        boxShadow: `0 0 12px ${GOLD}80`,
       }} />
     </div>
   );
 };
 
-// ====== CINEMATIC OVERLAYS ======
+/* ───── CINEMATIC OVERLAYS ───── */
 const CinematicOverlay: React.FC = () => (
   <>
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 350, background: "linear-gradient(180deg, rgba(0,0,0,0.75) 0%, transparent 100%)", zIndex: 3 }} />
-    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 550, background: `linear-gradient(0deg, ${DARK_GREEN}F0 0%, ${DARK_GREEN}99 30%, transparent 100%)`, zIndex: 3 }} />
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, boxShadow: "inset 0 0 200px rgba(0,0,0,0.5)", zIndex: 2 }} />
+    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 300, background: "linear-gradient(180deg,rgba(0,0,0,0.65) 0%,transparent 100%)", zIndex: 3 }} />
+    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 500, background: `linear-gradient(0deg,${DARK}EE 0%,${DARK}80 40%,transparent 100%)`, zIndex: 3 }} />
+    <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 180px rgba(0,0,0,0.4)", zIndex: 2 }} />
   </>
 );
 
-// ====== MAIN COMPOSITION ======
+/* ───── BRAND WATERMARK ───── */
+const Watermark: React.FC = () => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(Math.sin(frame * 0.03), [-1, 1], [0.2, 0.35]);
+  return (
+    <div style={{
+      position: "absolute", top: 30, left: 30, zIndex: 20,
+      fontSize: 16, fontWeight: 800, letterSpacing: 3, color: `rgba(201,168,76,${opacity})`,
+      fontFamily: "'Inter',sans-serif",
+    }}>
+      METODO SINCRO®
+    </div>
+  );
+};
+
+/* ═══════ MAIN COMPOSITION ═══════ */
 export const MetodoSincroAd: React.FC<{ videoSrc: string }> = ({ videoSrc }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
-
-  const zoom = interpolate(frame, [0, durationInFrames], [1.02, 1.12]);
-
-  // Concept flash triggers (at key script moments)
-  const flashFrames = [0, FPS * 5, FPS * 10, FPS * 16, FPS * 22];
+  const zoom = interpolate(frame, [0, durationInFrames], [1.01, 1.06]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: DARK_GREEN }}>
-      {/* Video with subtle zoom */}
+    <AbsoluteFill style={{ backgroundColor: DARK }}>
+      {/* Background cinematic video with slow zoom */}
       <div style={{ position: "absolute", inset: 0, transform: `scale(${zoom})`, transformOrigin: "center" }}>
         <Video src={videoSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
 
       <CinematicOverlay />
       <ProgressBar />
-      <ScanLine />
-      <ParticleField />
+      <Watermark />
 
-      {/* Concept flashes */}
-      {flashFrames.map((f, i) => (
-        <ConceptFlash key={i} trigger={f} />
-      ))}
-
-      {/* 0-4s: Hook text with 3D perspective */}
+      {/* ── Scene 1: 0-5s — HOOK ── */}
       <Sequence from={0} durationInFrames={FPS * 5}>
-        <Text3D text="Tuo figlio ha talento." startFrame={0} style="hero" />
+        <KeywordFlash word="TALENTO" startFrame={FPS * 0.5} />
       </Sequence>
+      <Subtitle text="Tuo figlio ha talento. Lo vedi ogni giorno." startFrame={FPS * 0.3} duration={FPS * 4.5} />
 
-      {/* 5-9s: Impact text */}
+      {/* ── Scene 2: 5-10s — PROBLEMA ── */}
       <Sequence from={FPS * 5} durationInFrames={FPS * 5}>
-        <Text3D text="Ma qualcosa lo blocca." startFrame={0} style="impact" />
+        <KeywordFlash word="BLOCCO" startFrame={FPS * 1} />
+      </Sequence>
+      <Subtitle text="Ma qualcosa lo blocca." startFrame={FPS * 5.3} duration={FPS * 4.5} />
+
+      {/* PiP Antonio appears during scene 2-3 */}
+      <Sequence from={FPS * 6} durationInFrames={FPS * 7}>
+        <PipAvatar startFrame={0} duration={FPS * 7} />
       </Sequence>
 
-      {/* 16-22s: Counter animation */}
+      {/* ── Scene 3: 10-16s — AGITAZIONE ── */}
+      <Sequence from={FPS * 10} durationInFrames={FPS * 6}>
+        <KeywordFlash word="PRESSIONE" startFrame={FPS * 1} />
+      </Sequence>
+      <Subtitle text="La pressione mentale frena il 70% dei giovani." startFrame={FPS * 10.3} duration={FPS * 5.5} />
+
+      {/* ── Scene 4: 16-22s — SOLUZIONE + STATS ── */}
       <Sequence from={FPS * 16} durationInFrames={FPS * 7}>
-        <AnimatedCounter number={2100} suffix="+" label="calciatori trasformati" startFrame={0} />
+        <StatCounter startFrame={FPS * 0.5} />
+      </Sequence>
+      <Subtitle text="Il Metodo Sincro lavora sulla mente, non solo sul campo." startFrame={FPS * 16.3} duration={FPS * 5} />
+
+      {/* ── Scene 5: 22-27s — TRUST + CTA ── */}
+      <Sequence from={FPS * 22} durationInFrames={FPS * 10}>
+        <TrustBadge startFrame={FPS * 0.5} />
       </Sequence>
 
-      {/* 22-28s: Trustpilot holographic badge */}
-      <Sequence from={FPS * 22}>
-        <HoloBadge startFrame={0} />
+      {/* PiP Antonio comes back for final CTA */}
+      <Sequence from={FPS * 24} durationInFrames={FPS * 8}>
+        <PipAvatar startFrame={0} duration={FPS * 8} />
       </Sequence>
 
-      {/* Last 6s: Futuristic CTA */}
+      {/* CTA in the last 6 seconds */}
       <Sequence from={durationInFrames - FPS * 6}>
-        <FuturisticCTA startFrame={0} />
+        <CTA startFrame={0} />
       </Sequence>
     </AbsoluteFill>
   );
