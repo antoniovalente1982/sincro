@@ -9,6 +9,9 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )
 
+// Allow up to 60s for AI responses (default 10s causes timeouts)
+export const maxDuration = 60
+
 // Telegram Webhook — receives messages from the bot
 // This endpoint must be public (no auth) since Telegram calls it
 export async function POST(req: NextRequest) {

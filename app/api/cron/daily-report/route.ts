@@ -10,6 +10,7 @@ const supabaseAdmin = createClient(
 
 // Daily Report — called every day at 20:00 by pg_cron
 // Sends a voice summary of the day's performance
+export const maxDuration = 60
 export async function GET(req: NextRequest) {
     // Verify cron secret
     const authHeader = req.headers.get('authorization')

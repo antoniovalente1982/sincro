@@ -10,6 +10,9 @@ const supabaseAdmin = createClient(
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const MODEL = 'google/gemini-2.5-flash'
 
+// Allow up to 60s for AI responses (Meta API + Google Sheets + OpenRouter)
+export const maxDuration = 60
+
 const SYSTEM_PROMPT = `Sei Dante, l'AI Engine di AdPilotik — la piattaforma marketing intelligente di Metodo Sincro.
 Rispondi SEMPRE in italiano. Sei un esperto mondiale di performance marketing, business intelligence e growth hacking.
 

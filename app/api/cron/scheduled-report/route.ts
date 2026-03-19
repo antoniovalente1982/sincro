@@ -11,6 +11,7 @@ const supabaseAdmin = createClient(
 
 // Scheduled Report — called every 15 min by pg_cron
 // Checks for due scheduled reports and sends them
+export const maxDuration = 60
 export async function GET(req: NextRequest) {
     // Verify cron secret
     const authHeader = req.headers.get('authorization')

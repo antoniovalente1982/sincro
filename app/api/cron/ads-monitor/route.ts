@@ -9,6 +9,7 @@ const supabaseAdmin = createClient(
 
 // ADS Monitor — called every 60 minutes by pg_cron
 // Checks campaigns for anomalies and only alerts if values are extreme
+export const maxDuration = 60
 export async function GET(req: NextRequest) {
     // Verify cron secret
     const authHeader = req.headers.get('authorization')
