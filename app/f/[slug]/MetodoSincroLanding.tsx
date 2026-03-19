@@ -242,14 +242,13 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                             Leader nel Mental Coaching Calcistico in Italia
                         </div>
                         <h1>
-                            Tuo figlio ha <span className="ms-yellow">talento.</span><br />
-                            Ma il talento da solo<br />
-                            <span className="ms-yellow">non basta.</span>
+                            Tuo Figlio Ha Talento.<br />
+                            <span className="ms-yellow">Ma Qualcosa Lo Blocca.</span>
                         </h1>
-                        <p className="ms-hero-subtitle">Dagli accesso al segreto nascosto dei campioni professionisti</p>
+                        <p className="ms-hero-subtitle">Scopri come <strong>2.100+</strong> giovani calciatori hanno superato ansia, paura e insicurezza con il Mental Coaching <strong>#1 in Italia</strong></p>
                         <p>
-                            L’87% degli atleti talentuosi non emerge per mancanza di preparazione mentale.
-                            Il <strong>MENTAL COACHING</strong> è ciò che fa la differenza tra chi resta in panchina e chi diventa protagonista.
+                            L'87% dei talenti non emerge per un problema invisibile: la <strong>mente</strong>.
+                            Ansia da prestazione, paura di sbagliare, zero fiducia — il Mental Coaching elimina questi blocchi.
                         </p>
                         <button className="ms-cta-hero" onClick={() => {
                             document.getElementById('ms-form')?.scrollIntoView({ behavior: 'smooth' })
