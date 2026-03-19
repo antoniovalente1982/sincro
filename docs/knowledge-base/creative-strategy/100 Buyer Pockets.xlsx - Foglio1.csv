@@ -1,0 +1,101 @@
+pocket_id,pocket_name,cluster,buyer_state,core_question,primary_trigger,funnel_role,scalability
+1,Comparison Buyers,Decision,Valutazione,Perché te e non un altro?,Confronto,BOFU,Low
+2,Solution-Aware Buyers,Decision,Consapevole,Quale soluzione scelgo?,Posizionamento,BOFU,Medium
+3,Vendor-Switch Buyers,Decision,Insoddisfatto,Chi posso cambiare?,Differenziazione,BOFU,Low
+4,Best-Option Buyers,Decision,Analitico,Qual è l’opzione migliore?,Proof,BOFU,Medium
+5,Feature-Focused Buyers,Decision,Comparativo,Che feature ha?,Specifiche,BOFU,Low
+6,Proof-Driven Buyers,Decision,Scettico,Funziona davvero?,Social proof,BOFU,Low
+7,Case-Study Buyers,Decision,Razionale,Chi l’ha già fatto?,Case study,BOFU,Low
+8,Risk-Comparison Buyers,Decision,Cauto,Dove rischio meno?,Riduzione rischio,BOFU,Low
+9,Why-X-Fails Buyers,Decision,Critico,Perché X non funziona?,Smontaggio,BOFU,Low
+10,Why-Y-Works Buyers,Decision,Convinto,Perché Y funziona?,Meccanismo,BOFU,Low
+11,Authority Buyers,Authority,Affidamento,Chi è l’esperto?,Autorità,MOFU,High
+12,Expert-Led Buyers,Authority,Guidato,Chi mi guida?,Leadership,MOFU,High
+13,Method Buyers,Authority,Strutturato,Qual è il metodo?,Metodo,MOFU,High
+14,Framework Buyers,Authority,Analitico,Qual è il framework?,Struttura,MOFU,High
+15,Diagnostic Buyers,Authority,Valutativo,Cosa non va?,Diagnosi,MOFU,Medium
+16,Analyst Buyers,Authority,Razionale,Dammi i dati,Analisi,MOFU,Medium
+17,Research-Driven Buyers,Authority,Studioso,Fammi capire,Ricerca,TOFU,High
+18,Explain-It Buyers,Authority,Curioso,Spiegami,Educazione,TOFU,High
+19,Evidence-First Buyers,Authority,Scettico,Dov’è la prova?,Evidenza,MOFU,Medium
+20,Benchmark Buyers,Authority,Comparativo,Come sono rispetto agli altri?,Benchmark,MOFU,Medium
+21,System Buyers,System,Controllo,Che sistema regge?,Sistema,MOFU,High
+22,Process Buyers,System,Organizzativo,Come funziona il processo?,Processo,MOFU,High
+23,Operations Buyers,System,Operativo,Come si esegue?,Operatività,MOFU,High
+24,Scalability Buyers,System,Espansivo,Regge se cresco?,Scalabilità,MOFU,High
+25,Predictability Buyers,System,Prudente,Posso prevedere?,Prevedibilità,MOFU,High
+26,Control Buyers,System,Controllo,Vedo i numeri?,Controllo,MOFU,Medium
+27,KPI-Driven Buyers,System,Manageriale,Quali KPI?,Metriche,MOFU,Medium
+28,Dashboard Buyers,System,Visivo,Dove monitoro?,Dashboard,MOFU,Medium
+29,SOP Buyers,System,Procedurale,Come standardizzo?,SOP,MOFU,Medium
+30,Infrastructure Buyers,System,Strutturale,Che base ho?,Infrastruttura,MOFU,Medium
+31,Disillusioned Buyers,Trauma,Scottato,Perché ho fallito?,Verità scomoda,BOFU,Low
+32,Burned-by-Agencies Buyers,Trauma,Diffidente,Di chi fidarmi?,Anti-hype,BOFU,Low
+33,I-Tried-Everything Buyers,Trauma,Frustrato,Cos’altro posso fare?,Ristrutturazione,BOFU,Low
+34,Loss-Avoidance Buyers,Trauma,Protettivo,Come evito perdite?,Protezione,MOFU,Medium
+35,Regret Buyers,Trauma,Riflessivo,Dove ho sbagliato?,Consapevolezza,MOFU,Low
+36,Crisis Buyers,Trauma,Emergenza,Come ne esco?,Urgenza,BOFU,Low
+37,Emergency Buyers,Trauma,Pressione,Serve ora,Tempo,BOFU,Low
+38,Reputation-Damage Buyers,Trauma,Allarmato,Come salvo l’immagine?,Riparazione,BOFU,Low
+39,Can’t-Fail-Again Buyers,Trauma,Ansioso,Non posso sbagliare,Sicurezza,BOFU,Low
+40,Recovery Buyers,Trauma,Ripartenza,Come riparto?,Ricostruzione,MOFU,Medium
+41,Overwhelmed Buyers,Emotional,Sovraccarico,È troppo,Semplificazione,MOFU,Medium
+42,Burnout Buyers,Emotional,Esausto,Non ce la faccio,Sollievo,MOFU,Low
+43,Decision-Fatigue Buyers,Emotional,Bloccato,Cosa scelgo?,Guida,MOFU,Medium
+44,Time-Poor Buyers,Emotional,Fretta,Non ho tempo,Velocità,MOFU,High
+45,Stress-Driven Buyers,Emotional,Stressato,Come riduco stress?,Riduzione carico,MOFU,Medium
+46,Chaos Buyers,Emotional,Disordine,Serve ordine,Struttura,MOFU,Medium
+47,Simplification Buyers,Emotional,Pragmatico,Fammi semplice,Chiarezza,MOFU,High
+48,Too-Much-On-Plate Buyers,Emotional,Saturo,Non aggiungere,Delegare,MOFU,High
+49,Mental-Load Buyers,Emotional,Affaticato,Liberami la testa,Alleggerimento,MOFU,Medium
+50,Relief Buyers,Emotional,Ricerca pace,Voglio sollievo,Comfort,MOFU,Low
+51,Growth Buyers,Growth,Espansivo,Come cresco?,Crescita,MOFU,High
+52,Scale Buyers,Growth,Ambizioso,Come scalo?,Leva,MOFU,High
+53,Expansion Buyers,Growth,Visionario,Nuovi mercati?,Espansione,MOFU,Medium
+54,Market-Leader Buyers,Growth,Competitivo,Come domino?,Leadership,MOFU,Medium
+55,Dominance Buyers,Growth,Aggressivo,Come vinco?,Supremazia,MOFU,Low
+56,Vision-Driven Buyers,Growth,Ispirato,Dove vado?,Visione,TOFU,Medium
+57,Next-Level Buyers,Growth,Insoddisfatto,Qual è il prossimo step?,Avanzamento,MOFU,High
+58,Plateau-Break Buyers,Growth,Bloccato,Come sblocco?,Breakthrough,MOFU,Medium
+59,Opportunity Buyers,Growth,Attento,Cosa c’è ora?,Occasione,TOFU,Medium
+60,Momentum Buyers,Growth,In corsa,Come accelero?,Velocità,MOFU,High
+61,Efficiency Buyers,Efficiency,Ottimizzatore,Come rendo meglio?,Efficienza,MOFU,High
+62,Cost-Reduction Buyers,Efficiency,Attento costi,Dove risparmio?,Riduzione costi,MOFU,High
+63,Margin Buyers,Efficiency,Finanziario,Aumento margini?,Profitto,MOFU,High
+64,ROI-Maximizers,Efficiency,Razionale,Massimo ROI?,Rendimento,MOFU,High
+65,Optimization Buyers,Efficiency,Analitico,Cosa ottimizzo?,Ottimizzazione,MOFU,High
+66,Leverage Buyers,Efficiency,Strategico,Dove leva?,Leva,MOFU,High
+67,Process-Lean Buyers,Efficiency,Snello,Elimina sprechi,Lean,MOFU,High
+68,Waste-Elimination Buyers,Efficiency,Pratico,Cosa taglio?,Eliminazione,MOFU,High
+69,Do-More-With-Less Buyers,Efficiency,Minimalista,Più con meno,Efficienza,MOFU,High
+70,Performance Buyers,Efficiency,Prestazione,Migliora performance,Performance,MOFU,High
+71,Status Buyers,Status,Immagine,Come appaio?,Status,MOFU,Medium
+72,Prestige Buyers,Status,Elite,Sono top?,Prestigio,MOFU,Low
+73,Brand-Positioning Buyers,Status,Strategico,Come mi posiziono?,Posizionamento,MOFU,Medium
+74,Authority-in-Market Buyers,Status,Influenza,Sono riferimento?,Autorità,MOFU,Medium
+75,Differentiation Buyers,Status,Unicità,In cosa diverso?,Differenziazione,MOFU,Medium
+76,Identity Buyers,Status,Allineamento,Mi rappresenta?,Identità,MOFU,Medium
+77,Values-Aligned Buyers,Status,Valori,Condividiamo valori?,Valori,MOFU,Low
+78,Legacy Buyers,Status,Eredità,Cosa lascio?,Lungo termine,MOFU,Low
+79,Top-of-Category Buyers,Status,Competitivo,Sono il migliore?,Dominio,MOFU,Low
+80,Reputation Builders,Status,Reputazione,Come sono visto?,Reputazione,MOFU,Medium
+81,Security Buyers,Security,Prudente,È sicuro?,Sicurezza,MOFU,Medium
+82,Risk-Averse Buyers,Security,Avverso rischio,Evito errori?,Protezione,MOFU,Medium
+83,Compliance Buyers,Security,Regolatorio,Sono conforme?,Compliance,MOFU,Low
+84,Long-Term Buyers,Security,Stabile,Regge nel tempo?,Durata,MOFU,Medium
+85,Stability Buyers,Security,Equilibrio,È stabile?,Stabilità,MOFU,Medium
+86,Future-Proof Buyers,Security,Previdente,Vale domani?,Future-proof,MOFU,Medium
+87,Defensive Buyers,Security,Protettivo,Come difendo?,Difesa,MOFU,Low
+88,Insurance-Minded Buyers,Security,Precauzione,Copro rischi?,Assicurazione,MOFU,Low
+89,Don’t-Mess-Up Buyers,Security,Ansioso,Non sbaglio,Prevenzione,MOFU,Low
+90,Conservative Buyers,Security,Tradizionale,Meglio sicuro,Conservazione,MOFU,Medium
+91,Educational Buyers,Education,Curioso,Fammi capire,Educazione,TOFU,High
+92,Learning Buyers,Education,Studente,Cosa imparo?,Apprendimento,TOFU,High
+93,Problem-Aware Buyers,Education,Consapevole,Qual è il problema?,Naming problema,TOFU,High
+94,Early-Awareness Buyers,Education,Inizio,Cosa succede?,Scoperta,TOFU,High
+95,Curiosity-Driven Buyers,Education,Curioso,Interessante?,Curiosità,TOFU,High
+96,Research-Phase Buyers,Education,Analitico,Studio opzioni,Ricerca,TOFU,High
+97,Exploration Buyers,Education,Esplorativo,Cosa esiste?,Esplorazione,TOFU,High
+98,Market-Understanding Buyers,Education,Comprensione,Capire mercato,Comprensione,TOFU,High
+99,Pre-Decision Buyers,Education,Pre-scelta,Preparo decisione,Preparazione,TOFU,High
+100,Market-Opener Buyers,Education,Apertura,Apro mercato,Awareness,TOFU,High
