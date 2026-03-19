@@ -199,6 +199,15 @@ Mix di **orgoglio, frustrazione e paura**. Vuole fare tutto il possibile per non
 | Nome Pixel | Ho scritto "Metodo Sincro" nel playbook | **"Pixel Nuovo METODO SINCRO"** |
 | Placement invalido | `reels_overlay` non esiste | Usare posizionamenti automatici |
 | Instagram actor | `instagram_actor_id` nella creative non funziona | Non includerlo in `object_story_spec` |
+| **Nomi calciatori famosi** | Ho citato Cutrone, Bonansea, Brunori nei video ads | **MAI citare nomi calciatori famosi nelle ads video** — nessun diritto. OK solo su landing page |
+| **Voce HeyGen sbagliata** | Ho usato voce HeyGen generica italiana | **Usare SEMPRE voce clonata Antonio**: `5cc4c6b457ce4edb8d2a50efab08f03e` |
+
+### IDs HeyGen
+| Risorsa | ID |
+|---|---|
+| Avatar Antonio Valente | `df8fc9c5f0f74afba2217797cf1d83f4` |
+| Voce clonata Antonio | `5cc4c6b457ce4edb8d2a50efab08f03e` |
+| ElevenLabs Voice ID | `WS1kH1PJ5Xqt3tTn5Suw` |
 
 ---
 
