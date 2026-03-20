@@ -427,10 +427,9 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <div className="lp-form-container">
                         {/* Red marker arrow */}
-                        <svg className="lp-red-arrow" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M60 5 C30 25, 15 60, 25 100 C30 120, 45 140, 60 150" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" fill="none" style={{filter: 'url(#marker)'}} />
-                            <path d="M45 135 L60 155 L55 130" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" style={{filter: 'url(#marker)'}} />
-                            <defs><filter id="marker"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise" /><feDisplacementMap in="SourceGraphic" in2="noise" scale="3" /></filter></defs>
+                        <svg className="lp-red-arrow" viewBox="0 0 80 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 10 C5 40, 30 70, 20 100 C10 130, 40 160, 65 185" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+                            <polygon points="58,175 75,195 52,188" fill="#ef4444" />
                         </svg>
                         <div className="lp-form-card">
                             <div className="lp-field">
