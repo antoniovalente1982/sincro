@@ -237,7 +237,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 </div>
             </header>
 
-            {/* ══════════ 1. HERO ══════════ */}
+            {/* ══════════ 1. HERO + FORM ══════════ */}
             <section className="lp-hero">
                 <div className="lp-hero-bg" />
                 <div className="lp-hero-in">
@@ -250,13 +250,40 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
-                        <button className="lp-cta-main" onClick={scrollToForm}>
-                            Scopri Se È Adatto a Tuo Figlio
-                        </button>
-                        <p className="lp-cta-sub"><Lock size={12} /> Consulenza gratuita di 15 min · Zero impegno · 0€</p>
                     </div>
-                    <div className="lp-hero-img lp-hero-img-fade">
-                        <Image src="/images/landing/hero-footballer.png" alt="Giovane calciatore" width={480} height={480} priority style={{ objectFit: 'cover', borderRadius: '20px' }} />
+                    <div className="lp-hero-form" ref={formRef} id="ms-form">
+                        <div className="lp-hf-card">
+                            <div className="lp-hf-header">
+                                <div className="lp-hf-pulse" />
+                                <span className="lp-hf-live">🔴 POSTI LIMITATI</span>
+                            </div>
+                            <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
+                            <p className="lp-hf-sub">Compila il form — ti richiamiamo entro 2 ore</p>
+                            <div className="lp-hf-trust">
+                                <div><Lock size={12} /> Dati protetti</div>
+                                <div><Clock size={12} /> 30 secondi</div>
+                                <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
+                            </div>
+                            <div className="lp-hf-fields">
+                                <div className="lp-field">
+                                    <div className={`lp-input-wrap ${name ? 'filled' : ''}`}><User size={18} /><input type="text" placeholder="Nome e Cognome *" value={name} onChange={e => setName(e.target.value)} required /></div>
+                                </div>
+                                <div className="lp-field">
+                                    <div className={`lp-input-wrap ${phone && !phoneError ? 'filled' : ''} ${phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} required /></div>
+                                    {phoneError && <span className="lp-field-error">{phoneError}</span>}
+                                </div>
+                                <div className="lp-field">
+                                    <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email (opzionale)" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                                    {emailError && <span className="lp-field-error">{emailError}</span>}
+                                </div>
+                                {error && <div className="lp-error">{error}</div>}
+                                <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={!isFormValid || loading} onClick={handleSubmit}>
+                                    {loading ? <div className="lp-spinner" /> : <>PRENOTA ORA — È Gratuita <ArrowRight size={20} /></>}
+                                </button>
+                            </div>
+                            <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
+                            <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -286,6 +313,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <Brain size={20} color="#facc15" />
                         <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È mentale.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
                     </div>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Prenota la Consulenza Gratuita <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -313,6 +341,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-stat-big"><strong>356</strong><span>Recensioni 5★</span></div>
                         <div className="lp-stat-big"><strong>30+</strong><span>Coach nel team</span></div>
                     </div>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Scopri Se È Adatto a Tuo Figlio <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -331,6 +360,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <Shield size={18} color="#22c55e" />
                         <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato in calcio e per la sua fascia d'età.</span>
                     </div>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Inizia Il Percorso — Consulenza Gratuita <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -355,6 +385,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                         ))}
                     </div>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Prenota ORA — È Gratuita <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -388,6 +419,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                         ))}
                     </div>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Anche Tuo Figlio Può Farcela <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -414,42 +446,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 </div>
             </section>
 
-            {/* ══════════ 9. FORM ══════════ */}
-            <section className="lp-form-section" ref={formRef} id="ms-form">
-                <div className="lp-form-wrap">
-                    <h2>Prenota la Tua <span className="lp-gold">Consulenza Gratuita</span></h2>
-                    <p>Lascia i tuoi dati — ti richiamiamo entro 2 ore.</p>
-                    <div className="lp-form-trust-row">
-                        <div className="lp-form-trust"><div className="lp-stars">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#facc15" color="#facc15" />)}</div><span>4.9 TrustPilot</span></div>
-                        <div className="lp-form-trust"><Clock size={14} /><span>30 secondi</span></div>
-                        <div className="lp-form-trust"><Lock size={14} /><span>Dati protetti</span></div>
-                    </div>
-                    <div className="lp-form-container">
-                        <div className="lp-form-card">
-                            <div className="lp-field">
-                                <label>Nome e Cognome *</label>
-                                <div className={`lp-input-wrap ${name ? 'filled' : ''}`}><User size={18} /><input type="text" placeholder="Es. Marco Rossi" value={name} onChange={e => setName(e.target.value)} required /></div>
-                            </div>
-                            <div className="lp-field">
-                                <label>Telefono *</label>
-                                <div className={`lp-input-wrap ${phone && !phoneError ? 'filled' : ''} ${phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="+39 xxx xxx xxxx" value={phone} onChange={e => handlePhoneChange(e.target.value)} required /></div>
-                                {phoneError && <span className="lp-field-error">{phoneError}</span>}
-                            </div>
-                            <div className="lp-field">
-                                <label>Email</label>
-                                <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="la-tua@email.com" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
-                                {emailError && <span className="lp-field-error">{emailError}</span>}
-                            </div>
-                            {error && <div className="lp-error">{error}</div>}
-                            <button className={`lp-btn-submit ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={!isFormValid || loading} onClick={handleSubmit}>
-                                {loading ? <div className="lp-spinner" /> : <>Prenota ORA — È Gratuita <ArrowRight size={20} /></>}
-                            </button>
-                            <p className="lp-privacy">🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.</p>
-                            <div className="lp-form-urgency"><span className="lp-urgency-dot" /><span><strong>{viewerCount}</strong> genitori stanno guardando ora</span></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* Form is now in the hero section above */}
 
             {/* ══════════ 10. FAQ ══════════ */}
             <section className="lp-faq">
