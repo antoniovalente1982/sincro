@@ -230,9 +230,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-logo">METODO SINCRO<sup>®</sup></div>
                     <div className="lp-header-r">
                         <div className="lp-header-badges">
-                            <span className="lp-header-badge">🏆 Serie A, B, Lega Pro</span>
                             <span className="lp-header-badge">⭐ 4.9/5 <span className="lp-tp-green">TrustPilot</span></span>
-                            <span className="lp-header-badge">✅ Garanzia Scritta</span>
                         </div>
                         <button className="lp-header-cta" onClick={scrollToForm}>Prenota Gratis</button>
                     </div>
