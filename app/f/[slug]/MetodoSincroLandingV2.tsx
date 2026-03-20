@@ -37,22 +37,37 @@ const REVIEWS = [
 const FAQ_ITEMS = [
     { q: 'Quanto dura il percorso?', a: 'Il percorso standard dura 3 mesi con sessioni settimanali ONE-TO-ONE. I primi risultati sono visibili già dopo 30 giorni.' },
     { q: 'Come si svolge? Devo portarlo da qualche parte?', a: 'No, il percorso è 100% online. Le sessioni si svolgono comodamente da casa via videochiamata, in totale flessibilità.' },
-    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, non paghi. 2.100+ famiglie possono confermarlo.' },
+    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, non paghi. Continuiamo gratuitamente fino ai risultati. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo.' },
     { q: 'Quanto costa?', a: 'Le tariffe dipendono dal percorso personalizzato. La prima consulenza è COMPLETAMENTE GRATUITA e senza impegno — lì ti spieghiamo tutto.' },
-    { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Non siamo psicologi. Siamo Mental Coach sportivi specializzati nel calcio. La nostra sessione tipo sembra più una chiacchierata da spogliatoio che una seduta terapeutica. Il 95% dei ragazzi adora le sessioni.' },
+    { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Non siamo psicologi. Il mental coaching serve per raggiungere i SUOI obiettivi e migliorare da subito. Noi siamo quelli che lavorano con i calciatori professionisti che tuo figlio vede in televisione. Quando glielo dirai, sarà LUI a voler iniziare il programma.' },
 ]
 
 export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
+    const [phoneError, setPhoneError] = useState('')
+    const [emailError, setEmailError] = useState('')
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const formRef = useRef<HTMLDivElement>(null)
+
+    // Validation helpers
+    const handlePhoneChange = (val: string) => {
+        setPhone(val)
+        if (val && !/^[+\d\s\-()]+$/.test(val)) setPhoneError('Inserisci solo numeri')
+        else setPhoneError('')
+    }
+    const handleEmailChange = (val: string) => {
+        setEmail(val)
+        if (val && !val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
+        else setEmailError('')
+    }
+    const isFormValid = name.trim().length > 0 && phone.trim().length > 3 && !phoneError && !emailError
 
     // Dynamic viewer count
     useEffect(() => {
@@ -129,7 +144,9 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
 
     const handleSubmit = async () => {
-        if (!name || !phone) return
+        if (!name || !phone || phoneError || emailError) return
+        if (phone && !/^[+\d\s\-()]+$/.test(phone)) { setPhoneError('Inserisci solo numeri'); return }
+        if (email && !email.includes('@')) { setEmailError('Inserisci un\'email valida'); return }
         setLoading(true)
         setError('')
 
@@ -227,7 +244,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
-                        <h1>In Soli 90 Giorni, Al Massimo<br />Delle Sue Potenzialità.<br /><span className="lp-gold">Tutti Lo Noteranno.</span></h1>
+                        <h1>In Soli 90 Giorni, Al Massimo<br />Delle Sue Potenzialità.<br /><span className="lp-marker-underline">Tutti Lo Noteranno...</span></h1>
                         <p className="lp-hero-sub">Il percorso <strong>ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong> che elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
@@ -239,7 +256,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         </button>
                         <p className="lp-cta-sub"><Lock size={12} /> Consulenza gratuita di 15 min · Zero impegno · 0€</p>
                     </div>
-                    <div className="lp-hero-img">
+                    <div className="lp-hero-img lp-hero-img-fade">
                         <Image src="/images/landing/hero-footballer.png" alt="Giovane calciatore" width={480} height={480} priority style={{ objectFit: 'cover', borderRadius: '20px' }} />
                     </div>
                 </div>
@@ -408,16 +425,35 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-form-trust"><Clock size={14} /><span>30 secondi</span></div>
                         <div className="lp-form-trust"><Lock size={14} /><span>Dati protetti</span></div>
                     </div>
-                    <div className="lp-form-card">
-                        <div className="lp-field"><label>Nome e Cognome *</label><div className="lp-input-wrap"><User size={18} /><input type="text" placeholder="Es. Marco Rossi" value={name} onChange={e => setName(e.target.value)} required /></div></div>
-                        <div className="lp-field"><label>Telefono *</label><div className="lp-input-wrap"><Phone size={18} /><input type="tel" placeholder="+39 xxx xxx xxxx" value={phone} onChange={e => setPhone(e.target.value)} required /></div></div>
-                        <div className="lp-field"><label>Email</label><div className="lp-input-wrap"><Mail size={18} /><input type="email" placeholder="la-tua@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div></div>
-                        {error && <div className="lp-error">{error}</div>}
-                        <button className="lp-btn-submit" disabled={!name || !phone || loading} onClick={handleSubmit}>
-                            {loading ? <div className="lp-spinner" /> : <>Prenota ORA — È Gratuita <ArrowRight size={20} /></>}
-                        </button>
-                        <p className="lp-privacy">🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.</p>
-                        <div className="lp-form-urgency"><span className="lp-urgency-dot" /><span><strong>{viewerCount}</strong> genitori stanno guardando ora</span></div>
+                    <div className="lp-form-container">
+                        {/* Red marker arrow */}
+                        <svg className="lp-red-arrow" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M60 5 C30 25, 15 60, 25 100 C30 120, 45 140, 60 150" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" fill="none" style={{filter: 'url(#marker)'}} />
+                            <path d="M45 135 L60 155 L55 130" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" style={{filter: 'url(#marker)'}} />
+                            <defs><filter id="marker"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise" /><feDisplacementMap in="SourceGraphic" in2="noise" scale="3" /></filter></defs>
+                        </svg>
+                        <div className="lp-form-card">
+                            <div className="lp-field">
+                                <label>Nome e Cognome *</label>
+                                <div className={`lp-input-wrap ${name ? 'filled' : ''}`}><User size={18} /><input type="text" placeholder="Es. Marco Rossi" value={name} onChange={e => setName(e.target.value)} required /></div>
+                            </div>
+                            <div className="lp-field">
+                                <label>Telefono *</label>
+                                <div className={`lp-input-wrap ${phone && !phoneError ? 'filled' : ''} ${phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="+39 xxx xxx xxxx" value={phone} onChange={e => handlePhoneChange(e.target.value)} required /></div>
+                                {phoneError && <span className="lp-field-error">{phoneError}</span>}
+                            </div>
+                            <div className="lp-field">
+                                <label>Email</label>
+                                <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="la-tua@email.com" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                                {emailError && <span className="lp-field-error">{emailError}</span>}
+                            </div>
+                            {error && <div className="lp-error">{error}</div>}
+                            <button className={`lp-btn-submit ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={!isFormValid || loading} onClick={handleSubmit}>
+                                {loading ? <div className="lp-spinner" /> : <>Prenota ORA — È Gratuita <ArrowRight size={20} /></>}
+                            </button>
+                            <p className="lp-privacy">🔒 I tuoi dati sono al sicuro. Li utilizzeremo solo per contattarti.</p>
+                            <div className="lp-form-urgency"><span className="lp-urgency-dot" /><span><strong>{viewerCount}</strong> genitori stanno guardando ora</span></div>
+                        </div>
                     </div>
                 </div>
             </section>
