@@ -231,10 +231,10 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-header-r">
                         <div className="lp-header-badges">
                             <span className="lp-header-badge">🏆 Serie A, B, Lega Pro</span>
-                            <span className="lp-header-badge">⭐ 4.9/5 TrustPilot</span>
+                            <span className="lp-header-badge">⭐ 4.9/5 <span className="lp-tp-green">TrustPilot</span></span>
                             <span className="lp-header-badge">✅ Garanzia Scritta</span>
                         </div>
-                        <button className="lp-header-cta" onClick={scrollToForm}>Prenota</button>
+                        <button className="lp-header-cta" onClick={scrollToForm}>Prenota Gratis</button>
                     </div>
                 </div>
             </header>
@@ -253,7 +253,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
                         <button className="lp-cta-main" onClick={scrollToForm}>
-                            Scopri Se È Adatto a Tuo Figlio → <ArrowRight size={20} />
+                            Scopri Se È Adatto a Tuo Figlio
                         </button>
                         <p className="lp-cta-sub"><Lock size={12} /> Consulenza gratuita di 15 min · Zero impegno · 0€</p>
                     </div>
