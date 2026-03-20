@@ -370,6 +370,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div><CheckCircle size={16} color="#22c55e" /> Risultati misurabili</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Contratto trasparente</div>
                         </div>
+                        <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>Prenota la Consulenza Gratuita <ArrowRight size={20} /></button>
                     </div>
                 </div>
             </section>
