@@ -208,7 +208,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <Phone size={20} color="#facc15" />
                         <div>
                             <strong>Un nostro esperto ti contatterà</strong>
-                            <span>entro 2 ore al numero {phone}</span>
+                            <span>al numero {phone}</span>
                         </div>
                     </div>
                     <p className="lp-ty-sub">Preparati a scoprire come sbloccare il vero potenziale di tuo figlio. 🏆</p>
@@ -261,7 +261,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <span className="lp-hf-live">⚡ POSTI LIMITATI</span>
                             </div>
                             <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
-                            <p className="lp-hf-sub">Compila il form — ti richiamiamo entro 2 ore</p>
+                            <p className="lp-hf-sub">Compila il form — ti richiamiamo noi</p>
                             <div className="lp-hf-trust">
                                 <div><Lock size={12} /> Dati protetti</div>
                                 <div><Clock size={12} /> 30 secondi</div>
