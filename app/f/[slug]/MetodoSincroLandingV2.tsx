@@ -227,7 +227,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
-                        <h1>2.100 Giovani Calciatori<br />Non Rendevano Quanto Valevano.<br /><span className="lp-gold">In 90 Giorni, Sono Diventati Protagonisti.</span></h1>
+                        <h1>In Soli 90 Giorni, Al Massimo<br />Delle Sue Potenzialità.<br /><span className="lp-gold">Tutti Lo Noteranno.</span></h1>
                         <p className="lp-hero-sub">Il percorso <strong>ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong> che elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>

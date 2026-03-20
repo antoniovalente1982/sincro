@@ -31,7 +31,7 @@
 }
 .lp-logo sup { font-size: 9px; color: #facc15; }
 .lp-header-r { display: flex; align-items: center; gap: 16px; }
-.lp-tp { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #a1a1aa; }
+.lp-tp { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #00b67a; font-weight: 600; }
 .lp-header-cta {
     padding: 8px 20px; border: none; border-radius: 100px;
     font-size: 13px; font-weight: 700; font-family: inherit;
