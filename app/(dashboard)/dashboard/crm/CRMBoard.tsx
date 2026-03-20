@@ -159,11 +159,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         return matchSearch && matchObjective && matchPipeline && matchDate
     })
 
-    // Sort leads by AI score (highest first) within each stage
+    // Sort leads by arrival time (most recent first) within each stage
     const getLeadsForStage = (stageId: string) =>
         filteredLeads
             .filter(l => l.stage_id === stageId)
-            .sort((a, b) => calculateLeadScore(b).score - calculateLeadScore(a).score)
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     // Calculate stage value totals
     const getStageValue = (stageId: string) =>
