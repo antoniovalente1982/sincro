@@ -245,7 +245,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
                         <h1>In Soli 90 Giorni, Al Massimo<br />Delle Sue Potenzialità.<br /><span className="lp-marker-underline">Tutti Lo Noteranno...</span></h1>
-                        <p className="lp-hero-sub">Il percorso <strong>ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong> che elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                        <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati per <strong>calcio e fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
@@ -285,7 +285,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <div className="lp-pain-result">
                         <Brain size={20} color="#facc15" />
-                        <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È mentale.</strong> Ed è risolvibile in 90 giorni.</span>
+                        <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È mentale.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
                     </div>
                 </div>
             </section>
@@ -330,7 +330,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <div className="lp-how-note">
                         <Shield size={18} color="#22c55e" />
-                        <span><strong>Non è un videocorso.</strong> Ogni sessione è individuale, live, con un coach dedicato esclusivamente a tuo figlio.</span>
+                        <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato per il calcio e per la sua fascia d'età.</span>
                     </div>
                 </div>
             </section>
