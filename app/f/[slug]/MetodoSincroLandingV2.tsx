@@ -229,11 +229,12 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-header-in">
                     <div className="lp-logo">METODO SINCRO<sup>®</sup></div>
                     <div className="lp-header-r">
-                        <div className="lp-tp">
-                            <div className="lp-stars">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#facc15" color="#facc15" />)}</div>
-                            <span>4.9/5 TrustPilot</span>
+                        <div className="lp-header-badges">
+                            <span className="lp-header-badge">🏆 Serie A, B, Lega Pro</span>
+                            <span className="lp-header-badge">⭐ 4.9/5 TrustPilot</span>
+                            <span className="lp-header-badge">✅ Garanzia Scritta</span>
                         </div>
-                        <button className="lp-header-cta" onClick={scrollToForm}>Prenota Gratis</button>
+                        <button className="lp-header-cta" onClick={scrollToForm}>Prenota</button>
                     </div>
                 </div>
             </header>
@@ -252,7 +253,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
                         <button className="lp-cta-main" onClick={scrollToForm}>
-                            Scopri Se È Adatto a Tuo Figlio → Gratis <ArrowRight size={20} />
+                            Scopri Se È Adatto a Tuo Figlio → <ArrowRight size={20} />
                         </button>
                         <p className="lp-cta-sub"><Lock size={12} /> Consulenza gratuita di 15 min · Zero impegno · 0€</p>
                     </div>
