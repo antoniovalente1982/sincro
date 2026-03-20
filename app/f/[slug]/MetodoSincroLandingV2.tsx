@@ -3,7 +3,7 @@
 import './landing-v2.css'
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
+import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
 
 interface Props {
     funnel: {
@@ -243,12 +243,16 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
-                        <h1>In Soli 90 Giorni, Al Massimo<br />Potenziale.<br /><span className="lp-marker-underline">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
+                        <h1>In Soli 90 Giorni, Al Massimo<br />Potenziale.<br /><span className="lp-gold">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
                         <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
+                        </div>
+                        <div className="lp-gift-badge">
+                            <Gift size={18} color="#facc15" />
+                            <span>Dopo la chiamata riceverai: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
                         </div>
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
@@ -341,7 +345,6 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-stat-big"><strong>356</strong><span>Recensioni 5★</span></div>
                         <div className="lp-stat-big"><strong>30+</strong><span>Coach nel team</span></div>
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Scopri Se È Adatto a Tuo Figlio <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -385,7 +388,6 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                         ))}
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Prenota ORA — È Gratuita <ArrowRight size={18} /></button>
                 </div>
             </section>
 

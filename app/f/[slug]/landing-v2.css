@@ -85,6 +85,9 @@
     font-size: clamp(30px, 5.5vw, 48px); font-weight: 900;
     line-height: 1.12; letter-spacing: -1.5px; margin-bottom: 20px;
 }
+.lp-hero h1 .lp-gold {
+    text-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
+}
 .lp-hero-sub {
     font-size: 17px; line-height: 1.7; color: #a1a1aa; margin-bottom: 24px;
 }
@@ -110,6 +113,16 @@
 }
 .lp-proof-item strong { color: #fff; }
 
+/* Gift badge */
+.lp-gift-badge {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 14px 18px; border-radius: 14px; margin-top: 4px;
+    background: linear-gradient(135deg, rgba(250,204,21,0.08) 0%, rgba(250,204,21,0.02) 100%);
+    border: 1px solid rgba(250,204,21,0.15);
+    font-size: 13px; color: #a1a1aa; line-height: 1.5;
+}
+.lp-gift-badge strong { color: #facc15; }
+
 /* Section pre-labels */
 .lp-section-pre {
     text-align: center; font-size: 11px; font-weight: 800;
@@ -122,13 +135,14 @@
     padding: 18px 36px; border: none; border-radius: 14px;
     font-size: 17px; font-weight: 800; font-family: inherit;
     color: #0a0a0a; cursor: pointer; transition: all 0.3s;
-    background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
-    box-shadow: 0 0 40px rgba(250, 204, 21, 0.25), 0 4px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #ffe44d 0%, #facc15 50%, #eab308 100%);
+    box-shadow: 0 0 50px rgba(250, 204, 21, 0.4), 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
     animation: ctaPulse 2.5s ease-in-out infinite;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
 .lp-cta-main:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 0 60px rgba(250, 204, 21, 0.4), 0 8px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 0 80px rgba(250, 204, 21, 0.5), 0 8px 30px rgba(0,0,0,0.3);
     animation: none;
 }
 .lp-cta-sub {
@@ -214,12 +228,15 @@
     border: none; border-radius: 14px;
     font-size: 16px; font-weight: 800; font-family: inherit;
     color: #0a0a0a; cursor: pointer; transition: all 0.3s;
-    background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
-    box-shadow: 0 0 30px rgba(250, 204, 21, 0.15), 0 4px 16px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #ffe44d 0%, #facc15 50%, #eab308 100%);
+    box-shadow: 0 0 40px rgba(250, 204, 21, 0.35), 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+    animation: ctaPulse 2.5s ease-in-out infinite;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
 .lp-cta-section:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 0 50px rgba(250, 204, 21, 0.3), 0 8px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 0 60px rgba(250, 204, 21, 0.5), 0 8px 20px rgba(0,0,0,0.3);
+    animation: none;
 }
 
 /* ─── PAIN POINTS ─── */
@@ -486,11 +503,13 @@
     width: 100%; padding: 18px; border: none; border-radius: 14px;
     font-size: 18px; font-weight: 800; font-family: inherit; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    color: #0a0a0a; background: linear-gradient(135deg, #facc15, #eab308);
-    box-shadow: 0 0 40px rgba(250,204,21,0.25), 0 4px 16px rgba(250,204,21,0.3);
+    color: #0a0a0a;
+    background: linear-gradient(135deg, #ffe44d 0%, #facc15 50%, #eab308 100%);
+    box-shadow: 0 0 50px rgba(250,204,21,0.4), 0 4px 16px rgba(250,204,21,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
     margin-top: 8px; transition: all 0.4s;
     animation: ctaPulse 2.5s ease-in-out infinite;
     letter-spacing: 0.3px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
 .lp-btn-submit.lp-btn-valid {
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
@@ -585,7 +604,7 @@
 .lp-ty-sub { color: #52525b; font-size: 14px; margin-top: 12px; }
 
 /* ─── ANIMATIONS ─── */
-@keyframes ctaPulse { 0%, 100% { box-shadow: 0 0 40px rgba(250,204,21,0.25); } 50% { box-shadow: 0 0 60px rgba(250,204,21,0.4); } }
+@keyframes ctaPulse { 0%, 100% { box-shadow: 0 0 40px rgba(250,204,21,0.35), inset 0 1px 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 70px rgba(250,204,21,0.55), inset 0 1px 0 rgba(255,255,255,0.3); } }
 @keyframes ctaPulseGreen { 0%, 100% { box-shadow: 0 0 40px rgba(34,197,94,0.3); } 50% { box-shadow: 0 0 60px rgba(34,197,94,0.5); } }
 @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
 @keyframes spin { to { transform: rotate(360deg); } }
