@@ -37,7 +37,7 @@ const REVIEWS = [
 const FAQ_ITEMS = [
     { q: 'Quanto dura il percorso?', a: 'Il percorso standard dura 3 mesi con sessioni settimanali ONE-TO-ONE. I primi risultati sono visibili già dopo 30 giorni.' },
     { q: 'Come si svolge? Devo portarlo da qualche parte?', a: 'No, il percorso è 100% online. Le sessioni si svolgono comodamente da casa via videochiamata, in totale flessibilità.' },
-    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, non paghi. Continuiamo gratuitamente fino ai risultati. 2.100+ famiglie possono confermarlo.' },
+    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo.' },
     { q: 'Quanto costa?', a: 'Le tariffe dipendono dal percorso personalizzato. La prima consulenza è COMPLETAMENTE GRATUITA e senza impegno — lì ti spieghiamo tutto.' },
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Non siamo psicologi. Il mental coaching serve per raggiungere i SUOI obiettivi e migliorare da subito. Noi siamo quelli che lavorano con i calciatori professionisti che tuo figlio vede in televisione. Quando glielo dirai, sarà LUI a voler iniziare il programma.' },
@@ -249,7 +249,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
-                            <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>non paghi</strong></span></div>
+                            <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
                         <button className="lp-cta-main" onClick={scrollToForm}>
                             Scopri Se È Adatto a Tuo Figlio → Gratis <ArrowRight size={20} />
@@ -344,7 +344,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         {[
                             { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista CONI assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
                             { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Il percorso ha una durata definita con milestones misurabili settimana per settimana.' },
-                            { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con risultati garantiti per iscritto. Se non funziona, non paghi.' },
+                            { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con risultati garantiti per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
                             { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: 'Lo stesso sistema usato da calciatori di Serie A per la preparazione mentale.' },
@@ -364,7 +364,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-container">
                     <div className="lp-guarantee-card">
                         <h2 style={{marginTop: 0}}>Garanzia Sui Risultati — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
-                        <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia risultati scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>non paghi</strong>.</p>
+                        <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia risultati scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</p>
                         <div className="lp-guarantee-row">
                             <div><CheckCircle size={16} color="#22c55e" /> Zero rischi per te</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Risultati misurabili</div>
