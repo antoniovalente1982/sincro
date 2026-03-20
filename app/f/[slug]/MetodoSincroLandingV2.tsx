@@ -243,7 +243,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
-                        <h1>In Soli 90 Giorni, Al Massimo<br />Potenziale.<br /><span className="lp-gold">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
+                        <h1>In Soli 90 Giorni,<br />Sarà Di Un'Altra Categoria.<br /><span className="lp-gold">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
                         <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
@@ -258,8 +258,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
                         <div className="lp-hf-card">
                             <div className="lp-hf-header">
-                                <div className="lp-hf-pulse" />
-                                <span className="lp-hf-live">🔴 POSTI LIMITATI</span>
+                                <span className="lp-hf-live">⚡ POSTI LIMITATI</span>
                             </div>
                             <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
                             <p className="lp-hf-sub">Compila il form — ti richiamiamo entro 2 ore</p>
