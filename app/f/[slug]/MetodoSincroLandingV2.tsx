@@ -426,11 +426,6 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-form-trust"><Lock size={14} /><span>Dati protetti</span></div>
                     </div>
                     <div className="lp-form-container">
-                        {/* Red marker arrow */}
-                        <svg className="lp-red-arrow" viewBox="0 0 80 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 10 C5 40, 30 70, 20 100 C10 130, 40 160, 65 185" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-                            <polygon points="58,175 75,195 52,188" fill="#ef4444" />
-                        </svg>
                         <div className="lp-form-card">
                             <div className="lp-field">
                                 <label>Nome e Cognome *</label>
