@@ -280,7 +280,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                     {emailError && <span className="lp-field-error">{emailError}</span>}
                                 </div>
                                 {error && <div className="lp-error">{error}</div>}
-                                <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={!isFormValid || loading} onClick={handleSubmit}>
+                                <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={loading} onClick={handleSubmit}>
                                     {loading ? <div className="lp-spinner" /> : <>PRENOTA ORA — È Gratuita <ArrowRight size={20} /></>}
                                 </button>
                             </div>

@@ -530,7 +530,7 @@
 .lp-btn-submit.lp-btn-valid:hover:not(:disabled) {
     box-shadow: 0 0 60px rgba(34,197,94,0.5);
 }
-.lp-btn-submit:disabled { opacity: 0.45; cursor: not-allowed; animation: none; }
+.lp-btn-submit:disabled { cursor: not-allowed; animation: none; }
 .lp-privacy { text-align: center; font-size: 11px; color: #a1a1aa; margin-top: 14px; }
 .lp-form-urgency {
     display: flex; align-items: center; justify-content: center; gap: 8px;
