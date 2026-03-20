@@ -363,8 +363,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             <section className="lp-guarantee">
                 <div className="lp-container">
                     <div className="lp-guarantee-card">
-                        <Shield size={40} color="#22c55e" />
-                        <h2>Garanzia Risultati <span style={{color:'#22c55e'}}>Scritta nel Contratto</span></h2>
+                        <h2 style={{marginTop: 0}}>Garanzia Sui Risultati — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
                         <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia risultati scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>non paghi</strong>.</p>
                         <div className="lp-guarantee-row">
                             <div><CheckCircle size={16} color="#22c55e" /> Zero rischi per te</div>
