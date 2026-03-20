@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json()
-        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant } = body
+        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id } = body
 
         if (!funnel_id || !name) {
             return NextResponse.json({ error: 'Name and funnel_id are required' }, { status: 400 })
@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
                 client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
                 client_user_agent: req.headers.get('user-agent') || undefined,
                 event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
+                event_id: event_id || undefined,
             }, funnel.meta_pixel_id, lead.id)
         }
 
@@ -210,7 +211,7 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
 
         if (!conn?.credentials?.access_token) return
 
-        const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        const eventId = userData.event_id || `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         const payload = {
             data: [{

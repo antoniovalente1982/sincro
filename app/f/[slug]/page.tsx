@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
-import MetodoSincroLanding from './MetodoSincroLanding'
+import MetodoSincroLanding from './MetodoSincroLandingV2'
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

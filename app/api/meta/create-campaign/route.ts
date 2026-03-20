@@ -133,44 +133,40 @@ async function launchFullStrategy(
     // ─── Targeting configs (MANUAL — NO Advantage+) ───
     const targetingCalcio = {
         geo_locations: { countries: ['IT'] },
-        age_min: 30,
-        age_max: 55,
-        targeting_optimization: 'none',
+        age_min: 38,
+        age_max: 65,
+        locales: [10],
         flexible_spec: [
             {
                 interests: [
-                    { id: '6003107902433', name: 'Association football' },  // Calcio
-                    { id: '6003348229498', name: 'Serie A' },
-                    { id: '6003012949498', name: 'Football player' },
-                    { id: '6003384248987', name: 'Youth sport' },
+                    { id: '6003107902433', name: 'Calcio (calcio)' },
+                    { id: '6003332764437', name: 'Genitori' },
+                    { id: '6004087957374', name: 'Preparazione atletica' },
                 ],
             },
         ],
         family_statuses: [{ id: 3, name: 'Parents (All)' }],
         publisher_platforms: ['facebook', 'instagram'],
-        facebook_positions: ['feed', 'video_feeds', 'story', 'reels'],
-        instagram_positions: ['stream', 'story', 'reels', 'explore'],
+        targeting_automation: { advantage_audience: 0 },
     }
 
     const targetingMentale = {
         geo_locations: { countries: ['IT'] },
-        age_min: 30,
-        age_max: 55,
-        targeting_optimization: 'none',
+        age_min: 38,
+        age_max: 65,
+        locales: [10],
         flexible_spec: [
             {
                 interests: [
-                    { id: '6003139266461', name: 'Coaching' },
-                    { id: '6003305411158', name: 'Sport psychology' },
-                    { id: '6003384592981', name: 'Personal development' },
-                    { id: '6003017847520', name: 'Performance' },
+                    { id: '6003051822645', name: 'Coaching (istruzione)' },
+                    { id: '6003748928462', name: 'Sviluppo personale' },
+                    { id: '6004087957374', name: 'Preparazione atletica' },
                 ],
             },
         ],
         family_statuses: [{ id: 3, name: 'Parents (All)' }],
         publisher_platforms: ['facebook', 'instagram'],
-        facebook_positions: ['feed', 'video_feeds', 'story', 'reels'],
-        instagram_positions: ['stream', 'story', 'reels', 'explore'],
+        targeting_automation: { advantage_audience: 0 },
     }
 
     // ─── Ad copy variants ───
@@ -268,7 +264,7 @@ async function launchFullStrategy(
         campaign_id: campaign1.id,
         daily_budget: 6000, // €60 in cents
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LEAD_GENERATION',
+        optimization_goal: 'OFFSITE_CONVERSIONS',
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: targetingCalcio,
         promoted_object: { pixel_id: pixelId, custom_event_type: 'LEAD' },
@@ -281,7 +277,7 @@ async function launchFullStrategy(
         campaign_id: campaign1.id,
         daily_budget: 6000,
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LEAD_GENERATION',
+        optimization_goal: 'OFFSITE_CONVERSIONS',
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: targetingMentale,
         promoted_object: { pixel_id: pixelId, custom_event_type: 'LEAD' },
@@ -295,7 +291,7 @@ async function launchFullStrategy(
         campaign_id: campaign2.id,
         daily_budget: 6000,
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LEAD_GENERATION',
+        optimization_goal: 'OFFSITE_CONVERSIONS',
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: targetingCalcio,
         promoted_object: { pixel_id: pixelId, custom_event_type: 'LEAD' },
@@ -308,7 +304,7 @@ async function launchFullStrategy(
         campaign_id: campaign2.id,
         daily_budget: 6000,
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LEAD_GENERATION',
+        optimization_goal: 'OFFSITE_CONVERSIONS',
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: targetingMentale,
         promoted_object: { pixel_id: pixelId, custom_event_type: 'LEAD' },
@@ -322,7 +318,7 @@ async function launchFullStrategy(
         campaign_id: campaign3.id,
         daily_budget: 6000,
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LEAD_GENERATION',
+        optimization_goal: 'OFFSITE_CONVERSIONS',
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: targetingCalcio,
         promoted_object: { pixel_id: pixelId, custom_event_type: 'LEAD' },
@@ -349,7 +345,7 @@ async function launchFullStrategy(
                     message: adCopyPain.message,
                     name: adCopyPain.headline,
                     description: adCopyPain.description,
-                    call_to_action: { type: adCopyPain.cta, value: { link: LANDING_URL } },
+                    call_to_action: { type: adCopyPain.cta },
                 },
             },
             url_tags: 'utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}',
@@ -390,7 +386,7 @@ async function launchFullStrategy(
                     message: adCopyTransform.message,
                     name: adCopyTransform.headline,
                     description: adCopyTransform.description,
-                    call_to_action: { type: adCopyTransform.cta, value: { link: LANDING_URL } },
+                    call_to_action: { type: adCopyTransform.cta },
                 },
             },
             url_tags: 'utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}',
