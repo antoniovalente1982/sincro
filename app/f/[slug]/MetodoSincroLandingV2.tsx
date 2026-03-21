@@ -101,8 +101,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
 
         const pageViewEventId = `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
         const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
+            const sep = c.indexOf('=')
+            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
             return acc
         }, {})
 
@@ -135,11 +135,18 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
 
     const getFbIds = () => {
         const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
+            const sep = c.indexOf('=')
+            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
             return acc
         }, {})
-        return { fbc: cookies._fbc || undefined, fbp: cookies._fbp || undefined }
+        let fbc = cookies._fbc || undefined
+        const fbp = cookies._fbp || undefined
+        // If _fbc cookie is missing but fbclid is in URL, construct fbc per Meta spec
+        if (!fbc) {
+            const fbclid = new URLSearchParams(window.location.search).get('fbclid')
+            if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`
+        }
+        return { fbc, fbp }
     }
 
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -214,9 +221,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <p className="lp-ty-sub">Preparati a scoprire come sbloccare il vero potenziale di tuo figlio. 🏆</p>
                 </div>
-                {funnel.meta_pixel_id && (
-                    <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}');` }} />
-                )}
+                {/* Pixel init removed — single init in footer prevents duplicate PageView events */}
                 <style>{STYLES}</style>
             </div>
         )
