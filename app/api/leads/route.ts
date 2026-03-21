@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
             // Fetch funnel objective for content_category + meta_data for tracking params
             const leadForCapi = await supabase
                 .from('leads')
-                .select('email, phone, value, funnel_id, meta_data, funnels!leads_funnel_id_fkey(objective)')
+                .select('name, email, phone, value, funnel_id, meta_data, funnels!leads_funnel_id_fkey(objective)')
                 .eq('id', id)
                 .single()
 
@@ -90,6 +90,7 @@ export async function PUT(req: NextRequest) {
             const meta = leadForCapi.data?.meta_data || {} as any
 
             fireCapiEvent(orgId, newStage.fire_capi_event, {
+                name: leadForCapi.data?.name,
                 email: leadForCapi.data?.email,
                 phone: leadForCapi.data?.phone,
                 value: leadForCapi.data?.value,
@@ -179,6 +180,10 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
             user_data: {
                 em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
                 ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
+                fn: userData.name ? [await hashSHA256(userData.name.split(' ')[0].toLowerCase().trim())] : undefined,
+                ln: userData.name?.includes(' ') ? [await hashSHA256(userData.name.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
+                ct: [await hashSHA256('it')],
+                country: [await hashSHA256('it')],
                 fbc: userData.fbc || undefined,
                 fbp: userData.fbp || undefined,
                 external_id: userData.external_id ? [await hashSHA256(userData.external_id)] : undefined,
