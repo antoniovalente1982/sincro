@@ -155,6 +155,7 @@ export async function POST(req: NextRequest) {
                 client_user_agent: req.headers.get('user-agent') || undefined,
                 event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
                 event_id: event_id || undefined,
+                external_id: body.visitor_id || undefined,
             }, funnel.meta_pixel_id, lead.id)
         }
 
@@ -227,6 +228,7 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                     fbp: userData.fbp || undefined,
                     client_ip_address: userData.client_ip || undefined,
                     client_user_agent: userData.client_user_agent || undefined,
+                    external_id: userData.external_id ? [await hashSHA256(userData.external_id)] : undefined,
                 },
                 custom_data: {
                     content_category: userData.content_category || undefined,

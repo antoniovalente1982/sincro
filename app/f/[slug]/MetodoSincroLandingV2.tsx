@@ -180,6 +180,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     extra_data: { sport: 'calcio' },
                     landing_url: window.location.host + window.location.pathname,
                     event_id: leadEventId,
+                    visitor_id: localStorage.getItem('_sincro_vid') || undefined,
                     ...utmParams,
                     ...getFbIds(),
                 }),

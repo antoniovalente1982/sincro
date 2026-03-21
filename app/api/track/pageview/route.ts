@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
                     client_ip: clientIp || undefined,
                     client_user_agent: userAgent || undefined,
                     event_source_url: page_url || undefined,
+                    external_id: visitor_id || undefined,
                 })
             } catch (err) {
                 console.error('CAPI PageView error:', err)
@@ -79,6 +80,7 @@ async function fireCapiPageView(orgId: string, params: {
     client_ip?: string
     client_user_agent?: string
     event_source_url?: string
+    external_id?: string
 }) {
     // Get Meta CAPI connection
     const { data: conn } = await supabaseAdmin
@@ -105,6 +107,7 @@ async function fireCapiPageView(orgId: string, params: {
                 fbp: params.fbp || undefined,
                 client_ip_address: params.client_ip || undefined,
                 client_user_agent: params.client_user_agent || undefined,
+                external_id: params.external_id ? [await hashSHA256(params.external_id)] : undefined,
             },
         }],
     }
@@ -131,4 +134,10 @@ async function fireCapiPageView(orgId: string, params: {
         sent_to_provider: res.ok,
         provider_response: result,
     })
+}
+
+async function hashSHA256(data: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const buffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
