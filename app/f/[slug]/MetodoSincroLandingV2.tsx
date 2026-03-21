@@ -122,8 +122,9 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 fbadid: params.get('fbadid') || undefined,
                 referrer: document.referrer || undefined,
                 event_id: pageViewEventId,
-                fbc: cookies._fbc || undefined,
+                fbc: cookies._fbc || (params.get('fbclid') ? `fb.1.${Date.now()}.${params.get('fbclid')}` : undefined),
                 fbp: cookies._fbp || undefined,
+                fb_login_id: cookies.c_user || undefined,
                 page_url: window.location.href,
             }),
         }).catch(() => {})

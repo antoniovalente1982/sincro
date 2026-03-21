@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const { organization_id, funnel_id, page_path, page_variant, visitor_id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, fbadid, referrer, event_id, fbc, fbp, page_url } = body
+        const { organization_id, funnel_id, page_path, page_variant, visitor_id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, fbadid, referrer, event_id, fbc, fbp, fb_login_id, page_url } = body
 
         if (!organization_id || !page_path) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
                     client_user_agent: userAgent || undefined,
                     event_source_url: page_url || undefined,
                     external_id: visitor_id || undefined,
+                    fb_login_id: fb_login_id || undefined,
                 })
             } catch (err) {
                 console.error('CAPI PageView error:', err)
@@ -81,6 +82,7 @@ async function fireCapiPageView(orgId: string, params: {
     client_user_agent?: string
     event_source_url?: string
     external_id?: string
+    fb_login_id?: string
 }) {
     // Get Meta CAPI connection
     const { data: conn } = await supabaseAdmin
@@ -108,6 +110,7 @@ async function fireCapiPageView(orgId: string, params: {
                 client_ip_address: params.client_ip || undefined,
                 client_user_agent: params.client_user_agent || undefined,
                 external_id: params.external_id ? [await hashSHA256(params.external_id)] : undefined,
+                fb_login_id: params.fb_login_id ? [params.fb_login_id] : undefined,
             },
         }],
     }
