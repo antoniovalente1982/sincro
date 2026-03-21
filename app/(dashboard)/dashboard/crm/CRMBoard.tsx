@@ -267,7 +267,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     const formatDate = (d: string) => {
         const date = new Date(d)
-        return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
+        return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
     }
 
     const formatTime = (d: string) => {
