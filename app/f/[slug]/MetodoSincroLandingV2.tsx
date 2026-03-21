@@ -251,7 +251,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per Giovani Calciatori</div>
-                        <h1>In Soli 90 Giorni,<br />Sarà Di Un'Altra Categoria.<br /><span className="lp-gold">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
+                        <h1>In Soli 90 Giorni, Tuo Figlio,<br /><span className="lp-gold">Sarà un Calciatore di Un'Altra Categoria...</span></h1>
                         <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
