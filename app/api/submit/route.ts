@@ -124,7 +124,17 @@ export async function POST(req: NextRequest) {
                 utm_source: utm_source || null,
                 utm_campaign: utm_campaign || null,
                 product: funnel.name,
-                meta_data: { source: 'funnel', funnel_name: funnel.name, utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null },
+                meta_data: {
+                    source: 'funnel', funnel_name: funnel.name,
+                    utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
+                    // Tracking data for CRM CAPI events (QualifiedLead, Schedule, etc.)
+                    fbc: body.fbc || null,
+                    fbp: body.fbp || null,
+                    visitor_id: body.visitor_id || null,
+                    client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || null,
+                    client_user_agent: req.headers.get('user-agent') || null,
+                    event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
+                },
             })
             .select()
             .single()

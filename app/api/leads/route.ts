@@ -79,20 +79,28 @@ export async function PUT(req: NextRequest) {
 
         if (newStage?.fire_capi_event) {
             // Fire CAPI event asynchronously
-            // Fetch funnel objective for content_category
+            // Fetch funnel objective for content_category + meta_data for tracking params
             const leadForCapi = await supabase
                 .from('leads')
-                .select('email, phone, value, funnel_id, funnels!leads_funnel_id_fkey(objective)')
+                .select('email, phone, value, funnel_id, meta_data, funnels!leads_funnel_id_fkey(objective)')
                 .eq('id', id)
                 .single()
 
             const funnelObjective = (leadForCapi.data as any)?.funnels?.objective || 'cliente'
+            const meta = leadForCapi.data?.meta_data || {} as any
 
             fireCapiEvent(orgId, newStage.fire_capi_event, {
                 email: leadForCapi.data?.email,
                 phone: leadForCapi.data?.phone,
                 value: leadForCapi.data?.value,
                 content_category: funnelObjective,
+                // Replay original tracking data for better Meta matching
+                fbc: meta.fbc || undefined,
+                fbp: meta.fbp || undefined,
+                external_id: meta.visitor_id || undefined,
+                client_ip: meta.client_ip || undefined,
+                client_user_agent: meta.client_user_agent || undefined,
+                event_source_url: meta.event_source_url || undefined,
             }, id).catch(err => console.error('CAPI error:', err))
 
             // Log CAPI activity
@@ -166,10 +174,14 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
             event_name: eventName,
             event_time: Math.floor(Date.now() / 1000),
             event_id: eventId,
-            action_source: 'system_generated',
+            action_source: 'website',
+            event_source_url: userData.event_source_url || undefined,
             user_data: {
                 em: userData.email ? [await hashSHA256(userData.email.toLowerCase().trim())] : undefined,
                 ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
+                fbc: userData.fbc || undefined,
+                fbp: userData.fbp || undefined,
+                external_id: userData.external_id ? [await hashSHA256(userData.external_id)] : undefined,
                 client_ip_address: userData.client_ip || undefined,
                 client_user_agent: userData.client_user_agent || undefined,
             },
