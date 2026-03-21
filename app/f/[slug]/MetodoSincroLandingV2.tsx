@@ -64,10 +64,11 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     }
     const handleEmailChange = (val: string) => {
         setEmail(val)
-        if (val && !val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
+        if (!val.trim()) setEmailError('Email obbligatoria')
+        else if (!val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
         else setEmailError('')
     }
-    const isFormValid = name.trim().length > 0 && phone.trim().length > 3 && !phoneError && !emailError
+    const isFormValid = name.trim().length > 0 && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
 
     // Dynamic viewer count
     useEffect(() => {
@@ -144,7 +145,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
 
     const handleSubmit = async () => {
-        if (!name || !phone || phoneError || emailError) return
+        if (!name || !phone || !email || phoneError || emailError) return
         if (phone && !/^[+\d\s\-()]+$/.test(phone)) { setPhoneError('Inserisci solo numeri'); return }
         if (email && !email.includes('@')) { setEmailError('Inserisci un\'email valida'); return }
         setLoading(true)
@@ -242,7 +243,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-bg" />
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
-                        <div className="lp-badge"><Trophy size={14} /> Il Mental Coaching #1 in Italia per Giovani Calciatori</div>
+                        <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per Giovani Calciatori</div>
                         <h1>In Soli 90 Giorni,<br />Sarà Di Un'Altra Categoria.<br /><span className="lp-gold">Gli Osservatori Non Potranno Ignorarlo...</span></h1>
                         <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                         <div className="lp-hero-proof">
@@ -276,7 +277,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                     {phoneError && <span className="lp-field-error">{phoneError}</span>}
                                 </div>
                                 <div className="lp-field">
-                                    <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email (opzionale)" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                                    <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
                                     {emailError && <span className="lp-field-error">{emailError}</span>}
                                 </div>
                                 {error && <div className="lp-error">{error}</div>}
