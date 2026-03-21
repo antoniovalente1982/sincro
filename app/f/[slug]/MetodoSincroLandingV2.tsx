@@ -251,7 +251,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
-                        <div className="lp-gift-badge">
+                        <div className="lp-gift-badge lp-gift-desktop">
                             <Gift size={18} color="#facc15" />
                             <span>Dopo la chiamata riceverai: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
                         </div>
@@ -287,6 +287,10 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
                             <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
+                        </div>
+                        <div className="lp-gift-badge lp-gift-mobile">
+                            <Gift size={18} color="#facc15" />
+                            <span>Dopo la chiamata riceverai: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
                         </div>
                     </div>
                 </div>

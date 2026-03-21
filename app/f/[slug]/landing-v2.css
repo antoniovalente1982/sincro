@@ -126,6 +126,7 @@
     font-size: 13px; color: #a1a1aa; line-height: 1.5;
 }
 .lp-gift-badge strong { color: #facc15; }
+.lp-gift-mobile { display: none; }
 
 /* Section pre-labels */
 .lp-section-pre {
@@ -632,6 +633,8 @@
     .lp-cta-main { width: 100%; justify-content: center; padding: 16px 20px; font-size: 14px; }
     .lp-cta-sub { justify-content: center; font-size: 11px; }
     .lp-badge { font-size: 9px; padding: 5px 12px; }
+    .lp-gift-desktop { display: none; }
+    .lp-gift-mobile { display: flex; margin-top: 16px; }
     .lp-marker-underline { padding-bottom: 6px; background-size: 100% 8px; }
 
     .lp-hero-form { width: 100%; }
