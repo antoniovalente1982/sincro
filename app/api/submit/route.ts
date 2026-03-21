@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
                 utm_source: utm_source || null,
                 utm_campaign: utm_campaign || null,
                 product: funnel.name,
-                meta_data: { source: 'funnel', funnel_name: funnel.name },
+                meta_data: { source: 'funnel', funnel_name: funnel.name, utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null },
             })
             .select()
             .single()
