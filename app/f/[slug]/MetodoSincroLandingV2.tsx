@@ -374,7 +374,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <h2>Tutto incluso. <span className="lp-gold">Zero sorprese.</span></h2>
                     <div className="lp-benefits-grid">
                         {[
-                            { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista CONI assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
+                            { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista con tesserino da specialista Mental Coach del CONI, assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
                             { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Il percorso ha una durata definita con milestones misurabili settimana per settimana.' },
                             { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con risultati garantiti per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
