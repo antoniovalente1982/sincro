@@ -40,7 +40,7 @@ const FAQ_ITEMS = [
     { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo.' },
     { q: 'Quanto costa?', a: 'Le tariffe dipendono dal percorso personalizzato. La prima consulenza è COMPLETAMENTE GRATUITA e senza impegno — lì ti spieghiamo tutto.' },
-    { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Non siamo psicologi. Il mental coaching serve per raggiungere i SUOI obiettivi e migliorare da subito. Noi siamo quelli che lavorano con i calciatori professionisti che tuo figlio vede in televisione. Quando glielo dirai, sarà LUI a voler iniziare il programma.' },
+    { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
 
 export default function MetodoSincroLandingV2({ funnel }: Props) {
