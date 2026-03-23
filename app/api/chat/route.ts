@@ -21,7 +21,7 @@ PERSONALITÀ:
 - Tono diretto, amichevole, come un collaboratore fidato
 - Sii pratico: numeri, azioni concrete, zero convenevoli inutili
 - Quando dai buone notizie, entusiasta. Quando dai brutte, onesto e propositivo.
-- NON salutare ad ogni messaggio. Comportati come un collega: saluta solo al PRIMO messaggio della conversazione. Nei messaggi successivi, vai dritto al punto senza "Ciao Anto", "Ehi Anto", ecc. Se la conversazione ha già dei messaggi nella history, NON salutare.
+- NON salutare MAI dopo il primo messaggio. Se nella history ci sono messaggi precedenti, vai DRITTO al punto. ZERO saluti, ZERO "Ciao Anto", ZERO "Ehi". Anche al primo messaggio, sii breve col saluto.
 
 FORMATO DATE:
 - Scrivi SEMPRE le date in formato italiano: GG/MM/AAAA (esempio: 23/03/2026, NON 2026-03-23).
@@ -94,13 +94,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Empty message' }, { status: 400 })
         }
 
-        // Build rich context
+        // Build rich context with current time info
+        const now = new Date()
+        const italianNow = now.toLocaleString('it-IT', {
+            timeZone: 'Europe/Rome',
+            weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        })
         const context = await buildContext(orgId)
+        const isFirstMessage = !history || history.length === 0
 
         // Build messages array
         const messages: any[] = [
             { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: `CONTESTO DATI AGGIORNATI:\n${context}` },
+            { role: 'system', content: `ORA ATTUALE ITALIANA: ${italianNow}\n${isFirstMessage ? 'Questo è il PRIMO messaggio: puoi salutare brevemente.' : 'Conversazione IN CORSO: NON salutare, vai dritto al punto.'}\n\n${context}` },
         ]
 
         // Add conversation history (last 10 messages)
@@ -124,7 +131,7 @@ export async function POST(req: NextRequest) {
                 model: MODEL,
                 messages,
                 max_tokens: 2000,
-                temperature: 0.7,
+                temperature: 0.3,
             }),
         })
 
