@@ -47,6 +47,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
+    const [childAge, setChildAge] = useState('')
     const [phoneError, setPhoneError] = useState('')
     const [emailError, setEmailError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -54,6 +55,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
+    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'default'>('default')
     const formRef = useRef<HTMLDivElement>(null)
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
 
@@ -93,6 +95,12 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             utm_term: params.get('utm_term') || undefined,
         }
         setUtmParams(utms)
+
+        // Detect adset angle from utm_term (contains adset name)
+        const utmTerm = (utms.utm_term || '').toUpperCase()
+        if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) setAdsetAngle('emotional')
+        else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) setAdsetAngle('system')
+        else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) setAdsetAngle('efficiency')
 
         let visitorId = localStorage.getItem('_sincro_vid')
         if (!visitorId) {
@@ -176,7 +184,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     funnel_id: funnel.id,
                     name, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
-                    extra_data: { sport: 'calcio' },
+                    extra_data: { sport: 'calcio', child_age: childAge, adset_angle: adsetAngle },
                     landing_url: window.location.host + window.location.pathname,
                     event_id: leadEventId,
                     visitor_id: localStorage.getItem('_sincro_vid') || undefined,
@@ -215,11 +223,23 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-ty-box">
                         <Phone size={20} color="#facc15" />
                         <div>
-                            <strong>Un nostro esperto ti contatterà</strong>
+                            <strong>Ti chiameremo entro le prossime 2 ore</strong>
                             <span>al numero {phone}</span>
                         </div>
                     </div>
-                    <p className="lp-ty-sub">Preparati a scoprire come sbloccare il vero potenziale di tuo figlio. 🏆</p>
+                    <div className="lp-ty-prep">
+                        <h3>💡 Per prepararti alla consulenza gratuita:</h3>
+                        <ul>
+                            <li>Qual è il problema principale di tuo figlio in campo?</li>
+                            <li>Da quanto tempo noti questo blocco?</li>
+                            <li>Che ruolo gioca e in che squadra?</li>
+                        </ul>
+                    </div>
+                    <div className="lp-ty-gift">
+                        <Gift size={20} color="#facc15" />
+                        <span>Dopo la chiamata riceverai gratuitamente: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
+                    </div>
+                    <p className="lp-ty-sub">Se non rispondi, ti riproveremo il giorno successivo. Salva questo numero: <strong>+39 XXX XXX XXXX</strong> 📱</p>
                 </div>
                 {/* Pixel init removed — single init in footer prevents duplicate PageView events */}
                 <style>{STYLES}</style>
@@ -249,8 +269,27 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per Giovani Calciatori</div>
-                        <h1>In Soli 90 Giorni Tuo Figlio<br /><span className="lp-gold">Sarà un Calciatore di Un'Altra Categoria...</span></h1>
-                        <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                        {adsetAngle === 'emotional' ? (
+                            <>
+                                <h1>Lo Vedi Anche Tu, Vero?<br /><span className="lp-gold">In Allenamento È Un Altro. In Partita Si Spegne.</span></h1>
+                                <p className="lp-hero-sub">Sai che ha il talento. Ma qualcosa lo blocca ogni volta. <strong>Non è un problema tecnico — è un problema di mentalità.</strong> E con il percorso giusto, si risolve in 90 giorni. Il <strong>Metodo Sincro®</strong> è il Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                            </>
+                        ) : adsetAngle === 'system' ? (
+                            <>
+                                <h1>Il Talento C'è.<br /><span className="lp-gold">La Mentalità Vincente Si Costruisce.</span></h1>
+                                <p className="lp-hero-sub">La differenza tra chi ce la fa e chi resta a guardare? <strong>La mentalità.</strong> E la mentalità vincente si allena — esattamente come la tecnica. Il <strong>Metodo Sincro®</strong> è il percorso di Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio e per fascia d'età — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                            </>
+                        ) : adsetAngle === 'efficiency' ? (
+                            <>
+                                <h1>Stesso Ragazzo.<br /><span className="lp-gold">Mentalità Diversa. In Soli 90 Giorni.</span></h1>
+                                <p className="lp-hero-sub">Ogni giorno che passa, il gap tra il suo talento e i suoi risultati si allarga. <strong>In 90 giorni il Metodo Sincro® trasforma la mentalità di tuo figlio</strong> — con un coach <strong>CONI dedicato</strong>, sessioni individuali e <strong>risultati garantiti per contratto</strong>.</p>
+                            </>
+                        ) : (
+                            <>
+                                <h1>In Soli 90 Giorni Tuo Figlio<br /><span className="lp-gold">Sarà un Calciatore di Un'Altra Categoria...</span></h1>
+                                <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                            </>
+                        )}
                         <div className="lp-hero-proof">
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
@@ -284,6 +323,19 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div className="lp-field">
                                     <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
                                     {emailError && <span className="lp-field-error">{emailError}</span>}
+                                </div>
+                                <div className="lp-field">
+                                    <div className={`lp-input-wrap lp-select-wrap ${childAge ? 'filled' : ''}`}>
+                                        <Users size={18} />
+                                        <select value={childAge} onChange={e => setChildAge(e.target.value)}>
+                                            <option value="">Età di tuo figlio/a (opzionale)</option>
+                                            <option value="8-10">8-10 anni</option>
+                                            <option value="11-13">11-13 anni</option>
+                                            <option value="14-16">14-16 anni</option>
+                                            <option value="17-20">17-20 anni</option>
+                                            <option value="20+">Oltre 20 anni</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 {error && <div className="lp-error">{error}</div>}
                                 <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={loading} onClick={handleSubmit}>
@@ -324,7 +376,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <div className="lp-pain-result">
                         <Brain size={20} color="#facc15" />
-                        <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È mentale.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
+                        <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È di mentalità.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
                     </div>
                     <button className="lp-cta-section" onClick={scrollToForm}>Prenota la Consulenza Gratuita <ArrowRight size={18} /></button>
                 </div>

@@ -127,6 +127,9 @@ export async function POST(req: NextRequest) {
                 meta_data: {
                     source: 'funnel', funnel_name: funnel.name,
                     utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
+                    // Form extra fields (age, adset angle)
+                    child_age: body.extra_data?.child_age || null,
+                    adset_angle: body.extra_data?.adset_angle || null,
                     // Tracking data for CRM CAPI events (QualifiedLead, Schedule, etc.)
                     fbc: body.fbc || null,
                     fbp: body.fbp || null,
@@ -172,10 +175,12 @@ export async function POST(req: NextRequest) {
 
         // Send Telegram notification (non-blocking)
         if (lead) {
+            const childAge = body.extra_data?.child_age
             const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
                 `👤 <b>Nome:</b> ${name}\n` +
                 (email ? `📧 <b>Email:</b> ${email}\n` : '') +
                 (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
+                (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
                 `🔗 <b>Funnel:</b> ${funnel.name}\n` +
                 (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
                 (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
