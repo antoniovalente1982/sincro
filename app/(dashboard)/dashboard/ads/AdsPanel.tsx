@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown } from 'lucide-react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -61,28 +61,58 @@ interface Props {
 type SortKey = 'status' | 'spend' | 'impressions' | 'clicks' | 'ctr' | 'leads_count' | 'cpl' | 'roas'
 type SortDir = 'asc' | 'desc'
 
-export default function AdsPanel({ campaigns: allCampaigns, rules, connections, recommendations }: Props) {
+export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
     const [syncing, setSyncing] = useState(false)
+    const [loadingInsights, setLoadingInsights] = useState(false)
     const [lastSync, setLastSync] = useState<string | null>(null)
     const [sortKey, setSortKey] = useState<SortKey>('status')
     const [sortDir, setSortDir] = useState<SortDir>('desc')
+    const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
+    const [liveError, setLiveError] = useState<string | null>(null)
 
-    // Filter campaigns by date range: check if campaign data period OVERLAPS the selected range
-    const campaigns = useMemo(() => {
-        if (activeKey === 'all') return allCampaigns
-        // For Ads, only hide campaigns that have a data period completely outside the selected range
-        // Campaigns without date_range are always visible
-        return allCampaigns.filter(c => {
-            if (!c.date_range_start || !c.date_range_end) return true // no date info = always show
-            const campStart = new Date(c.date_range_start)
-            const campEnd = new Date(c.date_range_end)
-            // Check overlap: campaign period overlaps with selected range
-            return campStart <= range.to && campEnd >= range.from
-        })
-    }, [allCampaigns, range, activeKey])
+    // When user changes period (not "Tutto"), fetch live data from Meta
+    const fetchLiveInsights = useCallback(async (since: string, until: string) => {
+        setLoadingInsights(true)
+        setLiveError(null)
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}`, {
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            })
+            const data = await res.json()
+            if (data.success && data.campaigns) {
+                setLiveCampaigns(data.campaigns)
+                setLastSync(new Date().toLocaleTimeString('it-IT'))
+            } else {
+                setLiveError(data.error || 'Errore nel caricamento')
+                setLiveCampaigns(null)
+            }
+        } catch (e: any) {
+            setLiveError(e.message || 'Errore di connessione')
+            setLiveCampaigns(null)
+        } finally {
+            setLoadingInsights(false)
+        }
+    }, [])
+
+    // Auto-fetch when period changes
+    useEffect(() => {
+        if (activeKey === 'all') {
+            setLiveCampaigns(null) // Use cached data for "Tutto"
+            setLiveError(null)
+            return
+        }
+        const since = range.from.toISOString().split('T')[0]
+        const until = new Date(range.to.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0] // end of day exclusive → inclusive
+        fetchLiveInsights(since, until)
+    }, [activeKey, range.from.getTime(), range.to.getTime(), fetchLiveInsights])
+
+    // Use live data when available, otherwise cached
+    const campaigns = liveCampaigns || cachedCampaigns
 
     // Sort campaigns: ACTIVE first, then by selected sort key
     const sortedCampaigns = useMemo(() => {
@@ -127,23 +157,25 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
         try {
             const supabase = createClient()
             const { data: { session } } = await supabase.auth.getSession()
-            // Pass selected date range to sync API
-            const syncRange = {
-                since: range.from.toISOString().split('T')[0],
-                until: range.to.toISOString().split('T')[0],
-            }
+            // Full sync to update DB cache
             const res = await fetch('/api/meta/sync', {
                 method: 'POST',
                 headers: { 
                     Authorization: `Bearer ${session?.access_token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ time_range: syncRange }),
             })
             const data = await res.json()
             if (data.success) {
                 setLastSync(new Date().toLocaleTimeString('it-IT'))
-                window.location.reload()
+                // If a period is selected, also refresh live data
+                if (activeKey !== 'all') {
+                    const since = range.from.toISOString().split('T')[0]
+                    const until = new Date(range.to.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    await fetchLiveInsights(since, until)
+                } else {
+                    window.location.reload()
+                }
             } else {
                 alert('Sync error: ' + (data.error || 'Unknown'))
             }
@@ -236,7 +268,8 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
                         <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
                         {syncing ? 'Sincronizzando...' : '🔄 Sync Now'}
                     </button>
-                    {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
+            {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
+                    {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
                     <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
                         customFrom={customFrom} customTo={customTo}
                         onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
@@ -271,8 +304,21 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
                 ))}
             </div>
 
+            {/* Error notice */}
+            {liveError && (
+                <div className="text-xs px-3 py-2 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                    ⚠️ Errore nel caricamento dati live: {liveError}
+                </div>
+            )}
+
             {/* Data period notice */}
-            {campaigns.length > 0 && campaigns[0]?.date_range_start && (
+            {activeKey !== 'all' && !loadingInsights && liveCampaigns && (
+                <div className="text-[10px] px-3 py-1.5 rounded-lg inline-flex items-center gap-2" style={{ background: 'rgba(99, 102, 241, 0.06)', color: 'var(--color-surface-500)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                    📊 Dati live da Meta per il periodo selezionato
+                    {lastSync && <span>· Aggiornato: {lastSync}</span>}
+                </div>
+            )}
+            {activeKey === 'all' && campaigns.length > 0 && campaigns[0]?.date_range_start && (
                 <div className="text-[10px] px-3 py-1.5 rounded-lg inline-flex items-center gap-2" style={{ background: 'rgba(245, 158, 11, 0.06)', color: 'var(--color-surface-500)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
                     ℹ️ Dati Meta: periodo {campaigns[0].date_range_start} → {campaigns[0].date_range_end}
                     {campaigns[0].synced_at && <span>· Sync: {new Date(campaigns[0].synced_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>}
@@ -313,7 +359,7 @@ export default function AdsPanel({ campaigns: allCampaigns, rules, connections, 
                                         <td className="px-4 py-3">
                                             <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
                                                 {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
-                                                {c.status || '—'}
+                                                {c.status === 'ACTIVE' ? 'active' : c.status === 'PAUSED' ? 'paused' : c.status?.toLowerCase() || '—'}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
