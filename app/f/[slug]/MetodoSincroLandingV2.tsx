@@ -56,7 +56,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'default'>('default')
-    const [showExitPopup, setShowExitPopup] = useState(false)
+        const [showExitPopup, setShowExitPopup] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const exitShownRef = useRef(false)
