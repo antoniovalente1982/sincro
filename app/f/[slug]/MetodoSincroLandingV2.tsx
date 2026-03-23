@@ -244,7 +244,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     </div>
                     <div className="lp-ty-gift">
                         <Gift size={20} color="#facc15" />
-                        <span>Dopo la chiamata riceverai gratuitamente: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
+                        <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il clone digitale di Antonio Valente, il tuo Mental Coach AI disponibile 24/7</strong></span>
                     </div>
                     <p className="lp-ty-sub">Se non rispondi, ti riproveremo il giorno successivo. 📱</p>
                 </div>
@@ -304,7 +304,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         </div>
                         <div className="lp-gift-badge lp-gift-desktop">
                             <Gift size={18} color="#facc15" />
-                            <span>Dopo la chiamata riceverai: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
+                            <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il tuo Mental Coach AI disponibile 24/7</strong></span>
                         </div>
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
@@ -354,7 +354,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         </div>
                         <div className="lp-gift-badge lp-gift-mobile">
                             <Gift size={18} color="#facc15" />
-                            <span>Dopo la chiamata riceverai: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
+                            <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il tuo Mental Coach AI disponibile 24/7</strong></span>
                         </div>
                     </div>
                 </div>
