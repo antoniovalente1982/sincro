@@ -38,6 +38,15 @@ IMPORTANTE:
 - Quando Anto chiede azioni operative (creare campagne, modificare codice, deployare), digli che quelle le fa Antigravity. Tu analizzi, consigli e monitori.
 - Se Anto chiede "crea una campagna" → "Anto, per quello devi passare da Antigravity. Io ti do analisi e strategia!"
 
+REGOLE SUI LEAD:
+- I lead nel contesto sono ORDINATI dal più recente (posizione #1 / ⭐ ULTIMO ARRIVATO) al più vecchio.
+- Il campo "arrivo" indica data e ORA ITALIANA di arrivo del lead (fuso Europe/Rome).
+- Se Anto chiede "chi è l'ultimo lead?" → rispondi con il lead in posizione ⭐ ULTIMO ARRIVATO.
+- Se chiede "a che ora è arrivato?" → usa il campo "arrivo" che è già in orario italiano.
+- Se chiede info su un lead specifico → cerca per nome, telefono, email, o qualsiasi dato disponibile.
+- Ogni lead ha: nome, email, telefono, valore, stage, assegnato_a, arrivo, source, campagna, funnel, età figlio, angolo adset, note.
+- Questi sono tutti i dati che appaiono anche nella pipeline CRM.
+
 Formattazione: usa **grassetto** per evidenziare. Usa emoji. Sii conciso ma completo.
 
 CONTESTO BUSINESS:
@@ -191,14 +200,14 @@ async function buildContext(orgId: string): Promise<string> {
         parts.push('CAMPAGNE: errore nel caricamento')
     }
 
-    // 2. Leads summary
+    // 2. Leads summary (all data visible on CRM cards)
     try {
         const { data: leads } = await supabaseAdmin
             .from('leads')
-            .select('id, name, phone, stage_id, created_at, utm_source, utm_campaign, meta_data, notes')
+            .select('id, name, email, phone, value, stage_id, assigned_to, created_at, updated_at, utm_source, utm_campaign, meta_data, notes, funnel_id, funnels!leads_funnel_id_fkey(name)')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(20)
+            .limit(30)
 
         if (leads && leads.length > 0) {
             // Get stage names
@@ -209,23 +218,52 @@ async function buildContext(orgId: string): Promise<string> {
             const stageMap: Record<string, string> = {}
             stagesData?.forEach(s => { stageMap[s.id] = s.name })
 
+            // Get member names for assigned_to
+            const { data: membersData } = await supabaseAdmin
+                .from('organization_members')
+                .select('user_id, profiles:user_id (full_name)')
+                .eq('organization_id', orgId)
+            const memberMap: Record<string, string> = {}
+            membersData?.forEach((m: any) => {
+                const name = Array.isArray(m.profiles) ? m.profiles[0]?.full_name : m.profiles?.full_name
+                if (name) memberMap[m.user_id] = name
+            })
+
+            // Format timestamp to Italian timezone
+            const formatItalianTime = (iso: string) => {
+                try {
+                    const d = new Date(iso)
+                    return d.toLocaleString('it-IT', {
+                        timeZone: 'Europe/Rome',
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    })
+                } catch { return iso }
+            }
+
             const stageCount: Record<string, number> = {}
-            const leadsForContext = leads.map((l, i) => {
+            const leadsForContext = leads.map((l: any, i: number) => {
                 const stageName = l.stage_id ? (stageMap[l.stage_id] || 'sconosciuto') : 'non assegnato'
                 stageCount[stageName] = (stageCount[stageName] || 0) + 1
                 return {
                     posizione: i === 0 ? '⭐ ULTIMO ARRIVATO' : `#${i + 1}`,
                     nome: l.name,
+                    email: l.email || 'N/A',
                     telefono: l.phone || 'N/A',
+                    valore: l.value ? `€${l.value}` : null,
                     stage: stageName,
-                    data: l.created_at,
+                    assegnato_a: l.assigned_to ? (memberMap[l.assigned_to] || 'membro sconosciuto') : 'non assegnato',
+                    arrivo: formatItalianTime(l.created_at),
+                    ultimo_aggiornamento: formatItalianTime(l.updated_at),
                     source: l.utm_source || 'diretto',
                     campagna: l.utm_campaign || 'N/A',
+                    funnel: l.funnels?.name || 'N/A',
                     eta_figlio: l.meta_data?.child_age || null,
+                    angolo_adset: l.meta_data?.adset_angle || null,
                     note: l.notes || null,
                 }
             })
-            parts.push(`ULTIMI 20 LEAD (ordinati dal più recente al più vecchio):\n${JSON.stringify(leadsForContext, null, 2)}`)
+            parts.push(`ULTIMI 30 LEAD (ordinati dal più recente al più vecchio — orari in fuso ITALIA):\n${JSON.stringify(leadsForContext, null, 2)}`)
             parts.push(`DISTRIBUZIONE STAGE:\n${JSON.stringify(stageCount)}`)
         }
     } catch (e) { /* skip */ }
