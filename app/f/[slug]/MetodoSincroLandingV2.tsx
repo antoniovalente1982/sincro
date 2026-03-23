@@ -55,7 +55,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
-    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'default'>('default')
+    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
         const [showExitPopup, setShowExitPopup] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
@@ -103,6 +103,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) setAdsetAngle('emotional')
         else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) setAdsetAngle('system')
         else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) setAdsetAngle('efficiency')
+        else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) setAdsetAngle('status')
 
         let visitorId = localStorage.getItem('_sincro_vid')
         if (!visitorId) {
@@ -350,6 +351,11 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <>
                                 <h1>Stesso Ragazzo.<br /><span className="lp-gold">Mentalità Diversa. In Soli 90 Giorni.</span></h1>
                                 <p className="lp-hero-sub">Ogni giorno che passa, il gap tra il suo talento e i suoi risultati si allarga. <strong>In 90 giorni il Metodo Sincro® trasforma la mentalità di tuo figlio</strong> — con un coach <strong>CONI dedicato</strong>, sessioni individuali e <strong>risultati garantiti per contratto</strong>.</p>
+                            </>
+                        ) : adsetAngle === 'status' ? (
+                            <>
+                                <h1>Tuo Figlio Merita<br /><span className="lp-gold">Il Percorso dei Campioni.</span></h1>
+                                <p className="lp-hero-sub">I migliori atleti italiani non sono arrivati lì solo col talento — hanno <strong>allenato la mentalità</strong>. Lo stesso percorso usato in <strong>Serie A, B e Lega Pro</strong> è ora disponibile per tuo figlio. <strong>Metodo Sincro®</strong>: Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
                             </>
                         ) : (
                             <>
