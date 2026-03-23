@@ -38,6 +38,7 @@ interface Lead {
     notes?: string
     utm_source?: string
     utm_campaign?: string
+    meta_data?: { child_age?: string; adset_angle?: string; [key: string]: any }
     created_at: string
     updated_at: string
     funnels?: { id: string; name: string; objective: string } | null
@@ -498,6 +499,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     <Phone className="w-3 h-3" /> {lead.phone}
                                                 </div>
                                             )}
+                                            {lead.meta_data?.child_age && (
+                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: '#f59e0b' }}>
+                                                    <User className="w-3 h-3" /> Figlio: {lead.meta_data.child_age} anni
+                                                </div>
+                                            )}
                                             {lead.value && (
                                                 <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-success)' }}>
                                                     <DollarSign className="w-3 h-3" /> {formatCurrency(lead.value)}
@@ -746,6 +752,11 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, onCl
                     {lead.phone && (
                         <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
                             <Phone className="w-4 h-4" /> {lead.phone}
+                        </div>
+                    )}
+                    {lead.meta_data?.child_age && (
+                        <div className="flex items-center gap-2 text-sm" style={{ color: '#f59e0b' }}>
+                            <User className="w-4 h-4" /> Età figlio: {lead.meta_data.child_age} anni
                         </div>
                     )}
                     <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
