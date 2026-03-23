@@ -99,6 +99,15 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         }
     }, [])
 
+    // Format date as YYYY-MM-DD in LOCAL timezone (not UTC!)
+    // toISOString() converts to UTC which shifts dates back for CET/CEST users
+    const formatLocalDate = (d: Date) => {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${y}-${m}-${day}`
+    }
+
     // Auto-fetch when period changes
     useEffect(() => {
         if (activeKey === 'all') {
@@ -106,8 +115,10 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             setLiveError(null)
             return
         }
-        const since = range.from.toISOString().split('T')[0]
-        const until = new Date(range.to.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0] // end of day exclusive → inclusive
+        const since = formatLocalDate(range.from)
+        // range.to is exclusive (next day midnight), so subtract 1 day for inclusive end
+        const untilDate = new Date(range.to.getTime() - 24 * 60 * 60 * 1000)
+        const until = formatLocalDate(untilDate)
         fetchLiveInsights(since, until)
     }, [activeKey, range.from.getTime(), range.to.getTime(), fetchLiveInsights])
 
@@ -170,8 +181,8 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 setLastSync(new Date().toLocaleTimeString('it-IT'))
                 // If a period is selected, also refresh live data
                 if (activeKey !== 'all') {
-                    const since = range.from.toISOString().split('T')[0]
-                    const until = new Date(range.to.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    const since = formatLocalDate(range.from)
+                    const until = formatLocalDate(new Date(range.to.getTime() - 24 * 60 * 60 * 1000))
                     await fetchLiveInsights(since, until)
                 } else {
                     window.location.reload()
