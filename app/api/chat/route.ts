@@ -195,17 +195,37 @@ async function buildContext(orgId: string): Promise<string> {
     try {
         const { data: leads } = await supabaseAdmin
             .from('leads')
-            .select('id, name, stage, created_at, utm_source, utm_campaign')
+            .select('id, name, phone, stage_id, created_at, utm_source, utm_campaign, meta_data, notes')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(20)
 
-        if (leads) {
+        if (leads && leads.length > 0) {
+            // Get stage names
+            const { data: stagesData } = await supabaseAdmin
+                .from('pipeline_stages')
+                .select('id, name')
+                .eq('organization_id', orgId)
+            const stageMap: Record<string, string> = {}
+            stagesData?.forEach(s => { stageMap[s.id] = s.name })
+
             const stageCount: Record<string, number> = {}
-            leads.forEach(l => {
-                stageCount[l.stage || 'unknown'] = (stageCount[l.stage || 'unknown'] || 0) + 1
+            const leadsForContext = leads.map((l, i) => {
+                const stageName = l.stage_id ? (stageMap[l.stage_id] || 'sconosciuto') : 'non assegnato'
+                stageCount[stageName] = (stageCount[stageName] || 0) + 1
+                return {
+                    posizione: i === 0 ? '⭐ ULTIMO ARRIVATO' : `#${i + 1}`,
+                    nome: l.name,
+                    telefono: l.phone || 'N/A',
+                    stage: stageName,
+                    data: l.created_at,
+                    source: l.utm_source || 'diretto',
+                    campagna: l.utm_campaign || 'N/A',
+                    eta_figlio: l.meta_data?.child_age || null,
+                    note: l.notes || null,
+                }
             })
-            parts.push(`ULTIMI 20 LEAD:\n${JSON.stringify(leads.map(l => ({ nome: l.name, stage: l.stage, data: l.created_at, source: l.utm_source })), null, 2)}`)
+            parts.push(`ULTIMI 20 LEAD (ordinati dal più recente al più vecchio):\n${JSON.stringify(leadsForContext, null, 2)}`)
             parts.push(`DISTRIBUZIONE STAGE:\n${JSON.stringify(stageCount)}`)
         }
     } catch (e) { /* skip */ }
