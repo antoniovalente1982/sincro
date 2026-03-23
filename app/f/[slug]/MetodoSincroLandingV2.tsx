@@ -214,6 +214,13 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
 
     /* ======================== THANK YOU ======================== */
     if (submitted) {
+        const hour = new Date().getHours()
+        const callbackMsg = hour >= 9 && hour < 18
+            ? 'Ti chiameremo entro le prossime 2 ore'
+            : hour >= 18
+                ? 'Ti chiameremo domani mattina'
+                : 'Ti chiameremo in mattinata'
+
         return (
             <div className="lp">
                 <div className="lp-ty">
@@ -223,7 +230,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div className="lp-ty-box">
                         <Phone size={20} color="#facc15" />
                         <div>
-                            <strong>Ti chiameremo entro le prossime 2 ore</strong>
+                            <strong>{callbackMsg}</strong>
                             <span>al numero {phone}</span>
                         </div>
                     </div>
@@ -239,7 +246,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <Gift size={20} color="#facc15" />
                         <span>Dopo la chiamata riceverai gratuitamente: <strong>"Il programma di Coaching che aumenta di 10 volte la probabilità di diventare un calciatore professionista"</strong></span>
                     </div>
-                    <p className="lp-ty-sub">Se non rispondi, ti riproveremo il giorno successivo. Salva questo numero: <strong>+39 XXX XXX XXXX</strong> 📱</p>
+                    <p className="lp-ty-sub">Se non rispondi, ti riproveremo il giorno successivo. 📱</p>
                 </div>
                 {/* Pixel init removed — single init in footer prevents duplicate PageView events */}
                 <style>{STYLES}</style>
