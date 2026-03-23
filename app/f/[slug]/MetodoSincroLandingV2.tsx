@@ -56,8 +56,10 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'default'>('default')
+    const [showExitPopup, setShowExitPopup] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
+    const exitShownRef = useRef(false)
 
     // Validation helpers
     const handlePhoneChange = (val: string) => {
@@ -152,6 +154,46 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
         }
     }, [])
+
+    // Exit intent detection
+    useEffect(() => {
+        const triggerExit = () => {
+            if (exitShownRef.current || submitted) return
+            exitShownRef.current = true
+            setShowExitPopup(true)
+        }
+
+        // Desktop: mouse leaves viewport top
+        const handleMouseLeave = (e: MouseEvent) => {
+            if (e.clientY <= 0) triggerExit()
+        }
+
+        // Mobile: detect back-button or rapid scroll up after 15s on page
+        let scrollY = 0
+        let lastScrollTime = 0
+        const handleScroll = () => {
+            const now = Date.now()
+            const currentY = window.scrollY
+            // If user scrolls up fast (>200px in <300ms) and has been on page >15s
+            if (currentY < scrollY - 200 && now - lastScrollTime < 300 && now > 15000) {
+                triggerExit()
+            }
+            scrollY = currentY
+            lastScrollTime = now
+        }
+
+        // Delay adding listeners — don't trigger on immediate bounce
+        const timeout = setTimeout(() => {
+            document.addEventListener('mouseleave', handleMouseLeave)
+            window.addEventListener('scroll', handleScroll, { passive: true })
+        }, 8000) // Wait 8s before activating
+
+        return () => {
+            clearTimeout(timeout)
+            document.removeEventListener('mouseleave', handleMouseLeave)
+            window.removeEventListener('scroll', handleScroll)
+        }
+    }, [submitted])
 
     // Reuse the fbc/fbp computed once on page load — never re-generate with a new timestamp
     const getFbIds = useCallback(() => fbIdsRef.current, [])
@@ -555,6 +597,42 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 </div>
             </footer>
 
+            {/* ══════════ EXIT INTENT POPUP ══════════ */}
+            {showExitPopup && (
+                <div className="lp-exit-overlay" onClick={() => setShowExitPopup(false)}>
+                    <div className="lp-exit-popup" onClick={e => e.stopPropagation()}>
+                        <button className="lp-exit-close" onClick={() => setShowExitPopup(false)}>✕</button>
+                        <div className="lp-exit-header">
+                            <span className="lp-exit-emoji">🤔</span>
+                            <h2>Aspetta — Hai Ancora Dei <span className="lp-gold">Dubbi?</span></h2>
+                            <p>È normale. Ogni genitore che ha iniziato il Metodo Sincro® aveva gli stessi.</p>
+                        </div>
+                        <div className="lp-exit-objections">
+                            <div className="lp-exit-obj">
+                                <span className="lp-exit-obj-q">❌ "E se non funziona?"</span>
+                                <span className="lp-exit-obj-a">→ <strong>Garanzia scritta nel contratto:</strong> o funziona, o non paghi.</span>
+                            </div>
+                            <div className="lp-exit-obj">
+                                <span className="lp-exit-obj-q">❌ "È troppo presto/tardi per mio figlio?"</span>
+                                <span className="lp-exit-obj-a">→ Coach dedicati <strong>per ogni fascia d'età</strong> (10-20 anni).</span>
+                            </div>
+                            <div className="lp-exit-obj">
+                                <span className="lp-exit-obj-q">❌ "Non ho tempo per portarlo"</span>
+                                <span className="lp-exit-obj-a">→ 100% online, sessioni <strong>ONE-TO-ONE su Zoom</strong>.</span>
+                            </div>
+                        </div>
+                        <div className="lp-exit-gift">
+                            <Gift size={18} color="#facc15" />
+                            <span>Chi prenota riceve in omaggio <strong>Anthon Chat</strong> — il Mental Coach AI di Antonio Valente, disponibile 24/7</span>
+                        </div>
+                        <button className="lp-exit-cta" onClick={() => { setShowExitPopup(false); scrollToForm() }}>
+                            PRENOTA — 15 Minuti Gratuiti <ArrowRight size={18} />
+                        </button>
+                        <p className="lp-exit-sub">Consulenza gratuita • Senza impegno • 15 minuti</p>
+                    </div>
+                </div>
+            )}
+
             {/* Pixel */}
             {funnel.meta_pixel_id && (
                 <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}');` }} />
@@ -565,4 +643,76 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     )
 }
 
-const STYLES = ``
+const STYLES = `
+/* Exit Intent Popup */
+.lp-exit-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+.lp-exit-popup {
+    position: relative; max-width: 480px; width: 100%;
+    background: linear-gradient(165deg, #0f0f13 0%, #1a1a22 100%);
+    border: 1.5px solid rgba(250,204,21,0.2);
+    border-radius: 24px; padding: 36px 28px;
+    box-shadow: 0 0 80px rgba(250,204,21,0.08), 0 20px 60px rgba(0,0,0,0.5);
+    animation: popupSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes popupSlideUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.lp-exit-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; color: #52525b; font-size: 20px;
+    cursor: pointer; padding: 4px 8px; border-radius: 8px;
+    transition: all 0.2s;
+}
+.lp-exit-close:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.lp-exit-header { text-align: center; margin-bottom: 24px; }
+.lp-exit-emoji { font-size: 40px; display: block; margin-bottom: 12px; }
+.lp-exit-header h2 { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+.lp-exit-header p { font-size: 14px; color: #a1a1aa; }
+.lp-exit-objections { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.lp-exit-obj {
+    padding: 14px 16px; border-radius: 14px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column; gap: 4px;
+}
+.lp-exit-obj-q { font-size: 14px; color: #ef4444; font-weight: 600; }
+.lp-exit-obj-a { font-size: 13px; color: #a1a1aa; line-height: 1.5; }
+.lp-exit-obj-a strong { color: #22c55e; }
+.lp-exit-gift {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 14px 16px; border-radius: 14px; margin-bottom: 20px;
+    background: rgba(250,204,21,0.04); border: 1px solid rgba(250,204,21,0.12);
+    font-size: 13px; color: #a1a1aa; line-height: 1.5;
+}
+.lp-exit-gift strong { color: #facc15; }
+.lp-exit-cta {
+    width: 100%; padding: 16px; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 800; font-family: inherit;
+    color: #fff; cursor: pointer;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 0 40px rgba(34,197,94,0.3), 0 4px 16px rgba(34,197,94,0.3);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.3s;
+    animation: ctaPulseGreen 2.5s ease-in-out infinite;
+}
+.lp-exit-cta:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 60px rgba(34,197,94,0.5);
+    animation: none;
+}
+.lp-exit-sub {
+    text-align: center; font-size: 12px; color: #52525b; margin-top: 12px;
+}
+@media (max-width: 768px) {
+    .lp-exit-popup { padding: 28px 20px; }
+    .lp-exit-header h2 { font-size: 20px; }
+    .lp-exit-emoji { font-size: 32px; }
+    .lp-exit-cta { font-size: 14px; padding: 14px; }
+}
+`
