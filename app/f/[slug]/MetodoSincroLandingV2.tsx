@@ -1,7 +1,7 @@
 'use client'
 
 import './landing-v2.css'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
 
@@ -55,6 +55,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const formRef = useRef<HTMLDivElement>(null)
+    const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
 
     // Validation helpers
     const handlePhoneChange = (val: string) => {
@@ -106,6 +107,16 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             return acc
         }, {})
 
+        // Compute fbc ONCE and store it — never re-generate with a new timestamp
+        // Meta requires that the fbclid value is passed unmodified
+        let computedFbc = cookies._fbc || undefined
+        if (!computedFbc) {
+            const fbclid = params.get('fbclid')
+            if (fbclid) computedFbc = `fb.1.${Date.now()}.${fbclid}`
+        }
+        const computedFbp = cookies._fbp || undefined
+        fbIdsRef.current = { fbc: computedFbc, fbp: computedFbp }
+
         const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
         fetch('/api/track/pageview', {
             method: 'POST',
@@ -122,8 +133,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 fbadid: params.get('fbadid') || undefined,
                 referrer: document.referrer || undefined,
                 event_id: pageViewEventId,
-                fbc: cookies._fbc || (params.get('fbclid') ? `fb.1.${Date.now()}.${params.get('fbclid')}` : undefined),
-                fbp: cookies._fbp || undefined,
+                fbc: computedFbc,
+                fbp: computedFbp,
                 fb_login_id: cookies.c_user || undefined,
                 page_url: window.location.href,
             }),
@@ -134,21 +145,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         }
     }, [])
 
-    const getFbIds = () => {
-        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const sep = c.indexOf('=')
-            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
-            return acc
-        }, {})
-        let fbc = cookies._fbc || undefined
-        const fbp = cookies._fbp || undefined
-        // If _fbc cookie is missing but fbclid is in URL, construct fbc per Meta spec
-        if (!fbc) {
-            const fbclid = new URLSearchParams(window.location.search).get('fbclid')
-            if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`
-        }
-        return { fbc, fbp }
-    }
+    // Reuse the fbc/fbp computed once on page load — never re-generate with a new timestamp
+    const getFbIds = useCallback(() => fbIdsRef.current, [])
 
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
 
