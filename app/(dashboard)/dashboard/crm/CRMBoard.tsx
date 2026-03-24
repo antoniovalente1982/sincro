@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
@@ -105,6 +105,29 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [activities, setActivities] = useState<any[]>([])
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
+
+    // Auto-poll for new leads every 30 seconds
+    const leadsRef = useRef(leads)
+    leadsRef.current = leads
+    useEffect(() => {
+        const poll = setInterval(async () => {
+            try {
+                const res = await fetch('/api/leads')
+                if (!res.ok) return
+                const freshLeads = await res.json()
+                if (!Array.isArray(freshLeads)) return
+                const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
+                const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
+                if (brandNew.length > 0) {
+                    setLeads(freshLeads)
+                    setNewLeadAlert(`🔔 ${brandNew.length} nuovo/i lead: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
+                    setTimeout(() => setNewLeadAlert(null), 8000)
+                }
+            } catch { /* silent */ }
+        }, 30000)
+        return () => clearInterval(poll)
+    }, [])
 
     // Date range filter
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
@@ -285,6 +308,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     return (
         <div className="space-y-5 animate-fade-in">
+            {/* New Lead Alert */}
+            {newLeadAlert && (
+                <div className="fixed top-4 right-4 z-50 animate-fade-in px-5 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl"
+                    style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', border: '1px solid rgba(255,255,255,0.2)' }}
+                    onClick={() => setNewLeadAlert(null)}
+                >
+                    {newLeadAlert}
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
