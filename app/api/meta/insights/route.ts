@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 
         // 2. Get insights for the specific date range
         const timeRange = JSON.stringify({ since, until })
-        const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(timeRange)}&limit=500&access_token=${access_token}`
+        const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type,outbound_clicks,inline_link_click_ctr&level=campaign&time_range=${encodeURIComponent(timeRange)}&limit=500&access_token=${access_token}`
         const insightsRes = await fetch(insightsUrl)
 
         let insightsMap: Record<string, any> = {}
@@ -109,6 +109,9 @@ export async function GET(req: NextRequest) {
             const purchaseValue = insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || 0
             const spendNum = parseFloat(insight.spend || '0')
             const roas = spendNum > 0 && purchaseValue > 0 ? parseFloat(purchaseValue) / spendNum : 0
+            // Link clicks: outbound_clicks contains clicks to external URLs
+            const linkClicks = insight.outbound_clicks?.find((a: any) => a.action_type === 'outbound_click')?.value || 0
+            const linkClickCtr = parseFloat(insight.inline_link_click_ctr || '0')
 
             return {
                 id: c.id,
@@ -120,6 +123,8 @@ export async function GET(req: NextRequest) {
                 impressions: parseInt(insight.impressions || '0'),
                 clicks: parseInt(insight.clicks || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
+                link_clicks: parseInt(linkClicks),
+                link_click_ctr: linkClickCtr,
                 leads_count: parseInt(leadsCount),
                 cpl: parseFloat(cplValue),
                 cpc: parseFloat(insight.cpc || '0'),

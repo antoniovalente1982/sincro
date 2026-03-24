@@ -15,6 +15,8 @@ interface Campaign {
     spend?: number
     impressions?: number
     clicks?: number
+    link_clicks?: number
+    link_click_ctr?: number
     leads_count?: number
     cpl?: number
     cpc?: number
@@ -58,7 +60,7 @@ interface Props {
     recommendations: Recommendation[]
 }
 
-type SortKey = 'status' | 'spend' | 'impressions' | 'clicks' | 'ctr' | 'leads_count' | 'cpl' | 'roas'
+type SortKey = 'status' | 'spend' | 'impressions' | 'clicks' | 'link_clicks' | 'ctr' | 'leads_count' | 'cpl' | 'roas'
 type SortDir = 'asc' | 'desc'
 
 export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations }: Props) {
@@ -144,6 +146,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 case 'spend': aVal = Number(a.spend) || 0; bVal = Number(b.spend) || 0; break
                 case 'impressions': aVal = Number(a.impressions) || 0; bVal = Number(b.impressions) || 0; break
                 case 'clicks': aVal = Number(a.clicks) || 0; bVal = Number(b.clicks) || 0; break
+                case 'link_clicks': aVal = Number(a.link_clicks) || 0; bVal = Number(b.link_clicks) || 0; break
                 case 'ctr': aVal = Number(a.ctr) || 0; bVal = Number(b.ctr) || 0; break
                 case 'leads_count': aVal = Number(a.leads_count) || 0; bVal = Number(b.leads_count) || 0; break
                 case 'cpl': aVal = Number(a.cpl) || 0; bVal = Number(b.cpl) || 0; break
@@ -357,6 +360,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                     <SortHeader label="Spesa" sortField="spend" />
                                     <SortHeader label="Impression" sortField="impressions" />
                                     <SortHeader label="Click" sortField="clicks" />
+                                    <SortHeader label="Click Link" sortField="link_clicks" />
                                     <SortHeader label="CTR" sortField="ctr" />
                                     <SortHeader label="Lead" sortField="leads_count" />
                                     <SortHeader label="CPL" sortField="cpl" />
@@ -376,6 +380,9 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                         <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.clicks ? formatNumber(Number(c.clicks)) : '—'}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: Number(c.link_clicks) > 0 ? '#14b8a6' : 'var(--color-surface-500)' }}>
+                                            {c.link_clicks ? <><span className="font-semibold">{formatNumber(Number(c.link_clicks))}</span> <span className="text-[10px] opacity-70">({Number(c.link_click_ctr || 0).toFixed(2)}%)</span></> : '—'}
+                                        </td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
