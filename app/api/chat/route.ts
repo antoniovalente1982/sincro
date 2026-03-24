@@ -278,6 +278,11 @@ async function buildContext(orgId: string): Promise<string> {
             })
             parts.push(`ULTIMI 30 LEAD (ordinati dal più recente al più vecchio — orari in fuso ITALIA):\n${JSON.stringify(leadsForContext, null, 2)}`)
             parts.push(`DISTRIBUZIONE STAGE:\n${JSON.stringify(stageCount)}`)
+
+            // Explicit today count so AI doesn't miscount
+            const todayItalian = new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit', year: 'numeric' })
+            const leadsToday = leadsForContext.filter((l: any) => l.arrivo.startsWith(todayItalian))
+            parts.push(`LEAD DI OGGI (${todayItalian}): ${leadsToday.length} lead\n${leadsToday.map((l: any) => `- ${l.nome} (${l.arrivo}) — stage: ${l.stage}`).join('\n')}`)
         }
     } catch (e) { /* skip */ }
 
@@ -317,12 +322,17 @@ async function buildContext(orgId: string): Promise<string> {
     return parts.join('\n\n---\n\n')
 }
 
+function getItalianDate(date: Date): string {
+    // Return YYYY-MM-DD in Italian timezone
+    return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' }) // en-CA gives YYYY-MM-DD format
+}
+
 function getDateDaysAgo(days: number): string {
     const d = new Date()
     d.setDate(d.getDate() - days)
-    return d.toISOString().split('T')[0]
+    return getItalianDate(d)
 }
 
 function getToday(): string {
-    return new Date().toISOString().split('T')[0]
+    return getItalianDate(new Date())
 }
