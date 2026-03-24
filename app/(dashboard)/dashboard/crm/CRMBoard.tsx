@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
+import { createClient } from '@/lib/supabase/client'
 
 interface Stage {
     id: string
@@ -107,26 +108,50 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [saving, setSaving] = useState(false)
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
 
-    // Auto-poll for new leads every 30 seconds
+    // Supabase Realtime: live updates when leads are created or updated
     const leadsRef = useRef(leads)
     leadsRef.current = leads
     useEffect(() => {
-        const poll = setInterval(async () => {
-            try {
-                const res = await fetch('/api/leads')
-                if (!res.ok) return
-                const freshLeads = await res.json()
-                if (!Array.isArray(freshLeads)) return
-                const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
-                const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
-                if (brandNew.length > 0) {
-                    setLeads(freshLeads)
-                    setNewLeadAlert(`🔔 ${brandNew.length} nuovo/i lead: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
-                    setTimeout(() => setNewLeadAlert(null), 8000)
+        const supabase = createClient()
+        const channel = supabase
+            .channel('crm-leads-realtime')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'leads' },
+                async (payload) => {
+                    // New lead inserted — fetch full data with relations
+                    const { data: newLead } = await supabase
+                        .from('leads')
+                        .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
+                        .eq('id', payload.new.id)
+                        .single()
+                    if (newLead) {
+                        setLeads(prev => [newLead, ...prev])
+                        setNewLeadAlert(`🔔 Nuovo lead: ${newLead.name}`)
+                        setTimeout(() => setNewLeadAlert(null), 8000)
+                    }
                 }
-            } catch { /* silent */ }
-        }, 30000)
-        return () => clearInterval(poll)
+            )
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'leads' },
+                async (payload) => {
+                    // Lead updated (stage change, assignment, etc.)
+                    const { data: updatedLead } = await supabase
+                        .from('leads')
+                        .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
+                        .eq('id', payload.new.id)
+                        .single()
+                    if (updatedLead) {
+                        setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l))
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     // Date range filter
