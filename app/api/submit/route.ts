@@ -173,7 +173,9 @@ export async function POST(req: NextRequest) {
             }, funnel.meta_pixel_id, lead.id)
         }
 
-        // Send Telegram notification (non-blocking)
+        // Send Telegram notification and append to Google Sheets
+        // IMPORTANT: Must await these before returning, otherwise Vercel kills
+        // the serverless function before these async operations complete
         if (lead) {
             const childAge = body.extra_data?.child_age
             const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
@@ -185,27 +187,24 @@ export async function POST(req: NextRequest) {
                 (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
                 (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
 
-            sendTelegramMessage(funnel.organization_id, tgMsg).then(ok => {
-                if (!ok) console.error('Telegram: notification failed for lead:', name)
-            }).catch(err => {
-                console.error('Telegram: exception for lead:', name, err)
-            })
-
-            // Append to Google Sheets (non-blocking)
-            appendLeadToSheet(funnel.organization_id, {
-                name,
-                email: email || '',
-                phone: phone || '',
-                funnel: funnel.name,
-                utm_source: utm_source || '',
-                utm_campaign: utm_campaign || '',
-                created_at: new Date().toISOString(),
-                landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
-            }).then(ok => {
-                if (!ok) console.error('Google Sheets: appendLeadToSheet returned false for lead:', name)
-            }).catch(err => {
-                console.error('Google Sheets: appendLeadToSheet exception for lead:', name, err)
-            })
+            // Run Telegram + Google Sheets in parallel, but AWAIT both
+            await Promise.allSettled([
+                sendTelegramMessage(funnel.organization_id, tgMsg).catch(err => {
+                    console.error('Telegram: exception for lead:', name, err)
+                }),
+                appendLeadToSheet(funnel.organization_id, {
+                    name,
+                    email: email || '',
+                    phone: phone || '',
+                    funnel: funnel.name,
+                    utm_source: utm_source || '',
+                    utm_campaign: utm_campaign || '',
+                    created_at: new Date().toISOString(),
+                    landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
+                }).catch(err => {
+                    console.error('Google Sheets: appendLeadToSheet exception for lead:', name, err)
+                }),
+            ])
         }
 
         return NextResponse.json({ success: true, lead_id: lead?.id })
