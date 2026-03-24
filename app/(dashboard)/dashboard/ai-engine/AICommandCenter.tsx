@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
     Brain, Zap, Target, TrendingUp, DollarSign, AlertTriangle, CheckCircle,
     ArrowRight, Sparkles, Paintbrush, BarChart3, Rocket, Eye, RefreshCw,
@@ -9,6 +9,8 @@ import {
     Settings, ToggleRight, ToggleLeft, BookOpen, Database, Activity
 } from 'lucide-react'
 import Link from 'next/link'
+import DateRangeFilter, { useDateRange } from '@/components/DateRangeFilter'
+import { createClient } from '@/lib/supabase/client'
 
 interface Campaign {
     id: string; campaign_name?: string; status?: string; spend?: number
@@ -46,14 +48,66 @@ interface Props {
     workingMemory: any
 }
 
-export default function AICommandCenter({ campaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory }: Props) {
+export default function AICommandCenter({ campaigns: cachedCampaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory }: Props) {
     const [recommendations, setRecommendations] = useState(initialRecs)
     const [generating, setGenerating] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
+    const [loadingInsights, setLoadingInsights] = useState(false)
 
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
 
-    // Metrics
+    const formatLocalDate = (d: Date) => {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${y}-${m}-${day}`
+    }
+
+    const fetchLiveInsights = useCallback(async (since: string, until: string) => {
+        setLoadingInsights(true)
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}`, {
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            })
+            const data = await res.json()
+            if (data.success && data.campaigns) {
+                setLiveCampaigns(data.campaigns)
+            } else {
+                setLiveCampaigns(null)
+            }
+        } catch { setLiveCampaigns(null) }
+        finally { setLoadingInsights(false) }
+    }, [])
+
+    useEffect(() => {
+        if (activeKey === 'all') {
+            setLiveCampaigns(null)
+            return
+        }
+        const since = formatLocalDate(range.from)
+        const untilDate = new Date(range.to.getTime() - 24 * 60 * 60 * 1000)
+        const until = formatLocalDate(untilDate)
+        fetchLiveInsights(since, until)
+    }, [activeKey, range.from.getTime(), range.to.getTime(), fetchLiveInsights])
+
+    // Use live data when available, otherwise cached
+    const campaigns = liveCampaigns || cachedCampaigns
+
+    // Sort campaigns: ACTIVE first, then by spend
+    const sortedCampaigns = useMemo(() => {
+        return [...campaigns].sort((a, b) => {
+            const aActive = a.status === 'ACTIVE' ? 1 : 0
+            const bActive = b.status === 'ACTIVE' ? 1 : 0
+            if (aActive !== bActive) return bActive - aActive
+            return (Number(b.spend) || 0) - (Number(a.spend) || 0)
+        })
+    }, [campaigns])
+
+    // Metrics from current period
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
     const totalClicks = campaigns.reduce((s, c) => s + (Number(c.clicks) || 0), 0)
@@ -88,14 +142,18 @@ export default function AICommandCenter({ campaigns, recommendations: initialRec
     const handleGenerateRecs = async () => {
         setGenerating(true)
         try {
+            // Send the current period's campaign data for analysis
+            const since = formatLocalDate(range.from)
+            const untilDate = new Date(range.to.getTime() - 24 * 60 * 60 * 1000)
+            const until = formatLocalDate(untilDate)
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'generate_recommendations' }),
+                body: JSON.stringify({ action: 'generate_recommendations', since, until, campaigns: sortedCampaigns.filter(c => c.status === 'ACTIVE' || (Number(c.spend) || 0) > 0) }),
             })
             const data = await res.json()
             if (data.recommendations) {
-                setRecommendations(prev => [...data.recommendations, ...prev])
+                setRecommendations(data.recommendations)
             }
         } catch (err) {
             console.error(err)
@@ -216,7 +274,11 @@ export default function AICommandCenter({ campaigns, recommendations: initialRec
                         Il tuo reparto marketing AI — analisi continua, creativi e ottimizzazione
                     </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                    {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
+                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                        customFrom={customFrom} customTo={customTo}
+                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
                     <button onClick={handleGenerateRecs} className="btn-primary" disabled={generating}>
                         {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                         {generating ? 'Analizzando...' : 'Analizza Ora'}
@@ -472,11 +534,12 @@ export default function AICommandCenter({ campaigns, recommendations: initialRec
                         <h2 className="text-sm font-bold text-white">Campagne</h2>
                     </div>
 
-                    {campaigns.length > 0 ? (
+                    {sortedCampaigns.length > 0 ? (
                         <div className="space-y-3">
-                            {campaigns.slice(0, 6).map(c => {
+                            {sortedCampaigns.filter(c => c.status === 'ACTIVE' || (Number(c.spend) || 0) > 0).slice(0, 6).map(c => {
                                 const cpl = Number(c.cpl) || 0
                                 const roas = Number(c.roas) || 0
+                                const spend = Number(c.spend) || 0
                                 const campHealth = c.status === 'ACTIVE'
                                     ? (roas > 2 ? 'good' : roas > 1 ? 'ok' : 'bad')
                                     : 'paused'
@@ -497,7 +560,11 @@ export default function AICommandCenter({ campaigns, recommendations: initialRec
                                                 border: `1px solid ${c.status === 'ACTIVE' ? 'rgba(34, 197, 94, 0.2)' : 'var(--color-surface-300)'}`,
                                             }}>{c.status || '—'}</span>
                                         </div>
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-4 gap-2">
+                                            <div>
+                                                <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-600)' }}>Spesa</div>
+                                                <div className="text-xs font-semibold" style={{ color: 'var(--color-surface-700)' }}>{spend > 0 ? formatCurrency(spend) : '—'}</div>
+                                            </div>
                                             <div>
                                                 <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-600)' }}>CPL</div>
                                                 <div className="text-xs font-semibold" style={{ color: '#f59e0b' }}>{cpl > 0 ? formatCurrency(cpl) : '—'}</div>

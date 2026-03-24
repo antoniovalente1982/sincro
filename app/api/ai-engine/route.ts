@@ -63,15 +63,23 @@ export async function POST(req: NextRequest) {
     const { action } = body
 
     if (action === 'generate_recommendations') {
-        // Fetch campaign data and generate AI-powered recommendations
-        const { data: campaigns } = await supabase
-            .from('campaigns_cache')
-            .select('*')
+        // Use client-provided campaign data (live, period-filtered) or fallback to cache
+        let campaignData = body.campaigns
+        if (!campaignData || campaignData.length === 0) {
+            const { data: cached } = await supabase
+                .from('campaigns_cache')
+                .select('*')
+                .eq('organization_id', member.organization_id)
+            campaignData = cached || []
+        }
+
+        const recommendations = generateRecommendations(campaignData)
+
+        // Clear old recommendations and save new ones
+        await supabase.from('ai_ad_recommendations')
+            .delete()
             .eq('organization_id', member.organization_id)
 
-        const recommendations = generateRecommendations(campaigns || [])
-
-        // Save recommendations
         if (recommendations.length > 0) {
             await supabase.from('ai_ad_recommendations').insert(
                 recommendations.map(r => ({
