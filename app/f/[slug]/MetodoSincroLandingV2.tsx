@@ -307,7 +307,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <Gift size={20} color="#facc15" />
                         <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il clone digitale di Antonio Valente, il tuo Mental Coach AI disponibile 24/7</strong></span>
                     </div>
-                    <p className="lp-ty-sub">Se non rispondi, ti riproveremo il giorno successivo. 📱</p>
+                    <p className="lp-ty-sub">Se non rispondi, ti ricontatteremo il giorno successivo. 📱</p>
                 </div>
                 {/* Pixel init removed — single init in footer prevents duplicate PageView events */}
                 <style>{STYLES}</style>
