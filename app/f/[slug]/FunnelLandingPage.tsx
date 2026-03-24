@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, CheckCircle, Sparkles, ArrowRight, Shield, Clock, Users } from 'lucide-react'
 
 interface Props {
@@ -16,6 +16,7 @@ export default function FunnelLandingPage({ funnel }: Props) {
     const [phone, setPhone] = useState('')
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
+    const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const [error, setError] = useState('')
 
     // Extract UTM params from URL
@@ -43,51 +44,64 @@ export default function FunnelLandingPage({ funnel }: Props) {
 
         // Get Facebook click/browser IDs from cookies for CAPI
         const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
+            const sep = c.indexOf('=')
+            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
             return acc
         }, {})
 
-        // Track PageView server-side (also fires CAPI with same event_id)
-        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
-        fetch('/api/track/pageview', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                organization_id: orgId,
-                funnel_id: funnel.id,
-                page_path: window.location.pathname,
-                page_variant: funnel.settings?.ab_variant || 'A',
-                visitor_id: visitorId,
-                utm_source: utms.utm_source,
-                utm_medium: utms.utm_medium,
-                utm_campaign: utms.utm_campaign,
-                utm_content: utms.utm_content,
-                utm_term: utms.utm_term,
-                fbadid: params.get('fbadid') || undefined,
-                referrer: document.referrer || undefined,
-                event_id: pageViewEventId,
-                fbc: cookies._fbc || undefined,
-                fbp: cookies._fbp || undefined,
-                page_url: window.location.href,
-            }),
-        }).catch(() => {}) // Fire and forget
+        // Compute fbc ONCE — Meta requires fbclid passed unmodified
+        let computedFbc = cookies._fbc || undefined
+        if (!computedFbc) {
+            const fbclid = params.get('fbclid')
+            if (fbclid) computedFbc = `fb.1.${Date.now()}.${fbclid}`
+        }
+        const computedFbp = cookies._fbp || undefined
+        fbIdsRef.current = { fbc: computedFbc, fbp: computedFbp }
 
-        // Fire pixel PageView with same event_id for deduplication
+        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
+
+        // Fire pixel PageView immediately (client-side)
         if (typeof window !== 'undefined' && (window as any).fbq) {
             (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
         }
+
+        // Delay CAPI PageView by 2s to let Meta Pixel set _fbp cookie first
+        setTimeout(() => {
+            const freshCookies = document.cookie.split(';').reduce((acc: any, c) => {
+                const sep = c.indexOf('=')
+                if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
+                return acc
+            }, {})
+            const freshFbp = freshCookies._fbp || computedFbp
+            const freshFbc = freshCookies._fbc || computedFbc
+            fbIdsRef.current = { fbc: freshFbc, fbp: freshFbp }
+
+            fetch('/api/track/pageview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    organization_id: orgId,
+                    funnel_id: funnel.id,
+                    page_path: window.location.pathname,
+                    page_variant: funnel.settings?.ab_variant || 'A',
+                    visitor_id: visitorId,
+                    utm_source: utms.utm_source, utm_medium: utms.utm_medium,
+                    utm_campaign: utms.utm_campaign, utm_content: utms.utm_content,
+                    utm_term: utms.utm_term,
+                    fbadid: params.get('fbadid') || undefined,
+                    referrer: document.referrer || undefined,
+                    event_id: pageViewEventId,
+                    fbc: freshFbc,
+                    fbp: freshFbp,
+                    fb_login_id: freshCookies.c_user || undefined,
+                    page_url: window.location.href,
+                }),
+            }).catch(() => {})
+        }, 2000)
     }, [])
 
-    // Get Facebook click/browser IDs from cookies
-    const getFbIds = () => {
-        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
-            return acc
-        }, {})
-        return { fbc: cookies._fbc || undefined, fbp: cookies._fbp || undefined }
-    }
+    // Reuse the fbc/fbp computed once on page load
+    const getFbIds = useCallback(() => fbIdsRef.current, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

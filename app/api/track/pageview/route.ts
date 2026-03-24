@@ -51,6 +51,26 @@ export async function POST(req: NextRequest) {
         // Fire CAPI PageView event — MUST be awaited before response
         // (Vercel kills pending promises after response is sent)
         if (funnel_id && event_id) {
+            // Fix #2: For returning visitors, look up their email/phone from previous submissions
+            let returningEmail: string | undefined
+            let returningPhone: string | undefined
+            let returningName: string | undefined
+            if (visitor_id) {
+                const { data: existingLead } = await supabaseAdmin
+                    .from('leads')
+                    .select('email, phone, name')
+                    .eq('organization_id', organization_id)
+                    .contains('meta_data', { visitor_id })
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single()
+                if (existingLead) {
+                    returningEmail = existingLead.email || undefined
+                    returningPhone = existingLead.phone || undefined
+                    returningName = existingLead.name || undefined
+                }
+            }
+
             try {
                 await fireCapiPageView(organization_id, {
                     event_id,
@@ -61,6 +81,10 @@ export async function POST(req: NextRequest) {
                     event_source_url: page_url || undefined,
                     external_id: visitor_id || undefined,
                     fb_login_id: fb_login_id || undefined,
+                    // Returning visitor enrichment (real data, not simulated)
+                    email: returningEmail,
+                    phone: returningPhone,
+                    name: returningName,
                 })
             } catch (err) {
                 console.error('CAPI PageView error:', err)
@@ -83,6 +107,9 @@ async function fireCapiPageView(orgId: string, params: {
     event_source_url?: string
     external_id?: string
     fb_login_id?: string
+    email?: string
+    phone?: string
+    name?: string
 }) {
     // Get Meta CAPI connection
     const { data: conn } = await supabaseAdmin
@@ -111,6 +138,12 @@ async function fireCapiPageView(orgId: string, params: {
                 client_user_agent: params.client_user_agent || undefined,
                 external_id: params.external_id ? [await hashSHA256(params.external_id)] : undefined,
                 fb_login_id: params.fb_login_id ? [params.fb_login_id] : undefined,
+                // Returning visitor enrichment (real PII data, hashed)
+                em: params.email ? [await hashSHA256(params.email.toLowerCase().trim())] : undefined,
+                ph: params.phone ? [await hashSHA256(params.phone.replace(/\D/g, ''))] : undefined,
+                fn: params.name ? [await hashSHA256(params.name.split(' ')[0].toLowerCase().trim())] : undefined,
+                ln: params.name?.includes(' ') ? [await hashSHA256(params.name.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
+                country: params.email || params.phone ? [await hashSHA256('it')] : undefined,
             },
         }],
     }
@@ -131,8 +164,8 @@ async function fireCapiPageView(orgId: string, params: {
         organization_id: orgId,
         event_name: 'PageView',
         event_id: params.event_id,
-        user_data_hash: { fbc: !!params.fbc, fbp: !!params.fbp },
-        event_params: { pixel_id: pixelId },
+        user_data_hash: { fbc: !!params.fbc, fbp: !!params.fbp, em: !!params.email, ph: !!params.phone },
+        event_params: { pixel_id: pixelId, returning_visitor: !!(params.email || params.phone) },
         source: 'server',
         sent_to_provider: res.ok,
         provider_response: result,
