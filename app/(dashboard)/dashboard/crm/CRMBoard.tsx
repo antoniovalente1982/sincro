@@ -545,6 +545,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 <LeadModal
                     lead={editingLead}
                     stages={stages}
+                    pipelines={pipelines}
                     activePipelineId={activePipelineId}
                     members={members}
                     saving={saving}
@@ -575,17 +576,24 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 }
 
 // ── Lead Create/Edit Modal ──
-function LeadModal({ lead, stages, activePipelineId, members, saving, onSave, onClose }: {
+function LeadModal({ lead, stages, pipelines, activePipelineId, members, saving, onSave, onClose }: {
     lead: Lead | null
     stages: Stage[]
+    pipelines: Pipeline[]
     activePipelineId: string
     members: Member[]
     saving: boolean
     onSave: (data: any) => void
     onClose: () => void
 }) {
-    // Filter stages by active pipeline to avoid showing duplicates from other pipelines
-    const pipelineStages = stages.filter(s => s.pipeline_id === activePipelineId)
+    // Pipeline selector — defaults to active pipeline, user can change
+    const [selectedPipelineId, setSelectedPipelineId] = useState(
+        lead?.stage_id
+            ? stages.find(s => s.id === lead.stage_id)?.pipeline_id || activePipelineId
+            : activePipelineId
+    )
+    const pipelineStages = stages.filter(s => s.pipeline_id === selectedPipelineId)
+
     const [form, setForm] = useState({
         name: lead?.name || '',
         email: lead?.email || '',
@@ -596,6 +604,13 @@ function LeadModal({ lead, stages, activePipelineId, members, saving, onSave, on
         assigned_to: lead?.assigned_to || '',
         notes: lead?.notes || '',
     })
+
+    // When pipeline changes, reset stage to first stage of new pipeline
+    const handlePipelineChange = (newPipelineId: string) => {
+        setSelectedPipelineId(newPipelineId)
+        const newStages = stages.filter(s => s.pipeline_id === newPipelineId)
+        setForm(f => ({ ...f, stage_id: newStages[0]?.id || '' }))
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -648,22 +663,29 @@ function LeadModal({ lead, stages, activePipelineId, members, saving, onSave, on
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
+                            <label className="label">Pipeline</label>
+                            <select className="input" value={selectedPipelineId} onChange={e => handlePipelineChange(e.target.value)}>
+                                {pipelines.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </select>
+                        </div>
+                        <div>
                             <label className="label">Stage</label>
                             <select className="input" value={form.stage_id} onChange={e => setForm({ ...form, stage_id: e.target.value })}>
                                 {pipelineStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
                         </div>
-                        <div>
-                            <label className="label">Assegnato a</label>
-                            <select className="input" value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })}>
-                                <option value="">Non assegnato</option>
-                                {members.filter(m => m.role === 'setter' || m.role === 'closer' || m.role === 'admin' || m.role === 'owner').map(m => (
-                                    <option key={m.user_id} value={m.user_id}>
-                                        {(m.profiles as any)?.full_name || (m.profiles as any)?.email} ({m.role})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    </div>
+
+                    <div>
+                        <label className="label">Assegnato a</label>
+                        <select className="input" value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })}>
+                            <option value="">Non assegnato</option>
+                            {members.filter(m => m.role === 'setter' || m.role === 'closer' || m.role === 'admin' || m.role === 'owner').map(m => (
+                                <option key={m.user_id} value={m.user_id}>
+                                    {(m.profiles as any)?.full_name || (m.profiles as any)?.email} ({m.role})
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div>
