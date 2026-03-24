@@ -108,50 +108,38 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [saving, setSaving] = useState(false)
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
 
-    // Supabase Realtime: live updates when leads are created or updated
+    // Auto-refresh: poll Supabase directly (bypasses Vercel, zero serverless cost)
     const leadsRef = useRef(leads)
     leadsRef.current = leads
     useEffect(() => {
         const supabase = createClient()
-        const channel = supabase
-            .channel('crm-leads-realtime')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'leads' },
-                async (payload) => {
-                    // New lead inserted — fetch full data with relations
-                    const { data: newLead } = await supabase
-                        .from('leads')
-                        .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
-                        .eq('id', payload.new.id)
-                        .single()
-                    if (newLead) {
-                        setLeads(prev => [newLead, ...prev])
-                        setNewLeadAlert(`🔔 Nuovo lead: ${newLead.name}`)
+        let active = true
+
+        const checkForNewLeads = async () => {
+            if (!active) return
+            try {
+                const { data: freshLeads } = await supabase
+                    .from('leads')
+                    .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
+                    .order('created_at', { ascending: false })
+                if (!freshLeads) return
+
+                const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
+                const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
+
+                // Always update if counts differ (handles both new leads and deletions)
+                if (freshLeads.length !== leadsRef.current.length || brandNew.length > 0) {
+                    setLeads(freshLeads)
+                    if (brandNew.length > 0) {
+                        setNewLeadAlert(`🔔 ${brandNew.length === 1 ? 'Nuovo lead' : brandNew.length + ' nuovi lead'}: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
                         setTimeout(() => setNewLeadAlert(null), 8000)
                     }
                 }
-            )
-            .on(
-                'postgres_changes',
-                { event: 'UPDATE', schema: 'public', table: 'leads' },
-                async (payload) => {
-                    // Lead updated (stage change, assignment, etc.)
-                    const { data: updatedLead } = await supabase
-                        .from('leads')
-                        .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
-                        .eq('id', payload.new.id)
-                        .single()
-                    if (updatedLead) {
-                        setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l))
-                    }
-                }
-            )
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(channel)
+            } catch { /* silent */ }
         }
+
+        const poll = setInterval(checkForNewLeads, 30000)
+        return () => { active = false; clearInterval(poll) }
     }, [])
 
     // Date range filter
