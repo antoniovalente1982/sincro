@@ -187,14 +187,20 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'evaluate_rules') {
-        // Evaluate all enabled rules against current campaign data
+        // Evaluate rules at ad level (CBO) or campaign level (ABO fallback)
+        const adData = body.ads || []
         const campaignData = body.campaigns || []
+        const campaignBudgets = body.campaign_budgets || {}
         const { data: rules } = await supabase.from('ad_automation_rules').select('*')
             .eq('organization_id', member.organization_id).eq('is_enabled', true)
         const { data: targets } = await supabase.from('ad_optimization_targets').select('*')
             .eq('organization_id', member.organization_id).single()
 
-        const results = evaluateRules(rules || [], campaignData, targets)
+        // If we have ad-level data, evaluate at ad level (CBO mode)
+        // Otherwise fall back to campaign-level (ABO/legacy)
+        const results = adData.length > 0
+            ? evaluateRulesAdLevel(rules || [], adData, campaignBudgets, targets)
+            : evaluateRules(rules || [], campaignData, targets)
 
         // Log to ad_rule_executions
         if (results.length > 0) {
@@ -247,25 +253,25 @@ export async function POST(req: NextRequest) {
                     fatigue: '🔄', learning_protection: '⏸',
                 }
 
-                const grouped = results.reduce((acc: Record<string, any[]>, r: any) => {
+                const grouped: Record<string, any[]> = results.reduce((acc: Record<string, any[]>, r: any) => {
                     if (!acc[r.category]) acc[r.category] = []
                     acc[r.category].push(r)
                     return acc
-                }, {})
+                }, {} as Record<string, any[]>)
 
-                let tgMsg = `🤖 <b>AI Rules Engine — Valutazione</b>\n`
-                tgMsg += `📊 ${results.length} regole attivate (DRY RUN)\n\n`
+                let tgMsg = '🤖 <b>AI Rules Engine — Valutazione</b>\n'
+                tgMsg += '📊 ' + results.length + ' regole attivate (DRY RUN)\n\n'
 
-                Object.entries(grouped).forEach(([cat, items]: [string, any[]]) => {
+                for (const [cat, items] of Object.entries(grouped)) {
                     const emoji = categoryEmoji[cat] || '•'
-                    tgMsg += `${emoji} <b>${cat.replace(/_/g, ' ').toUpperCase()}</b>\n`
-                    items.forEach((r: any) => {
-                        tgMsg += `  → ${r.entity_name}: ${r.action}`
-                        if (r.action_value) tgMsg += ` (${r.action_value}%)`
-                        tgMsg += `\n`
-                    })
-                    tgMsg += `\n`
-                })
+                    tgMsg += emoji + ' <b>' + cat.replace(/_/g, ' ').toUpperCase() + '</b>\n'
+                    for (const r of items) {
+                        tgMsg += '  → ' + r.entity_name + ': ' + r.action
+                        if (r.action_value) tgMsg += ' (' + r.action_value + '%)'
+                        tgMsg += '\n'
+                    }
+                    tgMsg += '\n'
+                }
 
                 tgMsg += `💡 Metriche: SPD €${campaignData.reduce((s: number, c: any) => s + (Number(c.spend) || 0), 0).toFixed(2)} | `
                 tgMsg += `${campaignData.reduce((s: number, c: any) => s + (Number(c.leads_count) || 0), 0)} lead | `
@@ -331,6 +337,135 @@ export async function POST(req: NextRequest) {
 }
 
 // --- Rules Evaluation Engine ---
+
+// --- CBO Ad-Level Rules Evaluation ---
+
+function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<string, number>, targets: any) {
+    const results: any[] = []
+    const targetCPL = targets?.target_cpl || 20
+
+    // Separate rules by level: kill/winner/fatigue act on individual ADS,
+    // budget scale acts on CAMPAIGN level (aggregated from ads)
+    const adLevelCategories = ['creative_kill', 'creative_winner', 'fatigue', 'learning_protection']
+    const campaignLevelCategories = ['budget_scale_up', 'budget_scale_down']
+
+    const adLevelRules = rules.filter(r => adLevelCategories.includes(r.category))
+    const campaignLevelRules = rules.filter(r => campaignLevelCategories.includes(r.category))
+
+    // 1. Evaluate ad-level rules (per individual ad/creative)
+    ads.forEach(ad => {
+        const spend = Number(ad.spend) || 0
+        const leads = Number(ad.leads_count) || 0
+        const cpl = Number(ad.cpl) || (spend > 0 && leads > 0 ? spend / leads : 0)
+        const ctr = Number(ad.ctr) || 0
+        const impressions = Number(ad.impressions) || 0
+        const frequency = Number(ad.frequency) || 0
+        const name = ad.ad_name || 'Ad'
+        const campaignName = ad.campaign_name || ''
+
+        adLevelRules.forEach(rule => {
+            if (spend < (rule.min_spend_before_eval || 0)) return
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            const allMet = evaluateConditions(conditions, { spend, leads, cpl, ctr, impressions, frequency }, targetCPL)
+
+            if (allMet && conditions.length > 0) {
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value || c.value_multiplier + 'x target'}`).join(' AND ')}`
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id,
+                        rule_name: rule.name,
+                        category: rule.category,
+                        campaign_id: ad.campaign_id,
+                        ad_id: ad.ad_id,
+                        entity_name: `${name} (${campaignName})`,
+                        entity_type: 'ad',
+                        action: act.type,
+                        action_value: act.value,
+                        reason,
+                        metrics: { spend, leads, cpl, ctr, impressions, frequency },
+                    })
+                })
+            }
+        })
+    })
+
+    // 2. Evaluate campaign-level rules (aggregate ads by campaign for budget decisions)
+    const byCampaign: Record<string, { spend: number; leads: number; cpl: number; ctr: number; impressions: number; frequency: number; campaign_name: string; ad_count: number }> = {}
+    ads.forEach(ad => {
+        const cId = ad.campaign_id
+        if (!byCampaign[cId]) {
+            byCampaign[cId] = { spend: 0, leads: 0, cpl: 0, ctr: 0, impressions: 0, frequency: 0, campaign_name: ad.campaign_name || '', ad_count: 0 }
+        }
+        const c = byCampaign[cId]
+        c.spend += Number(ad.spend) || 0
+        c.leads += Number(ad.leads_count) || 0
+        c.impressions += Number(ad.impressions) || 0
+        c.ad_count++
+        // Weighted averages
+        c.frequency = Math.max(c.frequency, Number(ad.frequency) || 0)
+    })
+    // Calculate aggregated CPL and CTR
+    Object.values(byCampaign).forEach(c => {
+        c.cpl = c.leads > 0 ? c.spend / c.leads : 0
+        c.ctr = c.impressions > 0 ? (c.spend > 0 ? (Number(c.impressions) > 0 ? 0 : 0) : 0) : 0
+    })
+
+    Object.entries(byCampaign).forEach(([campaignId, c]) => {
+        const dailyBudget = campaignBudgets[campaignId] || 0
+
+        campaignLevelRules.forEach(rule => {
+            if (c.spend < (rule.min_spend_before_eval || 0)) return
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            const allMet = evaluateConditions(conditions, { spend: c.spend, leads: c.leads, cpl: c.cpl, ctr: c.ctr, impressions: c.impressions, frequency: c.frequency }, targetCPL)
+
+            if (allMet && conditions.length > 0) {
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value || cd.value_multiplier + 'x target'}`).join(' AND ')}`
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id,
+                        rule_name: rule.name,
+                        category: rule.category,
+                        campaign_id: campaignId,
+                        entity_name: `📊 ${c.campaign_name} (${c.ad_count} ads, budget €${dailyBudget.toFixed(0)}/day)`,
+                        entity_type: 'campaign',
+                        action: act.type,
+                        action_value: act.value,
+                        reason,
+                        metrics: { spend: c.spend, leads: c.leads, cpl: c.cpl, impressions: c.impressions, frequency: c.frequency, daily_budget: dailyBudget },
+                    })
+                })
+            }
+        })
+    })
+
+    return results
+}
+
+// Shared condition evaluator
+function evaluateConditions(conditions: any[], metrics: Record<string, number>, targetCPL: number): boolean {
+    return conditions.every((cond: any) => {
+        let metricVal = metrics[cond.metric] ?? 0
+        let threshold = Number(cond.value) || 0
+
+        if (cond.value_multiplier && cond.reference === 'target_cpl') {
+            threshold = targetCPL * Number(cond.value_multiplier)
+        }
+        if (cond.value_reference === 'target_cpl') threshold = targetCPL
+
+        switch (cond.operator) {
+            case '>': return metricVal > threshold
+            case '<': return metricVal < threshold
+            case '>=': return metricVal >= threshold
+            case '<=': return metricVal <= threshold
+            case '=': return metricVal === threshold
+            default: return true
+        }
+    })
+}
+
+// --- ABO/Legacy Campaign-Level Rules Evaluation ---
 
 function evaluateRules(rules: any[], campaigns: any[], targets: any) {
     const results: any[] = []

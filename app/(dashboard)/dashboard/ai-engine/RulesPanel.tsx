@@ -116,14 +116,42 @@ export default function RulesPanel({ campaigns }: Props) {
         setEvaluating(true)
         setEvalResults(null)
         try {
+            // Get auth token for Meta API
+            const { createClient } = await import('@/lib/supabase/client')
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+
+            // Fetch ad-level insights from Meta (last 7 days for evaluation)
+            const until = new Date().toISOString().slice(0, 10)
+            const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+            let adData: any[] = []
+            let campaignBudgets: Record<string, number> = {}
+
+            if (session?.access_token) {
+                const adRes = await fetch(`/api/meta/ad-insights?since=${since}&until=${until}`, {
+                    headers: { Authorization: `Bearer ${session.access_token}` },
+                })
+                if (adRes.ok) {
+                    const adJson = await adRes.json()
+                    adData = (adJson.ads || []).filter((a: any) => a.status === 'ACTIVE')
+                    campaignBudgets = adJson.campaign_budgets || {}
+                }
+            }
+
+            // Send ad-level data to evaluation engine
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'evaluate_rules', campaigns: campaigns.filter(c => c.status === 'ACTIVE') }),
+                body: JSON.stringify({
+                    action: 'evaluate_rules',
+                    ads: adData,
+                    campaign_budgets: campaignBudgets,
+                    campaigns: campaigns.filter(c => c.status === 'ACTIVE'),
+                }),
             })
             const data = await res.json()
             setEvalResults(data.results || [])
-            // Refresh history
             fetchRules()
         } catch { }
         setEvaluating(false)
