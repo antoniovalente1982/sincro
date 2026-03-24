@@ -3,7 +3,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
-import { createClient } from '@/lib/supabase/client'
 
 interface Stage {
     id: string
@@ -108,26 +107,22 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [saving, setSaving] = useState(false)
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
 
-    // Auto-refresh: poll Supabase directly (bypasses Vercel, zero serverless cost)
+    // Auto-refresh: poll /api/leads every 60s for new leads
     const leadsRef = useRef(leads)
     leadsRef.current = leads
     useEffect(() => {
-        const supabase = createClient()
         let active = true
-
         const checkForNewLeads = async () => {
             if (!active) return
             try {
-                const { data: freshLeads } = await supabase
-                    .from('leads')
-                    .select(`*, pipeline_stages (id, name, slug, color, sort_order), assigned_profile:assigned_to (id, email, full_name)`)
-                    .order('created_at', { ascending: false })
-                if (!freshLeads) return
+                const res = await fetch('/api/leads')
+                if (!res.ok) return
+                const freshLeads = await res.json()
+                if (!Array.isArray(freshLeads)) return
 
                 const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
                 const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
 
-                // Always update if counts differ (handles both new leads and deletions)
                 if (freshLeads.length !== leadsRef.current.length || brandNew.length > 0) {
                     setLeads(freshLeads)
                     if (brandNew.length > 0) {
@@ -138,7 +133,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             } catch { /* silent */ }
         }
 
-        const poll = setInterval(checkForNewLeads, 30000)
+        const poll = setInterval(checkForNewLeads, 60000)
         return () => { active = false; clearInterval(poll) }
     }, [])
 
