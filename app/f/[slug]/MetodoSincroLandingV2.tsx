@@ -311,7 +311,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <div style={{ marginTop: '24px', textAlign: 'center' }}>
                         <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px' }}>💬 Vuoi sapere com&apos;è andata a chi ha già fatto il percorso?</p>
                         <a
-                            href="https://it.trustpilot.com/review/metodosincro.it"
+                            href="https://it.trustpilot.com/review/valenteantonio.it"
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
