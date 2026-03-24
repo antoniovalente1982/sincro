@@ -216,6 +216,10 @@ async function handleCommand(text: string, orgId: string, botToken: string, chat
             await handlePipelineCommand(orgId, botToken, chatId)
             break
 
+        case '/sync':
+            await handleSyncCommand(orgId, botToken, chatId)
+            break
+
         default:
             await sendTelegramDirect(botToken, chatId,
                 '❓ Comando non riconosciuto. Usa /help per la lista comandi, oppure scrivi direttamente la tua domanda!')
@@ -230,6 +234,7 @@ function getHelpMessage(name: string): string {
         `  /leads — Ultimi lead ricevuti\n` +
         `  /campagne — Performance campagne\n` +
         `  /pipeline — Distribuzione pipeline\n` +
+        `  /sync — 🔄 Sincronizza dati Meta Ads\n` +
         `  /help — Questo messaggio\n\n` +
         `🤖 <b>Domande libere:</b>\n` +
         `Puoi chiedermi qualsiasi cosa sui tuoi dati!\n` +
@@ -314,6 +319,37 @@ async function handlePipelineCommand(orgId: string, botToken: string, chatId: st
         }).join('\n')
 
     await sendTelegramDirect(botToken, chatId, msg)
+}
+
+// --- Sync Handler ---
+
+async function handleSyncCommand(orgId: string, botToken: string, chatId: string) {
+    await sendTelegramDirect(botToken, chatId, '🔄 Sincronizzazione Meta Ads in corso...')
+
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://landing.metodosincro.com'
+        const res = await fetch(`${baseUrl}/api/meta/sync`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+            },
+        })
+
+        if (!res.ok) {
+            await sendTelegramDirect(botToken, chatId, '⚠️ Errore nella sincronizzazione. Riprova tra poco.')
+            return
+        }
+
+        const result = await res.json()
+        await sendTelegramDirect(botToken, chatId,
+            `✅ <b>Sync completato!</b>\n\n` +
+            `📊 ${result.synced || result.total || 0} campagne aggiornate\n\n` +
+            `Usa /campagne per vedere i dati aggiornati.`)
+    } catch (err) {
+        console.error('Sync command error:', err)
+        await sendTelegramDirect(botToken, chatId, '⚠️ Errore nella sincronizzazione. Riprova tra poco.')
+    }
 }
 
 // --- AI Handler (fast, text-only for Hobby timeout) ---
