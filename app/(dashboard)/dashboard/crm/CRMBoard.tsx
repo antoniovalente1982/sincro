@@ -545,6 +545,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 <LeadModal
                     lead={editingLead}
                     stages={stages}
+                    activePipelineId={activePipelineId}
                     members={members}
                     saving={saving}
                     onSave={handleSaveLead}
@@ -574,21 +575,24 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 }
 
 // ── Lead Create/Edit Modal ──
-function LeadModal({ lead, stages, members, saving, onSave, onClose }: {
+function LeadModal({ lead, stages, activePipelineId, members, saving, onSave, onClose }: {
     lead: Lead | null
     stages: Stage[]
+    activePipelineId: string
     members: Member[]
     saving: boolean
     onSave: (data: any) => void
     onClose: () => void
 }) {
+    // Filter stages by active pipeline to avoid showing duplicates from other pipelines
+    const pipelineStages = stages.filter(s => s.pipeline_id === activePipelineId)
     const [form, setForm] = useState({
         name: lead?.name || '',
         email: lead?.email || '',
         phone: lead?.phone || '',
         product: lead?.product || '',
         value: lead?.value?.toString() || '',
-        stage_id: lead?.stage_id || stages[0]?.id || '',
+        stage_id: lead?.stage_id || pipelineStages[0]?.id || '',
         assigned_to: lead?.assigned_to || '',
         notes: lead?.notes || '',
     })
@@ -646,7 +650,7 @@ function LeadModal({ lead, stages, members, saving, onSave, onClose }: {
                         <div>
                             <label className="label">Stage</label>
                             <select className="input" value={form.stage_id} onChange={e => setForm({ ...form, stage_id: e.target.value })}>
-                                {stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                {pipelineStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
                         </div>
                         <div>
