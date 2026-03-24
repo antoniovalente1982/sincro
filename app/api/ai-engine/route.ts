@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'evaluate_rules') {
-        // Dry-run: evaluate all enabled rules against current campaign data
+        // Evaluate all enabled rules against current campaign data
         const campaignData = body.campaigns || []
         const { data: rules } = await supabase.from('ad_automation_rules').select('*')
             .eq('organization_id', member.organization_id).eq('is_enabled', true)
@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
 
         const results = evaluateRules(rules || [], campaignData, targets)
 
-        // Log executions
+        // Log to ad_rule_executions
         if (results.length > 0) {
             await supabase.from('ad_rule_executions').insert(
                 results.map(r => ({
@@ -211,9 +211,120 @@ export async function POST(req: NextRequest) {
                     notes: r.reason,
                 }))
             )
+
+            // Log to AI Memory (Diario Episodico)
+            await supabase.from('ai_episodes').insert(
+                results.map(r => ({
+                    organization_id: member.organization_id,
+                    episode_type: 'automation',
+                    action_type: `rule_${r.action}`,
+                    target_type: 'campaign',
+                    target_id: r.campaign_id,
+                    target_name: r.entity_name,
+                    context: {
+                        rule_name: r.rule_name,
+                        category: r.category,
+                        action_value: r.action_value,
+                        phase: 'dry_run',
+                    },
+                    reasoning: r.reason,
+                    metrics_before: r.metrics,
+                    outcome: r.category === 'creative_winner' ? 'positive' : 
+                             r.category === 'creative_kill' ? 'negative' :
+                             r.category === 'fatigue' ? 'negative' : 'neutral',
+                    outcome_score: r.category === 'creative_winner' ? 0.8 :
+                                   r.category === 'creative_kill' ? -0.5 :
+                                   r.category === 'budget_scale_up' ? 0.6 : -0.3,
+                }))
+            )
+
+            // Send Telegram notification
+            try {
+                const { sendTelegramMessage } = await import('@/lib/telegram')
+                const categoryEmoji: Record<string, string> = {
+                    creative_kill: '🔴', creative_winner: '🟢',
+                    budget_scale_up: '📈', budget_scale_down: '📉',
+                    fatigue: '🔄', learning_protection: '⏸',
+                }
+
+                const grouped = results.reduce((acc: Record<string, any[]>, r: any) => {
+                    if (!acc[r.category]) acc[r.category] = []
+                    acc[r.category].push(r)
+                    return acc
+                }, {})
+
+                let tgMsg = `🤖 <b>AI Rules Engine — Valutazione</b>\n`
+                tgMsg += `📊 ${results.length} regole attivate (DRY RUN)\n\n`
+
+                Object.entries(grouped).forEach(([cat, items]: [string, any[]]) => {
+                    const emoji = categoryEmoji[cat] || '•'
+                    tgMsg += `${emoji} <b>${cat.replace(/_/g, ' ').toUpperCase()}</b>\n`
+                    items.forEach((r: any) => {
+                        tgMsg += `  → ${r.entity_name}: ${r.action}`
+                        if (r.action_value) tgMsg += ` (${r.action_value}%)`
+                        tgMsg += `\n`
+                    })
+                    tgMsg += `\n`
+                })
+
+                tgMsg += `💡 Metriche: SPD €${campaignData.reduce((s: number, c: any) => s + (Number(c.spend) || 0), 0).toFixed(2)} | `
+                tgMsg += `${campaignData.reduce((s: number, c: any) => s + (Number(c.leads_count) || 0), 0)} lead | `
+                tgMsg += `Target CPL: €${targets?.target_cpl || 20}`
+
+                await sendTelegramMessage(member.organization_id, tgMsg)
+            } catch (err) {
+                console.error('Telegram notification for rules failed:', err)
+            }
         }
 
         return NextResponse.json({ results, count: results.length })
+    }
+
+    if (action === 'get_performance_trend') {
+        const days = body.period === '30d' ? 30 : body.period === '14d' ? 14 : 7
+        const since = new Date()
+        since.setDate(since.getDate() - days)
+
+        const { data: executions } = await supabase.from('ad_rule_executions')
+            .select('rule_name, action_taken, metrics_snapshot, executed_at, result')
+            .eq('organization_id', member.organization_id)
+            .gte('executed_at', since.toISOString())
+            .order('executed_at', { ascending: true })
+
+        // Group by date
+        const byDate: Record<string, { spend: number; leads: number; cpl: number; ctr: number; rules: number; kills: number; winners: number; scale_ups: number; count: number }> = {}
+
+        ;(executions || []).forEach(e => {
+            const dateStr = new Date(e.executed_at).toISOString().slice(0, 10)
+            if (!byDate[dateStr]) byDate[dateStr] = { spend: 0, leads: 0, cpl: 0, ctr: 0, rules: 0, kills: 0, winners: 0, scale_ups: 0, count: 0 }
+            const d = byDate[dateStr]
+            d.rules++
+            d.count++
+
+            const m = e.metrics_snapshot || {}
+            d.spend = Math.max(d.spend, Number(m.spend) || 0)
+            d.leads = Math.max(d.leads, Number(m.leads) || 0)
+            d.cpl = Number(m.cpl) || d.cpl
+            d.ctr = Number(m.ctr) || d.ctr
+
+            if (e.action_taken === 'pause_ad') d.kills++
+            if (e.action_taken === 'flag_winner') d.winners++
+            if (e.action_taken === 'increase_budget') d.scale_ups++
+        })
+
+        const trend = Object.entries(byDate).map(([date, d]) => ({
+            date,
+            spend: d.spend,
+            leads: d.leads,
+            cpl: d.cpl,
+            ctr: d.ctr,
+            rules_triggered: d.rules,
+            kills: d.kills,
+            winners: d.winners,
+            scale_ups: d.scale_ups,
+        })).sort((a, b) => a.date.localeCompare(b.date))
+
+        return NextResponse.json({ trend })
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
