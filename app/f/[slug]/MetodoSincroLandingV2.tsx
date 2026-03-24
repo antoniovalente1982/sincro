@@ -308,6 +308,26 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il clone digitale di Antonio Valente, il tuo Mental Coach AI disponibile 24/7</strong></span>
                     </div>
                     <p className="lp-ty-sub">Se non rispondi, ti ricontatteremo il giorno successivo. 📱</p>
+                    <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px' }}>💬 Vuoi sapere com&apos;è andata a chi ha già fatto il percorso?</p>
+                        <a
+                            href="https://it.trustpilot.com/review/metodosincro.it"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                padding: '14px 28px', borderRadius: '14px',
+                                background: 'linear-gradient(135deg, #00b67a, #009567)',
+                                color: '#fff', fontWeight: 700, fontSize: '15px',
+                                textDecoration: 'none', transition: 'transform 0.2s, box-shadow 0.2s',
+                                boxShadow: '0 4px 20px rgba(0,182,122,0.3)',
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,182,122,0.5)' }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,182,122,0.3)' }}
+                        >
+                            ⭐ Leggi le storie su Trustpilot
+                        </a>
+                    </div>
                 </div>
                 {/* Pixel init removed — single init in footer prevents duplicate PageView events */}
                 <style>{STYLES}</style>
