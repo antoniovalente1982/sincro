@@ -344,46 +344,52 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
     const results: any[] = []
     const targetCPL = targets?.target_cpl || 20
 
-    // Separate rules by level: kill/winner/fatigue act on individual ADS,
-    // budget scale acts on CAMPAIGN level (aggregated from ads)
-    const adLevelCategories = ['creative_kill', 'creative_winner', 'fatigue', 'learning_protection']
-    const campaignLevelCategories = ['budget_scale_up', 'budget_scale_down']
+    // Separate rules by level
+    const learningRules = rules.filter(r => r.category === 'learning_protection')
+    const adLevelRules = rules.filter(r => ['creative_kill', 'creative_winner', 'fatigue'].includes(r.category))
+    const campaignLevelRules = rules.filter(r => ['budget_scale_up', 'budget_scale_down'].includes(r.category))
 
-    const adLevelRules = rules.filter(r => adLevelCategories.includes(r.category))
-    const campaignLevelRules = rules.filter(r => campaignLevelCategories.includes(r.category))
+    // 1. FIRST: check which ads are in learning phase — they're protected from all other rules
+    const protectedAdIds = new Set<string>()
 
-    // 1. Evaluate ad-level rules (per individual ad/creative)
     ads.forEach(ad => {
-        const spend = Number(ad.spend) || 0
-        const leads = Number(ad.leads_count) || 0
-        const cpl = Number(ad.cpl) || (spend > 0 && leads > 0 ? spend / leads : 0)
-        const ctr = Number(ad.ctr) || 0
-        const impressions = Number(ad.impressions) || 0
-        const frequency = Number(ad.frequency) || 0
+        const metrics = extractAdMetrics(ad)
+        learningRules.forEach(rule => {
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            if (evaluateConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
+                protectedAdIds.add(ad.ad_id)
+                results.push({
+                    rule_id: rule.id, rule_name: rule.name, category: 'learning_protection',
+                    campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                    entity_name: `⏸ ${ad.ad_name || 'Ad'} (${ad.campaign_name || ''})`,
+                    entity_type: 'ad', action: 'block_other_rules', action_value: null,
+                    reason: `In learning phase: spend €${metrics.spend.toFixed(2)}, ${metrics.impressions} impressions — le altre regole NON si applicano`,
+                    metrics,
+                })
+            }
+        })
+    })
+
+    // 2. Evaluate ad-level rules ONLY on ads NOT in learning phase
+    const evaluableAds = ads.filter(ad => !protectedAdIds.has(ad.ad_id))
+
+    evaluableAds.forEach(ad => {
+        const metrics = extractAdMetrics(ad)
         const name = ad.ad_name || 'Ad'
         const campaignName = ad.campaign_name || ''
 
         adLevelRules.forEach(rule => {
-            if (spend < (rule.min_spend_before_eval || 0)) return
+            if (metrics.spend < (rule.min_spend_before_eval || 0)) return
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            const allMet = evaluateConditions(conditions, { spend, leads, cpl, ctr, impressions, frequency }, targetCPL)
-
-            if (allMet && conditions.length > 0) {
+            if (evaluateConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
                 const actions = Array.isArray(rule.actions) ? rule.actions : []
                 const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value || c.value_multiplier + 'x target'}`).join(' AND ')}`
                 actions.forEach((act: any) => {
                     results.push({
-                        rule_id: rule.id,
-                        rule_name: rule.name,
-                        category: rule.category,
-                        campaign_id: ad.campaign_id,
-                        ad_id: ad.ad_id,
-                        entity_name: `${name} (${campaignName})`,
-                        entity_type: 'ad',
-                        action: act.type,
-                        action_value: act.value,
-                        reason,
-                        metrics: { spend, leads, cpl, ctr, impressions, frequency },
+                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
+                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                        entity_name: `${name} (${campaignName})`, entity_type: 'ad',
+                        action: act.type, action_value: act.value, reason, metrics,
                     })
                 })
             }
@@ -441,6 +447,20 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
     })
 
     return results
+}
+
+// Helper to extract metrics from ad object
+function extractAdMetrics(ad: any): Record<string, number> {
+    const spend = Number(ad.spend) || 0
+    const leads = Number(ad.leads_count) || 0
+    return {
+        spend,
+        leads,
+        cpl: Number(ad.cpl) || (spend > 0 && leads > 0 ? spend / leads : 0),
+        ctr: Number(ad.ctr) || 0,
+        impressions: Number(ad.impressions) || 0,
+        frequency: Number(ad.frequency) || 0,
+    }
 }
 
 // Shared condition evaluator
