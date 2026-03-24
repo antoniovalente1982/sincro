@@ -155,9 +155,9 @@ function generateRecommendations(campaigns: any[]) {
         recs.push({
             recommendation_type: 'general',
             priority: 'high',
-            title: 'Collega Meta Ads per iniziare',
-            description: 'Nessuna campagna trovata. Collega il tuo account Meta Ads nella sezione Connessioni per far analizzare le tue campagne dall\'AI.',
-            action_data: { redirect: '/dashboard/connections' },
+            title: 'Nessuna campagna con dati nel periodo',
+            description: 'Non ci sono campagne con dati nel periodo selezionato. Prova a selezionare un periodo più ampio o verifica che le campagne siano attive.',
+            action_data: {},
             status: 'pending',
             impact_estimate: {},
         })
@@ -167,52 +167,152 @@ function generateRecommendations(campaigns: any[]) {
     const activeCampaigns = campaigns.filter(c => c.status === 'ACTIVE')
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
+    const totalClicks = campaigns.reduce((s, c) => s + (Number(c.clicks) || 0), 0)
+    const totalImpressions = campaigns.reduce((s, c) => s + (Number(c.impressions) || 0), 0)
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
+    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
 
-    // High CPL alert
+    // === ALWAYS: Overall health summary ===
+    const healthParts: string[] = []
+    if (totalSpend > 0) healthParts.push(`Spesa: €${totalSpend.toFixed(2)}`)
+    if (totalLeads > 0) healthParts.push(`${totalLeads} lead (CPL: €${avgCPL.toFixed(2)})`)
+    if (avgCTR > 0) healthParts.push(`CTR: ${avgCTR.toFixed(2)}%`)
+    healthParts.push(`${activeCampaigns.length} campagne attive su ${campaigns.length}`)
+
+    recs.push({
+        recommendation_type: 'general',
+        priority: 'low',
+        title: '📊 Riepilogo periodo',
+        description: healthParts.join(' • '),
+        action_data: {},
+        status: 'pending',
+        impact_estimate: {},
+    })
+
+    // === Per-campaign analysis ===
     campaigns.forEach(c => {
         const cpl = Number(c.cpl) || 0
-        if (cpl > avgCPL * 1.5 && cpl > 0) {
+        const ctr = Number(c.ctr) || 0
+        const roas = Number(c.roas) || 0
+        const spend = Number(c.spend) || 0
+        const leads = Number(c.leads_count) || 0
+        const clicks = Number(c.clicks) || 0
+        const impressions = Number(c.impressions) || 0
+        const name = c.campaign_name || 'Campagna'
+        const isActive = c.status === 'ACTIVE'
+
+        // Spending but no leads
+        if (spend > 5 && leads === 0) {
             recs.push({
                 recommendation_type: 'budget',
                 priority: 'critical',
-                title: `CPL troppo alto su "${c.campaign_name}"`,
-                description: `Il CPL di questa campagna (€${cpl.toFixed(2)}) è ${Math.round((cpl / avgCPL - 1) * 100)}% sopra la media. Considera di ridurre il budget o rivedere il targeting.`,
-                action_data: { campaign_id: c.id, suggested_action: 'reduce_budget' },
+                title: `"${name}" — Spesa senza lead`,
+                description: `Hai speso €${spend.toFixed(2)} senza ottenere nessun lead. Verifica il targeting, la landing page e il tracciamento delle conversioni.`,
+                action_data: { campaign_id: c.id, suggested_action: 'check_tracking' },
                 status: 'pending',
-                impact_estimate: { potential_saving: `€${((cpl - avgCPL) * (Number(c.leads_count) || 0)).toFixed(2)}` },
+                impact_estimate: { wasted_budget: `€${spend.toFixed(2)}` },
             })
         }
-    })
 
-    // Low CTR campaigns
-    campaigns.forEach(c => {
-        const ctr = Number(c.ctr) || 0
-        if (ctr < 1.0 && ctr > 0 && c.status === 'ACTIVE') {
+        // High CPL (absolute benchmark: > €20)
+        if (cpl > 20) {
             recs.push({
-                recommendation_type: 'creative',
+                recommendation_type: 'budget',
                 priority: 'high',
-                title: `CTR basso su "${c.campaign_name}"`,
-                description: `Il CTR è solo ${ctr.toFixed(2)}%. Le creativi non stanno catturando l'attenzione. Prova a rinnovare immagini e headline.`,
-                action_data: { campaign_id: c.id, suggested_action: 'refresh_creative' },
+                title: `"${name}" — CPL alto (€${cpl.toFixed(2)})`,
+                description: `Il costo per lead è elevato. Per campagne Lead Gen, un CPL sotto €15 è ideale. Prova a ottimizzare il targeting o testare nuove creativi.`,
+                action_data: { campaign_id: c.id, suggested_action: 'optimize_targeting' },
                 status: 'pending',
-                impact_estimate: { potential_ctr_increase: '50-100%' },
+                impact_estimate: { target_cpl: '< €15' },
             })
-        }
-    })
-
-    // Good ROAS campaigns — scale up
-    campaigns.forEach(c => {
-        const roas = Number(c.roas) || 0
-        if (roas > 3 && c.status === 'ACTIVE') {
+        } else if (cpl > 10 && cpl <= 20) {
             recs.push({
                 recommendation_type: 'budget',
                 priority: 'medium',
-                title: `Scala "${c.campaign_name}" — ROAS ${roas.toFixed(1)}x`,
-                description: `Questa campagna ha un ROAS eccellente. Aumenta il budget del 20-30% per massimizzare i risultati.`,
-                action_data: { campaign_id: c.id, suggested_action: 'increase_budget', suggested_increase: 25 },
+                title: `"${name}" — CPL nella media (€${cpl.toFixed(2)})`,
+                description: `Il CPL è accettabile ma può migliorare. Testa nuove audience o creative per ridurlo sotto €10.`,
+                action_data: { campaign_id: c.id },
+                status: 'pending',
+                impact_estimate: { target_cpl: '< €10' },
+            })
+        } else if (cpl > 0 && cpl <= 10) {
+            recs.push({
+                recommendation_type: 'budget',
+                priority: 'low',
+                title: `"${name}" — CPL ottimo (€${cpl.toFixed(2)}) ✅`,
+                description: `Ottimo lavoro! Il CPL è sotto €10. Considera di aumentare il budget del 20-30% per scalare i risultati mantenendo l'efficienza.`,
+                action_data: { campaign_id: c.id, suggested_action: 'scale_up' },
+                status: 'pending',
+                impact_estimate: { potential_increase: '20-30% più lead' },
+            })
+        }
+
+        // CTR analysis
+        if (ctr > 0 && ctr < 1.0 && isActive) {
+            recs.push({
+                recommendation_type: 'creative',
+                priority: 'high',
+                title: `"${name}" — CTR basso (${ctr.toFixed(2)}%)`,
+                description: `Il CTR è sotto l'1%. Le creativi non catturano l'attenzione. Prova hook diversi, immagini più impattanti o video brevi.`,
+                action_data: { campaign_id: c.id, suggested_action: 'refresh_creative' },
+                status: 'pending',
+                impact_estimate: { target_ctr: '> 2%' },
+            })
+        } else if (ctr >= 2.0 && ctr < 4.0 && isActive) {
+            recs.push({
+                recommendation_type: 'creative',
+                priority: 'low',
+                title: `"${name}" — CTR buono (${ctr.toFixed(2)}%) ✅`,
+                description: `Il CTR è sopra il 2%, buon segnale. Le creativi stanno funzionando. Monitora nel tempo per evitare ad fatigue.`,
+                action_data: { campaign_id: c.id },
+                status: 'pending',
+                impact_estimate: {},
+            })
+        } else if (ctr >= 4.0 && isActive) {
+            recs.push({
+                recommendation_type: 'creative',
+                priority: 'low',
+                title: `"${name}" — CTR eccellente (${ctr.toFixed(2)}%) 🔥`,
+                description: `CTR sopra il 4%! Le creativi stanno performando alla grande. Scala il budget per massimizzare i risultati.`,
+                action_data: { campaign_id: c.id, suggested_action: 'scale_up' },
+                status: 'pending',
+                impact_estimate: { potential_scale: '30-50% più budget' },
+            })
+        }
+
+        // ROAS analysis
+        if (roas > 0 && roas < 1) {
+            recs.push({
+                recommendation_type: 'budget',
+                priority: 'high',
+                title: `"${name}" — ROAS negativo (${roas.toFixed(1)}x)`,
+                description: `Stai perdendo soldi: per ogni €1 speso, ne torni solo €${roas.toFixed(2)}. Rivedi audience, offerta e landing page.`,
+                action_data: { campaign_id: c.id, suggested_action: 'review_funnel' },
+                status: 'pending',
+                impact_estimate: { break_even: 'ROAS > 1.0x' },
+            })
+        } else if (roas >= 3) {
+            recs.push({
+                recommendation_type: 'budget',
+                priority: 'medium',
+                title: `"${name}" — ROAS eccellente (${roas.toFixed(1)}x) 🚀`,
+                description: `Per ogni €1 speso ne guadagni €${roas.toFixed(1)}. Aumenta il budget per massimizzare i profitti.`,
+                action_data: { campaign_id: c.id, suggested_action: 'increase_budget' },
                 status: 'pending',
                 impact_estimate: { potential_revenue_increase: '20-30%' },
+            })
+        }
+
+        // High spend, low clicks (bad targeting/creative)
+        if (spend > 10 && impressions > 500 && clicks < 5) {
+            recs.push({
+                recommendation_type: 'audience',
+                priority: 'high',
+                title: `"${name}" — Impressioni alte, click bassissimi`,
+                description: `${impressions} impressioni ma solo ${clicks} click. Il pubblico vede l'ad ma non interagisce. Rivedi targeting e creative.`,
+                action_data: { campaign_id: c.id, suggested_action: 'review_audience' },
+                status: 'pending',
+                impact_estimate: {},
             })
         }
     })
@@ -223,26 +323,27 @@ function generateRecommendations(campaigns: any[]) {
             recommendation_type: 'general',
             priority: 'high',
             title: 'Nessuna campagna attiva',
-            description: 'Tutte le campagne sono in pausa. Riattiva almeno le campagne con i migliori performance storici.',
-            action_data: { suggested_action: 'reactivate_best' },
+            description: 'Tutte le campagne sono in pausa nel periodo selezionato. Riattiva almeno una campagna per generare lead.',
+            action_data: { suggested_action: 'reactivate' },
             status: 'pending',
             impact_estimate: {},
         })
     }
 
-    // Budget distribution suggestion
+    // Budget distribution (3+ campaigns)
     if (campaigns.length >= 3) {
-        const best = [...campaigns].sort((a, b) => (Number(b.roas) || 0) - (Number(a.roas) || 0))[0]
-        const worst = [...campaigns].sort((a, b) => (Number(a.roas) || 0) - (Number(b.roas) || 0))[0]
-        if (best && worst && best.id !== worst.id) {
+        const sorted = [...campaigns].sort((a, b) => (Number(b.roas) || 0) - (Number(a.roas) || 0))
+        const best = sorted[0]
+        const worst = sorted[sorted.length - 1]
+        if (best && worst && best.id !== worst.id && (Number(best.roas) || 0) > (Number(worst.roas) || 0) * 2) {
             recs.push({
                 recommendation_type: 'budget',
                 priority: 'medium',
-                title: 'Ribilancia il budget tra le campagne',
+                title: 'Ribilancia il budget tra campagne',
                 description: `Sposta budget da "${worst.campaign_name}" (ROAS: ${(Number(worst.roas) || 0).toFixed(1)}x) a "${best.campaign_name}" (ROAS: ${(Number(best.roas) || 0).toFixed(1)}x).`,
                 action_data: { from_campaign: worst.id, to_campaign: best.id },
                 status: 'pending',
-                impact_estimate: { overall_roas_improvement: '10-20%' },
+                impact_estimate: { overall_improvement: '10-20%' },
             })
         }
     }
