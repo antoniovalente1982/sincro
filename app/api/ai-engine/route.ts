@@ -144,7 +144,164 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ snapshot: data })
     }
 
+    // --- Rules Engine Actions ---
+
+    if (action === 'get_rules') {
+        const [rulesRes, targetsRes, historyRes] = await Promise.all([
+            supabase.from('ad_automation_rules').select('*')
+                .eq('organization_id', member.organization_id)
+                .order('category').order('created_at'),
+            supabase.from('ad_optimization_targets').select('*')
+                .eq('organization_id', member.organization_id).single(),
+            supabase.from('ad_rule_executions').select('*')
+                .eq('organization_id', member.organization_id)
+                .order('executed_at', { ascending: false }).limit(20),
+        ])
+        return NextResponse.json({
+            rules: rulesRes.data || [],
+            targets: targetsRes.data || null,
+            history: historyRes.data || [],
+        })
+    }
+
+    if (action === 'toggle_rule') {
+        const { rule_id, is_enabled } = body
+        if (!rule_id) return NextResponse.json({ error: 'rule_id required' }, { status: 400 })
+        const { error } = await supabase.from('ad_automation_rules')
+            .update({ is_enabled, updated_at: new Date().toISOString() })
+            .eq('id', rule_id).eq('organization_id', member.organization_id)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
+    }
+
+    if (action === 'save_targets') {
+        const { targets } = body
+        const { error } = await supabase.from('ad_optimization_targets')
+            .upsert({
+                organization_id: member.organization_id,
+                ...targets,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'organization_id' })
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
+    }
+
+    if (action === 'evaluate_rules') {
+        // Dry-run: evaluate all enabled rules against current campaign data
+        const campaignData = body.campaigns || []
+        const { data: rules } = await supabase.from('ad_automation_rules').select('*')
+            .eq('organization_id', member.organization_id).eq('is_enabled', true)
+        const { data: targets } = await supabase.from('ad_optimization_targets').select('*')
+            .eq('organization_id', member.organization_id).single()
+
+        const results = evaluateRules(rules || [], campaignData, targets)
+
+        // Log executions
+        if (results.length > 0) {
+            await supabase.from('ad_rule_executions').insert(
+                results.map(r => ({
+                    organization_id: member.organization_id,
+                    rule_id: r.rule_id,
+                    rule_name: r.rule_name,
+                    campaign_id: r.campaign_id,
+                    entity_name: r.entity_name,
+                    action_taken: r.action,
+                    metrics_snapshot: r.metrics,
+                    result: 'dry_run',
+                    notes: r.reason,
+                }))
+            )
+        }
+
+        return NextResponse.json({ results, count: results.length })
+    }
+
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+}
+
+// --- Rules Evaluation Engine ---
+
+function evaluateRules(rules: any[], campaigns: any[], targets: any) {
+    const results: any[] = []
+    const targetCPL = targets?.target_cpl || 20
+    const targetCAC = targets?.target_cac || 500
+
+    campaigns.forEach(c => {
+        const spend = Number(c.spend) || 0
+        const leads = Number(c.leads_count) || 0
+        const cpl = Number(c.cpl) || 0
+        const ctr = Number(c.ctr) || 0
+        const impressions = Number(c.impressions) || 0
+        const frequency = Number(c.frequency) || 0
+        const name = c.campaign_name || 'Campagna'
+
+        rules.forEach(rule => {
+            // Check min spend
+            if (spend < (rule.min_spend_before_eval || 0)) return
+
+            let triggered = false
+            let reason = ''
+
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+
+            // Evaluate each condition
+            const allMet = conditions.every((cond: any) => {
+                let metricVal = 0
+                let threshold = Number(cond.value) || 0
+
+                // Resolve metric
+                switch (cond.metric) {
+                    case 'spend': metricVal = spend; break
+                    case 'leads': metricVal = leads; break
+                    case 'cpl': metricVal = cpl; break
+                    case 'ctr': metricVal = ctr; break
+                    case 'impressions': metricVal = impressions; break
+                    case 'frequency': metricVal = frequency; break
+                    default: return true // skip unknown
+                }
+
+                // Resolve threshold reference
+                if (cond.value_multiplier && cond.reference === 'target_cpl') {
+                    threshold = targetCPL * Number(cond.value_multiplier)
+                }
+                if (cond.value_reference === 'target_cpl') {
+                    threshold = targetCPL
+                }
+
+                // Evaluate operator
+                switch (cond.operator) {
+                    case '>': return metricVal > threshold
+                    case '<': return metricVal < threshold
+                    case '>=': return metricVal >= threshold
+                    case '<=': return metricVal <= threshold
+                    case '=': return metricVal === threshold
+                    default: return true
+                }
+            })
+
+            if (allMet && conditions.length > 0) {
+                triggered = true
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value || c.value_multiplier + 'x target'}`).join(' AND ')}`
+
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id,
+                        rule_name: rule.name,
+                        category: rule.category,
+                        campaign_id: c.id || c.external_campaign_id,
+                        entity_name: name,
+                        action: act.type,
+                        action_value: act.value,
+                        reason,
+                        metrics: { spend, leads, cpl, ctr, impressions, frequency },
+                    })
+                })
+            }
+        })
+    })
+
+    return results
 }
 
 // --- AI Logic (local, no external API needed) ---

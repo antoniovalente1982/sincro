@@ -11,6 +11,7 @@ import {
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
+import RulesPanel from './RulesPanel'
 
 interface Campaign {
     id: string; campaign_name?: string; status?: string; spend?: number
@@ -433,6 +434,9 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     </div>
                 </div>
             </div>
+
+            {/* Automation Rules Panel */}
+            <RulesPanel campaigns={sortedCampaigns} />
 
             {/* Main Content: Recommendations + Campaign Health */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
