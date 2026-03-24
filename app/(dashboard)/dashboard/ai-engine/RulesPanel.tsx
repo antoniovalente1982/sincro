@@ -119,7 +119,7 @@ export default function RulesPanel({ campaigns }: Props) {
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'evaluate_rules', campaigns }),
+                body: JSON.stringify({ action: 'evaluate_rules', campaigns: campaigns.filter(c => c.status === 'ACTIVE') }),
             })
             const data = await res.json()
             setEvalResults(data.results || [])
