@@ -279,10 +279,28 @@ async function buildContext(orgId: string): Promise<string> {
             parts.push(`ULTIMI 30 LEAD (ordinati dal più recente al più vecchio — orari in fuso ITALIA):\n${JSON.stringify(leadsForContext, null, 2)}`)
             parts.push(`DISTRIBUZIONE STAGE:\n${JSON.stringify(stageCount)}`)
 
-            // Explicit today count so AI doesn't miscount
-            const todayItalian = new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit', year: 'numeric' })
-            const leadsToday = leadsForContext.filter((l: any) => l.arrivo.startsWith(todayItalian))
-            parts.push(`LEAD DI OGGI (${todayItalian}): ${leadsToday.length} lead\n${leadsToday.map((l: any) => `- ${l.nome} (${l.arrivo}) — stage: ${l.stage}`).join('\n')}`)
+            // Explicit today count — use ISO date boundaries in Italian timezone
+            // Italian timezone is UTC+1 (CET) or UTC+2 (CEST), so midnight = 23:00 or 22:00 UTC
+            const italianDateStr = getItalianDate(new Date()) // YYYY-MM-DD in Italian TZ
+            // Build midnight boundaries: midnight Italian = some hour UTC the day before
+            const todayMidnightUTC = new Date(`${italianDateStr}T00:00:00+01:00`) // CET approximation
+            // Check DST: if we're in CEST (last Sunday of March to last Sunday of October), use +02:00
+            const marchLastSunday = new Date(new Date().getFullYear(), 2, 31)
+            marchLastSunday.setDate(marchLastSunday.getDate() - marchLastSunday.getDay())
+            const octLastSunday = new Date(new Date().getFullYear(), 9, 31)
+            octLastSunday.setDate(octLastSunday.getDate() - octLastSunday.getDay())
+            const isDST = new Date() >= marchLastSunday && new Date() < octLastSunday
+            const todayStart = new Date(`${italianDateStr}T00:00:00${isDST ? '+02:00' : '+01:00'}`)
+            
+            const leadsToday = leads!.filter((l: any) => new Date(l.created_at) >= todayStart)
+            const todayLabel = italianDateStr.split('-').reverse().join('/')
+            const leadsTodayFormatted = leadsToday.map((l: any, i: number) => {
+                const name = l.name
+                const time = formatItalianTime(l.created_at)
+                const stage = l.stage_id ? (stageMap[l.stage_id] || 'sconosciuto') : 'non assegnato'
+                return `- ${name} (${time}) — stage: ${stage}`
+            })
+            parts.push(`LEAD DI OGGI (${todayLabel}): ${leadsToday.length} lead\n${leadsTodayFormatted.join('\n')}`)
         }
     } catch (e) { /* skip */ }
 
