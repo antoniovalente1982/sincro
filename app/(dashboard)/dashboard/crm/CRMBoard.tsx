@@ -227,6 +227,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             return
         }
 
+        const targetStage = stages.find(s => s.id === stageId)
+        if (targetStage?.is_won && (!lead.value || lead.value <= 0)) {
+            alert('⚠️ ATTENZIONE: Impossibile spostare il lead in Vendita.\n\nDevi prima cliccare sul lead e inserire il "Valore (€)" commerciale per consentire a Meta di tracciare correttamente il ROAS della campagna.')
+            setDragLead(null)
+            return
+        }
+
         const oldStageId = lead.stage_id
         // Optimistic update
         setLeads(prev => prev.map(l => l.id === dragLead ? { ...l, stage_id: stageId } : l))
@@ -247,6 +254,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         setSaving(true)
         try {
             if (editingLead) {
+                const targetStage = stages.find(s => s.id === formData.stage_id)
+                if (targetStage?.is_won && (!formData.value || formData.value <= 0)) {
+                    alert('⚠️ ATTENZIONE: Impossibile salvare il lead in Vendita.\n\nDevi prima inserire il "Valore (€)" commerciale per consentire a Meta di tracciare correttamente il ROAS della campagna.')
+                    setSaving(false)
+                    return
+                }
+
                 const payload = { id: editingLead.id, ...formData }
                 // Se la stage è stata cambiata dal modal, inviamo il vecchio ID per far scattare il CAPI event
                 if (formData.stage_id && formData.stage_id !== editingLead.stage_id) {
