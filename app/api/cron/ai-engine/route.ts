@@ -294,9 +294,17 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
     const campaignLevelRules = rules.filter(r => ['budget_scale_up', 'budget_scale_down'].includes(r.category))
 
     // 1. Learning phase protection
+    // IMPORTANT: Ads that have spent > 2x target CPL are NOT protected — they're past learning
+    // and clearly burning money. This ensures kill rules can fire on underperformers.
     const protectedAdIds = new Set<string>()
     ads.forEach(ad => {
         const metrics = extractMetrics(ad)
+
+        // OVERRIDE: If ad spent > 2x target CPL with 0 leads, it's NOT in learning — it's burning money
+        if (metrics.spend > targetCPL * 2 && metrics.leads === 0) return
+        // OVERRIDE: If ad spent > target CPL, it has had enough budget to prove itself
+        if (metrics.spend > targetCPL) return
+
         learningRules.forEach(rule => {
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
             if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
