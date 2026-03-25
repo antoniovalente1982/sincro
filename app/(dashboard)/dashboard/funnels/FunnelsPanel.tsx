@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar } from 'lucide-react'
 
 interface Funnel {
     id: string; name: string; slug: string; description?: string
@@ -47,23 +47,32 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
     const [saving, setSaving] = useState(false)
     const [copiedId, setCopiedId] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState<'funnels' | 'analytics'>('analytics')
-    const [timeRange, setTimeRange] = useState<'today' | '7d' | '30d' | 'all'>('7d')
+    const [timeRange, setTimeRange] = useState<'today' | 'yesterday' | '7d' | '30d' | 'all' | 'custom'>('today')
+    const [customFrom, setCustomFrom] = useState('')
+    const [customTo, setCustomTo] = useState('')
 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
     // --- Analytics calculations ---
     const analytics = useMemo(() => {
         const now = new Date()
-        const ranges: Record<string, Date> = {
-            today: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-            '7d': new Date(now.getTime() - 7 * 86400000),
-            '30d': new Date(now.getTime() - 30 * 86400000),
-            all: new Date(0),
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        const yesterdayStart = new Date(todayStart.getTime() - 86400000)
+        const ranges: Record<string, { from: Date; to: Date }> = {
+            today: { from: todayStart, to: now },
+            yesterday: { from: yesterdayStart, to: todayStart },
+            '7d': { from: new Date(now.getTime() - 7 * 86400000), to: now },
+            '30d': { from: new Date(now.getTime() - 30 * 86400000), to: now },
+            all: { from: new Date(0), to: now },
+            custom: {
+                from: customFrom ? new Date(customFrom + 'T00:00:00') : todayStart,
+                to: customTo ? new Date(customTo + 'T23:59:59') : now,
+            },
         }
-        const since = ranges[timeRange]
+        const { from: since, to: until } = ranges[timeRange]
 
-        const filteredViews = pageViews.filter(v => new Date(v.created_at) >= since)
-        const filteredSubs = submissions.filter(s => new Date(s.created_at) >= since)
+        const filteredViews = pageViews.filter(v => { const d = new Date(v.created_at); return d >= since && d <= until })
+        const filteredSubs = submissions.filter(s => { const d = new Date(s.created_at); return d >= since && d <= until })
 
         // Per-funnel stats
         const funnelStats = funnels.map(f => {
@@ -130,7 +139,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         const totalRate = totalUniqueVisitors > 0 ? (totalConv / totalUniqueVisitors * 100) : 0
 
         return { funnelStats, totalViews, totalUniqueVisitors, totalConv, totalRate }
-    }, [funnels, pageViews, submissions, timeRange])
+    }, [funnels, pageViews, submissions, timeRange, customFrom, customTo])
 
     const handleSave = async (formData: any) => {
         setSaving(true)
@@ -246,26 +255,54 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
             {activeTab === 'analytics' && (
                 <div className="space-y-4">
                     {/* Time Range Filter */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
                         {[
                             { key: 'today', label: 'Oggi' },
+                            { key: 'yesterday', label: 'Ieri' },
                             { key: '7d', label: '7 giorni' },
                             { key: '30d', label: '30 giorni' },
                             { key: 'all', label: 'Tutto' },
+                            { key: 'custom', label: 'Personalizzata' },
                         ].map(r => (
                             <button
                                 key={r.key}
                                 onClick={() => setTimeRange(r.key as any)}
-                                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
                                 style={timeRange === r.key
                                     ? { background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.3)' }
                                     : { background: 'var(--color-surface-100)', color: 'var(--color-surface-500)', border: '1px solid transparent' }
                                 }
                             >
+                                {r.key === 'custom' && <Calendar className="w-3 h-3" />}
                                 {r.label}
                             </button>
                         ))}
                     </div>
+                    {/* Custom Date Picker */}
+                    {timeRange === 'custom' && (
+                        <div className="flex gap-3 items-center flex-wrap">
+                            <div className="flex items-center gap-2">
+                                <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Da</label>
+                                <input
+                                    type="date"
+                                    value={customFrom}
+                                    onChange={e => setCustomFrom(e.target.value)}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid rgba(255,255,255,0.06)', colorScheme: 'dark' }}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>A</label>
+                                <input
+                                    type="date"
+                                    value={customTo}
+                                    onChange={e => setCustomTo(e.target.value)}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid rgba(255,255,255,0.06)', colorScheme: 'dark' }}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Summary KPIs */}
                     <div className="grid grid-cols-4 gap-4">
