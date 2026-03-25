@@ -115,10 +115,10 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
     const totalClicks = campaigns.reduce((s, c) => s + (Number(c.clicks) || 0), 0)
     const totalImpressions = campaigns.reduce((s, c) => s + (Number(c.impressions) || 0), 0)
+    const totalRevenue = campaigns.reduce((s, c) => s + ((Number(c.roas) || 0) * (Number(c.spend) || 0)), 0)
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
     const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
-    const avgROAS = campaigns.length > 0
-        ? campaigns.reduce((s, c) => s + (Number(c.roas) || 0), 0) / campaigns.length : 0
+    const avgROAS = totalSpend > 0 ? totalRevenue / totalSpend : 0
     const activeCampaigns = campaigns.filter(c => c.status === 'ACTIVE').length
 
     const formatCurrency = (v: number) =>
@@ -454,25 +454,26 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     </div>
 
                     {/* Funnel with performance comparison */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
                         {[
-                            { label: 'CPL', target: targets.target_cpl, actual: avgCPL, color: '#f59e0b', good: 'lower' },
-                            { label: 'CPA App', target: targets.target_cpa_appointment, actual: 0, color: '#3b82f6', good: 'lower' },
-                            { label: 'CPA Show', target: targets.target_cpa_show, actual: 0, color: '#8b5cf6', good: 'lower' },
-                            { label: 'Max CAC', target: targets.target_cac, actual: 0, color: '#22c55e', good: 'lower' },
+                            { label: 'CPL', target: targets.target_cpl, actual: avgCPL, color: '#f59e0b', good: 'lower', prefix: '€', suffix: '' },
+                            { label: 'CPA App', target: targets.target_cpa_appointment, actual: 0, color: '#3b82f6', good: 'lower', prefix: '€', suffix: '' },
+                            { label: 'CPA Show', target: targets.target_cpa_show, actual: 0, color: '#8b5cf6', good: 'lower', prefix: '€', suffix: '' },
+                            { label: 'Max CAC', target: targets.target_cac, actual: 0, color: '#22c55e', good: 'lower', prefix: '€', suffix: '' },
+                            { label: 'ROAS', target: targets.target_roas, actual: avgROAS, color: '#ef4444', good: 'higher', prefix: '', suffix: 'x' },
                         ].map(m => {
                             const ratio = m.actual > 0 && m.target > 0 ? m.actual / m.target : 0
-                            const isGood = m.good === 'lower' ? ratio < 1 : ratio > 1
+                            const isGood = m.good === 'lower' ? ratio < 1 : ratio >= 1
                             return (
                                 <div key={m.label} className="p-3 rounded-xl" style={{
                                     background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
                                 }}>
                                     <div className="text-[9px] uppercase font-semibold mb-1" style={{ color: m.color }}>{m.label}</div>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-lg font-bold text-white">€{m.target}</span>
+                                        <span className="text-lg font-bold text-white">{m.prefix}{m.target}{m.suffix}</span>
                                         {m.actual > 0 && (
                                             <span className="text-[10px] font-semibold" style={{ color: isGood ? '#22c55e' : '#ef4444' }}>
-                                                {isGood ? '↓' : '↑'} €{m.actual.toFixed(0)}
+                                                {isGood ? '↑' : '↓'} {m.prefix}{m.actual.toFixed(m.suffix === 'x' ? 2 : 0)}{m.suffix}
                                             </span>
                                         )}
                                     </div>
