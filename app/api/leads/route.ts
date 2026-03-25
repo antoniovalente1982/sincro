@@ -88,12 +88,18 @@ export async function PUT(req: NextRequest) {
 
             const funnelObjective = (leadForCapi.data as any)?.funnels?.objective || 'cliente'
             const meta = leadForCapi.data?.meta_data || {} as any
+            
+            // Merge incoming updates to ensure we send the most fresh data (e.g. if user just added 'value')
+            const finalName = updates.name !== undefined ? updates.name : leadForCapi.data?.name
+            const finalEmail = updates.email !== undefined ? updates.email : leadForCapi.data?.email
+            const finalPhone = updates.phone !== undefined ? updates.phone : leadForCapi.data?.phone
+            const finalValue = updates.value !== undefined ? updates.value : leadForCapi.data?.value
 
             fireCapiEvent(orgId, newStage.fire_capi_event, {
-                name: leadForCapi.data?.name,
-                email: leadForCapi.data?.email,
-                phone: leadForCapi.data?.phone,
-                value: leadForCapi.data?.value,
+                name: finalName,
+                email: finalEmail,
+                phone: finalPhone,
+                value: finalValue,
                 content_category: funnelObjective,
                 // Replay original tracking data for better Meta matching
                 fbc: meta.fbc || undefined,

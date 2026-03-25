@@ -247,10 +247,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         setSaving(true)
         try {
             if (editingLead) {
+                const payload = { id: editingLead.id, ...formData }
+                // Se la stage è stata cambiata dal modal, inviamo il vecchio ID per far scattare il CAPI event
+                if (formData.stage_id && formData.stage_id !== editingLead.stage_id) {
+                    payload._old_stage_id = editingLead.stage_id
+                }
+
                 const res = await fetch('/api/leads', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: editingLead.id, ...formData }),
+                    body: JSON.stringify(payload),
                 })
                 const updated = await res.json()
                 if (!res.ok) throw new Error(updated.error)
