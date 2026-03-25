@@ -18,7 +18,7 @@ export default async function AnalyticsPage() {
         supabase.from('pipeline_stages').select('*, pipelines!inner(id, name)').eq('organization_id', orgId).order('sort_order'),
         supabase.from('leads').select('*, pipeline_stages(name, slug, color, is_won, is_lost, pipeline_id), funnels!leads_funnel_id_fkey(id, name, objective)').eq('organization_id', orgId),
         supabase.from('lead_activities').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(200),
-        supabase.from('revenue_attribution').select('*').eq('organization_id', orgId).order('deal_closed_at', { ascending: false }).limit(50),
+        supabase.from('campaigns_cache').select('*').eq('organization_id', orgId).order('spend', { ascending: false }).limit(50),
         supabase.from('revenue_predictions').select('*').eq('organization_id', orgId).order('prediction_date', { ascending: false }).limit(7),
         supabase.from('global_intelligence').select('*').eq('is_active', true).order('confidence', { ascending: false }).limit(10),
         supabase.from('revenue_leaks').select('*').eq('organization_id', orgId).eq('is_resolved', false).order('estimated_lost_revenue', { ascending: false }).limit(15),

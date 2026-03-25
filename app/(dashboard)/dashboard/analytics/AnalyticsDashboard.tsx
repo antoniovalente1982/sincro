@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search, Filter } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search, Filter, Loader2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from 'recharts'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
+import { createClient } from '@/lib/supabase/client'
 
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean; pipeline_id?: string
@@ -34,6 +35,39 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>(defaultPipeline?.id || '')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    
+    // Live Meta Insights for Revenue Attribution
+    const [loadingInsights, setLoadingInsights] = useState(false)
+    const [liveCampaigns, setLiveCampaigns] = useState<any[] | null>(null)
+
+    const fetchLiveInsights = useCallback(async (since: string, until: string) => {
+        setLoadingInsights(true)
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}`, {
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            })
+            const data = await res.json()
+            if (data.success && data.campaigns) {
+                setLiveCampaigns(data.campaigns)
+            } else {
+                setLiveCampaigns(null)
+            }
+        } catch (e: any) {
+            setLiveCampaigns(null)
+        } finally {
+            setLoadingInsights(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!range) {
+            setLiveCampaigns(null) // use cache
+            return
+        }
+        fetchLiveInsights(range.from.toISOString(), range.to.toISOString())
+    }, [range, fetchLiveInsights])
 
     // Filter stages by selected pipeline
     const stages = allStages.filter(s => s.pipeline_id === selectedPipelineId)
@@ -316,74 +350,120 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
             </div>
 
             {/* ===== REVENUE ATTRIBUTION ===== */}
-            {attributions.length > 0 && (
-                <div className="glass-card p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <CircleDollarSign className="w-5 h-5" style={{ color: '#22c55e' }} />
-                        <h3 className="text-sm font-bold text-white">Revenue Attribution</h3>
-                        <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '10px' }}>
-                            {attributions.length} deal chiusi
-                        </span>
-                    </div>
+            {(() => {
+                const campaignData = liveCampaigns || attributions
+                if (!campaignData || campaignData.length === 0) return null
 
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        {[{
-                            label: 'Revenue Totale',
-                            value: `€${attributions.reduce((s: number, a: any) => s + (Number(a.deal_value) || 0), 0).toLocaleString('it-IT', { minimumFractionDigits: 0 })}`,
-                            color: '#22c55e',
-                        }, {
-                            label: 'Spesa Attribuita',
-                            value: `€${attributions.reduce((s: number, a: any) => s + (Number(a.attributed_spend) || 0), 0).toLocaleString('it-IT', { minimumFractionDigits: 0 })}`,
-                            color: '#ef4444',
-                        }, {
-                            label: 'ROI Medio',
-                            value: `${(attributions.reduce((s: number, a: any) => s + (Number(a.roi) || 0), 0) / Math.max(attributions.length, 1)).toFixed(0)}%`,
-                            color: '#a855f7',
-                        }, {
-                            label: 'Giorni Medi Chiusura',
-                            value: `${(attributions.reduce((s: number, a: any) => s + (Number(a.days_to_close) || 0), 0) / Math.max(attributions.length, 1)).toFixed(0)}`,
-                            color: '#3b82f6',
-                        }].map((card, i) => (
-                            <div key={i} className="p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                <div className="text-[10px] uppercase mb-1" style={{ color: card.color }}>{card.label}</div>
-                                <div className="text-lg font-bold text-white">{card.value}</div>
+                // Map meta campaigns back to attribution array shape
+                const mappedAttributions = campaignData.map((c: any) => {
+                    // Deal value = total revenue calculated directly from ROAS (Meta API logic)
+                    const spend = Number(c.spend) || 0
+                    const roas = Number(c.roas) || 0
+                    const dealValue = spend > 0 ? spend * roas : 0
+                    const roi = spend > 0 ? ((dealValue - spend) / spend) * 100 : 0
+                    
+                    return {
+                        id: c.id,
+                        campaign_name: c.campaign_name || 'Sconosciuta',
+                        channel_type: 'Meta Ads',
+                        deal_value: dealValue,
+                        attributed_spend: spend,
+                        roi: roi,
+                        roas: roas,
+                        days_to_close: 0 // Cannot compute directly without logs, leaving at 0
+                    }
+                })
+
+                // Exclude 0 spend 0 revenue campaigns if there are too many
+                const activeAttributions = mappedAttributions.filter((a: any) => a.attributed_spend > 0 || a.deal_value > 0).sort((a: any, b: any) => b.deal_value - a.deal_value || b.attributed_spend - a.attributed_spend)
+
+                if (activeAttributions.length === 0) return null
+
+                return (
+                    <div className="glass-card p-6 relative">
+                        {loadingInsights && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl" style={{ background: 'rgba(15, 15, 19, 0.7)', backdropFilter: 'blur(4px)' }}>
+                                <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-sincro-400)' }} />
                             </div>
-                        ))}
-                    </div>
+                        )}
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                            <div className="flex items-center gap-2">
+                                <CircleDollarSign className="w-5 h-5" style={{ color: '#22c55e' }} />
+                                <h3 className="text-sm font-bold text-white">Revenue Attribution</h3>
+                                <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '10px' }}>
+                                    {activeAttributions.filter((a: any) => a.deal_value > 0).length} deal / source
+                                </span>
+                            </div>
+                            {!range && (
+                                <span className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Dati aggregati (Lifetime cache)</span>
+                            )}
+                        </div>
 
-                    {/* Attribution Table */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                            <thead>
-                                <tr className="border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
-                                    <th className="text-left py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna</th>
-                                    <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Revenue</th>
-                                    <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Spesa</th>
-                                    <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>ROI</th>
-                                    <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>ROAS</th>
-                                    <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Giorni</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {attributions.slice(0, 10).map((a: any) => (
-                                    <tr key={a.id} className="border-b" style={{ borderColor: 'var(--color-surface-100)' }}>
-                                        <td className="py-2 text-white font-medium">
-                                            {a.campaign_name || 'Diretto'}
-                                            <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{a.channel_type}</div>
-                                        </td>
-                                        <td className="py-2 text-right font-bold" style={{ color: '#22c55e' }}>€{Number(a.deal_value).toLocaleString('it-IT')}</td>
-                                        <td className="py-2 text-right" style={{ color: 'var(--color-surface-500)' }}>€{Number(a.attributed_spend).toFixed(0)}</td>
-                                        <td className="py-2 text-right font-bold" style={{ color: Number(a.roi) > 0 ? '#22c55e' : '#ef4444' }}>{Number(a.roi).toFixed(0)}%</td>
-                                        <td className="py-2 text-right" style={{ color: Number(a.roas) > 3 ? '#22c55e' : '#f59e0b' }}>{Number(a.roas).toFixed(1)}x</td>
-                                        <td className="py-2 text-right" style={{ color: 'var(--color-surface-500)' }}>{a.days_to_close}gg</td>
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                            {[{
+                                label: 'Revenue Totale (Attribuito)',
+                                value: `€${activeAttributions.reduce((s: number, a: any) => s + a.deal_value, 0).toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                                color: '#22c55e',
+                            }, {
+                                label: 'Spesa Attribuita',
+                                value: `€${activeAttributions.reduce((s: number, a: any) => s + a.attributed_spend, 0).toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                                color: '#ef4444',
+                            }, {
+                                label: 'ROI Globale',
+                                value: (() => {
+                                    const tRev = activeAttributions.reduce((s: number, a: any) => s + a.deal_value, 0)
+                                    const tSpd = activeAttributions.reduce((s: number, a: any) => s + a.attributed_spend, 0)
+                                    return tSpd > 0 ? `${(((tRev - tSpd) / tSpd) * 100).toFixed(0)}%` : '0%'
+                                })(),
+                                color: '#a855f7',
+                            }, {
+                                label: 'ROAS Globale',
+                                value: (() => {
+                                    const tRev = activeAttributions.reduce((s: number, a: any) => s + a.deal_value, 0)
+                                    const tSpd = activeAttributions.reduce((s: number, a: any) => s + a.attributed_spend, 0)
+                                    return tSpd > 0 ? `${(tRev / tSpd).toFixed(1)}x` : '0.0x'
+                                })(),
+                                color: '#3b82f6',
+                            }].map((card, i) => (
+                                <div key={i} className="p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                    <div className="text-[10px] uppercase mb-1" style={{ color: card.color }}>{card.label}</div>
+                                    <div className="text-lg font-bold text-white">{card.value}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Attribution Table */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs">
+                                <thead>
+                                    <tr className="border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                        <th className="text-left py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna (Meta)</th>
+                                        <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Revenue</th>
+                                        <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>Spesa</th>
+                                        <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>ROI</th>
+                                        <th className="text-right py-2 font-semibold" style={{ color: 'var(--color-surface-500)' }}>ROAS</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {activeAttributions.slice(0, 15).map((a: any) => (
+                                        <tr key={a.id} className="border-b" style={{ borderColor: 'var(--color-surface-100)' }}>
+                                            <td className="py-2 text-white font-medium max-w-[200px] truncate">
+                                                {a.campaign_name}
+                                                <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{a.channel_type}</div>
+                                            </td>
+                                            <td className="py-2 text-right font-bold w-24" style={{ color: '#22c55e' }}>€{a.deal_value.toLocaleString('it-IT', { maximumFractionDigits: 0 })}</td>
+                                            <td className="py-2 text-right w-20" style={{ color: 'var(--color-surface-500)' }}>€{a.attributed_spend.toFixed(0)}</td>
+                                            <td className="py-2 text-right font-bold w-16" style={{ color: a.roi > 0 ? '#22c55e' : a.roi < 0 ? '#ef4444' : '#71717a' }}>{a.roi.toFixed(0)}%</td>
+                                            <td className="py-2 text-right w-16" style={{ color: a.roas >= 3 ? '#22c55e' : '#f59e0b' }}>{a.roas.toFixed(2)}x</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            })()}
 
             {/* ===== PREDICTIVE PIPELINE ===== */}
             {predictions.length > 0 && (() => {
