@@ -192,8 +192,9 @@ export async function POST(req: NextRequest) {
     // ⚡ Force Run — triggers the cron pipeline manually
     if (action === 'force_run') {
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-                || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+            // Derive base URL from the incoming request
+            const requestUrl = new URL(req.url)
+            const baseUrl = requestUrl.origin
             const cronSecret = process.env.CRON_SECRET
             if (!cronSecret) {
                 return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
