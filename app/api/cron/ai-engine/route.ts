@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
         }
 
         let totalActions = 0
+        const allExecutedResults: any[] = []
 
         for (const config of configs) {
             const orgId = config.organization_id
@@ -270,6 +271,7 @@ export async function GET(req: NextRequest) {
                 )
 
                 totalActions += executedResults.length
+                allExecutedResults.push(...executedResults)
 
                 // Send Telegram notification with creative refresh recommendations
                 const killedAds = executedResults.filter(r => r.action === 'pause_ad' && r.executionResult === 'executed')
@@ -277,7 +279,16 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        return NextResponse.json({ ok: true, totalActions })
+        // Build summary for Force Run UI
+        const actionsSummary = allExecutedResults.map((r: any) => ({
+            name: r.entity_name,
+            action: r.action,
+            status: r.executionResult || 'dry_run',
+            category: r.category,
+            rule: r.rule_name,
+        }))
+
+        return NextResponse.json({ ok: true, totalActions, actions: actionsSummary })
     } catch (err) {
         console.error('AI Engine cron error:', err)
         return NextResponse.json({ error: 'Internal error' }, { status: 500 })

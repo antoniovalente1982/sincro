@@ -206,6 +206,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 ok: cronData.ok,
                 totalActions: cronData.totalActions || 0,
+                actions: cronData.actions || [],
                 message: cronData.message || `${cronData.totalActions || 0} azioni processate`,
                 error: cronData.error,
             })

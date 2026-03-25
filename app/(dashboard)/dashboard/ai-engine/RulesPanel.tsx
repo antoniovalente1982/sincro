@@ -149,7 +149,34 @@ export default function RulesPanel({ campaigns }: Props) {
             })
             const data = await res.json()
             if (data.ok) {
-                alert(`✅ Force Run completato!\n\n${data.totalActions || 0} azioni eseguite${data.message ? '\n' + data.message : ''}`)
+                const actions = data.actions || []
+                const executed = actions.filter((a: any) => a.status === 'executed')
+                const dryRun = actions.filter((a: any) => a.status === 'dry_run')
+                const blocked = actions.filter((a: any) => a.status === 'skipped_safety')
+                const learning = actions.filter((a: any) => a.category === 'learning_protection')
+
+                let summary = `⚡ Force Run completato!\n\n`
+                
+                if (executed.length > 0) {
+                    summary += `✅ ESEGUITE (${executed.length}):\n`
+                    executed.forEach((a: any) => { summary += `  • ${a.name} → ${a.action}\n` })
+                    summary += '\n'
+                }
+                if (blocked.length > 0) {
+                    summary += `🛡 BLOCCATE (safety guard) (${blocked.length}):\n`
+                    blocked.forEach((a: any) => { summary += `  • ${a.name}\n` })
+                    summary += '\n'
+                }
+                if (learning.length > 0) {
+                    summary += `⏸ LEARNING PROTECTION (${learning.length}):\n`
+                    learning.forEach((a: any) => { summary += `  • ${a.name}\n` })
+                    summary += '\n'
+                }
+                if (actions.length === 0) {
+                    summary += '✨ Nessuna azione necessaria — tutte le ads nei parametri'
+                }
+                
+                alert(summary)
             } else {
                 alert(`❌ Errore: ${data.error || 'Errore sconosciuto'}`)
             }
