@@ -110,44 +110,97 @@ export async function POST(req: NextRequest) {
             firstStageId = fallbackStage?.id || null
         }
 
-        // Create lead automatically
-        const { data: lead, error: leadError } = await supabaseAdmin
-            .from('leads')
-            .insert({
-                organization_id: funnel.organization_id,
-                funnel_id,
-                submission_id: submission.id,
-                stage_id: firstStageId,
-                name,
-                email: email || null,
-                phone: phone || null,
-                utm_source: utm_source || null,
-                utm_campaign: utm_campaign || null,
-                product: funnel.name,
-                meta_data: {
-                    source: 'funnel', funnel_name: funnel.name,
-                    utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
-                    // Form extra fields (age, adset angle)
-                    child_age: body.extra_data?.child_age || null,
-                    adset_angle: body.extra_data?.adset_angle || null,
-                    // Tracking data for CRM CAPI events (QualifiedLead, Schedule, etc.)
-                    fbc: body.fbc || null,
-                    fbp: body.fbp || null,
-                    visitor_id: body.visitor_id || null,
-                    client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || null,
-                    client_user_agent: req.headers.get('user-agent') || null,
-                    event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
-                },
-            })
-            .select()
-            .single()
+        // ── Lead Deduplication: if email exists, update existing lead instead of creating duplicate ──
+        let lead: any = null
+        let isExisting = false
 
-        if (leadError) {
-            console.error('Lead creation error:', leadError)
+        if (email) {
+            const { data: existingLead } = await supabaseAdmin
+                .from('leads')
+                .select('*')
+                .eq('organization_id', funnel.organization_id)
+                .eq('email', email.toLowerCase().trim())
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            if (existingLead) {
+                isExisting = true
+                // Update existing lead with fresh data (phone, utm if missing, submission link)
+                const updateData: any = {
+                    submission_id: submission.id,
+                    updated_at: new Date().toISOString(),
+                }
+                // Only update fields that are currently empty on the existing lead
+                if (!existingLead.phone && phone) updateData.phone = phone
+                if (!existingLead.utm_source && utm_source) updateData.utm_source = utm_source
+                if (!existingLead.utm_campaign && utm_campaign) updateData.utm_campaign = utm_campaign
+                if (!existingLead.funnel_id && funnel_id) updateData.funnel_id = funnel_id
+
+                // Merge meta_data without overwriting existing tracking
+                const existingMeta = existingLead.meta_data || {}
+                updateData.meta_data = {
+                    ...existingMeta,
+                    ...((!existingMeta.utm_content && body.utm_content) ? { utm_content: body.utm_content } : {}),
+                    ...((!existingMeta.utm_term && body.utm_term) ? { utm_term: body.utm_term } : {}),
+                    ...((!existingMeta.fbc && body.fbc) ? { fbc: body.fbc } : {}),
+                    ...((!existingMeta.fbp && body.fbp) ? { fbp: body.fbp } : {}),
+                    last_submission_at: new Date().toISOString(),
+                    resubmit_count: (existingMeta.resubmit_count || 0) + 1,
+                }
+
+                const { data: updated } = await supabaseAdmin
+                    .from('leads')
+                    .update(updateData)
+                    .eq('id', existingLead.id)
+                    .select()
+                    .single()
+                lead = updated || existingLead
+                console.log(`[DEDUP] Lead ${email} already exists (id: ${existingLead.id}), updated instead of creating duplicate`)
+            }
         }
 
-        // Log activity
-        if (lead && firstStageId) {
+        // Create NEW lead only if no existing one was found
+        if (!isExisting) {
+            const { data: newLead, error: leadError } = await supabaseAdmin
+                .from('leads')
+                .insert({
+                    organization_id: funnel.organization_id,
+                    funnel_id,
+                    submission_id: submission.id,
+                    stage_id: firstStageId,
+                    name,
+                    email: email || null,
+                    phone: phone || null,
+                    utm_source: utm_source || null,
+                    utm_campaign: utm_campaign || null,
+                    product: funnel.name,
+                    meta_data: {
+                        source: 'funnel', funnel_name: funnel.name,
+                        utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
+                        // Form extra fields (age, adset angle)
+                        child_age: body.extra_data?.child_age || null,
+                        adset_angle: body.extra_data?.adset_angle || null,
+                        // Tracking data for CRM CAPI events (QualifiedLead, Schedule, etc.)
+                        fbc: body.fbc || null,
+                        fbp: body.fbp || null,
+                        visitor_id: body.visitor_id || null,
+                        client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || null,
+                        client_user_agent: req.headers.get('user-agent') || null,
+                        event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
+                    },
+                })
+                .select()
+                .single()
+
+            if (leadError) {
+                console.error('Lead creation error:', leadError)
+            }
+            lead = newLead
+        }
+
+        // Log activity (only for NEW leads, not dedup updates)
+        if (lead && firstStageId && !isExisting) {
             await supabaseAdmin.from('lead_activities').insert({
                 organization_id: funnel.organization_id,
                 lead_id: lead.id,
