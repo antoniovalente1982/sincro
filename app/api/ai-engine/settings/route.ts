@@ -76,6 +76,10 @@ export async function POST(req: NextRequest) {
             analysis_interval_minutes: body.analysis_interval_minutes ?? 60,
             risk_tolerance: body.risk_tolerance ?? 'medium',
             execution_mode: body.execution_mode ?? 'dry_run',
+            advantage_plus_budget: body.advantage_plus_budget ?? false,
+            advantage_plus_audience: body.advantage_plus_audience ?? false,
+            advantage_plus_placements: body.advantage_plus_placements ?? false,
+            advantage_plus_creative: body.advantage_plus_creative ?? false,
             objectives: body.objectives ?? { target_cpl: 0, target_roas: 0, target_ctr: 0 },
             updated_at: new Date().toISOString(),
         }, { onConflict: 'organization_id' })

@@ -5,7 +5,8 @@ import {
     ArrowLeft, Brain, Zap, DollarSign, Target, Shield, Flame,
     Activity, ToggleLeft, ToggleRight, Save, Loader2, Clock,
     TrendingUp, AlertTriangle, CheckCircle, XCircle, Paintbrush,
-    Settings, ChevronDown, RefreshCw, Eye, Rocket, MousePointerClick
+    Settings, ChevronDown, RefreshCw, Eye, Rocket, MousePointerClick,
+    Sparkles, Users, Layout, Palette
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -16,6 +17,8 @@ interface Config {
     auto_creative_refresh: boolean; autopilot_active: boolean
     analysis_interval_minutes: number; risk_tolerance: string
     execution_mode: 'dry_run' | 'live'
+    advantage_plus_budget: boolean; advantage_plus_audience: boolean
+    advantage_plus_placements: boolean; advantage_plus_creative: boolean
     objectives: { target_cpl: number; target_roas: number; target_ctr: number }
 }
 
@@ -56,6 +59,8 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
         auto_creative_refresh: false, autopilot_active: false,
         analysis_interval_minutes: 60, risk_tolerance: 'medium',
         execution_mode: 'dry_run' as const,
+        advantage_plus_budget: false, advantage_plus_audience: false,
+        advantage_plus_placements: false, advantage_plus_creative: false,
         objectives: { target_cpl: 0, target_roas: 0, target_ctr: 0 },
     }
 
@@ -209,24 +214,94 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                 )}
             </div>
 
+            {/* Advantage+ Configuration */}
+            <div className="glass-card p-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-5 h-5" style={{ color: '#818cf8' }} />
+                    <h2 className="text-base font-bold text-white">Advantage+ Configurazione</h2>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                        background: 'rgba(129, 140, 248, 0.15)', color: '#818cf8',
+                    }}>Meta AI</span>
+                </div>
+                <p className="text-[11px] mb-4" style={{ color: 'var(--color-surface-500)' }}>
+                    Indica quali funzionalità Advantage+ stai usando su Meta. L'AI regola le regole di conseguenza.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                        {
+                            key: 'advantage_plus_budget', label: 'Advantage+ Budget',
+                            icon: DollarSign, color: '#f59e0b',
+                            desc: 'Meta gestisce il budget su base settimanale (può spendere fino a 1.75x in un giorno). Le regole AI useranno il budget settimanale.',
+                        },
+                        {
+                            key: 'advantage_plus_audience', label: 'Advantage+ Pubblico',
+                            icon: Users, color: '#3b82f6',
+                            desc: 'Meta espande automaticamente il pubblico oltre la definizione manuale. Le regole di targeting non si applicano.',
+                        },
+                        {
+                            key: 'advantage_plus_placements', label: 'Advantage+ Posizionamenti',
+                            icon: Layout, color: '#22c55e',
+                            desc: 'Meta sceglie automaticamente dove mostrare gli ads (Feed, Stories, Reels, ecc.).',
+                        },
+                        {
+                            key: 'advantage_plus_creative', label: 'Advantage+ Creative',
+                            icon: Palette, color: '#a855f7',
+                            desc: 'Meta ottimizza automaticamente testo, immagini e formati degli ads per ogni utente.',
+                        },
+                    ].map(toggle => (
+                        <div key={toggle.key} className="flex items-start gap-3 p-3 rounded-xl" style={{
+                            background: (form as any)[toggle.key] ? `${toggle.color}08` : 'var(--color-surface-100)',
+                            border: `1px solid ${(form as any)[toggle.key] ? `${toggle.color}30` : 'var(--color-surface-200)'}`,
+                        }}>
+                            <toggle.icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: toggle.color }} />
+                            <div className="flex-1 min-w-0">
+                                <div className="text-xs font-semibold text-white">{toggle.label}</div>
+                                <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{toggle.desc}</div>
+                            </div>
+                            <button onClick={() => setForm(f => ({ ...f, [toggle.key]: !(f as any)[toggle.key] }))}
+                                className="flex-shrink-0 mt-0.5">
+                                {(form as any)[toggle.key]
+                                    ? <ToggleRight className="w-7 h-7" style={{ color: toggle.color }} />
+                                    : <ToggleLeft className="w-7 h-7" style={{ color: 'var(--color-surface-500)' }} />}
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             {/* Budget Controls */}
             <div className="glass-card p-6">
-                <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="w-5 h-5" style={{ color: '#f59e0b' }} />
                     <h2 className="text-base font-bold text-white">Budget Limits</h2>
+                    {form.advantage_plus_budget && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                            background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b',
+                        }}>⚡ Advantage+ Budget — Base settimanale</span>
+                    )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {form.advantage_plus_budget && (
+                    <p className="text-[11px] mb-4 p-2 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                        Con Advantage+ Budget, Meta può spendere fino a 1.75x in un singolo giorno. Il budget giornaliero non è rilevante — imposta il <strong>budget settimanale</strong> come riferimento.
+                    </p>
+                )}
+                <div className={`grid gap-4 ${form.advantage_plus_budget ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
                     {[
-                        { key: 'budget_daily', label: 'Giornaliero', desc: 'Spesa massima al giorno' },
-                        { key: 'budget_weekly', label: 'Settimanale', desc: 'Spesa massima a settimana' },
-                        { key: 'budget_monthly', label: 'Mensile', desc: 'Spesa massima al mese' },
-                    ].map(b => {
+                        { key: 'budget_daily', label: 'Giornaliero', desc: 'Spesa massima al giorno', hideIfAdvantage: true },
+                        { key: 'budget_weekly', label: 'Settimanale', desc: form.advantage_plus_budget ? 'Budget principale — Meta gestisce la distribuzione giornaliera' : 'Spesa massima a settimana', hideIfAdvantage: false },
+                        { key: 'budget_monthly', label: 'Mensile', desc: 'Spesa massima al mese', hideIfAdvantage: false },
+                    ].filter(b => !(b.hideIfAdvantage && form.advantage_plus_budget)).map(b => {
                         const budgetEntry = budget.find(bt => bt.period_type === b.key.replace('budget_', ''))
+                        const isWeeklyHighlight = b.key === 'budget_weekly' && form.advantage_plus_budget
                         return (
                             <div key={b.key} className="p-4 rounded-xl" style={{
-                                background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
+                                background: isWeeklyHighlight ? 'rgba(245, 158, 11, 0.05)' : 'var(--color-surface-100)',
+                                border: `1px solid ${isWeeklyHighlight ? 'rgba(245, 158, 11, 0.3)' : 'var(--color-surface-200)'}`,
                             }}>
-                                <label className="label">{b.label}</label>
+                                <label className="label flex items-center gap-1">
+                                    {b.label}
+                                    {isWeeklyHighlight && <span className="text-[9px]" style={{ color: '#f59e0b' }}>⭐ PRINCIPALE</span>}
+                                </label>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-semibold" style={{ color: '#f59e0b' }}>€</span>
                                     <input
