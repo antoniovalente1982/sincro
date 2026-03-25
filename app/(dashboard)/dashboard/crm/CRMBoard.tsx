@@ -556,6 +556,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         )}
 
                                         <div className="mt-2 space-y-1">
+                                            {(lead.meta_data?.resubmit_count ?? 0) > 0 && (
+                                                <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#f97316' }}>
+                                                    🔄 Ritorno{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
+                                                </div>
+                                            )}
                                             {lead.phone && (
                                                 <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
                                                     <Phone className="w-3 h-3" /> {lead.phone}
