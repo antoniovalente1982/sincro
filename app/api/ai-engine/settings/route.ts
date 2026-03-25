@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
             autopilot_active: body.autopilot_active ?? false,
             analysis_interval_minutes: body.analysis_interval_minutes ?? 60,
             risk_tolerance: body.risk_tolerance ?? 'medium',
+            execution_mode: body.execution_mode ?? 'dry_run',
             objectives: body.objectives ?? { target_cpl: 0, target_roas: 0, target_ctr: 0 },
             updated_at: new Date().toISOString(),
         }, { onConflict: 'organization_id' })

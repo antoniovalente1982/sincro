@@ -15,6 +15,7 @@ interface Config {
     auto_pause_enabled: boolean; auto_scale_enabled: boolean
     auto_creative_refresh: boolean; autopilot_active: boolean
     analysis_interval_minutes: number; risk_tolerance: string
+    execution_mode: 'dry_run' | 'live'
     objectives: { target_cpl: number; target_roas: number; target_ctr: number }
 }
 
@@ -54,6 +55,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
         auto_pause_enabled: false, auto_scale_enabled: false,
         auto_creative_refresh: false, autopilot_active: false,
         analysis_interval_minutes: 60, risk_tolerance: 'medium',
+        execution_mode: 'dry_run' as const,
         objectives: { target_cpl: 0, target_roas: 0, target_ctr: 0 },
     }
 
@@ -152,6 +154,59 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                             : <ToggleLeft className="w-10 h-10" style={{ color: 'var(--color-surface-500)' }} />}
                     </button>
                 </div>
+            </div>
+
+            {/* Execution Mode Toggle — DRY RUN / LIVE */}
+            <div className="glass-card p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <Zap className="w-5 h-5" style={{ color: form.execution_mode === 'live' ? '#ef4444' : '#f59e0b' }} />
+                    <h2 className="text-base font-bold text-white">Modalità Esecuzione</h2>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                        background: form.execution_mode === 'live' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                        color: form.execution_mode === 'live' ? '#ef4444' : '#f59e0b',
+                    }}>{form.execution_mode === 'live' ? '🟢 LIVE — Azioni reali su Meta' : '🟡 DRY RUN — Solo log'}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, execution_mode: 'dry_run' }))}
+                        className="p-4 rounded-xl text-left transition-all" style={{
+                            background: form.execution_mode === 'dry_run' ? 'rgba(245, 158, 11, 0.1)' : 'var(--color-surface-100)',
+                            border: `2px solid ${form.execution_mode === 'dry_run' ? 'rgba(245, 158, 11, 0.4)' : 'var(--color-surface-200)'}`,
+                        }}
+                    >
+                        <div className="flex items-center gap-2 mb-1">
+                            <Eye className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                            <span className="text-sm font-bold text-white">DRY RUN</span>
+                            {form.execution_mode === 'dry_run' && <CheckCircle className="w-4 h-4 ml-auto" style={{ color: '#f59e0b' }} />}
+                        </div>
+                        <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Le regole vengono valutate e loggate, ma nessuna azione viene eseguita su Meta. Ideale per testare.</p>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (confirm('⚠️ ATTENZIONE: In modalità LIVE, l\'AI eseguirà azioni reali su Meta (pause ads, modifica budget). Sei sicuro?')) {
+                                setForm(f => ({ ...f, execution_mode: 'live' }))
+                            }
+                        }}
+                        className="p-4 rounded-xl text-left transition-all" style={{
+                            background: form.execution_mode === 'live' ? 'rgba(239, 68, 68, 0.1)' : 'var(--color-surface-100)',
+                            border: `2px solid ${form.execution_mode === 'live' ? 'rgba(239, 68, 68, 0.4)' : 'var(--color-surface-200)'}`,
+                        }}
+                    >
+                        <div className="flex items-center gap-2 mb-1">
+                            <Rocket className="w-4 h-4" style={{ color: '#ef4444' }} />
+                            <span className="text-sm font-bold text-white">LIVE</span>
+                            {form.execution_mode === 'live' && <CheckCircle className="w-4 h-4 ml-auto" style={{ color: '#ef4444' }} />}
+                        </div>
+                        <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>L'AI esegue azioni reali: pause ads, modifica budget. Max 5 azioni/ora con cooldown 24h.</p>
+                    </button>
+                </div>
+                {form.execution_mode === 'live' && (
+                    <div className="mt-3 p-3 rounded-xl text-xs" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
+                        ⚠️ <strong>Modalità LIVE attiva.</strong> L'AI eseguirà azioni reali ogni ora: pause di ads sottoperformanti, modifiche budget. Riceverai notifiche Telegram per ogni azione.
+                    </div>
+                )}
             </div>
 
             {/* Budget Controls */}

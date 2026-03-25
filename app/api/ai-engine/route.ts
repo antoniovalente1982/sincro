@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     // --- Rules Engine Actions ---
 
     if (action === 'get_rules') {
-        const [rulesRes, targetsRes, historyRes] = await Promise.all([
+        const [rulesRes, targetsRes, historyRes, configRes] = await Promise.all([
             supabase.from('ad_automation_rules').select('*')
                 .eq('organization_id', member.organization_id)
                 .order('category').order('created_at'),
@@ -156,11 +156,14 @@ export async function POST(req: NextRequest) {
             supabase.from('ad_rule_executions').select('*')
                 .eq('organization_id', member.organization_id)
                 .order('executed_at', { ascending: false }).limit(20),
+            supabase.from('ai_agent_config').select('execution_mode')
+                .eq('organization_id', member.organization_id).single(),
         ])
         return NextResponse.json({
             rules: rulesRes.data || [],
             targets: targetsRes.data || null,
             history: historyRes.data || [],
+            execution_mode: configRes.data?.execution_mode || 'dry_run',
         })
     }
 

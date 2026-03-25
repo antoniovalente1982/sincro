@@ -51,6 +51,7 @@ export default function RulesPanel({ campaigns }: Props) {
     const [showTargets, setShowTargets] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
     const [savingTargets, setSavingTargets] = useState(false)
+    const [executionMode, setExecutionMode] = useState<'dry_run' | 'live'>('dry_run')
 
     // Editable targets
     const [editCPL, setEditCPL] = useState('20')
@@ -68,6 +69,7 @@ export default function RulesPanel({ campaigns }: Props) {
             setRules(data.rules || [])
             setTargets(data.targets || null)
             setHistory(data.history || [])
+            if (data.execution_mode) setExecutionMode(data.execution_mode)
             if (data.targets) {
                 setEditCPL(String(data.targets.target_cpl || 20))
                 setEditCAC(String(data.targets.target_cac || 500))
@@ -184,11 +186,12 @@ export default function RulesPanel({ campaigns }: Props) {
                         <Shield className="w-5 h-5" style={{ color: '#818cf8' }} />
                         Regole Automatiche
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
-                            background: 'rgba(129, 140, 248, 0.15)', color: '#818cf8',
-                        }}>PHASE 1 — DRY RUN</span>
+                            background: executionMode === 'live' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(129, 140, 248, 0.15)',
+                            color: executionMode === 'live' ? '#ef4444' : '#818cf8',
+                        }}>{executionMode === 'live' ? '🟢 LIVE — Azioni reali' : '🟡 DRY RUN — Solo log'}</span>
                     </h2>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
-                        {enabledCount}/{rules.length} regole attive • Le azioni vengono solo loggate (non eseguite su Meta)
+                        {enabledCount}/{rules.length} regole attive • {executionMode === 'live' ? 'Le azioni vengono eseguite su Meta ogni ora' : 'Le azioni vengono solo loggate (non eseguite su Meta)'}
                     </p>
                 </div>
                 <div className="flex gap-2">
