@@ -13,7 +13,7 @@ export default async function AIEnginePage() {
 
     const orgId = member?.organization_id || ''
 
-    const [campaignsRes, recommendationsRes, briefsRes, snapshotsRes, connectionsRes, agentConfigRes, budgetRes, episodesRes, knowledgeRes, workingMemRes] = await Promise.all([
+    const [campaignsRes, recommendationsRes, briefsRes, snapshotsRes, connectionsRes, agentConfigRes, budgetRes, episodesRes, knowledgeRes, workingMemRes, targetsRes] = await Promise.all([
         supabase
             .from('campaigns_cache')
             .select('*')
@@ -71,6 +71,11 @@ export default async function AIEnginePage() {
             .select('*')
             .eq('organization_id', orgId)
             .single(),
+        supabase
+            .from('ad_optimization_targets')
+            .select('*')
+            .eq('organization_id', orgId)
+            .single(),
     ])
 
     return (
@@ -86,6 +91,7 @@ export default async function AIEnginePage() {
             episodes={episodesRes.data || []}
             knowledge={knowledgeRes.data || []}
             workingMemory={workingMemRes.data || null}
+            targets={targetsRes.data || null}
         />
     )
 }

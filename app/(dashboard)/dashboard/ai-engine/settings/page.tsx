@@ -13,7 +13,7 @@ export default async function AISettingsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [configRes, logsRes, budgetRes] = await Promise.all([
+    const [configRes, logsRes, budgetRes, targetsRes] = await Promise.all([
         supabase
             .from('ai_agent_config')
             .select('*')
@@ -31,6 +31,11 @@ export default async function AISettingsPage() {
             .eq('organization_id', orgId)
             .order('updated_at', { ascending: false })
             .limit(10),
+        supabase
+            .from('ad_optimization_targets')
+            .select('*')
+            .eq('organization_id', orgId)
+            .single(),
     ])
 
     return (
@@ -38,6 +43,7 @@ export default async function AISettingsPage() {
             config={configRes.data || null}
             logs={logsRes.data || []}
             budget={budgetRes.data || []}
+            targets={targetsRes.data || null}
         />
     )
 }

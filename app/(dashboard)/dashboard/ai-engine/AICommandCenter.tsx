@@ -48,9 +48,10 @@ interface Props {
     episodes: any[]
     knowledge: any[]
     workingMemory: any
+    targets: { target_cpl: number; target_cpa_appointment: number; target_cpa_show: number; target_cac: number; target_roas: number } | null
 }
 
-export default function AICommandCenter({ campaigns: cachedCampaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory }: Props) {
+export default function AICommandCenter({ campaigns: cachedCampaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory, targets }: Props) {
     const [recommendations, setRecommendations] = useState(initialRecs)
     const [generating, setGenerating] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -435,6 +436,82 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     </div>
                 </div>
             </div>
+
+            {/* Target & Strategia Andromeda */}
+            {targets && (
+                <div className="glass-card p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Target className="w-5 h-5" style={{ color: '#3b82f6' }} />
+                            <h2 className="text-sm font-bold text-white">Target & Strategia</h2>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                                background: 'rgba(129, 140, 248, 0.15)', color: '#818cf8',
+                            }}>Andromeda</span>
+                        </div>
+                        <Link href="/dashboard/ai-engine/settings" className="text-[10px] flex items-center gap-1 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
+                            <Settings className="w-3 h-3" /> Modifica Target
+                        </Link>
+                    </div>
+
+                    {/* Funnel with performance comparison */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        {[
+                            { label: 'CPL', target: targets.target_cpl, actual: avgCPL, color: '#f59e0b', good: 'lower' },
+                            { label: 'CPA App', target: targets.target_cpa_appointment, actual: 0, color: '#3b82f6', good: 'lower' },
+                            { label: 'CPA Show', target: targets.target_cpa_show, actual: 0, color: '#8b5cf6', good: 'lower' },
+                            { label: 'Max CAC', target: targets.target_cac, actual: 0, color: '#22c55e', good: 'lower' },
+                        ].map(m => {
+                            const ratio = m.actual > 0 && m.target > 0 ? m.actual / m.target : 0
+                            const isGood = m.good === 'lower' ? ratio < 1 : ratio > 1
+                            return (
+                                <div key={m.label} className="p-3 rounded-xl" style={{
+                                    background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
+                                }}>
+                                    <div className="text-[9px] uppercase font-semibold mb-1" style={{ color: m.color }}>{m.label}</div>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-lg font-bold text-white">€{m.target}</span>
+                                        {m.actual > 0 && (
+                                            <span className="text-[10px] font-semibold" style={{ color: isGood ? '#22c55e' : '#ef4444' }}>
+                                                {isGood ? '↓' : '↑'} €{m.actual.toFixed(0)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {m.actual > 0 && (
+                                        <div className="w-full h-1.5 rounded-full mt-2 overflow-hidden" style={{ background: 'var(--color-surface-300)' }}>
+                                            <div className="h-full rounded-full" style={{
+                                                width: `${Math.min(ratio * 100, 100)}%`,
+                                                background: isGood ? '#22c55e' : ratio > 1.5 ? '#ef4444' : '#f59e0b',
+                                            }} />
+                                        </div>
+                                    )}
+                                    <div className="text-[9px] mt-1" style={{ color: 'var(--color-surface-600)' }}>target</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* Andromeda Rules Strategy */}
+                    <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                        <div className="text-[10px] uppercase font-bold mb-3" style={{ color: '#818cf8' }}>Strategia Regole — Allineata a Meta Andromeda</div>
+                        <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
+                            {[
+                                { phase: '⏸ Learn', rules: '< 1500 imp → proteggi', color: '#8b5cf6', desc: 'Rispetta la learning phase di 7-14gg' },
+                                { phase: '🔍 Valuta', rules: 'Dopo 7gg e €15+ spesi', color: '#3b82f6', desc: 'Dati sufficienti per decidere' },
+                                { phase: '🔴 Kill', rules: 'CPL >3x • CTR <1% • €40+ no lead', color: '#ef4444', desc: 'Taglia i costi inutili' },
+                                { phase: '🟢 Winner', rules: 'CPL <target • CTR >2.5%', color: '#22c55e', desc: 'Identifica le creative top' },
+                                { phase: '📈 Scale', rules: 'Budget +15-20% max ogni 48h', color: '#f59e0b', desc: 'Scala senza rompere la delivery' },
+                                { phase: '🧠 Ottimizza', rules: 'Target -10% settimanale', color: '#a855f7', desc: 'Auto-miglioramento continuo' },
+                            ].map((s, i) => (
+                                <div key={i} className="flex-1 min-w-[120px] p-2.5 rounded-lg text-center" style={{ background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
+                                    <div className="text-[11px] font-bold mb-1" style={{ color: s.color }}>{s.phase}</div>
+                                    <div className="text-[9px] font-medium text-white">{s.rules}</div>
+                                    <div className="text-[8px] mt-1" style={{ color: 'var(--color-surface-600)' }}>{s.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Automation Rules Panel */}
             <RulesPanel campaigns={sortedCampaigns} />

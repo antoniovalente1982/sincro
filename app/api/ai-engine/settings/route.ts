@@ -88,5 +88,20 @@ export async function POST(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+    // Sync targets to ad_optimization_targets (single source of truth)
+    if (body.targets) {
+        await supabase
+            .from('ad_optimization_targets')
+            .upsert({
+                organization_id: orgId,
+                target_cpl: body.targets.target_cpl ?? 20,
+                target_cpa_appointment: body.targets.target_cpa_appointment ?? 60,
+                target_cpa_show: body.targets.target_cpa_show ?? 120,
+                target_cac: body.targets.target_cac ?? 500,
+                target_roas: body.targets.target_roas ?? 3.0,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'organization_id' })
+    }
+
     return NextResponse.json({ config: data })
 }

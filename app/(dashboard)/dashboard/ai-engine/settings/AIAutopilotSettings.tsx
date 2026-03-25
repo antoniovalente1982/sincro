@@ -36,6 +36,7 @@ interface Props {
     config: Config | null
     logs: Log[]
     budget: Budget[]
+    targets: { target_cpl: number; target_cpa_appointment: number; target_cpa_show: number; target_cac: number; target_roas: number } | null
 }
 
 const INTERVALS = [
@@ -52,7 +53,7 @@ const RISK_LEVELS = [
     { value: 'high', label: 'Aggressivo', icon: Flame, color: '#ef4444', desc: 'Azioni rapide, scala veloce, tolleranza alta' },
 ]
 
-export default function AIAutopilotSettings({ config: initialConfig, logs, budget }: Props) {
+export default function AIAutopilotSettings({ config: initialConfig, logs, budget, targets: initialTargets }: Props) {
     const defaults: Omit<Config, 'id' | 'organization_id'> = {
         budget_daily: 0, budget_weekly: 0, budget_monthly: 0,
         auto_pause_enabled: false, auto_scale_enabled: false,
@@ -68,6 +69,16 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
         ...defaults,
         ...(initialConfig || {}),
     })
+
+    // Unified targets (from ad_optimization_targets)
+    const [targetForm, setTargetForm] = useState({
+        target_cpl: initialTargets?.target_cpl || 20,
+        target_cpa_appointment: initialTargets?.target_cpa_appointment || 60,
+        target_cpa_show: initialTargets?.target_cpa_show || 120,
+        target_cac: initialTargets?.target_cac || 500,
+        target_roas: initialTargets?.target_roas || 3.0,
+    })
+
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
@@ -80,7 +91,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
             await fetch('/api/ai-engine/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
+                body: JSON.stringify({ ...form, targets: targetForm }),
             })
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
@@ -339,18 +350,40 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                 </div>
             </div>
 
-            {/* Objectives */}
+            {/* Target di Performance — Single Source of Truth */}
             <div className="glass-card p-6">
-                <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center gap-2 mb-2">
                     <Target className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                    <h2 className="text-base font-bold text-white">Obiettivi</h2>
-                    <span className="text-[10px]" style={{ color: 'var(--color-surface-600)' }}>L'AI confronta i risultati con questi target</span>
+                    <h2 className="text-base font-bold text-white">Target di Performance</h2>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                        background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6',
+                    }}>Fonte unica</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <p className="text-[11px] mb-4" style={{ color: 'var(--color-surface-500)' }}>
+                    Questi target guidano tutte le regole automatiche. Modificandoli qui, le regole si adattano automaticamente.
+                </p>
+                {/* Funnel visual */}
+                <div className="flex items-center gap-1 mb-4 p-3 rounded-xl overflow-x-auto" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                     {[
-                        { key: 'target_cpl', label: 'Target CPL', icon: DollarSign, color: '#f59e0b', prefix: '€', desc: 'Costo per lead massimo' },
-                        { key: 'target_roas', label: 'Target ROAS', icon: TrendingUp, color: '#22c55e', suffix: 'x', desc: 'Return on Ad Spend minimo' },
-                        { key: 'target_ctr', label: 'Target CTR', icon: MousePointerClick, color: '#8b5cf6', suffix: '%', desc: 'Click-Through Rate minimo' },
+                        { label: 'Lead', value: targetForm.target_cpl, color: '#f59e0b', key: 'target_cpl' },
+                        { label: 'Appuntamento', value: targetForm.target_cpa_appointment, color: '#3b82f6', key: 'target_cpa_appointment' },
+                        { label: 'Show', value: targetForm.target_cpa_show, color: '#8b5cf6', key: 'target_cpa_show' },
+                        { label: 'Vendita', value: targetForm.target_cac, color: '#22c55e', key: 'target_cac' },
+                    ].map((step, i) => (
+                        <div key={step.key} className="flex items-center gap-1">
+                            <div className="text-center px-3 py-1.5 rounded-lg" style={{ background: `${step.color}10`, border: `1px solid ${step.color}25` }}>
+                                <div className="text-[9px] font-semibold" style={{ color: step.color }}>{step.label}</div>
+                                <div className="text-xs font-bold text-white">€{step.value}</div>
+                            </div>
+                            {i < 3 && <ChevronDown className="w-3 h-3 -rotate-90 flex-shrink-0" style={{ color: 'var(--color-surface-500)' }} />}
+                        </div>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                    {[
+                        { key: 'target_cpl', label: 'Target CPL', icon: DollarSign, color: '#f59e0b', desc: 'Costo per lead massimo — usato dalle regole Kill e Winner' },
+                        { key: 'target_cpa_appointment', label: 'CPA Appuntamento', icon: Target, color: '#3b82f6', desc: 'Costo per appuntamento fissato' },
+                        { key: 'target_cpa_show', label: 'CPA Show', icon: Eye, color: '#8b5cf6', desc: 'Costo per appuntamento presentato' },
                     ].map(obj => (
                         <div key={obj.key} className="p-4 rounded-xl" style={{
                             background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
@@ -360,21 +393,47 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                                 <label className="label mb-0">{obj.label}</label>
                             </div>
                             <div className="flex items-center gap-2">
-                                {obj.prefix && <span className="text-sm font-semibold" style={{ color: obj.color }}>{obj.prefix}</span>}
+                                <span className="text-sm font-semibold" style={{ color: obj.color }}>€</span>
                                 <input
-                                    type="number" className="input" min={0} step={0.1}
-                                    value={(form.objectives as any)?.[obj.key] || ''}
-                                    onChange={e => setForm(f => ({
-                                        ...f,
-                                        objectives: { ...f.objectives, [obj.key]: Number(e.target.value) },
-                                    }))}
+                                    type="number" className="input" min={0} step={1}
+                                    value={(targetForm as any)[obj.key] || ''}
+                                    onChange={e => setTargetForm(f => ({ ...f, [obj.key]: Number(e.target.value) }))}
                                     placeholder="0"
                                 />
-                                {obj.suffix && <span className="text-sm font-semibold" style={{ color: obj.color }}>{obj.suffix}</span>}
                             </div>
                             <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>{obj.desc}</p>
                         </div>
                     ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
+                            <label className="label mb-0">Max CAC (Costo Acquisizione)</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold" style={{ color: '#22c55e' }}>€</span>
+                            <input type="number" className="input" min={0} step={10}
+                                value={targetForm.target_cac || ''}
+                                onChange={e => setTargetForm(f => ({ ...f, target_cac: Number(e.target.value) }))}
+                                placeholder="0" />
+                        </div>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>Costo massimo per acquisire un cliente (vendita chiusa)</p>
+                    </div>
+                    <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="w-4 h-4" style={{ color: '#a855f7' }} />
+                            <label className="label mb-0">Target ROAS</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input type="number" className="input" min={0} step={0.1}
+                                value={targetForm.target_roas || ''}
+                                onChange={e => setTargetForm(f => ({ ...f, target_roas: Number(e.target.value) }))}
+                                placeholder="0" />
+                            <span className="text-sm font-semibold" style={{ color: '#a855f7' }}>x</span>
+                        </div>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>Return on Ad Spend minimo (se tracciato)</p>
+                    </div>
                 </div>
             </div>
 
