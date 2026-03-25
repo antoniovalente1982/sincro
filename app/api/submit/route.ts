@@ -127,8 +127,11 @@ export async function POST(req: NextRequest) {
             if (existingLead) {
                 isExisting = true
                 // Update existing lead with fresh data (phone, utm if missing, submission link)
+                // IMPORTANT: Reset stage to first stage so they reappear in pipeline
+                // (lead might have gone cold months ago, now they're back with fresh interest)
                 const updateData: any = {
                     submission_id: submission.id,
+                    stage_id: firstStageId, // ← Reset to "Lead" stage so team sees them again!
                     updated_at: new Date().toISOString(),
                 }
                 // Only update fields that are currently empty on the existing lead
@@ -156,7 +159,18 @@ export async function POST(req: NextRequest) {
                     .select()
                     .single()
                 lead = updated || existingLead
-                console.log(`[DEDUP] Lead ${email} already exists (id: ${existingLead.id}), updated instead of creating duplicate`)
+
+                // Log re-entry activity so team knows this is a returning lead
+                await supabaseAdmin.from('lead_activities').insert({
+                    organization_id: funnel.organization_id,
+                    lead_id: existingLead.id,
+                    activity_type: 'stage_changed',
+                    from_stage_id: existingLead.stage_id,
+                    to_stage_id: firstStageId,
+                    notes: `🔄 Lead ha compilato di nuovo il form (resubmit #${(existingMeta.resubmit_count || 0) + 1}) — rimesso in pipeline`,
+                })
+
+                console.log(`[DEDUP] Lead ${email} resubmitted (id: ${existingLead.id}), reset to first stage`)
             }
         }
 
