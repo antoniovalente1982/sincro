@@ -54,19 +54,25 @@ export async function GET(req: NextRequest) {
             const { access_token, ad_account_id } = conn.credentials
             const adAccount = `act_${ad_account_id}`
 
-            // Fetch ad-level insights (last 7 days)
-            const until = new Date().toISOString().slice(0, 10)
-            const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-            const timeRange = JSON.stringify({ since, until })
+            // Fetch ad-level insights — DUAL WINDOW:
+            // 1) Last 7 days → for scale/winner/fatigue rules (need enough data for trends)
+            // 2) Today only → for kill rules (catch ads burning money RIGHT NOW)
+            const today = new Date().toISOString().slice(0, 10)
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
-            const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
+            const buildInsightsUrl = (since: string, until: string) =>
+                `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
                 `fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type` +
-                `&level=ad&time_range=${encodeURIComponent(timeRange)}&limit=500&access_token=${access_token}`
+                `&level=ad&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}&limit=500&access_token=${access_token}`
 
-            const insightsRes = await fetch(insightsUrl)
-            if (!insightsRes.ok) continue
+            const [insights7dRes, insightsTodayRes] = await Promise.all([
+                fetch(buildInsightsUrl(sevenDaysAgo, today)),
+                fetch(buildInsightsUrl(today, today)),
+            ])
+            if (!insights7dRes.ok) continue
 
-            const insightsData = await insightsRes.json()
+            const insights7d = await insights7dRes.json()
+            const insightsToday = insightsTodayRes.ok ? await insightsTodayRes.json() : { data: [] }
 
             // Get ad statuses
             const adsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?` +
@@ -79,30 +85,37 @@ export async function GET(req: NextRequest) {
                 adStatusMap[ad.id] = ad.effective_status
             }
 
-            // Build ad data
-            const ads = (insightsData.data || []).map((insight: any) => {
-                const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
-                const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
-                return {
-                    ad_id: insight.ad_id,
-                    ad_name: insight.ad_name,
-                    campaign_id: insight.campaign_id,
-                    campaign_name: insight.campaign_name,
-                    status: adStatusMap[insight.ad_id] || 'UNKNOWN',
-                    spend: parseFloat(insight.spend || '0'),
-                    impressions: parseInt(insight.impressions || '0'),
-                    clicks: parseInt(insight.clicks || '0'),
-                    ctr: parseFloat(insight.ctr || '0'),
-                    frequency: parseFloat(insight.frequency || '0'),
-                    leads_count: parseInt(leadsCount),
-                    cpl: parseFloat(cplValue),
-                }
-            }).filter((a: any) => a.status === 'ACTIVE')
+            // Build ad data from insights
+            const buildAds = (insightsData: any) =>
+                (insightsData.data || []).map((insight: any) => {
+                    const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                    const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+                    return {
+                        ad_id: insight.ad_id,
+                        ad_name: insight.ad_name,
+                        campaign_id: insight.campaign_id,
+                        campaign_name: insight.campaign_name,
+                        status: adStatusMap[insight.ad_id] || 'UNKNOWN',
+                        spend: parseFloat(insight.spend || '0'),
+                        impressions: parseInt(insight.impressions || '0'),
+                        clicks: parseInt(insight.clicks || '0'),
+                        ctr: parseFloat(insight.ctr || '0'),
+                        frequency: parseFloat(insight.frequency || '0'),
+                        leads_count: parseInt(leadsCount),
+                        cpl: parseFloat(cplValue),
+                    }
+                }).filter((a: any) => a.status === 'ACTIVE')
 
-            if (ads.length === 0) continue
+            const ads7d = buildAds(insights7d)
+            const adsToday = buildAds(insightsToday)
+
+            if (ads7d.length === 0 && adsToday.length === 0) continue
+
+            // Use ALL active ads for the status map (combines both windows)
+            const allActiveAds = ads7d.length > 0 ? ads7d : adsToday
 
             // Get campaign budgets
-            const campaignIds = [...new Set(ads.map((a: any) => a.campaign_id))]
+            const campaignIds = [...new Set(allActiveAds.map((a: any) => a.campaign_id))]
             const campaignBudgets: Record<string, number> = {}
             for (const cId of campaignIds) {
                 try {
@@ -125,8 +138,21 @@ export async function GET(req: NextRequest) {
             const rules = rulesRes.data || []
             const targets = targetsRes.data || null
 
-            // Evaluate rules (reuse logic from ai-engine API)
-            const results = evaluateRulesAdLevel(rules, ads, campaignBudgets, targets)
+            // DUAL EVALUATION:
+            // 1) 7-day data → scale/winner/fatigue rules (need trend data)
+            // 2) Today data → kill rules (catch daily money-burners)
+            const results7d = evaluateRulesAdLevel(rules, ads7d, campaignBudgets, targets)
+            const killRules = rules.filter(r => ['creative_kill'].includes(r.category))
+            const resultsToday = adsToday.length > 0
+                ? evaluateRulesAdLevel(killRules, adsToday, campaignBudgets, targets)
+                : []
+
+            // Merge results, deduplicate by ad_id + action (today's kill takes priority)
+            const todayKillAdIds = new Set(resultsToday.map((r: any) => `${r.ad_id}_${r.action}`))
+            const results = [
+                ...resultsToday.map((r: any) => ({ ...r, source: 'today' })),
+                ...results7d.filter((r: any) => !todayKillAdIds.has(`${r.ad_id}_${r.action}`)).map((r: any) => ({ ...r, source: '7d' })),
+            ]
 
             if (results.length === 0) continue
 
@@ -147,7 +173,7 @@ export async function GET(req: NextRequest) {
 
             // Safety guard: count active ads per campaign to prevent killing ALL ads
             const activeAdsPerCampaign: Record<string, number> = {}
-            ads.forEach((ad: any) => {
+            allActiveAds.forEach((ad: any) => {
                 if (!activeAdsPerCampaign[ad.campaign_id]) activeAdsPerCampaign[ad.campaign_id] = 0
                 activeAdsPerCampaign[ad.campaign_id]++
             })
@@ -247,7 +273,7 @@ export async function GET(req: NextRequest) {
 
                 // Send Telegram notification with creative refresh recommendations
                 const killedAds = executedResults.filter(r => r.action === 'pause_ad' && r.executionResult === 'executed')
-                await sendCronTelegramReport(orgId, executedResults, isLive, killedAds, ads, skippedSafety)
+                await sendCronTelegramReport(orgId, executedResults, isLive, killedAds, allActiveAds, skippedSafety)
             }
         }
 
