@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp } from 'lucide-react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 
 interface Stage {
@@ -850,6 +850,42 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, onCl
                         <Calendar className="w-4 h-4" /> Creato: {formatDate(lead.created_at)}
                     </div>
                 </div>
+
+                {/* Marketing Attribution */}
+                {(lead.utm_source || lead.utm_campaign || lead.meta_data?.utm_term || lead.meta_data?.utm_content) && (
+                    <div className="mb-5 p-4 rounded-xl" style={{ background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.15)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Target className="w-4 h-4" style={{ color: '#38bdf8' }} />
+                            <span className="text-xs uppercase tracking-wider font-bold" style={{ color: '#38bdf8' }}>Attribuzione Marketing</span>
+                        </div>
+                        <div className="space-y-3">
+                            {lead.utm_source && (
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Sorgente</span>
+                                    <span className="text-sm font-medium text-white/90 capitalize">{lead.utm_source} {lead.meta_data?.utm_medium ? `/ ${lead.meta_data.utm_medium}` : ''}</span>
+                                </div>
+                            )}
+                            {lead.utm_campaign && (
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Campagna</span>
+                                    <span className="text-sm font-medium text-white/90">{lead.utm_campaign}</span>
+                                </div>
+                            )}
+                            {lead.meta_data?.utm_term && (
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Gruppo / AdSet</span>
+                                    <span className="text-sm font-medium text-white/90">{lead.meta_data.utm_term}</span>
+                                </div>
+                            )}
+                            {lead.meta_data?.utm_content && (
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Inserzione / Ad</span>
+                                    <span className="text-sm font-medium text-white/90">{lead.meta_data.utm_content}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Notes */}
                 {lead.notes && (
