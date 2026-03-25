@@ -114,30 +114,57 @@ export async function PUT(req: NextRequest) {
             const finalPhone = updates.phone !== undefined ? updates.phone : leadForCapi.data?.phone
             const finalValue = updates.value !== undefined ? updates.value : leadForCapi.data?.value
 
-            fireCapiEvent(orgId, newStage.fire_capi_event, {
-                name: finalName,
-                email: finalEmail,
-                phone: finalPhone,
-                value: finalValue,
-                content_category: funnelObjective,
-                // Replay original tracking data for better Meta matching
-                fbc: meta.fbc || undefined,
-                fbp: meta.fbp || undefined,
-                external_id: meta.visitor_id || undefined,
-                client_ip: meta.client_ip || undefined,
-                client_user_agent: meta.client_user_agent || undefined,
-                event_source_url: meta.event_source_url || undefined,
-            }, id).catch(err => console.error('CAPI error:', err))
+            // BUG FIX #3: Block Purchase events if value is null/0
+            // A Purchase without a value corrupts Meta's ROAS data
+            const isPurchase = newStage.fire_capi_event === 'Purchase'
+            const hasValue = finalValue && Number(finalValue) > 0
 
-            // Log CAPI activity
-            await supabase.from('lead_activities').insert({
-                organization_id: orgId,
-                lead_id: id,
-                user_id: user?.id,
-                activity_type: 'capi_event_sent',
-                notes: `Evento "${newStage.fire_capi_event}" inviato a Meta CAPI`,
-                meta_data: { event_name: newStage.fire_capi_event, stage: newStage.name },
-            })
+            if (isPurchase && !hasValue) {
+                console.warn(`[CAPI] Blocked Purchase event for lead ${id}: no value set`)
+            } else {
+                // BUG FIX #4: Prevent duplicate CAPI events (same lead+event within 1 hour)
+                const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+                const { data: recentEvent } = await supabase
+                    .from('tracked_events')
+                    .select('id')
+                    .eq('lead_id', id)
+                    .eq('event_name', newStage.fire_capi_event)
+                    .eq('sent_to_provider', true)
+                    .gte('created_at', oneHourAgo)
+                    .limit(1)
+                    .single()
+
+                if (recentEvent) {
+                    console.warn(`[CAPI] Skipped duplicate ${newStage.fire_capi_event} for lead ${id} (sent within last hour)`)
+                } else {
+                    fireCapiEvent(orgId, newStage.fire_capi_event, {
+                        name: finalName,
+                        email: finalEmail,
+                        phone: finalPhone,
+                        value: finalValue,
+                        content_category: funnelObjective,
+                        // Replay original tracking data for better Meta matching
+                        fbc: meta.fbc || undefined,
+                        fbp: meta.fbp || undefined,
+                        external_id: meta.visitor_id || undefined,
+                        client_ip: meta.client_ip || undefined,
+                        client_user_agent: meta.client_user_agent || undefined,
+                        event_source_url: meta.event_source_url || undefined,
+                    }, id).catch(err => console.error('CAPI error:', err))
+                }
+
+                // Log CAPI activity
+                await supabase.from('lead_activities').insert({
+                    organization_id: orgId,
+                    lead_id: id,
+                    user_id: user?.id,
+                    activity_type: 'capi_event_sent',
+                    notes: recentEvent
+                        ? `Evento "${newStage.fire_capi_event}" SKIPPED (duplicato)`
+                        : `Evento "${newStage.fire_capi_event}" inviato a Meta CAPI`,
+                    meta_data: { event_name: newStage.fire_capi_event, stage: newStage.name, skipped: !!recentEvent },
+                })
+            }
         }
 
         delete updates._old_stage_id

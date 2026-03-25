@@ -100,14 +100,16 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // 3. Aggrega Revenue dal CRM (per i lead entrati in questo periodo)
+        // 3. Aggrega Revenue dal CRM (per i lead VENDUTI in questo periodo)
+        // Use updated_at (reflects when lead was moved to "Vendita" stage)
+        // NOT created_at (which is when the lead first entered the pipeline)
         const { data: wonLeads } = await supabaseAdmin
             .from('leads')
             .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
             .eq('organization_id', orgId)
             .eq('pipeline_stages.is_won', true)
-            .gte('created_at', since)
-            .lte('created_at', until + 'T23:59:59.999Z')
+            .gte('updated_at', since)
+            .lte('updated_at', until + 'T23:59:59.999Z')
             .not('value', 'is', null)
 
         const crmRevenueMap: Record<string, number> = {}

@@ -360,8 +360,8 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                     <SortHeader label="Spesa" sortField="spend" />
                                     <SortHeader label="Impression" sortField="impressions" />
                                     <SortHeader label="Click" sortField="clicks" />
-                                    <SortHeader label="Click Link" sortField="link_clicks" />
                                     <SortHeader label="CTR" sortField="ctr" />
+                                    <SortHeader label="Click Link" sortField="link_clicks" />
                                     <SortHeader label="Lead" sortField="leads_count" />
                                     <SortHeader label="CPL" sortField="cpl" />
                                     <SortHeader label="ROAS" sortField="roas" />
@@ -380,10 +380,10 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                         <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.clicks ? formatNumber(Number(c.clicks)) : '—'}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: Number(c.link_clicks) > 0 ? '#14b8a6' : 'var(--color-surface-500)' }}>
                                             {c.link_clicks ? <><span className="font-semibold">{formatNumber(Number(c.link_clicks))}</span> <span className="text-[10px] opacity-70">({Number(c.link_click_ctr || 0).toFixed(2)}%)</span></> : '—'}
                                         </td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#22c55e' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
