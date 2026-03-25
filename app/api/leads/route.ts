@@ -188,7 +188,6 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
                 ph: userData.phone ? [await hashSHA256(userData.phone.replace(/\D/g, ''))] : undefined,
                 fn: userData.name ? [await hashSHA256(userData.name.split(' ')[0].toLowerCase().trim())] : undefined,
                 ln: userData.name?.includes(' ') ? [await hashSHA256(userData.name.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
-                ct: [await hashSHA256('it')],
                 country: [await hashSHA256('it')],
                 fbc: userData.fbc || undefined,
                 fbp: userData.fbp || undefined,
