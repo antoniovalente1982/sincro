@@ -337,11 +337,74 @@ async function sendCronTelegramReport(
         }
 
         // Count active ads remaining
-        const activeCount = allAds.filter(a => a.status === 'ACTIVE').length
+        const activeCount = allAds.filter((a: any) => a.status === 'ACTIVE').length
         const killedCount = killedAds.length
         msg += `📊 Ads attive: ${activeCount - killedCount}/${activeCount}`
         if (killedCount > 0) msg += ` (${killedCount} pausate)`
         msg += '\n'
+
+        // 🏆 WINNER INTELLIGENCE — Analyze what's working and WHY
+        const adsWithLeads = allAds.filter((a: any) => a.leads_count > 0 && a.spend > 0)
+        if (adsWithLeads.length > 0) {
+            // Sort by CPL (lowest = best)
+            const topPerformers = [...adsWithLeads]
+                .sort((a: any, b: any) => (a.spend / a.leads_count) - (b.spend / b.leads_count))
+                .slice(0, 3)
+
+            msg += '\n🏆 <b>WINNER INTELLIGENCE</b>\n'
+            msg += '─────────────────\n'
+
+            for (const ad of topPerformers) {
+                const cpl = (ad.spend / ad.leads_count).toFixed(2)
+                const adName = ad.ad_name || ''
+
+                // Detect creative angle from ad name
+                let angle = '🎯 Angolo generico'
+                let whyItWorks = 'Buone metriche generali'
+
+                if (adName.includes('EMO') || adName.includes('Emozione') || adName.includes('Dolore')) {
+                    angle = '😢 EMOTIONAL'
+                    whyItWorks = 'Hook emotivo forte → il prospect si identifica nel dolore → azione immediata'
+                } else if (adName.includes('EFF') || adName.includes('Effic') || adName.includes('Split') || adName.includes('Gap')) {
+                    angle = '⚡ EFFICIENCY'
+                    whyItWorks = 'Confronto/gap visivo → il prospect capisce la differenza → urgenza di agire'
+                } else if (adName.includes('SYS') || adName.includes('System') || adName.includes('Metodo')) {
+                    angle = '⚙️ SYSTEM'
+                    whyItWorks = 'Proposta di metodo strutturato → il prospect vede un percorso chiaro → fiducia'
+                } else if (adName.includes('Status') || adName.includes('Corona') || adName.includes('87')) {
+                    angle = '👑 STATUS'
+                    whyItWorks = 'Social proof + aspirazione → il prospect vuole far parte del gruppo vincente'
+                } else if (adName.includes('EDU') || adName.includes('Lente') || adName.includes('Lavagna')) {
+                    angle = '📚 EDUCATION'
+                    whyItWorks = 'Contenuto di valore → il prospect impara qualcosa → autorità del brand'
+                } else if (adName.includes('Trasf') || adName.includes('Reels')) {
+                    angle = '🔄 TRASFORMAZIONE'
+                    whyItWorks = 'Before/after visivo → il prospect visualizza il risultato → desiderio'
+                }
+
+                // Detect format from ad name hints
+                let format = '📸 Immagine'
+                if (adName.toLowerCase().includes('video') || adName.toLowerCase().includes('reel')) format = '🎬 Video/Reel'
+
+                msg += `\n✅ <b>${adName}</b>\n`
+                msg += `  📊 CPL: €${cpl} | ${ad.leads_count} leads | €${ad.spend.toFixed(0)} spend\n`
+                msg += `  🎨 ${angle}\n`
+                msg += `  💡 Perché funziona: ${whyItWorks}\n`
+            }
+
+            // Summary insight
+            const bestAngle = topPerformers[0]
+            const bestAdName = bestAngle?.ad_name || ''
+            let bestAngleType = 'generico'
+            if (bestAdName.includes('EMO')) bestAngleType = 'EMOTIONAL'
+            else if (bestAdName.includes('EFF') || bestAdName.includes('Gap') || bestAdName.includes('Split')) bestAngleType = 'EFFICIENCY'
+            else if (bestAdName.includes('SYS')) bestAngleType = 'SYSTEM'
+            else if (bestAdName.includes('Status')) bestAngleType = 'STATUS'
+            else if (bestAdName.includes('EDU')) bestAngleType = 'EDUCATION'
+
+            msg += `\n🧠 <b>Insight:</b> L'angolo ${bestAngleType} è il più performante. Crea nuove varianti con lo stesso angolo ma diverso hook/visual per scalare.\n`
+            msg += `💡 <b>Andromeda tip:</b> duplica la winner, cambia solo l'hook nei primi 3 secondi (video) o nel titolo (immagine). Meta testerà automaticamente.\n`
+        }
 
         // 🎨 CREATIVE REFRESH RECOMMENDATIONS (Andromeda best practices)
         if (killedCount > 0) {
@@ -350,12 +413,10 @@ async function sendCronTelegramReport(
 
             // Extract adset info from killed ads
             const killedByAdset: Record<string, { adset: string, campaign: string, ads: string[] }> = {}
-            killedAds.forEach(k => {
-                // Extract adset name from entity_name pattern: "AdName (CampaignName)"
+            killedAds.forEach((k: any) => {
                 const adName = k.entity_name || ''
                 const campaignName = k.metrics?.campaign_name || adName.split('(').pop()?.replace(')', '') || ''
                 
-                // Detect adset angle from ad name patterns
                 let adsetKey = campaignName
                 if (adName.includes('EMO')) adsetKey = 'EMOTIONAL'
                 else if (adName.includes('SYS')) adsetKey = 'SYSTEM'
@@ -383,7 +444,7 @@ async function sendCronTelegramReport(
                 msg += `  💡 Andromeda: crea 2-3 varianti (diverso hook + diverso visual), Meta testerà automaticamente\n`
             }
 
-            msg += `\n⚠️ <b>Azione richiesta:</b> crea nuove creative per gli adset sopra e caricale su Meta. L\'AI le valuterà automaticamente.\n`
+            msg += `\n⚠️ <b>Azione richiesta:</b> crea nuove creative per gli adset sopra e caricale su Meta. L'AI le valuterà automaticamente.\n`
         }
 
         msg += `\n⏰ Prossima valutazione tra 60 min`
