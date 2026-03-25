@@ -11,6 +11,7 @@ const supabaseAdmin = createClient(
 const META_API_VERSION = 'v21.0'
 const MAX_ACTIONS_PER_RUN = 5
 const COOLDOWN_HOURS = 24
+const MIN_ACTIVE_ADS_PER_CAMPAIGN = 2 // Safety: never kill ALL ads in a campaign
 
 // AI Engine Cron — called every 60 minutes
 // Fetches ad data from Meta, evaluates rules, and optionally executes actions
@@ -144,8 +145,19 @@ export async function GET(req: NextRequest) {
                 .filter(r => !recentIds.has(r.ad_id || r.campaign_id))
                 .slice(0, MAX_ACTIONS_PER_RUN)
 
+            // Safety guard: count active ads per campaign to prevent killing ALL ads
+            const activeAdsPerCampaign: Record<string, number> = {}
+            ads.forEach((ad: any) => {
+                if (!activeAdsPerCampaign[ad.campaign_id]) activeAdsPerCampaign[ad.campaign_id] = 0
+                activeAdsPerCampaign[ad.campaign_id]++
+            })
+
+            // Track kills per campaign during this run
+            const killsThisRun: Record<string, number> = {}
+
             // Execute or dry-run
             const executedResults: any[] = []
+            const skippedSafety: any[] = [] // Ads skipped due to safety guard
             for (const result of actionable) {
                 let executionResult = 'dry_run'
                 let executionDetails: any = null
@@ -153,9 +165,21 @@ export async function GET(req: NextRequest) {
                 if (isLive) {
                     // LIVE: execute real actions on Meta
                     if (result.action === 'pause_ad' && result.ad_id) {
-                        const actionRes = await pauseAd(result.ad_id, access_token)
-                        executionResult = actionRes.success ? 'executed' : 'failed'
-                        executionDetails = actionRes
+                        // SAFETY: Don't kill if it would leave campaign with < MIN_ACTIVE_ADS
+                        const campaignId = result.campaign_id
+                        const currentActive = (activeAdsPerCampaign[campaignId] || 0) - (killsThisRun[campaignId] || 0)
+                        if (currentActive <= MIN_ACTIVE_ADS_PER_CAMPAIGN) {
+                            executionResult = 'skipped_safety'
+                            executionDetails = { reason: `Safety guard: solo ${currentActive} ad attive nella campagna, serve minimo ${MIN_ACTIVE_ADS_PER_CAMPAIGN}` }
+                            skippedSafety.push(result)
+                        } else {
+                            const actionRes = await pauseAd(result.ad_id, access_token)
+                            executionResult = actionRes.success ? 'executed' : 'failed'
+                            executionDetails = actionRes
+                            if (actionRes.success) {
+                                killsThisRun[campaignId] = (killsThisRun[campaignId] || 0) + 1
+                            }
+                        }
                     } else if (result.action === 'increase_budget' && result.campaign_id) {
                         const currentBudget = campaignBudgets[result.campaign_id] || 0
                         if (currentBudget > 0) {
@@ -221,8 +245,9 @@ export async function GET(req: NextRequest) {
 
                 totalActions += executedResults.length
 
-                // Send Telegram notification
-                await sendCronTelegramReport(orgId, executedResults, isLive)
+                // Send Telegram notification with creative refresh recommendations
+                const killedAds = executedResults.filter(r => r.action === 'pause_ad' && r.executionResult === 'executed')
+                await sendCronTelegramReport(orgId, executedResults, isLive, killedAds, ads, skippedSafety)
             }
         }
 
@@ -234,7 +259,10 @@ export async function GET(req: NextRequest) {
 }
 
 // --- Telegram Report ---
-async function sendCronTelegramReport(orgId: string, results: any[], isLive: boolean) {
+async function sendCronTelegramReport(
+    orgId: string, results: any[], isLive: boolean,
+    killedAds: any[] = [], allAds: any[] = [], skippedSafety: any[] = []
+) {
     try {
         const { data: conn } = await supabaseAdmin
             .from('connections')
@@ -267,15 +295,72 @@ async function sendCronTelegramReport(orgId: string, results: any[], isLive: boo
             msg += `${emoji} <b>${cat.replace(/_/g, ' ').toUpperCase()}</b>\n`
             for (const r of items) {
                 const statusIcon = r.executionResult === 'executed' ? '✅' :
-                    r.executionResult === 'failed' ? '❌' : '📝'
+                    r.executionResult === 'failed' ? '❌' :
+                    r.executionResult === 'skipped_safety' ? '🛡' : '📝'
                 msg += `  ${statusIcon} ${r.entity_name}: ${r.action}`
                 if (r.action_value) msg += ` (${r.action_value}%)`
+                if (r.executionResult === 'skipped_safety') msg += ' (SAFETY: min ads attive)'
                 msg += '\n'
             }
             msg += '\n'
         }
 
-        msg += `⏰ Prossima valutazione tra 60 min`
+        // Safety guard warning
+        if (skippedSafety.length > 0) {
+            msg += `🛡 <b>SAFETY GUARD</b>: ${skippedSafety.length} kill bloccate per mantenere minimo ${MIN_ACTIVE_ADS_PER_CAMPAIGN} ads attive per campagna\n\n`
+        }
+
+        // Count active ads remaining
+        const activeCount = allAds.filter(a => a.status === 'ACTIVE').length
+        const killedCount = killedAds.length
+        msg += `📊 Ads attive: ${activeCount - killedCount}/${activeCount}`
+        if (killedCount > 0) msg += ` (${killedCount} pausate)`
+        msg += '\n'
+
+        // 🎨 CREATIVE REFRESH RECOMMENDATIONS (Andromeda best practices)
+        if (killedCount > 0) {
+            msg += '\n🎨 <b>NUOVE CREATIVE NECESSARIE</b>\n'
+            msg += '─────────────────\n'
+
+            // Extract adset info from killed ads
+            const killedByAdset: Record<string, { adset: string, campaign: string, ads: string[] }> = {}
+            killedAds.forEach(k => {
+                // Extract adset name from entity_name pattern: "AdName (CampaignName)"
+                const adName = k.entity_name || ''
+                const campaignName = k.metrics?.campaign_name || adName.split('(').pop()?.replace(')', '') || ''
+                
+                // Detect adset angle from ad name patterns
+                let adsetKey = campaignName
+                if (adName.includes('EMO')) adsetKey = 'EMOTIONAL'
+                else if (adName.includes('SYS')) adsetKey = 'SYSTEM'
+                else if (adName.includes('EFF')) adsetKey = 'EFFICIENCY'
+                else if (adName.includes('EDU')) adsetKey = 'EDUCATION'
+                else if (adName.includes('Status')) adsetKey = 'STATUS'
+                
+                if (!killedByAdset[adsetKey]) killedByAdset[adsetKey] = { adset: adsetKey, campaign: campaignName, ads: [] }
+                killedByAdset[adsetKey].ads.push(adName.split('(')[0].trim())
+            })
+
+            for (const [adsetName, info] of Object.entries(killedByAdset)) {
+                const angleGuides: Record<string, string> = {
+                    'EMOTIONAL': '😢 Angolo: dolore, frustrazione, paura → Hook emotivo forte, video/immagine impatto',
+                    'SYSTEM': '⚙️ Angolo: controllo, metodo, organizzazione → Hook razionale, struttura, step-by-step',
+                    'EFFICIENCY': '⚡ Angolo: risultati rapidi, ottimizzazione → Hook con numeri/%, split test, before/after',
+                    'STATUS': '👑 Angolo: élite, esclusività, immagine → Hook aspirazionale, lifestyle, social proof',
+                    'EDUCATION': '📚 Angolo: consapevolezza, curiosità → Hook educativo, domanda provocatoria, stat',
+                }
+                const guide = angleGuides[adsetName] || '🎯 Angolo: testare nuovo hook e visual'
+
+                msg += `\n📌 <b>Adset: ${adsetName}</b>\n`
+                msg += `  Ads killate: ${info.ads.join(', ')}\n`
+                msg += `  ${guide}\n`
+                msg += `  💡 Andromeda: crea 2-3 varianti (diverso hook + diverso visual), Meta testerà automaticamente\n`
+            }
+
+            msg += `\n⚠️ <b>Azione richiesta:</b> crea nuove creative per gli adset sopra e caricale su Meta. L\'AI le valuterà automaticamente.\n`
+        }
+
+        msg += `\n⏰ Prossima valutazione tra 60 min`
 
         await sendTelegramDirect(conn.credentials.bot_token, conn.credentials.chat_id, msg)
     } catch (err) {
