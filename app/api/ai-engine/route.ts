@@ -189,6 +189,30 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true })
     }
 
+    // ⚡ Force Run — triggers the cron pipeline manually
+    if (action === 'force_run') {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+                || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+            const cronSecret = process.env.CRON_SECRET
+            if (!cronSecret) {
+                return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+            }
+            const cronRes = await fetch(`${baseUrl}/api/cron/ai-engine`, {
+                headers: { 'Authorization': `Bearer ${cronSecret}` },
+            })
+            const cronData = await cronRes.json()
+            return NextResponse.json({
+                ok: cronData.ok,
+                totalActions: cronData.totalActions || 0,
+                message: cronData.message || `${cronData.totalActions || 0} azioni processate`,
+                error: cronData.error,
+            })
+        } catch (err: any) {
+            return NextResponse.json({ error: `Force run failed: ${err.message}` }, { status: 500 })
+        }
+    }
+
     if (action === 'evaluate_rules') {
         // Evaluate rules at ad level (CBO) or campaign level (ABO fallback)
         const adData = body.ads || []

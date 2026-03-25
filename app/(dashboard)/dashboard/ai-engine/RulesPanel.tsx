@@ -47,6 +47,7 @@ export default function RulesPanel({ campaigns }: Props) {
     const [loading, setLoading] = useState(true)
     const [toggling, setToggling] = useState<string | null>(null)
     const [evaluating, setEvaluating] = useState(false)
+    const [forceRunning, setForceRunning] = useState(false)
     const [evalResults, setEvalResults] = useState<any[] | null>(null)
     const [showHistory, setShowHistory] = useState(false)
     const [executionMode, setExecutionMode] = useState<'dry_run' | 'live'>('dry_run')
@@ -132,6 +133,33 @@ export default function RulesPanel({ campaigns }: Props) {
         setEvaluating(false)
     }
 
+    const handleForceRun = async () => {
+        if (!confirm(
+            executionMode === 'live'
+                ? '⚡ FORCE RUN LIVE\n\nQuesto eseguirà le regole ORA e applicherà azioni reali su Meta (pausa ads, modifica budget).\n\nContinuare?'
+                : '⚡ FORCE RUN DRY RUN\n\nQuesto valuterà le regole ORA ma NON applicherà azioni su Meta (solo log).\n\nContinuare?'
+        )) return
+
+        setForceRunning(true)
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'force_run' }),
+            })
+            const data = await res.json()
+            if (data.ok) {
+                alert(`✅ Force Run completato!\n\n${data.totalActions || 0} azioni eseguite${data.message ? '\n' + data.message : ''}`)
+            } else {
+                alert(`❌ Errore: ${data.error || 'Errore sconosciuto'}`)
+            }
+            fetchRules() // Refresh history
+        } catch (err) {
+            alert('❌ Errore di rete durante il Force Run')
+        }
+        setForceRunning(false)
+    }
+
     // Group rules by category
     const groupedRules = rules.reduce((acc, rule) => {
         if (!acc[rule.category]) acc[rule.category] = []
@@ -176,6 +204,14 @@ export default function RulesPanel({ campaigns }: Props) {
                     <button onClick={handleEvaluate} className="btn-primary text-xs" disabled={evaluating}>
                         {evaluating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                         {evaluating ? 'Valutando...' : 'Valuta Regole'}
+                    </button>
+                    <button onClick={handleForceRun} className="btn-primary text-xs" disabled={forceRunning} style={{
+                        background: executionMode === 'live' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                        border: `1px solid ${executionMode === 'live' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.4)'}`,
+                        color: executionMode === 'live' ? '#ef4444' : '#f59e0b',
+                    }}>
+                        {forceRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                        {forceRunning ? 'Eseguendo...' : '⚡ Force Run'}
                     </button>
                 </div>
             </div>
