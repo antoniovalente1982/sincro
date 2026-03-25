@@ -48,15 +48,10 @@ export default function RulesPanel({ campaigns }: Props) {
     const [toggling, setToggling] = useState<string | null>(null)
     const [evaluating, setEvaluating] = useState(false)
     const [evalResults, setEvalResults] = useState<any[] | null>(null)
-    const [showTargets, setShowTargets] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
-    const [savingTargets, setSavingTargets] = useState(false)
     const [executionMode, setExecutionMode] = useState<'dry_run' | 'live'>('dry_run')
 
-    // Editable targets
-    const [editCPL, setEditCPL] = useState('20')
-    const [editCAC, setEditCAC] = useState('500')
-    const [editROAS, setEditROAS] = useState('3.0')
+
 
     const fetchRules = useCallback(async () => {
         try {
@@ -69,12 +64,8 @@ export default function RulesPanel({ campaigns }: Props) {
             setRules(data.rules || [])
             setTargets(data.targets || null)
             setHistory(data.history || [])
+            if (data.targets) setTargets(data.targets)
             if (data.execution_mode) setExecutionMode(data.execution_mode)
-            if (data.targets) {
-                setEditCPL(String(data.targets.target_cpl || 20))
-                setEditCAC(String(data.targets.target_cac || 500))
-                setEditROAS(String(data.targets.target_roas || 3.0))
-            }
         } catch { }
         setLoading(false)
     }, [])
@@ -94,25 +85,7 @@ export default function RulesPanel({ campaigns }: Props) {
         setToggling(null)
     }
 
-    const handleSaveTargets = async () => {
-        setSavingTargets(true)
-        try {
-            await fetch('/api/ai-engine', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'save_targets',
-                    targets: {
-                        target_cpl: Number(editCPL) || 20,
-                        target_cac: Number(editCAC) || 500,
-                        target_roas: Number(editROAS) || 3.0,
-                    },
-                }),
-            })
-            setTargets(prev => prev ? { ...prev, target_cpl: Number(editCPL), target_cac: Number(editCAC), target_roas: Number(editROAS) } : null)
-        } catch { }
-        setSavingTargets(false)
-    }
+
 
     const handleEvaluate = async () => {
         setEvaluating(true)
@@ -195,11 +168,6 @@ export default function RulesPanel({ campaigns }: Props) {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={() => setShowTargets(!showTargets)} className="btn-primary text-xs" style={{
-                        background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#f59e0b',
-                    }}>
-                        <Target className="w-3.5 h-3.5" /> Target
-                    </button>
                     <button onClick={() => setShowHistory(!showHistory)} className="btn-primary text-xs" style={{
                         background: 'rgba(129, 140, 248, 0.1)', border: '1px solid rgba(129, 140, 248, 0.3)', color: '#818cf8',
                     }}>
@@ -212,36 +180,7 @@ export default function RulesPanel({ campaigns }: Props) {
                 </div>
             </div>
 
-            {/* Targets Editor */}
-            {showTargets && (
-                <div className="glass-card p-4 animate-fade-in">
-                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                        <Target className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                        Target Metriche — Metodo Sincro
-                    </h3>
-                    <div className="grid grid-cols-3 gap-3">
-                        <div>
-                            <label className="label text-[10px]">Target CPL (€)</label>
-                            <input type="number" className="input text-sm" value={editCPL}
-                                onChange={e => setEditCPL(e.target.value)} />
-                        </div>
-                        <div>
-                            <label className="label text-[10px]">Max CAC (€)</label>
-                            <input type="number" className="input text-sm" value={editCAC}
-                                onChange={e => setEditCAC(e.target.value)} />
-                        </div>
-                        <div>
-                            <label className="label text-[10px]">Target ROAS (x)</label>
-                            <input type="number" step="0.1" className="input text-sm" value={editROAS}
-                                onChange={e => setEditROAS(e.target.value)} />
-                        </div>
-                    </div>
-                    <button onClick={handleSaveTargets} className="btn-primary text-xs mt-3" disabled={savingTargets}>
-                        {savingTargets ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                        Salva Target
-                    </button>
-                </div>
-            )}
+
 
             {/* Evaluation Results */}
             {evalResults !== null && (
