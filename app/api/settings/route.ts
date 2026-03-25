@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getOrgAndRole(supabase: any) {
@@ -82,12 +83,15 @@ export async function PUT(req: NextRequest) {
         const stageId = body.id
         const orgId = ctx.organization_id
 
-        // Sgancia il target e le associazioni per non violare i Foreign Key (RESTRICT)
-        await supabase.from('leads').update({ stage_id: null }).eq('stage_id', stageId).eq('organization_id', orgId)
-        await supabase.from('lead_activities').update({ from_stage_id: null }).eq('from_stage_id', stageId).eq('organization_id', orgId)
-        await supabase.from('lead_activities').update({ to_stage_id: null }).eq('to_stage_id', stageId).eq('organization_id', orgId)
+        // Usiamo il service_role per bypassare le RLS strict su lead_activities (che normalmente è append-only)
+        const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
-        const { error } = await supabase
+        // Sgancia il target e le associazioni per non violare i Foreign Key (RESTRICT) usando admin client
+        await supabaseAdmin.from('leads').update({ stage_id: null }).eq('stage_id', stageId).eq('organization_id', orgId)
+        await supabaseAdmin.from('lead_activities').update({ from_stage_id: null }).eq('from_stage_id', stageId).eq('organization_id', orgId)
+        await supabaseAdmin.from('lead_activities').update({ to_stage_id: null }).eq('to_stage_id', stageId).eq('organization_id', orgId)
+
+        const { error } = await supabaseAdmin
             .from('pipeline_stages')
             .delete()
             .eq('id', stageId)
