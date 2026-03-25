@@ -100,15 +100,40 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // 3. Build combined data — show ALL campaigns with their real-time status,
+        // 3. Aggrega Revenue dal CRM (per i lead entrati in questo periodo)
+        const { data: wonLeads } = await supabaseAdmin
+            .from('leads')
+            .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
+            .eq('organization_id', orgId)
+            .eq('pipeline_stages.is_won', true)
+            .gte('created_at', since)
+            .lte('created_at', until + 'T23:59:59.999Z')
+            .not('value', 'is', null)
+
+        const crmRevenueMap: Record<string, number> = {}
+        for (const lead of (wonLeads || [])) {
+            if (!lead.utm_campaign) continue
+            // Normalize for matching
+            const campKey = lead.utm_campaign.toLowerCase().trim()
+            crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+        }
+
+        // 4. Build combined data — show ALL campaigns with their real-time status,
         //    but with spend/metrics only from the selected period
         const campaigns = allCampaigns.map((c: any) => {
             const insight = insightsMap[c.id] || {}
             const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
             const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
-            const purchaseValue = insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || 0
+            const purchaseValue = parseFloat(insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || '0')
             const spendNum = parseFloat(insight.spend || '0')
-            const roas = spendNum > 0 && purchaseValue > 0 ? parseFloat(purchaseValue) / spendNum : 0
+
+            const campKey = (c.name || '').toLowerCase().trim()
+            const crmRevenue = crmRevenueMap[campKey] || 0
+            
+            // To prevent double counting if CAPI successfully sent the offline conversion, we take the max
+            const totalRevenue = Math.max(purchaseValue, crmRevenue)
+            const roas = spendNum > 0 && totalRevenue > 0 ? totalRevenue / spendNum : 0
+
             // Link clicks: outbound_clicks contains clicks to external URLs
             const linkClicks = insight.outbound_clicks?.find((a: any) => a.action_type === 'outbound_click')?.value || 0
             const linkClickCtr = parseFloat(insight.inline_link_click_ctr || '0')

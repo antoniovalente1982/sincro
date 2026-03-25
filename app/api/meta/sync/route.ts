@@ -135,6 +135,21 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         }
     }
 
+    // Aggiunta Revenue dal CRM (Lifetime per la cache)
+    const { data: wonLeads } = await supabaseAdmin
+        .from('leads')
+        .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
+        .eq('organization_id', orgId)
+        .eq('pipeline_stages.is_won', true)
+        .not('value', 'is', null)
+
+    const crmRevenueMap: Record<string, number> = {}
+    for (const lead of (wonLeads || [])) {
+        if (!lead.utm_campaign) continue
+        const campKey = lead.utm_campaign.toLowerCase().trim()
+        crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+    }
+
     // 3. Upsert campaigns with insights
     let synced = 0
     for (const campaign of campaigns) {
@@ -144,9 +159,14 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
         const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
         const purchaseCount = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0
-        const purchaseValue = insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || 0
+        const purchaseValue = parseFloat(insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || '0')
         const spendNum = parseFloat(insight.spend || '0')
-        const roas = spendNum > 0 && purchaseValue > 0 ? parseFloat(purchaseValue) / spendNum : 0
+        
+        const campKey = (campaign.name || '').toLowerCase().trim()
+        const crmRevenue = crmRevenueMap[campKey] || 0
+        const totalRevenue = Math.max(purchaseValue, crmRevenue)
+
+        const roas = spendNum > 0 && totalRevenue > 0 ? totalRevenue / spendNum : 0
 
         // Base data: always update campaign metadata (name, status, budget)
         const upsertData: any = {
