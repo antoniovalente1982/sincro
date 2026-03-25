@@ -138,7 +138,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     }, [])
 
     // Date range filter
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
 
     // Pipeline CRUD state
     const [showCreatePipeline, setShowCreatePipeline] = useState(false)

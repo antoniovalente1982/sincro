@@ -26,7 +26,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const firstName = userName.split(' ')[0]
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
     const leads = filterByDateRange(allLeads, range, 'created_at')
 
     const getRelativeTime = (dateStr: string) => {

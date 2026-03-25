@@ -33,7 +33,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
     const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>(defaultPipeline?.id || '')
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
 
     // Filter stages by selected pipeline
     const stages = allStages.filter(s => s.pipeline_id === selectedPipelineId)
