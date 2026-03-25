@@ -415,47 +415,68 @@ async function sendCronTelegramReport(
 
             msg += `\n🧠 <b>Insight:</b> L'angolo ${bestAngleType} è il più performante. Crea nuove varianti con lo stesso angolo ma diverso hook/visual per scalare.\n`
             msg += `💡 <b>Andromeda tip:</b> duplica la winner, cambia solo l'hook nei primi 3 secondi (video) o nel titolo (immagine). Meta testerà automaticamente.\n`
-        }
 
-        // 🎨 CREATIVE REFRESH RECOMMENDATIONS (Andromeda best practices)
-        if (killedCount > 0) {
-            msg += '\n🎨 <b>NUOVE CREATIVE NECESSARIE</b>\n'
-            msg += '─────────────────\n'
-
-            // Extract adset info from killed ads
-            const killedByAdset: Record<string, { adset: string, campaign: string, ads: string[] }> = {}
-            killedAds.forEach((k: any) => {
-                const adName = k.entity_name || ''
-                const campaignName = k.metrics?.campaign_name || adName.split('(').pop()?.replace(')', '') || ''
-                
-                let adsetKey = campaignName
-                if (adName.includes('EMO')) adsetKey = 'EMOTIONAL'
-                else if (adName.includes('SYS')) adsetKey = 'SYSTEM'
-                else if (adName.includes('EFF')) adsetKey = 'EFFICIENCY'
-                else if (adName.includes('EDU')) adsetKey = 'EDUCATION'
-                else if (adName.includes('Status')) adsetKey = 'STATUS'
-                
-                if (!killedByAdset[adsetKey]) killedByAdset[adsetKey] = { adset: adsetKey, campaign: campaignName, ads: [] }
-                killedByAdset[adsetKey].ads.push(adName.split('(')[0].trim())
+            // 🚀 SCALA I VINCENTI — Primary recommendation: double down on what works
+            const winnerAngles = new Set<string>()
+            topPerformers.forEach((ad: any) => {
+                const n = ad.ad_name || ''
+                if (n.includes('EFF') || n.includes('Effic') || n.includes('Split') || n.includes('Gap')) winnerAngles.add('EFFICIENCY')
+                else if (n.includes('EMO') || n.includes('Emozione') || n.includes('Dolore')) winnerAngles.add('EMOTIONAL')
+                else if (n.includes('SYS') || n.includes('System') || n.includes('Metodo')) winnerAngles.add('SYSTEM')
+                else if (n.includes('Status') || n.includes('Corona')) winnerAngles.add('STATUS')
+                else if (n.includes('EDU') || n.includes('Lente') || n.includes('Lavagna')) winnerAngles.add('EDUCATION')
+                else if (n.includes('Trasf') || n.includes('Reels')) winnerAngles.add('TRASFORMAZIONE')
             })
 
-            for (const [adsetName, info] of Object.entries(killedByAdset)) {
-                const angleGuides: Record<string, string> = {
-                    'EMOTIONAL': '😢 Angolo: dolore, frustrazione, paura → Hook emotivo forte, video/immagine impatto',
-                    'SYSTEM': '⚙️ Angolo: controllo, metodo, organizzazione → Hook razionale, struttura, step-by-step',
-                    'EFFICIENCY': '⚡ Angolo: risultati rapidi, ottimizzazione → Hook con numeri/%, split test, before/after',
-                    'STATUS': '👑 Angolo: élite, esclusività, immagine → Hook aspirazionale, lifestyle, social proof',
-                    'EDUCATION': '📚 Angolo: consapevolezza, curiosità → Hook educativo, domanda provocatoria, stat',
-                }
-                const guide = angleGuides[adsetName] || '🎯 Angolo: testare nuovo hook e visual'
+            msg += '\n🚀 <b>AZIONE: SCALA I VINCENTI</b>\n'
+            msg += '─────────────────\n'
 
-                msg += `\n📌 <b>Adset: ${adsetName}</b>\n`
-                msg += `  Ads killate: ${info.ads.join(', ')}\n`
-                msg += `  ${guide}\n`
-                msg += `  💡 Andromeda: crea 2-3 varianti (diverso hook + diverso visual), Meta testerà automaticamente\n`
+            const scaleGuides: Record<string, string> = {
+                'EFFICIENCY': '⚡ Crea 2-3 varianti EFFICIENCY: stesso confronto/gap ma diverso hook visivo (split screen, numeri, before-after)',
+                'EMOTIONAL': '😢 Crea 2-3 varianti EMOTIONAL: stesso dolore ma diverso scenario (allenamento, partita, panchina)',
+                'SYSTEM': '⚙️ Crea 2-3 varianti SYSTEM: stesso metodo ma diverso formato (step-by-step, schema, timeline)',
+                'STATUS': '👑 Crea 2-3 varianti STATUS: stesso social proof ma diverso visual (testimonial, achievement, lifestyle)',
+                'EDUCATION': '📚 Crea 2-3 varianti EDUCATION: stessa curiosità ma diverso hook (domanda, statistica, fatto sorprendente)',
+                'TRASFORMAZIONE': '🔄 Crea 2-3 varianti TRASFORMAZIONE: stesso before/after ma diverso soggetto e formato',
             }
 
-            msg += `\n⚠️ <b>Azione richiesta:</b> crea nuove creative per gli adset sopra e caricale su Meta. L'AI le valuterà automaticamente.\n`
+            for (const angle of winnerAngles) {
+                msg += `\n✅ <b>${angle}</b> — FUNZIONA!\n`
+                msg += `  ${scaleGuides[angle] || '🎯 Duplica la winner con diverso hook e visual'}\n`
+                msg += `  💡 Andromeda: cambia solo l'hook nei primi 3sec. Meta ottimizzerà il delivery automaticamente.\n`
+            }
+
+            msg += '\n'
+        }
+
+        // ❌ ANGOLI DA RIVEDERE — Killed angles are NOT working, don't invest more
+        if (killedCount > 0) {
+            // Detect which angles were killed
+            const killedAngles: Record<string, string[]> = {}
+            killedAds.forEach((k: any) => {
+                const adName = k.entity_name || ''
+                let angle = 'ALTRO'
+                if (adName.includes('EMO')) angle = 'EMOTIONAL'
+                else if (adName.includes('SYS')) angle = 'SYSTEM'
+                else if (adName.includes('EFF')) angle = 'EFFICIENCY'
+                else if (adName.includes('EDU')) angle = 'EDUCATION'
+                else if (adName.includes('Status')) angle = 'STATUS'
+                
+                if (!killedAngles[angle]) killedAngles[angle] = []
+                killedAngles[angle].push(adName.split('(')[0].trim())
+            })
+
+            msg += '❌ <b>ANGOLI DA RIVEDERE</b>\n'
+            msg += '─────────────────\n'
+            
+            for (const [angle, ads] of Object.entries(killedAngles)) {
+                msg += `\n⛔ <b>${angle}</b> — NON performante\n`
+                msg += `  Ads killate: ${ads.join(', ')}\n`
+                msg += `  ⚠️ Non creare altre ads con questo angolo nella campagna principale\n`
+                msg += `  💡 Se vuoi ritestare → campagna di TEST separata con budget limitato (€10-20/giorno)\n`
+            }
+
+            msg += '\n'
         }
 
         msg += `\n⏰ Prossima valutazione tra 60 min`
