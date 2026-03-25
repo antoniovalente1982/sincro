@@ -57,6 +57,7 @@ interface Props {
     members: Member[]
     userRole: string
     objectives: string[]
+    activeCampaigns: string[]
 }
 
 // ── AI Lead Scoring Algorithm ──
@@ -91,7 +92,7 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns }: Props) {
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
@@ -609,6 +610,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     pipelines={pipelines}
                     activePipelineId={activePipelineId}
                     members={members}
+                    activeCampaigns={activeCampaigns}
                     saving={saving}
                     onSave={handleSaveLead}
                     onClose={() => { setShowModal(false); setEditingLead(null) }}
@@ -637,12 +639,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 }
 
 // ── Lead Create/Edit Modal ──
-function LeadModal({ lead, stages, pipelines, activePipelineId, members, saving, onSave, onClose }: {
+function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeCampaigns, saving, onSave, onClose }: {
     lead: Lead | null
     stages: Stage[]
     pipelines: Pipeline[]
     activePipelineId: string
     members: Member[]
+    activeCampaigns: string[]
     saving: boolean
     onSave: (data: any) => void
     onClose: () => void
@@ -664,6 +667,10 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, saving,
         stage_id: lead?.stage_id || pipelineStages[0]?.id || '',
         assigned_to: lead?.assigned_to || '',
         notes: lead?.notes || '',
+        utm_source: lead?.utm_source || '',
+        utm_campaign: lead?.utm_campaign || '',
+        utm_term: lead?.meta_data?.utm_term || '',
+        utm_content: lead?.meta_data?.utm_content || '',
     })
 
     // When pipeline changes, reset stage to first stage of new pipeline
@@ -752,6 +759,40 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, saving,
                     <div>
                         <label className="label">Note</label>
                         <textarea className="input" rows={3} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Note interne..." />
+                    </div>
+
+                    {/* Marketing Attribution */}
+                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <h3 className="text-sm font-semibold text-white mb-3">Attribuzione Marketing (Opzionale)</h3>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="label">Sorgente (utm_source)</label>
+                                <select className="input" value={form.utm_source} onChange={e => setForm({ ...form, utm_source: e.target.value })}>
+                                    <option value="">Nessuna / Organico</option>
+                                    <option value="facebook">Meta/Facebook</option>
+                                    <option value="google">Google/YouTube</option>
+                                    <option value="tiktok">TikTok</option>
+                                    <option value="manual">Manuale</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="label">Campagna (utm_campaign)</label>
+                                <input list="campaigns" className="input" value={form.utm_campaign} onChange={e => setForm({ ...form, utm_campaign: e.target.value })} placeholder="Es. MS - Lead Gen..." />
+                                <datalist id="campaigns">
+                                    {activeCampaigns?.map((c: string, i: number) => <option key={i} value={c} />)}
+                                </datalist>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="label">Adset (utm_term)</label>
+                                <input className="input" value={form.utm_term} onChange={e => setForm({ ...form, utm_term: e.target.value })} placeholder="Es. Pubblico LLA 1%" />
+                            </div>
+                            <div>
+                                <label className="label">Ad (utm_content)</label>
+                                <input className="input" value={form.utm_content} onChange={e => setForm({ ...form, utm_content: e.target.value })} placeholder="Es. Video Problema" />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex gap-3 pt-2">

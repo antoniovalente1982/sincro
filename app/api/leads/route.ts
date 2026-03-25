@@ -38,9 +38,19 @@ export async function POST(req: NextRequest) {
     if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
+    const { utm_term, utm_content, ...insertData } = body
+
+    if (utm_term !== undefined || utm_content !== undefined) {
+        insertData.meta_data = {
+            ...(insertData.meta_data || {}),
+            utm_term: utm_term || null,
+            utm_content: utm_content || null
+        }
+    }
+
     const { data, error } = await supabase
         .from('leads')
-        .insert({ ...body, organization_id: orgId })
+        .insert({ ...insertData, organization_id: orgId })
         .select()
         .single()
 
@@ -54,7 +64,16 @@ export async function PUT(req: NextRequest) {
     if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { id, ...updates } = body
+    const { id, utm_term, utm_content, ...updates } = body
+
+    if (utm_term !== undefined || utm_content !== undefined) {
+        const { data: existing } = await supabase.from('leads').select('meta_data').eq('id', id).single()
+        updates.meta_data = {
+            ...(existing?.meta_data || {}),
+            utm_term: utm_term || null,
+            utm_content: utm_content || null
+        }
+    }
 
     // If stage changed, create activity + fire CAPI event
     if (updates.stage_id && updates._old_stage_id && updates.stage_id !== updates._old_stage_id) {

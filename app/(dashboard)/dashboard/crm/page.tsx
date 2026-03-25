@@ -49,6 +49,9 @@ export default async function CRMPage() {
     // Extract unique objectives from funnels
     const objectives = [...new Set((funnelsRes.data || []).map((f: any) => f.objective).filter(Boolean))]
 
+    // Extract unique campaigns for Auto-Complete Datalist
+    const activeCampaigns = [...new Set((leadsRes.data || []).map((l: any) => l.utm_campaign).filter(Boolean))]
+
     return (
         <CRMBoard
             pipelines={pipelinesRes.data || []}
@@ -57,6 +60,7 @@ export default async function CRMPage() {
             members={members}
             userRole={member?.role || 'viewer'}
             objectives={objectives}
+            activeCampaigns={activeCampaigns as string[]}
         />
     )
 }
