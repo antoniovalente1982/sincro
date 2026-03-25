@@ -61,12 +61,29 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const totalRevenue = wonLeads.reduce((sum, l) => sum + (Number(l.value) || 0), 0)
     const avgDealValue = wonLeads.length > 0 ? totalRevenue / wonLeads.length : 0
 
-    // Pipeline Funnel Data — only stages from selected pipeline
-    const funnelData = stages.map(stage => ({
-        name: stage.name,
-        count: leads.filter(l => l.stage_id === stage.id).length,
-        color: stage.color,
-    }))
+    // Pipeline Funnel Data — cumulative
+    const activeStagesList = stages.filter(s => !s.is_lost)
+    const cumulativeCounts: Record<string, number> = {}
+    let runningTotal = 0
+    for (let i = activeStagesList.length - 1; i >= 0; i--) {
+        const stageId = activeStagesList[i].id
+        const currentCount = leads.filter(l => l.stage_id === stageId).length
+        runningTotal += currentCount
+        cumulativeCounts[stageId] = runningTotal
+    }
+    if (activeStagesList.length > 0) {
+        cumulativeCounts[activeStagesList[0].id] = totalLeads
+    }
+
+    const funnelData = stages.map(stage => {
+        const isLost = stage.is_lost
+        const rawCount = leads.filter(l => l.stage_id === stage.id).length
+        return {
+            name: stage.name,
+            count: isLost ? rawCount : (cumulativeCounts[stage.id] || 0),
+            color: stage.color,
+        }
+    })
 
     // Product Split
     const productData = ['Platinum', 'Impact'].map(p => ({

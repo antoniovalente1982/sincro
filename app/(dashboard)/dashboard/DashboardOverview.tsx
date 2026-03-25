@@ -206,31 +206,61 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                         <h2 className="text-base font-bold text-white">Pipeline — Conversion Funnel</h2>
                     </div>
                     <div className="space-y-2">
-                        {stages.map((stage) => {
-                            const count = leadsPerStage[stage.id] || 0
-                            const pct = totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0
-                            return (
-                                <div key={stage.id} className="flex items-center gap-3">
-                                    <div className="w-28 text-xs font-medium truncate flex items-center gap-2" style={{ color: stage.color }}>
-                                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: stage.color }} />
-                                        {stage.name}
-                                    </div>
-                                    <div className="flex-1 h-7 rounded-lg overflow-hidden relative" style={{ background: 'var(--color-surface-200)' }}>
-                                        <div
-                                            className="h-full rounded-lg transition-all duration-700 flex items-center px-3"
-                                            style={{
-                                                width: `${Math.max(pct, count > 0 ? 8 : 0)}%`,
-                                                background: `linear-gradient(90deg, ${stage.color}40, ${stage.color}80)`,
-                                                minWidth: count > 0 ? '40px' : '0',
-                                            }}
-                                        >
-                                            <span className="text-xs font-bold text-white whitespace-nowrap">{count}</span>
+                        {(() => {
+                            const activeStagesList = stages.filter(s => !s.is_lost)
+                            const cumulativeCounts: Record<string, number> = {}
+                            let runningTotal = 0
+                            for (let i = activeStagesList.length - 1; i >= 0; i--) {
+                                runningTotal += (leadsPerStage[activeStagesList[i].id] || 0)
+                                cumulativeCounts[activeStagesList[i].id] = runningTotal
+                            }
+                            if (activeStagesList.length > 0) {
+                                cumulativeCounts[activeStagesList[0].id] = totalLeads
+                            }
+
+                            return stages.map((stage, index) => {
+                                const isLost = stage.is_lost
+                                const rawCount = leadsPerStage[stage.id] || 0
+                                const count = isLost ? rawCount : (cumulativeCounts[stage.id] || 0)
+                                const pct = totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0
+                                
+                                // Calculate conversion from previous stage (only for active stages > 0)
+                                let dropoffText = ''
+                                if (!isLost && index > 0) {
+                                    const prevStage = activeStagesList[index - 1]
+                                    const prevCount = prevStage ? cumulativeCounts[prevStage.id] : 0
+                                    if (prevCount > 0 && count > 0 && prevCount !== count) {
+                                        const conv = Math.round((count / prevCount) * 100)
+                                        dropoffText = `${conv}% dal prec.`
+                                    }
+                                }
+
+                                return (
+                                    <div key={stage.id} className="flex items-center gap-3">
+                                        <div className="w-28 text-xs font-medium truncate flex items-center gap-2" style={{ color: stage.color }}>
+                                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: stage.color }} />
+                                            {stage.name}
                                         </div>
+                                        <div className="flex-1 h-7 rounded-lg overflow-hidden relative" style={{ background: 'var(--color-surface-200)' }}>
+                                            <div
+                                                className="h-full rounded-lg transition-all duration-700 flex items-center px-3 justify-between"
+                                                style={{
+                                                    width: `${Math.max(pct, count > 0 ? 8 : 0)}%`,
+                                                    background: `linear-gradient(90deg, ${stage.color}40, ${stage.color}80)`,
+                                                    minWidth: count > 0 ? '40px' : '0',
+                                                }}
+                                            >
+                                                <span className="text-xs font-bold text-white whitespace-nowrap">{count}</span>
+                                                {(dropoffText && pct > 20) && (
+                                                    <span className="text-[9px] font-semibold opacity-70 whitespace-nowrap ml-2 hidden sm:inline-block">{dropoffText}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="w-12 text-right text-xs font-semibold" style={{ color: 'var(--color-surface-500)' }}>{pct}%</div>
                                     </div>
-                                    <div className="w-12 text-right text-xs font-semibold" style={{ color: 'var(--color-surface-500)' }}>{pct}%</div>
-                                </div>
-                            )
-                        })}
+                                )
+                            })
+                        })()}
                     </div>
                 </div>
             )}
