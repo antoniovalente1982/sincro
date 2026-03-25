@@ -147,9 +147,13 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     }
 
     const handleDeleteStage = async (id: string) => {
-        if (!confirm('Eliminare questo stage? I lead associati perderanno lo stage.')) return
-        await saveAction('delete_stage', { id })
-        setStages(prev => prev.filter(s => s.id !== id))
+        if (!confirm('Eliminare questo stage? I lead associati perderanno lo stage (torneranno su "Nuovi Lead").')) return
+        const res = await saveAction('delete_stage', { id })
+        if (res) {
+            setStages(prev => prev.filter(s => s.id !== id))
+        } else {
+            alert('Errore durante l\'eliminazione. Riprova.')
+        }
     }
 
     const stageColors = ['#3b82f6', '#8b5cf6', '#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#14b8a6', '#f97316']

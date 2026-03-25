@@ -79,11 +79,20 @@ export async function PUT(req: NextRequest) {
     }
 
     if (body.action === 'delete_stage') {
+        const stageId = body.id
+        const orgId = ctx.organization_id
+
+        // Sgancia il target e le associazioni per non violare i Foreign Key (RESTRICT)
+        await supabase.from('leads').update({ stage_id: null }).eq('stage_id', stageId).eq('organization_id', orgId)
+        await supabase.from('lead_activities').update({ from_stage_id: null }).eq('from_stage_id', stageId).eq('organization_id', orgId)
+        await supabase.from('lead_activities').update({ to_stage_id: null }).eq('to_stage_id', stageId).eq('organization_id', orgId)
+
         const { error } = await supabase
             .from('pipeline_stages')
             .delete()
-            .eq('id', body.id)
-            .eq('organization_id', ctx.organization_id)
+            .eq('id', stageId)
+            .eq('organization_id', orgId)
+            
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ success: true })
     }
