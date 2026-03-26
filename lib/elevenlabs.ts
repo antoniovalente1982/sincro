@@ -1,7 +1,7 @@
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 
-// "Ricasco" — Warm, friendly Italian voice with clear engaging tone
-const DEFAULT_VOICE_ID = 'G1QO6RfZl0zS1DpKDReq'
+// "Brando M" — Expressive, Confident, Conversational Italian voice
+const DEFAULT_VOICE_ID = 'o5tUAYEqld5GJZ1Lv8uC'
 const MODEL_ID = 'eleven_multilingual_v2'
 
 /**
