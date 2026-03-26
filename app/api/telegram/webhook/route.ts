@@ -3,6 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 import { findOrgByChatId, getOrgDataContextLite, sendTelegramDirect } from '@/lib/telegram'
 import { askAI, askAIFast } from '@/lib/openrouter'
 import { textToSpeech, speechToText } from '@/lib/elevenlabs'
+import {
+    executeDanteAction, savePendingAction, getPendingAction,
+    confirmPendingAction, cancelPendingAction,
+    type DanteAction
+} from '@/lib/dante-actions'
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -73,6 +78,12 @@ export async function POST(req: NextRequest) {
         // Check if it's a scheduling request (e.g., "riepilogo alle 10", "chiamami alle 15:30")
         const scheduleResult = await tryScheduleReport(text, orgId, botToken, chatId)
         if (scheduleResult) {
+            return NextResponse.json({ ok: true })
+        }
+
+        // Check for pending action confirmation/cancellation
+        const pendingResult = await handlePendingAction(text, orgId, botToken, chatId)
+        if (pendingResult) {
             return NextResponse.json({ ok: true })
         }
 
@@ -362,14 +373,83 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
         body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
     })
 
-    // Use lightweight context (3 queries instead of 7)
+    // Use lightweight context (now with live Meta API data)
     const ctx = await getOrgDataContextLite(orgId)
 
     // Use fast AI (compact context, fewer tokens)
     const response = await askAIFast(question, ctx)
 
-    const header = response.success ? '🤖' : '⚠️'
-    await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
+    if (!response.success) {
+        await sendTelegramDirect(botToken, chatId, `⚠️ ${response.text}`)
+        return
+    }
+
+    // Check if response contains an ACTION tag
+    const actionMatch = response.text.match(/\[ACTION:(\{[\s\S]*?\})\]/)
+    if (actionMatch) {
+        try {
+            const action = JSON.parse(actionMatch[1]) as DanteAction
+            // Remove the ACTION tag from the visible message
+            const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
+            const confirmMsg = cleanMessage + '\n\n⚠️ <i>Rispondi</i> <b>SÌ</b> <i>per confermare o</i> <b>NO</b> <i>per annullare.</i>'
+
+            // Save pending action
+            await savePendingAction(orgId, chatId, action, confirmMsg)
+
+            // Send confirmation request
+            await sendTelegramDirect(botToken, chatId, `🤖 ${confirmMsg}`)
+            return
+        } catch (e) {
+            console.error('Failed to parse ACTION tag:', e)
+        }
+    }
+
+    // Normal response (no action)
+    await sendTelegramDirect(botToken, chatId, `🤖 ${response.text}`)
+}
+
+// --- Pending Action Handler (confirmation/cancellation) ---
+
+const CONFIRM_WORDS = ['sì', 'si', 'yes', 'ok', 'conferma', 'confermo', 'vai', 'procedi', 'fallo', 'fai']
+const CANCEL_WORDS = ['no', 'annulla', 'cancella', 'stop', 'ferma', 'non farlo', 'lascia stare']
+
+async function handlePendingAction(text: string, orgId: string, botToken: string, chatId: string): Promise<boolean> {
+    const pending = await getPendingAction(chatId)
+    if (!pending) return false
+
+    const lower = text.toLowerCase().trim()
+
+    // Check for confirmation
+    if (CONFIRM_WORDS.some(w => lower === w || lower.startsWith(w + ' ') || lower.startsWith(w + ','))) {
+        await confirmPendingAction(pending.id)
+
+        // Send typing while executing
+        await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
+        })
+
+        // Execute the action
+        const action: DanteAction = {
+            type: pending.action_type as DanteAction['type'],
+            params: pending.action_params,
+        }
+        const result = await executeDanteAction(pending.organization_id, action)
+        await sendTelegramDirect(botToken, chatId, result.message)
+        return true
+    }
+
+    // Check for cancellation
+    if (CANCEL_WORDS.some(w => lower === w || lower.startsWith(w + ' ') || lower.startsWith(w + ','))) {
+        await cancelPendingAction(pending.id)
+        await sendTelegramDirect(botToken, chatId, '🚫 Azione annullata.')
+        return true
+    }
+
+    // If there's a pending action but the user says something unrelated, ignore it
+    // (the action will expire after 5 minutes)
+    return false
 }
 
 // --- AI Handler (full, for voice messages — kept for voice responses) ---
