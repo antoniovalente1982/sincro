@@ -337,8 +337,8 @@ export async function getOrgDataContextLite(orgId: string) {
             // Fetch campaigns status + today's insights + 7-day insights in parallel
             const [campaignsApiRes, todayInsightsRes, weekInsightsRes] = await Promise.all([
                 fetch(`https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget&limit=30&access_token=${token}`),
-                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`),
-                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`),
             ])
 
             // Parse campaigns
@@ -395,9 +395,10 @@ export async function getOrgDataContextLite(orgId: string) {
                 const weekLeads = wi?.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
                 const weekCpl = wi?.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value
                 const weekCtr = wi?.ctr ? `${parseFloat(wi.ctr).toFixed(2)}%` : 'N/A'
+                const weekRoas = wi?.purchase_roas?.[0]?.value ? `${parseFloat(wi.purchase_roas[0].value).toFixed(2)}x` : null
                 campLines.push(`  • ${c.name}`)
                 campLines.push(`    Budget: ${budget} | OGGI: spesa ${todaySpend}, ${todayLeads} lead${todayCpl ? `, CPL €${parseFloat(todayCpl).toFixed(2)}` : ''}`)
-                campLines.push(`    7 GIORNI: spesa ${weekSpend}, ${weekLeads} lead${weekCpl ? `, CPL €${parseFloat(weekCpl).toFixed(2)}` : ''}, CTR ${weekCtr}`)
+                campLines.push(`    7 GIORNI: spesa ${weekSpend}, ${weekLeads} lead${weekCpl ? `, CPL €${parseFloat(weekCpl).toFixed(2)}` : ''}, CTR ${weekCtr}${weekRoas ? `, ROAS ${weekRoas}` : ''}`)
             }
 
             if (paused.length > 0) {
