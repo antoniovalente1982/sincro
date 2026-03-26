@@ -39,9 +39,17 @@ FATTURATO / REVENUE:
 - Si calcola dai lead nello stage "Vendita" (is_won=true) che hanno un valore associato.
 - NON confondere "lead" con "fatturato". Leads = contatti. Fatturato = vendite chiuse con valore economico.
 
+AI ENGINE / PILOTA AUTOMATICO:
+- Quando Anto chiede "il pilota automatico è attivo?", "l'AI Engine è attivo?", "è in live?" → guarda la sezione AI ENGINE nei dati.
+- autopilot_active = il sistema è acceso/spento. execution_mode = 'live' (esegue azioni reali) o 'dry_run' (simula senza eseguire).
+- Auto-Pause, Auto-Scale, Creative Refresh sono le funzionalità singole.
+
 IMPORTANTE:
 - Rispondi SEMPRE. Non lasciare mai un messaggio senza risposta.
 - Quando Anto chiede azioni operative (creare campagne, modificare codice), digli che deve passare da Antigravity.
+- ⚠️ Se un dato NON è presente nel contesto che ricevi, dì ONESTAMENTE che non hai quel dato. NON INVENTARE MAI numeri, spese, CPL o stati. Meglio dire "non ho questo dato" che inventarlo.
+- I dati sui lead vengono dal database Supabase e sono affidabili.
+- I dati sulle campagne vengono LIVE da Meta API e sono aggiornati al momento della domanda.
 
 Formattazione: usa HTML per Telegram: <b>grassetto</b>, <i>corsivo</i>. Non usare Markdown.
 Mantieni le risposte sotto i 4000 caratteri.
@@ -64,7 +72,8 @@ export async function askAI(question: string, orgContext: any): Promise<AIRespon
     }
 
     try {
-        const contextMessage = `DATA E ORA CORRENTE:
+        // Use structured text if available (new format), fallback to JSON dump
+        const contextMessage = orgContext.structured_text || `DATA E ORA CORRENTE:
 ${JSON.stringify(orgContext.current_datetime, null, 2)}
 
 RIEPILOGO:
@@ -143,8 +152,8 @@ export async function askAIFast(question: string, orgContext: any): Promise<AIRe
     }
 
     try {
-        // Compact context to minimize tokens sent
-        const ctx = `Oggi: ${orgContext.current_datetime?.date || 'N/A'}
+        // Use structured text if available (accurate, pre-formatted), fallback to compact summary
+        const ctx = orgContext.structured_text || `Oggi: ${orgContext.current_datetime?.date || 'N/A'}
 Lead: ${orgContext.summary?.leads_today || 0} oggi, ${orgContext.summary?.leads_this_week || 0} settimana, ${orgContext.summary?.total_leads || 0} totali
 Campagne attive: ${orgContext.summary?.active_campaigns || 0} | Spesa: €${orgContext.summary?.total_spend || 0} | CPL: €${orgContext.summary?.avg_cpl || 0}
 Pipeline: ${(orgContext.stage_distribution || []).map((s: any) => `${s.name}:${s.count}`).join(', ')}
@@ -165,8 +174,8 @@ Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.s
                     { role: 'user', content: ctx },
                     { role: 'user', content: question },
                 ],
-                max_tokens: 800,
-                temperature: 0.3,
+                max_tokens: 1500,
+                temperature: 0.2,
             }),
         })
 

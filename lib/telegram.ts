@@ -247,73 +247,266 @@ export async function getOrgDataContext(orgId: string) {
 }
 
 /**
- * Lightweight version for Telegram webhook (3 queries instead of 7)
- * Designed to fit within Vercel Hobby 10s timeout
+ * Lightweight version for Telegram webhook
+ * Now fetches LIVE data from Meta API for accuracy
  */
 export async function getOrgDataContextLite(orgId: string) {
     const now = new Date()
-    const todayStr = now.toISOString().split('T')[0]
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-    const yesterdayStr = yesterday.toISOString().split('T')[0]
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const todayISO = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' }) // YYYY-MM-DD in Italian TZ
+    const italianNow = now.toLocaleString('it-IT', {
+        timeZone: 'Europe/Rome',
+        weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    })
 
-    const [leadsRes, campaignsRes, stagesRes] = await Promise.all([
+    // Check DST for accurate date boundaries
+    const marchLastSunday = new Date(now.getFullYear(), 2, 31)
+    marchLastSunday.setDate(marchLastSunday.getDate() - marchLastSunday.getDay())
+    const octLastSunday = new Date(now.getFullYear(), 9, 31)
+    octLastSunday.setDate(octLastSunday.getDate() - octLastSunday.getDay())
+    const isDST = now >= marchLastSunday && now < octLastSunday
+    const todayStart = new Date(`${todayISO}T00:00:00${isDST ? '+02:00' : '+01:00'}`)
+
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const sevenDaysAgoStr = sevenDaysAgo.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' })
+
+    // Parallel: leads, stages, AI Engine config, Meta Ads connection
+    const [leadsRes, stagesRes, aiConfigRes, metaConnRes] = await Promise.all([
         supabaseAdmin
             .from('leads')
-            .select('id, name, stage_id, value, utm_source, created_at')
+            .select('id, name, email, phone, stage_id, value, utm_source, utm_campaign, created_at, meta_data, notes')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(20),
-        supabaseAdmin
-            .from('campaigns_cache')
-            .select('campaign_name, status, spend, leads_count, cpl, ctr, roas')
-            .eq('organization_id', orgId),
+            .limit(30),
         supabaseAdmin
             .from('pipeline_stages')
-            .select('id, name, is_won, is_lost')
+            .select('id, name, is_won, is_lost, sort_order')
             .eq('organization_id', orgId)
             .order('sort_order', { ascending: true }),
+        supabaseAdmin
+            .from('ai_agent_config')
+            .select('autopilot_active, execution_mode, auto_pause_enabled, auto_scale_enabled, auto_creative_refresh, analysis_interval_minutes, risk_tolerance, objectives, budget_daily')
+            .eq('organization_id', orgId)
+            .single(),
+        supabaseAdmin
+            .from('connections')
+            .select('credentials')
+            .eq('organization_id', orgId)
+            .eq('provider', 'meta_ads')
+            .eq('status', 'active')
+            .single(),
     ])
 
     const leads = leadsRes.data || []
-    const campaigns = campaignsRes.data || []
     const stages = stagesRes.data || []
     const stageMap = new Map(stages.map(s => [s.id, s]))
+    const aiConfig = aiConfigRes.data
 
-    const leadsToday = leads.filter(l => l.created_at?.startsWith(todayStr)).length
-    const leadsYesterday = leads.filter(l => l.created_at?.startsWith(yesterdayStr)).length
-    const leadsThisWeek = leads.filter(l => new Date(l.created_at) >= weekAgo).length
+    // Format Italian time helper
+    const fmtIT = (iso: string) => {
+        try {
+            return new Date(iso).toLocaleString('it-IT', {
+                timeZone: 'Europe/Rome',
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            })
+        } catch { return iso }
+    }
 
-    const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
-    const totalCampaignLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
-    const avgCPL = totalCampaignLeads > 0 ? totalSpend / totalCampaignLeads : 0
+    // --- LEADS ---
+    const leadsToday = leads.filter(l => new Date(l.created_at) >= todayStart)
+    const leadsThisWeek = leads.filter(l => new Date(l.created_at) >= sevenDaysAgo)
 
     const stageDist = stages.map(s => ({
         name: s.name,
         count: leads.filter(l => l.stage_id === s.id).length,
     })).filter(s => s.count > 0)
 
+    // --- META ADS (LIVE) ---
+    let campaignsText = 'Nessun collegamento Meta Ads attivo.'
+    let spesaOggiText = 'N/A'
+    let spesaSetteGiorniText = 'N/A'
+    let activeCampaignCount = 0
+    let campaignsData: any[] = []
+
+    if (metaConnRes.data?.credentials?.access_token) {
+        const token = metaConnRes.data.credentials.access_token
+        const adAccount = `act_${metaConnRes.data.credentials.ad_account_id || '511099830249139'}`
+
+        try {
+            // Fetch campaigns status + today's insights + 7-day insights in parallel
+            const [campaignsApiRes, todayInsightsRes, weekInsightsRes] = await Promise.all([
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`),
+            ])
+
+            // Parse campaigns
+            const campaignsJson = campaignsApiRes.ok ? await campaignsApiRes.json() : { data: [] }
+            const campaignsList = campaignsJson.data || []
+            const campaignStatusMap: Record<string, { status: string; budget: string }> = {}
+            campaignsList.forEach((c: any) => {
+                campaignStatusMap[c.name] = {
+                    status: c.status,
+                    budget: c.daily_budget ? `€${(parseInt(c.daily_budget) / 100).toFixed(0)}/giorno` : 'N/A',
+                }
+            })
+
+            // Parse today's insights
+            const todayJson = todayInsightsRes.ok ? await todayInsightsRes.json() : { data: [] }
+            const todayData = todayJson.data || []
+            const todaySpendTotal = todayData.reduce((s: number, c: any) => s + (parseFloat(c.spend) || 0), 0)
+            const todayLeadsTotal = todayData.reduce((s: number, c: any) => {
+                const leads = c.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                return s + parseInt(leads)
+            }, 0)
+            spesaOggiText = `€${todaySpendTotal.toFixed(2)}`
+
+            // Parse 7-day insights
+            const weekJson = weekInsightsRes.ok ? await weekInsightsRes.json() : { data: [] }
+            const weekData = weekJson.data || []
+            const weekSpendTotal = weekData.reduce((s: number, c: any) => s + (parseFloat(c.spend) || 0), 0)
+            spesaSetteGiorniText = `€${weekSpendTotal.toFixed(2)}`
+
+            // Build campaigns text — separate active from paused
+            const active = campaignsList.filter((c: any) => c.status === 'ACTIVE')
+            const paused = campaignsList.filter((c: any) => c.status === 'PAUSED')
+            activeCampaignCount = active.length
+
+            // Merge insights with campaign status for active ones
+            const todayInsightsMap: Record<string, any> = {}
+            todayData.forEach((i: any) => { todayInsightsMap[i.campaign_name] = i })
+            const weekInsightsMap: Record<string, any> = {}
+            weekData.forEach((i: any) => { weekInsightsMap[i.campaign_name] = i })
+
+            let campLines: string[] = []
+            campLines.push(`🟢 CAMPAGNE ATTIVE (${active.length}):`)
+            if (active.length === 0) {
+                campLines.push('  Nessuna campagna attiva al momento.')
+            }
+            for (const c of active) {
+                const ti = todayInsightsMap[c.name]
+                const wi = weekInsightsMap[c.name]
+                const budget = c.daily_budget ? `€${(parseInt(c.daily_budget) / 100).toFixed(0)}/giorno` : 'N/A'
+                const todaySpend = ti ? `€${parseFloat(ti.spend).toFixed(2)}` : '€0'
+                const todayLeads = ti?.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                const todayCpl = ti?.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value
+                const weekSpend = wi ? `€${parseFloat(wi.spend).toFixed(2)}` : '€0'
+                const weekLeads = wi?.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                const weekCpl = wi?.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value
+                const weekCtr = wi?.ctr ? `${parseFloat(wi.ctr).toFixed(2)}%` : 'N/A'
+                campLines.push(`  • ${c.name}`)
+                campLines.push(`    Budget: ${budget} | OGGI: spesa ${todaySpend}, ${todayLeads} lead${todayCpl ? `, CPL €${parseFloat(todayCpl).toFixed(2)}` : ''}`)
+                campLines.push(`    7 GIORNI: spesa ${weekSpend}, ${weekLeads} lead${weekCpl ? `, CPL €${parseFloat(weekCpl).toFixed(2)}` : ''}, CTR ${weekCtr}`)
+            }
+
+            if (paused.length > 0) {
+                campLines.push(`\n🟡 CAMPAGNE IN PAUSA (${paused.length}):`)
+                for (const c of paused) {
+                    const wi = weekInsightsMap[c.name]
+                    if (wi && parseFloat(wi.spend) > 0) {
+                        campLines.push(`  • ${c.name} — spesa 7gg: €${parseFloat(wi.spend).toFixed(2)}`)
+                    } else {
+                        campLines.push(`  • ${c.name}`)
+                    }
+                }
+            }
+
+            campaignsText = campLines.join('\n')
+            campaignsData = campaignsList.map((c: any) => ({ name: c.name, status: c.status }))
+        } catch (e) {
+            console.error('Dante: Meta API fetch error:', e)
+            campaignsText = '⚠️ Errore nel caricamento dati Meta Ads.'
+        }
+    }
+
+    // --- AI ENGINE STATUS ---
+    let aiEngineText = 'Non configurato.'
+    if (aiConfig) {
+        const mode = aiConfig.execution_mode === 'live' ? '🟢 LIVE (esegue azioni reali)' :
+            aiConfig.execution_mode === 'dry_run' ? '🟡 DRY RUN (simula, non esegue)' : aiConfig.execution_mode
+        const autopilot = aiConfig.autopilot_active ? '✅ ATTIVO' : '❌ DISATTIVO'
+        const features = []
+        if (aiConfig.auto_pause_enabled) features.push('Auto-Pause')
+        if (aiConfig.auto_scale_enabled) features.push('Auto-Scale')
+        if (aiConfig.auto_creative_refresh) features.push('Creative Refresh')
+        aiEngineText = [
+            `Pilota Automatico: ${autopilot}`,
+            `Modalità esecuzione: ${mode}`,
+            `Funzionalità attive: ${features.length > 0 ? features.join(', ') : 'Nessuna'}`,
+            `Intervallo analisi: ogni ${aiConfig.analysis_interval_minutes || 60} minuti`,
+            `Rischio: ${aiConfig.risk_tolerance || 'medium'}`,
+            aiConfig.budget_daily ? `Budget giornaliero impostato: €${aiConfig.budget_daily}` : '',
+        ].filter(Boolean).join('\n')
+    }
+
+    // --- FORMAT LEADS ---
+    const leadsText = leads.slice(0, 15).map((l, i) => {
+        const stageName = stageMap.get(l.stage_id)?.name || 'Non assegnato'
+        const time = fmtIT(l.created_at)
+        const childAge = l.meta_data?.child_age || ''
+        const parts = [
+            `${i === 0 ? '⭐' : `#${i + 1}`} ${l.name}`,
+            `   Arrivo: ${time} | Stage: ${stageName}`,
+            `   Tel: ${l.phone || 'N/A'} | Email: ${l.email || 'N/A'}`,
+            l.utm_source ? `   Fonte: ${l.utm_source}${l.utm_campaign ? ` / ${l.utm_campaign}` : ''}` : '',
+            l.value ? `   Valore: €${l.value}` : '',
+            childAge ? `   Età figlio: ${childAge}` : '',
+            l.notes ? `   Note: ${l.notes}` : '',
+        ].filter(Boolean)
+        return parts.join('\n')
+    }).join('\n\n')
+
+    const leadsTodayText = leadsToday.length > 0
+        ? leadsToday.map(l => `  • ${l.name} — ${fmtIT(l.created_at)} (${stageMap.get(l.stage_id)?.name || 'N/A'})`).join('\n')
+        : '  Nessun lead oggi.'
+
+    // --- PIPELINE ---
+    const pipelineText = stageDist.map(s => `  • ${s.name}: ${s.count}`).join('\n') || '  Pipeline vuota.'
+
+    // Return structured for both askAIFast (compact) and askAI (full)
     return {
-        current_datetime: { date: todayStr, yesterday: yesterdayStr },
+        current_datetime: { date: todayISO, yesterday: new Date(now.getTime() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' }) },
         summary: {
             total_leads: leads.length,
-            leads_today: leadsToday,
-            leads_yesterday: leadsYesterday,
-            leads_this_week: leadsThisWeek,
-            active_campaigns: campaigns.filter(c => c.status === 'ACTIVE').length,
-            total_spend: totalSpend.toFixed(2),
-            avg_cpl: avgCPL.toFixed(2),
+            leads_today: leadsToday.length,
+            leads_this_week: leadsThisWeek.length,
+            active_campaigns: activeCampaignCount,
+            total_spend: spesaOggiText, // Now this is TODAY's spend
+            avg_cpl: 'vedi dettaglio campagne',
         },
         stage_distribution: stageDist,
-        campaigns: campaigns.map(c => ({
-            name: c.campaign_name, status: c.status,
-            spend: c.spend, leads: c.leads_count, cpl: c.cpl, ctr: c.ctr,
-        })),
+        campaigns: campaignsData,
         recent_leads: leads.slice(0, 5).map(l => ({
             name: l.name,
             stage: stageMap.get(l.stage_id)?.name || 'N/A',
             source: l.utm_source || 'Diretto',
             created: l.created_at,
         })),
+        // NEW: structured text for AI (much better than JSON)
+        structured_text: `📅 DATA E ORA: ${italianNow}
+
+━━━ 📊 RIEPILOGO OGGI ━━━
+Lead oggi: ${leadsToday.length}
+Spesa ADS oggi: ${spesaOggiText}
+Spesa ADS ultimi 7 giorni: ${spesaSetteGiorniText}
+Campagne attive: ${activeCampaignCount}
+Lead totali in pipeline: ${leads.length}
+
+━━━ 📢 CAMPAGNE META ADS ━━━
+${campaignsText}
+
+━━━ 🤖 AI ENGINE (PILOTA AUTOMATICO) ━━━
+${aiEngineText}
+
+━━━ 📥 LEAD DI OGGI (${leadsToday.length}) ━━━
+${leadsTodayText}
+
+━━━ 📋 PIPELINE ━━━
+${pipelineText}
+
+━━━ 👥 ULTIMI 15 LEAD ━━━
+${leadsText}`,
     }
 }
+

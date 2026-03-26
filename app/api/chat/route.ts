@@ -59,7 +59,19 @@ CONTESTO BUSINESS:
 Metodo Sincro = Mental Coaching per giovani calciatori, fondato da Antonio Valente.
 Prodotti: Platinum (€2.250 + IVA, 3 mesi) e Impact (€3.000 + IVA, 2+2 mesi).
 Funnel: Meta Ads → Landing Page → Lead → Setter (qualifica) → Closer (vendita).
-Target: Genitori di giovani calciatori 10-20 anni (core 14-15 anni).`
+Target: Genitori di giovani calciatori 10-20 anni (core 14-15 anni).
+
+AI ENGINE / PILOTA AUTOMATICO:
+- Quando Anto chiede "il pilota automatico è attivo?", "l'AI Engine è attivo?", "è in live?" → guarda la sezione AI ENGINE nei dati.
+- autopilot_active = il sistema è acceso/spento. execution_mode = 'live' (esegue azioni reali) o 'dry_run' (simula senza eseguire).
+- Auto-Pause, Auto-Scale, Creative Refresh sono le funzionalità singole.
+
+PRECISIONE DEI DATI:
+- ⚠️ Se un dato NON è presente nel contesto che ricevi, dì ONESTAMENTE che non hai quel dato. NON INVENTARE MAI numeri, spese, CPL o stati. Meglio dire "non ho questo dato" che inventarlo.
+- I dati sui lead vengono dal database e sono affidabili.
+- I dati sulle campagne vengono LIVE da Meta API e sono aggiornati al momento della domanda.
+- Quando Anto chiede "spesa di oggi" → usa il dato "SPESA OGGI", NON la spesa totale del periodo.
+- Quando Anto chiede lo stato delle campagne → distingui sempre tra ATTIVE e IN PAUSA.`
 
 export async function POST(req: NextRequest) {
     try {
@@ -153,8 +165,30 @@ export async function POST(req: NextRequest) {
 
 async function buildContext(orgId: string): Promise<string> {
     const parts: string[] = []
+    const now = new Date()
+    const todayISO = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' })
+    const sevenDaysAgoStr = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' })
 
-    // 1. Campaigns from Meta (live data + status)
+    // Check DST for accurate date boundaries
+    const marchLastSunday = new Date(now.getFullYear(), 2, 31)
+    marchLastSunday.setDate(marchLastSunday.getDate() - marchLastSunday.getDay())
+    const octLastSunday = new Date(now.getFullYear(), 9, 31)
+    octLastSunday.setDate(octLastSunday.getDate() - octLastSunday.getDay())
+    const isDST = now >= marchLastSunday && now < octLastSunday
+    const todayStart = new Date(`${todayISO}T00:00:00${isDST ? '+02:00' : '+01:00'}`)
+
+    // Format Italian time helper
+    const fmtIT = (iso: string) => {
+        try {
+            return new Date(iso).toLocaleString('it-IT', {
+                timeZone: 'Europe/Rome',
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            })
+        } catch { return iso }
+    }
+
+    // 1. Campaigns from Meta (LIVE data — today + 7 day)
     try {
         const { data: conn } = await supabaseAdmin
             .from('connections')
@@ -168,52 +202,65 @@ async function buildContext(orgId: string): Promise<string> {
             const token = conn.credentials.access_token
             const adAccount = `act_${conn.credentials.ad_account_id || '511099830249139'}`
 
-            // Get campaigns with status
-            const campaignsRes = await fetch(
-                `https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget,objective&limit=20&access_token=${token}`
-            )
-            let campaignStatuses: Record<string, string> = {}
-            if (campaignsRes.ok) {
-                const cData = await campaignsRes.json()
-                const activeCampaigns = (cData.data || []).map((c: any) => ({
-                    nome: c.name,
-                    status: c.status,
-                    budget_giornaliero: c.daily_budget ? `€${(parseInt(c.daily_budget) / 100).toFixed(0)}` : 'N/A',
-                    obiettivo: c.objective,
-                }))
-                parts.push(`CAMPAGNE META (stato attuale):\n${JSON.stringify(activeCampaigns, null, 2)}`)
-                cData.data?.forEach((c: any) => { campaignStatuses[c.name] = c.status })
-            }
+            const [campaignsRes, todayInsightsRes, weekInsightsRes] = await Promise.all([
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget,objective&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`),
+            ])
 
-            // Get campaign insights
-            const insightsRes = await fetch(
-                `https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: getDateDaysAgo(14), until: getToday() }))}&limit=15&access_token=${token}`
-            )
+            const campaignsJson = campaignsRes.ok ? await campaignsRes.json() : { data: [] }
+            const campaignsList = campaignsJson.data || []
+            const todayJson = todayInsightsRes.ok ? await todayInsightsRes.json() : { data: [] }
+            const todayData = todayJson.data || []
+            const weekJson = weekInsightsRes.ok ? await weekInsightsRes.json() : { data: [] }
+            const weekData = weekJson.data || []
 
-            if (insightsRes.ok) {
-                const insightsData = await insightsRes.json()
-                const campaigns = (insightsData.data || []).map((c: any) => {
-                    const leads = c.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
-                    const cpl = c.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
-                    return {
-                        nome: c.campaign_name,
-                        status: campaignStatuses[c.campaign_name] || 'UNKNOWN',
-                        spesa: `€${parseFloat(c.spend).toFixed(2)}`,
-                        impressioni: c.impressions,
-                        click: c.clicks,
-                        ctr: `${parseFloat(c.ctr).toFixed(2)}%`,
-                        leads,
-                        cpl: cpl ? `€${parseFloat(cpl).toFixed(2)}` : 'N/A',
-                    }
-                })
-                parts.push(`PERFORMANCE CAMPAGNE (ultimi 14 giorni):\n${JSON.stringify(campaigns, null, 2)}`)
+            const todayInsightsMap: Record<string, any> = {}
+            todayData.forEach((i: any) => { todayInsightsMap[i.campaign_name] = i })
+            const weekInsightsMap: Record<string, any> = {}
+            weekData.forEach((i: any) => { weekInsightsMap[i.campaign_name] = i })
+
+            const todaySpendTotal = todayData.reduce((s: number, c: any) => s + (parseFloat(c.spend) || 0), 0)
+            const weekSpendTotal = weekData.reduce((s: number, c: any) => s + (parseFloat(c.spend) || 0), 0)
+
+            const active = campaignsList.filter((c: any) => c.status === 'ACTIVE')
+            const paused = campaignsList.filter((c: any) => c.status === 'PAUSED')
+
+            let campLines: string[] = []
+            campLines.push(`SPESA OGGI: €${todaySpendTotal.toFixed(2)}`)
+            campLines.push(`SPESA ULTIMI 7 GIORNI: €${weekSpendTotal.toFixed(2)}`)
+            campLines.push(`\n🟢 CAMPAGNE ATTIVE (${active.length}):`)
+            if (active.length === 0) {
+                campLines.push('  Nessuna campagna attiva al momento.')
             }
+            for (const c of active) {
+                const ti = todayInsightsMap[c.name]
+                const wi = weekInsightsMap[c.name]
+                const budget = c.daily_budget ? `€${(parseInt(c.daily_budget) / 100).toFixed(0)}/giorno` : 'N/A'
+                const todaySpend = ti ? `€${parseFloat(ti.spend).toFixed(2)}` : '€0'
+                const todayLeads = ti?.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                const todayCpl = ti?.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value
+                const weekSpend = wi ? `€${parseFloat(wi.spend).toFixed(2)}` : '€0'
+                const weekLeads = wi?.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+                const weekCpl = wi?.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value
+                const weekCtr = wi?.ctr ? `${parseFloat(wi.ctr).toFixed(2)}%` : 'N/A'
+                campLines.push(`  • ${c.name}`)
+                campLines.push(`    Budget: ${budget} | OGGI: spesa ${todaySpend}, ${todayLeads} lead${todayCpl ? `, CPL €${parseFloat(todayCpl).toFixed(2)}` : ''}`)
+                campLines.push(`    7 GIORNI: spesa ${weekSpend}, ${weekLeads} lead${weekCpl ? `, CPL €${parseFloat(weekCpl).toFixed(2)}` : ''}, CTR ${weekCtr}`)
+            }
+            if (paused.length > 0) {
+                campLines.push(`\n🟡 CAMPAGNE IN PAUSA (${paused.length}):`)
+                for (const c of paused) {
+                    campLines.push(`  • ${c.name}`)
+                }
+            }
+            parts.push(`CAMPAGNE META ADS (dati LIVE):\n${campLines.join('\n')}`)
         }
     } catch (e) {
-        parts.push('CAMPAGNE: errore nel caricamento')
+        parts.push('CAMPAGNE: errore nel caricamento dati Meta Ads')
     }
 
-    // 2. Leads summary (all data visible on CRM cards)
+    // 2. Leads summary
     try {
         const { data: leads } = await supabaseAdmin
             .from('leads')
@@ -223,7 +270,6 @@ async function buildContext(orgId: string): Promise<string> {
             .limit(30)
 
         if (leads && leads.length > 0) {
-            // Get stage names
             const { data: stagesData } = await supabaseAdmin
                 .from('pipeline_stages')
                 .select('id, name')
@@ -231,7 +277,6 @@ async function buildContext(orgId: string): Promise<string> {
             const stageMap: Record<string, string> = {}
             stagesData?.forEach(s => { stageMap[s.id] = s.name })
 
-            // Get member names for assigned_to
             const { data: membersData } = await supabaseAdmin
                 .from('organization_members')
                 .select('user_id, profiles:user_id (full_name)')
@@ -242,65 +287,35 @@ async function buildContext(orgId: string): Promise<string> {
                 if (name) memberMap[m.user_id] = name
             })
 
-            // Format timestamp to Italian timezone
-            const formatItalianTime = (iso: string) => {
-                try {
-                    const d = new Date(iso)
-                    return d.toLocaleString('it-IT', {
-                        timeZone: 'Europe/Rome',
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    })
-                } catch { return iso }
-            }
-
             const stageCount: Record<string, number> = {}
             const leadsForContext = leads.map((l: any, i: number) => {
                 const stageName = l.stage_id ? (stageMap[l.stage_id] || 'sconosciuto') : 'non assegnato'
                 stageCount[stageName] = (stageCount[stageName] || 0) + 1
-                return {
-                    posizione: i === 0 ? '⭐ ULTIMO ARRIVATO' : `#${i + 1}`,
-                    nome: l.name,
-                    email: l.email || 'N/A',
-                    telefono: l.phone || 'N/A',
-                    valore: l.value ? `€${l.value}` : null,
-                    stage: stageName,
-                    assegnato_a: l.assigned_to ? (memberMap[l.assigned_to] || 'membro sconosciuto') : 'non assegnato',
-                    arrivo: formatItalianTime(l.created_at),
-                    ultimo_aggiornamento: formatItalianTime(l.updated_at),
-                    source: l.utm_source || 'diretto',
-                    campagna: l.utm_campaign || 'N/A',
-                    funnel: l.funnels?.name || 'N/A',
-                    eta_figlio: l.meta_data?.child_age || null,
-                    angolo_adset: l.meta_data?.adset_angle || null,
-                    note: l.notes || null,
-                }
+                const parts = [
+                    `${i === 0 ? '⭐ ULTIMO ARRIVATO' : `#${i + 1}`} ${l.name}`,
+                    `   Arrivo: ${fmtIT(l.created_at)} | Stage: ${stageName}`,
+                    `   Tel: ${l.phone || 'N/A'} | Email: ${l.email || 'N/A'}`,
+                    l.assigned_to ? `   Assegnato a: ${memberMap[l.assigned_to] || 'membro'}` : '',
+                    l.utm_source ? `   Fonte: ${l.utm_source}${l.utm_campaign ? ` / ${l.utm_campaign}` : ''}` : '',
+                    l.funnels?.name ? `   Funnel: ${l.funnels.name}` : '',
+                    l.value ? `   Valore: €${l.value}` : '',
+                    l.meta_data?.child_age ? `   Età figlio: ${l.meta_data.child_age}` : '',
+                    l.meta_data?.adset_angle ? `   Angolo adset: ${l.meta_data.adset_angle}` : '',
+                    l.notes ? `   Note: ${l.notes}` : '',
+                ].filter(Boolean)
+                return parts.join('\n')
             })
-            parts.push(`ULTIMI 30 LEAD (ordinati dal più recente al più vecchio — orari in fuso ITALIA):\n${JSON.stringify(leadsForContext, null, 2)}`)
-            parts.push(`DISTRIBUZIONE STAGE:\n${JSON.stringify(stageCount)}`)
+            parts.push(`ULTIMI 30 LEAD (ordinati dal più recente — orari ITALIANI):\n${leadsForContext.join('\n\n')}`)
+            parts.push(`DISTRIBUZIONE STAGE:\n${Object.entries(stageCount).map(([k, v]) => `  • ${k}: ${v}`).join('\n')}`)
 
-            // Explicit today count — use ISO date boundaries in Italian timezone
-            // Italian timezone is UTC+1 (CET) or UTC+2 (CEST), so midnight = 23:00 or 22:00 UTC
-            const italianDateStr = getItalianDate(new Date()) // YYYY-MM-DD in Italian TZ
-            // Build midnight boundaries: midnight Italian = some hour UTC the day before
-            const todayMidnightUTC = new Date(`${italianDateStr}T00:00:00+01:00`) // CET approximation
-            // Check DST: if we're in CEST (last Sunday of March to last Sunday of October), use +02:00
-            const marchLastSunday = new Date(new Date().getFullYear(), 2, 31)
-            marchLastSunday.setDate(marchLastSunday.getDate() - marchLastSunday.getDay())
-            const octLastSunday = new Date(new Date().getFullYear(), 9, 31)
-            octLastSunday.setDate(octLastSunday.getDate() - octLastSunday.getDay())
-            const isDST = new Date() >= marchLastSunday && new Date() < octLastSunday
-            const todayStart = new Date(`${italianDateStr}T00:00:00${isDST ? '+02:00' : '+01:00'}`)
-            
+            // Today's leads
             const leadsToday = leads!.filter((l: any) => new Date(l.created_at) >= todayStart)
-            const todayLabel = italianDateStr.split('-').reverse().join('/')
-            const leadsTodayFormatted = leadsToday.map((l: any, i: number) => {
-                const name = l.name
-                const time = formatItalianTime(l.created_at)
+            const todayLabel = todayISO.split('-').reverse().join('/')
+            const leadsTodayFormatted = leadsToday.map((l: any) => {
                 const stage = l.stage_id ? (stageMap[l.stage_id] || 'sconosciuto') : 'non assegnato'
-                return `- ${name} (${time}) — stage: ${stage}`
+                return `  • ${l.name} (${fmtIT(l.created_at)}) — stage: ${stage}`
             })
-            parts.push(`LEAD DI OGGI (${todayLabel}): ${leadsToday.length} lead\n${leadsTodayFormatted.join('\n')}`)
+            parts.push(`LEAD DI OGGI (${todayLabel}): ${leadsToday.length} lead\n${leadsTodayFormatted.join('\n') || '  Nessun lead oggi.'}`)
         }
     } catch (e) { /* skip */ }
 
@@ -308,7 +323,6 @@ async function buildContext(orgId: string): Promise<string> {
     try {
         const kpiData = await readKPIData(orgId)
         if (kpiData && kpiData.length > 0) {
-            // Take first 10 rows for context (headers + data)
             const kpiSummary = kpiData.slice(0, 15).map(row => row.join(' | ')).join('\n')
             parts.push(`KPI AZIENDALI (mese corrente dal Google Sheet):\n${kpiSummary}`)
         }
@@ -318,7 +332,6 @@ async function buildContext(orgId: string): Promise<string> {
     try {
         const appointments = await readAppointments(orgId)
         if (appointments && appointments.length > 0) {
-            // Take headers + last 10 appointments
             const headers = appointments[0]
             const recent = appointments.slice(-10)
             const appSummary = [headers, ...recent].map(row => row.join(' | ')).join('\n')
@@ -326,16 +339,31 @@ async function buildContext(orgId: string): Promise<string> {
         }
     } catch (e) { /* skip */ }
 
-    // 5. Budget info
-    parts.push(`INFORMAZIONI BUDGET:
-- Budget giornaliero totale: €300
-- Obiettivo CPL: €15-20
-- Obiettivo CTR: >2.5%
-- Prodotto Platinum: €2.250 + IVA (3 mesi)
-- Prodotto Impact: €3.000 + IVA (2+2 mesi)
-- Campagne attive: MS - Lead Immagini - Dolore, MS - Lead Immagini - Trasformazione
-- Data lancio: 17 Marzo 2026
-- Targeting: Genitori 30-55, Italia, interessi calcio/coaching, NO Advantage+`)
+    // 5. AI Engine Status (from DB)
+    try {
+        const { data: aiConfig } = await supabaseAdmin
+            .from('ai_agent_config')
+            .select('autopilot_active, execution_mode, auto_pause_enabled, auto_scale_enabled, auto_creative_refresh, analysis_interval_minutes, risk_tolerance, budget_daily')
+            .eq('organization_id', orgId)
+            .single()
+
+        if (aiConfig) {
+            const mode = aiConfig.execution_mode === 'live' ? '🟢 LIVE (esegue azioni reali)' :
+                aiConfig.execution_mode === 'dry_run' ? '🟡 DRY RUN (simula, non esegue)' : aiConfig.execution_mode
+            const autopilot = aiConfig.autopilot_active ? '✅ ATTIVO' : '❌ DISATTIVO'
+            const features = []
+            if (aiConfig.auto_pause_enabled) features.push('Auto-Pause')
+            if (aiConfig.auto_scale_enabled) features.push('Auto-Scale')
+            if (aiConfig.auto_creative_refresh) features.push('Creative Refresh')
+            parts.push(`AI ENGINE (PILOTA AUTOMATICO):\n` +
+                `Pilota Automatico: ${autopilot}\n` +
+                `Modalità esecuzione: ${mode}\n` +
+                `Funzionalità attive: ${features.length > 0 ? features.join(', ') : 'Nessuna'}\n` +
+                `Intervallo analisi: ogni ${aiConfig.analysis_interval_minutes || 60} minuti\n` +
+                `Rischio: ${aiConfig.risk_tolerance || 'medium'}` +
+                (aiConfig.budget_daily ? `\nBudget giornaliero impostato: €${aiConfig.budget_daily}` : ''))
+        }
+    } catch (e) { /* skip */ }
 
     return parts.join('\n\n---\n\n')
 }
