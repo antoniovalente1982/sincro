@@ -63,16 +63,19 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
         return { success: false, message: '❌ Nessuno stage trovato nella pipeline.' }
     }
 
-    // Match stage by name (case-insensitive, fuzzy)
-    const targetStageNorm = target_stage.toLowerCase().trim()
+    // Match stage by name (normalized: strip hyphens, underscores, extra spaces)
+    const normalize = (s: string) => s.toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim()
+    const targetNorm = normalize(target_stage)
     const stage = stages.find(s =>
-        s.name.toLowerCase().includes(targetStageNorm) ||
-        s.slug?.toLowerCase().includes(targetStageNorm)
+        normalize(s.name) === targetNorm ||
+        normalize(s.name).includes(targetNorm) ||
+        targetNorm.includes(normalize(s.name)) ||
+        normalize(s.slug || '') === targetNorm
     )
 
     if (!stage) {
-        const available = stages.map(s => s.name).join(', ')
-        return { success: false, message: `❌ Stage "${target_stage}" non trovato. Stage disponibili: ${available}` }
+        const uniqueNames = [...new Set(stages.map(s => s.name))]
+        return { success: false, message: `❌ Stage "${target_stage}" non trovato. Stage disponibili: ${uniqueNames.join(', ')}` }
     }
 
     // Prepare update
