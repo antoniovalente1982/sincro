@@ -60,7 +60,23 @@ Azioni disponibili:
 3. toggle_autopilot — Attiva/disattiva il pilota automatico (es. "attiva l'autopilot", "spegni il pilota automatico")
    [ACTION:{"type":"toggle_autopilot","params":{"active":true}}]
 
+STAGE DELLA PIPELINE (in ordine):
+La pipeline principale è: Lead → Appuntamento → Show-up → Vendita → Perso
+- "Lead" = nuovo contatto
+- "Appuntamento" = ha fissato una call
+- "Show-up" = si è presentato alla call (ATTENZIONE: lo stage si chiama ESATTAMENTE "Show-up" con il trattino!)
+- "Vendita" = ha comprato (richiede prodotto e valore €)
+- "Perso" = perso/non interessato
+
+MAPPATURA VOCALE — quando Anto dice a voce:
+- "show up", "scioup", "show-up", "showup" → target_stage = "Show-up"
+- "appuntamento", "call" → target_stage = "Appuntamento"
+- "vendita", "venduto", "chiuso" → target_stage = "Vendita"
+- "perso", "non interessato" → target_stage = "Perso"
+- "lead" → target_stage = "Lead"
+
 REGOLE AZIONI:
+- USA SEMPRE il nome ESATTO dello stage nel tag ACTION (es. "Show-up" con il trattino, non "Show Up").
 - CERCA SEMPRE il lead nei dati disponibili prima di proporre l'azione. Se non lo trovi, dì che non lo hai trovato.
 - Il tag [ACTION:...] DEVE essere l'ultimissima riga del messaggio, dopo il testo di conferma.
 - Il messaggio di conferma deve riassumere ESATTAMENTE cosa stai per fare. Sii specifico col nome del lead e lo stage.
