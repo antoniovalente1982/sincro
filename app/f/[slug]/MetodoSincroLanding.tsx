@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles } from 'lucide-react'
 
@@ -41,6 +41,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
+    const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const [viewerCount, setViewerCount] = useState(14)
 
     // Dynamic viewer count between 14 and 35
@@ -80,55 +81,73 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
         // Get Facebook click/browser IDs from cookies for CAPI
         const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
+            const sep = c.indexOf('=')
+            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
             return acc
         }, {})
 
-        // Track PageView server-side (also fires CAPI with same event_id)
-        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
-        fetch('/api/track/pageview', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                organization_id: orgId || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
-                funnel_id: funnel.id,
-                page_path: window.location.pathname,
-                page_variant: funnel.settings?.ab_variant || 'A',
-                visitor_id: visitorId,
-                utm_source: utms.utm_source,
-                utm_medium: utms.utm_medium,
-                utm_campaign: utms.utm_campaign,
-                utm_content: utms.utm_content,
-                utm_term: utms.utm_term,
-                fbadid: params.get('fbadid') || undefined,
-                referrer: document.referrer || undefined,
-                event_id: pageViewEventId,
-                fbc: cookies._fbc || undefined,
-                fbp: cookies._fbp || undefined,
-                page_url: window.location.href,
-            }),
-        }).catch(() => {}) // Fire and forget
+        // Compute fbc ONCE — Meta requires fbclid passed unmodified
+        let computedFbc = cookies._fbc || undefined
+        if (!computedFbc) {
+            const fbclid = params.get('fbclid')
+            if (fbclid) computedFbc = `fb.1.${Date.now()}.${fbclid}`
+        }
+        const computedFbp = cookies._fbp || undefined
+        fbIdsRef.current = { fbc: computedFbc, fbp: computedFbp }
 
-        // Fire pixel PageView with same event_id for deduplication
+        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
+
+        // Fire pixel PageView immediately (client-side)
         if (typeof window !== 'undefined' && (window as any).fbq) {
             (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
         }
+
+        // Delay CAPI PageView by 2s to let Meta Pixel set _fbp cookie first
+        setTimeout(() => {
+            const freshCookies = document.cookie.split(';').reduce((acc: any, c) => {
+                const sep = c.indexOf('=')
+                if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
+                return acc
+            }, {})
+            const freshFbp = freshCookies._fbp || computedFbp
+            const freshFbc = freshCookies._fbc || computedFbc
+            fbIdsRef.current = { fbc: freshFbc, fbp: freshFbp }
+
+            fetch('/api/track/pageview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    organization_id: orgId || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
+                    funnel_id: funnel.id,
+                    page_path: window.location.pathname,
+                    page_variant: funnel.settings?.ab_variant || 'A',
+                    visitor_id: visitorId,
+                    utm_source: utms.utm_source,
+                    utm_medium: utms.utm_medium,
+                    utm_campaign: utms.utm_campaign,
+                    utm_content: utms.utm_content,
+                    utm_term: utms.utm_term,
+                    fbadid: params.get('fbadid') || undefined,
+                    referrer: document.referrer || undefined,
+                    event_id: pageViewEventId,
+                    fbc: freshFbc,
+                    fbp: freshFbp,
+                    page_url: window.location.href,
+                }),
+            }).catch(() => {})
+        }, 2000)
     }, [])
 
-    const getFbIds = () => {
-        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const [k, v] = c.trim().split('=')
-            acc[k] = v
-            return acc
-        }, {})
-        return { fbc: cookies._fbc || undefined, fbp: cookies._fbp || undefined }
-    }
+    // Reuse the fbc/fbp computed once on page load
+    const getFbIds = useCallback(() => fbIdsRef.current, [])
 
     const handleSubmit = async () => {
         if (!name || !phone) return
         setLoading(true)
         setError('')
+
+        // Generate Lead event_id for dedup
+        const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
             // Advanced Matching: reinitialize pixel with user data (Meta hashes automatically)
@@ -150,6 +169,8 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         sport: 'calcio',
                     },
                     landing_url: window.location.host + window.location.pathname,
+                    event_id: leadEventId,
+                    visitor_id: localStorage.getItem('_sincro_vid') || undefined,
                     ...utmParams,
                     ...getFbIds(),
                 }),
@@ -158,6 +179,11 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             if (!res.ok) {
                 const data = await res.json()
                 throw new Error(data.error || 'Errore')
+            }
+
+            // Fire pixel Lead event with same event_id for CAPI dedup
+            if (typeof window !== 'undefined' && (window as any).fbq) {
+                (window as any).fbq('track', 'Lead', {}, { eventID: leadEventId })
             }
 
             setSubmitted(true)
@@ -574,7 +600,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             {funnel.meta_pixel_id && (
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}');`,
+                        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}',{});`,
                     }}
                 />
             )}
