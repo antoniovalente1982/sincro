@@ -53,28 +53,45 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
     // Use closest match (first result)
     const lead = leads[0]
 
-    // Find the target stage
+    // Find the target stage — scoped to the lead's pipeline
     const { data: stages } = await supabaseAdmin
         .from('pipeline_stages')
-        .select('id, name, slug, is_won, fire_capi_event')
+        .select('id, name, slug, is_won, fire_capi_event, pipeline_id')
         .eq('organization_id', orgId)
 
     if (!stages || stages.length === 0) {
         return { success: false, message: '❌ Nessuno stage trovato nella pipeline.' }
     }
 
+    // Find lead's current pipeline
+    const currentStage = stages.find(s => s.id === lead.stage_id)
+    const leadPipelineId = currentStage?.pipeline_id
+
     // Match stage by name (normalized: strip hyphens, underscores, extra spaces)
     const normalize = (s: string) => s.toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim()
     const targetNorm = normalize(target_stage)
-    const stage = stages.find(s =>
+
+    const matchStage = (s: any) =>
         normalize(s.name) === targetNorm ||
         normalize(s.name).includes(targetNorm) ||
         targetNorm.includes(normalize(s.name)) ||
         normalize(s.slug || '') === targetNorm
-    )
+
+    // First: try matching within the lead's pipeline
+    let stage = leadPipelineId
+        ? stages.find(s => s.pipeline_id === leadPipelineId && matchStage(s))
+        : null
+
+    // Fallback: match any pipeline
+    if (!stage) {
+        stage = stages.find(matchStage)
+    }
 
     if (!stage) {
-        const uniqueNames = [...new Set(stages.map(s => s.name))]
+        const pipelineStages = leadPipelineId
+            ? stages.filter(s => s.pipeline_id === leadPipelineId)
+            : stages
+        const uniqueNames = [...new Set(pipelineStages.map(s => s.name))]
         return { success: false, message: `❌ Stage "${target_stage}" non trovato. Stage disponibili: ${uniqueNames.join(', ')}` }
     }
 
