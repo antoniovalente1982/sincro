@@ -283,7 +283,8 @@ export async function savePendingAction(
     orgId: string,
     chatId: string,
     action: DanteAction,
-    confirmationMessage: string
+    confirmationMessage: string,
+    responseMode: 'text' | 'voice' = 'text'
 ): Promise<void> {
     // Expire any previous pending actions for this chat
     await supabaseAdmin
@@ -302,6 +303,7 @@ export async function savePendingAction(
             action_params: action.params,
             confirmation_message: confirmationMessage,
             status: 'pending',
+            response_mode: responseMode,
         })
 }
 
@@ -311,10 +313,11 @@ export async function getPendingAction(chatId: string): Promise<{
     action_type: string
     action_params: any
     confirmation_message: string
+    response_mode: string
 } | null> {
     const { data } = await supabaseAdmin
         .from('dante_pending_actions')
-        .select('id, organization_id, action_type, action_params, confirmation_message, expires_at')
+        .select('id, organization_id, action_type, action_params, confirmation_message, expires_at, response_mode')
         .eq('chat_id', chatId)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })

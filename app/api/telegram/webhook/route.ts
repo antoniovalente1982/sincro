@@ -422,16 +422,33 @@ async function handlePendingAction(text: string, orgId: string, botToken: string
     if (!pending) return false
 
     const lower = text.toLowerCase().trim()
+    const isVoiceMode = pending.response_mode === 'voice'
+
+    // Helper: strip HTML for TTS
+    const stripHtml = (s: string) => s.replace(/<[^>]*>/g, '')
+
+    // Helper: send as voice or text based on mode
+    const sendResponse = async (msg: string) => {
+        // Always send text version
+        await sendTelegramDirect(botToken, chatId, msg)
+        // Also voice it if the original request was voice
+        if (isVoiceMode) {
+            const audioBuffer = await textToSpeech(stripHtml(msg))
+            if (audioBuffer) {
+                await sendVoiceNote(botToken, chatId, audioBuffer)
+            }
+        }
+    }
 
     // Check for confirmation
     if (CONFIRM_WORDS.some(w => lower === w || lower.startsWith(w + ' ') || lower.startsWith(w + ','))) {
         await confirmPendingAction(pending.id)
 
-        // Send typing while executing
+        // Send typing/recording while executing
         await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
+            body: JSON.stringify({ chat_id: chatId, action: isVoiceMode ? 'record_voice' : 'typing' }),
         })
 
         // Execute the action
@@ -440,19 +457,18 @@ async function handlePendingAction(text: string, orgId: string, botToken: string
             params: pending.action_params,
         }
         const result = await executeDanteAction(pending.organization_id, action)
-        await sendTelegramDirect(botToken, chatId, result.message)
+        await sendResponse(result.message)
         return true
     }
 
     // Check for cancellation
     if (CANCEL_WORDS.some(w => lower === w || lower.startsWith(w + ' ') || lower.startsWith(w + ','))) {
         await cancelPendingAction(pending.id)
-        await sendTelegramDirect(botToken, chatId, '🚫 Azione annullata.')
+        await sendResponse('🚫 Azione annullata.')
         return true
     }
 
     // If there's a pending action but the user says something unrelated, ignore it
-    // (the action will expire after 5 minutes)
     return false
 }
 
@@ -482,11 +498,16 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
             const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
             const confirmMsg = cleanMessage + '\n\n⚠️ <i>Rispondi</i> <b>SÌ</b> <i>per confermare o</i> <b>NO</b> <i>per annullare.</i>'
 
-            // Save pending action
-            await savePendingAction(orgId, chatId, action, confirmMsg)
+            // Save pending action with voice mode
+            await savePendingAction(orgId, chatId, action, confirmMsg, 'voice')
 
-            // Action proposals always go as TEXT (never voice-read technical confirmations)
+            // Send as text + voice the confirmation (strip HTML for TTS)
             await sendTelegramDirect(botToken, chatId, `🤖 ${confirmMsg}`)
+            const stripHtml = (s: string) => s.replace(/<[^>]*>/g, '')
+            const audioBuffer = await textToSpeech(stripHtml(cleanMessage + '. Rispondi sì per confermare o no per annullare.'))
+            if (audioBuffer) {
+                await sendVoiceNote(botToken, chatId, audioBuffer)
+            }
             return
         } catch (e) {
             console.error('Failed to parse ACTION tag:', e)
