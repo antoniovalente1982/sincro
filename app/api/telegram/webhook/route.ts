@@ -160,12 +160,16 @@ async function handleVoiceMessage(message: any, orgId: string, botToken: string,
             return
         }
 
-        // Step 4: Detect response mode
+        // Step 4: Check for pending action confirmation/cancellation first
+        const pendingHandled = await handlePendingAction(transcribedText, orgId, botToken, chatId)
+        if (pendingHandled) return
+
+        // Step 5: Detect response mode
         // Default for voice = voice response, unless user explicitly asks for text
         const wantsText = detectTextRequest(transcribedText)
         const mode: ResponseMode = wantsText ? 'text' : 'voice'
 
-        // Step 5: Process as AI question with the right mode
+        // Step 6: Process as AI question with the right mode
         await handleAIQuestion(transcribedText, orgId, botToken, chatId, firstName, mode)
 
     } catch (err) {
@@ -464,22 +468,49 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
     const ctx = await getOrgDataContextLite(orgId)
     const response = await askAIFast(question, ctx)
 
-    if (mode === 'voice' && response.success) {
+    if (!response.success) {
+        await sendTelegramDirect(botToken, chatId, `⚠️ ${response.text}`)
+        return
+    }
+
+    // Check if response contains an ACTION tag
+    const actionMatch = response.text.match(/\[ACTION:(\{[\s\S]*?\})\]/)
+    if (actionMatch) {
+        try {
+            const action = JSON.parse(actionMatch[1]) as DanteAction
+            // Remove the ACTION tag from the visible message
+            const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
+            const confirmMsg = cleanMessage + '\n\n⚠️ <i>Rispondi</i> <b>SÌ</b> <i>per confermare o</i> <b>NO</b> <i>per annullare.</i>'
+
+            // Save pending action
+            await savePendingAction(orgId, chatId, action, confirmMsg)
+
+            // Action proposals always go as TEXT (never voice-read technical confirmations)
+            await sendTelegramDirect(botToken, chatId, `🤖 ${confirmMsg}`)
+            return
+        } catch (e) {
+            console.error('Failed to parse ACTION tag:', e)
+        }
+    }
+
+    // Normal response — strip any leftover ACTION-like text just in case
+    const cleanText = response.text.replace(/\[ACTION:[^\]]*\]/g, '').trim()
+
+    if (mode === 'voice') {
         await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: chatId, action: 'upload_voice' }),
         })
 
-        const audioBuffer = await textToSpeech(response.text)
+        const audioBuffer = await textToSpeech(cleanText)
         if (audioBuffer) {
             await sendVoiceNote(botToken, chatId, audioBuffer)
         } else {
-            await sendTelegramDirect(botToken, chatId, `🤖 ${response.text}`)
+            await sendTelegramDirect(botToken, chatId, `🤖 ${cleanText}`)
         }
     } else {
-        const header = response.success ? '🤖' : '⚠️'
-        await sendTelegramDirect(botToken, chatId, `${header} ${response.text}`)
+        await sendTelegramDirect(botToken, chatId, `🤖 ${cleanText}`)
     }
 }
 
