@@ -101,13 +101,18 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
         _old_stage_id: lead.stage_id, // Needed for CAPI event trigger in leads/route.ts
     }
 
-    // If moving to a "won" stage (Vendita), require value
+    // If moving to a "won" stage (Vendita), require BOTH product AND value
     if (stage.is_won) {
-        if (!value && !lead.value) {
-            return { success: false, message: `❌ Per spostare in "${stage.name}" serve un valore (€). Specifica il prodotto e prezzo.` }
+        const finalValue = value || lead.value
+        const finalProduct = product || lead.product
+        if (!finalValue || Number(finalValue) <= 0) {
+            return { success: false, message: `❌ Per spostare in "${stage.name}" serve il <b>valore (€)</b>. Chiedi ad Anto prodotto e prezzo.` }
         }
-        if (value) updateData.value = Number(value)
-        if (product) updateData.product = product
+        if (!finalProduct) {
+            return { success: false, message: `❌ Per spostare in "${stage.name}" serve il <b>prodotto</b> (Platinum o Impact). Chiedi ad Anto.` }
+        }
+        updateData.value = Number(finalValue)
+        updateData.product = finalProduct
     } else {
         // For non-won stages, still set value/product if provided
         if (value) updateData.value = Number(value)
