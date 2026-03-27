@@ -11,7 +11,6 @@ interface Props {
         id: string; name: string; description?: string; meta_pixel_id?: string
         settings?: any; organizations?: any; objective?: string
     }
-    initialAdsetAngle?: 'emotional'|'system'|'efficiency'|'status'|'default'
 }
 
 const FAMOUS_PLAYERS = [
@@ -45,7 +44,7 @@ const FAQ_ITEMS = [
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
 
-export default function MetodoSincroLandingV2({ funnel, initialAdsetAngle = 'default' }: Props) {
+export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
@@ -57,7 +56,7 @@ export default function MetodoSincroLandingV2({ funnel, initialAdsetAngle = 'def
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
-    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>(initialAdsetAngle)
+    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
         const [showExitPopup, setShowExitPopup] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const exitShownRef = useRef(false)
@@ -96,7 +95,15 @@ export default function MetodoSincroLandingV2({ funnel, initialAdsetAngle = 'def
         abVariant: funnel.settings?.ab_variant,
     })
 
-    // Detect adset angle from utm_term has been moved to the server (page.tsx) to fix CLS/LCP issues.
+    // Detect adset angle from utm_term
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const utmTerm = (params.get('utm_term') || '').toUpperCase()
+        if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) setAdsetAngle('emotional')
+        else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) setAdsetAngle('system')
+        else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) setAdsetAngle('efficiency')
+        else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) setAdsetAngle('status')
+    }, [])
 
     // Exit intent detection
     useEffect(() => {
