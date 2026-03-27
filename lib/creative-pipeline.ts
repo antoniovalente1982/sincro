@@ -202,9 +202,7 @@ export async function analyzeCreativeDNA(
         const budget = budgetByAngle[angle] || 0
         // Best practice CBO: 3-5 ads per AdSet
         // €0-15/day → 3 ads, €15-30 → 4 ads, €30+ → 5 ads
-        let target = 3
-        if (budget >= 30) target = 5
-        else if (budget >= 15) target = 4
+        let target = 10 // FORCE TEST: Generiamo sempre per testare Nano Banana
         distribution[angle] = { active, target, deficit: Math.max(0, target - active) }
     })
 
