@@ -2,15 +2,15 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
-let _supabaseAdmin: SupabaseClient | null = null
 function getSupabaseAdmin() {
-    if (!_supabaseAdmin) {
-        _supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        )
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        console.error('SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to ANON_KEY, which may cause RLS errors.')
     }
-    return _supabaseAdmin
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
 }
 
 // Rate limiting: simple in-memory store

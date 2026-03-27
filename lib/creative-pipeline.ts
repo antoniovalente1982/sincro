@@ -13,15 +13,15 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-let _supabaseAdmin: SupabaseClient | null = null
 function getSupabaseAdmin() {
-    if (!_supabaseAdmin) {
-        _supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        )
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing in environment variables. Cannot initialize Supabase Admin client.')
     }
-    return _supabaseAdmin
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey,
+    )
 }
 
 // ═══════════════════════════════════════════════

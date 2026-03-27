@@ -107,9 +107,13 @@ export async function generateAndUploadAdImage(
     aspectRatio: string = '4:5'
 ): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
     const { createClient } = await import('@supabase/supabase-js')
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        return { success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is missing' }
+    }
     const supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        serviceKey,
     )
 
     // 1. Generate image
