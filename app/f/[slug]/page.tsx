@@ -8,10 +8,29 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props { 
+    params: Promise<{ slug: string }> 
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-export default async function PublicFunnelPage({ params }: Props) {
+export default async function PublicFunnelPage({ params, searchParams }: Props) {
     const { slug } = await params
+    const resolvedSearchParams = await searchParams
+    // --- [PERFORMANCE FIX: PAGE SPEED INSIGHTS] ---
+    // The logic to detect the adset angle (utm_term) was moved here to the SERVER SIDE.
+    // Why? Previously it was handled by a client-side useEffect in the Landing Component.
+    // That caused a massive Layout Shift (CLS) and a slow LCP because the headline
+    // would swap AFTER the page loaded on the phone. By resolving it here on the server
+    // and passing it as `initialAdsetAngle`, the HTML is instantly perfect.
+    // IMPORTANT: Do NOT move this back to the client. It does not affect CAPI or Pixel tracking.
+    const utmTerm = typeof resolvedSearchParams.utm_term === 'string' ? resolvedSearchParams.utm_term.toUpperCase() : ''
+
+    let initialAdsetAngle: 'emotional'|'system'|'efficiency'|'status'|'default' = 'default'
+    if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) initialAdsetAngle = 'emotional'
+    else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) initialAdsetAngle = 'system'
+    else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) initialAdsetAngle = 'efficiency'
+    else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) initialAdsetAngle = 'status'
+    // ----------------------------------------------
 
     const { data: funnel } = await supabaseAdmin
         .from('funnels')
@@ -25,7 +44,7 @@ export default async function PublicFunnelPage({ params }: Props) {
     // Use dedicated template if specified in settings
     const template = funnel.settings?.template
     if (template === 'metodo_sincro') {
-        return <MetodoSincroLanding funnel={funnel} />
+        return <MetodoSincroLanding funnel={funnel} initialAdsetAngle={initialAdsetAngle} />
     }
 
     return <FunnelLandingPage funnel={funnel} />
