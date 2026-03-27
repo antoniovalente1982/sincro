@@ -113,6 +113,216 @@ export async function POST(req: NextRequest) {
             return await launchFullStrategy(adAccount, access_token, page_id, pixel_id, member.organization_id)
         }
 
+        // ═══════════ CREATIVE PIPELINE: Launch approved ad creative ═══════════
+        if (action === 'launch_ad_creative') {
+            const { creative_id } = body
+            if (!creative_id) {
+                return NextResponse.json({ error: 'creative_id required' }, { status: 400 })
+            }
+
+            // Fetch the approved creative
+            const { data: creative, error: fetchErr } = await supabaseAdmin
+                .from('ad_creatives')
+                .select('*')
+                .eq('id', creative_id)
+                .eq('organization_id', member.organization_id)
+                .single()
+
+            if (fetchErr || !creative) {
+                return NextResponse.json({ error: 'Creative not found' }, { status: 404 })
+            }
+
+            if (creative.status !== 'approved') {
+                return NextResponse.json({ error: `Creative status is '${creative.status}', must be 'approved'` }, { status: 400 })
+            }
+
+            const LANDING_URL = 'https://landing.metodosincro.com/f/metodo-sincro'
+
+            // Step 1: Upload image to Meta (if image_url exists)
+            let imageHash: string | null = null
+            if (creative.image_url) {
+                try {
+                    imageHash = await uploadImageByUrl(adAccount, access_token, creative.image_url, creative.name)
+                } catch (e: any) {
+                    return NextResponse.json({ error: `Image upload failed: ${e.message}` }, { status: 500 })
+                }
+            }
+
+            if (!imageHash) {
+                // If no image, update status back to 'approved' with note
+                await supabaseAdmin.from('ad_creatives')
+                    .update({ status: 'approved', kill_reason: 'Nessuna immagine disponibile per il lancio' })
+                    .eq('id', creative.id)
+                return NextResponse.json({ error: 'No image available for this creative. Generate/upload an image first.' }, { status: 400 })
+            }
+
+            // Build UTM tags for the target AdSet
+            const utmTags = `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term=${creative.landing_utm_term || creative.angle}&utm_content={{ad.name}}&fbadid={{ad.id}}`
+
+            // Step 2: Create Meta Ad Creative
+            const metaCreative = await metaPost(`${adAccount}/adcreatives`, access_token, {
+                name: creative.name,
+                object_story_spec: {
+                    page_id: page_id,
+                    instagram_user_id: '17841449195220971',
+                    link_data: {
+                        image_hash: imageHash,
+                        link: LANDING_URL,
+                        message: creative.copy_primary || '',
+                        name: creative.copy_headline || '',
+                        description: creative.copy_description || '',
+                        call_to_action: { type: creative.cta_type || 'LEARN_MORE' },
+                    },
+                },
+                url_tags: utmTags,
+            })
+
+            // Step 3: Create the Ad in the target AdSet
+            const targetAdsetId = creative.target_adset_id || creative.meta_adset_id
+            if (!targetAdsetId) {
+                return NextResponse.json({ error: 'No target AdSet ID specified' }, { status: 400 })
+            }
+
+            const metaAd = await metaPost(`${adAccount}/ads`, access_token, {
+                name: creative.name,
+                adset_id: targetAdsetId,
+                creative: { creative_id: metaCreative.id },
+                status: 'ACTIVE',
+            })
+
+            // Step 4: Update ad_creative record
+            await supabaseAdmin
+                .from('ad_creatives')
+                .update({
+                    status: 'launched',
+                    meta_ad_id: metaAd.id,
+                    meta_adset_id: targetAdsetId,
+                    launched_at: new Date().toISOString(),
+                })
+                .eq('id', creative.id)
+
+            // Step 5: Telegram notification
+            try {
+                const { sendTelegramMessage } = await import('@/lib/telegram')
+                await sendTelegramMessage(
+                    member.organization_id,
+                    `🚀 <b>AD LANCIATA SU META</b>\n\n📝 ${creative.name}\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}\n📊 AdSet: ${creative.target_adset_name || targetAdsetId}\n\n🆔 Meta Ad ID: ${metaAd.id}\n\n✅ L'ad è ATTIVA e inizierà a girare subito.`
+                )
+            } catch {}
+
+            // Log to AI episodes
+            await supabaseAdmin.from('ai_episodes').insert({
+                organization_id: member.organization_id,
+                episode_type: 'action',
+                action_type: 'ad_launched',
+                target_type: 'ad_creative',
+                target_id: creative.id,
+                target_name: creative.name,
+                context: {
+                    meta_ad_id: metaAd.id,
+                    meta_creative_id: metaCreative.id,
+                    adset_id: targetAdsetId,
+                    angle: creative.angle,
+                    pocket_id: creative.pocket_id,
+                },
+                reasoning: `Lanciata ad "${creative.name}" (pocket #${creative.pocket_id}) nell'AdSet ${targetAdsetId}`,
+                outcome: 'positive',
+                outcome_score: 0.9,
+            })
+
+            return NextResponse.json({
+                success: true,
+                message: `🚀 Ad "${creative.name}" lanciata su Meta`,
+                meta_ad_id: metaAd.id,
+                meta_creative_id: metaCreative.id,
+            })
+        }
+
+        // ═══════════ CREATIVE PIPELINE: Sync performance for launched creatives ═══════════
+        if (action === 'sync_creative_performance') {
+            // Fetch all launched/active creatives that have a meta_ad_id
+            const { data: launchedCreatives } = await supabaseAdmin
+                .from('ad_creatives')
+                .select('id, meta_ad_id, status')
+                .eq('organization_id', member.organization_id)
+                .in('status', ['launched', 'active'])
+                .not('meta_ad_id', 'is', null)
+
+            if (!launchedCreatives || launchedCreatives.length === 0) {
+                return NextResponse.json({ ok: true, synced: 0, message: 'No launched creatives to sync' })
+            }
+
+            const today = new Date().toISOString().slice(0, 10)
+            let synced = 0
+            let killed = 0
+
+            for (const creative of launchedCreatives) {
+                try {
+                    // Fetch ad-level insights from Meta
+                    const insightsRes = await fetch(
+                        `${META_API}/${creative.meta_ad_id}/insights?` +
+                        `fields=spend,impressions,clicks,actions,cost_per_action_type,purchase_roas,ctr` +
+                        `&date_preset=lifetime&access_token=${access_token}`
+                    )
+                    const insightsData = await insightsRes.json()
+                    const insights = insightsData.data?.[0]
+
+                    // Fetch ad status
+                    const statusRes = await fetch(
+                        `${META_API}/${creative.meta_ad_id}?fields=effective_status&access_token=${access_token}`
+                    )
+                    const statusData = await statusRes.json()
+                    const effectiveStatus = statusData.effective_status
+
+                    if (insights) {
+                        const spend = Number(insights.spend) || 0
+                        const impressions = Number(insights.impressions) || 0
+                        const clicks = Number(insights.clicks) || 0
+                        const ctr = Number(insights.ctr) || 0
+
+                        // Extract lead count from actions
+                        const actions = insights.actions || []
+                        const leadAction = actions.find((a: any) => a.action_type === 'lead')
+                        const leadsCount = leadAction ? Number(leadAction.value) || 0 : 0
+                        const cpl = leadsCount > 0 ? spend / leadsCount : 0
+
+                        // Extract ROAS
+                        const roasArr = insights.purchase_roas || []
+                        const roas = roasArr.length > 0 ? Number(roasArr[0]?.value) || 0 : 0
+
+                        // Determine new status
+                        let newStatus = creative.status
+                        let killReason: string | null = null
+                        if (effectiveStatus === 'PAUSED' || effectiveStatus === 'CAMPAIGN_PAUSED' || effectiveStatus === 'ADSET_PAUSED') {
+                            newStatus = 'killed'
+                            killReason = `Meta status: ${effectiveStatus}`
+                            killed++
+                        } else if (effectiveStatus === 'ACTIVE') {
+                            newStatus = 'active'
+                        }
+
+                        await supabaseAdmin
+                            .from('ad_creatives')
+                            .update({
+                                spend, impressions, clicks, leads_count: leadsCount,
+                                cpl: cpl > 0 ? cpl : null,
+                                ctr: ctr > 0 ? ctr : null,
+                                roas: roas > 0 ? roas : null,
+                                status: newStatus,
+                                kill_reason: killReason || undefined,
+                            })
+                            .eq('id', creative.id)
+
+                        synced++
+                    }
+                } catch (err: any) {
+                    console.error(`[Sync] Failed for creative ${creative.id}:`, err.message)
+                }
+            }
+
+            return NextResponse.json({ ok: true, synced, killed, total: launchedCreatives.length })
+        }
+
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
     } catch (err: any) {
         console.error('Campaign creation error:', err)
