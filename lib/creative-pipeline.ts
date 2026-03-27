@@ -400,6 +400,7 @@ Devi scrivere il copy per una nuova ad di Facebook.
 ATTENZIONE CRITICA AL TARGET E DEMOGRAFICA: Il target di queste Ads NON sono i ragazzi, ma i loro GENITORI (madri e padri di giovani calciatori di 16-18 anni). Devi rivolgerti a LORO ("tuo figlio", "tuo ragazzo", "come genitore"). MAI riferirsi a bambini piccoli.
 Sii persuasivo, diretto, usa un linguaggio emotivamente profondo ma molto pratico.
 NON usare emoji o hashtag nel "primary". Scrivi in modo estremamente naturale e di impatto.
+REGOLA FONDAMENTALE: Scrivi TASSATIVAMENTE e SOLTANTO in lingua ITALIANA. Non usare mai l'inglese.
 ${winningContextMsg}
 
 Il target (buyer pocket) è: "${pocket_name}"
