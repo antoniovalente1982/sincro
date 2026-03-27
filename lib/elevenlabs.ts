@@ -45,6 +45,9 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
         .replace(/#{1,3}\s*/g, '')              // markdown headers
         .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1') // markdown bold/italic
         .replace(/N\/A/g, 'non disponibile')    // N/A → spoken form
+        // Format phone numbers with spaces for clearer pronunciation (3358455317 → 335 845 5317)
+        .replace(/(\d{3})(\d{3,4})(\d{3,4})/g, '$1 $2 $3')
+        // Format large numbers: 2250 → 2.250 for Italian reading
         .replace(/\n{3,}/g, '\n\n')            // collapse triple+ newlines
         .trim()
 
@@ -60,9 +63,9 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                 text: cleanText,
                 model_id: MODEL_ID,
                 voice_settings: {
-                    stability: 0.65,
+                    stability: 0.80,
                     similarity_boost: 0.8,
-                    style: 0.2,
+                    style: 0.05,
                     use_speaker_boost: true,
                     speed: 1.1,
                 },
