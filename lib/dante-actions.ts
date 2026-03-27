@@ -510,6 +510,8 @@ export async function cancelPendingAction(actionId: string): Promise<void> {
 
 // --- Creative Pipeline: Approve/Reject Ad Creatives ---
 
+const META_API = 'https://graph.facebook.com/v21.0'
+
 async function approveCreative(orgId: string, params: Record<string, any>, newStatus: 'approved' | 'rejected'): Promise<ActionResult> {
     const { creative_name, creative_id } = params
 
@@ -540,6 +542,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
         return { success: false, message: `❌ Ad creativa "${creative_name || creative_id}" non trovata o già processata.` }
     }
 
+    // Update status
     const { error } = await supabaseAdmin
         .from('ad_creatives')
         .update({ status: newStatus })
@@ -549,11 +552,144 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
         return { success: false, message: `❌ Errore: ${error.message}` }
     }
 
-    const emoji = newStatus === 'approved' ? '✅' : '❌'
-    const verb = newStatus === 'approved' ? 'APPROVATA' : 'RIFIUTATA'
+    // If REJECTED → done
+    if (newStatus === 'rejected') {
+        return {
+            success: true,
+            message: `❌ Ad <b>${creative.name}</b> RIFIUTATA\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}`,
+        }
+    }
 
-    return {
-        success: true,
-        message: `${emoji} Ad <b>${creative.name}</b> ${verb}\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}\n📝 Headline: ${creative.copy_headline}`,
+    // If APPROVED → auto-launch immediately on Meta
+    try {
+        // Get Meta credentials
+        const { data: conn } = await supabaseAdmin
+            .from('connections')
+            .select('credentials')
+            .eq('organization_id', orgId)
+            .eq('provider', 'meta_ads')
+            .eq('status', 'active')
+            .single()
+
+        if (!conn?.credentials?.access_token) {
+            return {
+                success: true,
+                message: `✅ Ad <b>${creative.name}</b> APPROVATA ma Meta non connesso.\n\nLancia manualmente dalla Creative Studio.`,
+            }
+        }
+
+        const { access_token, ad_account_id, page_id } = conn.credentials
+        const adAccount = `act_${ad_account_id}`
+        const LANDING_URL = 'https://landing.metodosincro.com/f/metodo-sincro'
+
+        // Step 1: Upload image
+        let imageHash: string | null = null
+        if (creative.image_url) {
+            const formData = new FormData()
+            formData.append('url', creative.image_url)
+            formData.append('name', creative.name)
+            formData.append('access_token', access_token)
+
+            const imgRes = await fetch(`${META_API}/${adAccount}/adimages`, { method: 'POST', body: formData })
+            const imgData = await imgRes.json()
+            if (!imgData.error) {
+                const images = imgData.images || {}
+                const firstKey = Object.keys(images)[0]
+                imageHash = images[firstKey]?.hash || null
+            }
+        }
+
+        if (!imageHash) {
+            return {
+                success: true,
+                message: `✅ Ad <b>${creative.name}</b> APPROVATA ma nessuna immagine disponibile.\n\n⚠️ Genera l'immagine prima di lanciare.`,
+            }
+        }
+
+        // Step 2: Create Meta Ad Creative
+        const utmTags = `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term=${creative.landing_utm_term || creative.angle}&utm_content={{ad.name}}&fbadid={{ad.id}}`
+
+        const creativeRes = await fetch(`${META_API}/${adAccount}/adcreatives`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                access_token,
+                name: creative.name,
+                object_story_spec: {
+                    page_id,
+                    instagram_user_id: '17841449195220971',
+                    link_data: {
+                        image_hash: imageHash,
+                        link: LANDING_URL,
+                        message: creative.copy_primary || '',
+                        name: creative.copy_headline || '',
+                        description: creative.copy_description || '',
+                        call_to_action: { type: creative.cta_type || 'LEARN_MORE' },
+                    },
+                },
+                url_tags: utmTags,
+            }),
+        })
+        const metaCreative = await creativeRes.json()
+        if (metaCreative.error) throw new Error(metaCreative.error.message)
+
+        // Step 3: Create the Ad in the target AdSet
+        const targetAdsetId = creative.target_adset_id || creative.meta_adset_id
+        if (!targetAdsetId) {
+            return {
+                success: true,
+                message: `✅ Ad <b>${creative.name}</b> APPROVATA ma nessun AdSet target.\n\n⚠️ Imposta target_adset_id nella Creative Studio.`,
+            }
+        }
+
+        const adRes = await fetch(`${META_API}/${adAccount}/ads`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                access_token,
+                name: creative.name,
+                adset_id: targetAdsetId,
+                creative: { creative_id: metaCreative.id },
+                status: 'ACTIVE',
+            }),
+        })
+        const metaAd = await adRes.json()
+        if (metaAd.error) throw new Error(metaAd.error.message)
+
+        // Step 4: Update record to 'launched'
+        await supabaseAdmin
+            .from('ad_creatives')
+            .update({
+                status: 'launched',
+                meta_ad_id: metaAd.id,
+                meta_adset_id: targetAdsetId,
+                launched_at: new Date().toISOString(),
+            })
+            .eq('id', creative.id)
+
+        // Log
+        await supabaseAdmin.from('ai_episodes').insert({
+            organization_id: orgId,
+            episode_type: 'action',
+            action_type: 'ad_auto_launched',
+            target_type: 'ad_creative',
+            target_id: creative.id,
+            target_name: creative.name,
+            context: { meta_ad_id: metaAd.id, angle: creative.angle, pocket_id: creative.pocket_id },
+            reasoning: `Auto-launch: "${creative.name}" approvata e lanciata immediatamente`,
+            outcome: 'positive',
+            outcome_score: 0.9,
+        })
+
+        return {
+            success: true,
+            message: `🚀 Ad <b>${creative.name}</b> APPROVATA e LANCIATA!\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}\n📝 ${creative.copy_headline}\n\n🆔 Meta Ad ID: ${metaAd.id}\n📊 AdSet: ${creative.target_adset_name || targetAdsetId}\n\n✅ L'ad è ATTIVA e sta girando.`,
+        }
+    } catch (launchErr: any) {
+        // Approval succeeded but launch failed — log it
+        return {
+            success: true,
+            message: `✅ Ad <b>${creative.name}</b> APPROVATA\n\n⚠️ Auto-launch fallito: ${launchErr.message}\n\nPuoi lanciare manualmente dalla Creative Studio.`,
+        }
     }
 }

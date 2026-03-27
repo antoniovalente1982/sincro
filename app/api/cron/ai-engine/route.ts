@@ -277,6 +277,59 @@ export async function GET(req: NextRequest) {
                 const killedAds = executedResults.filter(r => r.action === 'pause_ad' && r.executionResult === 'executed')
                 await sendCronTelegramReport(orgId, executedResults, isLive, killedAds, allActiveAds, skippedSafety)
             }
+
+            // ═══ SYNC CREATIVE PIPELINE PERFORMANCE ═══
+            // Update metrics for all launched/active ad_creatives
+            try {
+                const { data: launchedCreatives } = await supabaseAdmin
+                    .from('ad_creatives')
+                    .select('id, meta_ad_id, status')
+                    .eq('organization_id', orgId)
+                    .in('status', ['launched', 'active'])
+                    .not('meta_ad_id', 'is', null)
+
+                if (launchedCreatives && launchedCreatives.length > 0) {
+                    for (const creative of launchedCreatives) {
+                        try {
+                            const [insRes, stRes] = await Promise.all([
+                                fetch(`https://graph.facebook.com/${META_API_VERSION}/${creative.meta_ad_id}/insights?fields=spend,impressions,clicks,actions,cost_per_action_type,purchase_roas,ctr&date_preset=lifetime&access_token=${access_token}`),
+                                fetch(`https://graph.facebook.com/${META_API_VERSION}/${creative.meta_ad_id}?fields=effective_status&access_token=${access_token}`),
+                            ])
+                            const insData = await insRes.json()
+                            const stData = await stRes.json()
+                            const ins = insData.data?.[0]
+
+                            if (ins) {
+                                const spend = Number(ins.spend) || 0
+                                const clicks = Number(ins.clicks) || 0
+                                const ctr = Number(ins.ctr) || 0
+                                const leadAction = (ins.actions || []).find((a: any) => a.action_type === 'lead')
+                                const leads = leadAction ? Number(leadAction.value) || 0 : 0
+                                const cpl = leads > 0 ? spend / leads : 0
+                                const roasArr = ins.purchase_roas || []
+                                const roas = roasArr.length > 0 ? Number(roasArr[0]?.value) || 0 : 0
+
+                                let newStatus = creative.status
+                                let killReason: string | null = null
+                                const eff = stData.effective_status
+                                if (eff === 'PAUSED' || eff === 'CAMPAIGN_PAUSED' || eff === 'ADSET_PAUSED') {
+                                    newStatus = 'killed'
+                                    killReason = `Meta: ${eff}`
+                                } else if (eff === 'ACTIVE') {
+                                    newStatus = 'active'
+                                }
+
+                                await supabaseAdmin.from('ad_creatives').update({
+                                    spend, clicks, impressions: Number(ins.impressions) || 0,
+                                    leads_count: leads, cpl: cpl > 0 ? cpl : null,
+                                    ctr: ctr > 0 ? ctr : null, roas: roas > 0 ? roas : null,
+                                    status: newStatus, kill_reason: killReason || undefined,
+                                }).eq('id', creative.id)
+                            }
+                        } catch {}
+                    }
+                }
+            } catch {}
         }
 
         // Build summary for Force Run UI
