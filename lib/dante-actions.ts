@@ -600,7 +600,8 @@ async function forceRunPipeline(orgId: string): Promise<ActionResult> {
         let msg = '🧠 <b>CREATIVE PIPELINE — Force Run</b>\n\n'
         msg += `📊 Deficit totale: ${result.total_deficit} ads mancanti\n`
         msg += `🎯 Angoli analizzati: ${result.angles_analyzed.join(', ') || 'nessuno'}\n`
-        msg += `✨ Briefs generati: ${result.briefs_generated.length}\n\n`
+        msg += `✨ Briefs generati: ${result.briefs_generated.length}\n`
+        msg += `🖼 Immagini generate: ${result.images_generated}/${result.briefs_generated.length}\n\n`
 
         if (result.briefs_generated.length > 0) {
             for (const brief of result.briefs_generated) {
@@ -614,6 +615,11 @@ async function forceRunPipeline(orgId: string): Promise<ActionResult> {
             }
         } else {
             msg += '✅ Nessun deficit — tutte le ads sono coperte!\n'
+        }
+
+        if (result.image_errors.length > 0) {
+            msg += `\n🖼 Errori immagini:\n`
+            result.image_errors.forEach(e => { msg += `⚠️ ${e}\n` })
         }
 
         if (result.skipped_reasons.length > 0) {

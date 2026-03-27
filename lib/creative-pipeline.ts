@@ -433,6 +433,8 @@ function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: Creativ
 
 export interface PipelineResult {
     briefs_generated: CreativeBrief[]
+    images_generated: number
+    image_errors: string[]
     total_deficit: number
     angles_analyzed: string[]
     skipped_reasons: string[]
@@ -466,6 +468,8 @@ export async function runCreativePipeline(
 
     const result: PipelineResult = {
         briefs_generated: [],
+        images_generated: 0,
+        image_errors: [],
         total_deficit: 0,
         angles_analyzed: [],
         skipped_reasons: [],
@@ -528,7 +532,29 @@ export async function runCreativePipeline(
             continue
         }
 
-        // 4. Save to ad_creatives with status 'ready'
+        // 4a. Generate image with Nano Banana 2
+        let imageUrl: string | null = null
+        let imageError: string | null = null
+        try {
+            const { generateAndUploadAdImage } = await import('@/lib/nano-banana')
+            const imgResult = await generateAndUploadAdImage(
+                brief.image_prompt,
+                orgId,
+                brief.name,
+                brief.aspect_ratio,
+            )
+            if (imgResult.success && imgResult.imageUrl) {
+                imageUrl = imgResult.imageUrl
+                result.images_generated++
+            } else {
+                imageError = imgResult.error || 'Errore sconosciuto'
+                result.image_errors.push(`${angle}: ${imageError}`)
+            }
+        } catch (imgErr: any) {
+            imageError = imgErr.message
+        }
+
+        // 4b. Save to ad_creatives with status 'ready'
         const { error } = await supabase
             .from('ad_creatives')
             .insert({
@@ -545,12 +571,14 @@ export async function runCreativePipeline(
                 copy_primary: brief.copy.primary,
                 copy_headline: brief.copy.headline,
                 copy_description: brief.copy.description,
+                image_url: imageUrl,
                 cta_type: brief.cta_type,
                 aspect_ratio: brief.aspect_ratio,
                 brief_data: {
                     image_prompt: brief.image_prompt,
                     winning_context: brief.winning_context,
                     pocket_selection_reason: brief.pocket.selection_reason,
+                    image_error: imageError,
                 },
                 winning_patterns: dna.winning_patterns,
                 status: 'ready',
