@@ -19,12 +19,23 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
 
     // Strip HTML tags for TTS
     const cleanText = truncatedText
-        .replace(/<[^>]*>/g, '')
+        .replace(/<[^>]*>/g, '')               // HTML tags
+        .replace(/\[ACTION:\{[\s\S]*?\}\]/g, '') // ACTION tags (should not be read aloud)
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
+        // Remove emoji that TTS tries to pronounce
+        .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '')
+        // Clean up formatting artifacts
+        .replace(/\|/g, ', ')                   // pipe separators → comma
+        .replace(/━+/g, '')                     // horizontal rules
+        .replace(/#{1,3}\s*/g, '')              // markdown headers
+        .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1') // markdown bold/italic
+        .replace(/N\/A/g, 'non disponibile')    // N/A → spoken form
+        .replace(/\n{3,}/g, '\n\n')            // collapse triple+ newlines
+        .trim()
 
     try {
         const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${DEFAULT_VOICE_ID}`, {
@@ -42,7 +53,7 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                     similarity_boost: 0.8,
                     style: 0.2,
                     use_speaker_boost: true,
-                    speed: 1.2,
+                    speed: 1.0,
                 },
             }),
         })
