@@ -194,7 +194,11 @@ export async function analyzeCreativeDNA(
         if (angle === 'unknown') return
         const active = activeByAngle[angle] || 0
         const budget = budgetByAngle[angle] || 0
-        const target = Math.max(Math.floor(budget / 7), 2) // Min 2 ads per angle
+        // Best practice CBO: 3-5 ads per AdSet
+        // €0-15/day → 3 ads, €15-30 → 4 ads, €30+ → 5 ads
+        let target = 3
+        if (budget >= 30) target = 5
+        else if (budget >= 15) target = 4
         distribution[angle] = { active, target, deficit: Math.max(0, target - active) }
     })
 
