@@ -320,26 +320,31 @@ async function searchLead(orgId: string, params: Record<string, any>): Promise<A
         } catch { return iso }
     }
 
-    const results = leads.map((l, i) => {
+    // Compact format: name, stage, date. Full details only if 1 result.
+    if (leads.length === 1) {
+        const l = leads[0]
         const stageName = stageMap.get(l.stage_id) || 'Non assegnato'
         const childAge = l.meta_data?.child_age || ''
         const parts = [
-            `${i + 1}. <b>${l.name}</b>`,
-            `   📍 Stage: ${stageName}`,
-            `   📞 ${l.phone || 'N/A'} | 📧 ${l.email || 'N/A'}`,
-            l.utm_source ? `   📡 Fonte: ${l.utm_source}${l.utm_campaign ? ` / ${l.utm_campaign}` : ''}` : '',
-            l.value ? `   💰 Valore: €${l.value}` : '',
-            l.product ? `   📦 Prodotto: ${l.product}` : '',
-            childAge ? `   👦 Età figlio: ${childAge}` : '',
-            l.notes ? `   📝 Note: ${l.notes}` : '',
-            `   🕐 Arrivo: ${fmtDate(l.created_at)}`,
+            `✅ <b>${l.name}</b>`,
+            `📍 Stage: <b>${stageName}</b>`,
+            `🕐 Arrivo: ${fmtDate(l.created_at)}`,
+            `📞 ${l.phone || 'N/A'} | 📧 ${l.email || 'N/A'}`,
+            l.value ? `💰 Valore: €${l.value}` : '',
+            l.product ? `📦 ${l.product}` : '',
+            childAge ? `👦 Età figlio: ${childAge}` : '',
         ].filter(Boolean)
-        return parts.join('\n')
-    }).join('\n\n')
+        return { success: true, message: parts.join('\n'), is_info: true }
+    }
+
+    const results = leads.map((l, i) => {
+        const stageName = stageMap.get(l.stage_id) || 'N/A'
+        return `${i + 1}. <b>${l.name}</b> — ${stageName} — ${fmtDate(l.created_at)}`
+    }).join('\n')
 
     return {
         success: true,
-        message: `🔍 <b>Risultati per "${query}"</b> (${leads.length} trovati):\n\n${results}`,
+        message: `🔍 ${leads.length} risultati per "${query}":\n${results}`,
         is_info: true,
     }
 }

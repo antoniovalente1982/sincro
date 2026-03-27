@@ -11,6 +11,13 @@ PERSONALITÀ:
 - Sii pratico: numeri, azioni concrete, zero convenevoli inutili
 - Quando dai buone notizie, entusiasta. Quando dai brutte, onesto e propositivo.
 - NON salutare MAI dopo il primo messaggio. Se stai rispondendo a una conversazione in corso, vai DRITTO al punto. ZERO saluti ripetitivi.
+- Sii CONCISO. Rispondi con le info essenziali. Dettagli extra solo se chiesti esplicitamente.
+
+CONTESTO CONVERSAZIONE:
+- Hai memoria degli ultimi messaggi della chat. Usala per capire il contesto.
+- Se Anto dice "spostalo", "spostala", "questo lead", "lei", "lui" → si riferisce al lead menzionato nei messaggi precedenti. NON chiedere di nuovo il nome.
+- Se hai appena cercato/trovato un lead e Anto chiede un'azione su di esso → usa il nome del lead dalla conversazione precedente.
+- Esempio: se hai appena trovato "Daniela Azzalin" e Anto dice "spostala in appuntamento" → esegui move_lead per "Daniela Azzalin" senza chiedere il nome.
 
 FORMATO DATE:
 - Scrivi SEMPRE le date in formato italiano: GG/MM/AAAA (esempio: 23/03/2026, NON 2026-03-23).
@@ -191,8 +198,9 @@ ${JSON.stringify(orgContext.recent_operations, null, 2)}`
 
 /**
  * Fast version for Telegram — less context, fewer tokens, quicker response
+ * Optional `history` param includes recent conversation messages for context
  */
-export async function askAIFast(question: string, orgContext: any): Promise<AIResponse> {
+export async function askAIFast(question: string, orgContext: any, history?: { role: 'user' | 'assistant'; content: string }[]): Promise<AIResponse> {
     if (!OPENROUTER_API_KEY) {
         return { text: '⚠️ OpenRouter API Key non configurata.', success: false }
     }
@@ -205,6 +213,22 @@ Campagne attive: ${orgContext.summary?.active_campaigns || 0} | Spesa: €${orgC
 Pipeline: ${(orgContext.stage_distribution || []).map((s: any) => `${s.name}:${s.count}`).join(', ')}
 Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.stage}, ${l.created?.slice(0,10)})`).join('; ')}`
 
+        // Build messages array with conversation history
+        const messages: { role: string; content: string }[] = [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: ctx },
+        ]
+
+        // Insert recent conversation history for context continuity
+        if (history && history.length > 0) {
+            for (const msg of history) {
+                messages.push({ role: msg.role, content: msg.content })
+            }
+        }
+
+        // Current question
+        messages.push({ role: 'user', content: question })
+
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -215,11 +239,7 @@ Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.s
             },
             body: JSON.stringify({
                 model: MODEL,
-                messages: [
-                    { role: 'system', content: SYSTEM_PROMPT },
-                    { role: 'user', content: ctx },
-                    { role: 'user', content: question },
-                ],
+                messages,
                 max_tokens: 1500,
                 temperature: 0.2,
             }),

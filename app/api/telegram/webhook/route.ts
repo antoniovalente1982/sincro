@@ -17,6 +17,32 @@ const supabaseAdmin = createClient(
 // Allow up to 60s for AI responses (default 10s causes timeouts)
 export const maxDuration = 60
 
+// --- Conversation Memory Helpers ---
+
+async function loadChatHistory(chatId: string, limit = 10): Promise<{ role: 'user' | 'assistant'; content: string }[]> {
+    const { data } = await supabaseAdmin
+        .from('dante_messages')
+        .select('role, content')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+    if (!data || data.length === 0) return []
+    // Reverse so oldest is first (chronological order)
+    return data.reverse().map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))
+}
+
+async function saveMessage(orgId: string, chatId: string, role: 'user' | 'assistant', content: string) {
+    // Strip ACTION tags from assistant messages before saving
+    const cleanContent = role === 'assistant'
+        ? content.replace(/\[ACTION:\{[\s\S]*?\}\]/g, '').trim()
+        : content
+    await supabaseAdmin
+        .from('dante_messages')
+        .insert({ organization_id: orgId, chat_id: chatId, role, content: cleanContent })
+        .then(() => {}) // fire and forget
+}
+
 // Telegram Webhook — receives messages from the bot
 // This endpoint must be public (no auth) since Telegram calls it
 export async function POST(req: NextRequest) {
@@ -377,11 +403,17 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
         body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
     })
 
-    // Use lightweight context (now with live Meta API data)
-    const ctx = await getOrgDataContextLite(orgId)
+    // Load conversation history + org context in parallel
+    const [ctx, history] = await Promise.all([
+        getOrgDataContextLite(orgId),
+        loadChatHistory(chatId),
+    ])
 
-    // Use fast AI (compact context, fewer tokens)
-    const response = await askAIFast(question, ctx)
+    // Save user message
+    saveMessage(orgId, chatId, 'user', question)
+
+    // Use fast AI with conversation history
+    const response = await askAIFast(question, ctx, history)
 
     if (!response.success) {
         await sendTelegramDirect(botToken, chatId, `⚠️ ${response.text}`)
@@ -400,6 +432,8 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
                 const result = await executeDanteAction(orgId, action)
                 const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
                 await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
+                // Save the search result as assistant message for context
+                saveMessage(orgId, chatId, 'assistant', msg)
                 return
             }
 
@@ -411,6 +445,8 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
 
             // Send confirmation request
             await sendTelegramDirect(botToken, chatId, `🤖 ${confirmMsg}`)
+            // Save assistant message for context
+            saveMessage(orgId, chatId, 'assistant', cleanMessage)
             return
         } catch (e) {
             console.error('Failed to parse ACTION tag:', e)
@@ -419,6 +455,8 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
 
     // Normal response (no action)
     await sendTelegramDirect(botToken, chatId, `🤖 ${response.text}`)
+    // Save assistant response for context
+    saveMessage(orgId, chatId, 'assistant', response.text)
 }
 
 // --- Pending Action Handler (confirmation/cancellation) ---
@@ -490,8 +528,16 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
         body: JSON.stringify({ chat_id: chatId, action: mode === 'voice' ? 'record_voice' : 'typing' }),
     })
 
-    const ctx = await getOrgDataContextLite(orgId)
-    const response = await askAIFast(question, ctx)
+    // Load conversation history + org context in parallel
+    const [ctx, history] = await Promise.all([
+        getOrgDataContextLite(orgId),
+        loadChatHistory(chatId),
+    ])
+
+    // Save user message
+    saveMessage(orgId, chatId, 'user', question)
+
+    const response = await askAIFast(question, ctx, history)
 
     if (!response.success) {
         await sendTelegramDirect(botToken, chatId, `⚠️ ${response.text}`)
@@ -512,6 +558,7 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
 
                 // Send text response
                 await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
+                saveMessage(orgId, chatId, 'assistant', msg)
 
                 // Also voice if originally voice mode
                 if (mode === 'voice') {
@@ -530,6 +577,7 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
 
             // Send as text + voice the confirmation (strip HTML for TTS)
             await sendTelegramDirect(botToken, chatId, `🤖 ${confirmMsg}`)
+            saveMessage(orgId, chatId, 'assistant', cleanMessage)
             const stripHtml = (s: string) => s.replace(/<[^>]*>/g, '')
             const audioBuffer = await textToSpeech(stripHtml(cleanMessage + '. Rispondi sì per confermare o no per annullare.'))
             if (audioBuffer) {
@@ -543,6 +591,7 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
 
     // Normal response — strip any leftover ACTION-like text just in case
     const cleanText = response.text.replace(/\[ACTION:[^\]]*\]/g, '').trim()
+    saveMessage(orgId, chatId, 'assistant', cleanText)
 
     if (mode === 'voice') {
         await fetch(`https://api.telegram.org/bot${botToken}/sendChatAction`, {
