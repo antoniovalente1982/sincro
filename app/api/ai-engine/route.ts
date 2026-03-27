@@ -362,6 +362,162 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ trend })
     }
 
+    // ═══════════════════════════════════════════════
+    // CREATIVE PIPELINE — Circuito chiuso automatico
+    // ═══════════════════════════════════════════════
+
+    if (action === 'run_creative_pipeline') {
+        try {
+            const { runCreativePipeline } = await import('@/lib/creative-pipeline')
+            const { sendTelegramMessage } = await import('@/lib/telegram')
+
+            // Input: ad-level data, campaign budgets, adset→angle mappings
+            const adMetrics = body.ads || []
+            const campaignBudgets = body.campaign_budgets || {}
+            const adsetAngles = body.adset_angles || {}     // { adset_id: 'efficiency' }
+            const adsetNames = body.adset_names || {}       // { adset_id: 'AdSet Efficiency' }
+            const adsetUtmTerms = body.adset_utm_terms || {} // { adset_id: 'efficiency_controllo' }
+
+            const pipelineResult = await runCreativePipeline(
+                member.organization_id,
+                adMetrics,
+                campaignBudgets,
+                adsetAngles,
+                adsetNames,
+                adsetUtmTerms,
+            )
+
+            // Send Telegram notification for each generated brief
+            if (pipelineResult.briefs_generated.length > 0) {
+                for (const brief of pipelineResult.briefs_generated) {
+                    let tgMsg = '🎨 <b>NUOVA AD PRONTA — Approval Required</b>\n\n'
+                    tgMsg += `📐 Formato: ${brief.aspect_ratio}\n`
+                    tgMsg += `🎯 Angolo: ${brief.angle.toUpperCase()}\n`
+                    tgMsg += `🧠 Pocket: #${brief.pocket.pocket_id} ${brief.pocket.pocket_name}\n`
+                    tgMsg += `📊 Buyer State: ${brief.pocket.buyer_state}\n`
+                    tgMsg += `❓ Core Question: "${brief.pocket.core_question}"\n\n`
+                    tgMsg += `📝 <b>Copy:</b>\n${brief.copy.headline}\n\n${brief.copy.primary.substring(0, 200)}...\n\n`
+                    tgMsg += `🎯 AdSet Target: ${brief.adset.name}\n`
+                    tgMsg += `🔗 UTM Term: ${brief.adset.utm_term}\n\n`
+                    tgMsg += `💡 ${brief.winning_context.top_ads_summary}\n\n`
+                    tgMsg += `Rispondi:\n`
+                    tgMsg += `✅ "Approva ${brief.name}" → Lancio su Meta\n`
+                    tgMsg += `❌ "Rifiuta ${brief.name}" → Archiviata`
+
+                    await sendTelegramMessage(member.organization_id, tgMsg)
+                }
+
+                // Log to AI episodes
+                await supabase.from('ai_episodes').insert({
+                    organization_id: member.organization_id,
+                    episode_type: 'action',
+                    action_type: 'creative_pipeline_run',
+                    target_type: 'ad_creatives',
+                    context: {
+                        briefs_count: pipelineResult.briefs_generated.length,
+                        total_deficit: pipelineResult.total_deficit,
+                        angles: pipelineResult.angles_analyzed,
+                        skipped: pipelineResult.skipped_reasons,
+                    },
+                    reasoning: `Pipeline generata: ${pipelineResult.briefs_generated.length} brief, deficit totale: ${pipelineResult.total_deficit}`,
+                    outcome: 'positive',
+                    outcome_score: 0.7,
+                })
+            }
+
+            return NextResponse.json({
+                ok: true,
+                briefs_generated: pipelineResult.briefs_generated.length,
+                total_deficit: pipelineResult.total_deficit,
+                angles_analyzed: pipelineResult.angles_analyzed,
+                skipped_reasons: pipelineResult.skipped_reasons,
+                briefs: pipelineResult.briefs_generated.map(b => ({
+                    name: b.name,
+                    angle: b.angle,
+                    pocket: `#${b.pocket.pocket_id} ${b.pocket.pocket_name}`,
+                    adset: b.adset.name,
+                    copy_headline: b.copy.headline,
+                })),
+            })
+        } catch (err: any) {
+            return NextResponse.json({ error: `Pipeline failed: ${err.message}` }, { status: 500 })
+        }
+    }
+
+    if (action === 'approve_creative') {
+        // Approve or reject an ad creative (from Dante/Telegram or dashboard)
+        const { creative_id, creative_name, decision } = body // decision: 'approve' | 'reject'
+
+        // Find creative by ID or name
+        let query = supabase.from('ad_creatives')
+            .select('*')
+            .eq('organization_id', member.organization_id)
+
+        if (creative_id) {
+            query = query.eq('id', creative_id)
+        } else if (creative_name) {
+            query = query.eq('name', creative_name)
+        } else {
+            return NextResponse.json({ error: 'creative_id or creative_name required' }, { status: 400 })
+        }
+
+        const { data: creative } = await query.single()
+        if (!creative) return NextResponse.json({ error: 'Creative not found' }, { status: 404 })
+
+        const newStatus = decision === 'approve' ? 'approved' : 'rejected'
+        const { error } = await supabase.from('ad_creatives')
+            .update({
+                status: newStatus,
+                approved_by: decision === 'approve' ? user.id : null,
+            })
+            .eq('id', creative.id)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        // Notify via Telegram
+        try {
+            const { sendTelegramMessage } = await import('@/lib/telegram')
+            const emoji = decision === 'approve' ? '✅' : '❌'
+            await sendTelegramMessage(
+                member.organization_id,
+                `${emoji} <b>Ad ${creative.name}</b> — ${decision === 'approve' ? 'APPROVATA' : 'RIFIUTATA'}\n\nAngolo: ${creative.angle} | Pocket: #${creative.pocket_id} ${creative.pocket_name}`
+            )
+        } catch {}
+
+        return NextResponse.json({ success: true, status: newStatus })
+    }
+
+    if (action === 'get_creative_pipeline_status') {
+        // Get current state of the creative pipeline
+        const [creativesRes, deficitData] = await Promise.all([
+            supabase.from('ad_creatives')
+                .select('*')
+                .eq('organization_id', member.organization_id)
+                .order('created_at', { ascending: false })
+                .limit(50),
+            supabase.from('ad_creatives')
+                .select('angle, status')
+                .eq('organization_id', member.organization_id),
+        ])
+
+        const creatives = creativesRes.data || []
+        const allCreatives = deficitData.data || []
+
+        // Count by status
+        const byStatus: Record<string, number> = {}
+        const byAngle: Record<string, Record<string, number>> = {}
+        allCreatives.forEach(c => {
+            byStatus[c.status] = (byStatus[c.status] || 0) + 1
+            if (!byAngle[c.angle]) byAngle[c.angle] = {}
+            byAngle[c.angle][c.status] = (byAngle[c.angle][c.status] || 0) + 1
+        })
+
+        return NextResponse.json({
+            creatives,
+            summary: { by_status: byStatus, by_angle: byAngle, total: allCreatives.length },
+        })
+    }
+
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }
 

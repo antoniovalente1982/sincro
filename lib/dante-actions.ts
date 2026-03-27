@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 // --- Types ---
 
 export interface DanteAction {
-    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot' | 'search_lead'
+    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot' | 'search_lead' | 'approve_creative' | 'reject_creative'
     params: Record<string, any>
 }
 
@@ -30,6 +30,10 @@ export async function executeDanteAction(orgId: string, action: DanteAction): Pr
             return toggleAutopilot(orgId, action.params)
         case 'search_lead':
             return searchLead(orgId, action.params)
+        case 'approve_creative':
+            return approveCreative(orgId, action.params, 'approved')
+        case 'reject_creative':
+            return approveCreative(orgId, action.params, 'rejected')
         default:
             return { success: false, message: `Azione sconosciuta: ${action.type}` }
     }
@@ -502,4 +506,54 @@ export async function cancelPendingAction(actionId: string): Promise<void> {
         .from('dante_pending_actions')
         .update({ status: 'cancelled' })
         .eq('id', actionId)
+}
+
+// --- Creative Pipeline: Approve/Reject Ad Creatives ---
+
+async function approveCreative(orgId: string, params: Record<string, any>, newStatus: 'approved' | 'rejected'): Promise<ActionResult> {
+    const { creative_name, creative_id } = params
+
+    // Find creative by name (fuzzy) or by id
+    let creative: any = null
+    if (creative_id) {
+        const { data } = await supabaseAdmin
+            .from('ad_creatives')
+            .select('*')
+            .eq('organization_id', orgId)
+            .eq('id', creative_id)
+            .single()
+        creative = data
+    } else if (creative_name) {
+        const { data } = await supabaseAdmin
+            .from('ad_creatives')
+            .select('*')
+            .eq('organization_id', orgId)
+            .ilike('name', `%${creative_name}%`)
+            .in('status', ['ready', 'draft'])
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+        creative = data
+    }
+
+    if (!creative) {
+        return { success: false, message: `❌ Ad creativa "${creative_name || creative_id}" non trovata o già processata.` }
+    }
+
+    const { error } = await supabaseAdmin
+        .from('ad_creatives')
+        .update({ status: newStatus })
+        .eq('id', creative.id)
+
+    if (error) {
+        return { success: false, message: `❌ Errore: ${error.message}` }
+    }
+
+    const emoji = newStatus === 'approved' ? '✅' : '❌'
+    const verb = newStatus === 'approved' ? 'APPROVATA' : 'RIFIUTATA'
+
+    return {
+        success: true,
+        message: `${emoji} Ad <b>${creative.name}</b> ${verb}\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}\n📝 Headline: ${creative.copy_headline}`,
+    }
 }
