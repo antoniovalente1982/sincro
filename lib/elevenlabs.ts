@@ -26,10 +26,13 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
-        // Currency symbols → spoken words
+        // Currency symbols → spoken words (MUST be before emoji strip)
         .replace(/€\s*/g, ' euro ')
         .replace(/\$\s*/g, ' dollari ')
         .replace(/£\s*/g, ' sterline ')
+        // Also catch patterns like "euro225" or double spaces
+        .replace(/euro(\d)/g, 'euro $1')
+        .replace(/\s{2,}/g, ' ')
         // Remove emoji that TTS tries to pronounce
         .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '')
         // Clean up formatting artifacts
