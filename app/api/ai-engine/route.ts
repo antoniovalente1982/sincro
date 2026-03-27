@@ -368,24 +368,10 @@ export async function POST(req: NextRequest) {
 
     if (action === 'run_creative_pipeline') {
         try {
-            const { runCreativePipeline } = await import('@/lib/creative-pipeline')
+            const { runFullPipelineWithApiFetch } = await import('@/lib/creative-pipeline')
             const { sendTelegramMessage } = await import('@/lib/telegram')
 
-            // Input: ad-level data, campaign budgets, adset→angle mappings
-            const adMetrics = body.ads || []
-            const campaignBudgets = body.campaign_budgets || {}
-            const adsetAngles = body.adset_angles || {}     // { adset_id: 'efficiency' }
-            const adsetNames = body.adset_names || {}       // { adset_id: 'AdSet Efficiency' }
-            const adsetUtmTerms = body.adset_utm_terms || {} // { adset_id: 'efficiency_controllo' }
-
-            const pipelineResult = await runCreativePipeline(
-                member.organization_id,
-                adMetrics,
-                campaignBudgets,
-                adsetAngles,
-                adsetNames,
-                adsetUtmTerms,
-            )
+            const pipelineResult = await runFullPipelineWithApiFetch(member.organization_id)
 
             // Send Telegram notification for each generated brief
             if (pipelineResult.briefs_generated.length > 0) {

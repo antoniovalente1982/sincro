@@ -458,6 +458,100 @@ export interface PipelineResult {
  * - Cooldown 24h per lo stesso angolo
  * - Check duplicati pocket
  */
+/**
+ * Esegue la pipeline creativa in autonomia, recuperando prima i dati da Meta.
+ * Usa la stessa logica di dante-actions e del cron-job.
+ */
+export async function runFullPipelineWithApiFetch(orgId: string): Promise<PipelineResult> {
+    const supabase = getSupabaseAdmin()
+
+    // 1. Get Meta credentials
+    const { data: conn } = await supabase
+        .from('connections')
+        .select('credentials')
+        .eq('organization_id', orgId)
+        .eq('provider', 'meta_ads')
+        .eq('status', 'active')
+        .single()
+
+    if (!conn?.credentials?.access_token) {
+        throw new Error('Meta API non connessa')
+    }
+
+    const { access_token, ad_account_id } = conn.credentials
+    const adAccount = `act_${ad_account_id}`
+    const META_API_VERSION = 'v21.0'
+
+    // 2. Fetch weekly insights from Meta
+    const today = new Date().toISOString().slice(0, 10)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    
+    const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
+        `fields=ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type` +
+        `&level=ad&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgo, until: today }))}&limit=500&access_token=${access_token}`
+
+    const insightsRes = await fetch(insightsUrl)
+    if (!insightsRes.ok) throw new Error('Errore download metriche Meta')
+    const insightsData = await insightsRes.json()
+
+    const ads = (insightsData.data || []).map((insight: any) => {
+        const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+        const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+        return {
+            ad_id: insight.ad_id, ad_name: insight.ad_name,
+            adset_id: insight.adset_id, adset_name: insight.adset_name,
+            campaign_id: insight.campaign_id, campaign_name: insight.campaign_name,
+            spend: parseFloat(insight.spend || '0'),
+            impressions: parseInt(insight.impressions || '0'),
+            clicks: parseInt(insight.clicks || '0'),
+            ctr: parseFloat(insight.ctr || '0'),
+            leads_count: parseInt(leadsCount), cpl: parseFloat(cplValue),
+        }
+    })
+
+    if (ads.length === 0) {
+        return { briefs_generated: [], images_generated: 0, image_errors: [], total_deficit: 0, angles_analyzed: [], skipped_reasons: ['Nessuna ad attiva su Meta'] }
+    }
+
+    // 3. Get campaign budgets in EUROS
+    const campaignIds = [...new Set(ads.map((a: any) => a.campaign_id))]
+    const campaignBudgets: Record<string, number> = {}
+    for (const cId of campaignIds) {
+        try {
+            const cRes = await fetch(`https://graph.facebook.com/${META_API_VERSION}/${cId}?fields=daily_budget&access_token=${access_token}`)
+            if (cRes.ok) {
+                const cData = await cRes.json()
+                campaignBudgets[cId as string] = parseFloat(cData.daily_budget || '0') / 100
+            }
+        } catch {}
+    }
+
+    // 4. Build AdSet mappings
+    const adsetAngles: Record<string, string> = {}
+    const adsetNames: Record<string, string> = {}
+    const adsetUtmTerms: Record<string, string> = {}
+    ads.forEach((ad: any) => {
+        if (!adsetAngles[ad.adset_id]) {
+            const name = (ad.adset_name || '').toLowerCase()
+            let angle = 'generic'
+            if (name.includes('efficien') || name.includes('eff')) angle = 'efficiency'
+            else if (name.includes('system') || name.includes('metodo') || name.includes('sys')) angle = 'system'
+            else if (name.includes('emozion') || name.includes('dolor') || name.includes('emo')) angle = 'emotional'
+            else if (name.includes('status') || name.includes('corona')) angle = 'status'
+            else if (name.includes('edu') || name.includes('educaz')) angle = 'education'
+            else if (name.includes('trasf') || name.includes('transform')) angle = 'transformation'
+            else if (name.includes('calcio')) angle = 'sport_performance'
+            else if (name.includes('mental')) angle = 'mental_coaching'
+
+            adsetAngles[ad.adset_id] = angle
+            adsetNames[ad.adset_id] = ad.adset_name
+            adsetUtmTerms[ad.adset_id] = angle.replace(/[^a-z_]/g, '_')
+        }
+    })
+
+    return runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms)
+}
+
 export async function runCreativePipeline(
     orgId: string,
     adMetrics: any[],
