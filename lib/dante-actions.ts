@@ -149,36 +149,116 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
         })
     } catch {}
 
-    // Fire CAPI event if configured on this stage
+    // Fire CAPI event DIRECTLY via Meta Graph API (bypass API route which requires session auth)
     if (stage.fire_capi_event) {
         try {
             const { data: leadData } = await supabaseAdmin
                 .from('leads')
-                .select('name, email, phone, value, meta_data, funnel_id')
+                .select('name, email, phone, value, meta_data, funnel_id, funnels!leads_funnel_id_fkey(objective)')
                 .eq('id', lead.id)
                 .single()
 
             if (leadData) {
-                const meta = leadData.meta_data || {} as any
-                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://landing.metodosincro.com'
+                const meta = (leadData.meta_data || {}) as any
+                const funnelObjective = (leadData as any)?.funnels?.objective || 'cliente'
+                const finalValue = updateData.value ?? leadData.value
+                const finalName = leadData.name
+                const finalEmail = leadData.email
+                const finalPhone = leadData.phone
 
-                await fetch(`${baseUrl}/api/leads`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${process.env.CRON_SECRET}`,
-                    },
-                    body: JSON.stringify({
-                        id: lead.id,
-                        stage_id: stage.id,
-                        _old_stage_id: lead.stage_id,
-                        ...(updateData.value !== undefined ? { value: updateData.value } : {}),
-                        ...(updateData.product !== undefined ? { product: updateData.product } : {}),
-                    }),
-                }).catch(() => {})
+                // Block Purchase without value
+                const isPurchase = stage.fire_capi_event === 'Purchase'
+                const hasValue = finalValue && Number(finalValue) > 0
+
+                if (isPurchase && !hasValue) {
+                    console.warn(`[CAPI/Dante] Blocked Purchase for ${lead.id}: no value`)
+                } else {
+                    // Dedup check (same event within 1hr)
+                    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+                    const { data: recentEvent } = await supabaseAdmin
+                        .from('tracked_events')
+                        .select('id')
+                        .eq('lead_id', lead.id)
+                        .eq('event_name', stage.fire_capi_event)
+                        .eq('sent_to_provider', true)
+                        .gte('created_at', oneHourAgo)
+                        .limit(1)
+                        .single()
+
+                    if (!recentEvent) {
+                        // Get Meta CAPI connection
+                        const { data: conn } = await supabaseAdmin
+                            .from('connections')
+                            .select('credentials, config')
+                            .eq('organization_id', orgId)
+                            .eq('provider', 'meta_capi')
+                            .eq('status', 'active')
+                            .single()
+
+                        if (conn?.credentials?.access_token) {
+                            const pixelId = conn.config?.pixel_id || conn.credentials?.pixel_id
+                            if (pixelId) {
+                                const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+                                const hashSHA256 = async (data: string): Promise<string> => {
+                                    const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data))
+                                    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
+                                }
+
+                                const payload = {
+                                    data: [{
+                                        event_name: stage.fire_capi_event,
+                                        event_time: Math.floor(Date.now() / 1000),
+                                        event_id: eventId,
+                                        action_source: 'website',
+                                        event_source_url: meta.event_source_url || undefined,
+                                        user_data: {
+                                            em: finalEmail ? [await hashSHA256(finalEmail.toLowerCase().trim())] : undefined,
+                                            ph: finalPhone ? [await hashSHA256(finalPhone.replace(/\D/g, ''))] : undefined,
+                                            fn: finalName ? [await hashSHA256(finalName.split(' ')[0].toLowerCase().trim())] : undefined,
+                                            ln: finalName?.includes(' ') ? [await hashSHA256(finalName.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
+                                            country: [await hashSHA256('it')],
+                                            fbc: meta.fbc || undefined,
+                                            fbp: meta.fbp || undefined,
+                                            external_id: meta.visitor_id ? [await hashSHA256(meta.visitor_id)] : undefined,
+                                            client_ip_address: meta.client_ip || undefined,
+                                            client_user_agent: meta.client_user_agent || undefined,
+                                        },
+                                        custom_data: {
+                                            content_category: funnelObjective,
+                                            currency: (finalValue || isPurchase) ? 'EUR' : undefined,
+                                            value: finalValue ?? (isPurchase ? 0 : undefined),
+                                        },
+                                    }],
+                                }
+
+                                const res = await fetch(
+                                    `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${conn.credentials.access_token}`,
+                                    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+                                )
+                                const result = await res.json()
+                                console.log(`[CAPI/Dante] ${stage.fire_capi_event} for ${finalName}: ${res.ok ? 'OK' : 'FAIL'}`, result)
+
+                                // Track the event
+                                await supabaseAdmin.from('tracked_events').insert({
+                                    organization_id: orgId,
+                                    event_name: stage.fire_capi_event,
+                                    event_id: eventId,
+                                    lead_id: lead.id,
+                                    user_data_hash: { em: !!finalEmail, ph: !!finalPhone },
+                                    event_params: { pixel_id: pixelId, value: finalValue, source: 'dante' },
+                                    source: 'server',
+                                    sent_to_provider: res.ok,
+                                    provider_response: result,
+                                })
+                            }
+                        }
+                    } else {
+                        console.log(`[CAPI/Dante] Skipped duplicate ${stage.fire_capi_event} for ${lead.id}`)
+                    }
+                }
             }
         } catch (e) {
-            console.error('Dante CAPI fire error:', e)
+            console.error('[CAPI/Dante] Error firing event:', e)
         }
     }
 
