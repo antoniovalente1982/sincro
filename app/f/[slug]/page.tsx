@@ -1,19 +1,27 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
 import MetodoSincroLanding from './MetodoSincroLandingV2'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+export const dynamic = 'force-dynamic'
+
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 interface Props { params: Promise<{ slug: string }> }
 
 export default async function PublicFunnelPage({ params }: Props) {
     const { slug } = await params
 
-    const { data: funnel } = await supabaseAdmin
+    const { data: funnel } = await getSupabaseAdmin()
         .from('funnels')
         .select('id, name, description, status, meta_pixel_id, objective, settings, organizations!funnels_organization_id_fkey(name, logo_url)')
         .eq('slug', slug)
@@ -33,7 +41,7 @@ export default async function PublicFunnelPage({ params }: Props) {
 
 export async function generateMetadata({ params }: Props) {
     const { slug } = await params
-    const { data: funnel } = await supabaseAdmin
+    const { data: funnel } = await getSupabaseAdmin()
         .from('funnels')
         .select('name, description, settings')
         .eq('slug', slug)
