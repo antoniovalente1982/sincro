@@ -1,9 +1,10 @@
 'use client'
 
 import './landing-v2.css'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -58,7 +59,6 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
         const [showExitPopup, setShowExitPopup] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
-    const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const exitShownRef = useRef(false)
 
     // Validation helpers
@@ -86,92 +86,23 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         return () => clearInterval(interval)
     }, [])
 
-    const [utmParams, setUtmParams] = useState<any>({})
+    // ── Shared Meta Tracking (fbc/fbp, UTMs, PageView CAPI) ──
+    const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
+    const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
+        orgId,
+        funnelId: funnel.id,
+        pixelId: funnel.meta_pixel_id,
+        abVariant: funnel.settings?.ab_variant,
+    })
+
+    // Detect adset angle from utm_term
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const utms = {
-            utm_source: params.get('utm_source') || undefined,
-            utm_medium: params.get('utm_medium') || undefined,
-            utm_campaign: params.get('utm_campaign') || undefined,
-            utm_content: params.get('utm_content') || undefined,
-            utm_term: params.get('utm_term') || undefined,
-        }
-        setUtmParams(utms)
-
-        // Detect adset angle from utm_term (contains adset name)
-        const utmTerm = (utms.utm_term || '').toUpperCase()
+        const utmTerm = (params.get('utm_term') || '').toUpperCase()
         if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) setAdsetAngle('emotional')
         else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) setAdsetAngle('system')
         else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) setAdsetAngle('efficiency')
         else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) setAdsetAngle('status')
-
-        let visitorId = localStorage.getItem('_sincro_vid')
-        if (!visitorId) {
-            visitorId = crypto.randomUUID()
-            localStorage.setItem('_sincro_vid', visitorId)
-        }
-
-        const pageViewEventId = `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const sep = c.indexOf('=')
-            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
-            return acc
-        }, {})
-
-        // Compute fbc ONCE and store it — never re-generate with a new timestamp
-        // Meta requires that the fbclid value is passed unmodified
-        let computedFbc = cookies._fbc || undefined
-        if (!computedFbc) {
-            const fbclid = params.get('fbclid')
-            if (fbclid) computedFbc = `fb.1.${Date.now()}.${fbclid}`
-        }
-        const computedFbp = cookies._fbp || undefined
-        fbIdsRef.current = { fbc: computedFbc, fbp: computedFbp }
-
-        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
-
-        // Fire pixel PageView immediately (client-side)
-        if (typeof window !== 'undefined' && (window as any).fbq) {
-            (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
-        }
-
-        // Delay CAPI PageView by 2s to let Meta Pixel set _fbp cookie first
-        // This fixes fbp coverage from ~19% to ~100%
-        setTimeout(() => {
-            // Re-read cookies to pick up _fbp set by the pixel
-            const freshCookies = document.cookie.split(';').reduce((acc: any, c) => {
-                const sep = c.indexOf('=')
-                if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
-                return acc
-            }, {})
-            const freshFbp = freshCookies._fbp || computedFbp
-            const freshFbc = freshCookies._fbc || computedFbc
-
-            // Update ref so form submission also uses fresh values
-            fbIdsRef.current = { fbc: freshFbc, fbp: freshFbp }
-
-            fetch('/api/track/pageview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    organization_id: orgId || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
-                    funnel_id: funnel.id,
-                    page_path: window.location.pathname,
-                    page_variant: funnel.settings?.ab_variant || 'A',
-                    visitor_id: visitorId,
-                    utm_source: utms.utm_source, utm_medium: utms.utm_medium,
-                    utm_campaign: utms.utm_campaign, utm_content: utms.utm_content,
-                    utm_term: utms.utm_term,
-                    fbadid: params.get('fbadid') || undefined,
-                    referrer: document.referrer || undefined,
-                    event_id: pageViewEventId,
-                    fbc: freshFbc,
-                    fbp: freshFbp,
-                    fb_login_id: freshCookies.c_user || undefined,
-                    page_url: window.location.href,
-                }),
-            }).catch(() => {})
-        }, 2000)
     }, [])
 
     // Exit intent detection
@@ -181,41 +112,19 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             exitShownRef.current = true
             setShowExitPopup(true)
         }
-
-        // Desktop: mouse leaves viewport top
-        const handleMouseLeave = (e: MouseEvent) => {
-            if (e.clientY <= 0) triggerExit()
-        }
-
-        // Mobile: detect back-button or rapid scroll up after 15s on page
-        let scrollY = 0
-        let lastScrollTime = 0
+        const handleMouseLeave = (e: MouseEvent) => { if (e.clientY <= 0) triggerExit() }
+        let scrollY = 0, lastScrollTime = 0
         const handleScroll = () => {
-            const now = Date.now()
-            const currentY = window.scrollY
-            // If user scrolls up fast (>200px in <300ms) and has been on page >15s
-            if (currentY < scrollY - 200 && now - lastScrollTime < 300 && now > 15000) {
-                triggerExit()
-            }
-            scrollY = currentY
-            lastScrollTime = now
+            const now = Date.now(), currentY = window.scrollY
+            if (currentY < scrollY - 200 && now - lastScrollTime < 300 && now > 15000) triggerExit()
+            scrollY = currentY; lastScrollTime = now
         }
-
-        // Delay adding listeners — don't trigger on immediate bounce
         const timeout = setTimeout(() => {
             document.addEventListener('mouseleave', handleMouseLeave)
             window.addEventListener('scroll', handleScroll, { passive: true })
-        }, 8000) // Wait 8s before activating
-
-        return () => {
-            clearTimeout(timeout)
-            document.removeEventListener('mouseleave', handleMouseLeave)
-            window.removeEventListener('scroll', handleScroll)
-        }
+        }, 8000)
+        return () => { clearTimeout(timeout); document.removeEventListener('mouseleave', handleMouseLeave); window.removeEventListener('scroll', handleScroll) }
     }, [submitted])
-
-    // Reuse the fbc/fbp computed once on page load — never re-generate with a new timestamp
-    const getFbIds = useCallback(() => fbIdsRef.current, [])
 
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
 
@@ -230,13 +139,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
-            // Advanced Matching
-            if (funnel.meta_pixel_id && typeof window !== 'undefined' && (window as any).fbq) {
-                const matchData: any = {}
-                if (email) matchData.em = email.toLowerCase().trim()
-                if (phone) matchData.ph = phone.replace(/\D/g, '')
-                ;(window as any).fbq('init', funnel.meta_pixel_id, matchData)
-            }
+            // Advanced Matching via shared helper
+            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone })
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
@@ -248,8 +152,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     extra_data: { sport: 'calcio', child_age: childAge, adset_angle: adsetAngle },
                     landing_url: window.location.host + window.location.pathname,
                     event_id: leadEventId,
-                    visitor_id: localStorage.getItem('_sincro_vid') || undefined,
-                    ...utmParams,
+                    visitor_id: getVisitorId(),
+                    ...getUtmParams(),
                     ...getFbIds(),
                 }),
             })
@@ -260,9 +164,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             }
 
             // Fire pixel Lead event with same event_id for CAPI dedup
-            if (typeof window !== 'undefined' && (window as any).fbq) {
-                (window as any).fbq('track', 'Lead', {}, { eventID: leadEventId })
-            }
+            firePixelEvent('Lead', leadEventId)
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })

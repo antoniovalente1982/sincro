@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles } from 'lucide-react'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -41,7 +42,6 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
-    const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const [viewerCount, setViewerCount] = useState(14)
 
     // Dynamic viewer count between 14 and 35
@@ -57,89 +57,14 @@ export default function MetodoSincroLanding({ funnel }: Props) {
         return () => clearInterval(interval)
     }, [])
 
-    const [utmParams, setUtmParams] = useState<any>({})
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search)
-        const utms = {
-            utm_source: params.get('utm_source') || undefined,
-            utm_medium: params.get('utm_medium') || undefined,
-            utm_campaign: params.get('utm_campaign') || undefined,
-            utm_content: params.get('utm_content') || undefined,
-            utm_term: params.get('utm_term') || undefined,
-        }
-        setUtmParams(utms)
-
-        // Generate or retrieve visitor_id for unique visitor tracking
-        let visitorId = localStorage.getItem('_sincro_vid')
-        if (!visitorId) {
-            visitorId = crypto.randomUUID()
-            localStorage.setItem('_sincro_vid', visitorId)
-        }
-
-        // Generate event_id for PageView deduplication (pixel ↔ CAPI)
-        const pageViewEventId = `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-
-        // Get Facebook click/browser IDs from cookies for CAPI
-        const cookies = document.cookie.split(';').reduce((acc: any, c) => {
-            const sep = c.indexOf('=')
-            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
-            return acc
-        }, {})
-
-        // Compute fbc ONCE — Meta requires fbclid passed unmodified
-        let computedFbc = cookies._fbc || undefined
-        if (!computedFbc) {
-            const fbclid = params.get('fbclid')
-            if (fbclid) computedFbc = `fb.1.${Date.now()}.${fbclid}`
-        }
-        const computedFbp = cookies._fbp || undefined
-        fbIdsRef.current = { fbc: computedFbc, fbp: computedFbp }
-
-        const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id
-
-        // Fire pixel PageView immediately (client-side)
-        if (typeof window !== 'undefined' && (window as any).fbq) {
-            (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
-        }
-
-        // Delay CAPI PageView by 2s to let Meta Pixel set _fbp cookie first
-        setTimeout(() => {
-            const freshCookies = document.cookie.split(';').reduce((acc: any, c) => {
-                const sep = c.indexOf('=')
-                if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
-                return acc
-            }, {})
-            const freshFbp = freshCookies._fbp || computedFbp
-            const freshFbc = freshCookies._fbc || computedFbc
-            fbIdsRef.current = { fbc: freshFbc, fbp: freshFbp }
-
-            fetch('/api/track/pageview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    organization_id: orgId || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
-                    funnel_id: funnel.id,
-                    page_path: window.location.pathname,
-                    page_variant: funnel.settings?.ab_variant || 'A',
-                    visitor_id: visitorId,
-                    utm_source: utms.utm_source,
-                    utm_medium: utms.utm_medium,
-                    utm_campaign: utms.utm_campaign,
-                    utm_content: utms.utm_content,
-                    utm_term: utms.utm_term,
-                    fbadid: params.get('fbadid') || undefined,
-                    referrer: document.referrer || undefined,
-                    event_id: pageViewEventId,
-                    fbc: freshFbc,
-                    fbp: freshFbp,
-                    page_url: window.location.href,
-                }),
-            }).catch(() => {})
-        }, 2000)
-    }, [])
-
-    // Reuse the fbc/fbp computed once on page load
-    const getFbIds = useCallback(() => fbIdsRef.current, [])
+    // ── Shared Meta Tracking (fbc/fbp, UTMs, PageView CAPI) ──
+    const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
+    const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
+        orgId,
+        funnelId: funnel.id,
+        pixelId: funnel.meta_pixel_id,
+        abVariant: funnel.settings?.ab_variant,
+    })
 
     const handleSubmit = async () => {
         if (!name || !phone) return
@@ -150,13 +75,8 @@ export default function MetodoSincroLanding({ funnel }: Props) {
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
-            // Advanced Matching: reinitialize pixel with user data (Meta hashes automatically)
-            if (funnel.meta_pixel_id && typeof window !== 'undefined' && (window as any).fbq) {
-                const matchData: any = {}
-                if (email) matchData.em = email.toLowerCase().trim()
-                if (phone) matchData.ph = phone.replace(/\D/g, '')
-                ;(window as any).fbq('init', funnel.meta_pixel_id, matchData)
-            }
+            // Advanced Matching via shared helper
+            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone })
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
@@ -165,13 +85,11 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     funnel_id: funnel.id,
                     name, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
-                    extra_data: {
-                        sport: 'calcio',
-                    },
+                    extra_data: { sport: 'calcio' },
                     landing_url: window.location.host + window.location.pathname,
                     event_id: leadEventId,
-                    visitor_id: localStorage.getItem('_sincro_vid') || undefined,
-                    ...utmParams,
+                    visitor_id: getVisitorId(),
+                    ...getUtmParams(),
                     ...getFbIds(),
                 }),
             })
@@ -182,9 +100,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             }
 
             // Fire pixel Lead event with same event_id for CAPI dedup
-            if (typeof window !== 'undefined' && (window as any).fbq) {
-                (window as any).fbq('track', 'Lead', {}, { eventID: leadEventId })
-            }
+            firePixelEvent('Lead', leadEventId)
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })
