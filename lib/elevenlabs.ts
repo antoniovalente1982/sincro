@@ -26,11 +26,16 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
-        // Currency symbols → spoken words AFTER the number (Italian: "232 euro")
-        .replace(/€\s*(\d[\d.,]*)/g, '$1 euro')  // €232 → 232 euro
-        .replace(/\$\s*(\d[\d.,]*)/g, '$1 dollari')
-        .replace(/£\s*(\d[\d.,]*)/g, '$1 sterline')
-        .replace(/€/g, ' euro ')    // catch any remaining € without number
+        // Currency: €132.43 → '132 euro' (drop cents for clean speech)
+        .replace(/€\s*(\d+)[.,]\d+/g, '$1 euro')
+        .replace(/€\s*(\d+)/g, '$1 euro')
+        .replace(/\$\s*(\d+)[.,]\d+/g, '$1 dollari')
+        .replace(/\$\s*(\d+)/g, '$1 dollari')
+        .replace(/£\s*(\d+)[.,]\d+/g, '$1 sterline')
+        .replace(/£\s*(\d+)/g, '$1 sterline')
+        .replace(/€/g, ' euro ')
+        // Clean up decimal separators in remaining numbers (132,43 → 132)
+        .replace(/(\d+)[.,](\d{1,2})\s*euro/g, '$1 euro')
         .replace(/\s{2,}/g, ' ')
         // Remove emoji that TTS tries to pronounce
         .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '')
@@ -59,7 +64,7 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                     similarity_boost: 0.8,
                     style: 0.2,
                     use_speaker_boost: true,
-                    speed: 1.0,
+                    speed: 1.1,
                 },
             }),
         })
