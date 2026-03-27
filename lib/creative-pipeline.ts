@@ -202,7 +202,9 @@ export async function analyzeCreativeDNA(
         const budget = budgetByAngle[angle] || 0
         // Best practice CBO: 3-5 ads per AdSet
         // €0-15/day → 3 ads, €15-30 → 4 ads, €30+ → 5 ads
-        let target = 10 // FORCE TEST: Generiamo sempre per testare Nano Banana
+        let target = 3
+        if (budget >= 30) target = 5
+        else if (budget >= 15) target = 4
         distribution[angle] = { active, target, deficit: Math.max(0, target - active) }
     })
 
@@ -338,7 +340,7 @@ export async function generateCreativeBrief(
     if (!pocket) return null
 
     // 2. Generate copy based on pocket + winning patterns
-    const copy = generateCopyFromPocket(pocket, angle)
+    const copy = await generateCopyFromPocket(pocket, angle)
 
     // 3. Generate image prompt for 4:5 format
     const imagePrompt = generateImagePrompt(pocket, angle, dna)
@@ -370,43 +372,67 @@ export async function generateCreativeBrief(
 }
 
 // ═══════════════════════════════════════════════
-// COPY GENERATOR — Crea copy da pocket + angolo
+// COPY GENERATOR — Crea copy da pocket + angolo con AI reale
 // ═══════════════════════════════════════════════
 
-function generateCopyFromPocket(
+async function generateCopyFromPocket(
     pocket: SelectedPocket,
     angle: string
-): { primary: string; headline: string; description: string } {
-    // Copy templates per buyer state e trigger
+): Promise<{ primary: string; headline: string; description: string }> {
     const { buyer_state, core_question, primary_trigger, pocket_name } = pocket
 
-    // Il copy è costruito attorno alla core_question del pocket
-    // e al trigger che lo fa scattare
-    const copyTemplates: Record<string, (p: SelectedPocket) => { primary: string; headline: string; description: string }> = {
-        efficiency: (p) => ({
-            primary: `${p.core_question}\n\nIl 90% dei giovani calciatori con il talento giusto non arriva mai dove potrebbe. Non per le gambe. Per la testa.\n\nMetodo Sincro lavora sulla mente — l'unica variabile che nessun allenatore ti insegna a controllare.`,
-            headline: `Metodo Sincro — ${p.primary_trigger}`,
-            description: `Il sistema mentale per giovani calciatori che vogliono rendere al massimo.`,
-        }),
-        system: (p) => ({
-            primary: `${p.core_question}\n\nNon serve più talento. Serve un sistema.\n\nMetodo Sincro è il protocollo mentale che trasforma la pressione in performance. Testato su centinaia di giovani calciatori.`,
-            headline: `Il Sistema Mentale — ${p.primary_trigger}`,
-            description: `Il protocollo strutturato per la performance mentale nel calcio.`,
-        }),
-        emotional: (p) => ({
-            primary: `${p.core_question}\n\nQuando la pressione sale, il talento scompare. Non è colpa tua — è che nessuno ti ha insegnato a gestire quello che senti dentro.\n\nMetodo Sincro ti dà il controllo.`,
-            headline: `Basta Sovraccarico — ${p.primary_trigger}`,
-            description: `Libera il tuo potenziale mentale con Metodo Sincro.`,
-        }),
-        status: (p) => ({
-            primary: `${p.core_question}\n\nI calciatori che arrivano non sono quelli con più talento. Sono quelli che sanno come apparire, come comunicare sicurezza, come dominare mentalmente.\n\nMetodo Sincro è il codice mentale dell'élite.`,
-            headline: `Mentalità da Pro — ${p.primary_trigger}`,
-            description: `Distinguiti. Il talento non basta — la mentalità fa la differenza.`,
-        }),
+    const systemPrompt = `Sei un esperto copywriter di Metodo Sincro, un sistema di mental coaching per giovani calciatori.
+Devi scrivere il copy per una nuova ad di Facebook.
+Sii persuasivo, diretto, usa un linguaggio sportivo ma emotivamente profondo.
+NON usare emoji o hashtag. Scrivi in modo estremamente naturale e di impatto.
+
+Il target (buyer pocket) è: "${pocket_name}"
+Lo stato d'animo del cliente è: "${buyer_state}"
+La domanda fondamentale a cui l'ad deve rispondere è: "${core_question}"
+Il trigger principale che fa convertire questo target è: "${primary_trigger}"
+L'angolo narrativo dell'ad è: "${angle}"
+
+Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 3 chiavi: "primary" (il testo lungo del post, massimo 3 paragrafi), "headline" (il titolo dell'ad, massimo 6 parole), "description" (il sottotitolo, massimo 8 parole).`
+
+    try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: 'google/gemini-2.5-flash',
+                messages: [{ role: 'system', content: systemPrompt }],
+                temperature: 0.7,
+            }),
+        })
+
+        if (!res.ok) throw new Error('OpenRouter API error')
+        
+        const data = await res.json()
+        const reply = data.choices?.[0]?.message?.content || ''
+        
+        // Estrai JSON
+        const jsonMatch = reply.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0])
+            return {
+                primary: parsed.primary || `${core_question}\n\nScopri Metodo Sincro.`,
+                headline: parsed.headline || `Metodo Sincro — ${primary_trigger}`,
+                description: parsed.description || `Sblocca il tuo potenziale mentale.`,
+            }
+        }
+    } catch (e) {
+        console.error('Copy gen error:', e)
     }
 
-    const template = copyTemplates[angle] || copyTemplates.efficiency
-    return template(pocket)
+    // Fallback in caso di errore
+    return {
+        primary: `${core_question}\n\nIl 90% dei giovani calciatori con il talento giusto non arriva mai dove potrebbe. Non per le gambe. Per la testa.\n\nMetodo Sincro lavora sulla mente — l'unica variabile che nessun allenatore ti insegna a controllare.`,
+        headline: `Metodo Sincro — ${primary_trigger}`,
+        description: `Il sistema mentale per giovani calciatori.`,
+    }
 }
 
 // ═══════════════════════════════════════════════

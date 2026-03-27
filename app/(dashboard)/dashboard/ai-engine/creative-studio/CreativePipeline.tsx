@@ -420,23 +420,34 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                             </div>
                                         )}
 
-                                        {/* Pocket Info */}
-                                        {creative.pocket_name && (
-                                            <div className="flex items-center gap-3 flex-wrap">
-                                                <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                                    <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer Pocket</div>
-                                                    <div className="text-xs font-semibold text-white">#{creative.pocket_id} {creative.pocket_name}</div>
+                                        {/* Pocket Info & Image */}
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            {creative.image_url && (
+                                                <div className="flex-shrink-0">
+                                                    <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-500)' }}>Visual (Nano Banana 2)</div>
+                                                    <a href={creative.image_url} target="_blank" rel="noreferrer">
+                                                        <img src={creative.image_url} alt={creative.name} className="w-32 h-40 object-cover rounded-xl border transition-all hover:scale-105" style={{ borderColor: 'var(--color-surface-200)' }} />
+                                                    </a>
                                                 </div>
-                                                <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                                    <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer State</div>
-                                                    <div className="text-xs font-semibold text-white">{creative.buyer_state}</div>
+                                            )}
+                                            
+                                            {creative.pocket_name && (
+                                                <div className="flex items-start gap-3 flex-wrap mt-5">
+                                                    <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                                        <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer Pocket</div>
+                                                        <div className="text-xs font-semibold text-white">#{creative.pocket_id} {creative.pocket_name}</div>
+                                                    </div>
+                                                    <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                                        <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer State</div>
+                                                        <div className="text-xs font-semibold text-white">{creative.buyer_state}</div>
+                                                    </div>
+                                                    <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                                        <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Core Question</div>
+                                                        <div className="text-xs font-semibold text-white">{creative.core_question}</div>
+                                                    </div>
                                                 </div>
-                                                <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                                    <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Core Question</div>
-                                                    <div className="text-xs font-semibold text-white">{creative.core_question}</div>
-                                                </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
 
                                         {/* Meta Info */}
                                         {creative.meta_ad_id && (
