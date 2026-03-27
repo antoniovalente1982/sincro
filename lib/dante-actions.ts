@@ -8,13 +8,14 @@ const supabaseAdmin = createClient(
 // --- Types ---
 
 export interface DanteAction {
-    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot'
+    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot' | 'search_lead'
     params: Record<string, any>
 }
 
 interface ActionResult {
     success: boolean
     message: string
+    is_info?: boolean // If true, the result is informational (no confirmation needed)
 }
 
 // --- Main Executor ---
@@ -27,6 +28,8 @@ export async function executeDanteAction(orgId: string, action: DanteAction): Pr
             return assignLead(orgId, action.params)
         case 'toggle_autopilot':
             return toggleAutopilot(orgId, action.params)
+        case 'search_lead':
+            return searchLead(orgId, action.params)
         default:
             return { success: false, message: `Azione sconosciuta: ${action.type}` }
     }
@@ -275,6 +278,70 @@ async function toggleAutopilot(orgId: string, params: Record<string, any>): Prom
 
     const stateText = newState ? '✅ ATTIVATO' : '❌ DISATTIVATO'
     return { success: true, message: `${stateText} — Il Pilota Automatico è ora <b>${newState ? 'acceso' : 'spento'}</b>.` }
+}
+
+// --- CRM: Search Lead (read-only, no confirmation needed) ---
+
+async function searchLead(orgId: string, params: Record<string, any>): Promise<ActionResult> {
+    const { query } = params
+
+    if (!query || query.length < 2) {
+        return { success: false, message: '❌ Specifica almeno 2 caratteri per la ricerca.' }
+    }
+
+    // Search across ALL leads (no limit) by name, email, or phone
+    const { data: leads } = await supabaseAdmin
+        .from('leads')
+        .select('id, name, email, phone, stage_id, value, product, utm_source, utm_campaign, created_at, notes, meta_data')
+        .eq('organization_id', orgId)
+        .or(`name.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+    if (!leads || leads.length === 0) {
+        return { success: false, message: `❌ Nessun lead trovato per "<b>${query}</b>".`, is_info: true }
+    }
+
+    // Get stages for display
+    const { data: stages } = await supabaseAdmin
+        .from('pipeline_stages')
+        .select('id, name')
+        .eq('organization_id', orgId)
+
+    const stageMap = new Map((stages || []).map(s => [s.id, s.name]))
+
+    const fmtDate = (iso: string) => {
+        try {
+            return new Date(iso).toLocaleString('it-IT', {
+                timeZone: 'Europe/Rome',
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            })
+        } catch { return iso }
+    }
+
+    const results = leads.map((l, i) => {
+        const stageName = stageMap.get(l.stage_id) || 'Non assegnato'
+        const childAge = l.meta_data?.child_age || ''
+        const parts = [
+            `${i + 1}. <b>${l.name}</b>`,
+            `   📍 Stage: ${stageName}`,
+            `   📞 ${l.phone || 'N/A'} | 📧 ${l.email || 'N/A'}`,
+            l.utm_source ? `   📡 Fonte: ${l.utm_source}${l.utm_campaign ? ` / ${l.utm_campaign}` : ''}` : '',
+            l.value ? `   💰 Valore: €${l.value}` : '',
+            l.product ? `   📦 Prodotto: ${l.product}` : '',
+            childAge ? `   👦 Età figlio: ${childAge}` : '',
+            l.notes ? `   📝 Note: ${l.notes}` : '',
+            `   🕐 Arrivo: ${fmtDate(l.created_at)}`,
+        ].filter(Boolean)
+        return parts.join('\n')
+    }).join('\n\n')
+
+    return {
+        success: true,
+        message: `🔍 <b>Risultati per "${query}"</b> (${leads.length} trovati):\n\n${results}`,
+        is_info: true,
+    }
 }
 
 // --- Pending Actions Management ---

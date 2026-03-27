@@ -393,8 +393,17 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
     if (actionMatch) {
         try {
             const action = JSON.parse(actionMatch[1]) as DanteAction
-            // Remove the ACTION tag from the visible message
             const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
+
+            // search_lead is read-only → execute immediately, no confirmation needed
+            if (action.type === 'search_lead') {
+                const result = await executeDanteAction(orgId, action)
+                const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
+                await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
+                return
+            }
+
+            // Other actions → require double confirmation
             const confirmMsg = cleanMessage + '\n\n⚠️ <i>Rispondi</i> <b>SÌ</b> <i>per confermare o</i> <b>NO</b> <i>per annullare.</i>'
 
             // Save pending action
@@ -494,8 +503,26 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
     if (actionMatch) {
         try {
             const action = JSON.parse(actionMatch[1]) as DanteAction
-            // Remove the ACTION tag from the visible message
             const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
+
+            // search_lead is read-only → execute immediately, no confirmation needed
+            if (action.type === 'search_lead') {
+                const result = await executeDanteAction(orgId, action)
+                const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
+
+                // Send text response
+                await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
+
+                // Also voice if originally voice mode
+                if (mode === 'voice') {
+                    const stripHtml = (s: string) => s.replace(/<[^>]*>/g, '')
+                    const audioBuffer = await textToSpeech(stripHtml(msg))
+                    if (audioBuffer) await sendVoiceNote(botToken, chatId, audioBuffer)
+                }
+                return
+            }
+
+            // Other actions → require double confirmation
             const confirmMsg = cleanMessage + '\n\n⚠️ <i>Rispondi</i> <b>SÌ</b> <i>per confermare o</i> <b>NO</b> <i>per annullare.</i>'
 
             // Save pending action with voice mode
