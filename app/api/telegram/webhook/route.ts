@@ -427,12 +427,12 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
             const action = JSON.parse(actionMatch[1]) as DanteAction
             const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
 
-            // search_lead is read-only → execute immediately, no confirmation needed
-            if (action.type === 'search_lead') {
+            // search_lead and run_creative_pipeline → execute immediately, no confirmation needed
+            if (action.type === 'search_lead' || action.type === 'run_creative_pipeline') {
                 const result = await executeDanteAction(orgId, action)
                 const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
                 await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
-                // Save the search result as assistant message for context
+                // Save the result as assistant message for context
                 saveMessage(orgId, chatId, 'assistant', msg)
                 return
             }
@@ -551,8 +551,8 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
             const action = JSON.parse(actionMatch[1]) as DanteAction
             const cleanMessage = response.text.replace(/\[ACTION:\{[\s\S]*?\}\]/, '').trim()
 
-            // search_lead is read-only → execute immediately, no confirmation needed
-            if (action.type === 'search_lead') {
+            // search_lead and run_creative_pipeline → execute immediately, no confirmation needed
+            if (action.type === 'search_lead' || action.type === 'run_creative_pipeline') {
                 const result = await executeDanteAction(orgId, action)
                 const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
 
