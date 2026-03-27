@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import {
     Zap, Loader2, CheckCircle, XCircle, Rocket, RefreshCw, Brain,
-    Target, ArrowRight, Clock, Trash2, Eye, ChevronDown, Filter
+    Target, ArrowRight, Clock, Trash2, Eye, ChevronDown, Filter, Play, X
 } from 'lucide-react'
 
 interface AdCreative {
@@ -72,6 +72,8 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [runningPipeline, setRunningPipeline] = useState(false)
     const [syncing, setSyncing] = useState(false)
     const [expandedId, setExpandedId] = useState<string | null>(null)
+    const [pipelineResult, setPipelineResult] = useState<any>(null)
+    const [approveResult, setApproveResult] = useState<any>(null)
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -88,13 +90,21 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
 
     const handleApprove = async (id: string, decision: 'approve' | 'reject') => {
         setLoading(prev => ({ ...prev, [id]: true }))
-        await fetch('/api/ai-engine', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'approve_creative', creative_id: id, decision }),
-        })
-        await refresh()
+        setApproveResult(null)
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'approve_creative', creative_id: id, decision }),
+            })
+            const data = await res.json()
+            setApproveResult(data)
+            await refresh()
+        } catch (err: any) {
+            setApproveResult({ error: err.message })
+        }
         setLoading(prev => ({ ...prev, [id]: false }))
+        setTimeout(() => setApproveResult(null), 10000)
     }
 
     const handleLaunch = async (id: string) => {
@@ -110,13 +120,22 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
 
     const handleRunPipeline = async () => {
         setRunningPipeline(true)
-        await fetch('/api/ai-engine', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'run_creative_pipeline' }),
-        })
-        await refresh()
+        setPipelineResult(null)
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'run_creative_pipeline' }),
+            })
+            const data = await res.json()
+            setPipelineResult(data)
+            await refresh()
+        } catch (err: any) {
+            setPipelineResult({ error: err.message })
+        }
         setRunningPipeline(false)
+        // Auto-dismiss after 15 seconds
+        setTimeout(() => setPipelineResult(null), 15000)
     }
 
     const handleSyncPerformance = async () => {
@@ -165,6 +184,56 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     </button>
                 </div>
             </div>
+
+            {/* Pipeline Result Banner */}
+            {pipelineResult && (
+                <div className="glass-card p-4 relative" style={{
+                    background: pipelineResult.error ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                    border: `1px solid ${pipelineResult.error ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+                }}>
+                    <button onClick={() => setPipelineResult(null)} className="absolute top-2 right-2">
+                        <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
+                    </button>
+                    {pipelineResult.error ? (
+                        <div className="text-sm" style={{ color: '#ef4444' }}>❌ Errore: {pipelineResult.error}</div>
+                    ) : (
+                        <div>
+                            <div className="text-sm font-bold text-white flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4" style={{ color: '#22c55e' }} />
+                                Pipeline completato!
+                            </div>
+                            <div className="text-xs mt-1 space-y-0.5" style={{ color: 'var(--color-surface-500)' }}>
+                                {pipelineResult.total_deficit !== undefined && (
+                                    <div>📊 Deficit totale: {pipelineResult.total_deficit} ads mancanti</div>
+                                )}
+                                {pipelineResult.briefs_generated !== undefined && (
+                                    <div>✨ Briefs generati: {Array.isArray(pipelineResult.briefs_generated) ? pipelineResult.briefs_generated.length : pipelineResult.briefs_generated}</div>
+                                )}
+                                {pipelineResult.angles_analyzed && (
+                                    <div>🎯 Angoli analizzati: {Array.isArray(pipelineResult.angles_analyzed) ? pipelineResult.angles_analyzed.join(', ') : pipelineResult.angles_analyzed}</div>
+                                )}
+                                {pipelineResult.skipped_reasons?.length > 0 && (
+                                    <div>⏭ Skipped: {pipelineResult.skipped_reasons.join(' | ')}</div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Approve Result Banner */}
+            {approveResult && (
+                <div className="glass-card p-4 relative" style={{
+                    background: approveResult.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${approveResult.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                }}>
+                    <button onClick={() => setApproveResult(null)} className="absolute top-2 right-2">
+                        <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
+                    </button>
+                    <div className="text-sm" style={{ color: approveResult.success ? '#22c55e' : '#ef4444' }}
+                        dangerouslySetInnerHTML={{ __html: approveResult.message || approveResult.error || 'Azione completata' }} />
+                </div>
+            )}
 
             {/* KPI Summary */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -305,10 +374,11 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                         {creative.status === 'ready' && !isLoading && (
                                             <>
                                                 <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'approve') }}
-                                                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                                                    className="h-7 px-2.5 rounded-lg flex items-center justify-center gap-1 transition-all hover:scale-105"
                                                     style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}
-                                                    title="Approva">
-                                                    <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
+                                                    title="Approva e Lancia su Meta">
+                                                    <Rocket className="w-3 h-3" style={{ color: '#22c55e' }} />
+                                                    <span className="text-[10px] font-semibold" style={{ color: '#22c55e' }}>Lancia</span>
                                                 </button>
                                                 <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'reject') }}
                                                     className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
