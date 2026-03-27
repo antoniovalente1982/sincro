@@ -63,9 +63,9 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
                 text: cleanText,
                 model_id: MODEL_ID,
                 voice_settings: {
-                    stability: 0.80,
+                    stability: 0.92,        // Alta stabilità → voce ferma, diretta, zero emotività eccessiva
                     similarity_boost: 0.8,
-                    style: 0.05,
+                    style: 0.0,             // Zero stile → niente oscillazioni emotive, tono piatto e professionale
                     use_speaker_boost: true,
                     speed: 1.1,
                 },
