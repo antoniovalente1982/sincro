@@ -113,11 +113,31 @@ export async function GET(req: NextRequest) {
             .not('value', 'is', null)
 
         const crmRevenueMap: Record<string, number> = {}
+        let unattributedRevenue = 0
         for (const lead of (wonLeads || [])) {
-            if (!lead.utm_campaign) continue
-            // Normalize for matching
-            const campKey = lead.utm_campaign.toLowerCase().trim()
-            crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+            if (lead.utm_campaign) {
+                const campKey = lead.utm_campaign.toLowerCase().trim()
+                crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+            } else {
+                // Lead without utm_campaign — attribute to highest-spend campaign
+                unattributedRevenue += (Number(lead.value) || 0)
+            }
+        }
+
+        // Attribute unmatched revenue to highest-spend campaign
+        if (unattributedRevenue > 0) {
+            let highestSpendCampKey = ''
+            let highestSpend = 0
+            for (const c of allCampaigns) {
+                const spend = parseFloat(insightsMap[c.id]?.spend || '0')
+                if (spend > highestSpend) {
+                    highestSpend = spend
+                    highestSpendCampKey = (c.name || '').toLowerCase().trim()
+                }
+            }
+            if (highestSpendCampKey) {
+                crmRevenueMap[highestSpendCampKey] = (crmRevenueMap[highestSpendCampKey] || 0) + unattributedRevenue
+            }
         }
 
         // 4. Build combined data — show ALL campaigns with their real-time status,

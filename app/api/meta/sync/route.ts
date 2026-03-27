@@ -144,13 +144,34 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         .not('value', 'is', null)
 
     const crmRevenueMap: Record<string, number> = {}
+    let unattributedRevenue = 0
     for (const lead of (wonLeads || [])) {
-        if (!lead.utm_campaign) continue
-        const campKey = lead.utm_campaign.toLowerCase().trim()
-        crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+        if (lead.utm_campaign) {
+            const campKey = lead.utm_campaign.toLowerCase().trim()
+            crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
+        } else {
+            // Lead without utm_campaign — still a sale, attribute to highest-spend campaign later
+            unattributedRevenue += (Number(lead.value) || 0)
+        }
     }
 
-    // 3. Upsert campaigns with insights
+    // 3. Attribute unmatched revenue to highest-spend campaign
+    if (unattributedRevenue > 0) {
+        let highestSpendCampKey = ''
+        let highestSpend = 0
+        for (const campaign of campaigns) {
+            const spend = parseFloat(insightsMap[campaign.id]?.spend || '0')
+            if (spend > highestSpend) {
+                highestSpend = spend
+                highestSpendCampKey = (campaign.name || '').toLowerCase().trim()
+            }
+        }
+        if (highestSpendCampKey) {
+            crmRevenueMap[highestSpendCampKey] = (crmRevenueMap[highestSpendCampKey] || 0) + unattributedRevenue
+        }
+    }
+
+    // 4. Upsert campaigns with insights
     let synced = 0
     for (const campaign of campaigns) {
         const insight = insightsMap[campaign.id] || {}
