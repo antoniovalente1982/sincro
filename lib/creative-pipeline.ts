@@ -323,6 +323,7 @@ export interface CreativeBrief {
         avg_cpl: number
         avg_ctr: number
     }
+    image_url?: string
 }
 
 /**
@@ -382,9 +383,10 @@ async function generateCopyFromPocket(
     const { buyer_state, core_question, primary_trigger, pocket_name } = pocket
 
     const systemPrompt = `Sei un esperto copywriter di Metodo Sincro, un sistema di mental coaching per giovani calciatori.
-Devi scrivere il copy per una nuova ad di Facebook.
-Sii persuasivo, diretto, usa un linguaggio sportivo ma emotivamente profondo.
-NON usare emoji o hashtag. Scrivi in modo estremamente naturale e di impatto.
+Devi scrivere il copy per una nuova ad di Facebook. 
+ATTENZIONE CRITICA AL TARGET: Il target di queste Ads NON sono i ragazzi, ma i loro GENITORI (madri e padri di giovani calciatori in fase adolescenziale/pre-agonistica). Devi rivolgerti a LORO ("tuo figlio", "tuo ragazzo", "come genitore").
+Sii persuasivo, diretto, usa un linguaggio emotivamente profondo ma molto pratico.
+NON usare emoji o hashtag nel "primary". Scrivi in modo estremamente naturale e di impatto.
 
 Il target (buyer pocket) è: "${pocket_name}"
 Lo stato d'animo del cliente è: "${buyer_state}"
@@ -714,6 +716,7 @@ export async function runCreativePipeline(
             continue
         }
 
+        if (imageUrl) brief.image_url = imageUrl
         result.briefs_generated.push(brief)
         briefsGenerated++
     }

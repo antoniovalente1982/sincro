@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { sendTelegramDirect } from '@/lib/telegram'
+import { sendTelegramDirect, sendTelegramPhoto } from '@/lib/telegram'
 import { runCreativePipeline } from '@/lib/creative-pipeline'
 
 function getSupabaseAdmin() {
@@ -147,27 +147,31 @@ export async function GET(req: NextRequest) {
                         let msg = '🎨 <b>CREATIVE PIPELINE — Mezzanotte</b>\n\n'
                         msg += `📊 Deficit totale: ${pipelineResult.total_deficit} ads mancanti\n`
                         msg += `✨ Generate: ${pipelineResult.briefs_generated.length} nuove creative\n\n`
+                        await sendTelegramDirect(tgConn.credentials.bot_token, tgConn.credentials.chat_id, msg)
 
                         for (const brief of pipelineResult.briefs_generated) {
-                            msg += `━━━━━━━━━━━━━━━━━━\n`
-                            msg += `🎯 <b>${brief.name}</b>\n`
-                            msg += `📐 ${brief.aspect_ratio} | Angolo: ${brief.angle.toUpperCase()}\n`
-                            msg += `🧠 Pocket #${brief.pocket.pocket_id}: ${brief.pocket.pocket_name}\n`
-                            msg += `📊 ${brief.pocket.buyer_state}\n`
-                            msg += `❓ "${brief.pocket.core_question}"\n\n`
-                            msg += `📝 <b>Headline:</b> ${brief.copy.headline}\n`
-                            msg += `✏️ ${brief.copy.primary.substring(0, 150)}...\n\n`
-                            msg += `🎯 AdSet: ${brief.adset.name}\n`
-                            msg += `💡 ${brief.winning_context.top_ads_summary}\n\n`
-                            msg += `✅ "Approva ${brief.name}" → Lancio automatico\n`
-                            msg += `❌ "Rifiuta ${brief.name}" → Archivia\n\n`
+                            let text = `🎯 <b>${brief.name}</b>\n`
+                            text += `📐 ${brief.aspect_ratio} | Angolo: ${brief.angle.toUpperCase()}\n`
+                            text += `🧠 Pocket #${brief.pocket.pocket_id}: ${brief.pocket.pocket_name}\n`
+                            text += `📊 ${brief.pocket.buyer_state}\n`
+                            text += `❓ "${brief.pocket.core_question}"\n\n`
+                            text += `📝 <b>Headline:</b> ${brief.copy.headline}\n`
+                            text += `✏️ ${brief.copy.primary.substring(0, 150)}...\n\n`
+                            text += `🎯 AdSet: ${brief.adset.name}\n`
+                            text += `💡 ${brief.winning_context.top_ads_summary}\n\n`
+                            text += `✅ "Approva ${brief.name}" → Lancio automatico\n`
+                            text += `❌ "Rifiuta ${brief.name}" → Archivia\n`
+
+                            if (brief.image_url) {
+                                await sendTelegramPhoto(tgConn.credentials.bot_token, tgConn.credentials.chat_id, brief.image_url, text)
+                            } else {
+                                await sendTelegramDirect(tgConn.credentials.bot_token, tgConn.credentials.chat_id, text)
+                            }
                         }
 
                         if (pipelineResult.skipped_reasons.length > 0) {
-                            msg += `⏭ Skipped: ${pipelineResult.skipped_reasons.join(', ')}\n`
+                            await sendTelegramDirect(tgConn.credentials.bot_token, tgConn.credentials.chat_id, `⏭ Skipped: ${pipelineResult.skipped_reasons.join(', ')}\n`)
                         }
-
-                        await sendTelegramDirect(tgConn.credentials.bot_token, tgConn.credentials.chat_id, msg)
                     }
 
                     // Log

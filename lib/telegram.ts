@@ -96,6 +96,40 @@ export async function sendTelegramDirect(
 }
 
 /**
+ * Send a photo via Telegram Bot API
+ */
+export async function sendTelegramPhoto(
+    botToken: string,
+    chatId: string,
+    photoUrl: string,
+    caption?: string,
+    parseMode: 'HTML' | 'Markdown' = 'HTML'
+): Promise<boolean> {
+    try {
+        const body: any = {
+            chat_id: chatId,
+            photo: photoUrl,
+            parse_mode: parseMode,
+        }
+        if (caption) body.caption = caption
+
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        })
+        const result = await res.json()
+        if (!result.ok) {
+            console.error('Telegram API error (sendPhoto):', result.description)
+        }
+        return result.ok === true
+    } catch (err) {
+        console.error('Telegram sendPhoto error:', err)
+        return false
+    }
+}
+
+/**
  * Get organization data context for AI analysis
  */
 export async function getOrgDataContext(orgId: string) {

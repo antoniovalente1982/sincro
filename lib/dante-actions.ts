@@ -21,6 +21,7 @@ export interface DanteAction {
 interface ActionResult {
     success: boolean
     message: string
+    messages?: any[] // Support multiple messages (e.g. text + photos)
     is_info?: boolean // If true, the result is informational (no confirmation needed)
 }
 
@@ -609,30 +610,39 @@ async function forceRunPipeline(orgId: string): Promise<ActionResult> {
         msg += `✨ Briefs generati: ${result.briefs_generated.length}\n`
         msg += `🖼 Immagini generate: ${result.images_generated}/${result.briefs_generated.length}\n\n`
 
+        const messages: any[] = []
+        messages.push({ type: 'text', text: msg })
+
         if (result.briefs_generated.length > 0) {
             for (const brief of result.briefs_generated) {
-                msg += `━━━━━━━━━━━━━━━━━━\n`
-                msg += `🎯 <b>${brief.name}</b>\n`
-                msg += `📐 ${brief.aspect_ratio} | ${brief.angle.toUpperCase()}\n`
-                msg += `🧠 Pocket #${brief.pocket.pocket_id}: ${brief.pocket.pocket_name}\n`
-                msg += `📝 ${brief.copy.headline}\n\n`
-                msg += `✅ "Approva ${brief.name}"\n`
-                msg += `❌ "Rifiuta ${brief.name}"\n\n`
+                let text = `🎯 <b>${brief.name}</b>\n`
+                text += `📐 ${brief.aspect_ratio} | ${brief.angle.toUpperCase()}\n`
+                text += `🧠 Pocket #${brief.pocket.pocket_id}: ${brief.pocket.pocket_name}\n`
+                text += `📝 ${brief.copy.headline}\n\n`
+                text += `✅ "Approva ${brief.name}"\n`
+                text += `❌ "Rifiuta ${brief.name}"`
+
+                if (brief.image_url) {
+                    messages.push({ type: 'photo', photoUrl: brief.image_url, caption: text })
+                } else {
+                    messages.push({ type: 'text', text })
+                }
             }
         } else {
-            msg += '✅ Nessun deficit — tutte le ads sono coperte!\n'
+            messages.push({ type: 'text', text: '✅ Nessun deficit — tutte le ads sono coperte!' })
         }
 
         if (result.image_errors.length > 0) {
-            msg += `\n🖼 Errori immagini:\n`
-            result.image_errors.forEach(e => { msg += `⚠️ ${e}\n` })
+            let errs = `\n🖼 Errori immagini:\n`
+            result.image_errors.forEach(e => { errs += `⚠️ ${e}\n` })
+            messages.push({ type: 'text', text: errs })
         }
 
         if (result.skipped_reasons.length > 0) {
-            msg += `\n⏭ ${result.skipped_reasons.join('\n⏭ ')}`
+            messages.push({ type: 'text', text: `\n⏭ ${result.skipped_reasons.join('\n⏭ ')}` })
         }
 
-        return { success: true, message: msg }
+        return { success: true, message: msg, messages }
     } catch (err: any) {
         return { success: false, message: `❌ Errore pipeline: ${err.message}` }
     }

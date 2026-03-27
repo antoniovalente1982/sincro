@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { findOrgByChatId, getOrgDataContextLite, sendTelegramDirect } from '@/lib/telegram'
+import { findOrgByChatId, getOrgDataContextLite, sendTelegramDirect, sendTelegramPhoto } from '@/lib/telegram'
 import { askAI, askAIFast } from '@/lib/openrouter'
 import { textToSpeech, speechToText } from '@/lib/elevenlabs'
 import {
@@ -22,6 +22,27 @@ function getSupabaseAdmin() {
 
 // Allow up to 60s for AI responses (default 10s causes timeouts)
 export const maxDuration = 60
+
+// --- Helper for Action Results with multiple messages (e.g. photos) ---
+async function sendActionResultMessages(orgId: string, botToken: string, chatId: string, result: any, cleanMessage?: string) {
+    if (result.messages && result.messages.length > 0) {
+        if (cleanMessage) {
+            await sendTelegramDirect(botToken, chatId, `🤖 ${cleanMessage}`)
+        }
+        for (const msg of result.messages) {
+            if (msg.type === 'photo' && msg.photoUrl) {
+                await sendTelegramPhoto(botToken, chatId, msg.photoUrl, msg.caption)
+            } else {
+                await sendTelegramDirect(botToken, chatId, (msg === result.messages[0] && !cleanMessage) ? `🤖 ${msg.text}` : msg.text)
+            }
+        }
+        saveMessage(orgId, chatId, 'assistant', cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message)
+    } else {
+        const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
+        await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
+        saveMessage(orgId, chatId, 'assistant', msg)
+    }
+}
 
 // --- Conversation Memory Helpers ---
 
@@ -436,10 +457,7 @@ async function handleAIQuestionFast(question: string, orgId: string, botToken: s
             // search_lead and run_creative_pipeline → execute immediately, no confirmation needed
             if (action.type === 'search_lead' || action.type === 'run_creative_pipeline') {
                 const result = await executeDanteAction(orgId, action)
-                const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
-                await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
-                // Save the result as assistant message for context
-                saveMessage(orgId, chatId, 'assistant', msg)
+                await sendActionResultMessages(orgId, botToken, chatId, result, cleanMessage)
                 return
             }
 
@@ -510,7 +528,17 @@ async function handlePendingAction(text: string, orgId: string, botToken: string
             params: pending.action_params,
         }
         const result = await executeDanteAction(pending.organization_id, action)
-        await sendResponse(result.message)
+        if (result.messages && result.messages.length > 0) {
+            for (const msg of result.messages) {
+                if (msg.type === 'photo' && msg.photoUrl) {
+                    await sendTelegramPhoto(botToken, chatId, msg.photoUrl, msg.caption)
+                } else {
+                    await sendResponse(msg === result.messages[0] ? `🤖 ${msg.text}` : msg.text)
+                }
+            }
+        } else {
+            await sendResponse(`🤖 ${result.message}`)
+        }
         return true
     }
 
@@ -560,16 +588,12 @@ async function handleAIQuestion(question: string, orgId: string, botToken: strin
             // search_lead and run_creative_pipeline → execute immediately, no confirmation needed
             if (action.type === 'search_lead' || action.type === 'run_creative_pipeline') {
                 const result = await executeDanteAction(orgId, action)
-                const msg = cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message
-
-                // Send text response
-                await sendTelegramDirect(botToken, chatId, `🤖 ${msg}`)
-                saveMessage(orgId, chatId, 'assistant', msg)
+                await sendActionResultMessages(orgId, botToken, chatId, result, cleanMessage)
 
                 // Also voice if originally voice mode
                 if (mode === 'voice') {
                     const stripHtml = (s: string) => s.replace(/<[^>]*>/g, '')
-                    const audioBuffer = await textToSpeech(stripHtml(msg))
+                    const audioBuffer = await textToSpeech(stripHtml(cleanMessage ? `${cleanMessage}\n\n${result.message}` : result.message))
                     if (audioBuffer) await sendVoiceNote(botToken, chatId, audioBuffer)
                 }
                 return
