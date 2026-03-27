@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 // --- Types ---
 
 export interface DanteAction {
-    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot' | 'search_lead' | 'approve_creative' | 'reject_creative'
+    type: 'move_lead' | 'assign_lead' | 'toggle_autopilot' | 'search_lead' | 'approve_creative' | 'reject_creative' | 'run_creative_pipeline'
     params: Record<string, any>
 }
 
@@ -34,6 +34,8 @@ export async function executeDanteAction(orgId: string, action: DanteAction): Pr
             return approveCreative(orgId, action.params, 'approved')
         case 'reject_creative':
             return approveCreative(orgId, action.params, 'rejected')
+        case 'run_creative_pipeline':
+            return forceRunPipeline(orgId)
         default:
             return { success: false, message: `Azione sconosciuta: ${action.type}` }
     }
@@ -506,6 +508,122 @@ export async function cancelPendingAction(actionId: string): Promise<void> {
         .from('dante_pending_actions')
         .update({ status: 'cancelled' })
         .eq('id', actionId)
+}
+
+// --- Creative Pipeline: Force Run from Telegram ---
+
+async function forceRunPipeline(orgId: string): Promise<ActionResult> {
+    try {
+        // Get Meta credentials
+        const { data: conn } = await supabaseAdmin
+            .from('connections')
+            .select('credentials')
+            .eq('organization_id', orgId)
+            .eq('provider', 'meta_ads')
+            .eq('status', 'active')
+            .single()
+
+        if (!conn?.credentials?.access_token) {
+            return { success: false, message: '❌ Meta Ads non connesso.' }
+        }
+
+        const { access_token, ad_account_id } = conn.credentials
+        const adAccount = `act_${ad_account_id}`
+        const META_API_VERSION = 'v21.0'
+
+        // Fetch ad-level data from Meta
+        const today = new Date().toISOString().slice(0, 10)
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+        const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
+            `fields=ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type` +
+            `&level=ad&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgo, until: today }))}&limit=500&access_token=${access_token}`
+
+        const insightsRes = await fetch(insightsUrl)
+        if (!insightsRes.ok) return { success: false, message: '❌ Errore nel recupero dati Meta.' }
+        const insightsData = await insightsRes.json()
+
+        const ads = (insightsData.data || []).map((insight: any) => {
+            const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
+            const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+            return {
+                ad_id: insight.ad_id, ad_name: insight.ad_name,
+                adset_id: insight.adset_id, adset_name: insight.adset_name,
+                campaign_id: insight.campaign_id, campaign_name: insight.campaign_name,
+                spend: parseFloat(insight.spend || '0'),
+                impressions: parseInt(insight.impressions || '0'),
+                clicks: parseInt(insight.clicks || '0'),
+                ctr: parseFloat(insight.ctr || '0'),
+                leads_count: parseInt(leadsCount), cpl: parseFloat(cplValue),
+            }
+        })
+
+        if (ads.length === 0) return { success: true, message: '📊 Nessuna ad attiva trovata su Meta. Pipeline non necessario.' }
+
+        // Get campaign budgets
+        const campaignIds = [...new Set(ads.map((a: any) => a.campaign_id))]
+        const campaignBudgets: Record<string, number> = {}
+        for (const cId of campaignIds) {
+            try {
+                const cRes = await fetch(`https://graph.facebook.com/${META_API_VERSION}/${cId}?fields=daily_budget&access_token=${access_token}`)
+                if (cRes.ok) {
+                    const cData = await cRes.json()
+                    campaignBudgets[cId as string] = parseFloat(cData.daily_budget || '0') / 100
+                }
+            } catch {}
+        }
+
+        // Build adset maps
+        const adsetAngles: Record<string, string> = {}
+        const adsetNames: Record<string, string> = {}
+        const adsetUtmTerms: Record<string, string> = {}
+        ads.forEach((ad: any) => {
+            if (!adsetAngles[ad.adset_id]) {
+                const name = (ad.adset_name || '').toLowerCase()
+                let angle = 'generic'
+                if (name.includes('efficien') || name.includes('eff')) angle = 'efficiency'
+                else if (name.includes('system') || name.includes('metodo') || name.includes('sys')) angle = 'system'
+                else if (name.includes('emozion') || name.includes('dolor') || name.includes('emo')) angle = 'emotional'
+                else if (name.includes('status') || name.includes('corona')) angle = 'status'
+                else if (name.includes('edu')) angle = 'education'
+                adsetAngles[ad.adset_id] = angle
+                adsetNames[ad.adset_id] = ad.adset_name
+                adsetUtmTerms[ad.adset_id] = angle.replace(/[^a-z_]/g, '_')
+            }
+        })
+
+        // Import and run pipeline
+        const { runCreativePipeline } = await import('@/lib/creative-pipeline')
+        const result = await runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms)
+
+        // Format response
+        let msg = '🧠 <b>CREATIVE PIPELINE — Force Run</b>\n\n'
+        msg += `📊 Deficit totale: ${result.total_deficit} ads mancanti\n`
+        msg += `🎯 Angoli analizzati: ${result.angles_analyzed.join(', ') || 'nessuno'}\n`
+        msg += `✨ Briefs generati: ${result.briefs_generated.length}\n\n`
+
+        if (result.briefs_generated.length > 0) {
+            for (const brief of result.briefs_generated) {
+                msg += `━━━━━━━━━━━━━━━━━━\n`
+                msg += `🎯 <b>${brief.name}</b>\n`
+                msg += `📐 ${brief.aspect_ratio} | ${brief.angle.toUpperCase()}\n`
+                msg += `🧠 Pocket #${brief.pocket.pocket_id}: ${brief.pocket.pocket_name}\n`
+                msg += `📝 ${brief.copy.headline}\n\n`
+                msg += `✅ "Approva ${brief.name}"\n`
+                msg += `❌ "Rifiuta ${brief.name}"\n\n`
+            }
+        } else {
+            msg += '✅ Nessun deficit — tutte le ads sono coperte!\n'
+        }
+
+        if (result.skipped_reasons.length > 0) {
+            msg += `\n⏭ ${result.skipped_reasons.join('\n⏭ ')}`
+        }
+
+        return { success: true, message: msg }
+    } catch (err: any) {
+        return { success: false, message: `❌ Errore pipeline: ${err.message}` }
+    }
 }
 
 // --- Creative Pipeline: Approve/Reject Ad Creatives ---
