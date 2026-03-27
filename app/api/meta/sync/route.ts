@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from "@supabase/supabase-js"
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API_VERSION = 'v21.0'
 
@@ -19,7 +25,7 @@ export async function POST(req: NextRequest) {
 
         if (isCron) {
             // Sync all orgs that have meta_ads connected
-            const { data: connections } = await supabaseAdmin
+            const { data: connections } = await getSupabaseAdmin()
                 .from('connections')
                 .select('organization_id, credentials')
                 .eq('provider', 'meta_ads')
@@ -44,12 +50,12 @@ export async function POST(req: NextRequest) {
         }
 
         const token = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+        const { data: { user } } = await getSupabaseAdmin().auth.getUser(token)
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { data: member } = await supabaseAdmin
+        const { data: member } = await getSupabaseAdmin()
             .from('organization_members')
             .select('organization_id')
             .eq('user_id', user.id)
@@ -71,7 +77,7 @@ export async function POST(req: NextRequest) {
         } catch {} // body may be empty for cron calls
 
         // Get Meta credentials
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -136,7 +142,7 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
     }
 
     // Aggiunta Revenue dal CRM (Lifetime per la cache)
-    const { data: wonLeads } = await supabaseAdmin
+    const { data: wonLeads } = await getSupabaseAdmin()
         .from('leads')
         .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
         .eq('organization_id', orgId)
@@ -215,7 +221,7 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
             upsertData.date_range_end = insight.date_stop || null
         }
 
-        const { error } = await supabaseAdmin
+        const { error } = await getSupabaseAdmin()
             .from('campaigns_cache')
             .upsert(upsertData, {
                 onConflict: 'external_campaign_id',

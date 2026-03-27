@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { readKPIData, readAppointments } from '@/lib/google-sheets'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const MODEL = 'google/gemini-2.5-flash'
@@ -82,13 +88,13 @@ export async function POST(req: NextRequest) {
         }
 
         const token = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+        const { data: { user } } = await getSupabaseAdmin().auth.getUser(token)
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         // Get org
-        const { data: member } = await supabaseAdmin
+        const { data: member } = await getSupabaseAdmin()
             .from('organization_members')
             .select('organization_id')
             .eq('user_id', user.id)
@@ -190,7 +196,7 @@ async function buildContext(orgId: string): Promise<string> {
 
     // 1. Campaigns from Meta (LIVE data — today + 7 day)
     try {
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -263,7 +269,7 @@ async function buildContext(orgId: string): Promise<string> {
 
     // 2. Leads summary
     try {
-        const { data: leads } = await supabaseAdmin
+        const { data: leads } = await getSupabaseAdmin()
             .from('leads')
             .select('id, name, email, phone, value, stage_id, assigned_to, created_at, updated_at, utm_source, utm_campaign, meta_data, notes, funnel_id, funnels!leads_funnel_id_fkey(name)')
             .eq('organization_id', orgId)
@@ -271,14 +277,14 @@ async function buildContext(orgId: string): Promise<string> {
             .limit(30)
 
         if (leads && leads.length > 0) {
-            const { data: stagesData } = await supabaseAdmin
+            const { data: stagesData } = await getSupabaseAdmin()
                 .from('pipeline_stages')
                 .select('id, name')
                 .eq('organization_id', orgId)
             const stageMap: Record<string, string> = {}
             stagesData?.forEach(s => { stageMap[s.id] = s.name })
 
-            const { data: membersData } = await supabaseAdmin
+            const { data: membersData } = await getSupabaseAdmin()
                 .from('organization_members')
                 .select('user_id, profiles:user_id (full_name)')
                 .eq('organization_id', orgId)
@@ -342,7 +348,7 @@ async function buildContext(orgId: string): Promise<string> {
 
     // 5. AI Engine Status (from DB)
     try {
-        const { data: aiConfig } = await supabaseAdmin
+        const { data: aiConfig } = await getSupabaseAdmin()
             .from('ai_agent_config')
             .select('autopilot_active, execution_mode, auto_pause_enabled, auto_scale_enabled, auto_creative_refresh, analysis_interval_minutes, risk_tolerance, budget_daily')
             .eq('organization_id', orgId)

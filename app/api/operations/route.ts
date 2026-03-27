@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Tag definitions for categorizing operations
 const TAG_COLORS: Record<string, string> = {
@@ -30,7 +36,7 @@ export async function GET(req: NextRequest) {
 
     if (!orgId) return NextResponse.json({ error: 'org_id required' }, { status: 400 })
 
-    let query = supabaseAdmin
+    let query = getSupabaseAdmin()
         .from('ai_episodes')
         .select('*')
         .eq('organization_id', orgId)
@@ -46,7 +52,7 @@ export async function GET(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // Get tag counts
-    const { data: allEpisodes } = await supabaseAdmin
+    const { data: allEpisodes } = await getSupabaseAdmin()
         .from('ai_episodes')
         .select('action_type')
         .eq('organization_id', orgId)
@@ -88,7 +94,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'organization_id required' }, { status: 400 })
         }
 
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await getSupabaseAdmin()
             .from('ai_episodes')
             .insert({
                 organization_id,

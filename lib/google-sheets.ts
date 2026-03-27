@@ -1,9 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 interface GoogleSheetsCredentials {
     spreadsheet_id: string
@@ -16,7 +22,7 @@ interface GoogleSheetsCredentials {
  * Get Google Sheets credentials from the connections table
  */
 async function getSheetsCredentials(orgId: string): Promise<GoogleSheetsCredentials | null> {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
         .from('connections')
         .select('credentials')
         .eq('organization_id', orgId)
@@ -170,7 +176,7 @@ export async function appendLeadToSheet(orgId: string, leadData: {
         }
 
         // Update last_synced_at in connections
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('connections')
             .update({ last_synced_at: new Date().toISOString() })
             .eq('organization_id', orgId)
@@ -266,7 +272,7 @@ export async function syncAllLeadsToSheet(orgId: string): Promise<{ success: boo
     if (!token) return { success: false, count: 0 }
 
     // Get all leads
-    const { data: leads } = await supabaseAdmin
+    const { data: leads } = await getSupabaseAdmin()
         .from('leads')
         .select('name, email, phone, product, utm_source, utm_campaign, created_at')
         .eq('organization_id', orgId)
@@ -321,7 +327,7 @@ export async function syncAllLeadsToSheet(orgId: string): Promise<{ success: boo
         }
 
         // Update last_synced_at
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('connections')
             .update({ last_synced_at: new Date().toISOString() })
             .eq('organization_id', orgId)

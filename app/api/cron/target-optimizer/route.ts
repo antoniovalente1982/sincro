@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { sendTelegramDirect } from '@/lib/telegram'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API_VERSION = 'v21.0'
 
@@ -21,7 +27,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // Get all orgs with targets
-        const { data: allTargets } = await supabaseAdmin
+        const { data: allTargets } = await getSupabaseAdmin()
             .from('ad_optimization_targets')
             .select('*')
 
@@ -35,7 +41,7 @@ export async function GET(req: NextRequest) {
             const orgId = targets.organization_id
 
             // Get Meta credentials
-            const { data: conn } = await supabaseAdmin
+            const { data: conn } = await getSupabaseAdmin()
                 .from('connections')
                 .select('credentials')
                 .eq('organization_id', orgId)
@@ -135,13 +141,13 @@ export async function GET(req: NextRequest) {
             updateObj.target_history = history
 
             // Apply update
-            await supabaseAdmin
+            await getSupabaseAdmin()
                 .from('ad_optimization_targets')
                 .update(updateObj)
                 .eq('organization_id', orgId)
 
             // Log to AI Episodes
-            await supabaseAdmin.from('ai_episodes').insert({
+            await getSupabaseAdmin().from('ai_episodes').insert({
                 organization_id: orgId,
                 episode_type: 'optimization',
                 action_type: 'auto_target_adjustment',
@@ -170,7 +176,7 @@ export async function GET(req: NextRequest) {
 
 async function sendTargetUpdateTelegram(orgId: string, changes: any[], winnerCount: number, avgCPL: number) {
     try {
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)

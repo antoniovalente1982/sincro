@@ -1,12 +1,18 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Rate limiting
 const rateLimits = new Map<string, { count: number; resetAt: number }>()
@@ -37,7 +43,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get funnel and its organization
-        const { data: funnel, error: funnelError } = await supabaseAdmin
+        const { data: funnel, error: funnelError } = await getSupabaseAdmin()
             .from('funnels')
             .select('id, organization_id, name, status, meta_pixel_id, objective')
             .eq('id', funnel_id)
@@ -52,7 +58,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Create submission
-        const { data: submission, error: subError } = await supabaseAdmin
+        const { data: submission, error: subError } = await getSupabaseAdmin()
             .from('funnel_submissions')
             .insert({
                 organization_id: funnel.organization_id,
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get first stage of the DEFAULT pipeline to assign to the lead
-        const { data: defaultPipeline } = await supabaseAdmin
+        const { data: defaultPipeline } = await getSupabaseAdmin()
             .from('pipelines')
             .select('id')
             .eq('organization_id', funnel.organization_id)
@@ -87,7 +93,7 @@ export async function POST(req: NextRequest) {
 
         let firstStageId: string | null = null
         if (defaultPipeline) {
-            const { data: firstStage } = await supabaseAdmin
+            const { data: firstStage } = await getSupabaseAdmin()
                 .from('pipeline_stages')
                 .select('id')
                 .eq('organization_id', funnel.organization_id)
@@ -100,7 +106,7 @@ export async function POST(req: NextRequest) {
 
         if (!firstStageId) {
             // Fallback: get any first stage
-            const { data: fallbackStage } = await supabaseAdmin
+            const { data: fallbackStage } = await getSupabaseAdmin()
                 .from('pipeline_stages')
                 .select('id')
                 .eq('organization_id', funnel.organization_id)
@@ -115,7 +121,7 @@ export async function POST(req: NextRequest) {
         let isExisting = false
 
         if (email) {
-            const { data: existingLead } = await supabaseAdmin
+            const { data: existingLead } = await getSupabaseAdmin()
                 .from('leads')
                 .select('*')
                 .eq('organization_id', funnel.organization_id)
@@ -152,7 +158,7 @@ export async function POST(req: NextRequest) {
                     resubmit_count: (existingMeta.resubmit_count || 0) + 1,
                 }
 
-                const { data: updated } = await supabaseAdmin
+                const { data: updated } = await getSupabaseAdmin()
                     .from('leads')
                     .update(updateData)
                     .eq('id', existingLead.id)
@@ -161,7 +167,7 @@ export async function POST(req: NextRequest) {
                 lead = updated || existingLead
 
                 // Log re-entry activity so team knows this is a returning lead
-                await supabaseAdmin.from('lead_activities').insert({
+                await getSupabaseAdmin().from('lead_activities').insert({
                     organization_id: funnel.organization_id,
                     lead_id: existingLead.id,
                     activity_type: 'stage_changed',
@@ -176,7 +182,7 @@ export async function POST(req: NextRequest) {
 
         // Create NEW lead only if no existing one was found
         if (!isExisting) {
-            const { data: newLead, error: leadError } = await supabaseAdmin
+            const { data: newLead, error: leadError } = await getSupabaseAdmin()
                 .from('leads')
                 .insert({
                     organization_id: funnel.organization_id,
@@ -215,7 +221,7 @@ export async function POST(req: NextRequest) {
 
         // Log activity (only for NEW leads, not dedup updates)
         if (lead && firstStageId && !isExisting) {
-            await supabaseAdmin.from('lead_activities').insert({
+            await getSupabaseAdmin().from('lead_activities').insert({
                 organization_id: funnel.organization_id,
                 lead_id: lead.id,
                 activity_type: 'stage_changed',
@@ -284,7 +290,7 @@ export async function POST(req: NextRequest) {
 async function fireCapiEvent(orgId: string, eventName: string, userData: any, pixelId: string, leadId?: string) {
     try {
         // Get Meta access token from connections
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -333,7 +339,7 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
         const result = await res.json()
 
         // Log the tracked event
-        await supabaseAdmin.from('tracked_events').insert({
+        await getSupabaseAdmin().from('tracked_events').insert({
             organization_id: orgId,
             event_name: eventName,
             event_id: eventId,

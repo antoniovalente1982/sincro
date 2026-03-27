@@ -1,11 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 export async function GET(req: NextRequest) {
     const headersList = await headers()
@@ -15,7 +21,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Missing X-API-Key header' }, { status: 401 })
     }
 
-    const { data: agent, error } = await supabaseAdmin
+    const { data: agent, error } = await getSupabaseAdmin()
         .from('prospecting_agents')
         .select('id, name, email, status, commission_type, commission_value, total_submitted, total_qualified, total_converted, total_revenue, created_at')
         .eq('api_key', apiKey)
@@ -26,7 +32,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get recent leads by this agent
-    const { data: recentLeads } = await supabaseAdmin
+    const { data: recentLeads } = await getSupabaseAdmin()
         .from('leads')
         .select('id, name, email, created_at, pipeline_stages(name, color)')
         .eq('prospecting_agent_id', agent.id)

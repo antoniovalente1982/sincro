@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { getOrgDataContext, sendTelegramDirect } from '@/lib/telegram'
 import { textToSpeech } from '@/lib/elevenlabs'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Daily Report — called every day at 20:00 by pg_cron
 // Sends a voice summary of the day's performance
@@ -20,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // Get all orgs with active Telegram connections
-        const { data: connections } = await supabaseAdmin
+        const { data: connections } = await getSupabaseAdmin()
             .from('connections')
             .select('organization_id, credentials')
             .eq('provider', 'telegram')

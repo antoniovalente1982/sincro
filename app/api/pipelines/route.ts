@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // GET — list pipelines with stage counts
 export async function GET(req: NextRequest) {
@@ -12,7 +18,7 @@ export async function GET(req: NextRequest) {
     const orgId = searchParams.get('org_id')
     if (!orgId) return NextResponse.json({ error: 'org_id required' }, { status: 400 })
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('pipelines')
         .select('*, pipeline_stages(count)')
         .eq('organization_id', orgId)
@@ -30,7 +36,7 @@ export async function POST(req: NextRequest) {
 
         // Auto-detect org_id from auth if not provided
         if (!organization_id) {
-            const { data: members } = await supabaseAdmin
+            const { data: members } = await getSupabaseAdmin()
                 .from('organization_members')
                 .select('organization_id')
                 .limit(1)
@@ -48,7 +54,7 @@ export async function POST(req: NextRequest) {
             .trim()
 
         // Get max sort_order
-        const { data: existing } = await supabaseAdmin
+        const { data: existing } = await getSupabaseAdmin()
             .from('pipelines')
             .select('sort_order')
             .eq('organization_id', organization_id)
@@ -58,7 +64,7 @@ export async function POST(req: NextRequest) {
         const nextOrder = (existing?.[0]?.sort_order || 0) + 1
 
         // Create pipeline
-        const { data: pipeline, error } = await supabaseAdmin
+        const { data: pipeline, error } = await getSupabaseAdmin()
             .from('pipelines')
             .insert({
                 organization_id,
@@ -85,7 +91,7 @@ export async function POST(req: NextRequest) {
             { name: 'Perso', slug: `perso-${pipeline.id.slice(0,8)}`, color: '#ef4444', sort_order: 5, is_lost: true },
         ]
 
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('pipeline_stages')
             .insert(defaultStages.map(s => ({
                 organization_id,
@@ -106,7 +112,7 @@ export async function DELETE(req: NextRequest) {
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
     // Check if default
-    const { data: pipeline } = await supabaseAdmin
+    const { data: pipeline } = await getSupabaseAdmin()
         .from('pipelines')
         .select('is_default')
         .eq('id', id)
@@ -117,13 +123,13 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Check if pipeline has leads
-    const { data: stageIds } = await supabaseAdmin
+    const { data: stageIds } = await getSupabaseAdmin()
         .from('pipeline_stages')
         .select('id')
         .eq('pipeline_id', id)
 
     if (stageIds && stageIds.length > 0) {
-        const { count } = await supabaseAdmin
+        const { count } = await getSupabaseAdmin()
             .from('leads')
             .select('id', { count: 'exact', head: true })
             .in('stage_id', stageIds.map(s => s.id))
@@ -134,12 +140,12 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Delete stages first, then pipeline
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('pipeline_stages')
         .delete()
         .eq('pipeline_id', id)
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('pipelines')
         .delete()
         .eq('id', id)

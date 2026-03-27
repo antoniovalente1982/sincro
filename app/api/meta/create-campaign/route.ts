@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import * as fs from 'fs'
 import * as path from 'path'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API = 'https://graph.facebook.com/v21.0'
 
@@ -75,12 +81,12 @@ export async function POST(req: NextRequest) {
         }
 
         const userToken = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await supabaseAdmin.auth.getUser(userToken)
+        const { data: { user } } = await getSupabaseAdmin().auth.getUser(userToken)
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { data: member } = await supabaseAdmin
+        const { data: member } = await getSupabaseAdmin()
             .from('organization_members')
             .select('organization_id, role')
             .eq('user_id', user.id)
@@ -91,7 +97,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get Meta credentials
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', member.organization_id)
@@ -121,7 +127,7 @@ export async function POST(req: NextRequest) {
             }
 
             // Fetch the approved creative
-            const { data: creative, error: fetchErr } = await supabaseAdmin
+            const { data: creative, error: fetchErr } = await getSupabaseAdmin()
                 .from('ad_creatives')
                 .select('*')
                 .eq('id', creative_id)
@@ -150,7 +156,7 @@ export async function POST(req: NextRequest) {
 
             if (!imageHash) {
                 // If no image, update status back to 'approved' with note
-                await supabaseAdmin.from('ad_creatives')
+                await getSupabaseAdmin().from('ad_creatives')
                     .update({ status: 'approved', kill_reason: 'Nessuna immagine disponibile per il lancio' })
                     .eq('id', creative.id)
                 return NextResponse.json({ error: 'No image available for this creative. Generate/upload an image first.' }, { status: 400 })
@@ -191,7 +197,7 @@ export async function POST(req: NextRequest) {
             })
 
             // Step 4: Update ad_creative record
-            await supabaseAdmin
+            await getSupabaseAdmin()
                 .from('ad_creatives')
                 .update({
                     status: 'launched',
@@ -211,7 +217,7 @@ export async function POST(req: NextRequest) {
             } catch {}
 
             // Log to AI episodes
-            await supabaseAdmin.from('ai_episodes').insert({
+            await getSupabaseAdmin().from('ai_episodes').insert({
                 organization_id: member.organization_id,
                 episode_type: 'action',
                 action_type: 'ad_launched',
@@ -241,7 +247,7 @@ export async function POST(req: NextRequest) {
         // ═══════════ CREATIVE PIPELINE: Sync performance for launched creatives ═══════════
         if (action === 'sync_creative_performance') {
             // Fetch all launched/active creatives that have a meta_ad_id
-            const { data: launchedCreatives } = await supabaseAdmin
+            const { data: launchedCreatives } = await getSupabaseAdmin()
                 .from('ad_creatives')
                 .select('id, meta_ad_id, status')
                 .eq('organization_id', member.organization_id)
@@ -301,7 +307,7 @@ export async function POST(req: NextRequest) {
                             newStatus = 'active'
                         }
 
-                        await supabaseAdmin
+                        await getSupabaseAdmin()
                             .from('ad_creatives')
                             .update({
                                 spend, impressions, clicks, leads_count: leadsCount,
@@ -634,7 +640,7 @@ async function launchFullStrategy(
     }
 
     // ─── STEP 8: Log in operations_log ───
-    await supabaseAdmin.from('operations_log').insert({
+    await getSupabaseAdmin().from('operations_log').insert({
         organization_id: orgId,
         action: 'campaigns_launched',
         category: 'ads',

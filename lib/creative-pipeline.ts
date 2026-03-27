@@ -11,12 +11,18 @@
  * L'angolo vive a livello di AdSet e determina il utm_term della landing page.
  */
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // ═══════════════════════════════════════════════
 // BUYER POCKETS — I 100 profili buyer dal CSV
@@ -117,7 +123,7 @@ export async function analyzeCreativeDNA(
     campaignBudgets: Record<string, number>,
     adsetAngles: Record<string, string>  // mapping adset_id → angle
 ): Promise<CreativeDNA> {
-    const supabase = supabaseAdmin
+    const supabase = getSupabaseAdmin()
 
     // 1. Fetch existing ad_creatives to see what's been killed
     const { data: existingCreatives } = await supabase
@@ -242,7 +248,7 @@ export async function selectBuyerPocket(
     angle: string,
     targetAdsetId?: string
 ): Promise<SelectedPocket | null> {
-    const supabase = supabaseAdmin
+    const supabase = getSupabaseAdmin()
     const pockets = await loadBuyerPockets()
 
     // 1. Get compatible clusters for this angle
@@ -462,7 +468,7 @@ export async function runCreativePipeline(
     adsetNames: Record<string, string>,     // adset_id → name
     adsetUtmTerms: Record<string, string>,  // adset_id → utm_term
 ): Promise<PipelineResult> {
-    const supabase = supabaseAdmin
+    const supabase = getSupabaseAdmin()
     const MAX_BRIEFS_PER_CYCLE = 3
     const COOLDOWN_HOURS = 24
 

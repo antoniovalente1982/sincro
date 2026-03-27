@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { sendTelegramDirect } from '@/lib/telegram'
 import { pauseAd, updateCampaignBudget, calculateNewBudget } from '@/lib/meta-actions'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API_VERSION = 'v21.0'
 const MAX_ACTIONS_PER_RUN = 5
@@ -25,7 +31,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // Get all orgs with autopilot active
-        const { data: configs } = await supabaseAdmin
+        const { data: configs } = await getSupabaseAdmin()
             .from('ai_agent_config')
             .select('organization_id, autopilot_active, execution_mode, analysis_interval_minutes')
             .eq('autopilot_active', true)
@@ -42,7 +48,7 @@ export async function GET(req: NextRequest) {
             const isLive = config.execution_mode === 'live'
 
             // Get Meta credentials
-            const { data: conn } = await supabaseAdmin
+            const { data: conn } = await getSupabaseAdmin()
                 .from('connections')
                 .select('credentials')
                 .eq('organization_id', orgId)
@@ -130,9 +136,9 @@ export async function GET(req: NextRequest) {
 
             // Get rules and targets
             const [rulesRes, targetsRes] = await Promise.all([
-                supabaseAdmin.from('ad_automation_rules').select('*')
+                getSupabaseAdmin().from('ad_automation_rules').select('*')
                     .eq('organization_id', orgId).eq('is_enabled', true),
-                supabaseAdmin.from('ad_optimization_targets').select('*')
+                getSupabaseAdmin().from('ad_optimization_targets').select('*')
                     .eq('organization_id', orgId).single(),
             ])
 
@@ -158,7 +164,7 @@ export async function GET(req: NextRequest) {
             if (results.length === 0) continue
 
             // Check cooldown — skip ads/campaigns with recent actions
-            const { data: recentExecutions } = await supabaseAdmin
+            const { data: recentExecutions } = await getSupabaseAdmin()
                 .from('ad_rule_executions')
                 .select('campaign_id, entity_name, executed_at')
                 .eq('organization_id', orgId)
@@ -233,7 +239,7 @@ export async function GET(req: NextRequest) {
 
             // Log to ad_rule_executions
             if (executedResults.length > 0) {
-                await supabaseAdmin.from('ad_rule_executions').insert(
+                await getSupabaseAdmin().from('ad_rule_executions').insert(
                     executedResults.map(r => ({
                         organization_id: orgId,
                         rule_id: r.rule_id,
@@ -248,7 +254,7 @@ export async function GET(req: NextRequest) {
                 )
 
                 // Log to AI Episodes
-                await supabaseAdmin.from('ai_episodes').insert(
+                await getSupabaseAdmin().from('ai_episodes').insert(
                     executedResults.map(r => ({
                         organization_id: orgId,
                         episode_type: 'automation',
@@ -281,7 +287,7 @@ export async function GET(req: NextRequest) {
             // ═══ SYNC CREATIVE PIPELINE PERFORMANCE ═══
             // Update metrics for all launched/active ad_creatives
             try {
-                const { data: launchedCreatives } = await supabaseAdmin
+                const { data: launchedCreatives } = await getSupabaseAdmin()
                     .from('ad_creatives')
                     .select('id, meta_ad_id, status')
                     .eq('organization_id', orgId)
@@ -319,7 +325,7 @@ export async function GET(req: NextRequest) {
                                     newStatus = 'active'
                                 }
 
-                                await supabaseAdmin.from('ad_creatives').update({
+                                await getSupabaseAdmin().from('ad_creatives').update({
                                     spend, clicks, impressions: Number(ins.impressions) || 0,
                                     leads_count: leads, cpl: cpl > 0 ? cpl : null,
                                     ctr: ctr > 0 ? ctr : null, roas: roas > 0 ? roas : null,
@@ -354,7 +360,7 @@ async function sendCronTelegramReport(
     killedAds: any[] = [], allAds: any[] = [], skippedSafety: any[] = []
 ) {
     try {
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)

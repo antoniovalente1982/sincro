@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { sendTelegramDirect } from '@/lib/telegram'
 import { runCreativePipeline } from '@/lib/creative-pipeline'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API_VERSION = 'v21.0'
 
@@ -22,7 +28,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // Get all orgs with autopilot active
-        const { data: configs } = await supabaseAdmin
+        const { data: configs } = await getSupabaseAdmin()
             .from('ai_agent_config')
             .select('organization_id, autopilot_active')
             .eq('autopilot_active', true)
@@ -37,7 +43,7 @@ export async function GET(req: NextRequest) {
             const orgId = config.organization_id
 
             // Get Meta credentials
-            const { data: conn } = await supabaseAdmin
+            const { data: conn } = await getSupabaseAdmin()
                 .from('connections')
                 .select('credentials')
                 .eq('organization_id', orgId)
@@ -129,7 +135,7 @@ export async function GET(req: NextRequest) {
                 // Send Telegram with all generated briefs
                 if (pipelineResult.briefs_generated.length > 0) {
                     // Get Telegram credentials
-                    const { data: tgConn } = await supabaseAdmin
+                    const { data: tgConn } = await getSupabaseAdmin()
                         .from('connections')
                         .select('credentials')
                         .eq('organization_id', orgId)
@@ -165,7 +171,7 @@ export async function GET(req: NextRequest) {
                     }
 
                     // Log
-                    await supabaseAdmin.from('ai_episodes').insert({
+                    await getSupabaseAdmin().from('ai_episodes').insert({
                         organization_id: orgId,
                         episode_type: 'automation',
                         action_type: 'creative_pipeline_cron',

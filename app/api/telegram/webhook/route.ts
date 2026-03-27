@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { findOrgByChatId, getOrgDataContextLite, sendTelegramDirect } from '@/lib/telegram'
 import { askAI, askAIFast } from '@/lib/openrouter'
 import { textToSpeech, speechToText } from '@/lib/elevenlabs'
@@ -9,10 +9,16 @@ import {
     type DanteAction
 } from '@/lib/dante-actions'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Allow up to 60s for AI responses (default 10s causes timeouts)
 export const maxDuration = 60
@@ -20,7 +26,7 @@ export const maxDuration = 60
 // --- Conversation Memory Helpers ---
 
 async function loadChatHistory(chatId: string, limit = 10): Promise<{ role: 'user' | 'assistant'; content: string }[]> {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
         .from('dante_messages')
         .select('role, content')
         .eq('chat_id', chatId)
@@ -37,7 +43,7 @@ async function saveMessage(orgId: string, chatId: string, role: 'user' | 'assist
     const cleanContent = role === 'assistant'
         ? content.replace(/\[ACTION:\{[\s\S]*?\}\]/g, '').trim()
         : content
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('dante_messages')
         .insert({ organization_id: orgId, chat_id: chatId, role, content: cleanContent })
         .then(() => {}) // fire and forget
@@ -74,7 +80,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get the bot token for this org to reply
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -657,7 +663,7 @@ async function tryScheduleReport(text: string, orgId: string, botToken: string, 
 
     try {
         // Save to database
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('scheduled_reports')
             .insert({
                 organization_id: orgId,

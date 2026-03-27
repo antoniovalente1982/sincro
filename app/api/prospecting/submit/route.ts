@@ -1,11 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Rate limiting: simple in-memory store
 const rateLimits = new Map<string, { count: number; resetAt: number }>()
@@ -40,7 +46,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Validate agent
-        const { data: agent, error: agentErr } = await supabaseAdmin
+        const { data: agent, error: agentErr } = await getSupabaseAdmin()
             .from('prospecting_agents')
             .select('id, organization_id, status, name')
             .eq('api_key', apiKey)
@@ -62,7 +68,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get first pipeline stage
-        const { data: firstStage } = await supabaseAdmin
+        const { data: firstStage } = await getSupabaseAdmin()
             .from('pipeline_stages')
             .select('id')
             .eq('organization_id', agent.organization_id)
@@ -71,7 +77,7 @@ export async function POST(req: NextRequest) {
             .single()
 
         // Create lead (trigger will auto-assign + update agent stats)
-        const { data: lead, error: leadErr } = await supabaseAdmin
+        const { data: lead, error: leadErr } = await getSupabaseAdmin()
             .from('leads')
             .insert({
                 organization_id: agent.organization_id,
@@ -100,7 +106,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Log activity
-        await supabaseAdmin.from('lead_activities').insert({
+        await getSupabaseAdmin().from('lead_activities').insert({
             organization_id: agent.organization_id,
             lead_id: lead.id,
             activity_type: 'stage_changed',
@@ -109,7 +115,7 @@ export async function POST(req: NextRequest) {
         })
 
         // Create notification
-        await supabaseAdmin.from('notifications').insert({
+        await getSupabaseAdmin().from('notifications').insert({
             organization_id: agent.organization_id,
             type: 'info',
             title: '🕵️ Nuovo lead da Prospecting',

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from "@supabase/supabase-js"
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 const META_API_VERSION = 'v21.0'
 
@@ -19,10 +25,10 @@ export async function GET(req: NextRequest) {
         if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const token = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+        const { data: { user } } = await getSupabaseAdmin().auth.getUser(token)
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        const { data: member } = await supabaseAdmin
+        const { data: member } = await getSupabaseAdmin()
             .from('organization_members')
             .select('organization_id')
             .eq('user_id', user.id)
@@ -39,7 +45,7 @@ export async function GET(req: NextRequest) {
         }
 
         // Get Meta credentials
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', member.organization_id)

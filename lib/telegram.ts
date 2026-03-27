@@ -1,9 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 interface TelegramCredentials {
     bot_token: string
@@ -14,7 +20,7 @@ interface TelegramCredentials {
  * Get Telegram credentials from the connections table for an organization
  */
 export async function getTelegramCredentials(orgId: string): Promise<TelegramCredentials | null> {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
         .from('connections')
         .select('credentials')
         .eq('organization_id', orgId)
@@ -33,7 +39,7 @@ export async function getTelegramCredentials(orgId: string): Promise<TelegramCre
  * Find the organization that owns a specific Telegram chat_id
  */
 export async function findOrgByChatId(chatId: string): Promise<string | null> {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
         .from('connections')
         .select('organization_id, credentials')
         .eq('provider', 'telegram')
@@ -100,40 +106,40 @@ export async function getOrgDataContext(orgId: string) {
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
     const [leadsRes, campaignsRes, stagesRes, submissionsRes, pipelinesRes, operationsRes, paymentsRes] = await Promise.all([
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('leads')
             .select('id, name, email, phone, stage_id, value, product, utm_source, utm_campaign, created_at, source_channel, dna_priority')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(50),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('campaigns_cache')
             .select('campaign_name, status, objective, spend, impressions, clicks, leads_count, cpl, cpc, ctr, conversions, roas, daily_budget, date_range_start, date_range_end')
             .eq('organization_id', orgId),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('pipeline_stages')
             .select('id, name, slug, sort_order, is_won, is_lost, pipeline_id')
             .eq('organization_id', orgId)
             .order('sort_order', { ascending: true }),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('funnel_submissions')
             .select('id, created_at')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(100),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('pipelines')
             .select('id, name, source_type')
             .eq('organization_id', orgId)
             .order('sort_order'),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('ai_episodes')
             .select('action_type, target_name, reasoning, outcome, created_at')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(10),
         // Try to get revenue/payment data
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('revenue_attribution')
             .select('amount, currency, attribution_date, source')
             .eq('organization_id', orgId)
@@ -272,23 +278,23 @@ export async function getOrgDataContextLite(orgId: string) {
 
     // Parallel: leads, stages, AI Engine config, Meta Ads connection
     const [leadsRes, stagesRes, aiConfigRes, metaConnRes] = await Promise.all([
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('leads')
             .select('id, name, email, phone, stage_id, value, utm_source, utm_campaign, created_at, meta_data, notes')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(30),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('pipeline_stages')
             .select('id, name, is_won, is_lost, sort_order')
             .eq('organization_id', orgId)
             .order('sort_order', { ascending: true }),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('ai_agent_config')
             .select('autopilot_active, execution_mode, auto_pause_enabled, auto_scale_enabled, auto_creative_refresh, analysis_interval_minutes, risk_tolerance, objectives, budget_daily')
             .eq('organization_id', orgId)
             .single(),
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)

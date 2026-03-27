@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { getOrgDataContext, sendTelegramDirect } from '@/lib/telegram'
 import { askAI } from '@/lib/openrouter'
 import { textToSpeech } from '@/lib/elevenlabs'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // Scheduled Report — called every 15 min by pg_cron
 // Checks for due scheduled reports and sends them
@@ -30,7 +36,7 @@ export async function GET(req: NextRequest) {
         const windowStart = `${String(hour).padStart(2, '0')}:${String(Math.floor(mins / 15) * 15).padStart(2, '0')}:00`
         const windowEnd = `${String(hour).padStart(2, '0')}:${String(Math.floor(mins / 15) * 15 + 14).padStart(2, '0')}:59`
 
-        const { data: dueReports } = await supabaseAdmin
+        const { data: dueReports } = await getSupabaseAdmin()
             .from('scheduled_reports')
             .select('*')
             .in('status', ['pending'])
@@ -43,7 +49,7 @@ export async function GET(req: NextRequest) {
 
         for (const report of dueReports) {
             // Get Telegram connection for this org
-            const { data: conn } = await supabaseAdmin
+            const { data: conn } = await getSupabaseAdmin()
                 .from('connections')
                 .select('credentials')
                 .eq('organization_id', report.organization_id)
@@ -82,13 +88,13 @@ export async function GET(req: NextRequest) {
 
             // Update report status
             if (report.recurrence === 'once') {
-                await supabaseAdmin
+                await getSupabaseAdmin()
                     .from('scheduled_reports')
                     .update({ status: 'delivered', last_delivered_at: new Date().toISOString() })
                     .eq('id', report.id)
             } else {
                 // daily — keep pending, update last_delivered_at
-                await supabaseAdmin
+                await getSupabaseAdmin()
                     .from('scheduled_reports')
                     .update({ last_delivered_at: new Date().toISOString() })
                     .eq('id', report.id)

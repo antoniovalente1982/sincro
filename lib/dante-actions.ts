@@ -1,9 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 // --- Types ---
 
@@ -47,7 +53,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
     const { lead_name, target_stage, product, value } = params
 
     // Find the lead by name (fuzzy)
-    const { data: leads } = await supabaseAdmin
+    const { data: leads } = await getSupabaseAdmin()
         .from('leads')
         .select('id, name, stage_id, value, product')
         .eq('organization_id', orgId)
@@ -63,7 +69,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
     const lead = leads[0]
 
     // Find the target stage — scoped to the lead's pipeline
-    const { data: stages } = await supabaseAdmin
+    const { data: stages } = await getSupabaseAdmin()
         .from('pipeline_stages')
         .select('id, name, slug, is_won, fire_capi_event, pipeline_id')
         .eq('organization_id', orgId)
@@ -129,7 +135,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
     }
 
     // Execute update directly (we handle CAPI + activity here since we bypass the API route)
-    const { error: updateErr } = await supabaseAdmin
+    const { error: updateErr } = await getSupabaseAdmin()
         .from('leads')
         .update({
             stage_id: stage.id,
@@ -145,7 +151,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
 
     // Log activity (fire and forget)
     try {
-        await supabaseAdmin.from('lead_activities').insert({
+        await getSupabaseAdmin().from('lead_activities').insert({
             organization_id: orgId,
             lead_id: lead.id,
             activity_type: 'stage_changed',
@@ -158,7 +164,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
     // Fire CAPI event DIRECTLY via Meta Graph API (bypass API route which requires session auth)
     if (stage.fire_capi_event) {
         try {
-            const { data: leadData } = await supabaseAdmin
+            const { data: leadData } = await getSupabaseAdmin()
                 .from('leads')
                 .select('name, email, phone, value, meta_data, funnel_id, funnels!leads_funnel_id_fkey(objective)')
                 .eq('id', lead.id)
@@ -181,7 +187,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
                 } else {
                     // Dedup check (same event within 1hr)
                     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-                    const { data: recentEvent } = await supabaseAdmin
+                    const { data: recentEvent } = await getSupabaseAdmin()
                         .from('tracked_events')
                         .select('id')
                         .eq('lead_id', lead.id)
@@ -193,7 +199,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
 
                     if (!recentEvent) {
                         // Get Meta CAPI connection
-                        const { data: conn } = await supabaseAdmin
+                        const { data: conn } = await getSupabaseAdmin()
                             .from('connections')
                             .select('credentials, config')
                             .eq('organization_id', orgId)
@@ -245,7 +251,7 @@ async function moveLead(orgId: string, params: Record<string, any>): Promise<Act
                                 console.log(`[CAPI/Dante] ${stage.fire_capi_event} for ${finalName}: ${res.ok ? 'OK' : 'FAIL'}`, result)
 
                                 // Track the event
-                                await supabaseAdmin.from('tracked_events').insert({
+                                await getSupabaseAdmin().from('tracked_events').insert({
                                     organization_id: orgId,
                                     event_name: stage.fire_capi_event,
                                     event_id: eventId,
@@ -280,7 +286,7 @@ async function assignLead(orgId: string, params: Record<string, any>): Promise<A
     const { lead_name, assignee_name } = params
 
     // Find lead
-    const { data: leads } = await supabaseAdmin
+    const { data: leads } = await getSupabaseAdmin()
         .from('leads')
         .select('id, name')
         .eq('organization_id', orgId)
@@ -295,7 +301,7 @@ async function assignLead(orgId: string, params: Record<string, any>): Promise<A
     const lead = leads[0]
 
     // Find member by name
-    const { data: members } = await supabaseAdmin
+    const { data: members } = await getSupabaseAdmin()
         .from('organization_members')
         .select('user_id, profiles:user_id (full_name)')
         .eq('organization_id', orgId)
@@ -322,7 +328,7 @@ async function assignLead(orgId: string, params: Record<string, any>): Promise<A
         ? (member as any).profiles[0]?.full_name
         : (member as any).profiles?.full_name
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('leads')
         .update({ assigned_to: member.user_id, updated_at: new Date().toISOString() })
         .eq('id', lead.id)
@@ -333,7 +339,7 @@ async function assignLead(orgId: string, params: Record<string, any>): Promise<A
 
     // Log activity (fire and forget)
     try {
-        await supabaseAdmin.from('lead_activities').insert({
+        await getSupabaseAdmin().from('lead_activities').insert({
             organization_id: orgId,
             lead_id: lead.id,
             activity_type: 'assigned',
@@ -350,7 +356,7 @@ async function toggleAutopilot(orgId: string, params: Record<string, any>): Prom
     const { active } = params
     const newState = active === true || active === 'true'
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('ai_agent_config')
         .update({
             autopilot_active: newState,
@@ -376,7 +382,7 @@ async function searchLead(orgId: string, params: Record<string, any>): Promise<A
     }
 
     // Search across ALL leads (no limit) by name, email, or phone
-    const { data: leads } = await supabaseAdmin
+    const { data: leads } = await getSupabaseAdmin()
         .from('leads')
         .select('id, name, email, phone, stage_id, value, product, utm_source, utm_campaign, created_at, notes, meta_data')
         .eq('organization_id', orgId)
@@ -389,7 +395,7 @@ async function searchLead(orgId: string, params: Record<string, any>): Promise<A
     }
 
     // Get stages for display
-    const { data: stages } = await supabaseAdmin
+    const { data: stages } = await getSupabaseAdmin()
         .from('pipeline_stages')
         .select('id, name')
         .eq('organization_id', orgId)
@@ -445,14 +451,14 @@ export async function savePendingAction(
     responseMode: 'text' | 'voice' = 'text'
 ): Promise<void> {
     // Expire any previous pending actions for this chat
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('dante_pending_actions')
         .update({ status: 'expired' })
         .eq('chat_id', chatId)
         .eq('status', 'pending')
 
     // Insert new pending action
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('dante_pending_actions')
         .insert({
             organization_id: orgId,
@@ -473,7 +479,7 @@ export async function getPendingAction(chatId: string): Promise<{
     confirmation_message: string
     response_mode: string
 } | null> {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
         .from('dante_pending_actions')
         .select('id, organization_id, action_type, action_params, confirmation_message, expires_at, response_mode')
         .eq('chat_id', chatId)
@@ -486,7 +492,7 @@ export async function getPendingAction(chatId: string): Promise<{
 
     // Check expiry
     if (new Date(data.expires_at) < new Date()) {
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('dante_pending_actions')
             .update({ status: 'expired' })
             .eq('id', data.id)
@@ -497,14 +503,14 @@ export async function getPendingAction(chatId: string): Promise<{
 }
 
 export async function confirmPendingAction(actionId: string): Promise<void> {
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('dante_pending_actions')
         .update({ status: 'confirmed' })
         .eq('id', actionId)
 }
 
 export async function cancelPendingAction(actionId: string): Promise<void> {
-    await supabaseAdmin
+    await getSupabaseAdmin()
         .from('dante_pending_actions')
         .update({ status: 'cancelled' })
         .eq('id', actionId)
@@ -515,7 +521,7 @@ export async function cancelPendingAction(actionId: string): Promise<void> {
 async function forceRunPipeline(orgId: string): Promise<ActionResult> {
     try {
         // Get Meta credentials
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -642,7 +648,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
     // Find creative by name (fuzzy) or by id
     let creative: any = null
     if (creative_id) {
-        const { data } = await supabaseAdmin
+        const { data } = await getSupabaseAdmin()
             .from('ad_creatives')
             .select('*')
             .eq('organization_id', orgId)
@@ -650,7 +656,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
             .single()
         creative = data
     } else if (creative_name) {
-        const { data } = await supabaseAdmin
+        const { data } = await getSupabaseAdmin()
             .from('ad_creatives')
             .select('*')
             .eq('organization_id', orgId)
@@ -667,7 +673,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
     }
 
     // Update status
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('ad_creatives')
         .update({ status: newStatus })
         .eq('id', creative.id)
@@ -687,7 +693,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
     // If APPROVED → auto-launch immediately on Meta
     try {
         // Get Meta credentials
-        const { data: conn } = await supabaseAdmin
+        const { data: conn } = await getSupabaseAdmin()
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -781,7 +787,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
         if (metaAd.error) throw new Error(metaAd.error.message)
 
         // Step 4: Update record to 'launched'
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('ad_creatives')
             .update({
                 status: 'launched',
@@ -792,7 +798,7 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
             .eq('id', creative.id)
 
         // Log
-        await supabaseAdmin.from('ai_episodes').insert({
+        await getSupabaseAdmin().from('ai_episodes').insert({
             organization_id: orgId,
             episode_type: 'action',
             action_type: 'ad_auto_launched',

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+let _supabaseAdmin: SupabaseClient | null = null
+function getSupabaseAdmin() {
+    if (!_supabaseAdmin) {
+        _supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+    }
+    return _supabaseAdmin
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -25,7 +31,7 @@ export async function POST(req: NextRequest) {
         const isTablet = /tablet|ipad/i.test(userAgent)
         const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop'
 
-        const { error } = await supabaseAdmin.from('page_views').insert({
+        const { error } = await getSupabaseAdmin().from('page_views').insert({
             organization_id,
             funnel_id: funnel_id || null,
             page_path,
@@ -56,7 +62,7 @@ export async function POST(req: NextRequest) {
             let returningPhone: string | undefined
             let returningName: string | undefined
             if (visitor_id) {
-                const { data: existingLead } = await supabaseAdmin
+                const { data: existingLead } = await getSupabaseAdmin()
                     .from('leads')
                     .select('email, phone, name')
                     .eq('organization_id', organization_id)
@@ -112,7 +118,7 @@ async function fireCapiPageView(orgId: string, params: {
     name?: string
 }) {
     // Get Meta CAPI connection
-    const { data: conn } = await supabaseAdmin
+    const { data: conn } = await getSupabaseAdmin()
         .from('connections')
         .select('credentials, config')
         .eq('organization_id', orgId)
@@ -160,7 +166,7 @@ async function fireCapiPageView(orgId: string, params: {
     const result = await res.json()
 
     // Track the event
-    await supabaseAdmin.from('tracked_events').insert({
+    await getSupabaseAdmin().from('tracked_events').insert({
         organization_id: orgId,
         event_name: 'PageView',
         event_id: params.event_id,
