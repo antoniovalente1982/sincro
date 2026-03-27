@@ -101,7 +101,7 @@ async function loadBuyerPockets(): Promise<BuyerPocket[]> {
 export interface CreativeDNA {
     winning_patterns: {
         best_angle: string
-        top_ads: { name: string; spend: number; leads: number; cpl: number; ctr: number; roas: number }[]
+        top_ads: { name: string; spend: number; leads: number; cpl: number; ctr: number; roas: number; headline?: string; primary?: string; angle?: string }[]
         avg_cpl_winners: number
         avg_ctr_winners: number
     }
@@ -151,14 +151,20 @@ export async function analyzeCreativeDNA(
             return roasB - roasA
         })
         .slice(0, 5)
-        .map(a => ({
-            name: a.ad_name || 'Ad',
-            spend: Number(a.spend) || 0,
-            leads: Number(a.leads_count) || 0,
-            cpl: Number(a.cpl) || 0,
-            ctr: Number(a.ctr) || 0,
-            roas: Number(a.roas) || 0,
-        }))
+        .map(a => {
+            const c = (existingCreatives || []).find(ec => ec.name === a.ad_name)
+            return {
+                name: a.ad_name || 'Ad',
+                spend: Number(a.spend) || 0,
+                leads: Number(a.leads_count) || 0,
+                cpl: Number(a.cpl) || 0,
+                ctr: Number(a.ctr) || 0,
+                roas: Number(a.roas) || 0,
+                headline: c?.headline || '',
+                primary: c?.primary || '',
+                angle: c?.angle || ''
+            }
+        })
 
     const avgCPL = topByROAS.length > 0
         ? topByROAS.reduce((s, a) => s + a.cpl, 0) / topByROAS.length : 0
@@ -341,7 +347,7 @@ export async function generateCreativeBrief(
     if (!pocket) return null
 
     // 2. Generate copy based on pocket + winning patterns
-    const copy = await generateCopyFromPocket(pocket, angle)
+    const copy = await generateCopyFromPocket(pocket, angle, dna)
 
     // 3. Generate image prompt for 4:5 format
     const imagePrompt = generateImagePrompt(pocket, angle, dna)
@@ -378,15 +384,23 @@ export async function generateCreativeBrief(
 
 async function generateCopyFromPocket(
     pocket: SelectedPocket,
-    angle: string
+    angle: string,
+    dna?: CreativeDNA
 ): Promise<{ primary: string; headline: string; description: string }> {
     const { buyer_state, core_question, primary_trigger, pocket_name } = pocket
 
+    let winningContextMsg = ''
+    if (dna && dna.winning_patterns && dna.winning_patterns.top_ads.length > 0) {
+        const topAd = dna.winning_patterns.top_ads[0]
+        winningContextMsg = `\nATTENZIONE - STORICO VINCENTE: La nostra migliore ad al momento (Angle: ${topAd.angle}) ha il seguente copy vincente, cerca di ricalcarne lo STILE E LA LEVA:\nHeadline vincente: "${topAd.headline}"\nInizio body vincente: "${topAd.primary?.substring(0, 150)}..."\nUsa questo contesto per capire cosa funziona ma adattalo al pocket attuale.`
+    }
+
     const systemPrompt = `Sei un esperto copywriter di Metodo Sincro, un sistema di mental coaching per giovani calciatori.
 Devi scrivere il copy per una nuova ad di Facebook. 
-ATTENZIONE CRITICA AL TARGET: Il target di queste Ads NON sono i ragazzi, ma i loro GENITORI (madri e padri di giovani calciatori in fase adolescenziale/pre-agonistica). Devi rivolgerti a LORO ("tuo figlio", "tuo ragazzo", "come genitore").
+ATTENZIONE CRITICA AL TARGET E DEMOGRAFICA: Il target di queste Ads NON sono i ragazzi, ma i loro GENITORI (madri e padri di giovani calciatori di 16-18 anni). Devi rivolgerti a LORO ("tuo figlio", "tuo ragazzo", "come genitore"). MAI riferirsi a bambini piccoli.
 Sii persuasivo, diretto, usa un linguaggio emotivamente profondo ma molto pratico.
 NON usare emoji o hashtag nel "primary". Scrivi in modo estremamente naturale e di impatto.
+${winningContextMsg}
 
 Il target (buyer pocket) è: "${pocket_name}"
 Lo stato d'animo del cliente è: "${buyer_state}"
@@ -444,11 +458,13 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 3 chiavi: "primary" (
 function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA): string {
     const baseStyle = `Cinematic vertical 4:5 photo, dark moody atmosphere with golden accent lighting, high contrast, professional sports photography style. NO text overlay, NO logos, NO watermarks.`
 
+    const playerDemographic = `An older teenage male soccer player, rugged, late teens (17-19 years old). MUST look like a young adult almost ready for professional leagues. STRICT RULE: ABSOLUTELY NO CHILDREN, NO LITTLE BOYS, NO PRE-TEENS.`
+
     const angleVisuals: Record<string, string> = {
-        efficiency: `A young male soccer player (16-18 years old) standing alone in a massive empty stadium at twilight. Split lighting — one half in shadow, one half illuminated by golden light. Expression: focused, determined, intense. The emptiness of the stadium contrasts with his inner fire.`,
-        system: `A young male soccer player (16-18 years old) in a controlled training environment. Geometric lines and grid patterns visible in the background (suggesting structure/system). Expression: calm, calculated, in control. Clean aesthetic, precision.`,
-        emotional: `A young male soccer player (16-18 years old) sitting alone on a bench in a dim locker room. Head slightly bowed, hands clasped. Dramatic chiaroscuro lighting. Expression: introspective, overwhelmed but not defeated. Raw emotion.`,
-        status: `A young male soccer player (16-18 years old) walking through a tunnel towards a brightly lit pitch. Silhouette from behind, golden light ahead. Wide shot showing the scale. Expression not visible — the composition tells the story of aspiration.`,
+        efficiency: `${playerDemographic} Standing alone in a massive empty stadium at twilight. Split lighting — one half in shadow, one half illuminated by golden light. Expression: focused, determined, intense. The emptiness of the stadium contrasts with his inner fire.`,
+        system: `${playerDemographic} In a controlled training environment. Geometric lines and grid patterns visible in the background (suggesting structure/system). Expression: calm, calculated, in control. Clean aesthetic, precision.`,
+        emotional: `${playerDemographic} Sitting alone on a bench in a dim locker room. Head slightly bowed, hands clasped. Dramatic chiaroscuro lighting. Expression: introspective, overwhelmed but not defeated. Raw emotion.`,
+        status: `${playerDemographic} Walking through a tunnel towards a brightly lit pitch. Silhouette from behind, golden light ahead. Wide shot showing the scale. Expression not visible — the composition tells the story of aspiration.`,
     }
 
     const visual = angleVisuals[angle] || angleVisuals.efficiency
