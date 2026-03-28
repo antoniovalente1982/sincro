@@ -2,7 +2,7 @@
 
 import { Player, PlayerRef } from '@remotion/player';
 import { SincroVideoTemplate } from '@/remotion/SincroVideoTemplate';
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 
 interface VideoPlayerClientProps {
     headline: string;
@@ -28,6 +28,28 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
     backgroundMood,
     subtitleStyle = 'impact',
 }, ref) => {
+    // Convert base64 to Blob URL for safe browser playback (fixes Safari silence bug)
+    const [audioUrl, setAudioUrl] = useState<string>('');
+
+    useEffect(() => {
+        if (!audioBase64) {
+            setAudioUrl('');
+            return;
+        }
+        try {
+            const binary = atob(audioBase64);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
+            const blob = new Blob([array], { type: 'audio/mp3' });
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('Buffer audio playback error fallback:', e);
+            setAudioUrl(`data:audio/mp3;base64,${audioBase64}`);
+        }
+    }, [audioBase64]);
+
     // If we have audio, use a longer duration, otherwise 600 frames default
     const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
     const durationInFrames = Math.max(600, Math.ceil((durationMls / 1000) * 60));
@@ -42,7 +64,7 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
             )}
             inputProps={{ 
                 headline, 
-                audioBase64: audioBase64 || '', 
+                audioBase64: audioUrl, 
                 words: words || [],
                 visualAssets: visualAssets || [],
                 enableMoneyVFX: useMoney,

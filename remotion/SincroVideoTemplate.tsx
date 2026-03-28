@@ -209,7 +209,12 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 
                 {/* Audio */}
                 {audioBase64 && (
-                    <Audio src={`data:audio/mp3;base64,${audioBase64}`} volume={avatarVideoUrl ? 0 : 1} />
+                    <Audio 
+                        src={audioBase64.startsWith('blob:') || audioBase64.startsWith('http') || audioBase64.startsWith('data:') 
+                             ? audioBase64 
+                             : `data:audio/mp3;base64,${audioBase64}`} 
+                        volume={avatarVideoUrl ? 0 : 1} 
+                    />
                 )}
 
                 {/* ═══ Z-0: SFONDO CINEMATICO ═══ */}
