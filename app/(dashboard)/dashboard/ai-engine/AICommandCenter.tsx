@@ -291,7 +291,7 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     }}>
                         <Paintbrush className="w-4 h-4" /> Creative Studio
                     </Link>
-                    <Link href="/dashboard/ai-engine/video-preview" className="btn-primary" style={{
+                    <Link href="/dashboard/ai-engine/video-editor" className="btn-primary" style={{
                         background: 'rgba(236, 72, 153, 0.15)', border: '1px solid rgba(236, 72, 153, 0.3)', color: '#ec4899',
                     }}>
                         <Sparkles className="w-4 h-4" /> Video Engine
