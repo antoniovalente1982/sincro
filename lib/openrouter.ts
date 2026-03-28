@@ -295,29 +295,29 @@ export async function generateVideoVFXTags(script: string): Promise<VFXEngineDat
         return fallback;
     }
 
-    const VFX_PROMPT = `Sei un Regista e Editor Video esperto in Short-Form Content (TikTok/Reels stile Alex Hormozi) ad altissima retention.
-Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore di Animazione 3D. 
+    const VFX_PROMPT = `Sei l'Art Director Video di Metodo Sincro per Reel e TikTok.
+Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore di Animazione 3D (Hormozi 3.0), che ha te come unico regista.
 
 Devi produrre ESATTAMENTE QUESTO JSON:
 {
   "tags": [
-      {"word": "parola", "emoji": "🚀"} // Tagga massimo il 10% delle parole dello script per applicare la "Shake Cam" (solo vere bombe come soldi, risultati, verbi d'azione).
+      {"word": "parola", "emoji": "🚀"} // Tagga massimo il 10% delle parole per applicare la "Shake Cam" (solo vere bombe o concetti chiave).
   ],
   "visualAssets": [
       {
          "type": "b-roll", // o "newspaper" 
-         "query": "macchina sportiva", // Per "b-roll" metti una descrizione semplice in LINGUA INGLESE (es. "sport car", "money"). Per "newspaper" metti un Titolo Breaking News in ITALIANO (es. "Milioni di Italiani senza lavoro").
-         "startWord": "imprenditore", // La parola esatta in cui la grafica entra nello schermo. Deve esistere nello script! (Case-insensitive)
-         "endWord": "problema" // La parola in cui l'asset scompare. Evita di sovrapporre più asset. Massimo 2/3 assets per l'intero video.
+         "query": "giocatore di calcio che corre felice", // Per "b-roll" usa INGLESE (es. "soccer player running"). Per "newspaper" metti un TITOLO SHOCK in ITALIANO (es. "Ansia in campo, i giovani si bloccano").
+         "startWord": "inizio", // Parola esatta in cui farlo apparire (deve esistere nello script!)
+         "endWord": "problema" // Parola in cui scompare.
       }
   ]
 }
 
-Regole vitali:
-1. Restituisci SOLO IL JSON COMPATIBILE, nessuna introduzione o markdown.
-2. Rispondi SEMPRE in Italiano per i "newspaper", usa l'Inglese per le "b-roll" query (aiuta l'API fotografica).
-3. Non inserire più di 3 "visualAssets" in totale, i video sono corti! Lascia momenti liberi (schermo senza card) per non saturare lo spettatore.
-4. "startWord" ed "endWord" devono corrispondere a parole effettivamente presenti nello script originario.`;
+Regole Visive e Registiche (MANDATORY):
+1. **Dinamismo Sensato**: Metti una card 3D (b-roll) legata al calcio all'inizio del video o su una parola potente (es. "soccer player", "stadium").
+2. **Consequenzialità**: Subito dopo che la card scompare, fai entrare un "newspaper" stile Breaking News a rinforzare l'hook o l'argomento (es. Titolo forte). 
+3. **Niente sovrapposizioni inutili**: Crea una sequenza pulita. Card entra -> Card esce -> Giornale entra. 
+4. Assicurati che le "startWord" e "endWord" siano presenti esattamente nello script testuale.`;
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {

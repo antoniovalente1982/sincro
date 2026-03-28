@@ -80,16 +80,16 @@ export default function VideoPreviewPage() {
         setError(null);
 
         try {
-            // 1. Invia il job ad HeyGen
+            // 1. Invia il job ad HeyGen passando testo e audio
             const res = await fetch('/api/heygen/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: headline })
+                body: JSON.stringify({ text: headline, audioBase64: audioBase64 })
             });
 
             const data = await res.json();
             if (!res.ok || !data.video_id) {
-                setError(data.error || "Errore di comunicazione HeyGen");
+                setError((data.error || "Errore HeyGen") + (data.details ? ` - Dettagli: ${data.details}` : ""));
                 setHeygenStatus(null);
                 return;
             }
@@ -97,7 +97,6 @@ export default function VideoPreviewPage() {
             const videoId = data.video_id;
             setHeygenStatus(`In Rendering 3D... (ID: ${videoId.slice(0, 8)}) - Può richiedere minuti`);
 
-            // 2. Logica di Polling (Ogni 10 secondi)
             const checkStatus = async () => {
                 try {
                     const statusRes = await fetch(`/api/heygen/status?video_id=${videoId}`);
@@ -107,7 +106,8 @@ export default function VideoPreviewPage() {
                         setAvatarVideoUrl(statusData.video_url);
                         setHeygenStatus(null);
                     } else if (statusData.status === "failed") {
-                        setError("Ops, la renderizzazione locale su HeyGen è fallita.");
+                        let errDetails = statusData.error ? JSON.stringify(statusData.error) : "";
+                        setError(`Ops, la renderizzazione su HeyGen è fallita. ${errDetails}`);
                         setHeygenStatus(null);
                     } else {
                         setTimeout(checkStatus, 10000); // Riprova tra 10s

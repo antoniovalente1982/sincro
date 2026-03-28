@@ -145,7 +145,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 
                 {/* Audio Sincronizzato */}
                 {audioBase64 && (
-                    <Audio src={`data:audio/mp3;base64,${audioBase64}`} />
+                    <Audio src={`data:audio/mp3;base64,${audioBase64}`} volume={avatarVideoUrl ? 0 : 1} />
                 )}
 
                 {/* Z-INDEX 0: BACKGROUND CINEMATICO (Studio, Led, Ambiente fisso) */}
@@ -173,31 +173,54 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     )}
                 </AbsoluteFill>
 
-                {/* Z-INDEX 20: MIDGROUND CARDS (Grafiche, Ragazze, Calciatori che passano "dietro" allo speaker) */}
-                <AbsoluteFill style={{ zIndex: 20 }}>
-                    {visualAssets.filter(a => a.type === 'b-roll').map((asset, i) => (
-                        <DynamicCard3D 
-                            key={`broll-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            imageUrl={asset.query.includes('http') ? asset.query : `https://loremflickr.com/600/800/${encodeURIComponent(asset.query)}?lock=${i}`} 
-                            rotationOffset={-12 + (i % 2 === 0 ? 5 : -5)} 
-                        />
-                    ))}
-                </AbsoluteFill>
-
-                {/* Z-INDEX 50: FOREGROUND SPEAKER (Avatar isolato o Schermo Intero) */}
+                {/* Z-INDEX 50: FOREGROUND SPEAKER (Avatar Video Pieno) */}
                 <AbsoluteFill style={{ zIndex: 50, pointerEvents: 'none' }}>
                     {avatarVideoUrl && (
                          <AbsoluteFill>
-                             <Video src={avatarVideoUrl} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                             <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} /> {/* Overlay leggero */}
+                             <Video 
+                                src={avatarVideoUrl} 
+                                style={{ 
+                                    objectFit: 'cover', 
+                                    width: '100%', 
+                                    height: '100%',
+                                }} 
+                             />
                          </AbsoluteFill>
                     )}
                 </AbsoluteFill>
 
-                {/* Z-INDEX 100: TYPOGRAPHY, GIORNALI FAKE, BOLLA IOS, PROGRESS BAR */}
-                <AbsoluteFill style={{ zIndex: 100, pointerEvents: 'none', alignItems: 'center' }}>
+                {/* Z-INDEX 200: CARDS & NEWSPAPER IN OVERLAY PIP SOPRA ALLO SPEAKER */}
+                <AbsoluteFill style={{ zIndex: 200, pointerEvents: 'none' }}>
+                    {visualAssets.filter(a => a.type === 'b-roll').map((asset, i) => {
+                        const fallbacks = [
+                            '/images/calciatori/Matteo Brunori (Sampdoria).png',
+                            '/images/calciatori/Patrick Cutrone (Monza).png',
+                            '/images/calciatori/Barbara Bonansea (Juventus).png'
+                        ];
+                        const imgUrl = asset.query.includes('http') ? asset.query : fallbacks[i % fallbacks.length];
+                        
+                        return (
+                            <DynamicCard3D 
+                                key={`broll-${i}`}
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                imageUrl={imgUrl} 
+                                rotationOffset={-12 + (i % 2 === 0 ? 5 : -5)} 
+                            />
+                        );
+                    })}
+                    {visualAssets.filter(a => a.type === 'newspaper').map((asset, i) => (
+                        <FakeNewspaper 
+                            key={`news-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            headline={asset.query} 
+                        />
+                    ))}
+                </AbsoluteFill>
+
+                {/* Z-INDEX 300: TYPOGRAPHY, BOLLA IOS, PROGRESS BAR */}
+                <AbsoluteFill style={{ zIndex: 300, pointerEvents: 'none', alignItems: 'center' }}>
                     
                     {/* Progress Bar stile TikTok */}
                     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 12, backgroundColor: 'rgba(255,255,255,0.2)' }}>
@@ -209,16 +232,6 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         // Lo facciamo partire 5 frame prima del botto, per dare dinamismo
                         <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
                     )}
-
-                    {/* Finto Articolo Forbes Breaking News Multipli */}
-                    {visualAssets.filter(a => a.type === 'newspaper').map((asset, i) => (
-                        <FakeNewspaper 
-                            key={`news-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            headline={asset.query} 
-                        />
-                    ))}
 
                     {/* Modulo Sottotitoli Sicuri */}
                     {words && words.length > 0 ? (

@@ -4,17 +4,49 @@ export async function POST(req: Request) {
     try {
         const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
         const HEYGEN_AVATAR_ID = process.env.HEYGEN_AVATAR_ID;
-        const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID;
+        const HEYGEN_VOICE_ID = process.env.HEYGEN_VOICE_ID || '5cc4c6b457ce4edb8d2a50efab08f03e';
 
         if (!HEYGEN_API_KEY || !HEYGEN_AVATAR_ID) {
             return NextResponse.json({ error: 'Chiavi HeyGen non configurate' }, { status: 500 });
         }
 
         const body = await req.json();
-        const { text, title = "Hormozi 3.0 Generation" } = body;
+        const { text, audioBase64, title = "Hormozi 3.0 Generation" } = body;
 
         if (!text) {
             return NextResponse.json({ error: 'Testo script mancante' }, { status: 400 });
+        }
+
+        let voicePayload: any = {
+            type: 'text',
+            input_text: text,
+            voice_id: HEYGEN_VOICE_ID
+        };
+
+        // Se abbiamo l'audio ElevenLabs, lo carichiamo su un server per passarlo intero a HeyGen
+        if (audioBase64) {
+            try {
+                const buffer = Buffer.from(audioBase64, 'base64');
+                const formData = new FormData();
+                formData.append('reqtype', 'fileupload');
+                formData.append('fileToUpload', new Blob([buffer], { type: 'audio/mp3' }), 'voice.mp3');
+                
+                const uploadRes = await fetch('https://catbox.moe/user/api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (uploadRes.ok) {
+                    const audioUrl = await uploadRes.text();
+                    voicePayload = {
+                        type: 'audio',
+                        audio_url: audioUrl
+                    };
+                    console.log("Audio uploaded to Catbox per HeyGen:", audioUrl);
+                }
+            } catch(e) {
+                console.warn("Upload audio a Catbox fallito, fallback a TextTTS HeyGen", e);
+            }
         }
 
         // Chiamata REST API HeyGen v2 per Generazione Video
@@ -32,11 +64,7 @@ export async function POST(req: Request) {
                             avatar_id: HEYGEN_AVATAR_ID,
                             avatar_style: 'normal'
                         },
-                        voice: {
-                            type: 'text',
-                            input_text: text,
-                            voice_id: ELEVENLABS_VOICE_ID, // Use ElevenLabs Voice inside HeyGen
-                        }
+                        voice: voicePayload
                     }
                 ],
                 test: true, // IMPORTANT: Evita consumi eccessivi in fase di sviluppo
