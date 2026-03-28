@@ -1,7 +1,8 @@
 "use client";
 
-import { Player } from '@remotion/player';
+import { Player, PlayerRef } from '@remotion/player';
 import { SincroVideoTemplate } from '@/remotion/SincroVideoTemplate';
+import { forwardRef } from 'react';
 
 interface VideoPlayerClientProps {
     headline: string;
@@ -16,7 +17,7 @@ interface VideoPlayerClientProps {
     subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'none';
 }
 
-export default function VideoPlayerClient({ 
+const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({ 
     headline, 
     audioBase64, 
     words,
@@ -26,13 +27,14 @@ export default function VideoPlayerClient({
     messageText,
     backgroundMood,
     subtitleStyle = 'impact',
-}: VideoPlayerClientProps) {
+}, ref) => {
     // If we have audio, use a longer duration, otherwise 600 frames default
     const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
     const durationInFrames = Math.max(600, Math.ceil((durationMls / 1000) * 60));
 
     return (
         <Player
+            ref={ref}
             component={(props: any) => (
                 <div style={{ transform: 'scale(2)', transformOrigin: 'top left', width: 1080, height: 1920, position: 'absolute' }}>
                     <SincroVideoTemplate {...props} />
@@ -63,5 +65,8 @@ export default function VideoPlayerClient({
             loop
         />
     );
-}
+});
 
+VideoPlayerClient.displayName = "VideoPlayerClient";
+
+export default VideoPlayerClient;

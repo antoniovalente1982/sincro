@@ -163,6 +163,22 @@ export default function VideoEditorProPage() {
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
     const [avatarList, setAvatarList] = useState<{avatar_id: string, avatar_name: string}[]>([]);
     const [selectedAvatarId, setSelectedAvatarId] = useState<string>('');
+
+    // ═══ PLAYER TIMELINE ═══
+    const playerRef = React.useRef<any>(null);
+    const [playHeadFrame, setPlayHeadFrame] = useState(0);
+
+    useEffect(() => {
+        let af: number;
+        const tick = () => {
+            if (playerRef.current) {
+                setPlayHeadFrame(playerRef.current.getCurrentFrame() || 0);
+            }
+            af = requestAnimationFrame(tick);
+        };
+        af = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(af);
+    }, []);
     const [loadingAvatars, setLoadingAvatars] = useState(false);
 
     // ═══ RENDER MP4 STATE ═══
@@ -214,6 +230,18 @@ export default function VideoEditorProPage() {
         }
         return 12000; // default 12s
     }, [words]);
+
+    const durationInFrames = Math.max(600, Math.ceil((durationMs / 1000) * 60));
+    const playHeadPercent = Math.min(100, Math.max(0, (playHeadFrame / durationInFrames) * 100));
+
+    const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!playerRef.current) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = Math.max(0, e.clientX - rect.left);
+        const percent = Math.min(1, x / rect.width);
+        const targetFrame = Math.round(percent * durationInFrames);
+        playerRef.current.seekTo(targetFrame);
+    };
 
     const selectedLayer = layers.find(l => l.id === selectedLayerId) || null;
 
@@ -660,6 +688,7 @@ export default function VideoEditorProPage() {
                                 )}
                                 {audioBase64 ? (
                                     <VideoPlayerClient
+                                        ref={playerRef}
                                         headline={headline}
                                         audioBase64={audioBase64}
                                         words={words}
@@ -740,7 +769,11 @@ export default function VideoEditorProPage() {
                                 ...(PROPERTY_FIELDS[selectedLayer.type] || []),
                                 { label: 'Scala (Zoom)', key: 'scale', type: 'range' as const, min: 0.1, max: 3.0, step: 0.1, default: 1.0 },
                                 { label: 'Spaziatura Orizzontale (X)', key: 'xOffset', type: 'range' as const, min: -1080, max: 1080, step: 10, default: 0 },
-                                { label: 'Spaziatura Verticale (Y)', key: 'yOffset', type: 'range' as const, min: -1920, max: 1920, step: 10, default: 0 }
+                                { label: 'Spaziatura Verticale (Y)', key: 'yOffset', type: 'range' as const, min: -1920, max: 1920, step: 10, default: 0 },
+                                { label: 'In Animazione', key: 'inAnim', type: 'select' as const, options: ['none', 'fade-in', 'slide-up', 'zoom-in', 'bounce'], default: 'none' },
+                                { label: 'Out Animazione', key: 'outAnim', type: 'select' as const, options: ['none', 'fade-out', 'slide-right', 'zoom-out'], default: 'none' },
+                                { label: 'Effetto Fisso (Idle)', key: 'idleAnim', type: 'select' as const, options: ['none', 'float', 'pulse', 'wiggle'], default: 'none' },
+                                { label: 'Posizione (Z-Index)', key: 'layerOrder', type: 'select' as const, options: ['front', 'back'], default: 'front' }
                             ].map(field => {
                                 const val = selectedLayer.props[field.key] !== undefined ? selectedLayer.props[field.key] : field.default;
                                 return (
@@ -827,7 +860,21 @@ export default function VideoEditorProPage() {
             </div>
 
             {/* ═══ BOTTOM: TIMELINE ═══ */}
-            <div className="h-48 bg-zinc-950 border-t border-zinc-800 flex flex-col flex-shrink-0">
+            <div className="h-48 bg-zinc-950 border-t border-zinc-800 flex flex-col flex-shrink-0 relative">
+                
+                {/* PLAYHEAD & SCRUBBER OVERLAY */}
+                <div 
+                    className="absolute top-10 bottom-0 left-[144px] right-4 z-50 cursor-text"
+                    onClick={handleTimelineClick}
+                >
+                    <div 
+                        className="absolute top-0 bottom-0 w-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,1)] pointer-events-none"
+                        style={{ left: `${playHeadPercent}%` }}
+                    >
+                        <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                    </div>
+                </div>
+
                 <div className="px-4 py-2 border-b border-zinc-800/50 flex items-center justify-between">
                     <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">🎬 Timeline</span>
                     <span className="text-[10px] text-zinc-600">{(durationMs / 1000).toFixed(1)}s</span>
