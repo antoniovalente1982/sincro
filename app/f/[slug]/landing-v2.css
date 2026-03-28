@@ -43,6 +43,10 @@
     font-size: 16px; font-weight: 900; letter-spacing: 3px; color: #fff;
 }
 .lp-logo sup { font-size: 9px; color: #fff; }
+.lp-logo-author {
+    font-size: 12px; font-weight: 500; color: #a1a1aa;
+    letter-spacing: 0.3px; margin-left: 2px;
+}
 .lp-header-r { display: flex; align-items: center; gap: 16px; }
 .lp-header-badges { display: flex; align-items: center; gap: 8px; }
 .lp-header-badge {
@@ -585,8 +589,50 @@
 }
 .lp-final-cta p { color: #71717a; font-size: 16px; margin: 12px 0 28px; }
 
+/* ─── STICKY BOTTOM BAR ─── */
+.lp-sticky-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+    background: rgba(5, 5, 8, 0.92);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(250, 204, 21, 0.12);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(250, 204, 21, 0.06);
+    cursor: pointer;
+    animation: stickySlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes stickySlideUp {
+    from { opacity: 0; transform: translateY(100%); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.lp-sticky-bar-in {
+    max-width: 1000px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.lp-sticky-bar-brand {
+    display: flex; align-items: center; flex: 1; min-width: 0;
+}
+.lp-sticky-bar-text {
+    font-size: 14px; font-weight: 500; color: #a1a1aa; line-height: 1.4;
+}
+.lp-sticky-bar-text strong { color: #facc15; font-weight: 800; }
+.lp-sticky-bar-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 800; font-family: inherit;
+    color: #fff; cursor: pointer; white-space: nowrap;
+    background: linear-gradient(135deg, #34d058 0%, #22c55e 50%, #16a34a 100%);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.35), 0 3px 12px rgba(34, 197, 94, 0.3);
+    transition: all 0.3s;
+    animation: ctaPulseGreen 2.5s ease-in-out infinite;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.lp-sticky-bar-cta:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 0 50px rgba(34, 197, 94, 0.5), 0 5px 20px rgba(34, 197, 94, 0.4);
+    animation: none;
+}
+
 /* ─── FOOTER ─── */
-.lp-footer { border-top: 1px solid rgba(255,255,255,0.05); padding: 24px 20px; text-align: center; }
+.lp-footer { border-top: 1px solid rgba(255,255,255,0.05); padding: 24px 20px 80px; text-align: center; }
 .lp-footer-brand { font-size: 14px; color: #a1a1aa; margin-bottom: 16px; }
 .lp-footer-brand strong { color: #facc15; }
 .lp-footer-legal p { font-size: 11px; color: #3f3f46; line-height: 1.8; }
@@ -756,6 +802,14 @@
     }
     .lp-section-pre { font-size: 10px; letter-spacing: 2px; }
     .lp-social-sub, .lp-how-sub, .lp-reviews-sub { font-size: 12px; margin-bottom: 20px; }
+
+    /* Sticky bottom bar mobile */
+    .lp-sticky-bar-in { padding: 10px 14px; gap: 12px; }
+    .lp-sticky-bar-text { font-size: 11px; }
+    .lp-sticky-bar-cta { padding: 10px 16px; font-size: 12px; gap: 6px; border-radius: 10px; }
+
+    /* Header logo mobile */
+    .lp-logo-author { display: none; }
 }
 
 @media (max-width: 400px) {

@@ -1,7 +1,7 @@
 'use client'
 
 import './landing-v2.css'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
@@ -57,7 +57,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
-        const [showExitPopup, setShowExitPopup] = useState(false)
+    const [showExitPopup, setShowExitPopup] = useState(false)
+    const [showStickyBar, setShowStickyBar] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const exitShownRef = useRef(false)
 
@@ -124,6 +125,21 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             window.addEventListener('scroll', handleScroll, { passive: true })
         }, 8000)
         return () => { clearTimeout(timeout); document.removeEventListener('mouseleave', handleMouseLeave); window.removeEventListener('scroll', handleScroll) }
+    }, [submitted])
+
+    // Sticky bottom bar: show when form is scrolled past
+    useEffect(() => {
+        const formEl = formRef.current
+        if (!formEl) return
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // Show bar when the form is NOT visible (scrolled past it)
+                setShowStickyBar(!entry.isIntersecting)
+            },
+            { threshold: 0, rootMargin: '0px 0px -60px 0px' }
+        )
+        observer.observe(formEl)
+        return () => observer.disconnect()
     }, [submitted])
 
     const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -243,7 +259,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             {/* Sticky Header */}
             <header className="lp-header">
                 <div className="lp-header-in">
-                    <div className="lp-logo">METODO SINCRO<sup>®</sup></div>
+                    <div className="lp-logo">METODO SINCRO<sup>®</sup> <span className="lp-logo-author">di Antonio Valente</span></div>
                     <div className="lp-header-r">
                         <div className="lp-header-badges">
                             <span className="lp-header-badge">⭐ 4.9/5 <span className="lp-tp-green">TrustPilot</span></span>
@@ -532,6 +548,20 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Prenota la Consulenza Gratuita <ArrowRight size={20} /></button>
                 </div>
             </section>
+
+            {/* ══════════ STICKY BOTTOM BAR ══════════ */}
+            {showStickyBar && !submitted && (
+                <div className="lp-sticky-bar" onClick={scrollToForm}>
+                    <div className="lp-sticky-bar-in">
+                        <div className="lp-sticky-bar-brand">
+                            <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel Calcio</span>
+                        </div>
+                        <button className="lp-sticky-bar-cta" onClick={(e) => { e.stopPropagation(); scrollToForm() }}>
+                            Prenota la Consulenza <ArrowRight size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Footer */}
             <footer className="lp-footer">
