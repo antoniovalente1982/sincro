@@ -35,16 +35,29 @@ export default function VideoPreviewPage() {
             setLoadingAvatars(true);
             try {
                 const res = await fetch('/api/heygen/avatars');
-                if (res.ok) {
-                    const data = await res.json();
-                    setAvatarList(data.avatars || []);
-                    // Pre-seleziona il primo avatar
-                    if (data.avatars?.length > 0) {
-                        setSelectedAvatarId(data.avatars[0].avatar_id);
-                    }
-                }
+                const apiAvatars = res.ok ? (await res.json()).avatars || [] : [];
+                
+                // Avatar custom hardcoded (sempre visibili)
+                const customAvatars = [
+                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente', preview_image_url: null },
+                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente Foto', preview_image_url: null },
+                ];
+                
+                // Unisci custom + API (evita duplicati)
+                const customIds = new Set(customAvatars.map(a => a.avatar_id));
+                const merged = [...customAvatars, ...apiAvatars.filter((a: any) => !customIds.has(a.avatar_id))];
+                
+                setAvatarList(merged);
+                if (merged.length > 0) setSelectedAvatarId(merged[0].avatar_id);
             } catch (err) {
                 console.warn('Errore caricamento avatar HeyGen:', err);
+                // Fallback: mostra solo i custom
+                const fallback = [
+                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente', preview_image_url: null },
+                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente Foto', preview_image_url: null },
+                ];
+                setAvatarList(fallback);
+                setSelectedAvatarId(fallback[0].avatar_id);
             } finally {
                 setLoadingAvatars(false);
             }
