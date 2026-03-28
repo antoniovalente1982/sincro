@@ -125,10 +125,10 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
 
     // Immagini fallback
     const fallbackImages = [
-        '/images/calciatori/Matteo Brunori (Sampdoria).png',
-        '/images/calciatori/Patrick Cutrone (Monza).png',
-        '/images/calciatori/Barbara Bonansea (Juventus).png',
-        '/images/calciatori/Francesca Durante (Lazio).png',
+        encodeURI('/images/calciatori/Matteo Brunori (Sampdoria).png'),
+        encodeURI('/images/calciatori/Patrick Cutrone (Monza).png'),
+        encodeURI('/images/calciatori/Barbara Bonansea (Juventus).png'),
+        encodeURI('/images/calciatori/Francesca Durante (Lazio).png'),
     ];
 
     // ═══ FILTRI ASSET BY TYPE ═══
