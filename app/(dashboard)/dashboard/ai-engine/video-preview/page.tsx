@@ -27,7 +27,7 @@ export default function VideoPreviewPage() {
     const handleGenerate = async () => {
         if (!headline.trim()) return;
         
-        const cacheKey = `sincro_tts_cache_v3_${headline.trim()}`;
+        const cacheKey = `sincro_tts_cache_v4_${headline.trim()}`;
         const cached = localStorage.getItem(cacheKey);
         
         let shouldFetch = true;
@@ -37,6 +37,7 @@ export default function VideoPreviewPage() {
                 setAudioBase64(parsed.audioBase64);
                 setWords(parsed.words);
                 if (parsed.visualAssets) setVisualAssets(parsed.visualAssets);
+                if (parsed.backgroundMood) setBackgroundMood(parsed.backgroundMood);
                 shouldFetch = false;
             } catch (e) {
                 console.warn('Cache invalida, rigenero audio.');
@@ -63,7 +64,8 @@ export default function VideoPreviewPage() {
                     localStorage.setItem(cacheKey, JSON.stringify({
                         audioBase64: data.audioBase64,
                         words: data.words,
-                        visualAssets: data.visualAssets
+                        visualAssets: data.visualAssets,
+                        backgroundMood: data.backgroundMood
                     }));
                 } else {
                     setError(data.error || "Errore sconosciuto da ElevenLabs");
