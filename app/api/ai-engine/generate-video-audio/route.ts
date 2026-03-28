@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         }
 
         // Generate the audio with Timestamps AND the AI tags in parallel for speed
-        const [ttsResult, vfxTags] = await Promise.all([
+        const [ttsResult, vfxData] = await Promise.all([
             textToSpeechWithTimestamps(text),
             generateVideoVFXTags(text)
         ]);
@@ -63,6 +63,8 @@ export async function POST(req: Request) {
             words.push({ word: currentWord, startMs: currentStart * 1000, endMs: currentEnd * 1000 });
         }
 
+        const vfxTags = vfxData.tags;
+        
         // Map VFX tags from LLM to specific words
         for (let i = 0; i < words.length; i++) {
             const cleanWord = words[i].word.toLowerCase().replace(/[.,!?;:()]/g, '');
@@ -75,9 +77,29 @@ export async function POST(req: Request) {
             }
         }
 
+        // Map Visual Assets (Multi-layered Timeline)
+        const visualAssets = vfxData.visualAssets.map(asset => {
+            const cleanStart = asset.startWord.toLowerCase().replace(/[.,!?;:()]/g, '');
+            const cleanEnd = asset.endWord.toLowerCase().replace(/[.,!?;:()]/g, '');
+
+            const startIndex = words.findIndex(w => w.word.toLowerCase().replace(/[.,!?;:()]/g, '') === cleanStart);
+            let endIndex = words.findIndex((w, i) => i > startIndex && w.word.toLowerCase().replace(/[.,!?;:()]/g, '') === cleanEnd);
+            
+            // Fallback se l'AI sbaglia le parole di endWord: fagli durare 2 secondi (approx 4 parole)
+            if (endIndex === -1) endIndex = Math.min(words.length - 1, startIndex + 5);
+
+            return {
+                type: asset.type,
+                query: asset.query,
+                startMs: startIndex >= 0 ? words[startIndex].startMs : 0,
+                endMs: endIndex >= 0 ? words[endIndex].endMs : (startIndex >= 0 ? words[startIndex].startMs + 2000 : 2000)
+            };
+        }).filter(a => a.startMs !== undefined && a.endMs !== undefined);
+
         return NextResponse.json({
             audioBase64: ttsResult.audioBase64,
-            words: words
+            words: words,
+            visualAssets: visualAssets
         });
 
     } catch (error) {

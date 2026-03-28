@@ -2,12 +2,14 @@ import React from 'react';
 import { Img, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
 // Questo componente si piazza al centro-destra (o sinistra) dietro lo speaker.
-export const DynamicCard3D: React.FC<{ startFrame: number, imageUrl: string, rotationOffset?: number }> = ({ startFrame, imageUrl, rotationOffset = -15 }) => {
+export const DynamicCard3D: React.FC<{ startFrame: number, endFrame?: number, imageUrl: string, rotationOffset?: number }> = ({ startFrame, endFrame, imageUrl, rotationOffset = -15 }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    // Animazione di "Slide & Tilt"
-    const progress = spring({
+    if (frame < startFrame || (endFrame && frame > endFrame + fps)) return null;
+
+    // Animazione di "Slide & Tilt" (Entrata)
+    const progressIn = spring({
         fps,
         frame: frame - startFrame,
         config: { damping: 14, mass: 1, stiffness: 100 },
@@ -15,7 +17,17 @@ export const DynamicCard3D: React.FC<{ startFrame: number, imageUrl: string, rot
         to: 1,
     });
 
-    if (frame < startFrame) return null;
+    // Animazione di Uscita
+    const progressOut = endFrame ? spring({
+        fps,
+        frame: frame - endFrame,
+        config: { damping: 14, mass: 1, stiffness: 100 },
+        from: 0,
+        to: 1,
+    }) : 0;
+
+    // Il progresso visivo: se `progressOut` sale a 1, il progresso scende a 0 (torna indietro).
+    const progress = progressIn - progressOut;
 
     return (
         <div style={{
@@ -31,7 +43,7 @@ export const DynamicCard3D: React.FC<{ startFrame: number, imageUrl: string, rot
             borderRadius: '40px',
             overflow: 'hidden',
         }}>
-            {/* L'immagine dentro la card finta */ }
+            {/* L'immagine dentro la card finta */}
             <Img 
                 src={imageUrl} 
                 style={{ 
@@ -39,7 +51,7 @@ export const DynamicCard3D: React.FC<{ startFrame: number, imageUrl: string, rot
                     height: 800, 
                     objectFit: 'cover',
                     /* Effetto di scala interno per farla sembrare un video in parallasse */
-                    transform: `scale(${1 + (progress * 0.1)})`
+                    transform: `scale(${1 + (Math.max(0, progressIn) * 0.1)})`
                 }} 
             />
         </div>

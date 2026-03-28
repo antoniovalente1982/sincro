@@ -1,12 +1,14 @@
 import React from 'react';
 import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
-export const FakeNewspaper: React.FC<{ startFrame: number, headline: string }> = ({ startFrame, headline }) => {
+export const FakeNewspaper: React.FC<{ startFrame: number, endFrame?: number, headline: string }> = ({ startFrame, endFrame, headline }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    // Slide up + rotate
-    const progress = spring({
+    if (frame < startFrame || (endFrame && frame > endFrame + fps)) return null;
+
+    // Slide up + rotate (Entrata)
+    const progressIn = spring({
         fps,
         frame: frame - startFrame,
         config: { damping: 15, mass: 1, stiffness: 100 },
@@ -14,7 +16,17 @@ export const FakeNewspaper: React.FC<{ startFrame: number, headline: string }> =
         to: 1,
     });
 
-    if (frame < startFrame) return null;
+    // Animazione di Uscita
+    const progressOut = endFrame ? spring({
+        fps,
+        frame: frame - endFrame,
+        config: { damping: 15, mass: 1, stiffness: 100 },
+        from: 0,
+        to: 1,
+    }) : 0;
+
+    // Progresso visivo totale
+    const progress = progressIn - progressOut;
 
     return (
         <div style={{

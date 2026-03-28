@@ -273,25 +273,51 @@ Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.s
     }
 }
 
+export interface VFXEngineData {
+    tags: { word: string, emoji: string }[];
+    visualAssets: { 
+        type: 'b-roll' | 'newspaper'; 
+        query: string; // Cosa cercare (es. "macchina") o il Titolo (es. "La scoperta del secolo")
+        startWord: string; // Parola esatta in cui farlo apparire
+        endWord: string; // Parola esatta in cui farlo scomparire
+    }[];
+}
+
 /**
- * AI Video Engine: Analizza lo script e restituisce le "Parole ad alto impatto"
- * con la relativa Emoji raccomandata per triggerare gli effetti 3D su Remotion.
+ * AI Video Engine (Hormozi 3.0): Analizza lo script e restituisce le "Parole ad alto impatto"
+ * e il "Palinsesto Visivo" (Timeline dei B-Roll e dei Titoli Giornalistici in sequenza).
  */
-export async function generateVideoVFXTags(script: string): Promise<{ word: string, emoji: string }[]> {
+export async function generateVideoVFXTags(script: string): Promise<VFXEngineData> {
+    const fallback: VFXEngineData = { tags: [], visualAssets: [] };
+
     if (!OPENROUTER_API_KEY) {
         console.warn('OpenRouter API Key mancante per VFX Tags');
-        return [];
+        return fallback;
     }
 
-    const VFX_PROMPT = `Sei un Editor Video esperto in Short-Form Content (TikTok/Reels stile Alex Hormozi).
-Ti verrà fornito uno script. Devi identificare SOLO le parole CHIAVE assolute ad alto impatto emotivo (es. numeri, "soldi", "risultati", "attenzione", "problema", "segreto", forte verbi di azione).
-Per ogni parola chiave, associa una singola Emoji visiva che la rappresenti al meglio.
-Regole:
-1. Restituisci SOLO un array JSON valido in lingua italiana. Nessun altro testo, nessun markdown \`\`\`json.
-2. Formato esatto: [{"word": "parola", "emoji": "🚀"}]
-3. "word" DEVE corrispondere esattamente (case-insensitive) alla parola usata nello script originale.
-4. Non taggare più del 15% delle parole totali dello script, solo le vere "Bombe". Se ci sono 20 parole, taggane massimo 3.
-5. Scegli Emojis visibili, chiare e professionali ma impattanti.`;
+    const VFX_PROMPT = `Sei un Regista e Editor Video esperto in Short-Form Content (TikTok/Reels stile Alex Hormozi) ad altissima retention.
+Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore di Animazione 3D. 
+
+Devi produrre ESATTAMENTE QUESTO JSON:
+{
+  "tags": [
+      {"word": "parola", "emoji": "🚀"} // Tagga massimo il 10% delle parole dello script per applicare la "Shake Cam" (solo vere bombe come soldi, risultati, verbi d'azione).
+  ],
+  "visualAssets": [
+      {
+         "type": "b-roll", // o "newspaper" 
+         "query": "macchina sportiva", // Per "b-roll" metti una descrizione semplice in LINGUA INGLESE (es. "sport car", "money"). Per "newspaper" metti un Titolo Breaking News in ITALIANO (es. "Milioni di Italiani senza lavoro").
+         "startWord": "imprenditore", // La parola esatta in cui la grafica entra nello schermo. Deve esistere nello script! (Case-insensitive)
+         "endWord": "problema" // La parola in cui l'asset scompare. Evita di sovrapporre più asset. Massimo 2/3 assets per l'intero video.
+      }
+  ]
+}
+
+Regole vitali:
+1. Restituisci SOLO IL JSON COMPATIBILE, nessuna introduzione o markdown.
+2. Rispondi SEMPRE in Italiano per i "newspaper", usa l'Inglese per le "b-roll" query (aiuta l'API fotografica).
+3. Non inserire più di 3 "visualAssets" in totale, i video sono corti! Lascia momenti liberi (schermo senza card) per non saturare lo spettatore.
+4. "startWord" ed "endWord" devono corrispondere a parole effettivamente presenti nello script originario.`;
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -308,22 +334,26 @@ Regole:
                     { role: 'user', content: script }
                 ],
                 temperature: 0.2, // Low temp for deterministic JSON output
+                response_format: { type: 'json_object' }
             }),
         });
 
         if (!res.ok) {
             console.error('API VFX Tags Error:', res.status, await res.text());
-            return [];
+            return fallback;
         }
 
         const data = await res.json();
-        let reply = data.choices?.[0]?.message?.content || '[]';
+        let reply = data.choices?.[0]?.message?.content || '{}';
         
         reply = reply.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(reply);
-        return Array.isArray(parsed) ? parsed : [];
+        const parsed = JSON.parse(reply) as VFXEngineData;
+        return {
+            tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+            visualAssets: Array.isArray(parsed.visualAssets) ? parsed.visualAssets : []
+        };
     } catch (err) {
         console.error('Error in generateVideoVFXTags:', err);
-        return [];
+        return fallback;
     }
 }
