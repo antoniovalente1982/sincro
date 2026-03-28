@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { text } = body;
+        const { text, voiceId } = body;
 
         if (!text || typeof text !== 'string') {
             return NextResponse.json({ error: 'Testo mancante o non valido' }, { status: 400 });
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
         // Generate audio + AI VFX tags in parallel
         const [ttsResult, vfxData] = await Promise.all([
-            textToSpeechWithTimestamps(text),
+            textToSpeechWithTimestamps(text, voiceId),
             generateVideoVFXTags(text)
         ]);
 

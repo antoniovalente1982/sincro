@@ -149,6 +149,7 @@ export default function VideoEditorProPage() {
     
     // ═══ SCRIPT & AUDIO STATE ═══
     const [headline, setHeadline] = useState("Sblocca il tuo vero potenziale con il Metodo Sincro. Stai ancora aspettando o agisci?");
+    const [selectedVoiceId, setSelectedVoiceId] = useState<string>('o5tUAYEqld5GJZ1Lv8uC'); // Default Dante (Brando M)
     const [audioBase64, setAudioBase64] = useState<string | null>(null);
     const [words, setWords] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -156,7 +157,7 @@ export default function VideoEditorProPage() {
     const [avatarVideoUrl, setAvatarVideoUrl] = useState('');
     
     // ═══ GLOBAL VIDEO SETTINGS ═══
-    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke'>('impact');
+    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'none'>('impact');
     
     // ═══ AVATAR STATE ═══
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
@@ -339,7 +340,7 @@ export default function VideoEditorProPage() {
             const res = await fetch('/api/ai-engine/generate-video-audio', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: headline })
+                body: JSON.stringify({ text: headline, voiceId: selectedVoiceId })
             });
             const data = await res.json();
             if (res.ok && data.audioBase64) {
@@ -520,6 +521,21 @@ export default function VideoEditorProPage() {
                         <div className="p-4 space-y-6">
                             <h2 className="text-white font-bold text-sm">Passo 2: Audio e Struttura AI</h2>
                             <p className="text-xs text-zinc-400">Clicca qui sotto per generare l'audio e l'infrastruttura di base (timing) tramite ElevenLabs e GPT-4o.</p>
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Voce ElevenLabs</label>
+                                <select 
+                                    value={selectedVoiceId} 
+                                    onChange={(e) => setSelectedVoiceId(e.target.value)}
+                                    className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer mb-4"
+                                >
+                                    <option value="o5tUAYEqld5GJZ1Lv8uC">Dante</option>
+                                    <option value="Xb7hH8WuIGAsOovEgwzZ">Voice - UK (Adam)</option>
+                                    <option value="EXAVITQu4vr4xnSDxMaL">Voice - Bella</option>
+                                    <option value="ErXwobaYiN019PkySvjV">Voice - Antoni</option>
+                                    <option value="MF3mGyEYCl7XYWbV9V6O">Voice - Elli</option>
+                                </select>
+                            </div>
+
                             <button 
                                 onClick={handleGenerate}
                                 disabled={loading || renderJobId !== null}
@@ -624,7 +640,21 @@ export default function VideoEditorProPage() {
                         </div>
                     ) : (
                         <div className="relative" style={{ width: 360, height: 640 }}>
-                            <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-zinc-700">
+                            <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-zinc-700 relative">
+                                {loading && (
+                                    <div className="absolute inset-0 bg-black/80 z-[999] flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm">
+                                        <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent flex-shrink-0 rounded-full animate-spin mb-4" />
+                                        <h3 className="text-white font-bold mb-2">Generazione Audio AI...</h3>
+                                        <p className="text-xs text-zinc-400">GPT-4o ed ElevenLabs stanno creando l'infrastruttura.</p>
+                                    </div>
+                                )}
+                                {heygenStatus && (
+                                    <div className="absolute inset-0 bg-black/80 z-[999] flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm">
+                                        <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent flex-shrink-0 rounded-full animate-spin mb-4" />
+                                        <h3 className="text-white font-bold mb-2">Renderizzazione Avatar 3D</h3>
+                                        <p className="text-xs text-zinc-400">{heygenStatus}</p>
+                                    </div>
+                                )}
                                 {audioBase64 ? (
                                     <VideoPlayerClient
                                         headline={headline}
@@ -644,6 +674,13 @@ export default function VideoEditorProPage() {
                                     </div>
                                 )}
                             </div>
+                            {currentStep === 4 && (
+                                <div className="absolute -left-12 -right-12 -bottom-16 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] p-2 rounded-lg text-center backdrop-blur-md">
+                                    <span className="font-bold block">💡 Info Posizionamento</span>
+                                    Il drag & drop sul video è disabilitato da Remotion.<br/>
+                                    Usa la colonna destra per scalare e posizionare.
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

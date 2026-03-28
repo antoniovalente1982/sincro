@@ -13,7 +13,7 @@ interface VideoPlayerClientProps {
     avatarVideoUrl?: string;
     messageText?: string;
     backgroundMood?: string;
-    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke';
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'none';
 }
 
 export default function VideoPlayerClient({ 

@@ -40,7 +40,7 @@ export interface SincroVideoProps {
     enableMoneyVFX?: boolean;
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
     enableZoomPulse?: boolean;
-    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke';
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'none';
 }
 
 import { Video } from 'remotion';
@@ -200,7 +200,9 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                          <AbsoluteFill>
                              <Video 
                                 src={avatarVideoUrl} 
+                                crossOrigin="anonymous"
                                 style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
+                                onError={(e) => console.warn('Avatar video failed to load:', e)}
                              />
                          </AbsoluteFill>
                     )}
@@ -301,29 +303,31 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
                     )}
 
-                    {/* Block Subtitles */}
-                    {words && words.length > 0 ? (
-                        <BlockSubtitles 
-                            words={words} 
-                            wordsPerBlock={3}
-                            yPosition={avatarVideoUrl ? 350 : 500}
-                            subStyle={subtitleStyle}
-                        />
-                    ) : (
-                        <h1 style={{
-                            fontFamily: 'Inter, sans-serif',
-                            fontSize: 80,
-                            fontWeight: 900,
-                            textAlign: 'center',
-                            textTransform: 'uppercase',
-                            color: '#EAB308',
-                            textShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                            padding: '0 40px',
-                            position: 'absolute',
-                            bottom: 500,
-                        }}>
-                            {headline}
-                        </h1>
+                    {/* Block Subtitles o Titolo Cortesia */}
+                    {subtitleStyle !== 'none' && (
+                        words && words.length > 0 ? (
+                            <BlockSubtitles 
+                                words={words} 
+                                wordsPerBlock={3}
+                                yPosition={avatarVideoUrl ? 350 : 500}
+                                subStyle={subtitleStyle}
+                            />
+                        ) : (
+                            <h1 style={{
+                                fontFamily: 'Inter, sans-serif',
+                                fontSize: 80,
+                                fontWeight: 900,
+                                textAlign: 'center',
+                                textTransform: 'uppercase',
+                                color: '#EAB308',
+                                textShadow: '0 10px 30px rgba(0,0,0,0.8)',
+                                padding: '0 40px',
+                                position: 'absolute',
+                                bottom: 500,
+                            }}>
+                                {headline}
+                            </h1>
+                        )
                     )}
 
                     {/* Watermark */}

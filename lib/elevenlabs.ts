@@ -90,16 +90,17 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
  * Enhanced TTS that returns both the audio and precise character/word timestamps.
  * Returns an object with the base64 audio and word timings array.
  */
-export async function textToSpeechWithTimestamps(text: string): Promise<{ audioBase64: string, alignment: any } | null> {
+export async function textToSpeechWithTimestamps(text: string, voiceId?: string): Promise<{ audioBase64: string, alignment: any } | null> {
     if (!ELEVENLABS_API_KEY) {
         console.error('ElevenLabs API key not configured');
         return null;
     }
 
     const cleanText = text.replace(/<[^>]*>/g, '').trim();
+    const targetVoice = voiceId || DEFAULT_VOICE_ID;
 
     try {
-        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${DEFAULT_VOICE_ID}/with-timestamps`, {
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoice}/with-timestamps`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
