@@ -1,5 +1,5 @@
 
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, Audio } from 'remotion';
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, Audio, staticFile } from 'remotion';
 import React, { useMemo } from 'react';
 import { ThreeCanvas } from '@remotion/three';
 import { RoasChart3D } from './components/RoasChart3D';
@@ -125,10 +125,10 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
 
     // Immagini fallback
     const fallbackImages = [
-        encodeURI('/images/calciatori/Matteo Brunori (Sampdoria).png'),
-        encodeURI('/images/calciatori/Patrick Cutrone (Monza).png'),
-        encodeURI('/images/calciatori/Barbara Bonansea (Juventus).png'),
-        encodeURI('/images/calciatori/Francesca Durante (Lazio).png'),
+        staticFile('images/calciatori/Matteo Brunori (Sampdoria).png'),
+        staticFile('images/calciatori/Patrick Cutrone (Monza).png'),
+        staticFile('images/calciatori/Barbara Bonansea (Juventus).png'),
+        staticFile('images/calciatori/Francesca Durante (Lazio).png'),
     ];
 
     // ═══ FILTRI ASSET BY TYPE ═══
@@ -211,7 +211,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     {/* B-Roll Cards */}
                     {brollAssets.map((asset, i) => {
                         const imgUrl = asset.imageUrl 
-                            || (asset.query.includes('http') ? asset.query : fallbackImages[i % fallbackImages.length]);
+                            || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length]);
                         return (
                             <DynamicCard3D 
                                 key={`broll-${i}`}
