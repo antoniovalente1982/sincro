@@ -470,33 +470,87 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                     ))}
                 </div>
 
-                {/* AI Visual Creative Placeholder */}
-                <div className="glass-card p-6 text-center relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-5" style={{
-                        background: 'radial-gradient(ellipse at center, #a855f7 0%, transparent 70%)',
-                    }} />
-                    <div className="relative z-10">
-                        <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{
-                            background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(245, 158, 11, 0.15))',
-                            border: '1px solid rgba(168, 85, 247, 0.3)',
+                {/* HORMZ 3.0 VFX ENGINE CONTROLS */}
+                <div className="glass-card p-6" style={{ border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+                    <div className="flex items-start gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{
+                            background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(168, 85, 247, 0.15))',
+                            border: '1px solid rgba(234, 179, 8, 0.4)',
                         }}>
-                            <ImageIcon className="w-7 h-7" style={{ color: '#a855f7' }} />
+                            <Video className="w-6 h-6" style={{ color: '#EAB308' }} />
                         </div>
-                        <h3 className="text-base font-bold text-white mb-2">Creativi Visivi — Prossimamente</h3>
-                        <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--color-surface-500)' }}>
-                            L'integrazione con <strong>Nano Banana</strong> e <strong>Veo 3</strong> genererà automaticamente
-                            immagini e video basati su questo brief. Stiamo preparando tutto.
-                        </p>
-                        <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
-                            <span className="badge" style={{
-                                background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7',
-                                border: '1px solid rgba(168, 85, 247, 0.2)',
-                            }}>🎨 Nano Banana — Immagini AI</span>
-                            <span className="badge" style={{
-                                background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b',
-                                border: '1px solid rgba(245, 158, 11, 0.2)',
-                            }}>🎬 Veo 3 — Video AI</span>
+                        <div>
+                            <h3 className="text-lg font-bold text-white mb-1">Motore Video Hormozi 3.0</h3>
+                            <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
+                                Configura gli effetti visivi Z-Index per la renderizzazione video. Seleziona le "Quinte" e i Widget.
+                            </p>
                         </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        {/* Fake Newspaper */}
+                        <div>
+                            <label className="flex items-center gap-2 mb-2">
+                                <span className="text-sm font-bold text-white">📰 Finto Articolo Forbes (Breaking News)</span>
+                            </label>
+                            <input 
+                                type="text"
+                                className="input w-full"
+                                placeholder="Es: Spopola il nuovo metodo di guadagno con l'AI..."
+                            />
+                            <div className="text-[10px] mt-1 text-surface-500 text-yellow-500/80">
+                                Lascia vuoto per disattivare. Apparirà in obliquo dal basso a Livello Z=100.
+                            </div>
+                        </div>
+
+                        {/* Money Rain & iMessage */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                <label className="flex items-center gap-3">
+                                    <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: '#22c55e' }} defaultChecked />
+                                    <div>
+                                        <div className="text-sm font-bold text-white">💸 Pioggia di Soldi 3D</div>
+                                        <div className="text-[10px] text-surface-500">Trigger automatico su 'Fatturato/Soldi' (Z=10)</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                <label className="flex items-center justify-between mb-2">
+                                    <div className="text-sm font-bold text-white flex gap-2"><Smartphone className="w-4 h-4 text-blue-500"/> Notifica Bolla iOS</div>
+                                </label>
+                                <input 
+                                    type="text"
+                                    className="input w-full text-xs"
+                                    defaultValue="Sta scrivendo..."
+                                />
+                            </div>
+                        </div>
+
+                        {/* Midground Card */}
+                        <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                            <label className="flex items-center gap-2 mb-2">
+                                <span className="text-sm font-bold text-white">🖼️ Card Dinamica Obliqua (Midground)</span>
+                            </label>
+                            <select className="input w-full">
+                                <option value="">Nessuna (Solo Sfondo)</option>
+                                <option value="ragazza">La Ragazza / Lifestyle</option>
+                                <option value="macchina">Macchina Sportiva Lusso</option>
+                                <option value="calciatori">Calciatori Serie A (News)</option>
+                            </select>
+                            <div className="text-[10px] mt-1 text-surface-500">
+                                L'immagine arriverà fisicamente dietro le tue spalle (Z=20) creando parallasse.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                         <button className="btn-secondary">
+                             <Eye className="w-4 h-4" /> Anteprima Remotion
+                         </button>
+                         <button className="btn-primary" style={{ background: '#EAB308', color: '#0B0F19', borderColor: '#ca8a04' }}>
+                             <Zap className="w-4 h-4" /> Genera Video MP4
+                         </button>
                     </div>
                 </div>
             </div>
