@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
     { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
-    { label: 'AI Engine', href: '/dashboard/ai-engine/video-editor', icon: Brain },
+    { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
     { label: 'Operazioni', href: '/dashboard/operations', icon: History },
     { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { label: 'Team', href: '/dashboard/team', icon: UserCircle },
