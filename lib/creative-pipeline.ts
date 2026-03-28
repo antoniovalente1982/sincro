@@ -467,8 +467,12 @@ Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideal
 ═══ REGOLE FONDAMENTALI ═══
 1. TARGET CRITICO: L'ad si rivolge ai GENITORI (madri e padri) di giovani calciatori. Usa "tuo figlio", "tuo ragazzo", "come genitore". Il target è ampio (figli dai 10 ai 20+ anni), quindi NON menzionare MAI un'età specifica nel copy (non scrivere "16-18 anni" o simili). Parla genericamente di "giovani calciatori" o "tuo figlio".
 2. LINGUA: Scrivi TASSATIVAMENTE e SOLTANTO in lingua ITALIANA.
-3. TONO: Persuasivo, diretto, emotivamente profondo ma pratico. NON usare emoji o hashtag nel "primary".
-4. STILE: Scrivi in modo naturale e di impatto. Evita frasi generiche tipo "Scopri di più" o "Non perdere l'occasione".
+3. TONO: Persuasivo, diretto, emotivamente profondo ma pratico.
+4. FORMATTAZIONE E IMPAGINAZIONE: Il copy deve essere ESTREMAMENTE leggibile e scansionabile da mobile.
+   - Usa frasi corte e paragrafi di massimo 1-2 righe.
+   - Inserisci SEMPRE una riga vuota tra un concetto e l'altro (usa doppi a capo \n\n).
+   - Usa emoji strategiche (es. ⚽, 🧠, ⚠️, 🚀, ✅,👇) per catturare l'attenzione e guidare lo sguardo, senza sembrare spam.
+   - Usa bullet points per gli elenchi. Niente muri di testo.
 5. CONTESTO SPORTIVO: Stiamo parlando di CALCIO (soccer). Il copy DEVE far capire chiaramente che parliamo di calcio e calciatori. Usa riferimenti al campo, alla partita, agli allenamenti, al mister, alla squadra.
 6. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
 7. MAI MENZIONARE ETÀ SPECIFICHE: Non scrivere "16-18 anni", "tra i 15 e i 17", etc. Ragiona per fasi: "giovane calciatore", "ragazzo che gioca a calcio", "tuo figlio che si allena".
@@ -484,7 +488,7 @@ ${winningContextSection}
 
 ═══ OUTPUT RICHIESTO (JSON) ═══
 Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
-- "primary": il testo lungo del post (massimo 3 paragrafi, potente e specifico)
+- "primary": il testo lungo del post (testo persuasivo ben impaginato con emoji, doppi spazi tra i brevi paragrafi '\\n\\n', e alta scansionabilità)
 - "headline": il titolo dell'ad (massimo 6 parole, impattante)
 - "description": il sottotitolo dell'ad (massimo 8 parole)
 - "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) dell'immagine perfetta per questa ad. L'immagine DEVE essere chiaramente legata al CALCIO/SOCCER. Descrivi dettagliatamente: ambientazione (stadio di calcio, spogliatoio con maglie appese, campo da calcio con righe bianche, porta da calcio sullo sfondo), illuminazione (golden hour, chiaroscuro, drammatica), soggetto (un CALCIATORE maschio di 17-19 anni in divisa da calcio con pallone, scarpini da calcio, parastinchi — MAI bambini), espressione facciale, postura, ELEMENTI CALCISTICI OBBLIGATORI (pallone da calcio, reti della porta, linee del campo, corner flag, panchina), palette colori, angolazione della camera. Questa descrizione sarà usata da un AI per generare l'immagine, quindi sii il più specifico possibile. IL CALCIO DEVE ESSERE IMMEDIATAMENTE RICONOSCIBILE.`
