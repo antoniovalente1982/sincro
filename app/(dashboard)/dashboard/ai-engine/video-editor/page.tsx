@@ -166,13 +166,17 @@ export default function VideoEditorProPage() {
 
     // ═══ PLAYER TIMELINE ═══
     const playerRef = React.useRef<any>(null);
-    const [playHeadFrame, setPlayHeadFrame] = useState(0);
+    const playheadUiRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         let af: number;
         const tick = () => {
-            if (playerRef.current) {
-                setPlayHeadFrame(playerRef.current.getCurrentFrame() || 0);
+            if (playerRef.current && playheadUiRef.current) {
+                const currentFrame = playerRef.current.getCurrentFrame() || 0;
+                // Leggi la durata memorizzata nel data-attribute (o un valore di default)
+                const totalF = parseFloat(playheadUiRef.current.dataset.duration || '600');
+                const pct = Math.min(100, Math.max(0, (currentFrame / totalF) * 100));
+                playheadUiRef.current.style.left = `${pct}%`;
             }
             af = requestAnimationFrame(tick);
         };
@@ -232,8 +236,6 @@ export default function VideoEditorProPage() {
     }, [words]);
 
     const durationInFrames = Math.max(600, Math.ceil((durationMs / 1000) * 60));
-    const playHeadPercent = Math.min(100, Math.max(0, (playHeadFrame / durationInFrames) * 100));
-
     const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!playerRef.current) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -870,8 +872,10 @@ export default function VideoEditorProPage() {
                     onClick={handleTimelineClick}
                 >
                     <div 
+                        ref={playheadUiRef}
+                        data-duration={durationInFrames}
                         className="absolute top-0 bottom-0 w-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,1)] pointer-events-none"
-                        style={{ left: `${playHeadPercent}%` }}
+                        style={{ left: `0%` }}
                     >
                         <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
                     </div>
