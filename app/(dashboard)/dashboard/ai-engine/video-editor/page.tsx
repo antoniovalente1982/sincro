@@ -179,8 +179,8 @@ export default function VideoEditorProPage() {
                 const apiAvatars = res.ok ? (await res.json()).avatars || [] : [];
                 
                 const customAvatars = [
-                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente' },
-                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente Foto' },
+                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente (Video)' },
+                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente (Foto)' },
                 ];
                 
                 const customIds = new Set(customAvatars.map(a => a.avatar_id));
@@ -191,8 +191,8 @@ export default function VideoEditorProPage() {
             } catch (err) {
                 console.warn('Errore avatar HeyGen:', err);
                 const fallback = [
-                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente' },
-                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente Foto' },
+                    { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente (Video)' },
+                    { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente (Foto)' },
                 ];
                 setAvatarList(fallback);
                 setSelectedAvatarId(fallback[0].avatar_id);
@@ -346,21 +346,21 @@ export default function VideoEditorProPage() {
             if (res.ok && data.audioBase64) {
                 setAudioBase64(data.audioBase64);
                 setWords(data.words);
-                // Auto-populate layers from AI if visualAssets exist
-                if (data.visualAssets?.length > 0) {
-                    const aiLayers: LayerItem[] = data.visualAssets.map((asset: any, i: number) => {
-                        const cat = WIDGET_CATALOG.find(c => c.type === asset.type) || WIDGET_CATALOG[0];
-                        return {
-                            id: `ai-${asset.type}-${i}-${Date.now()}`,
-                            type: asset.type || 'b-roll',
-                            label: cat.label,
-                            startMs: asset.startMs,
-                            endMs: asset.endMs,
-                            props: { ...asset },
-                        };
-                    });
-                    dispatch({ type: 'SET_ALL', layers: aiLayers });
-                }
+                // Auto-populate layers from AI se richiesto (Disabilitato come da richiesta utente)
+                // if (data.visualAssets?.length > 0) {
+                //     const aiLayers: LayerItem[] = data.visualAssets.map((asset: any, i: number) => {
+                //         const cat = WIDGET_CATALOG.find(c => c.type === asset.type) || WIDGET_CATALOG[0];
+                //         return {
+                //             id: `ai-${asset.type}-${i}-${Date.now()}`,
+                //             type: asset.type || 'b-roll',
+                //             label: cat.label,
+                //             startMs: asset.startMs,
+                //             endMs: asset.endMs,
+                //             props: { ...asset },
+                //         };
+                //     });
+                //     dispatch({ type: 'SET_ALL', layers: aiLayers });
+                // }
             } else {
                 setError(data.error || "Errore sconosciuto");
             }
@@ -400,7 +400,9 @@ export default function VideoEditorProPage() {
                     const statusData = await statusRes.json();
 
                     if (statusData.status === "completed") {
-                        setAvatarVideoUrl(statusData.video_url);
+                        const originalUrl = statusData.video_url;
+                        const proxyUrl = `/api/heygen/proxy?url=${encodeURIComponent(originalUrl)}`;
+                        setAvatarVideoUrl(proxyUrl);
                         setHeygenStatus(null);
                     } else if (statusData.status === "failed") {
                         setError(`Ops, la renderizzazione su HeyGen è fallita. ${statusData.error ? JSON.stringify(statusData.error) : ""}`);
@@ -528,7 +530,7 @@ export default function VideoEditorProPage() {
                                     onChange={(e) => setSelectedVoiceId(e.target.value)}
                                     className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer mb-4"
                                 >
-                                    <option value="o5tUAYEqld5GJZ1Lv8uC">Dante</option>
+                                    <option value="o5tUAYEqld5GJZ1Lv8uC">Antonio Valente</option>
                                     <option value="Xb7hH8WuIGAsOovEgwzZ">Voice - UK (Adam)</option>
                                     <option value="EXAVITQu4vr4xnSDxMaL">Voice - Bella</option>
                                     <option value="ErXwobaYiN019PkySvjV">Voice - Antoni</option>

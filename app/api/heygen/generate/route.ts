@@ -72,6 +72,7 @@ export async function POST(req: Request) {
                         voice: voicePayload
                     }
                 ],
+                remove_background: true, // Tentativo di rimozione sfondo per trasparenza natively
                 test: true, // IMPORTANT: Evita consumi eccessivi in fase di sviluppo
                 aspect_ratio: '9:16', // TikTok/Reels Layout
                 title: title
