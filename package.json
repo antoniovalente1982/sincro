@@ -6,26 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start-worker": "tsx scripts/vps-render-worker.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@react-three/fiber": "^9.5.0",
+    "@remotion/bundler": "^4.0.441",
+    "@remotion/lambda": "^4.0.441",
     "@remotion/player": "^4.0.441",
+    "@remotion/renderer": "^4.0.441",
     "@remotion/three": "^4.0.441",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
     "@types/three": "^0.183.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.8.0",
     "remotion": "^4.0.441",
-    "three": "^0.183.2"
+    "three": "^0.183.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.441",

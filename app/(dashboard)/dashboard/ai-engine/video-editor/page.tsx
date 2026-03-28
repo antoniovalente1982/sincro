@@ -163,6 +163,11 @@ export default function VideoEditorProPage() {
     const [selectedAvatarId, setSelectedAvatarId] = useState<string>('');
     const [loadingAvatars, setLoadingAvatars] = useState(false);
 
+    // ═══ RENDER MP4 STATE ═══
+    const [renderJobId, setRenderJobId] = useState<string | null>(null);
+    const [renderProgress, setRenderProgress] = useState<string | null>(null);
+    const [renderUrl, setRenderUrl] = useState<string | null>(null);
+
     // Load Avatars on mount
     useEffect(() => {
         const loadAvatars = async () => {
@@ -254,6 +259,73 @@ export default function VideoEditorProPage() {
             const oldIndex = layers.findIndex(l => l.id === active.id);
             const newIndex = layers.findIndex(l => l.id === over.id);
             dispatch({ type: 'REORDER', oldIndex, newIndex });
+        }
+    };
+
+    // ═══ RENDER MP4 HANDLERS ═══
+    const handleExportMP4 = async () => {
+        if (!audioBase64) return alert("Genera prima l'audio e l'avatar!");
+        
+        setRenderProgress('Invio al VPS in corso...');
+        setRenderUrl(null);
+        try {
+            const visualAssets = layers.map(l => ({
+                ...l.props,
+                type: l.type,
+                startMs: l.startMs,
+                endMs: l.endMs,
+            }));
+            
+            const reqBody = {
+                headline,
+                audioBase64,
+                words,
+                visualAssets,
+                enableMoneyVFX: layers.some(l => l.type === 'money-rain'),
+                avatarVideoUrl: avatarVideoUrl || null,
+                iosMessageText: layers.find(l => l.type === 'imessage')?.props?.query || null,
+                backgroundMood: 'warm-studio',
+                subtitleStyle
+            };
+
+            const res = await fetch('/api/render/job', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reqBody)
+            });
+            const job = await res.json();
+            
+            if (job.error || !job.id) throw new Error(job.error || "Errore sconosciuto");
+            
+            setRenderJobId(job.id);
+            // Inizia il polling lento (non blocca la UI)
+            pollRenderStatus(job.id);
+        } catch (e) {
+            setRenderProgress('Errore di invio');
+            setTimeout(() => setRenderProgress(null), 3000);
+        }
+    };
+
+    const pollRenderStatus = async (id: string) => {
+        try {
+            const res = await fetch('/api/render/job?id=' + id);
+            const data = await res.json();
+            
+            if (data.status === 'completed') {
+                setRenderProgress(null);
+                setRenderJobId(null);
+                setRenderUrl(data.video_url);
+            } else if (data.status === 'failed') {
+                setRenderProgress('Fallito: ' + (data.error || ''));
+                setRenderJobId(null);
+                setTimeout(() => setRenderProgress(null), 5000);
+            } else {
+                setRenderProgress(data.error || 'ServerVPS al Lavoro...');
+                setTimeout(() => pollRenderStatus(id), 3000); // Polling ongi 3 secondi
+            }
+        } catch(e) {
+             setRenderProgress('Errore connessione VPS. Riprovo...');
+             setTimeout(() => pollRenderStatus(id), 5000);
         }
     };
 
@@ -375,12 +447,27 @@ export default function VideoEditorProPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="text-xs text-zinc-500">{layers.length} layer{layers.length !== 1 ? 's' : ''} • {(durationMs / 1000).toFixed(1)}s</span>
+                    
+                    <button 
+                        onClick={handleExportMP4}
+                        disabled={loading || renderJobId !== null || !audioBase64}
+                        className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {renderProgress ? `🔄 ${renderProgress}` : '🎬 Esporta MP4 Finale'}
+                    </button>
+
+                    {renderUrl && (
+                        <a href={renderUrl} target="_blank" download className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
+                            ⬇️ Scarica Video
+                        </a>
+                    )}
+                    
                     <button 
                         onClick={handleGenerate}
-                        disabled={loading}
+                        disabled={loading || renderJobId !== null}
                         className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                     >
-                        {loading ? '⏳ Generando...' : '🎙️ Genera Audio AI'}
+                        {loading ? '⏳ Generando...' : '🎙️ Genera Struttura'}
                     </button>
                 </div>
             </div>
