@@ -74,6 +74,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const [pipelineResult, setPipelineResult] = useState<any>(null)
     const [approveResult, setApproveResult] = useState<any>(null)
+    const [pipelineStep, setPipelineStep] = useState(0) // 0 = not running
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -138,9 +139,30 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         setTimeout(() => setApproveResult(null), 5000)
     }
 
+    const PIPELINE_STEPS = [
+        { label: 'Connessione Meta API', icon: '🔗', duration: 2000 },
+        { label: 'Analisi performance ads', icon: '📊', duration: 3000 },
+        { label: 'Estrazione pattern vincenti', icon: '🧠', duration: 4000 },
+        { label: 'Generazione copy persuasivo', icon: '✍️', duration: 8000 },
+        { label: 'Generazione immagine AI', icon: '🎨', duration: 10000 },
+        { label: 'Salvataggio e finalizzazione', icon: '💾', duration: 2000 },
+    ]
+
     const handleRunPipeline = async () => {
         setRunningPipeline(true)
         setPipelineResult(null)
+        setPipelineStep(1)
+
+        // Simulate step progression based on estimated timing
+        const stepTimers: NodeJS.Timeout[] = []
+        let elapsed = 0
+        PIPELINE_STEPS.forEach((step, i) => {
+            elapsed += step.duration
+            if (i > 0) {
+                stepTimers.push(setTimeout(() => setPipelineStep(i + 1), elapsed - step.duration))
+            }
+        })
+
         try {
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
@@ -148,14 +170,19 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                 body: JSON.stringify({ action: 'run_creative_pipeline' }),
             })
             const data = await res.json()
+            stepTimers.forEach(t => clearTimeout(t))
+            setPipelineStep(PIPELINE_STEPS.length) // All done
             setPipelineResult(data)
             await refresh()
         } catch (err: any) {
+            stepTimers.forEach(t => clearTimeout(t))
             setPipelineResult({ error: err.message })
         }
-        setRunningPipeline(false)
-        // Auto-dismiss after 15 seconds
-        setTimeout(() => setPipelineResult(null), 15000)
+        setTimeout(() => {
+            setRunningPipeline(false)
+            setPipelineStep(0)
+        }, 1500)
+        setTimeout(() => setPipelineResult(null), 20000)
     }
 
     const handleSyncPerformance = async () => {
@@ -204,6 +231,61 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     </button>
                 </div>
             </div>
+
+            {/* Pipeline Progress Tracker */}
+            {runningPipeline && pipelineStep > 0 && (
+                <div className="glass-card p-5" style={{
+                    background: 'rgba(99, 102, 241, 0.05)',
+                    border: '1px solid rgba(99, 102, 241, 0.2)',
+                }}>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#6366f1' }} />
+                        <span className="text-sm font-bold text-white">Pipeline in esecuzione...</span>
+                        <span className="text-xs ml-auto" style={{ color: 'var(--color-surface-500)' }}>
+                            Step {pipelineStep}/{PIPELINE_STEPS.length}
+                        </span>
+                    </div>
+                    {/* Progress bar */}
+                    <div className="h-1.5 rounded-full mb-4" style={{ background: 'var(--color-surface-200)' }}>
+                        <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{
+                            width: `${(pipelineStep / PIPELINE_STEPS.length) * 100}%`,
+                            background: 'linear-gradient(90deg, #6366f1, #a855f7)',
+                        }} />
+                    </div>
+                    {/* Steps */}
+                    <div className="space-y-2">
+                        {PIPELINE_STEPS.map((step, i) => {
+                            const stepNum = i + 1
+                            const isDone = pipelineStep > stepNum
+                            const isCurrent = pipelineStep === stepNum
+                            return (
+                                <div key={i} className="flex items-center gap-3 transition-all" style={{
+                                    opacity: stepNum > pipelineStep ? 0.3 : 1,
+                                }}>
+                                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{
+                                        background: isDone ? 'rgba(34, 197, 94, 0.15)' : isCurrent ? 'rgba(99, 102, 241, 0.15)' : 'var(--color-surface-100)',
+                                        border: `1px solid ${isDone ? 'rgba(34, 197, 94, 0.3)' : isCurrent ? 'rgba(99, 102, 241, 0.3)' : 'var(--color-surface-200)'}`,
+                                    }}>
+                                        {isDone ? (
+                                            <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
+                                        ) : isCurrent ? (
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#6366f1' }} />
+                                        ) : (
+                                            <span style={{ color: 'var(--color-surface-500)' }}>{step.icon}</span>
+                                        )}
+                                    </div>
+                                    <span className="text-xs" style={{
+                                        color: isDone ? '#22c55e' : isCurrent ? '#fff' : 'var(--color-surface-500)',
+                                        fontWeight: isCurrent ? 600 : 400,
+                                    }}>
+                                        {step.label}{isCurrent && '...'}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Pipeline Result Banner */}
             {pipelineResult && (

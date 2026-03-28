@@ -465,11 +465,13 @@ async function generateCopyFromPocket(
 Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideale per accompagnarla.
 
 ═══ REGOLE FONDAMENTALI ═══
-1. TARGET CRITICO: L'ad si rivolge ai GENITORI (madri e padri) di giovani calciatori di 16-18 anni. Usa "tuo figlio", "tuo ragazzo", "come genitore". MAI riferirsi a bambini piccoli.
+1. TARGET CRITICO: L'ad si rivolge ai GENITORI (madri e padri) di giovani calciatori. Usa "tuo figlio", "tuo ragazzo", "come genitore". Il target è ampio (figli dai 10 ai 20+ anni), quindi NON menzionare MAI un'età specifica nel copy (non scrivere "16-18 anni" o simili). Parla genericamente di "giovani calciatori" o "tuo figlio".
 2. LINGUA: Scrivi TASSATIVAMENTE e SOLTANTO in lingua ITALIANA.
 3. TONO: Persuasivo, diretto, emotivamente profondo ma pratico. NON usare emoji o hashtag nel "primary".
 4. STILE: Scrivi in modo naturale e di impatto. Evita frasi generiche tipo "Scopri di più" o "Non perdere l'occasione".
-5. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
+5. CONTESTO SPORTIVO: Stiamo parlando di CALCIO (soccer). Il copy DEVE far capire chiaramente che parliamo di calcio e calciatori. Usa riferimenti al campo, alla partita, agli allenamenti, al mister, alla squadra.
+6. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
+7. MAI MENZIONARE ETÀ SPECIFICHE: Non scrivere "16-18 anni", "tra i 15 e i 17", etc. Ragiona per fasi: "giovane calciatore", "ragazzo che gioca a calcio", "tuo figlio che si allena".
 ${winningContextSection}
 
 ═══ BRIEF PER LA NUOVA AD ═══
@@ -484,7 +486,7 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 - "primary": il testo lungo del post (massimo 3 paragrafi, potente e specifico)
 - "headline": il titolo dell'ad (massimo 6 parole, impattante)
 - "description": il sottotitolo dell'ad (massimo 8 parole)
-- "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) dell'immagine perfetta per questa ad. Descrivi: ambientazione (stadio, spogliatoio, campo), illuminazione (golden hour, chiaroscuro, drammatica), soggetto (un calciatore di 17-19 anni, MAI bambini), espressione facciale, postura, abbigliamento, atmosfera emotiva che deve evocare, palette colori, angolazione della camera (dal basso, primo piano, etc). Questa descrizione sarà usata da un AI per generare l'immagine, quindi sii il più specifico possibile.`
+- "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) dell'immagine perfetta per questa ad. L'immagine DEVE essere chiaramente legata al CALCIO/SOCCER. Descrivi dettagliatamente: ambientazione (stadio di calcio, spogliatoio con maglie appese, campo da calcio con righe bianche, porta da calcio sullo sfondo), illuminazione (golden hour, chiaroscuro, drammatica), soggetto (un CALCIATORE maschio di 17-19 anni in divisa da calcio con pallone, scarpini da calcio, parastinchi — MAI bambini), espressione facciale, postura, ELEMENTI CALCISTICI OBBLIGATORI (pallone da calcio, reti della porta, linee del campo, corner flag, panchina), palette colori, angolazione della camera. Questa descrizione sarà usata da un AI per generare l'immagine, quindi sii il più specifico possibile. IL CALCIO DEVE ESSERE IMMEDIATAMENTE RICONOSCIBILE.`
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -537,28 +539,38 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string): string {
     const baseRules = `STRICT TECHNICAL RULES:
 - Format: Vertical 4:5 aspect ratio photograph
-- Style: Cinematic, high contrast, professional sports photography
+- Style: Cinematic, high contrast, professional SOCCER/FOOTBALL sports photography
 - Lighting: Dark moody atmosphere with golden/warm accent lighting
 - Camera: Shot on Sony A7III with 85mm f/1.4 lens, shallow depth of field
 - ABSOLUTELY NO text overlay, NO logos, NO watermarks, NO graphics
 - ABSOLUTELY NO CHILDREN, NO LITTLE BOYS — the subject must be an older teenager (17-19 years old) who looks like a young adult almost ready for professional leagues
-- Color grading: Dark teal shadows, warm golden highlights, desaturated midtones`
+- Color grading: Dark teal shadows, warm golden highlights, desaturated midtones
+
+MANDATORY SOCCER/FOOTBALL ELEMENTS (at least 3 must be clearly visible):
+- A recognizable soccer/football ball (white with black pentagons or modern design)
+- Soccer pitch/field with visible white lines, penalty area, center circle, or corner arc
+- Soccer goal with net visible in background or foreground
+- Soccer cleats/boots (Nike, Adidas style — no brand logos but recognizable form)
+- Soccer jersey/kit — a proper football shirt, shorts, long socks
+- Soccer training cones, bibs, or tactical board
+- Corner flags, touchline, dugout/bench area
+THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sports.`
 
     // If copywriter provided a detailed image description, use it as primary direction
     if (imageDescription && imageDescription.length > 50) {
-        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
+        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ CRITICAL REMINDER ═══\nThe scene MUST clearly show this is SOCCER/FOOTBALL. Include: soccer ball, pitch markings, goal nets, cleats, or jersey. A viewer scrolling Facebook must instantly recognize this is about football.\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
     }
 
-    // Fallback: angle-based templates (only used if AI didn't generate description)
-    const playerDesc = `An older teenage male soccer player (17-19 years old), athletic build, intense expression. MUST look like a young adult.`
+    // Fallback: angle-based templates with prominent soccer elements
+    const playerDesc = `An older teenage male SOCCER PLAYER (17-19 years old), athletic build, wearing a dark football kit (jersey, shorts, long socks) and soccer cleats. MUST look like a young adult.`
 
     const angleScenes: Record<string, string> = {
-        efficiency: `${playerDesc} Standing alone in a massive empty stadium at golden hour. Split lighting — one half of his face in deep shadow, one half illuminated by warm golden sunlight streaming through the stands. He's holding a ball under one arm, looking directly at camera with fierce determination. Wide shot showing the vastness of the empty stadium around him, emphasizing solitude and focus. Shallow depth of field blurs the distant seats into golden bokeh.`,
-        system: `${playerDesc} In a state-of-the-art training facility under cool blue-white LED lights. He's mid-stride in a precise drill, geometric training markers visible on the ground creating lines that converge at him. His body shows perfect form. Expression: calm, calculating, completely in control. Clean minimalist aesthetic. Shot from a low angle making him look powerful and systematic.`,
-        emotional: `${playerDesc} Sitting alone on a wooden bench in a dimly lit locker room. His head is slightly bowed, hands clasped between his knees, elbows on thighs. A single overhead light creates dramatic chiaroscuro — harsh top light with deep shadows. His jersey is slightly disheveled. Behind him, empty lockers stretch into darkness. Expression: deep introspection, carrying weight, but with a subtle glint of resolve in his eyes. Intimate, close-up framing.`,
-        status: `${playerDesc} Walking alone through a player tunnel towards a brilliantly lit pitch. Shot from behind, his silhouette framed by the tunnel's architecture. Dramatic backlight from the stadium floods through the tunnel exit, creating a halo of golden light. The contrast between the dark tunnel and bright pitch symbolizes the journey from obscurity to greatness. Wide cinematic framing.`,
-        education: `${playerDesc} On a training pitch at dawn, alone. He's studying a tactical board placed on a tripod, one hand on his chin, the other pointing at the board. Morning fog creates atmospheric depth. Warm sunrise light backlights the scene. His expression is studious, hungry to learn. Shot at eye level, medium close-up with the misty pitch blurred behind.`,
-        growth: `${playerDesc} Standing at the edge of a professional pitch, looking out at the field from the touchline. Shot from a 3/4 angle behind him, showing his profile against the vast green pitch stretching ahead. Golden hour light catches the edge of his face. His posture is upright, shoulders back — he's ready. A pair of new cleats hang from one hand. The composition emphasizes the threshold moment before greatness.`,
+        efficiency: `${playerDesc} Standing alone in the center circle of a massive empty soccer stadium at golden hour. A white soccer ball sits at his feet on the perfectly manicured green pitch. White pitch lines are crisp and visible. Split lighting — one half of his face in deep shadow, one half illuminated by warm golden sunlight streaming through the stands. He's looking directly at camera with fierce determination. The soccer goal with net is visible in the background, slightly out of focus. Shallow depth of field blurs the distant seats into golden bokeh. His soccer cleats grip the turf.`,
+        system: `${playerDesc} In a state-of-the-art soccer training facility. He's mid-drill weaving through orange training cones on a green artificial pitch with white lines. A tactical formation board is visible to one side. His body shows perfect form — low center of gravity, ball close to his feet. A soccer ball is mid-touch at his right foot. Expression: calm, calculating, completely in control. Geometric training markers on the ground create lines converging at him. Shot from a low angle making him look powerful. A goal with net visible behind.`,
+        emotional: `${playerDesc} Sitting alone on a wooden bench in a dimly lit soccer locker room. Rows of team jerseys hang on hooks behind him. His soccer cleats are on the floor next to a ball. His head is slightly bowed, hands clasped between his knees. A single overhead light creates dramatic chiaroscuro. His football jersey is slightly disheveled, number visible on the back of a teammate's shirt hanging nearby. Expression: deep introspection, carrying weight, but with resolve in his eyes. Intimate close-up. Shin guards rest on the bench beside him.`,
+        status: `${playerDesc} Walking alone through a player tunnel towards a brilliantly lit soccer pitch. Shot from behind, his silhouette framed by the tunnel. He's carrying a soccer ball under his arm. His cleats click on the concrete. Through the tunnel exit, the lush green pitch, white goal posts with net, and stadium lights are visible. Dramatic backlight floods through creating a halo of golden light. The pitch markings (center circle, penalty box) glow in the distance. Wide cinematic framing.`,
+        education: `${playerDesc} On a misty soccer training pitch at dawn, alone. He's studying a tactical whiteboard showing football formations (4-3-3, passing triangles). Soccer balls are scattered around the pitch. Training cones mark drills. One hand on his chin, analyzing. Morning fog creates atmospheric depth over the green pitch with white line markings. A goal with net is visible through the mist. Warm sunrise light backlights the scene. His expression is studious, hungry to learn.`,
+        growth: `${playerDesc} Standing at the edge of a professional soccer pitch, one foot on a ball, looking out at the vast green field stretching ahead. Soccer goal with net visible at the far end. Shot from a 3/4 angle behind him, showing his profile. Pitch markings (touchline, penalty area) are crisp. Golden hour light catches the edge of his face and glints off his soccer cleats. His posture is upright — ready to step onto the field. Corner flags flutter in a light breeze. The composition emphasizes the threshold moment.`,
     }
 
     const scene = angleScenes[angle] || angleScenes.efficiency
