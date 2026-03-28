@@ -277,47 +277,80 @@ export interface VFXEngineData {
     tags: { word: string, emoji: string }[];
     visualAssets: { 
         type: 'b-roll' | 'newspaper'; 
-        query: string; // Cosa cercare (es. "macchina") o il Titolo (es. "La scoperta del secolo")
-        startWord: string; // Parola esatta in cui farlo apparire
-        endWord: string; // Parola esatta in cui farlo scomparire
+        query: string;
+        startWord: string;
+        endWord: string;
+        variant?: 'slide-right' | 'slide-left' | 'scale-up' | 'rotate-in';
+        position?: 'top-right' | 'top-left' | 'center' | 'bottom-right';
+        imagePrompt?: string; // Prompt per Nano Banana (generazione AI immagine)
     }[];
+    backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
 }
 
 /**
- * AI Video Engine (Hormozi 3.0): Analizza lo script e restituisce le "Parole ad alto impatto"
- * e il "Palinsesto Visivo" (Timeline dei B-Roll e dei Titoli Giornalistici in sequenza).
+ * AI Video Engine 4.0: Analizza lo script e restituisce i Metadati Visivi 
+ * per il Motore Cinematico con card multi-variante, Nano Banana image gen e mood.
  */
 export async function generateVideoVFXTags(script: string): Promise<VFXEngineData> {
-    const fallback: VFXEngineData = { tags: [], visualAssets: [] };
+    const fallback: VFXEngineData = { tags: [], visualAssets: [], backgroundMood: 'warm-studio' };
 
     if (!OPENROUTER_API_KEY) {
         console.warn('OpenRouter API Key mancante per VFX Tags');
         return fallback;
     }
 
-    const VFX_PROMPT = `Sei l'Art Director Video di Metodo Sincro per Reel e TikTok.
-Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore di Animazione 3D (Hormozi 3.0), che ha te come unico regista.
+    const VFX_PROMPT = `Sei il Regista Creativo AI di Metodo Sincro — crei video ads TikTok/Reels ipnotici.
+Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore Cinematico 4.0.
 
-Devi produrre ESATTAMENTE QUESTO JSON:
+PRODUCI ESATTAMENTE QUESTO JSON:
 {
   "tags": [
-      {"word": "parola", "emoji": "🚀"} // Tagga massimo il 10% delle parole per applicare la "Shake Cam" (solo vere bombe o concetti chiave).
+      {"word": "potenziale", "emoji": "🚀"}
   ],
+  "backgroundMood": "warm-studio",
   "visualAssets": [
       {
-         "type": "b-roll", // o "newspaper" 
-         "query": "giocatore di calcio che corre felice", // Per "b-roll" usa INGLESE (es. "soccer player running"). Per "newspaper" metti un TITOLO SHOCK in ITALIANO (es. "Ansia in campo, i giovani si bloccano").
-         "startWord": "inizio", // Parola esatta in cui farlo apparire (deve esistere nello script!)
-         "endWord": "problema" // Parola in cui scompare.
+         "type": "b-roll",
+         "query": "soccer player celebrating goal",
+         "imagePrompt": "Foto professionale di un calciatore che esulta dopo un gol, stadio pieno sullo sfondo, illuminazione cinematica, stile editoriale sportivo",
+         "variant": "slide-right",
+         "position": "top-right",
+         "startWord": "calciatore",
+         "endWord": "successo"
+      },
+      {
+         "type": "newspaper",
+         "query": "SVELATO IL SEGRETO: il metodo che sta rivoluzionando lo sport",
+         "variant": "slide-left",
+         "position": "top-left",
+         "startWord": "segreto",
+         "endWord": "rivelato"
       }
   ]
 }
 
-Regole Visive e Registiche (MANDATORY):
-1. **Dinamismo Sensato**: Metti una card 3D (b-roll) legata al calcio all'inizio del video o su una parola potente (es. "soccer player", "stadium").
-2. **Consequenzialità**: Subito dopo che la card scompare, fai entrare un "newspaper" stile Breaking News a rinforzare l'hook o l'argomento (es. Titolo forte). 
-3. **Niente sovrapposizioni inutili**: Crea una sequenza pulita. Card entra -> Card esce -> Giornale entra. 
-4. Assicurati che le "startWord" e "endWord" siano presenti esattamente nello script testuale.`;
+REGOLE DI REGIA (MANDATORY):
+1. **Tags**: Tagga MASSIMO il 10% delle parole con emoji (solo parole BOMBA). 
+2. **backgroundMood**: Scegli tra "warm-studio" (marketing/business), "cold-blue" (tech/sport), "purple-haze" (lusso/lifestyle).
+3. **visualAssets — Regole di Sequenza**:
+   - Alterna SEMPRE: prima un "b-roll" (immagine), poi un "newspaper" (titolo shock)
+   - Mai 2 b-roll consecutivi. Mai 2 newspaper consecutivi.
+   - Il primo asset deve apparire subito (prime 3 parole) per catturare l'attenzione
+   - Massimo 3-4 asset per uno script da 2 frasi, 5-6 per script più lunghi
+4. **variant** (animazione ingresso):
+   - "slide-right": entra da destra (per la prima card)
+   - "slide-left": entra da sinistra
+   - "scale-up": esplode dal centro (per momenti WOW)
+   - "rotate-in": entra ruotando (per varietà)
+   - Alterna le varianti! MAI usare la stessa due volte di fila
+5. **position** (dove appare la card):
+   - "top-right": dietro spalla destra speaker (default per b-roll)
+   - "top-left": dietro spalla sinistra 
+   - "center": al centro grande (per l'asset più importante)
+   - "bottom-right": PIP piccolo (per asset secondari)
+6. **imagePrompt**: Descrivi l'immagine in ITALIANO con dettagli visivi precisi (illuminazione, stile, mood). L'immagine sarà generata con AI.
+7. **query per newspaper**: Scrivi un TITOLO SHOCK in ITALIANO stile Forbes/Corriere.
+8. **startWord e endWord DEVONO esistere nello script!**`;
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -333,7 +366,7 @@ Regole Visive e Registiche (MANDATORY):
                     { role: 'system', content: VFX_PROMPT },
                     { role: 'user', content: script }
                 ],
-                temperature: 0.2, // Low temp for deterministic JSON output
+                temperature: 0.3,
                 response_format: { type: 'json_object' }
             }),
         });
@@ -350,10 +383,12 @@ Regole Visive e Registiche (MANDATORY):
         const parsed = JSON.parse(reply) as VFXEngineData;
         return {
             tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-            visualAssets: Array.isArray(parsed.visualAssets) ? parsed.visualAssets : []
+            visualAssets: Array.isArray(parsed.visualAssets) ? parsed.visualAssets : [],
+            backgroundMood: parsed.backgroundMood || 'warm-studio',
         };
     } catch (err) {
         console.error('Error in generateVideoVFXTags:', err);
         return fallback;
     }
 }
+

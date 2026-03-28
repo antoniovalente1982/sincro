@@ -12,6 +12,7 @@ interface VideoPlayerClientProps {
     useMoney?: boolean;
     avatarVideoUrl?: string;
     messageText?: string;
+    backgroundMood?: string;
 }
 
 export default function VideoPlayerClient({ 
@@ -21,7 +22,8 @@ export default function VideoPlayerClient({
     visualAssets,
     useMoney,
     avatarVideoUrl,
-    messageText
+    messageText,
+    backgroundMood,
 }: VideoPlayerClientProps) {
     // If we have audio, use a longer duration, otherwise 300 frames default
     const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
@@ -37,7 +39,8 @@ export default function VideoPlayerClient({
                 visualAssets: visualAssets || [],
                 enableMoneyVFX: useMoney,
                 avatarVideoUrl: avatarVideoUrl || null,
-                iosMessageText: messageText || null
+                iosMessageText: messageText || null,
+                backgroundMood: (backgroundMood as any) || 'warm-studio',
             }}
             durationInFrames={durationInFrames}
             fps={30}
@@ -45,7 +48,7 @@ export default function VideoPlayerClient({
             compositionHeight={1920}
             style={{
                 width: '100%',
-                maxWidth: '400px', // Responsive mobile view
+                maxWidth: '400px',
                 aspectRatio: '9 / 16',
             }}
             controls
@@ -54,3 +57,4 @@ export default function VideoPlayerClient({
         />
     );
 }
+

@@ -19,6 +19,7 @@ export default function VideoPreviewPage() {
     const [messageText, setMessageText] = useState("Sta scrivendo...");
     const [useMoneyRain, setUseMoneyRain] = useState(true);
     const [avatarVideoUrl, setAvatarVideoUrl] = useState("");
+    const [backgroundMood, setBackgroundMood] = useState<string>('warm-studio');
     
     // HeyGen Polling State
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function VideoPreviewPage() {
                     setAudioBase64(data.audioBase64);
                     setWords(data.words);
                     setVisualAssets(data.visualAssets || []);
+                    if (data.backgroundMood) setBackgroundMood(data.backgroundMood);
 
                     localStorage.setItem(cacheKey, JSON.stringify({
                         audioBase64: data.audioBase64,
@@ -246,6 +248,7 @@ export default function VideoPreviewPage() {
                     useMoney={useMoneyRain}
                     visualAssets={visualAssets}
                     avatarVideoUrl={avatarVideoUrl}
+                    backgroundMood={backgroundMood}
                 />
                 
                 {(!words || words.length === 0) && !loading && (
