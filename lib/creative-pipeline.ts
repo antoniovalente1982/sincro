@@ -387,8 +387,8 @@ export async function generateCreativeBrief(
     // 2. Generate copy + image description based on pocket + winning patterns
     const copy = await generateCopyFromPocket(pocket, angle, dna)
 
-    // 3. Generate image prompt using the AI-generated image_description
-    const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description)
+    // 3. Generate image prompt using the AI-generated image_description and headline
+    const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description, copy.headline)
 
     // 4. Create the brief name
     const pocketShort = pocket.pocket_name.replace(/\s+/g, '_').substring(0, 20)
@@ -472,6 +472,7 @@ Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideal
 5. CONTESTO SPORTIVO: Stiamo parlando di CALCIO (soccer). Il copy DEVE far capire chiaramente che parliamo di calcio e calciatori. Usa riferimenti al campo, alla partita, agli allenamenti, al mister, alla squadra.
 6. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
 7. MAI MENZIONARE ETÀ SPECIFICHE: Non scrivere "16-18 anni", "tra i 15 e i 17", etc. Ragiona per fasi: "giovane calciatore", "ragazzo che gioca a calcio", "tuo figlio che si allena".
+8. AUTORITÀ (CONI): Per aumentare la trust, se appropriato, puoi citare nel copy che abbiamo "Mental Coach con diploma nazionale rilasciato dal CONI". IMPORTANTE: NON chiedere mai all'AI delle immagini di disegnare loghi del CONI.
 ${winningContextSection}
 
 ═══ BRIEF PER LA NUOVA AD ═══
@@ -536,13 +537,13 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 // Usa la image_description dal copywriter + regole visive
 // ═══════════════════════════════════════════════
 
-function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string): string {
+function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string, headline?: string): string {
     const baseRules = `STRICT TECHNICAL RULES:
 - Format: Vertical 4:5 aspect ratio photograph
 - Style: Cinematic, high contrast, professional SOCCER/FOOTBALL sports photography
 - Lighting: Dark moody atmosphere with golden/warm accent lighting
 - Camera: Shot on Sony A7III with 85mm f/1.4 lens, shallow depth of field
-- ABSOLUTELY NO text overlay, NO logos, NO watermarks, NO graphics
+- ABSOLUTELY NO logos, NO brand names, NO watermarks
 - ABSOLUTELY NO CHILDREN, NO LITTLE BOYS — the subject must be an older teenager (17-19 years old) who looks like a young adult almost ready for professional leagues
 - Color grading: Dark teal shadows, warm golden highlights, desaturated midtones
 
@@ -550,15 +551,17 @@ MANDATORY SOCCER/FOOTBALL ELEMENTS (at least 3 must be clearly visible):
 - A recognizable soccer/football ball (white with black pentagons or modern design)
 - Soccer pitch/field with visible white lines, penalty area, center circle, or corner arc
 - Soccer goal with net visible in background or foreground
-- Soccer cleats/boots (Nike, Adidas style — no brand logos but recognizable form)
+- Soccer cleats/boots (no brand logos but recognizable form)
 - Soccer jersey/kit — a proper football shirt, shorts, long socks
-- Soccer training cones, bibs, or tactical board
+- Soccer training equipment (agility ladders, hurdles, or tactical board) — DO NOT use training cones.
 - Corner flags, touchline, dugout/bench area
 THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sports.`
 
+    const textOverlayStr = headline ? `\n\n═══ TYPOGRAPHY OVERLAY ═══\nAdd bold, high-end, highly legible typography at the top of the image reading exactly: "${headline}". The text should look like a professional Nike or Adidas advertising poster or a modern sports magazine cover. Use strong sans-serif fonts.` : ''
+
     // If copywriter provided a detailed image description, use it as primary direction
     if (imageDescription && imageDescription.length > 50) {
-        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ CRITICAL REMINDER ═══\nThe scene MUST clearly show this is SOCCER/FOOTBALL. Include: soccer ball, pitch markings, goal nets, cleats, or jersey. A viewer scrolling Facebook must instantly recognize this is about football.\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
+        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ CRITICAL REMINDER ═══\nThe scene MUST clearly show this is SOCCER/FOOTBALL. Include: soccer ball, pitch markings, goal nets, cleats, or jersey. A viewer scrolling Facebook must instantly recognize this is about football.${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
     }
 
     // Fallback: angle-based templates with prominent soccer elements
@@ -566,16 +569,16 @@ THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sp
 
     const angleScenes: Record<string, string> = {
         efficiency: `${playerDesc} Standing alone in the center circle of a massive empty soccer stadium at golden hour. A white soccer ball sits at his feet on the perfectly manicured green pitch. White pitch lines are crisp and visible. Split lighting — one half of his face in deep shadow, one half illuminated by warm golden sunlight streaming through the stands. He's looking directly at camera with fierce determination. The soccer goal with net is visible in the background, slightly out of focus. Shallow depth of field blurs the distant seats into golden bokeh. His soccer cleats grip the turf.`,
-        system: `${playerDesc} In a state-of-the-art soccer training facility. He's mid-drill weaving through orange training cones on a green artificial pitch with white lines. A tactical formation board is visible to one side. His body shows perfect form — low center of gravity, ball close to his feet. A soccer ball is mid-touch at his right foot. Expression: calm, calculating, completely in control. Geometric training markers on the ground create lines converging at him. Shot from a low angle making him look powerful. A goal with net visible behind.`,
+        system: `${playerDesc} In a state-of-the-art soccer training facility. He's mid-drill moving through agility ladders on a green artificial pitch with white lines. A tactical formation board is visible to one side. His body shows perfect form — low center of gravity, ball close to his feet. A soccer ball is mid-touch at his right foot. Expression: calm, calculating, completely in control. Geometric training markers on the ground create lines converging at him. Shot from a low angle making him look powerful. A goal with net visible behind.`,
         emotional: `${playerDesc} Sitting alone on a wooden bench in a dimly lit soccer locker room. Rows of team jerseys hang on hooks behind him. His soccer cleats are on the floor next to a ball. His head is slightly bowed, hands clasped between his knees. A single overhead light creates dramatic chiaroscuro. His football jersey is slightly disheveled, number visible on the back of a teammate's shirt hanging nearby. Expression: deep introspection, carrying weight, but with resolve in his eyes. Intimate close-up. Shin guards rest on the bench beside him.`,
         status: `${playerDesc} Walking alone through a player tunnel towards a brilliantly lit soccer pitch. Shot from behind, his silhouette framed by the tunnel. He's carrying a soccer ball under his arm. His cleats click on the concrete. Through the tunnel exit, the lush green pitch, white goal posts with net, and stadium lights are visible. Dramatic backlight floods through creating a halo of golden light. The pitch markings (center circle, penalty box) glow in the distance. Wide cinematic framing.`,
-        education: `${playerDesc} On a misty soccer training pitch at dawn, alone. He's studying a tactical whiteboard showing football formations (4-3-3, passing triangles). Soccer balls are scattered around the pitch. Training cones mark drills. One hand on his chin, analyzing. Morning fog creates atmospheric depth over the green pitch with white line markings. A goal with net is visible through the mist. Warm sunrise light backlights the scene. His expression is studious, hungry to learn.`,
+        education: `${playerDesc} On a misty soccer training pitch at dawn, alone. He's studying a tactical whiteboard showing football formations (4-3-3, passing triangles). Soccer balls are scattered around the pitch. Agility ladders and hurdles mark drills. One hand on his chin, analyzing. Morning fog creates atmospheric depth over the green pitch with white line markings. A goal with net is visible through the mist. Warm sunrise light backlights the scene. His expression is studious, hungry to learn.`,
         growth: `${playerDesc} Standing at the edge of a professional soccer pitch, one foot on a ball, looking out at the vast green field stretching ahead. Soccer goal with net visible at the far end. Shot from a 3/4 angle behind him, showing his profile. Pitch markings (touchline, penalty area) are crisp. Golden hour light catches the edge of his face and glints off his soccer cleats. His posture is upright — ready to step onto the field. Corner flags flutter in a light breeze. The composition emphasizes the threshold moment.`,
     }
 
     const scene = angleScenes[angle] || angleScenes.efficiency
 
-    return `${baseRules}\n\n═══ SCENE ═══\n${scene}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must resonate with a parent who feels: "${pocket.buyer_state}"\nIt should visually answer: "${pocket.core_question}"\nThe visual trigger is: "${pocket.primary_trigger}"`
+    return `${baseRules}\n\n═══ SCENE ═══\n${scene}${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must resonate with a parent who feels: "${pocket.buyer_state}"\nIt should visually answer: "${pocket.core_question}"\nThe visual trigger is: "${pocket.primary_trigger}"`
 }
 
 // ═══════════════════════════════════════════════
