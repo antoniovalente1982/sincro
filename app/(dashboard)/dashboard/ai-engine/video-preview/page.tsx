@@ -1,8 +1,10 @@
 "use client"
 
-import { Player } from '@remotion/player';
-import { SincroVideoTemplate } from '@/remotion/SincroVideoTemplate';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
+
+// Import the player dynamically to disable SSR and prevent hydration issues on Vercel
+const VideoPlayerClient = dynamic(() => import('./VideoPlayerClient'), { ssr: false });
 
 export default function VideoPreviewPage() {
     const [headline, setHeadline] = useState("SBLOCCA IL SUO VERO POTENZIALE");
@@ -27,22 +29,7 @@ export default function VideoPreviewPage() {
             </div>
 
             <div className="rounded-xl overflow-hidden shadow-2xl shadow-green-900/20 bg-black/50 border border-zinc-800">
-                <Player
-                    component={SincroVideoTemplate}
-                    inputProps={{ headline }}
-                    durationInFrames={300}
-                    fps={30}
-                    compositionWidth={1080}
-                    compositionHeight={1920}
-                    style={{
-                        width: '100%',
-                        maxWidth: '400px', // Responsive mobile view
-                        aspectRatio: '9 / 16',
-                    }}
-                    controls
-                    autoPlay
-                    loop
-                />
+                <VideoPlayerClient headline={headline} />
             </div>
             
         </div>
