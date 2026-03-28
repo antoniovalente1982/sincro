@@ -140,8 +140,8 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     }
 
     const PIPELINE_STEPS = [
-        { label: 'Connessione Meta API', icon: '🔗', duration: 2000 },
-        { label: 'Analisi performance ads', icon: '📊', duration: 3000 },
+        { label: 'Sincronizzazione ads attive', icon: '🔄', duration: 4000 },
+        { label: 'Analisi performance', icon: '📊', duration: 3000 },
         { label: 'Estrazione pattern vincenti', icon: '🧠', duration: 4000 },
         { label: 'Generazione copy persuasivo', icon: '✍️', duration: 8000 },
         { label: 'Generazione immagine AI', icon: '🎨', duration: 10000 },
@@ -164,6 +164,14 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         })
 
         try {
+            // STEP 1: Sync active ads with Meta
+            await fetch('/api/meta/create-campaign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'sync_creative_performance' }),
+            })
+
+            // STEP 2: Run pipeline
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -183,17 +191,6 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
             setPipelineStep(0)
         }, 1500)
         setTimeout(() => setPipelineResult(null), 20000)
-    }
-
-    const handleSyncPerformance = async () => {
-        setSyncing(true)
-        await fetch('/api/meta/create-campaign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'sync_creative_performance' }),
-        })
-        await refresh()
-        setSyncing(false)
     }
 
     const filtered = creatives.filter(c => {
@@ -219,11 +216,6 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     </p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                    <button onClick={handleSyncPerformance} disabled={syncing}
-                        className="btn-secondary text-xs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                        Sync Meta
-                    </button>
                     <button onClick={handleRunPipeline} disabled={runningPipeline}
                         className="btn-primary text-xs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {runningPipeline ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />}
