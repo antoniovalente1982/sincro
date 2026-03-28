@@ -99,24 +99,28 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                 body: JSON.stringify({ action: 'approve_creative', creative_id: id, decision }),
             })
             const data = await res.json()
-            setApproveResult(data)
+            if (data.error) throw new Error(data.error)
+
+            if (decision === 'approve') {
+                const launchRes = await fetch('/api/meta/create-campaign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'launch_ad_creative', creative_id: id }),
+                })
+                const launchData = await launchRes.json()
+                if (launchData.error) throw new Error(`Errore lancio Meta: ${launchData.error}`)
+                setApproveResult({ success: true, message: '🚀 Ad lanciata con successo su Meta!' })
+            } else {
+                setApproveResult(data)
+            }
+            
             await refresh()
         } catch (err: any) {
             setApproveResult({ error: err.message })
+            await refresh()
         }
         setLoading(prev => ({ ...prev, [id]: false }))
         setTimeout(() => setApproveResult(null), 10000)
-    }
-
-    const handleLaunch = async (id: string) => {
-        setLoading(prev => ({ ...prev, [id]: true }))
-        await fetch('/api/meta/create-campaign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'launch_ad_creative', creative_id: id }),
-        })
-        await refresh()
-        setLoading(prev => ({ ...prev, [id]: false }))
     }
 
     const handleDelete = async (id: string, name: string) => {
@@ -465,31 +469,26 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                         }}>{statusCfg.label}</span>
 
                                         {/* Quick Actions */}
-                                        {creative.status === 'ready' && !isLoading && (
+                                        {(creative.status === 'ready' || creative.status === 'approved') && !isLoading && (
                                             <>
                                                 <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'approve') }}
                                                     className="h-7 px-2.5 rounded-lg flex items-center justify-center gap-1 transition-all hover:scale-105"
                                                     style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}
-                                                    title="Approva e Lancia su Meta">
+                                                    title={creative.status === 'approved' ? "Ritenta lancio su Meta" : "Approva e Lancia su Meta"}>
                                                     <Rocket className="w-3 h-3" style={{ color: '#22c55e' }} />
                                                     <span className="text-[10px] font-semibold" style={{ color: '#22c55e' }}>Lancia</span>
                                                 </button>
-                                                <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'reject') }}
-                                                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                                                    style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}
-                                                    title="Rifiuta">
-                                                    <XCircle className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
-                                                </button>
+                                                {creative.status === 'ready' && (
+                                                    <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'reject') }}
+                                                        className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                                                        style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                                                        title="Rifiuta">
+                                                        <XCircle className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+                                                    </button>
+                                                )}
                                             </>
                                         )}
-                                        {creative.status === 'approved' && !isLoading && (
-                                            <button onClick={(e) => { e.stopPropagation(); handleLaunch(creative.id) }}
-                                                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                                                style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
-                                                title="Lancia su Meta">
-                                                <Rocket className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
-                                            </button>
-                                        )}
+
                                         {['rejected', 'archived', 'draft'].includes(creative.status) && !isLoading && (
                                             <button onClick={(e) => { e.stopPropagation(); handleDelete(creative.id, creative.name) }}
                                                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
