@@ -1,11 +1,27 @@
 import React from 'react';
 import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
-export const IOSMessageBubble: React.FC<{ startFrame: number, text: string }> = ({ startFrame, text }) => {
+/**
+ * IOSMessageBubble — Bolla iMessage con pulsante ▶️ play animato.
+ * Stile OFMCosta / Ariele — "Sta scrivendo..." con play button che pulsa.
+ */
+export const IOSMessageBubble: React.FC<{ 
+    startFrame: number; 
+    text: string;
+    showPlayButton?: boolean;
+    yPosition?: number;
+}> = ({ 
+    startFrame, 
+    text, 
+    showPlayButton = true,
+    yPosition = 130,
+}) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    // Entrata pop con effetto molla tipico Apple
+    if (frame < startFrame) return null;
+
+    // Entrata pop con effetto molla Apple
     const scale = spring({
         fps,
         frame: frame - startFrame,
@@ -14,52 +30,73 @@ export const IOSMessageBubble: React.FC<{ startFrame: number, text: string }> = 
         to: 1,
     });
 
-    if (frame < startFrame) return null;
+    // Play button pulse
+    const playPulse = Math.sin((frame - startFrame) * 0.15) * 0.1 + 1;
+
+    // Float leggero
+    const floatY = Math.sin((frame - startFrame) * 0.06) * 3;
 
     return (
         <div style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'bottom left',
+            transform: `scale(${scale}) translateY(${floatY}px)`,
+            transformOrigin: 'center top',
             position: 'absolute',
-            zIndex: 100, // Top layer
-            /* Ombra base e posizionamento dinamico dall'alto */
-            filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.5))',
-            top: 250, // Fissato in alto a sinistra (o centro/alto) rispetto allo schermo
-            left: 100,
+            top: yPosition,
+            left: '50%',
+            marginLeft: -220,
+            filter: 'drop-shadow(0px 12px 30px rgba(0,0,0,0.5))',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
         }}>
+            {/* Bolla messaggio */}
             <div style={{
-                backgroundColor: '#0A7AFF',
-                backgroundImage: 'linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)', // iMessage Blu Brillante
+                background: 'linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)',
                 color: 'white',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                fontSize: 60,
-                fontWeight: '600',
-                padding: '30px 50px',
-                borderRadius: '50px 50px 50px 10px', // Codino Apple in basso a sinistra
-                boxShadow: 'inset 0px 5px 15px rgba(255,255,255,0.3)',
-                letterSpacing: '-1px'
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", sans-serif',
+                fontSize: 28,
+                fontWeight: 600,
+                padding: '16px 28px',
+                borderRadius: '28px 28px 28px 8px',
+                boxShadow: 'inset 0px 2px 8px rgba(255,255,255,0.25), 0 8px 30px rgba(0,114,255,0.3)',
+                letterSpacing: '-0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
             }}>
                 {text}
+                
+                {/* Puntini di digitazione animati */}
+                <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
+                    {[0, 1, 2].map(i => (
+                        <div key={i} style={{
+                            width: 7, height: 7,
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.7)',
+                            opacity: 0.4 + Math.sin((frame - startFrame) * 0.2 + i * 1.5) * 0.6,
+                            transform: `translateY(${Math.sin((frame - startFrame) * 0.2 + i * 1.5) * 3}px)`,
+                        }} />
+                    ))}
+                </div>
+            </div>
+
+            {/* Play Button (tipo voice note) */}
+            {showPlayButton && (
                 <div style={{
-                        position: 'absolute',
-                        bottom: '-10px',
-                        left: '-5px',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '20px solid transparent',
-                        borderRight: '20px solid transparent',
-                        borderTop: '30px solid #0072FF',
-                        transform: 'rotate(-45deg)',
-                        zIndex: -1, 
-                        display: 'none' /* O disabilitato per lasciare solo il border-radius a goccia */
-                }}/>
-            </div>
-            {/* Animazione puntini di sospensione (Digitazione fake) */}
-            <div style={{ display: 'flex', marginLeft: 40, marginTop: 10, gap: 15, position: 'absolute', right: 40, top: 40, opacity: 0.8 }}>
-                <span style={{ fontSize: 60, lineHeight: '20px', animation: "pulse 1s infinite alternate" }}>.</span>
-                <span style={{ fontSize: 60, lineHeight: '20px', animation: "pulse 1s infinite alternate 0.2s" }}>.</span>
-                <span style={{ fontSize: 60, lineHeight: '20px', animation: "pulse 1s infinite alternate 0.4s" }}>.</span>
-            </div>
+                    width: 48, height: 48,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: `scale(${playPulse})`,
+                    boxShadow: '0 0 20px rgba(34,197,94,0.4), 0 4px 12px rgba(0,0,0,0.3)',
+                }}>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M6 4L16 10L6 16V4Z" fill="white" />
+                    </svg>
+                </div>
+            )}
         </div>
     );
 };

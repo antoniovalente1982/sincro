@@ -13,13 +13,21 @@ export interface WordTiming {
 }
 
 export interface VisualAsset {
-    type: 'b-roll' | 'newspaper';
+    type: 'b-roll' | 'newspaper' | 'giant-text' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter';
     query: string;
     startMs: number;
     endMs: number;
     variant?: string;
     position?: string;
-    imageUrl?: string; // URL immagine generata da Nano Banana
+    imageUrl?: string;
+    // Props extra per nuovi componenti
+    line2?: string;
+    highlightWord?: string;
+    textStyle?: string;
+    color?: string;
+    toValue?: number;
+    emojis?: string[];
+    intensity?: string;
 }
 
 export interface SincroVideoProps {
@@ -31,6 +39,7 @@ export interface SincroVideoProps {
     iosMessageText?: string | null;
     enableMoneyVFX?: boolean;
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
+    enableZoomPulse?: boolean;
 }
 
 import { Video } from 'remotion';
@@ -40,6 +49,13 @@ import { FallingMoney } from './components/FallingMoney';
 import { FakeNewspaper } from './components/FakeNewspaper';
 import { BlockSubtitles } from './components/BlockSubtitles';
 import { CinematicBackground } from './components/CinematicBackground';
+// ★★★ NUOVI COMPONENTI VFX 5.0 ★★★
+import { GiantImpactText } from './components/GiantImpactText';
+import { CTAButton } from './components/CTAButton';
+import { SwipeCard } from './components/SwipeCard';
+import { EmojiReaction } from './components/EmojiReaction';
+import { ZoomPulse } from './components/ZoomPulse';
+import { CounterAnimation } from './components/CounterAnimation';
 
 export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ 
     headline, 
@@ -50,12 +66,13 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     iosMessageText,
     enableMoneyVFX = true,
     backgroundMood = 'warm-studio',
+    enableZoomPulse = true,
 }) => {
     const { fps, height, width, durationInFrames } = useVideoConfig();
     const frame = useCurrentFrame();
     const currentMs = (frame / fps) * 1000;
 
-    // Trova la parola attiva per gli effetti "Earthquake"
+    // Trova la parola attiva
     const activeWordIndex = useMemo(() => {
         if (!words || words.length === 0) return -1;
         return words.findIndex((w, i) => {
@@ -68,20 +85,28 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     const wordStartFrame = activeWordIndex >= 0 && words ? (words[activeWordIndex].startMs / 1000) * fps : 0;
     
     // Primo impact per iMessage
-    const firstImpactIndex = useMemo(() => {
+    const impactStartFrame = useMemo(() => {
         if (!words) return -1;
-        return words.findIndex(w => w.isImpact);
-    }, [words]);
-    const impactStartFrame = firstImpactIndex >= 0 ? (words![firstImpactIndex].startMs / 1000) * fps : -1;
+        const idx = words.findIndex(w => w.isImpact);
+        return idx >= 0 ? (words[idx].startMs / 1000) * fps : -1;
+    }, [words, fps]);
 
     // Money trigger
-    const moneyImpactIndex = useMemo(() => {
+    const moneyStartFrame = useMemo(() => {
         if (!words) return -1;
-        return words.findIndex(w => /sol|soldi|fatturat|guadagn|roas|boom|euro/i.test(w.word));
-    }, [words]);
-    const moneyStartFrame = moneyImpactIndex >= 0 ? (words![moneyImpactIndex].startMs / 1000) * fps : -1;
+        const idx = words.findIndex(w => /sol|soldi|fatturat|guadagn|roas|boom|euro/i.test(w.word));
+        return idx >= 0 ? (words[idx].startMs / 1000) * fps : -1;
+    }, [words, fps]);
 
-    // EARTHQUAKE (Camera Shake) su parole impact
+    // ZoomPulse trigger frames (su parole isImpact)
+    const zoomTriggerFrames = useMemo(() => {
+        if (!words) return [];
+        return words
+            .filter(w => w.isImpact)
+            .map(w => Math.round((w.startMs / 1000) * fps));
+    }, [words, fps]);
+
+    // EARTHQUAKE
     const isEarthquake = activeWordData?.isImpact && (frame - wordStartFrame) < 8;
     const shakeX = isEarthquake ? (Math.sin(frame * 123.456) * 15) : 0;
     const shakeY = isEarthquake ? (Math.cos(frame * 654.321) * 15) : 0;
@@ -96,7 +121,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     // Progress bar
     const progressPercent = Math.min(100, Math.max(0, (frame / durationInFrames) * 100));
 
-    // Immagini fallback per b-roll
+    // Immagini fallback
     const fallbackImages = [
         '/images/calciatori/Matteo Brunori (Sampdoria).png',
         '/images/calciatori/Patrick Cutrone (Monza).png',
@@ -104,7 +129,17 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
         '/images/calciatori/Francesca Durante (Lazio).png',
     ];
 
-    return (
+    // ═══ FILTRI ASSET BY TYPE ═══
+    const brollAssets = visualAssets.filter(a => a.type === 'b-roll');
+    const newspaperAssets = visualAssets.filter(a => a.type === 'newspaper');
+    const giantTextAssets = visualAssets.filter(a => a.type === 'giant-text');
+    const ctaAssets = visualAssets.filter(a => a.type === 'cta');
+    const swipeCardAssets = visualAssets.filter(a => a.type === 'swipe-card');
+    const emojiAssets = visualAssets.filter(a => a.type === 'emoji-reaction');
+    const counterAssets = visualAssets.filter(a => a.type === 'counter');
+
+    // ═══ RENDER CONTENT ═══
+    const videoContent = (
         <AbsoluteFill style={{ backgroundColor: '#000000', color: 'white', overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', transform: earthquakeTransform, transformOrigin: 'center center' }}>
                 
@@ -130,6 +165,19 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     )}
                 </AbsoluteFill>
 
+                {/* ═══ Z-15: EMOJI REACTIONS ═══ */}
+                <AbsoluteFill style={{ zIndex: 15 }}>
+                    {emojiAssets.map((asset, i) => (
+                        <EmojiReaction
+                            key={`emoji-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            emojis={asset.emojis || ['🔥', '❤️', '💪', '⚡', '🏆']}
+                            intensity={(asset.intensity as any) || 'medium'}
+                        />
+                    ))}
+                </AbsoluteFill>
+
                 {/* ═══ Z-50: AVATAR SPEAKER ═══ */}
                 <AbsoluteFill style={{ zIndex: 50, pointerEvents: 'none' }}>
                     {avatarVideoUrl && (
@@ -142,13 +190,26 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     )}
                 </AbsoluteFill>
 
-                {/* ═══ Z-200: CARDS & NEWSPAPER (OVERLAY SOPRA SPEAKER) ═══ */}
+                {/* ═══ Z-100: COUNTER ANIMATION ═══ */}
+                <AbsoluteFill style={{ zIndex: 100, pointerEvents: 'none' }}>
+                    {counterAssets.map((asset, i) => (
+                        <CounterAnimation
+                            key={`counter-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            toValue={asset.toValue || 15000}
+                            prefix={asset.query?.includes('€') ? '€' : ''}
+                            color={asset.color || '#22C55E'}
+                        />
+                    ))}
+                </AbsoluteFill>
+
+                {/* ═══ Z-200: CARDS, NEWSPAPER, SWIPE CARDS ═══ */}
                 <AbsoluteFill style={{ zIndex: 200, pointerEvents: 'none' }}>
-                    {/* B-Roll Cards con varianti */}
-                    {visualAssets.filter(a => a.type === 'b-roll').map((asset, i) => {
+                    {/* B-Roll Cards */}
+                    {brollAssets.map((asset, i) => {
                         const imgUrl = asset.imageUrl 
                             || (asset.query.includes('http') ? asset.query : fallbackImages[i % fallbackImages.length]);
-                        
                         return (
                             <DynamicCard3D 
                                 key={`broll-${i}`}
@@ -163,7 +224,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     })}
 
                     {/* Newspaper */}
-                    {visualAssets.filter(a => a.type === 'newspaper').map((asset, i) => (
+                    {newspaperAssets.map((asset, i) => (
                         <FakeNewspaper 
                             key={`news-${i}`}
                             startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
@@ -171,9 +232,37 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                             headline={asset.query} 
                         />
                     ))}
+
+                    {/* Swipe Cards */}
+                    {swipeCardAssets.map((asset, i) => (
+                        <SwipeCard
+                            key={`swipe-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            title={asset.query}
+                            subtitle={asset.line2}
+                            thumbnailUrl={asset.imageUrl}
+                        />
+                    ))}
                 </AbsoluteFill>
 
-                {/* ═══ Z-300: TYPOGRAPHY, BOLLA IOS, PROGRESS BAR ═══ */}
+                {/* ═══ Z-250: GIANT IMPACT TEXT ═══ */}
+                <AbsoluteFill style={{ zIndex: 250, pointerEvents: 'none' }}>
+                    {giantTextAssets.map((asset, i) => (
+                        <GiantImpactText
+                            key={`giant-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            line1={asset.query}
+                            line2={asset.line2}
+                            highlightWord={asset.highlightWord}
+                            textStyle={(asset.textStyle as any) || 'impact'}
+                            highlightColor={asset.color || '#EAB308'}
+                        />
+                    ))}
+                </AbsoluteFill>
+
+                {/* ═══ Z-300: TYPOGRAPHY, BOLLA IOS, SUBTITLES ═══ */}
                 <AbsoluteFill style={{ zIndex: 300, pointerEvents: 'none', alignItems: 'center' }}>
                     
                     {/* Progress Bar TikTok */}
@@ -191,7 +280,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
                     )}
 
-                    {/* ★★★ BLOCK SUBTITLES (Nuovo!) ★★★ */}
+                    {/* Block Subtitles */}
                     {words && words.length > 0 ? (
                         <BlockSubtitles 
                             words={words} 
@@ -228,7 +317,38 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         METODO SINCRO
                     </div>
                 </AbsoluteFill>
+
+                {/* ═══ Z-400: CTA BUTTON (più in alto di tutto) ═══ */}
+                <AbsoluteFill style={{ zIndex: 400, pointerEvents: 'none' }}>
+                    {ctaAssets.map((asset, i) => (
+                        <CTAButton
+                            key={`cta-${i}`}
+                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                            text={asset.query || 'Scopri di più'}
+                            color={asset.color || '#ef4444'}
+                        />
+                    ))}
+                    {/* CTA automatico negli ultimi 3 secondi se nessun CTA è definito */}
+                    {ctaAssets.length === 0 && durationInFrames > fps * 5 && (
+                        <CTAButton
+                            startFrame={durationInFrames - Math.ceil(fps * 3)}
+                            text="Scopri di più"
+                        />
+                    )}
+                </AbsoluteFill>
             </div>
         </AbsoluteFill>
     );
+
+    // Wrappa con ZoomPulse se abilitato
+    if (enableZoomPulse && zoomTriggerFrames.length > 0) {
+        return (
+            <ZoomPulse triggerFrames={zoomTriggerFrames} intensity={1.12}>
+                {videoContent}
+            </ZoomPulse>
+        );
+    }
+
+    return videoContent;
 };
