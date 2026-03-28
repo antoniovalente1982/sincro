@@ -12,6 +12,14 @@ export interface WordTiming {
     isImpact?: boolean;
 }
 
+export interface WordTiming {
+    word: string;
+    startMs: number;
+    endMs: number;
+    emoji?: string;
+    isImpact?: boolean;
+}
+
 export interface SincroVideoProps {
     headline: string;
     audioBase64?: string | null;
@@ -19,11 +27,14 @@ export interface SincroVideoProps {
     avatarVideoUrl?: string | null;  /* LEVEL 50: Speaker Scontornato */
     bRollMediaUrl?: string | null;   /* LEVEL 20: Immagini/Video che volano dietro */
     iosMessageText?: string | null;  /* LEVEL 100: Pop-up Bolla iMessage in alto a sx */
+    newspaperHeadline?: string | null; /* LEVEL 100: Titolo finto Articolo Forbes */
 }
 
 import { Video } from 'remotion';
 import { DynamicCard3D } from './components/DynamicCard3D';
 import { IOSMessageBubble } from './components/IOSMessageBubble';
+import { FallingMoney } from './components/FallingMoney';
+import { FakeNewspaper } from './components/FakeNewspaper';
 
 export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ 
     headline, 
@@ -31,7 +42,8 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     words, 
     avatarVideoUrl, 
     bRollMediaUrl = 'https://picsum.photos/600/800?random=1', // Fallback visivo per test
-    iosMessageText = 'Sta scrivendo...'
+    iosMessageText = 'Sta scrivendo...',
+    newspaperHeadline = 'Spopola il nuovo metodo di guadagno con "L\'Intelligenza Artificiale"'
 }) => {
     const { fps, height, width, durationInFrames } = useVideoConfig();
     const frame = useCurrentFrame();
@@ -72,6 +84,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     
     const impactStartFrame = firstImpactIndex >= 0 ? (words![firstImpactIndex].startMs / 1000) * fps : -1;
 
+    // Cerca esattamente la parola soldi/fatturato/roas per lanciare la pioggia
+    const moneyImpactIndex = useMemo(() => {
+        if (!words) return -1;
+        return words.findIndex(w => /soldi|fatturat|guadagn|roas/i.test(w.word));
+    }, [words]);
+
+    const moneyStartFrame = moneyImpactIndex >= 0 ? (words![moneyImpactIndex].startMs / 1000) * fps : -1;
+
     // Testo Spring (Ora usato SOLO per l'Impact Word)
     const wordSpring = spring({
         fps,
@@ -94,7 +114,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     const progressPercent = Math.min(100, Math.max(0, (frame / durationInFrames) * 100));
 
     // Capire se renderizzare un grafico 3D al posto dell'emoji
-    const show3DChart = activeWordData?.isImpact && /fatturat|risultat|crescit|soldi|roas|metod/i.test(activeWordData.word);
+    const show3DChart = activeWordData?.isImpact && /fatturat|risultat|crescit|roas|metod/i.test(activeWordData.word);
 
     // Variabili Dinamiche di Stile per agevolare Leggibilità
     const scaleValue = activeWordData?.isImpact ? wordSpring : 1; 
@@ -126,12 +146,16 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 />
             </AbsoluteFill>
 
-            {/* Z-INDEX 10: PARTICLES & WEBGL EFFECTS */}
+            {/* Z-INDEX 10: PARTICLES & MONEY RAIN & WEBGL EFFETTI */}
             <AbsoluteFill style={{ zIndex: 10 }}>
                 {show3DChart && activeWordData && (
                     <ThreeCanvas width={width} height={height}>
                         <RoasChart3D startFrame={wordStartFrame} />
                     </ThreeCanvas>
+                )}
+                {/* Trigger The Money Rain! */}
+                {moneyStartFrame !== -1 && (
+                     <FallingMoney startFrame={moneyStartFrame} />
                 )}
             </AbsoluteFill>
 
@@ -146,14 +170,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
             <AbsoluteFill style={{ zIndex: 50, pointerEvents: 'none' }}>
                 {avatarVideoUrl && (
                      <AbsoluteFill>
-                         {/* Metti objectFit 'contain' o 'cover' a ovest in base se è verde o alpha. */}
+                         {/* Metti objectFit 'contain' o 'cover' in base se è verde o alpha. */}
                          <Video src={avatarVideoUrl} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                          <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.25)' }} /> {/* Overlay Oscuramento Sub */}
                      </AbsoluteFill>
                 )}
             </AbsoluteFill>
 
-            {/* Z-INDEX 100: TYPOGRAPHY, BOLLA IOS, PROGRESS BAR */}
+            {/* Z-INDEX 100: TYPOGRAPHY, GIORNALI FAKE, BOLLA IOS, PROGRESS BAR */}
             <AbsoluteFill style={{ zIndex: 100, pointerEvents: 'none', alignItems: 'center' }}>
                 
                 {/* Progress Bar stile TikTok */}
@@ -163,7 +187,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
 
                 {/* Bolla iMessage finta che spawna quando trova impactWord */}
                 {impactStartFrame !== -1 && iosMessageText && (
+                    // Lo facciamo partire 5 frame prima del botto, per dare dinamismo
                     <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
+                )}
+
+                {/* Finto Articolo Forbes Breaking News */}
+                {newspaperHeadline && impactStartFrame !== -1 && (
+                     // Esce dal basso allo stesso istante dell'impatto! (O leggermente dopo)
+                    <FakeNewspaper startFrame={impactStartFrame} headline={newspaperHeadline} />
                 )}
 
                 {/* Modulo Sottotitoli Sicuri */}
