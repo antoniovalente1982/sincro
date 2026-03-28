@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Video, Smartphone, Image as ImageIcon, Zap, Upload } from 'lucide-react';
 
 // Import the player dynamically to disable SSR and prevent hydration issues on Vercel
@@ -23,6 +23,34 @@ export default function VideoPreviewPage() {
     
     // HeyGen Polling State
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
+    
+    // Avatar Selection
+    const [avatarList, setAvatarList] = useState<{avatar_id: string, avatar_name: string, preview_image_url: string | null}[]>([]);
+    const [selectedAvatarId, setSelectedAvatarId] = useState<string>('');
+    const [loadingAvatars, setLoadingAvatars] = useState(false);
+
+    // Carica la lista avatar al mount
+    useEffect(() => {
+        const loadAvatars = async () => {
+            setLoadingAvatars(true);
+            try {
+                const res = await fetch('/api/heygen/avatars');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvatarList(data.avatars || []);
+                    // Pre-seleziona il primo avatar
+                    if (data.avatars?.length > 0) {
+                        setSelectedAvatarId(data.avatars[0].avatar_id);
+                    }
+                }
+            } catch (err) {
+                console.warn('Errore caricamento avatar HeyGen:', err);
+            } finally {
+                setLoadingAvatars(false);
+            }
+        };
+        loadAvatars();
+    }, []);
 
     const handleGenerate = async () => {
         if (!headline.trim()) return;
@@ -88,7 +116,7 @@ export default function VideoPreviewPage() {
             const res = await fetch('/api/heygen/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: headline, audioBase64: audioBase64 })
+                body: JSON.stringify({ text: headline, audioBase64: audioBase64, avatarId: selectedAvatarId })
             });
 
             const data = await res.json();
@@ -167,23 +195,57 @@ export default function VideoPreviewPage() {
                             <Upload className="w-4 h-4" /> 2. Autopilot Avatar (HeyGen)
                         </label>
                         <p className="text-[11px] text-zinc-400 mb-4 leading-relaxed">
-                            Avvia il motore HeyGen API con il tuo clone (ID Ambiente). Impiegherà alcuni minuti per renderizzarlo e caricarlo automaticamente in Player per l'esportazione.
+                            Scegli il tuo avatar e premi Genera. L'AI sincronizzerà la voce ElevenLabs con il video.
                         </p>
                         
+                        {/* Avatar Dropdown */}
+                        <div className="mb-3">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 block">Avatar</label>
+                            <div className="flex items-center gap-3">
+                                {/* Preview Image */}
+                                {selectedAvatarId && avatarList.find(a => a.avatar_id === selectedAvatarId)?.preview_image_url && (
+                                    <img 
+                                        src={avatarList.find(a => a.avatar_id === selectedAvatarId)!.preview_image_url!} 
+                                        alt="Avatar" 
+                                        className="w-12 h-12 rounded-lg object-cover border-2 border-indigo-500/50"
+                                    />
+                                )}
+                                <select 
+                                    value={selectedAvatarId}
+                                    onChange={(e) => setSelectedAvatarId(e.target.value)}
+                                    className="flex-1 bg-black border border-zinc-700 rounded-lg p-3 text-white text-xs focus:border-indigo-500 outline-none transition-colors appearance-none cursor-pointer"
+                                    disabled={loadingAvatars}
+                                >
+                                    {loadingAvatars ? (
+                                        <option>Caricamento avatar...</option>
+                                    ) : avatarList.length === 0 ? (
+                                        <option>Nessun avatar disponibile</option>
+                                    ) : (
+                                        avatarList.map(avatar => (
+                                            <option key={avatar.avatar_id} value={avatar.avatar_id}>
+                                                {avatar.avatar_name} ({avatar.avatar_id.slice(0, 8)}...)
+                                            </option>
+                                        ))
+                                    )}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* URL manuale fallback */}
                         <div className="flex gap-2">
                             <input 
                                 type="text"
                                 value={avatarVideoUrl}
                                 onChange={e => setAvatarVideoUrl(e.target.value)}
-                                className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-xs opacity-50"
-                                placeholder="Auto-completato da HeyGen o URL manuale (Z-Index: 50)"
+                                className="w-full bg-black border border-zinc-800 rounded-lg p-2.5 text-white text-[10px] opacity-40"
+                                placeholder="(opzionale) URL video manuale"
                             />
                             <button 
                                 onClick={handleGenerateAvatar}
-                                disabled={heygenStatus !== null}
-                                className="bg-indigo-600 hover:bg-indigo-500 transition-colors text-white text-xs font-bold px-4 rounded-lg flex-shrink-0"
+                                disabled={heygenStatus !== null || !selectedAvatarId}
+                                className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors text-white text-xs font-bold px-5 rounded-lg flex-shrink-0"
                             >
-                                Genera Avatar
+                                {heygenStatus ? '⏳' : '🎬'} Genera
                             </button>
                         </div>
                         {heygenStatus && (

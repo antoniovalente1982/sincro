@@ -3,15 +3,20 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
     try {
         const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
-        const HEYGEN_AVATAR_ID = process.env.HEYGEN_AVATAR_ID;
         const HEYGEN_VOICE_ID = process.env.HEYGEN_VOICE_ID || '5cc4c6b457ce4edb8d2a50efab08f03e';
 
-        if (!HEYGEN_API_KEY || !HEYGEN_AVATAR_ID) {
+        if (!HEYGEN_API_KEY) {
             return NextResponse.json({ error: 'Chiavi HeyGen non configurate' }, { status: 500 });
         }
 
         const body = await req.json();
-        const { text, audioBase64, title = "Hormozi 3.0 Generation" } = body;
+        const { text, audioBase64, title = "Hormozi 3.0 Generation", avatarId } = body;
+        
+        // Avatar ID: usa quello scelto dal dropdown, altrimenti fallback all'env
+        const AVATAR_ID = avatarId || process.env.HEYGEN_AVATAR_ID;
+        if (!AVATAR_ID) {
+            return NextResponse.json({ error: 'Nessun avatar selezionato' }, { status: 400 });
+        }
 
         if (!text) {
             return NextResponse.json({ error: 'Testo script mancante' }, { status: 400 });
@@ -61,7 +66,7 @@ export async function POST(req: Request) {
                     {
                         character: {
                             type: 'avatar',
-                            avatar_id: HEYGEN_AVATAR_ID,
+                            avatar_id: AVATAR_ID,
                             avatar_style: 'normal'
                         },
                         voice: voicePayload
