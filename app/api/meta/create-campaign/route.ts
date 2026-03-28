@@ -35,20 +35,29 @@ async function metaGet(endpoint: string, token: string, params: Record<string, s
     return res.json()
 }
 
-// ─── Upload image by URL (ad images endpoint) ───
+// ─── Upload image by proxying bytes to avoid URL whitelist errors ───
 async function uploadImageByUrl(adAccount: string, token: string, imageUrl: string, name: string) {
-    const formData = new FormData()
-    formData.append('url', imageUrl)
-    formData.append('name', name)
-    formData.append('access_token', token)
+    // Scarica l'immagine dal nostro backend per evitare i blocchi di scraping di Meta (Error #3)
+    const imgRes = await fetch(imageUrl)
+    if (!imgRes.ok) throw new Error(`Impossibile scaricare immagine dal server: ${imgRes.statusText}`)
     
+    // Converte in Buffer Base64
+    const arrayBuffer = await imgRes.arrayBuffer()
+    const base64Bytes = Buffer.from(arrayBuffer).toString('base64')
+    const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpg'
+
     const res = await fetch(`${META_API}/${adAccount}/adimages`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            access_token: token,
+            bytes: base64Bytes,
+            name: safeName,
+        }),
     })
     const data = await res.json()
-    if (data.error) throw new Error(`Upload image: ${data.error.message}`)
-    // data.images.<filename>.hash
+    if (data.error) throw new Error(`Upload image bytes to Meta: ${data.error.message}`)
+    
     const images = data.images || {}
     const firstKey = Object.keys(images)[0]
     return images[firstKey]?.hash || null
