@@ -8,7 +8,7 @@ export default function VideoPreviewPage() {
     const [headline, setHeadline] = useState("SBLOCCA IL SUO VERO POTENZIALE");
 
     return (
-        <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto items-center p-8">
+        <div className="flex flex-col lg:flex-row gap-12 w-full max-w-6xl mx-auto items-start p-8">
             <div className="w-full max-w-md text-left self-start text-zinc-300">
                 <h1 className="text-2xl font-bold text-white mb-2">Video Rendering Preview (Beta)</h1>
                 <p className="text-sm">
