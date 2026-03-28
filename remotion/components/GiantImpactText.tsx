@@ -28,7 +28,7 @@ export const GiantImpactText: React.FC<{
     textColor = '#FFFFFF',
     textStyle = 'impact',
     fontSize = 90,
-    yPosition = 70, // percentuale dal top
+    yPosition = 35, // percentuale dal top: spostato più in alto per non sovrapporsi ai sottotitoli
 }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
