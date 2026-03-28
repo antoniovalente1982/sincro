@@ -149,7 +149,7 @@ export default function VideoEditorProPage() {
     
     // ═══ SCRIPT & AUDIO STATE ═══
     const [headline, setHeadline] = useState("Sblocca il tuo vero potenziale con il Metodo Sincro. Stai ancora aspettando o agisci?");
-    const [selectedVoiceId, setSelectedVoiceId] = useState<string>('o5tUAYEqld5GJZ1Lv8uC'); // Default Dante (Brando M)
+    const [selectedVoiceId, setSelectedVoiceId] = useState<string>('WS1kH1PJ5Xqt3tTn5Suw'); // Default Antonio Valente
     const [audioBase64, setAudioBase64] = useState<string | null>(null);
     const [words, setWords] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -530,7 +530,8 @@ export default function VideoEditorProPage() {
                                     onChange={(e) => setSelectedVoiceId(e.target.value)}
                                     className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer mb-4"
                                 >
-                                    <option value="o5tUAYEqld5GJZ1Lv8uC">Antonio Valente</option>
+                                    <option value="WS1kH1PJ5Xqt3tTn5Suw">Antonio Valente</option>
+                                    <option value="o5tUAYEqld5GJZ1Lv8uC">Dante</option>
                                     <option value="Xb7hH8WuIGAsOovEgwzZ">Voice - UK (Adam)</option>
                                     <option value="EXAVITQu4vr4xnSDxMaL">Voice - Bella</option>
                                     <option value="ErXwobaYiN019PkySvjV">Voice - Antoni</option>
