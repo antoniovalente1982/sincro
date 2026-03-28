@@ -539,13 +539,14 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 
 function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string, headline?: string): string {
     const baseRules = `STRICT TECHNICAL RULES:
-- Format: Vertical 4:5 aspect ratio photograph
-- Style: Cinematic, high contrast, professional SOCCER/FOOTBALL sports photography
-- Lighting: Dark moody atmosphere with golden/warm accent lighting
-- Camera: Shot on Sony A7III with 85mm f/1.4 lens, shallow depth of field
+- Format: Vertical 4:5 aspect ratio photograph (Mobile optimized for highest CTR)
+- Style: Cinematic, high-impact, professional SOCCER/FOOTBALL sports photography
+- Composition: Use a single focal point. Focus heavily on human emotion, tension, and eye contact to act as a "pattern interrupt" and stop the scroll.
+- Lighting: Dark moody atmosphere with vibrant golden/amber or neon accent lighting. Use extreme contrast.
+- Camera: Shot on Sony A7III with 85mm f/1.4 lens, shallow depth of field (blur the background strictly)
 - ABSOLUTELY NO logos, NO brand names, NO watermarks
 - ABSOLUTELY NO CHILDREN, NO LITTLE BOYS — the subject must be an older teenager (17-19 years old) who looks like a young adult almost ready for professional leagues
-- Color grading: Dark teal shadows, warm golden highlights, desaturated midtones
+- Color grading: High contrast, visceral color pops. AVOID generic blue/white palettes which blend into the Facebook UI. Use striking dark teal shadows with warm golden high-contrast highlights.
 
 MANDATORY SOCCER/FOOTBALL ELEMENTS (at least 3 must be clearly visible):
 - A recognizable soccer/football ball (white with black pentagons or modern design)
@@ -557,7 +558,7 @@ MANDATORY SOCCER/FOOTBALL ELEMENTS (at least 3 must be clearly visible):
 - Corner flags, touchline, dugout/bench area
 THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sports.`
 
-    const textOverlayStr = headline ? `\n\n═══ TYPOGRAPHY OVERLAY ═══\nAdd bold, high-end, highly legible typography at the top of the image reading exactly: "${headline}". The text should look like a professional Nike or Adidas advertising poster or a modern sports magazine cover. Use strong sans-serif fonts.` : ''
+    const textOverlayStr = headline ? `\n\n═══ TYPOGRAPHY OVERLAY (MAXIMIZE CTR) ═══\nAdd massive, ultra-bold, high-impact typography at the top of the image reading exactly: "${headline}". \nThe text MUST serve as a scroll-stopper: use vibrant, high-contrast colors (like electric yellow, bright orange, or pure white against a dark background). The typography should pop out of the screen using subtle drop shadows or neon glow. It must look like a high-end, aggressive sports advertising poster (e.g., Nike/Adidas). Ensure perfect legibility for mobile screens.` : ''
 
     // If copywriter provided a detailed image description, use it as primary direction
     if (imageDescription && imageDescription.length > 50) {
