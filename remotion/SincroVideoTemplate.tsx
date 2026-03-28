@@ -142,6 +142,17 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     const emojiAssets = visualAssets.filter(a => a.type === 'emoji-reaction');
     const counterAssets = visualAssets.filter(a => a.type === 'counter');
 
+    const getTransformStyle = (asset: any): React.CSSProperties => {
+        const scale = asset.scale !== undefined ? asset.scale : 1;
+        const xOffset = asset.xOffset || 0;
+        const yOffset = asset.yOffset || 0;
+        return {
+            width: '100%', height: '100%', position: 'absolute' as const,
+            transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
+            transformOrigin: 'center center'
+        };
+    };
+
     // ═══ RENDER CONTENT ═══
     const videoContent = (
         <AbsoluteFill style={{ backgroundColor: '#000000', color: 'white', overflow: 'hidden' }}>
@@ -172,13 +183,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 {/* ═══ Z-15: EMOJI REACTIONS ═══ */}
                 <AbsoluteFill style={{ zIndex: 15 }}>
                     {emojiAssets.map((asset, i) => (
-                        <EmojiReaction
-                            key={`emoji-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            emojis={asset.emojis || ['🔥', '❤️', '💪', '⚡', '🏆']}
-                            intensity={(asset.intensity as any) || 'medium'}
-                        />
+                        <div key={`emoji-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <EmojiReaction
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                emojis={asset.emojis || ['🔥', '❤️', '💪', '⚡', '🏆']}
+                                intensity={(asset.intensity as any) || 'medium'}
+                            />
+                        </div>
                     ))}
                 </AbsoluteFill>
 
@@ -197,14 +209,15 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 {/* ═══ Z-100: COUNTER ANIMATION ═══ */}
                 <AbsoluteFill style={{ zIndex: 100, pointerEvents: 'none' }}>
                     {counterAssets.map((asset, i) => (
-                        <CounterAnimation
-                            key={`counter-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            toValue={asset.toValue || 15000}
-                            prefix={asset.query?.includes('€') ? '€' : ''}
-                            color={asset.color || '#22C55E'}
-                        />
+                        <div key={`counter-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <CounterAnimation
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                toValue={asset.toValue || 15000}
+                                prefix={asset.query?.includes('€') ? '€' : ''}
+                                color={asset.color || '#22C55E'}
+                            />
+                        </div>
                     ))}
                 </AbsoluteFill>
 
@@ -215,54 +228,58 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         const imgUrl = asset.imageUrl 
                             || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length]);
                         return (
-                            <DynamicCard3D 
-                                key={`broll-${i}`}
-                                startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
-                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                                imageUrl={imgUrl} 
-                                variant={(asset.variant as any) || (['slide-right', 'slide-left', 'scale-up', 'rotate-in'][i % 4])}
-                                position={(asset.position as any) || (['top-right', 'top-left', 'center', 'bottom-right'][i % 4])}
-                                rotationOffset={-12 + (i % 2 === 0 ? 5 : -5)} 
-                            />
+                            <div key={`broll-wrap-${i}`} style={getTransformStyle(asset)}>
+                                <DynamicCard3D 
+                                    startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
+                                    endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                    imageUrl={imgUrl} 
+                                    variant={(asset.variant as any) || (['slide-right', 'slide-left', 'scale-up', 'rotate-in'][i % 4])}
+                                    position={(asset.position as any) || (['top-right', 'top-left', 'center', 'bottom-right'][i % 4])}
+                                    rotationOffset={-12 + (i % 2 === 0 ? 5 : -5)} 
+                                />
+                            </div>
                         );
                     })}
 
                     {/* Newspaper */}
                     {newspaperAssets.map((asset, i) => (
-                        <FakeNewspaper 
-                            key={`news-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            headline={asset.query} 
-                        />
+                        <div key={`news-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <FakeNewspaper 
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)} 
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                headline={asset.query} 
+                            />
+                        </div>
                     ))}
 
                     {/* Swipe Cards */}
                     {swipeCardAssets.map((asset, i) => (
-                        <SwipeCard
-                            key={`swipe-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            title={asset.query}
-                            subtitle={asset.line2}
-                            thumbnailUrl={asset.imageUrl}
-                        />
+                        <div key={`swipe-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <SwipeCard
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                title={asset.query}
+                                subtitle={asset.line2}
+                                thumbnailUrl={asset.imageUrl}
+                            />
+                        </div>
                     ))}
                 </AbsoluteFill>
 
                 {/* ═══ Z-250: GIANT IMPACT TEXT ═══ */}
                 <AbsoluteFill style={{ zIndex: 250, pointerEvents: 'none' }}>
                     {giantTextAssets.map((asset, i) => (
-                        <GiantImpactText
-                            key={`giant-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            line1={asset.query}
-                            line2={asset.line2}
-                            highlightWord={asset.highlightWord}
-                            textStyle={(asset.textStyle as any) || 'impact'}
-                            highlightColor={asset.color || '#EAB308'}
-                        />
+                        <div key={`giant-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <GiantImpactText
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                line1={asset.query}
+                                line2={asset.line2}
+                                highlightWord={asset.highlightWord}
+                                textStyle={(asset.textStyle as any) || 'impact'}
+                                highlightColor={asset.color || '#EAB308'}
+                            />
+                        </div>
                     ))}
                 </AbsoluteFill>
 
@@ -326,13 +343,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 {/* ═══ Z-400: CTA BUTTON (più in alto di tutto) ═══ */}
                 <AbsoluteFill style={{ zIndex: 400, pointerEvents: 'none' }}>
                     {ctaAssets.map((asset, i) => (
-                        <CTAButton
-                            key={`cta-${i}`}
-                            startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                            endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                            text={asset.query || 'Scopri di più'}
-                            color={asset.color || '#ef4444'}
-                        />
+                        <div key={`cta-wrap-${i}`} style={getTransformStyle(asset)}>
+                            <CTAButton
+                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                text={asset.query || 'Scopri di più'}
+                                color={asset.color || '#ef4444'}
+                            />
+                        </div>
                     ))}
                     {/* CTA automatico negli ultimi 3 secondi se nessun CTA è definito */}
                     {ctaAssets.length === 0 && durationInFrames > fps * 5 && (

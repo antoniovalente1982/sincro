@@ -62,8 +62,7 @@ function layerReducer(state: LayerItem[], action: LayerAction): LayerItem[] {
     }
 }
 
-// ═══ PROPERTY CONFIGS ═══
-const PROPERTY_FIELDS: Record<string, { label: string; key: string; type: 'text' | 'number' | 'select' | 'color'; options?: string[] }[]> = {
+const PROPERTY_FIELDS: Record<string, { label: string; key: string; type: 'text' | 'number' | 'select' | 'color' | 'range'; options?: string[]; min?: number; max?: number; step?: number; default?: number }[]> = {
     'giant-text': [
         { label: 'Riga 1', key: 'query', type: 'text' },
         { label: 'Riga 2', key: 'line2', type: 'text' },
@@ -146,6 +145,8 @@ function SortableLayerRow({ layer, durationMs, isSelected, onSelect, cat }: { la
 }
 
 export default function VideoEditorProPage() {
+    const [currentStep, setCurrentStep] = useState<number>(1);
+    
     // ═══ SCRIPT & AUDIO STATE ═══
     const [headline, setHeadline] = useState("Sblocca il tuo vero potenziale con il Metodo Sincro. Stai ancora aspettando o agisci?");
     const [audioBase64, setAudioBase64] = useState<string | null>(null);
@@ -449,139 +450,206 @@ export default function VideoEditorProPage() {
                     <span className="text-xs text-zinc-500">{layers.length} layer{layers.length !== 1 ? 's' : ''} • {(durationMs / 1000).toFixed(1)}s</span>
                     
                     <button 
-                        onClick={handleExportMP4}
-                        disabled={loading || renderJobId !== null || !audioBase64}
-                        className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                        onClick={() => setCurrentStep(5)}
+                        className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
                     >
-                        {renderProgress ? `🔄 ${renderProgress}` : '🎬 Esporta MP4 Finale'}
-                    </button>
-
-                    {renderUrl && (
-                        <a href={renderUrl} target="_blank" download className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
-                            ⬇️ Scarica Video
-                        </a>
-                    )}
-                    
-                    <button 
-                        onClick={handleGenerate}
-                        disabled={loading || renderJobId !== null}
-                        className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                        {loading ? '⏳ Generando...' : '🎙️ Genera Struttura'}
+                        Esporta ➡️
                     </button>
                 </div>
+            </div>
+
+            {/* ═══ STEPPER BAR ═══ */}
+            <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-2 flex items-center justify-center gap-4 flex-shrink-0">
+                {[
+                    { id: 1, label: 'Script', icon: '📝' },
+                    { id: 2, label: 'Audio', icon: '🎧' },
+                    { id: 3, label: 'Avatar', icon: '👤' },
+                    { id: 4, label: 'Editor VFX', icon: '✨' },
+                    { id: 5, label: 'Esporta', icon: '🎬' },
+                ].map((s, index) => (
+                    <div key={s.id} className="flex items-center gap-4">
+                        <button 
+                            onClick={() => setCurrentStep(s.id)}
+                            className={`flex items-center gap-2 text-xs font-bold py-1.5 px-4 rounded-full transition-all ${
+                                currentStep === s.id ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                            }`}
+                        >
+                            <span>{s.icon}</span>
+                            {s.label}
+                        </button>
+                        {index < 4 && <div className="w-8 h-[1px] bg-zinc-800" />}
+                    </div>
+                ))}
             </div>
 
             {/* ═══ MAIN 3-COLUMN LAYOUT ═══ */}
             <div className="flex flex-1 overflow-hidden">
                 
-                {/* ═══ LEFT: COMPONENT LIBRARY ═══ */}
-                <div className="w-56 bg-zinc-950 border-r border-zinc-800 flex flex-col overflow-y-auto flex-shrink-0">
-                    <div className="p-3 border-b border-zinc-800">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Libreria VFX</span>
-                    </div>
-                    <div className="p-2 space-y-1">
-                        {WIDGET_CATALOG.map(widget => (
-                            <button
-                                key={widget.type}
-                                onClick={() => handleAddLayer(widget)}
-                                className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-all text-left group"
-                            >
-                                <span className="text-lg">{widget.icon}</span>
-                                <span className="text-xs font-medium text-zinc-300 group-hover:text-white flex-1">{widget.label.replace(/^.{2} /, '')}</span>
-                                <Plus className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
-                            </button>
-                        ))}
-                    </div>
+                {/* ═══ LEFT: PANELS BY STEP ═══ */}
+                <div className={`w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col overflow-y-auto flex-shrink-0 ${currentStep === 5 ? 'hidden' : ''}`}>
                     
-                    {/* Avatar, Settings & Script input */}
-                    <div className="p-3 border-t border-zinc-800 mt-auto bg-zinc-950/50">
-                        {/* Selettore Stile Sottotitoli */}
-                        <div className="mb-4">
-                            <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Stile Sottotitoli</label>
-                            <select
-                                value={subtitleStyle}
-                                onChange={(e) => setSubtitleStyle(e.target.value as any)}
-                                className="w-full bg-black border border-zinc-800 rounded-lg p-2 text-white text-xs appearance-none focus:border-purple-500 outline-none cursor-pointer"
-                            >
-                                <option value="impact">Impact (Bouncy & Giallo)</option>
-                                <option value="tiktok">TikTok (High Contrast)</option>
-                                <option value="karaoke">Karaoke (Verde/Hormozi)</option>
-                            </select>
-                        </div>
-
-                        {/* Selettore Avatar */}
-                        <div className="mb-4">
-                            <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Avatar HeyGen</label>
-                            {loadingAvatars ? (
-                                <div className="text-xs text-zinc-500">Caricamento avatar...</div>
-                            ) : (
-                                <select 
-                                    value={selectedAvatarId} 
-                                    onChange={(e) => setSelectedAvatarId(e.target.value)}
-                                    className="w-full bg-black border border-zinc-800 rounded-lg p-2 text-white text-xs appearance-none focus:border-purple-500 outline-none cursor-pointer"
+                    {currentStep === 1 && (
+                        <div className="p-4 space-y-6">
+                            <h2 className="text-white font-bold text-sm">Passo 1: Scrivi il Testo</h2>
+                            <textarea
+                                rows={8}
+                                value={headline}
+                                onChange={e => setHeadline(e.target.value)}
+                                className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm focus:border-purple-500 outline-none resize-none"
+                                placeholder="Scrivi lo script..."
+                            />
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Stile Sottotitoli</label>
+                                <select
+                                    value={subtitleStyle}
+                                    onChange={(e) => setSubtitleStyle(e.target.value as any)}
+                                    className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer"
                                 >
-                                    {avatarList.map(avatar => (
-                                        <option key={avatar.avatar_id} value={avatar.avatar_id}>
-                                            {avatar.avatar_name}
-                                        </option>
-                                    ))}
+                                    <option value="impact">Impact (Bouncy & Giallo)</option>
+                                    <option value="tiktok">TikTok (High Contrast)</option>
+                                    <option value="karaoke">Karaoke (Verde/Hormozi)</option>
                                 </select>
+                            </div>
+                            <button onClick={() => setCurrentStep(2)} className="w-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold py-3 rounded-lg transition-colors">
+                                Salva & Prosegui ➡️
+                            </button>
+                        </div>
+                    )}
+
+                    {currentStep === 2 && (
+                        <div className="p-4 space-y-6">
+                            <h2 className="text-white font-bold text-sm">Passo 2: Audio e Struttura AI</h2>
+                            <p className="text-xs text-zinc-400">Clicca qui sotto per generare l'audio e l'infrastruttura di base (timing) tramite ElevenLabs e GPT-4o.</p>
+                            <button 
+                                onClick={handleGenerate}
+                                disabled={loading || renderJobId !== null}
+                                className="w-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold py-3 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                {loading ? '⏳ Generazione in corso...' : '🎙️ Genera Audio e Struttura'}
+                            </button>
+                            {audioBase64 && (
+                                <button onClick={() => setCurrentStep(3)} className="w-full border border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white text-sm font-bold py-3 rounded-lg transition-colors">
+                                    Audio Generato! Prosegui ➡️
+                                </button>
                             )}
                         </div>
+                    )}
 
-                        <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Script</label>
-                        <textarea
-                            rows={3}
-                            value={headline}
-                            onChange={e => setHeadline(e.target.value)}
-                            className="w-full bg-black border border-zinc-800 rounded-lg p-2 text-white text-xs focus:border-purple-500 outline-none resize-none mb-3"
-                            placeholder="Scrivi lo script..."
-                        />
+                    {currentStep === 3 && (
+                        <div className="p-4 space-y-6">
+                            <h2 className="text-white font-bold text-sm">Passo 3: Video Avatar 3D</h2>
+                            <p className="text-xs text-zinc-400">Se vuoi, puoi far presentare questo video da un avatar digitale.</p>
+                            
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Avatar HeyGen</label>
+                                {loadingAvatars ? (
+                                    <div className="text-xs text-zinc-500">Caricamento avatar...</div>
+                                ) : (
+                                    <select 
+                                        value={selectedAvatarId} 
+                                        onChange={(e) => setSelectedAvatarId(e.target.value)}
+                                        className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer"
+                                    >
+                                        {avatarList.map(avatar => (
+                                            <option key={avatar.avatar_id} value={avatar.avatar_id}>
+                                                {avatar.avatar_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
 
-                        {audioBase64 && (
                             <button 
                                 onClick={handleGenerateAvatar}
-                                disabled={heygenStatus !== null}
-                                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg transition-colors border border-zinc-700 disabled:opacity-50"
+                                disabled={heygenStatus !== null || !audioBase64}
+                                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold py-3 rounded-lg transition-colors border border-zinc-700 disabled:opacity-50"
                             >
-                                {heygenStatus ? '⏳ Rendering...' : '🎥 Invia ad HeyGen'}
+                                {heygenStatus ? '⏳ Rendering su HeyGen...' : (!audioBase64 ? '⚠️ Genera Audio Prima' : '🎥 Invia ad HeyGen')}
                             </button>
-                        )}
-                        {heygenStatus && (
-                            <p className="text-[10px] text-purple-400 mt-2 text-center font-mono">{heygenStatus}</p>
-                        )}
-                    </div>
+                            {heygenStatus && (
+                                <p className="text-xs text-purple-400 mt-2 text-center font-mono">{heygenStatus}</p>
+                            )}
+                            
+                            <button onClick={() => setCurrentStep(4)} className="w-full mt-4 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold py-3 rounded-lg transition-colors">
+                                Prosegui all'Editor ➡️
+                            </button>
+                        </div>
+                    )}
+
+                    {currentStep === 4 && (
+                        <>
+                            <div className="p-3 border-b border-zinc-800">
+                                <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Libreria VFX</span>
+                            </div>
+                            <div className="p-2 space-y-1">
+                                {WIDGET_CATALOG.map(widget => (
+                                    <button
+                                        key={widget.type}
+                                        onClick={() => handleAddLayer(widget)}
+                                        className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-all text-left group"
+                                    >
+                                        <span className="text-lg">{widget.icon}</span>
+                                        <span className="text-xs font-medium text-zinc-300 group-hover:text-white flex-1">{widget.label.replace(/^.{2} /, '')}</span>
+                                        <Plus className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
 
-                {/* ═══ CENTER: VIDEO PREVIEW ═══ */}
-                <div className="flex-1 bg-zinc-900 flex items-center justify-center p-4">
-                    <div className="relative" style={{ width: 360, height: 640 }}>
-                        <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-zinc-700">
-                            {audioBase64 ? (
-                                <VideoPlayerClient
-                                    headline={headline}
-                                    audioBase64={audioBase64}
-                                    words={words}
-                                    avatarVideoUrl={avatarVideoUrl || undefined}
-                                    visualAssets={visualAssets}
-                                    messageText={iosMessageText || undefined}
-                                    useMoney={enableMoneyVFX}
-                                    backgroundMood="warm-studio"
-                                    subtitleStyle={subtitleStyle}
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex flex-col items-center justify-center text-center p-8 gap-4">
-                                    <Video className="w-12 h-12 text-zinc-600" />
-                                    <p className="text-sm text-zinc-500">Premi <span className="text-purple-400 font-bold">"Genera Audio AI"</span> per avviare</p>
-                                </div>
+                {/* ═══ CENTER: VIDEO PREVIEW OR EXPORT PANEL ═══ */}
+                <div className="flex-1 bg-zinc-900 flex flex-col items-center justify-center p-4">
+                    {currentStep === 5 ? (
+                        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 max-w-md w-full text-center space-y-6">
+                            <h2 className="text-white font-bold text-xl">Esporta in 4K 60FPS</h2>
+                            <p className="text-sm text-zinc-400">Tutti i livelli verranno calcolati alla massima risoluzione per Instagram/TikTok.</p>
+                            
+                            <button 
+                                onClick={handleExportMP4}
+                                disabled={loading || renderJobId !== null || !audioBase64}
+                                className="w-full bg-green-600 hover:bg-green-500 text-white text-sm font-bold px-4 py-3 rounded-lg transition-colors disabled:opacity-50 h-12 flex justify-center items-center"
+                            >
+                                {renderProgress ? `🔄 Rendering in Corso: ${renderProgress}` : '🎬 Avvia Renderizzazione Finale'}
+                            </button>
+
+                            {renderUrl && (
+                                <a href={renderUrl} target="_blank" download className="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-3 rounded-lg transition-colors flex justify-center items-center gap-2">
+                                    ⬇️ Scarica MP4 in 4K
+                                </a>
                             )}
+                            <button onClick={() => setCurrentStep(4)} className="text-zinc-500 hover:text-white text-xs underline mt-4">
+                                Torna all'Editor
+                            </button>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="relative" style={{ width: 360, height: 640 }}>
+                            <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-zinc-700">
+                                {audioBase64 ? (
+                                    <VideoPlayerClient
+                                        headline={headline}
+                                        audioBase64={audioBase64}
+                                        words={words}
+                                        avatarVideoUrl={avatarVideoUrl || undefined}
+                                        visualAssets={visualAssets}
+                                        messageText={iosMessageText || undefined}
+                                        useMoney={enableMoneyVFX}
+                                        backgroundMood="warm-studio"
+                                        subtitleStyle={subtitleStyle}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex flex-col items-center justify-center text-center p-8 gap-4">
+                                        <Video className="w-12 h-12 text-zinc-600" />
+                                        <p className="text-sm text-zinc-500">Premi <span className="text-purple-400 font-bold">"Genera Audio"</span> al Passo 2 per avviare il Player</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* ═══ RIGHT: PROPERTY PANEL ═══ */}
-                <div className="w-72 bg-zinc-950 border-l border-zinc-800 flex flex-col overflow-y-auto flex-shrink-0">
+                <div className={`w-72 bg-zinc-950 border-l border-zinc-800 flex flex-col overflow-y-auto flex-shrink-0 ${currentStep !== 4 ? 'hidden' : ''}`}>
                     <div className="p-3 border-b border-zinc-800 flex items-center gap-2">
                         <Settings className="w-4 h-4 text-zinc-500" />
                         <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">
@@ -627,14 +695,27 @@ export default function VideoEditorProPage() {
                                 </div>
                             </div>
 
-                            {/* Type-specific fields */}
-                            {PROPERTY_FIELDS[selectedLayer.type]?.map(field => (
+                            {/* Type-specific fields & Universal Transform */}
+                            {[
+                                ...(PROPERTY_FIELDS[selectedLayer.type] || []),
+                                { label: 'Scala (Zoom)', key: 'scale', type: 'range' as const, min: 0.1, max: 3.0, step: 0.1, default: 1.0 },
+                                { label: 'Spaziatura Orizzontale (X)', key: 'xOffset', type: 'range' as const, min: -1080, max: 1080, step: 10, default: 0 },
+                                { label: 'Spaziatura Verticale (Y)', key: 'yOffset', type: 'range' as const, min: -1920, max: 1920, step: 10, default: 0 }
+                            ].map(field => {
+                                const val = selectedLayer.props[field.key] !== undefined ? selectedLayer.props[field.key] : field.default;
+                                return (
                                 <div key={field.key}>
-                                    <label className="text-[10px] uppercase tracking-wider font-bold text-zinc-500 mb-1 block">{field.label}</label>
+                                    <label className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold text-zinc-500 mb-1">
+                                        <span>{field.label}</span>
+                                        {field.type === 'range' && (
+                                            <span className="text-purple-400">{val}</span>
+                                        )}
+                                    </label>
+                                    
                                     {field.type === 'text' && (
                                         <input
                                             type="text"
-                                            value={selectedLayer.props[field.key] || ''}
+                                            value={val || ''}
                                             onChange={e => handleUpdateProp(field.key, e.target.value)}
                                             className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs focus:border-purple-500 outline-none"
                                         />
@@ -642,14 +723,14 @@ export default function VideoEditorProPage() {
                                     {field.type === 'number' && (
                                         <input
                                             type="number"
-                                            value={selectedLayer.props[field.key] || 0}
+                                            value={val || 0}
                                             onChange={e => handleUpdateProp(field.key, Number(e.target.value))}
                                             className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs"
                                         />
                                     )}
                                     {field.type === 'select' && (
                                         <select
-                                            value={selectedLayer.props[field.key] || ''}
+                                            value={val || ''}
                                             onChange={e => handleUpdateProp(field.key, e.target.value)}
                                             className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs appearance-none cursor-pointer"
                                         >
@@ -660,20 +741,33 @@ export default function VideoEditorProPage() {
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="color"
-                                                value={selectedLayer.props[field.key] || '#ffffff'}
+                                                value={val || '#ffffff'}
                                                 onChange={e => handleUpdateProp(field.key, e.target.value)}
                                                 className="w-8 h-8 rounded cursor-pointer border-none"
                                             />
                                             <input
                                                 type="text"
-                                                value={selectedLayer.props[field.key] || ''}
+                                                value={val || ''}
                                                 onChange={e => handleUpdateProp(field.key, e.target.value)}
                                                 className="flex-1 bg-black border border-zinc-800 rounded p-2 text-white text-xs"
                                             />
                                         </div>
                                     )}
+                                    {field.type === 'range' && (
+                                        <div className="pt-2 pb-1">
+                                            <input
+                                                type="range"
+                                                min={field.min}
+                                                max={field.max}
+                                                step={field.step}
+                                                value={val}
+                                                onChange={e => handleUpdateProp(field.key, Number(e.target.value))}
+                                                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
+                            )})}
 
                             {/* Delete button */}
                             <button
