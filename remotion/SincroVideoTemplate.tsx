@@ -16,12 +16,23 @@ export interface SincroVideoProps {
     headline: string;
     audioBase64?: string | null;
     words?: WordTiming[];
-    avatarVideoUrl?: string | null;
+    avatarVideoUrl?: string | null;  /* LEVEL 50: Speaker Scontornato */
+    bRollMediaUrl?: string | null;   /* LEVEL 20: Immagini/Video che volano dietro */
+    iosMessageText?: string | null;  /* LEVEL 100: Pop-up Bolla iMessage in alto a sx */
 }
 
 import { Video } from 'remotion';
+import { DynamicCard3D } from './components/DynamicCard3D';
+import { IOSMessageBubble } from './components/IOSMessageBubble';
 
-export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ headline, audioBase64, words, avatarVideoUrl }) => {
+export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ 
+    headline, 
+    audioBase64, 
+    words, 
+    avatarVideoUrl, 
+    bRollMediaUrl = 'https://picsum.photos/600/800?random=1', // Fallback visivo per test
+    iosMessageText = 'Sta scrivendo...'
+}) => {
     const { fps, height, width, durationInFrames } = useVideoConfig();
     const frame = useCurrentFrame();
 
@@ -53,6 +64,14 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ headline, audi
     // Start timing for the current word's spring
     const wordStartFrame = activeWordIndex >= 0 && words ? (words[activeWordIndex].startMs / 1000) * fps : 0;
     
+    // Trova il primo momento "Impact" per innescare i widget B-Roll o Messaggi
+    const firstImpactIndex = useMemo(() => {
+        if (!words) return -1;
+        return words.findIndex(w => w.isImpact);
+    }, [words]);
+    
+    const impactStartFrame = firstImpactIndex >= 0 ? (words![firstImpactIndex].startMs / 1000) * fps : -1;
+
     // Testo Spring (Ora usato SOLO per l'Impact Word)
     const wordSpring = spring({
         fps,
@@ -83,129 +102,148 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ headline, audi
     const highlightBoxShadow = activeWordData?.isImpact ? '0 0 50px rgba(234, 179, 8, 0.4)' : 'none';
     const highlightBackground = activeWordData?.isImpact ? '#EAB308' : 'transparent';
     const textColor = activeWordData?.isImpact ? '#0B0F19' : '#FFFFFF';
-    const textBorderRadius = activeWordData?.isImpact ? '4px 18px 5px 22px' : '0px'; // Effetto pennellata evidenziatore
+    const textBorderRadius = activeWordData?.isImpact ? '4px 18px 5px 22px' : '0px'; 
     
-    // Safe Zone (dove si posizionano i sottotitoli in modo da non coprire la faccia)
-    const subtitlesYOffset = height / 1.6;
+    // Safe Zone per sottotitoli (Se c'è avatar scendono, se no centro)
+    const subtitlesYOffset = avatarVideoUrl ? height / 1.5 : height / 2.2;
 
     return (
-        <AbsoluteFill style={{ backgroundColor: '#0B0F19', color: 'white', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {/* Audio Sincronizzato (Voice) */}
+        <AbsoluteFill style={{ backgroundColor: '#0B0F19', color: 'white', overflow: 'hidden' }}>
+            {/* Audio Sincronizzato */}
             {audioBase64 && (
                 <Audio src={`data:audio/mp3;base64,${audioBase64}`} />
             )}
 
-            {/* Sfondo Livello 0: O video personale MP4, O Sfondo cinematico scuro */}
-            {avatarVideoUrl ? (
-                <AbsoluteFill>
-                    <Video src={avatarVideoUrl} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                    <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} /> {/* Overlay per leggibilità del testo */}
-                </AbsoluteFill>
-            ) : (
-                <AbsoluteFill
-                    style={{
-                        backgroundColor: '#1E293B',
-                        transform: `scale(${backgroundScale})`,
-                        transformOrigin: 'center center',
-                        willChange: 'transform',
-                        boxShadow: 'inset 0 0 200px rgba(0,0,0,0.8)' // Effetto Vignette
-                    }}
+            {/* Z-INDEX 0: BACKGROUND CINEMATICO (Studio, Led, Ambiente fisso) */}
+            <AbsoluteFill style={{ zIndex: 0 }}>
+                 <AbsoluteFill
+                        style={{
+                            backgroundColor: '#1E293B',
+                            transform: `scale(${backgroundScale})`,
+                            transformOrigin: 'center center',
+                            boxShadow: 'inset 0 0 200px rgba(0,0,0,0.8)'
+                        }}
                 />
-            )}
+            </AbsoluteFill>
 
-            {/* Progress Bar stile TikTok (Alta) */}
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 12, backgroundColor: 'rgba(255,255,255,0.2)', zIndex: 100 }}>
-                <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#EAB308', boxShadow: '0 0 10px #EAB308' }} />
-            </div>
-
-            {/* Livello WebGL: Infografiche 3D (Se esplode) */}
-            {show3DChart && activeWordData && (
-                <AbsoluteFill style={{ zIndex: 1 }}>
+            {/* Z-INDEX 10: PARTICLES & WEBGL EFFECTS */}
+            <AbsoluteFill style={{ zIndex: 10 }}>
+                {show3DChart && activeWordData && (
                     <ThreeCanvas width={width} height={height}>
                         <RoasChart3D startFrame={wordStartFrame} />
                     </ThreeCanvas>
-                </AbsoluteFill>
-            )}
+                )}
+            </AbsoluteFill>
 
-            {/* Modulo Sottotitoli Dinamici e Sicuri (Safe Zone) */}
-            {words && words.length > 0 ? (
-                activeWordData && (
-                    <div style={{
-                        position: 'absolute',
-                        top: subtitlesYOffset,
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        zIndex: 10,
-                    }}>
-                        
-                        {/* Area Emoji Fissa e Non-Sovrapposta (Posizionata sopra il box del testo) */}
-                        {!show3DChart && activeWordData.isImpact && activeWordData.emoji && (
-                             <div style={{
-                                position: 'absolute',
-                                top: -170, // Mai toccare il testo!
-                                fontSize: 150,
-                                transform: `scale(${emojiSpring}) translateY(${-10 + emojiSpring * 10}px)`,
-                                zIndex: 11,
-                                filter: 'drop-shadow(0px 8px 12px rgba(0,0,0,0.6))'
-                            }}>
-                                {activeWordData.emoji}
-                            </div>
-                        )}
+            {/* Z-INDEX 20: MIDGROUND CARDS (Grafiche, Ragazze, Calciatori che passano "dietro" allo speaker) */}
+            <AbsoluteFill style={{ zIndex: 20 }}>
+                {impactStartFrame !== -1 && bRollMediaUrl && (
+                    <DynamicCard3D startFrame={impactStartFrame} imageUrl={bRollMediaUrl} rotationOffset={-12} />
+                )}
+            </AbsoluteFill>
 
-                        {/* Box Testo (Evidenziatore Brush) */}
+            {/* Z-INDEX 50: FOREGROUND SPEAKER (Avatar isolato o Schermo Intero) */}
+            <AbsoluteFill style={{ zIndex: 50, pointerEvents: 'none' }}>
+                {avatarVideoUrl && (
+                     <AbsoluteFill>
+                         {/* Metti objectFit 'contain' o 'cover' a ovest in base se è verde o alpha. */}
+                         <Video src={avatarVideoUrl} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                         <AbsoluteFill style={{ backgroundColor: 'rgba(0,0,0,0.25)' }} /> {/* Overlay Oscuramento Sub */}
+                     </AbsoluteFill>
+                )}
+            </AbsoluteFill>
+
+            {/* Z-INDEX 100: TYPOGRAPHY, BOLLA IOS, PROGRESS BAR */}
+            <AbsoluteFill style={{ zIndex: 100, pointerEvents: 'none', alignItems: 'center' }}>
+                
+                {/* Progress Bar stile TikTok */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 12, backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                    <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#EAB308', boxShadow: '0 0 10px #EAB308' }} />
+                </div>
+
+                {/* Bolla iMessage finta che spawna quando trova impactWord */}
+                {impactStartFrame !== -1 && iosMessageText && (
+                    <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
+                )}
+
+                {/* Modulo Sottotitoli Sicuri */}
+                {words && words.length > 0 ? (
+                    activeWordData && (
                         <div style={{
-                            backgroundColor: highlightBackground,
-                            padding: activeWordData.isImpact ? '10px 35px' : '0px 40px',
-                            borderRadius: textBorderRadius,
-                            boxShadow: highlightBoxShadow,
-                            transform: `scale(${scaleValue}) rotate(${rotateValue})`,
-                            transition: 'all 0.1s ease-out',
+                            position: 'absolute',
+                            top: subtitlesYOffset,
+                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
                         }}>
-                            <h1
-                                style={{
-                                    fontFamily: 'Inter, sans-serif',
-                                    fontSize: activeWordData.isImpact ? 100 : 85,
-                                    fontWeight: '900',
-                                    textAlign: 'center',
-                                    textTransform: 'uppercase',
-                                    color: textColor,
-                                    textShadow: activeWordData.isImpact ? 'none' : '0 10px 40px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8)',
-                                    margin: 0,
-                                    letterSpacing: '-1px'
-                                }}
-                            >
-                                {activeWordData.word.toUpperCase()}
-                            </h1>
-                        </div>
-                    </div>
-                )
-            ) : (
-                // Fallback testuale se manca l'audio
-                <h1
-                    style={{
-                        fontFamily: 'Inter, sans-serif',
-                        fontSize: 80,
-                        fontWeight: '900',
-                        textAlign: 'center',
-                        textTransform: 'uppercase',
-                        color: '#EAB308',
-                        textShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                        zIndex: 10,
-                        padding: '0 40px',
-                        position: 'absolute',
-                        top: subtitlesYOffset,
-                    }}
-                >
-                    {headline}
-                </h1>
-            )}
+                            
+                            {/* Area Emoji */}
+                            {!show3DChart && activeWordData.isImpact && activeWordData.emoji && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: -160,
+                                    fontSize: 150,
+                                    transform: `scale(${emojiSpring}) translateY(${-10 + emojiSpring * 10}px)`,
+                                    filter: 'drop-shadow(0px 8px 12px rgba(0,0,0,0.6))'
+                                }}>
+                                    {activeWordData.emoji}
+                                </div>
+                            )}
 
-            {/* Watermark Metodo Sincro */}
-            <div style={{ position: 'absolute', bottom: 100, fontSize: 35, fontWeight: 'bold', letterSpacing: 6, opacity: 0.6 }}>
-                METODO SINCRO
-            </div>
+                            {/* Box Testo */}
+                            <div style={{
+                                backgroundColor: highlightBackground,
+                                padding: activeWordData.isImpact ? '10px 35px' : '0px 40px',
+                                borderRadius: textBorderRadius,
+                                boxShadow: highlightBoxShadow,
+                                transform: `scale(${scaleValue}) rotate(${rotateValue})`,
+                                transition: 'all 0.1s ease-out',
+                            }}>
+                                <h1
+                                    style={{
+                                        fontFamily: 'Inter, sans-serif',
+                                        fontSize: activeWordData.isImpact ? 100 : 85,
+                                        fontWeight: '900',
+                                        textAlign: 'center',
+                                        textTransform: 'uppercase',
+                                        color: textColor,
+                                        textShadow: activeWordData.isImpact ? 'none' : '0 10px 40px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8)',
+                                        margin: 0,
+                                        letterSpacing: '-1px'
+                                    }}
+                                >
+                                    {activeWordData.word.toUpperCase()}
+                                </h1>
+                            </div>
+                        </div>
+                    )
+                ) : (
+                    // Fallback testuale
+                    <h1
+                        style={{
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: 80,
+                            fontWeight: '900',
+                            textAlign: 'center',
+                            textTransform: 'uppercase',
+                            color: '#EAB308',
+                            textShadow: '0 10px 30px rgba(0,0,0,0.8)',
+                            padding: '0 40px',
+                            position: 'absolute',
+                            top: subtitlesYOffset,
+                        }}
+                    >
+                        {headline}
+                    </h1>
+                )}
+
+                {/* Watermark Metodo Sincro */}
+                <div style={{ position: 'absolute', bottom: 100, fontSize: 35, fontWeight: 'bold', letterSpacing: 6, opacity: 0.5 }}>
+                    METODO SINCRO
+                </div>
+
+            </AbsoluteFill>
         </AbsoluteFill>
     );
 };
