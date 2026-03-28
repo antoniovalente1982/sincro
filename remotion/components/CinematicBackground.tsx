@@ -9,7 +9,9 @@ export const CinematicBackground: React.FC<{
     mood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
 }> = ({ mood = 'warm-studio' }) => {
     const frame = useCurrentFrame();
-    const { fps, width, height } = useVideoConfig();
+    const { fps } = useVideoConfig();
+    const width = 1080;
+    const height = 1920;
     const currentMs = (frame / fps) * 1000;
 
     // Colori per mood

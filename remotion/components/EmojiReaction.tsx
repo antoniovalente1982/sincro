@@ -17,7 +17,9 @@ export const EmojiReaction: React.FC<{
     intensity = 'medium',
 }) => {
     const frame = useCurrentFrame();
-    const { fps, width, height } = useVideoConfig();
+    const { fps } = useVideoConfig();
+    const width = 1080;
+    const height = 1920;
     
     if (isNaN(startFrame) || frame < startFrame) return null;
     if (endFrame && frame > endFrame + fps * 0.5) return null;

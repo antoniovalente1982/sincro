@@ -70,7 +70,9 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     enableZoomPulse = true,
     subtitleStyle = 'impact',
 }) => {
-    const { fps, height, width, durationInFrames } = useVideoConfig();
+    const { fps, durationInFrames } = useVideoConfig();
+    const width = 1080;
+    const height = 1920;
     const frame = useCurrentFrame();
     const currentMs = (frame / fps) * 1000;
 

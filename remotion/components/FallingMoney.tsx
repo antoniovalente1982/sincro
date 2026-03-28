@@ -3,7 +3,9 @@ import { interpolate, random, useCurrentFrame, useVideoConfig } from 'remotion';
 
 export const FallingMoney: React.FC<{ startFrame: number, durationFrames?: number }> = ({ startFrame, durationFrames = 90 }) => {
     const frame = useCurrentFrame();
-    const { fps, width, height } = useVideoConfig();
+    const { fps } = useVideoConfig();
+    const width = 1080;
+    const height = 1920;
 
     // Generiamo in memoria fissa 35 "banconote" casuali
     const banknotes = useMemo(() => {
