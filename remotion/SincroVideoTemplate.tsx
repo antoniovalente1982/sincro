@@ -1,6 +1,8 @@
 
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, Audio, Sequence } from 'remotion';
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, Audio } from 'remotion';
 import React, { useMemo } from 'react';
+import { ThreeCanvas } from '@remotion/three';
+import { RoasChart3D } from './components/RoasChart3D';
 
 export interface WordTiming {
     word: string;
@@ -69,6 +71,9 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ headline, audi
     // Progress bar calculations
     const progressPercent = Math.min(100, Math.max(0, (frame / durationInFrames) * 100));
 
+    // Capire se renderizzare un grafico 3D al posto dell'emoji
+    const show3DChart = activeWordData?.isImpact && /fatturat|risultat|crescit|soldi|roas|metod/i.test(activeWordData.word);
+
     return (
         <AbsoluteFill style={{ backgroundColor: '#0B0F19', color: 'white', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {/* Audio Sincronizzato (Voice) */}
@@ -92,43 +97,57 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ headline, audi
                 <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#EAB308', boxShadow: '0 0 10px #EAB308' }} />
             </div>
 
-            {/* Sottotitoli Dinamici (Stile Hormozi) */}
+            {/* Sottotitoli Dinamici (Stile Hormozi V2) */}
             {words && words.length > 0 ? (
                 activeWordData && (
                     <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
                         
-                        {/* Se la parola ha una Emoji (VFX generato da OpenAI) */}
-                        {activeWordData.emoji && (
+                        {/* Infografica 3D WebGL al posto dell'Emoji */}
+                        {show3DChart ? (
+                            <AbsoluteFill style={{ zIndex: 1 }}>
+                                <ThreeCanvas width={width} height={height}>
+                                    <RoasChart3D startFrame={wordStartFrame} />
+                                </ThreeCanvas>
+                            </AbsoluteFill>
+                        ) : activeWordData.isImpact && activeWordData.emoji ? (
                             <div style={{
+                                /* Nuova Emoji Nitida Sopra il testo (Non sfocata dietro) */
                                 position: 'absolute',
-                                fontSize: 350,
-                                opacity: 0.3,
-                                transform: `scale(${emojiSpring}) translateY(${-100 + emojiSpring * 20}px)`,
-                                filter: 'blur(4px)', // Effetto Profondità 3D dietro il testo
-                                zIndex: 1,
+                                fontSize: 160,
+                                transform: `scale(${emojiSpring}) translateY(${-170}px)`,
+                                zIndex: 11,
+                                filter: 'drop-shadow(0px 10px 10px rgba(0,0,0,0.5))'
                             }}>
                                 {activeWordData.emoji}
                             </div>
-                        )}
+                        ) : null}
 
-                        <h1
-                            style={{
-                                fontFamily: 'Inter, sans-serif',
-                                fontSize: activeWordData.isImpact ? 110 : 90,
-                                fontWeight: '900',
-                                textAlign: 'center',
-                                textTransform: 'uppercase',
-                                color: activeWordData.isImpact ? '#EF4444' : '#EAB308',
-                                textShadow: '0 10px 40px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8)',
-                                zIndex: 10,
-                                padding: '0 40px',
-                                position: 'absolute',
-                                top: height / 2.5,
-                                transform: `scale(${wordSpring}) rotate(${activeWordData.isImpact ? '-3deg' : '0deg'})`,
-                            }}
-                        >
-                            {activeWordData.word.toUpperCase()}
-                        </h1>
+                        {/* Testo Neon Boxed (Hormozi style) */}
+                        <div style={{
+                            backgroundColor: activeWordData.isImpact ? '#EAB308' : 'transparent',
+                            padding: activeWordData.isImpact ? '10px 30px' : '0px 40px',
+                            borderRadius: '15px',
+                            boxShadow: activeWordData.isImpact ? '0 0 50px rgba(234, 179, 8, 0.4)' : 'none',
+                            position: 'absolute',
+                            top: height / 2.5,
+                            transform: `scale(${wordSpring}) ${activeWordData.isImpact ? `rotate(-2deg) translateY(${-20 + wordSpring * 20}px)` : `translateY(${50 - wordSpring * 50}px)`}`,
+                            zIndex: 10,
+                        }}>
+                            <h1
+                                style={{
+                                    fontFamily: 'Inter, sans-serif',
+                                    fontSize: activeWordData.isImpact ? 110 : 90,
+                                    fontWeight: '900',
+                                    textAlign: 'center',
+                                    textTransform: 'uppercase',
+                                    color: activeWordData.isImpact ? '#0B0F19' : '#FFFFFF', /* Nero su giallo se impact, bianco su grigio altrimenti */
+                                    textShadow: activeWordData.isImpact ? 'none' : '0 10px 40px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8)',
+                                    margin: 0
+                                }}
+                            >
+                                {activeWordData.word.toUpperCase()}
+                            </h1>
+                        </div>
                     </AbsoluteFill>
                 )
             ) : (
