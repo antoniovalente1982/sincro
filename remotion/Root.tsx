@@ -7,13 +7,15 @@ export const RemotionRoot: React.FC = () => {
         <>
             <Composition
                 id="SincroVideoAd"
-                component={SincroVideoTemplate}
+                component={SincroVideoTemplate as any}
                 durationInFrames={300} // 10 secondi a 30fps
                 fps={30}
                 width={1080}
                 height={1920}
                 defaultProps={{
                     headline: 'LA TESTA. NON LE GAMBE.',
+                    audioBase64: null,
+                    words: [],
                 }}
             />
         </>
