@@ -61,6 +61,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [showStickyBar, setShowStickyBar] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)
     const exitShownRef = useRef(false)
+    const scrollLockRef = useRef(false) // prevents fisarmonica during smooth scroll
+    const reachedBottomRef = useRef(false) // tracks if user scrolled to bottom
 
     // Validation helpers
     const handlePhoneChange = (val: string) => {
@@ -106,25 +108,53 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) setAdsetAngle('status')
     }, [])
 
-    // Exit intent detection
+    // Exit intent — ONLY after user has scrolled to bottom of page
     useEffect(() => {
         const triggerExit = () => {
-            if (exitShownRef.current || submitted) return
+            if (exitShownRef.current || submitted || !reachedBottomRef.current) return
             exitShownRef.current = true
             setShowExitPopup(true)
         }
-        const handleMouseLeave = (e: MouseEvent) => { if (e.clientY <= 0) triggerExit() }
-        let scrollY = 0, lastScrollTime = 0
+
+        // Track if user reached the bottom of the page
         const handleScroll = () => {
-            const now = Date.now(), currentY = window.scrollY
-            if (currentY < scrollY - 200 && now - lastScrollTime < 300 && now > 15000) triggerExit()
-            scrollY = currentY; lastScrollTime = now
+            const scrollTop = window.scrollY
+            const docHeight = document.documentElement.scrollHeight
+            const winHeight = window.innerHeight
+            // User reached bottom when within 150px of the end
+            if (scrollTop + winHeight >= docHeight - 150) {
+                reachedBottomRef.current = true
+            }
         }
+
+        // Desktop: mouse leaves viewport (only after bottom reached)
+        const handleMouseLeave = (e: MouseEvent) => {
+            if (e.clientY <= 0 && reachedBottomRef.current) triggerExit()
+        }
+
+        // Mobile: user scrolls back up significantly after reaching bottom
+        let lastScrollY = 0
+        const handleScrollUp = () => {
+            const currentY = window.scrollY
+            if (reachedBottomRef.current && currentY < lastScrollY - 300 && currentY < document.documentElement.scrollHeight * 0.5) {
+                triggerExit()
+            }
+            lastScrollY = currentY
+        }
+
+        // Start listening after 5s to avoid false triggers
         const timeout = setTimeout(() => {
-            document.addEventListener('mouseleave', handleMouseLeave)
             window.addEventListener('scroll', handleScroll, { passive: true })
-        }, 8000)
-        return () => { clearTimeout(timeout); document.removeEventListener('mouseleave', handleMouseLeave); window.removeEventListener('scroll', handleScroll) }
+            window.addEventListener('scroll', handleScrollUp, { passive: true })
+            document.addEventListener('mouseleave', handleMouseLeave)
+        }, 5000)
+
+        return () => {
+            clearTimeout(timeout)
+            window.removeEventListener('scroll', handleScroll)
+            window.removeEventListener('scroll', handleScrollUp)
+            document.removeEventListener('mouseleave', handleMouseLeave)
+        }
     }, [submitted])
 
     // Sticky bottom bar: show when form is scrolled past
@@ -133,7 +163,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         if (!formEl) return
         const observer = new IntersectionObserver(
             ([entry]) => {
-                // Show bar when the form is NOT visible (scrolled past it)
+                // Don't toggle during smooth scroll animation
+                if (scrollLockRef.current) return
                 setShowStickyBar(!entry.isIntersecting)
             },
             { threshold: 0, rootMargin: '0px 0px -60px 0px' }
@@ -142,7 +173,14 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         return () => observer.disconnect()
     }, [submitted])
 
-    const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const scrollToForm = () => {
+        // Lock the sticky bar to prevent fisarmonica during smooth scroll
+        scrollLockRef.current = true
+        setShowStickyBar(false)
+        formRef.current?.scrollIntoView({ behavior: 'smooth' })
+        // Unlock after scroll animation completes
+        setTimeout(() => { scrollLockRef.current = false }, 1200)
+    }
 
     const handleSubmit = async () => {
         if (!name || !phone || !email || phoneError || emailError) return
