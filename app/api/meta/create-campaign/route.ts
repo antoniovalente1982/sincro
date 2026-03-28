@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -74,14 +75,26 @@ async function uploadImageBase64(adAccount: string, token: string, base64: strin
 // ─── MAIN ───
 export async function POST(req: NextRequest) {
     try {
-        // Auth check
-        const authHeader = req.headers.get('authorization')
-        if (!authHeader) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        // Auth check: Try Server Cookies first (Dashboard UI), then fallback to Bearer Token (External APIs)
+        let user = null;
+        
+        try {
+            const supabase = await createServerClient()
+            const { data } = await supabase.auth.getUser()
+            user = data?.user
+        } catch (e) {
+            // Ignore cookie extraction errors (might be a pure API call without cookies)
         }
 
-        const userToken = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await getSupabaseAdmin().auth.getUser(userToken)
+        if (!user) {
+            const authHeader = req.headers.get('authorization')
+            if (authHeader) {
+                const userToken = authHeader.replace('Bearer ', '')
+                const { data } = await getSupabaseAdmin().auth.getUser(userToken)
+                user = data?.user
+            }
+        }
+
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
