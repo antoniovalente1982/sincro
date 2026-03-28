@@ -5,14 +5,20 @@ import { SincroVideoTemplate } from '@/remotion/SincroVideoTemplate';
 
 interface VideoPlayerClientProps {
     headline: string;
+    audioBase64?: string | null;
+    words?: any[];
 }
 
-export default function VideoPlayerClient({ headline }: VideoPlayerClientProps) {
+export default function VideoPlayerClient({ headline, audioBase64, words }: VideoPlayerClientProps) {
+    // If we have audio, use a longer duration, otherwise 300 frames default
+    const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
+    const durationInFrames = Math.max(300, Math.ceil((durationMls / 1000) * 30));
+
     return (
         <Player
             component={SincroVideoTemplate}
-            inputProps={{ headline }}
-            durationInFrames={300}
+            inputProps={{ headline, audioBase64, words }}
+            durationInFrames={durationInFrames}
             fps={30}
             compositionWidth={1080}
             compositionHeight={1920}

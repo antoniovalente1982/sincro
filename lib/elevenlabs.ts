@@ -87,6 +87,57 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
 }
 
 /**
+ * Enhanced TTS that returns both the audio and precise character/word timestamps.
+ * Returns an object with the base64 audio and word timings array.
+ */
+export async function textToSpeechWithTimestamps(text: string): Promise<{ audioBase64: string, alignment: any } | null> {
+    if (!ELEVENLABS_API_KEY) {
+        console.error('ElevenLabs API key not configured');
+        return null;
+    }
+
+    const cleanText = text.replace(/<[^>]*>/g, '').trim();
+
+    try {
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${DEFAULT_VOICE_ID}/with-timestamps`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY,
+                'Accept': 'application/json', // We request JSON because the response contains audio_base64 + alignment object
+            },
+            body: JSON.stringify({
+                text: cleanText,
+                model_id: MODEL_ID,
+                voice_settings: {
+                    stability: 0.92,
+                    similarity_boost: 0.8,
+                    style: 0.0,
+                    use_speaker_boost: true,
+                    speed: 1.0, // For video sync, standard speed is usually safer
+                },
+            }),
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('ElevenLabs TTS with Timestamps error:', res.status, errorText);
+            return null;
+        }
+
+        const data = await res.json();
+        // data looks like: { audio_base64: '...', alignment: { characters: [], character_start_times_seconds: [], character_end_times_seconds: [] } }
+        return {
+            audioBase64: data.audio_base64,
+            alignment: data.alignment,
+        };
+    } catch (err) {
+        console.error('ElevenLabs TTS Timestamps error:', err);
+        return null;
+    }
+}
+
+/**
  * Transcribe a voice message to text using ElevenLabs Speech-to-Text
  * Accepts an audio buffer (ogg/wav/mp3)
  */
