@@ -104,11 +104,15 @@ export interface CreativeDNA {
         top_ads: { name: string; spend: number; leads: number; cpl: number; ctr: number; roas: number; headline?: string; primary?: string; angle?: string }[]
         avg_cpl_winners: number
         avg_ctr_winners: number
+        pattern_analysis: string  // AI-extracted analysis of WHY winners work
     }
     avoid_patterns: {
         killed_ads: { name: string; spend: number; leads: number; kill_reason: string }[]
     }
     distribution: Record<string, { active: number; target: number; deficit: number }>
+    total_budget_daily: number
+    total_active_ads: number
+    total_target_ads: number
 }
 
 /**
@@ -143,12 +147,13 @@ export async function analyzeCreativeDNA(
 
     // 2. Analyze ad-level metrics from Meta
     const validAds = adMetrics.filter(a => (Number(a.spend) || 0) > 5)
-    const topByROAS = [...validAds]
+    // Sort by best CPL (lowest cost per lead = most efficient)
+    const topByPerformance = [...validAds]
         .filter(a => (Number(a.leads_count) || 0) > 0)
         .sort((a, b) => {
-            const roasA = Number(a.roas) || 0
-            const roasB = Number(b.roas) || 0
-            return roasB - roasA
+            const cplA = Number(a.cpl) || Infinity
+            const cplB = Number(b.cpl) || Infinity
+            return cplA - cplB // Best CPL first
         })
         .slice(0, 5)
         .map(a => {
@@ -160,76 +165,107 @@ export async function analyzeCreativeDNA(
                 cpl: Number(a.cpl) || 0,
                 ctr: Number(a.ctr) || 0,
                 roas: Number(a.roas) || 0,
-                headline: c?.headline || '',
-                primary: c?.primary || '',
-                angle: c?.angle || ''
+                headline: c?.copy_headline || '',
+                primary: c?.copy_primary || '',
+                angle: c?.angle || adsetAngles[a.adset_id] || ''
             }
         })
 
-    const avgCPL = topByROAS.length > 0
-        ? topByROAS.reduce((s, a) => s + a.cpl, 0) / topByROAS.length : 0
-    const avgCTR = topByROAS.length > 0
-        ? topByROAS.reduce((s, a) => s + a.ctr, 0) / topByROAS.length : 0
+    const avgCPL = topByPerformance.length > 0
+        ? topByPerformance.reduce((s, a) => s + a.cpl, 0) / topByPerformance.length : 0
+    const avgCTR = topByPerformance.length > 0
+        ? topByPerformance.reduce((s, a) => s + a.ctr, 0) / topByPerformance.length : 0
 
-    // 3. Calculate distribution per angle
-    // Group ads by AdSet → angle, count active vs target
+    // 3. Analyze WHY winners work (extract patterns via AI)
+    let patternAnalysis = 'Nessun dato sufficiente per l\'analisi dei pattern.'
+    if (topByPerformance.length >= 2) {
+        const winnersForAnalysis = topByPerformance
+            .filter(a => a.headline || a.primary)
+            .map(a => `[Angle: ${a.angle}] CPL €${a.cpl.toFixed(2)}, CTR ${a.ctr.toFixed(2)}%\nHeadline: "${a.headline}"\nBody: "${(a.primary || '').substring(0, 250)}"`)
+            .join('\n---\n')
+        if (winnersForAnalysis) {
+            try {
+                const analysisRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}` },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'system', content: `Analizza queste top ads vincenti per Metodo Sincro (mental coaching per giovani calciatori, target: genitori). Estrai in 4-5 bullet point i PATTERN COMUNI che le rendono efficaci: tipo di hook, leva emotiva, struttura del copy, tono, CTA. Rispondi in italiano, massimo 300 parole.\n\nADS VINCENTI:\n${winnersForAnalysis}` }],
+                        temperature: 0.3,
+                    }),
+                })
+                if (analysisRes.ok) {
+                    const analysisData = await analysisRes.json()
+                    patternAnalysis = analysisData.choices?.[0]?.message?.content || patternAnalysis
+                }
+            } catch { /* fallback to default */ }
+        }
+    }
+
+    // 4. Calculate distribution per angle — META ANDROMEDA CBO BEST PRACTICES
+    // Total budget determines total target ads, then distribute proportionally
+    const totalDailyBudget = Object.values(campaignBudgets).reduce((s, b) => s + b, 0)
+    
+    // Andromeda CBO recommended active ads based on total daily budget
+    let totalTargetAds: number
+    if (totalDailyBudget >= 300) totalTargetAds = 12
+    else if (totalDailyBudget >= 150) totalTargetAds = 10
+    else if (totalDailyBudget >= 50) totalTargetAds = 7
+    else totalTargetAds = 5
+
+    // Count active ads per angle
     const activeByAngle: Record<string, number> = {}
-    const budgetByAngle: Record<string, number> = {}
-
     adMetrics.forEach(ad => {
-        const adsetId = ad.adset_id
-        const angle = adsetAngles[adsetId] || 'unknown'
-        if (!activeByAngle[angle]) activeByAngle[angle] = 0
-        if (!budgetByAngle[angle]) budgetByAngle[angle] = 0
-
-        if (ad.status === 'ACTIVE' || ad.effective_status === 'ACTIVE') {
-            activeByAngle[angle]++
-        }
-    })
-
-    // Calculate budget per angle from campaign budgets
-    Object.entries(adsetAngles).forEach(([adsetId, angle]) => {
-        // For CBO, budget is at campaign level — estimate per-adset budget
-        const campaignId = adMetrics.find(a => a.adset_id === adsetId)?.campaign_id
-        if (campaignId && campaignBudgets[campaignId]) {
-            const adsetsInCampaign = Object.entries(adsetAngles)
-                .filter(([_, a]) => adMetrics.find(ad => ad.adset_id === _ && ad.campaign_id === campaignId))
-                .length || 1
-            budgetByAngle[angle] = (budgetByAngle[angle] || 0) + (campaignBudgets[campaignId] / adsetsInCampaign)
-        }
-    })
-
-    const distribution: Record<string, { active: number; target: number; deficit: number }> = {}
-    const allAngles = new Set([...Object.keys(activeByAngle), ...Object.keys(budgetByAngle)])
-
-    allAngles.forEach(angle => {
+        const angle = adsetAngles[ad.adset_id] || 'unknown'
         if (angle === 'unknown') return
+        if (ad.status === 'ACTIVE' || ad.effective_status === 'ACTIVE') {
+            activeByAngle[angle] = (activeByAngle[angle] || 0) + 1
+        }
+    })
+
+    const totalActiveAds = Object.values(activeByAngle).reduce((s, n) => s + n, 0)
+    const knownAngles = [...new Set(Object.values(adsetAngles).filter(a => a !== 'unknown'))]
+    const numAngles = knownAngles.length || 1
+
+    // Distribute target proportionally across angles (min 2 per angle)
+    const distribution: Record<string, { active: number; target: number; deficit: number }> = {}
+    const basePerAngle = Math.max(2, Math.floor(totalTargetAds / numAngles))
+
+    knownAngles.forEach(angle => {
         const active = activeByAngle[angle] || 0
-        const budget = budgetByAngle[angle] || 0
-        // Best practice CBO: 3-5 ads per AdSet
-        // €0-15/day → 3 ads, €15-30 → 4 ads, €30+ → 5 ads
-        let target = 3
-        if (budget >= 30) target = 5
-        else if (budget >= 15) target = 4
+        const target = basePerAngle
         distribution[angle] = { active, target, deficit: Math.max(0, target - active) }
     })
 
-    // Find best angle
-    const bestAngle = Object.entries(distribution)
-        .sort((a, b) => (activeByAngle[b[0]] || 0) - (activeByAngle[a[0]] || 0))
-        [0]?.[0] || 'efficiency'
+    // Find best performing angle (lowest CPL)
+    const cplByAngle: Record<string, { spend: number; leads: number }> = {}
+    adMetrics.forEach(ad => {
+        const angle = adsetAngles[ad.adset_id] || 'unknown'
+        if (angle === 'unknown') return
+        if (!cplByAngle[angle]) cplByAngle[angle] = { spend: 0, leads: 0 }
+        cplByAngle[angle].spend += Number(ad.spend) || 0
+        cplByAngle[angle].leads += Number(ad.leads_count) || 0
+    })
+    const bestAngle = Object.entries(cplByAngle)
+        .filter(([_, d]) => d.leads > 0)
+        .sort((a, b) => (a[1].spend / a[1].leads) - (b[1].spend / b[1].leads))
+        [0]?.[0] || knownAngles[0] || 'efficiency'
 
     return {
         winning_patterns: {
             best_angle: bestAngle,
-            top_ads: topByROAS,
+            top_ads: topByPerformance,
             avg_cpl_winners: avgCPL,
             avg_ctr_winners: avgCTR,
+            pattern_analysis: patternAnalysis,
         },
         avoid_patterns: {
             killed_ads: killedCreatives,
         },
         distribution,
+        total_budget_daily: totalDailyBudget,
+        total_active_ads: totalActiveAds,
+        total_target_ads: totalTargetAds,
     }
 }
 
@@ -335,6 +371,8 @@ export interface CreativeBrief {
 /**
  * Genera un brief creativo completo per una nuova ad.
  * Include: copy ottimizzato, prompt per immagine 4:5, e contesto dei vincenti.
+ * Il copywriter AI genera SIA il copy SIA la descrizione dell'immagine,
+ * che viene poi passata al generatore di prompt per Nano Banana.
  */
 export async function generateCreativeBrief(
     orgId: string,
@@ -346,11 +384,11 @@ export async function generateCreativeBrief(
     const pocket = await selectBuyerPocket(orgId, angle, adset.id)
     if (!pocket) return null
 
-    // 2. Generate copy based on pocket + winning patterns
+    // 2. Generate copy + image description based on pocket + winning patterns
     const copy = await generateCopyFromPocket(pocket, angle, dna)
 
-    // 3. Generate image prompt for 4:5 format
-    const imagePrompt = generateImagePrompt(pocket, angle, dna)
+    // 3. Generate image prompt using the AI-generated image_description
+    const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description)
 
     // 4. Create the brief name
     const pocketShort = pocket.pocket_name.replace(/\s+/g, '_').substring(0, 20)
@@ -380,36 +418,73 @@ export async function generateCreativeBrief(
 
 // ═══════════════════════════════════════════════
 // COPY GENERATOR — Crea copy da pocket + angolo con AI reale
+// Inietta pattern vincenti estratti dalle top ads
 // ═══════════════════════════════════════════════
 
 async function generateCopyFromPocket(
     pocket: SelectedPocket,
     angle: string,
     dna?: CreativeDNA
-): Promise<{ primary: string; headline: string; description: string }> {
+): Promise<{ primary: string; headline: string; description: string; image_description: string }> {
     const { buyer_state, core_question, primary_trigger, pocket_name } = pocket
 
-    let winningContextMsg = ''
-    if (dna && dna.winning_patterns && dna.winning_patterns.top_ads.length > 0) {
-        const topAd = dna.winning_patterns.top_ads[0]
-        winningContextMsg = `\nATTENZIONE - STORICO VINCENTE: La nostra migliore ad al momento (Angle: ${topAd.angle}) ha il seguente copy vincente, cerca di ricalcarne lo STILE E LA LEVA:\nHeadline vincente: "${topAd.headline}"\nInizio body vincente: "${topAd.primary?.substring(0, 150)}..."\nUsa questo contesto per capire cosa funziona ma adattalo al pocket attuale.`
+    // Build rich winning context from DNA
+    let winningContextSection = ''
+    if (dna && dna.winning_patterns) {
+        const { top_ads, pattern_analysis, avg_cpl_winners, avg_ctr_winners, best_angle } = dna.winning_patterns
+
+        if (top_ads.length > 0) {
+            winningContextSection += `\n\n═══ ANALISI ADS VINCENTI (DATI REALI) ═══\n`
+            winningContextSection += `📊 Performance medie dei vincitori: CPL €${avg_cpl_winners.toFixed(2)}, CTR ${avg_ctr_winners.toFixed(2)}%\n`
+            winningContextSection += `🏆 Angolo migliore: ${best_angle}\n\n`
+
+            // Include top 3 ads with FULL copy
+            top_ads.slice(0, 3).forEach((ad, i) => {
+                winningContextSection += `--- AD #${i + 1}: "${ad.name}" (CPL €${ad.cpl.toFixed(2)}, CTR ${ad.ctr.toFixed(2)}%, ${ad.leads} lead) ---\n`
+                winningContextSection += `Angolo: ${ad.angle}\n`
+                if (ad.headline) winningContextSection += `Headline: "${ad.headline}"\n`
+                if (ad.primary) winningContextSection += `Body completo:\n"${ad.primary}"\n\n`
+            })
+
+            // Include AI-extracted pattern analysis
+            if (pattern_analysis && pattern_analysis !== 'Nessun dato sufficiente per l\'analisi dei pattern.') {
+                winningContextSection += `\n═══ PATTERN VINCENTI ESTRATTI ═══\n${pattern_analysis}\n`
+            }
+        }
+
+        // Include what to avoid
+        if (dna.avoid_patterns.killed_ads.length > 0) {
+            winningContextSection += `\n═══ DA EVITARE (ads killate) ═══\n`
+            dna.avoid_patterns.killed_ads.slice(0, 3).forEach(ad => {
+                winningContextSection += `❌ "${ad.name}" — Spesa €${ad.spend.toFixed(2)}, ${ad.leads} lead, Motivo: ${ad.kill_reason}\n`
+            })
+        }
     }
 
     const systemPrompt = `Sei un esperto copywriter di Metodo Sincro, un sistema di mental coaching per giovani calciatori.
-Devi scrivere il copy per una nuova ad di Facebook. 
-ATTENZIONE CRITICA AL TARGET E DEMOGRAFICA: Il target di queste Ads NON sono i ragazzi, ma i loro GENITORI (madri e padri di giovani calciatori di 16-18 anni). Devi rivolgerti a LORO ("tuo figlio", "tuo ragazzo", "come genitore"). MAI riferirsi a bambini piccoli.
-Sii persuasivo, diretto, usa un linguaggio emotivamente profondo ma molto pratico.
-NON usare emoji o hashtag nel "primary". Scrivi in modo estremamente naturale e di impatto.
-REGOLA FONDAMENTALE: Scrivi TASSATIVAMENTE e SOLTANTO in lingua ITALIANA. Non usare mai l'inglese.
-${winningContextMsg}
+Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideale per accompagnarla.
 
-Il target (buyer pocket) è: "${pocket_name}"
-Lo stato d'animo del cliente è: "${buyer_state}"
-La domanda fondamentale a cui l'ad deve rispondere è: "${core_question}"
-Il trigger principale che fa convertire questo target è: "${primary_trigger}"
-L'angolo narrativo dell'ad è: "${angle}"
+═══ REGOLE FONDAMENTALI ═══
+1. TARGET CRITICO: L'ad si rivolge ai GENITORI (madri e padri) di giovani calciatori di 16-18 anni. Usa "tuo figlio", "tuo ragazzo", "come genitore". MAI riferirsi a bambini piccoli.
+2. LINGUA: Scrivi TASSATIVAMENTE e SOLTANTO in lingua ITALIANA.
+3. TONO: Persuasivo, diretto, emotivamente profondo ma pratico. NON usare emoji o hashtag nel "primary".
+4. STILE: Scrivi in modo naturale e di impatto. Evita frasi generiche tipo "Scopri di più" o "Non perdere l'occasione".
+5. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
+${winningContextSection}
 
-Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 3 chiavi: "primary" (il testo lungo del post, massimo 3 paragrafi), "headline" (il titolo dell'ad, massimo 6 parole), "description" (il sottotitolo, massimo 8 parole).`
+═══ BRIEF PER LA NUOVA AD ═══
+• Buyer Pocket: "${pocket_name}"
+• Stato d'animo del genitore target: "${buyer_state}"
+• Domanda fondamentale: "${core_question}"
+• Trigger principale di conversione: "${primary_trigger}"
+• Angolo narrativo: "${angle}"
+
+═══ OUTPUT RICHIESTO (JSON) ═══
+Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
+- "primary": il testo lungo del post (massimo 3 paragrafi, potente e specifico)
+- "headline": il titolo dell'ad (massimo 6 parole, impattante)
+- "description": il sottotitolo dell'ad (massimo 8 parole)
+- "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) dell'immagine perfetta per questa ad. Descrivi: ambientazione (stadio, spogliatoio, campo), illuminazione (golden hour, chiaroscuro, drammatica), soggetto (un calciatore di 17-19 anni, MAI bambini), espressione facciale, postura, abbigliamento, atmosfera emotiva che deve evocare, palette colori, angolazione della camera (dal basso, primo piano, etc). Questa descrizione sarà usata da un AI per generare l'immagine, quindi sii il più specifico possibile.`
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -438,6 +513,7 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 3 chiavi: "primary" (
                 primary: parsed.primary || `${core_question}\n\nScopri Metodo Sincro.`,
                 headline: parsed.headline || `Metodo Sincro — ${primary_trigger}`,
                 description: parsed.description || `Sblocca il tuo potenziale mentale.`,
+                image_description: parsed.image_description || '',
             }
         }
     } catch (e) {
@@ -449,31 +525,45 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 3 chiavi: "primary" (
         primary: `${core_question}\n\nIl 90% dei giovani calciatori con il talento giusto non arriva mai dove potrebbe. Non per le gambe. Per la testa.\n\nMetodo Sincro lavora sulla mente — l'unica variabile che nessun allenatore ti insegna a controllare.`,
         headline: `Metodo Sincro — ${primary_trigger}`,
         description: `Il sistema mentale per giovani calciatori.`,
+        image_description: '',
     }
 }
 
 // ═══════════════════════════════════════════════
-// IMAGE PROMPT — Genera il prompt per l'immagine
+// IMAGE PROMPT — Genera il prompt dettagliato per Nano Banana
+// Usa la image_description dal copywriter + regole visive
 // ═══════════════════════════════════════════════
 
-function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA): string {
-    const baseStyle = `Cinematic vertical 4:5 photo, dark moody atmosphere with golden accent lighting, high contrast, professional sports photography style. NO text overlay, NO logos, NO watermarks.`
+function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string): string {
+    const baseRules = `STRICT TECHNICAL RULES:
+- Format: Vertical 4:5 aspect ratio photograph
+- Style: Cinematic, high contrast, professional sports photography
+- Lighting: Dark moody atmosphere with golden/warm accent lighting
+- Camera: Shot on Sony A7III with 85mm f/1.4 lens, shallow depth of field
+- ABSOLUTELY NO text overlay, NO logos, NO watermarks, NO graphics
+- ABSOLUTELY NO CHILDREN, NO LITTLE BOYS — the subject must be an older teenager (17-19 years old) who looks like a young adult almost ready for professional leagues
+- Color grading: Dark teal shadows, warm golden highlights, desaturated midtones`
 
-    const playerDemographic = `An older teenage male soccer player, rugged, late teens (17-19 years old). MUST look like a young adult almost ready for professional leagues. STRICT RULE: ABSOLUTELY NO CHILDREN, NO LITTLE BOYS, NO PRE-TEENS.`
-
-    const angleVisuals: Record<string, string> = {
-        efficiency: `${playerDemographic} Standing alone in a massive empty stadium at twilight. Split lighting — one half in shadow, one half illuminated by golden light. Expression: focused, determined, intense. The emptiness of the stadium contrasts with his inner fire.`,
-        system: `${playerDemographic} In a controlled training environment. Geometric lines and grid patterns visible in the background (suggesting structure/system). Expression: calm, calculated, in control. Clean aesthetic, precision.`,
-        emotional: `${playerDemographic} Sitting alone on a bench in a dim locker room. Head slightly bowed, hands clasped. Dramatic chiaroscuro lighting. Expression: introspective, overwhelmed but not defeated. Raw emotion.`,
-        status: `${playerDemographic} Walking through a tunnel towards a brightly lit pitch. Silhouette from behind, golden light ahead. Wide shot showing the scale. Expression not visible — the composition tells the story of aspiration.`,
+    // If copywriter provided a detailed image description, use it as primary direction
+    if (imageDescription && imageDescription.length > 50) {
+        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
     }
 
-    const visual = angleVisuals[angle] || angleVisuals.efficiency
+    // Fallback: angle-based templates (only used if AI didn't generate description)
+    const playerDesc = `An older teenage male soccer player (17-19 years old), athletic build, intense expression. MUST look like a young adult.`
 
-    // Add pocket-specific nuance
-    const pocketNuance = `The mood should evoke the feeling of "${pocket.core_question}" — the viewer should feel the "${pocket.buyer_state}" state and the pull of "${pocket.primary_trigger}".`
+    const angleScenes: Record<string, string> = {
+        efficiency: `${playerDesc} Standing alone in a massive empty stadium at golden hour. Split lighting — one half of his face in deep shadow, one half illuminated by warm golden sunlight streaming through the stands. He's holding a ball under one arm, looking directly at camera with fierce determination. Wide shot showing the vastness of the empty stadium around him, emphasizing solitude and focus. Shallow depth of field blurs the distant seats into golden bokeh.`,
+        system: `${playerDesc} In a state-of-the-art training facility under cool blue-white LED lights. He's mid-stride in a precise drill, geometric training markers visible on the ground creating lines that converge at him. His body shows perfect form. Expression: calm, calculating, completely in control. Clean minimalist aesthetic. Shot from a low angle making him look powerful and systematic.`,
+        emotional: `${playerDesc} Sitting alone on a wooden bench in a dimly lit locker room. His head is slightly bowed, hands clasped between his knees, elbows on thighs. A single overhead light creates dramatic chiaroscuro — harsh top light with deep shadows. His jersey is slightly disheveled. Behind him, empty lockers stretch into darkness. Expression: deep introspection, carrying weight, but with a subtle glint of resolve in his eyes. Intimate, close-up framing.`,
+        status: `${playerDesc} Walking alone through a player tunnel towards a brilliantly lit pitch. Shot from behind, his silhouette framed by the tunnel's architecture. Dramatic backlight from the stadium floods through the tunnel exit, creating a halo of golden light. The contrast between the dark tunnel and bright pitch symbolizes the journey from obscurity to greatness. Wide cinematic framing.`,
+        education: `${playerDesc} On a training pitch at dawn, alone. He's studying a tactical board placed on a tripod, one hand on his chin, the other pointing at the board. Morning fog creates atmospheric depth. Warm sunrise light backlights the scene. His expression is studious, hungry to learn. Shot at eye level, medium close-up with the misty pitch blurred behind.`,
+        growth: `${playerDesc} Standing at the edge of a professional pitch, looking out at the field from the touchline. Shot from a 3/4 angle behind him, showing his profile against the vast green pitch stretching ahead. Golden hour light catches the edge of his face. His posture is upright, shoulders back — he's ready. A pair of new cleats hang from one hand. The composition emphasizes the threshold moment before greatness.`,
+    }
 
-    return `${baseStyle}\n\n${visual}\n\n${pocketNuance}`
+    const scene = angleScenes[angle] || angleScenes.efficiency
+
+    return `${baseRules}\n\n═══ SCENE ═══\n${scene}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must resonate with a parent who feels: "${pocket.buyer_state}"\nIt should visually answer: "${pocket.core_question}"\nThe visual trigger is: "${pocket.primary_trigger}"`
 }
 
 // ═══════════════════════════════════════════════

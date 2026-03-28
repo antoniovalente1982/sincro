@@ -118,6 +118,26 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         setLoading(prev => ({ ...prev, [id]: false }))
     }
 
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Eliminare definitivamente "${name}"?`)) return
+        setLoading(prev => ({ ...prev, [id]: true }))
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete_creative', creative_id: id }),
+            })
+            const data = await res.json()
+            if (data.error) setApproveResult({ error: data.error })
+            else setApproveResult({ success: true, message: `🗑️ "${name}" eliminata` })
+            await refresh()
+        } catch (err: any) {
+            setApproveResult({ error: err.message })
+        }
+        setLoading(prev => ({ ...prev, [id]: false }))
+        setTimeout(() => setApproveResult(null), 5000)
+    }
+
     const handleRunPipeline = async () => {
         setRunningPipeline(true)
         setPipelineResult(null)
@@ -394,6 +414,14 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                                 style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
                                                 title="Lancia su Meta">
                                                 <Rocket className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
+                                            </button>
+                                        )}
+                                        {['rejected', 'archived', 'draft'].includes(creative.status) && !isLoading && (
+                                            <button onClick={(e) => { e.stopPropagation(); handleDelete(creative.id, creative.name) }}
+                                                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                                                style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                                                title="Elimina definitivamente">
+                                                <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
                                             </button>
                                         )}
                                         {isLoading && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#6366f1' }} />}

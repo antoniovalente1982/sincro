@@ -473,6 +473,35 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, status: newStatus })
     }
 
+    if (action === 'delete_creative') {
+        const { creative_id } = body
+        if (!creative_id) return NextResponse.json({ error: 'creative_id required' }, { status: 400 })
+
+        // Only allow deleting rejected, archived, or draft ads
+        const { data: creative } = await supabase.from('ad_creatives')
+            .select('id, status, name')
+            .eq('id', creative_id)
+            .eq('organization_id', member.organization_id)
+            .single()
+
+        if (!creative) return NextResponse.json({ error: 'Creative not found' }, { status: 404 })
+
+        if (!['rejected', 'archived', 'draft', 'ready'].includes(creative.status)) {
+            return NextResponse.json({
+                error: `Non puoi eliminare un'ad con stato "${creative.status}". Solo ads rifiutate, archiviate, bozze o pronte possono essere eliminate.`
+            }, { status: 400 })
+        }
+
+        const { error } = await supabase.from('ad_creatives')
+            .delete()
+            .eq('id', creative_id)
+            .eq('organization_id', member.organization_id)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        return NextResponse.json({ success: true, deleted: creative.name })
+    }
+
     if (action === 'get_creative_pipeline_status') {
         // Get current state of the creative pipeline
         const [creativesRes, deficitData] = await Promise.all([
