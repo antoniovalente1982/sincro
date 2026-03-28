@@ -272,3 +272,58 @@ Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.s
         return { text: '⚠️ Errore connessione. Riprova.', success: false }
     }
 }
+
+/**
+ * AI Video Engine: Analizza lo script e restituisce le "Parole ad alto impatto"
+ * con la relativa Emoji raccomandata per triggerare gli effetti 3D su Remotion.
+ */
+export async function generateVideoVFXTags(script: string): Promise<{ word: string, emoji: string }[]> {
+    if (!OPENROUTER_API_KEY) {
+        console.warn('OpenRouter API Key mancante per VFX Tags');
+        return [];
+    }
+
+    const VFX_PROMPT = `Sei un Editor Video esperto in Short-Form Content (TikTok/Reels stile Alex Hormozi).
+Ti verrà fornito uno script. Devi identificare SOLO le parole CHIAVE assolute ad alto impatto emotivo (es. numeri, "soldi", "risultati", "attenzione", "problema", "segreto", forte verbi di azione).
+Per ogni parola chiave, associa una singola Emoji visiva che la rappresenti al meglio.
+Regole:
+1. Restituisci SOLO un array JSON valido in lingua italiana. Nessun altro testo, nessun markdown \`\`\`json.
+2. Formato esatto: [{"word": "parola", "emoji": "🚀"}]
+3. "word" DEVE corrispondere esattamente (case-insensitive) alla parola usata nello script originale.
+4. Non taggare più del 15% delle parole totali dello script, solo le vere "Bombe". Se ci sono 20 parole, taggane massimo 3.
+5. Scegli Emojis visibili, chiare e professionali ma impattanti.`;
+
+    try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': 'https://metodosincro.com',
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                messages: [
+                    { role: 'system', content: VFX_PROMPT },
+                    { role: 'user', content: script }
+                ],
+                temperature: 0.2, // Low temp for deterministic JSON output
+            }),
+        });
+
+        if (!res.ok) {
+            console.error('API VFX Tags Error:', res.status, await res.text());
+            return [];
+        }
+
+        const data = await res.json();
+        let reply = data.choices?.[0]?.message?.content || '[]';
+        
+        reply = reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(reply);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        console.error('Error in generateVideoVFXTags:', err);
+        return [];
+    }
+}

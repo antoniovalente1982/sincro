@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { textToSpeechWithTimestamps } from '@/lib/elevenlabs';
+import { generateVideoVFXTags } from '@/lib/openrouter';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
@@ -19,18 +20,20 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Testo mancante o non valido' }, { status: 400 });
         }
 
-        // Generate the audio with Timestamps
-        const ttsResult = await textToSpeechWithTimestamps(text);
+        // Generate the audio with Timestamps AND the AI tags in parallel for speed
+        const [ttsResult, vfxTags] = await Promise.all([
+            textToSpeechWithTimestamps(text),
+            generateVideoVFXTags(text)
+        ]);
 
         if (!ttsResult || !ttsResult.audioBase64) {
             return NextResponse.json({ error: 'Errore durante la generazione su ElevenLabs' }, { status: 500 });
         }
 
         // We receive characters, let's group them into Words so Remotion can render word by word easily.
-        // ElevenLabs alignment: { characters: string[], character_start_times_seconds: number[], character_end_times_seconds: number[] }
         const { characters, character_start_times_seconds, character_end_times_seconds } = ttsResult.alignment;
 
-        const words: { word: string, startMs: number, endMs: number }[] = [];
+        const words: { word: string, startMs: number, endMs: number, emoji?: string, isImpact?: boolean }[] = [];
         let currentWord = '';
         let currentStart = -1;
         let currentEnd = -1;
@@ -56,9 +59,20 @@ export async function POST(req: Request) {
             }
         }
 
-        // Push the last word if it didn't end with a space
         if (currentWord.trim().length > 0) {
             words.push({ word: currentWord, startMs: currentStart * 1000, endMs: currentEnd * 1000 });
+        }
+
+        // Map VFX tags from LLM to specific words
+        for (let i = 0; i < words.length; i++) {
+            const cleanWord = words[i].word.toLowerCase().replace(/[.,!?;:()]/g, '');
+            const match = vfxTags.find(tag => tag.word.toLowerCase().replace(/[.,!?;:()]/g, '') === cleanWord);
+            if (match) {
+                words[i].emoji = match.emoji;
+                words[i].isImpact = true;
+                // Remove the match so it doesn't accidentally trigger twice for multiple same words in the script
+                vfxTags.splice(vfxTags.indexOf(match), 1);
+            }
         }
 
         return NextResponse.json({
