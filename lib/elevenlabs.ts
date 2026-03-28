@@ -1,7 +1,7 @@
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 
-// "Brando M" — Expressive, Confident, Conversational Italian voice
-const DEFAULT_VOICE_ID = 'o5tUAYEqld5GJZ1Lv8uC'
+// Read custom cloned voice from ENV ("Antonio Valente" etc), fallback to "Brando M"
+const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'o5tUAYEqld5GJZ1Lv8uC'
 const MODEL_ID = 'eleven_multilingual_v2'
 
 /**
