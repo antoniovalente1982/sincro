@@ -364,6 +364,8 @@ export default function VideoEditorProPage() {
         if (!headline.trim()) return;
         setLoading(true);
         setError(null);
+        setAvatarVideoUrl(''); // Clear previous avatar video so it doesn't mute new TTS
+        setHeygenStatus(null);
         try {
             const res = await fetch('/api/ai-engine/generate-video-audio', {
                 method: 'POST',

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { textToSpeechWithTimestamps } from '@/lib/elevenlabs';
 import { generateVideoVFXTags } from '@/lib/openrouter';
-import { generateAndUploadAdImage } from '@/lib/nano-banana';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
@@ -71,27 +70,6 @@ export async function POST(req: Request) {
                 vfxTags.splice(vfxTags.indexOf(match), 1);
             }
         }
-
-        // Generate images for b-roll assets with Nano Banana (in parallel)
-        const imageGenPromises = vfxData.visualAssets
-            .filter(a => a.type === 'b-roll' && a.imagePrompt)
-            .map(async (asset, i) => {
-                try {
-                    const result = await generateAndUploadAdImage(
-                        asset.imagePrompt!,
-                        user.id,
-                        `video-broll-${Date.now()}-${i}`,
-                        '9:16' // Vertical for Reels
-                    );
-                    if (result.success && result.imageUrl) {
-                        (asset as any).imageUrl = result.imageUrl;
-                    }
-                } catch (err) {
-                    console.warn(`Nano Banana image gen failed for asset ${i}, using fallback:`, err);
-                }
-            });
-
-        await Promise.all(imageGenPromises);
 
         // Map visual assets to timeline — passa TUTTE le proprietà per i nuovi componenti
         const visualAssets = vfxData.visualAssets.map(asset => {
