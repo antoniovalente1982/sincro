@@ -211,7 +211,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     <Audio 
                         src={audioBase64.startsWith('blob:') || audioBase64.startsWith('http') || audioBase64.startsWith('data:') 
                              ? audioBase64 
-                             : `data:audio/mp3;base64,${audioBase64}`} 
+                             : `data:audio/mpeg;base64,${audioBase64}`} 
                         volume={1} // FORCE MAX VOLUME
                     />
                 )}

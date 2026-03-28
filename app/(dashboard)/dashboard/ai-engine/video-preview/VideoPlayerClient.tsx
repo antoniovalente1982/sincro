@@ -61,7 +61,6 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
                 aspectRatio: '9 / 16',
             }}
             controls
-            autoPlay
             loop
         />
     );
