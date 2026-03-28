@@ -84,7 +84,7 @@ export async function POST(req: Request) {
                         '9:16' // Vertical for Reels
                     );
                     if (result.success && result.imageUrl) {
-                        asset.query = result.imageUrl; // Replace query with actual image URL
+                        (asset as any).imageUrl = result.imageUrl;
                     }
                 } catch (err) {
                     console.warn(`Nano Banana image gen failed for asset ${i}, using fallback:`, err);
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
 
         await Promise.all(imageGenPromises);
 
-        // Map visual assets to timeline
+        // Map visual assets to timeline — passa TUTTE le proprietà per i nuovi componenti
         const visualAssets = vfxData.visualAssets.map(asset => {
             const cleanStart = asset.startWord.toLowerCase().replace(/[.,!?;:()]/g, '');
             const cleanEnd = asset.endWord.toLowerCase().replace(/[.,!?;:()]/g, '');
@@ -101,6 +101,10 @@ export async function POST(req: Request) {
             const startIndex = words.findIndex(w => w.word.toLowerCase().replace(/[.,!?;:()]/g, '') === cleanStart);
             let endIndex = words.findIndex((w, i) => i > startIndex && w.word.toLowerCase().replace(/[.,!?;:()]/g, '') === cleanEnd);
             
+            // Se è il CTA, posizionalo alla fine del video
+            if (asset.type === 'cta' && endIndex === -1) {
+                endIndex = words.length - 1;
+            }
             if (endIndex === -1) endIndex = Math.min(words.length - 1, startIndex + 5);
 
             return {
@@ -108,6 +112,16 @@ export async function POST(req: Request) {
                 query: asset.query,
                 variant: asset.variant,
                 position: asset.position,
+                imageUrl: (asset as any).imageUrl,
+                // Nuove props 5.0
+                line2: asset.line2,
+                highlightWord: asset.highlightWord,
+                textStyle: asset.textStyle,
+                color: asset.color,
+                toValue: asset.toValue,
+                emojis: asset.emojis,
+                intensity: asset.intensity,
+                // Timing
                 startMs: startIndex >= 0 ? words[startIndex].startMs : 0,
                 endMs: endIndex >= 0 ? words[endIndex].endMs : (startIndex >= 0 ? words[startIndex].startMs + 2000 : 2000)
             };

@@ -276,20 +276,28 @@ Ultimi lead: ${(orgContext.recent_leads || []).map((l: any) => `${l.name} (${l.s
 export interface VFXEngineData {
     tags: { word: string, emoji: string }[];
     visualAssets: { 
-        type: 'b-roll' | 'newspaper'; 
+        type: 'b-roll' | 'newspaper' | 'giant-text' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter'; 
         query: string;
         startWord: string;
         endWord: string;
         variant?: 'slide-right' | 'slide-left' | 'scale-up' | 'rotate-in';
         position?: 'top-right' | 'top-left' | 'center' | 'bottom-right';
-        imagePrompt?: string; // Prompt per Nano Banana (generazione AI immagine)
+        imagePrompt?: string;
+        // Props extra per nuovi componenti
+        line2?: string;
+        highlightWord?: string;
+        textStyle?: 'impact' | 'gradient' | 'outline' | 'neon';
+        color?: string;
+        toValue?: number;
+        emojis?: string[];
+        intensity?: 'low' | 'medium' | 'high';
     }[];
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
 }
 
 /**
- * AI Video Engine 4.0: Analizza lo script e restituisce i Metadati Visivi 
- * per il Motore Cinematico con card multi-variante, Nano Banana image gen e mood.
+ * AI Video Engine 5.0: Analizza lo script e restituisce i Metadati Visivi 
+ * per il Motore Cinematico con 7 tipi di asset, composizione dinamica e AI Director.
  */
 export async function generateVideoVFXTags(script: string): Promise<VFXEngineData> {
     const fallback: VFXEngineData = { tags: [], visualAssets: [], backgroundMood: 'warm-studio' };
@@ -299,58 +307,97 @@ export async function generateVideoVFXTags(script: string): Promise<VFXEngineDat
         return fallback;
     }
 
-    const VFX_PROMPT = `Sei il Regista Creativo AI di Metodo Sincro — crei video ads TikTok/Reels ipnotici.
-Ti verrà fornito uno script. Il tuo compito è generare i Metadati Visivi per il Motore Cinematico 4.0.
+    const VFX_PROMPT = `Sei il Regista Creativo AI di Metodo Sincro — crei video ads TikTok/Reels ipnotici ad altissima retention.
+Ti verrà fornito uno script. Genera i Metadati Visivi per il Motore Cinematico 5.0.
+
+HAI 7 TIPI DI ASSET DISPONIBILI:
+
+1. "b-roll" — Card PIP con immagine dietro lo speaker. Specifica "imagePrompt" per generare l'immagine con AI.
+2. "newspaper" — Titolo shock stile giornale (Forbes/Corriere). Specifica "query" = il titolo.
+3. "giant-text" — Testo ENORME che riempie lo schermo. Per hook iniziali o frasi d'impatto.
+   - "query" = riga 1, "line2" = riga 2 (opzionale)
+   - "highlightWord" = parola da evidenziare in giallo
+   - "textStyle": "impact" (bold classico), "gradient" (sfumato), "neon" (luminoso), "outline" (solo contorno)
+4. "cta" — Bottone rosso "Scopri di più" con freccia. SOLO alla fine del video.
+   - "query" = testo del bottone, "color" = colore (#ef4444 = rosso, #8B5CF6 = viola)
+5. "swipe-card" — Card notizia che sale dal basso con titolo + sottotitolo.
+   - "query" = titolo, "line2" = sottotitolo
+6. "emoji-reaction" — Emoji che esplodono tipo reazioni live TikTok (crea FOMO).
+   - "emojis" = array emoji, "intensity" = "low"/"medium"/"high"
+7. "counter" — Contatore animato (€0 → €15.000). Per numeri impressionanti.
+   - "query" = prefisso (es. "€"), "toValue" = valore finale, "color" = colore
 
 PRODUCI ESATTAMENTE QUESTO JSON:
 {
-  "tags": [
-      {"word": "potenziale", "emoji": "🚀"}
-  ],
+  "tags": [{"word": "potenziale", "emoji": "🚀"}],
   "backgroundMood": "warm-studio",
   "visualAssets": [
       {
+         "type": "giant-text",
+         "query": "SBLOCCA IL TUO",
+         "line2": "POTENZIALE",
+         "highlightWord": "POTENZIALE",
+         "textStyle": "impact",
+         "startWord": "sblocca",
+         "endWord": "potenziale"
+      },
+      {
          "type": "b-roll",
-         "query": "soccer player celebrating goal",
-         "imagePrompt": "Foto professionale di un calciatore che esulta dopo un gol, stadio pieno sullo sfondo, illuminazione cinematica, stile editoriale sportivo",
+         "query": "soccer player celebration",
+         "imagePrompt": "Foto professionale di un calciatore che esulta dopo un gol, stadio pieno, illuminazione cinematica",
          "variant": "slide-right",
          "position": "top-right",
          "startWord": "calciatore",
          "endWord": "successo"
       },
       {
+         "type": "emoji-reaction",
+         "emojis": ["🔥", "💪", "⚡", "🏆"],
+         "intensity": "medium",
+         "startWord": "incredibile",
+         "endWord": "risultati"
+      },
+      {
          "type": "newspaper",
          "query": "SVELATO IL SEGRETO: il metodo che sta rivoluzionando lo sport",
-         "variant": "slide-left",
-         "position": "top-left",
          "startWord": "segreto",
          "endWord": "rivelato"
+      },
+      {
+         "type": "counter",
+         "query": "€",
+         "toValue": 15000,
+         "color": "#22C55E",
+         "startWord": "guadagnato",
+         "endWord": "euro"
+      },
+      {
+         "type": "cta",
+         "query": "Scopri di più",
+         "color": "#ef4444",
+         "startWord": "ultimo",
+         "endWord": "ultimo"
       }
   ]
 }
 
-REGOLE DI REGIA (MANDATORY):
-1. **Tags**: Tagga MASSIMO il 10% delle parole con emoji (solo parole BOMBA). 
-2. **backgroundMood**: Scegli tra "warm-studio" (marketing/business), "cold-blue" (tech/sport), "purple-haze" (lusso/lifestyle).
-3. **visualAssets — Regole di Sequenza**:
-   - Alterna SEMPRE: prima un "b-roll" (immagine), poi un "newspaper" (titolo shock)
-   - Mai 2 b-roll consecutivi. Mai 2 newspaper consecutivi.
-   - Il primo asset deve apparire subito (prime 3 parole) per catturare l'attenzione
-   - Massimo 3-4 asset per uno script da 2 frasi, 5-6 per script più lunghi
-4. **variant** (animazione ingresso):
-   - "slide-right": entra da destra (per la prima card)
-   - "slide-left": entra da sinistra
-   - "scale-up": esplode dal centro (per momenti WOW)
-   - "rotate-in": entra ruotando (per varietà)
-   - Alterna le varianti! MAI usare la stessa due volte di fila
-5. **position** (dove appare la card):
-   - "top-right": dietro spalla destra speaker (default per b-roll)
-   - "top-left": dietro spalla sinistra 
-   - "center": al centro grande (per l'asset più importante)
-   - "bottom-right": PIP piccolo (per asset secondari)
-6. **imagePrompt**: Descrivi l'immagine in ITALIANO con dettagli visivi precisi (illuminazione, stile, mood). L'immagine sarà generata con AI.
-7. **query per newspaper**: Scrivi un TITOLO SHOCK in ITALIANO stile Forbes/Corriere.
-8. **startWord e endWord DEVONO esistere nello script!**`;
+REGOLE DI REGIA OBBLIGATORIE:
+1. **Tags**: Tagga MASSIMO il 10% delle parole con emoji (solo parole BOMBA/impatto).
+2. **backgroundMood**: "warm-studio" (marketing), "cold-blue" (sport/tech), "purple-haze" (lusso).
+3. **SEQUENZA DI COMPOSIZIONE (IMPORTANTISSIMO)**:
+   - PRIMO asset (0-2 parole) = SEMPRE "giant-text" con l'hook iniziale → cattura attenzione
+   - SECONDO (prime 3-5 parole) = "b-roll" card con immagine legata allo script
+   - TERZO = "newspaper" o "swipe-card" → credibilità/autorità
+   - Se lo script parla di SOLDI/GUADAGNI → aggiungi "counter" con il valore
+   - Se c'è un momento emozionale → aggiungi "emoji-reaction"
+   - ULTIMO asset = SEMPRE "cta" (bottone rosso) → sull'ultima parola dello script
+4. **Varietà**: Non usare MAI 2 tipi uguali consecutivi! Alterna sempre.
+5. **variant per card b-roll**: "slide-right", "slide-left", "scale-up", "rotate-in" — alterna!
+6. **position per card b-roll**: "top-right", "top-left", "center", "bottom-right" — alterna!
+7. **imagePrompt**: Descrivi l'immagine in ITALIANO con dettagli visivi precisi.
+8. **query per newspaper**: Titolo SHOCK in ITALIANO stile Forbes/Gazzetta.
+9. **startWord e endWord DEVONO esistere nello script!**
+10. Genera 5-8 asset per script da 2-3 frasi. Mai meno di 4.`;
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {

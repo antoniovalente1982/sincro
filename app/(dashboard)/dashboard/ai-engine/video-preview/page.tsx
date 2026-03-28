@@ -68,7 +68,7 @@ export default function VideoPreviewPage() {
     const handleGenerate = async () => {
         if (!headline.trim()) return;
         
-        const cacheKey = `sincro_tts_cache_v4_${headline.trim()}`;
+        const cacheKey = `sincro_tts_cache_v5_${headline.trim()}`;
         const cached = localStorage.getItem(cacheKey);
         
         let shouldFetch = true;
