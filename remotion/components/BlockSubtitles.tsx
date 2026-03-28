@@ -76,7 +76,7 @@ export const BlockSubtitles: React.FC<BlockSubtitlesProps> = ({
                 if (subStyle === 'impact') {
                     return (
                         <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, transform: `scale(${wordScale})${isImpact ? ' rotate(-2deg)' : ''}` }}>
-                            {isImpact && wordData.emoji && (
+                            {isImpact && wordData.emoji && typeof wordData.emoji === 'string' && (
                                 <span style={{ fontSize: 70, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}>{wordData.emoji}</span>
                             )}
                             <span style={{

@@ -23,14 +23,20 @@ export const EmojiReaction: React.FC<{
     if (endFrame && frame > endFrame + fps * 0.5) return null;
 
     const intensityCount = { low: 8, medium: 15, high: 25 };
-    const count = intensityCount[intensity];
+    // Fallback sicuro se l'AI manda una stringa o valori sballati
+    const count = intensityCount[intensity as keyof typeof intensityCount] || 15;
+    const safeEmojis = Array.isArray(emojis) && emojis.length > 0 ? emojis : ['🔥', '❤️', '💪', '⚡', '🏆'];
 
     // Genera le particelle emoji
     const particles = useMemo(() => {
         const pts = [];
         for (let i = 0; i < count; i++) {
+            // Estrae emoji in modo sicuro forzando a stringa, previene React Object child exception
+            const selectedRaw = safeEmojis[Math.floor(random(`emoji-${i}`) * safeEmojis.length)];
+            const safeStringEmoji = typeof selectedRaw === 'string' ? selectedRaw : (selectedRaw ? String(selectedRaw) : '🔥');
+
             pts.push({
-                emoji: emojis[Math.floor(random(`emoji-${i}`) * emojis.length)],
+                emoji: safeStringEmoji,
                 x: 50 + random(`ex-${i}`) * (width - 100), // Posizione X casuale
                 delay: random(`ed-${i}`) * 20, // Delay in frames
                 speed: 3 + random(`es-${i}`) * 4, // Velocità salita
@@ -40,7 +46,7 @@ export const EmojiReaction: React.FC<{
             });
         }
         return pts;
-    }, [count, emojis, width]);
+    }, [count, safeEmojis, width]);
 
     // Fade in globale
     const globalProgress = spring({
