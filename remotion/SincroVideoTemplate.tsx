@@ -40,6 +40,7 @@ export interface SincroVideoProps {
     enableMoneyVFX?: boolean;
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
     enableZoomPulse?: boolean;
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke';
 }
 
 import { Video } from 'remotion';
@@ -67,6 +68,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     enableMoneyVFX = true,
     backgroundMood = 'warm-studio',
     enableZoomPulse = true,
+    subtitleStyle = 'impact',
 }) => {
     const { fps, height, width, durationInFrames } = useVideoConfig();
     const frame = useCurrentFrame();
@@ -286,6 +288,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                             words={words} 
                             wordsPerBlock={3}
                             yPosition={avatarVideoUrl ? 350 : 500}
+                            subStyle={subtitleStyle}
                         />
                     ) : (
                         <h1 style={{

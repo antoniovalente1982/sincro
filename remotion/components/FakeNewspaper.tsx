@@ -132,14 +132,24 @@ export const FakeNewspaper: React.FC<{
                 La notizia sta facendo il giro del web. Migliaia di commenti sui social in poche ore...
             </p>
 
-            {/* Red accent bar */}
+        {/* Red accent bar & Read More Arrow */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 18 }}>
+            <div style={{ height: 4, width: 80, backgroundColor: '#dc2626', borderRadius: 2 }} />
+            
+            {/* Freccia Arancione Cliccabile/Animata */}
             <div style={{
-                marginTop: 18,
-                height: 4,
-                width: 80,
-                backgroundColor: '#dc2626',
-                borderRadius: 2,
-            }} />
+                display: 'flex', alignItems: 'center', gap: 6,
+                color: '#f97316', fontWeight: 800, fontSize: 16,
+                transform: `translateX(${Math.sin((frame - startFrame) * 0.3) * 5}px)`,
+                textTransform: 'uppercase', letterSpacing: 1
+            }}>
+                <span style={{ fontSize: 12 }}>Leggi l'articolo</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="M12 5l7 7-7 7"></path>
+                </svg>
+            </div>
         </div>
-    );
+    </div>
+  );
 };

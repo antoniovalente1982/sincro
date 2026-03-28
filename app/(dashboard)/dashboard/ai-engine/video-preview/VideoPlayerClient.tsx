@@ -13,6 +13,7 @@ interface VideoPlayerClientProps {
     avatarVideoUrl?: string;
     messageText?: string;
     backgroundMood?: string;
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke';
 }
 
 export default function VideoPlayerClient({ 
@@ -24,6 +25,7 @@ export default function VideoPlayerClient({
     avatarVideoUrl,
     messageText,
     backgroundMood,
+    subtitleStyle = 'impact',
 }: VideoPlayerClientProps) {
     // If we have audio, use a longer duration, otherwise 300 frames default
     const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
@@ -41,6 +43,7 @@ export default function VideoPlayerClient({
                 avatarVideoUrl: avatarVideoUrl || null,
                 iosMessageText: messageText || null,
                 backgroundMood: (backgroundMood as any) || 'warm-studio',
+                subtitleStyle: subtitleStyle,
             }}
             durationInFrames={durationInFrames}
             fps={30}

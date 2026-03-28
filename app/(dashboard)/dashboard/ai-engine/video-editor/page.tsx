@@ -154,6 +154,9 @@ export default function VideoEditorProPage() {
     const [error, setError] = useState<string | null>(null);
     const [avatarVideoUrl, setAvatarVideoUrl] = useState('');
     
+    // ═══ GLOBAL VIDEO SETTINGS ═══
+    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke'>('impact');
+    
     // ═══ AVATAR STATE ═══
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
     const [avatarList, setAvatarList] = useState<{avatar_id: string, avatar_name: string}[]>([]);
@@ -404,8 +407,22 @@ export default function VideoEditorProPage() {
                         ))}
                     </div>
                     
-                    {/* Avatar & Script input */}
+                    {/* Avatar, Settings & Script input */}
                     <div className="p-3 border-t border-zinc-800 mt-auto bg-zinc-950/50">
+                        {/* Selettore Stile Sottotitoli */}
+                        <div className="mb-4">
+                            <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Stile Sottotitoli</label>
+                            <select
+                                value={subtitleStyle}
+                                onChange={(e) => setSubtitleStyle(e.target.value as any)}
+                                className="w-full bg-black border border-zinc-800 rounded-lg p-2 text-white text-xs appearance-none focus:border-purple-500 outline-none cursor-pointer"
+                            >
+                                <option value="impact">Impact (Bouncy & Giallo)</option>
+                                <option value="tiktok">TikTok (High Contrast)</option>
+                                <option value="karaoke">Karaoke (Verde/Hormozi)</option>
+                            </select>
+                        </div>
+
                         {/* Selettore Avatar */}
                         <div className="mb-4">
                             <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Avatar HeyGen</label>
@@ -464,6 +481,7 @@ export default function VideoEditorProPage() {
                                     messageText={iosMessageText || undefined}
                                     useMoney={enableMoneyVFX}
                                     backgroundMood="warm-studio"
+                                    subtitleStyle={subtitleStyle}
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex flex-col items-center justify-center text-center p-8 gap-4">
