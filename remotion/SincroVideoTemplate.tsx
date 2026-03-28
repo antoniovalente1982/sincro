@@ -1,8 +1,8 @@
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, interpolate, spring } from 'remotion';
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring } from 'remotion';
 import React from 'react';
 
 export const SincroVideoTemplate: React.FC<{ headline: string }> = ({ headline }) => {
-    const { fps, width, height } = useVideoConfig();
+    const { fps, height } = useVideoConfig();
     const frame = useCurrentFrame();
 
     // Esempio: "Zoom Pattern Interrupt" attivato ogni 3 secondi (90 frame a 30fps)
