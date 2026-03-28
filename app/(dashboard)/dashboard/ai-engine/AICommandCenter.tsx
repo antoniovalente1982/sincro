@@ -291,6 +291,11 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     }}>
                         <Paintbrush className="w-4 h-4" /> Creative Studio
                     </Link>
+                    <Link href="/dashboard/ai-engine/video-preview" className="btn-primary" style={{
+                        background: 'rgba(236, 72, 153, 0.15)', border: '1px solid rgba(236, 72, 153, 0.3)', color: '#ec4899',
+                    }}>
+                        <Sparkles className="w-4 h-4" /> Video Engine
+                    </Link>
                 </div>
             </div>
 
@@ -680,9 +685,10 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
             </div>
 
             {/* Quick Actions Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 {[
                     { label: 'Creative Studio', desc: 'Genera copy e brief AI', icon: Paintbrush, href: '/dashboard/ai-engine/creative-studio', color: '#a855f7' },
+                    { label: 'Video Engine', desc: 'Editor AI Programmabile', icon: Sparkles, href: '/dashboard/ai-engine/video-preview', color: '#ec4899' },
                     { label: 'Autopilot Settings', desc: 'Budget, obiettivi, cron', icon: Settings, href: '/dashboard/ai-engine/settings', color: '#6366f1' },
                     { label: 'Gestisci Ads', desc: 'Performance campagne', icon: Megaphone, href: '/dashboard/ads', color: '#f59e0b' },
                     { label: 'Vedi Analytics', desc: 'Report e trend', icon: BarChart3, href: '/dashboard/analytics', color: '#3b82f6' },
