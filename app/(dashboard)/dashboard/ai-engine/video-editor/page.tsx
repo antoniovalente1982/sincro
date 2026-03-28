@@ -475,7 +475,7 @@ export default function VideoEditorProPage() {
             <div className="bg-zinc-950 border-b border-zinc-800 px-6 py-3 flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Sparkles className="w-5 h-5 text-purple-400" />
-                    <h1 className="text-lg font-bold text-white">Video Editor Pro <span className="text-xs text-purple-400 ml-1">5.0</span></h1>
+                    <h1 className="text-lg font-bold text-white">Video Editor Pro <span className="text-xs text-purple-400 ml-1">5.2</span></h1>
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="text-xs text-zinc-500">{layers.length} layer{layers.length !== 1 ? 's' : ''} • {(durationMs / 1000).toFixed(1)}s</span>
