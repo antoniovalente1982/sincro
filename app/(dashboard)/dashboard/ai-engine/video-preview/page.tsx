@@ -10,7 +10,7 @@ export default function VideoPreviewPage() {
     const [headline, setHeadline] = useState("SBLOCCA IL SUO VERO POTENZIALE");
 
     return (
-        <div className="flex flex-col lg:flex-row gap-12 w-full max-w-6xl mx-auto items-start p-8">
+        <div className="flex flex-col md:flex-row gap-12 w-full max-w-6xl mx-auto items-start p-8">
             <div className="w-full max-w-md text-left self-start text-zinc-300">
                 <h1 className="text-2xl font-bold text-white mb-2">Video Rendering Preview (Beta)</h1>
                 <p className="text-sm">
@@ -28,7 +28,7 @@ export default function VideoPreviewPage() {
                 </div>
             </div>
 
-            <div className="rounded-xl overflow-hidden shadow-2xl shadow-green-900/20 bg-black/50 border border-zinc-800">
+            <div className="w-full max-w-sm min-h-[600px] flex items-center justify-center rounded-xl overflow-hidden shadow-2xl shadow-green-900/20 bg-black/50 border border-zinc-800 shrink-0">
                 <VideoPlayerClient headline={headline} />
             </div>
             
