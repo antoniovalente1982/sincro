@@ -206,14 +206,13 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     const videoContent = (
         <AbsoluteFill style={{ backgroundColor: '#000000', color: 'white', overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', transform: earthquakeTransform, transformOrigin: 'center center' }}>
-                
                 {/* Audio */}
                 {audioBase64 && (
                     <Audio 
                         src={audioBase64.startsWith('blob:') || audioBase64.startsWith('http') || audioBase64.startsWith('data:') 
                              ? audioBase64 
                              : `data:audio/mp3;base64,${audioBase64}`} 
-                        volume={avatarVideoUrl ? 0 : 1} 
+                        volume={1} // FORCE MAX VOLUME
                     />
                 )}
 
