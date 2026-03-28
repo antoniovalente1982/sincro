@@ -21,13 +21,13 @@ export const FallingMoney: React.FC<{ startFrame: number, durationFrames?: numbe
         return particles;
     }, [width, height]);
 
-    // Non montare nulla se siamo prima dell'innesco
-    if (frame < startFrame) return null;
+    // Non montare nulla se siamo prima dell'innesco o se i frame sono invalidi
+    if (isNaN(startFrame) || frame < startFrame) return null;
     
     // Fermiamo l'effetto dopo X secondi se lo desideriamo
     if (frame > startFrame + durationFrames) return null;
 
-    const currentLocalFrame = frame - startFrame;
+    const currentLocalFrame = Math.max(0, frame - startFrame);
 
     return (
         <div style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden', zIndex: 10 }}>

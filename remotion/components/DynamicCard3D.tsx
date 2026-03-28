@@ -26,12 +26,12 @@ export const DynamicCard3D: React.FC<{
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    if (frame < startFrame || (endFrame && frame > endFrame + fps)) return null;
+    if (isNaN(startFrame) || frame < startFrame || (endFrame && frame > endFrame + fps)) return null;
 
     // Animazione di Entrata
     const progressIn = spring({
         fps,
-        frame: frame - startFrame,
+        frame: Math.max(0, frame - startFrame),
         config: { damping: 14, mass: 0.8, stiffness: 120 },
         from: 0,
         to: 1,
@@ -40,7 +40,7 @@ export const DynamicCard3D: React.FC<{
     // Animazione di Uscita
     const progressOut = endFrame ? spring({
         fps,
-        frame: frame - endFrame,
+        frame: Math.max(0, frame - endFrame),
         config: { damping: 14, mass: 0.8, stiffness: 120 },
         from: 0,
         to: 1,

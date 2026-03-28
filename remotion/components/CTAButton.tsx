@@ -21,19 +21,19 @@ export const CTAButton: React.FC<{
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    if (frame < startFrame) return null;
+    if (isNaN(startFrame) || frame < startFrame) return null;
     if (endFrame && frame > endFrame + fps) return null;
 
     // Slide-up con spring
     const progressIn = spring({
         fps,
-        frame: frame - startFrame,
+        frame: Math.max(0, frame - startFrame),
         config: { damping: 14, mass: 0.7, stiffness: 130 },
     });
 
     const progressOut = endFrame ? spring({
         fps,
-        frame: frame - endFrame,
+        frame: Math.max(0, frame - endFrame),
         config: { damping: 14, stiffness: 100 },
     }) : 0;
 

@@ -31,29 +31,33 @@ export const CounterAnimation: React.FC<{
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    if (frame < startFrame) return null;
+    if (isNaN(startFrame) || frame < startFrame) return null;
     if (endFrame && frame > endFrame + fps) return null;
 
     // Entrata
     const progressIn = spring({
         fps,
-        frame: frame - startFrame,
+        frame: Math.max(0, frame - startFrame),
         config: { damping: 14, mass: 0.6, stiffness: 130 },
     });
 
     // Uscita
     const progressOut = endFrame ? spring({
         fps,
-        frame: frame - endFrame,
+        frame: Math.max(0, frame - endFrame),
         config: { damping: 14, stiffness: 100 },
     }) : 0;
 
     const progress = Math.max(0, progressIn - progressOut);
 
+    // Safely parse AI inputs that might have Euro symbols or dots
+    const safeFrom = typeof fromValue === 'string' ? parseFloat(String(fromValue).replace(/[^0-9.-]+/g,"")) || 0 : fromValue;
+    const safeTo = typeof toValue === 'string' ? parseFloat(String(toValue).replace(/[^0-9.-]+/g,"")) || 15000 : toValue;
+    
     // Conta progressiva (easeOutQuart per effetto "slot machine che rallenta")
     const countProgress = Math.min(1, (frame - startFrame) / duration);
     const eased = 1 - Math.pow(1 - countProgress, 4);
-    const currentValue = Math.round(fromValue + (toValue - fromValue) * eased);
+    const currentValue = Math.round(safeFrom + (safeTo - safeFrom) * eased);
 
     // Formattazione numeri con punto separatore migliaia
     const formattedValue = currentValue.toLocaleString('it-IT');

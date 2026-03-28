@@ -19,7 +19,7 @@ export const EmojiReaction: React.FC<{
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig();
     
-    if (frame < startFrame) return null;
+    if (isNaN(startFrame) || frame < startFrame) return null;
     if (endFrame && frame > endFrame + fps * 0.5) return null;
 
     const intensityCount = { low: 8, medium: 15, high: 25 };
@@ -51,7 +51,7 @@ export const EmojiReaction: React.FC<{
     // Fade in globale
     const globalProgress = spring({
         fps,
-        frame: frame - startFrame,
+        frame: Math.max(0, frame - startFrame),
         config: { damping: 20, stiffness: 80 },
     });
 

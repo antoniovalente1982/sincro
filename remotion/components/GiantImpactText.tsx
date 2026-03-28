@@ -33,20 +33,20 @@ export const GiantImpactText: React.FC<{
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     
-    if (frame < startFrame) return null;
+    if (isNaN(startFrame) || frame < startFrame) return null;
     if (endFrame && frame > endFrame + fps * 0.5) return null;
 
     // Entrata con spring (scale-up + slide-up)
     const progressIn = spring({
         fps,
-        frame: frame - startFrame,
+        frame: Math.max(0, frame - startFrame),
         config: { damping: 12, mass: 0.6, stiffness: 150 },
     });
 
     // Uscita
     const progressOut = endFrame ? spring({
         fps,
-        frame: frame - endFrame,
+        frame: Math.max(0, frame - endFrame),
         config: { damping: 14, mass: 0.8, stiffness: 120 },
     }) : 0;
 

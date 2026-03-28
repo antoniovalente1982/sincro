@@ -19,7 +19,7 @@ export const IOSMessageBubble: React.FC<{
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    if (frame < startFrame) return null;
+    if (isNaN(startFrame) || frame < startFrame) return null;
 
     // Entrata pop con effetto molla Apple
     const scale = spring({
