@@ -473,6 +473,14 @@ Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideal
    - Inserisci SEMPRE una riga vuota tra un concetto e l'altro (usa doppi a capo \n\n).
    - Usa emoji strategiche (es. ⚽, 🧠, ⚠️, 🚀, ✅,👇) per catturare l'attenzione e guidare lo sguardo, senza sembrare spam.
    - Usa bullet points per gli elenchi. Niente muri di testo.
+
+═══ STRUTTURA OBBLIGATORIA DEL COPY (I 4 PILASTRI) ═══
+A. CATTURA L'ATTENZIONE: Le primissime tre parole devono bloccare lo scroll del genitore.
+B. GIOCA FUORI DAGLI SCHEMI: Non essere banale. Usa un "pattern interrupt", ribalta le prospettive standard di chi pensa che serva solo l'allenamento fisico.
+C. UN MESSAGGIO CHIARO: Spiega la soluzione (la mentalità e il Metodo Sincro) in modo semplice, senza paroloni complessi.
+D. MOSTRA IMMEDIATAMENTE DI COSA SI TRATTA: Fai emergere subito il contesto calcistico e il problema emotivo/razionale affrontato.
+
+═══ REGOLE AGGIUNTIVE ═══
 5. CONTESTO SPORTIVO: Stiamo parlando di CALCIO (soccer). Il copy DEVE far capire chiaramente che parliamo di calcio e calciatori. Usa riferimenti al campo, alla partita, agli allenamenti, al mister, alla squadra.
 6. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
 7. MAI MENZIONARE ETÀ SPECIFICHE: Non scrivere "16-18 anni", "tra i 15 e i 17", etc. Ragiona per fasi: "giovane calciatore", "ragazzo che gioca a calcio", "tuo figlio che si allena".
@@ -551,6 +559,12 @@ function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: Creativ
 - ABSOLUTELY NO logos, NO brand names, NO watermarks
 - ABSOLUTELY NO CHILDREN, NO LITTLE BOYS — the subject must be an older teenager (17-19 years old) who looks like a young adult almost ready for professional leagues
 - Color grading: High contrast, visceral color pops. AVOID generic blue/white palettes which blend into the Facebook UI. Use striking dark teal shadows with warm golden high-contrast highlights.
+
+MANDATORY MARKETING GUIDELINES (4 PILLARS):
+1. CATTURA L'ATTENZIONE: The image must be a scroll-stopper. Use intense emotional hooks, aggressive lighting, and pattern interrupts.
+2. GIOCA FUORI DAGLI SCHEMI: Avoid boring, standard sports stock-photo vibes. Be unconventional, cinematic, and thought-provoking.
+3. UN MESSAGGIO CHIARO: The visual metaphor must be instantly readable by a busy parent scrolling their feed.
+4. MOSTRA IMMEDIATAMENTE DI COSA SI TRATTA: The soccer/football context (pitch, ball, kit) and the core emotional struggle MUST be blindingly obvious in the first 0.1 seconds of viewing.
 
 MANDATORY SOCCER/FOOTBALL ELEMENTS (at least 3 must be clearly visible):
 - A recognizable soccer/football ball (white with black pentagons or modern design)
