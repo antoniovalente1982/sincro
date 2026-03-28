@@ -688,7 +688,7 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 {[
                     { label: 'Creative Studio', desc: 'Genera copy e brief AI', icon: Paintbrush, href: '/dashboard/ai-engine/creative-studio', color: '#a855f7' },
-                    { label: 'Video Engine', desc: 'Editor AI Programmabile', icon: Sparkles, href: '/dashboard/ai-engine/video-preview', color: '#ec4899' },
+                    { label: 'Video Editor Pro', desc: 'Editor 5.0 + Timeline', icon: Sparkles, href: '/dashboard/ai-engine/video-editor', color: '#ec4899' },
                     { label: 'Autopilot Settings', desc: 'Budget, obiettivi, cron', icon: Settings, href: '/dashboard/ai-engine/settings', color: '#6366f1' },
                     { label: 'Gestisci Ads', desc: 'Performance campagne', icon: Megaphone, href: '/dashboard/ads', color: '#f59e0b' },
                     { label: 'Vedi Analytics', desc: 'Report e trend', icon: BarChart3, href: '/dashboard/analytics', color: '#3b82f6' },
