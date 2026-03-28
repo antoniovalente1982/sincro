@@ -481,10 +481,20 @@ C. UN MESSAGGIO CHIARO: Spiega la soluzione (la mentalità e il Metodo Sincro) i
 D. MOSTRA IMMEDIATAMENTE DI COSA SI TRATTA: Fai emergere subito il contesto calcistico e il problema emotivo/razionale affrontato.
 
 ═══ REGOLE AGGIUNTIVE ═══
-5. CONTESTO SPORTIVO: Stiamo parlando di CALCIO (soccer). Il copy DEVE far capire chiaramente che parliamo di calcio e calciatori. Usa riferimenti al campo, alla partita, agli allenamenti, al mister, alla squadra.
-6. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy. Adatta al nuovo angolo/pocket.
-7. MAI MENZIONARE ETÀ SPECIFICHE: Non scrivere "16-18 anni", "tra i 15 e i 17", etc. Ragiona per fasi: "giovane calciatore", "ragazzo che gioca a calcio", "tuo figlio che si allena".
-8. AUTORITÀ (CONI): Per aumentare la trust, se appropriato, puoi citare nel copy che abbiamo "Mental Coach con diploma nazionale rilasciato dal CONI". IMPORTANTE: NON chiedere mai all'AI delle immagini di disegnare loghi del CONI.
+5. TEMPLATE VISIVO: Scegli e applica obbligatoriamente UNO dei seguenti 9 layout grafici alla tua 'image_description':
+   - 1) Solo testo su sfondo: Colore piatto, testo enorme, nessuna foto.
+   - 2) Persona che parla: Inquadratura ravvicinata (volto in camera) in stile contenuto generato dall'utente (UGC), tono colloquiale.
+   - 3) Selfie + commento: Foto in stile selfie sul campo, con un breve testo o commento sovrapposto in basso.
+   - 4) Lista benefici: Layout minimale con bullet point chiari testuali su sfondo neutro.
+   - 5) Meccanismo unico: Grafica pulita, diagrammatica o visiva, che spiega o mostra perché il Metodo Sincro funziona in modo diverso.
+   - 6) Prima e dopo: Grafica split-screen o raffigurante il blocco ansioso vs mente lucida e performante.
+   - 7) Foto emozionale + caption: Un'immagine altamente fotografica ed evocativa (golden hour) con una frase d'impatto sovrapposta in basso.
+   - 8) Citazione / Recensione: Stile "quote" elegante, solo testo su sfondo pulito e citazione della mamma/padre.
+   - 9) Hook testuale: Domanda o affermazione fortissima in evidenza gigante, con uno sfondo visivo molto blando o scuro.
+6. CONTESTO SPORTIVO: Quando il template lo permette (cioè non è *solo testo*), stiamo parlando di CALCIO (soccer). Fai capire chiaramente che parliamo di calcio. Usa riferimenti a palloni, campo, spogliatoi.
+7. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy.
+8. MAI MENZIONARE ETÀ SPECIFICHE. Usa "giovane calciatore", "tuo figlio".
+9. AUTORITÀ (CONI): Puoi citare nel copy primario "Mental Coach con diploma nazionale rilasciato dal CONI". MA NON CHIEDERE MAI LOGHI AI NELLA FOTO.
 ${winningContextSection}
 
 ═══ BRIEF PER LA NUOVA AD ═══
@@ -499,7 +509,7 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 - "primary": il testo lungo del post (testo persuasivo ben impaginato con emoji, doppi spazi tra i brevi paragrafi '\\n\\n', e alta scansionabilità)
 - "headline": il titolo dell'ad (massimo 6 parole, impattante)
 - "description": il sottotitolo dell'ad (massimo 8 parole)
-- "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) dell'immagine perfetta per questa ad. L'immagine DEVE essere chiaramente legata al CALCIO/SOCCER. Descrivi dettagliatamente: ambientazione (stadio di calcio, spogliatoio con maglie appese, campo da calcio con righe bianche, porta da calcio sullo sfondo), illuminazione (golden hour, chiaroscuro, drammatica), soggetto (un CALCIATORE maschio di 17-19 anni in divisa da calcio con pallone, scarpini da calcio, parastinchi — MAI bambini), espressione facciale, postura, ELEMENTI CALCISTICI OBBLIGATORI (pallone da calcio, reti della porta, linee del campo, corner flag, panchina), palette colori, angolazione della camera. Questa descrizione sarà usata da un AI per generare l'immagine, quindi sii il più specifico possibile. IL CALCIO DEVE ESSERE IMMEDIATAMENTE RICONOSCIBILE.`
+- "image_description": una descrizione ULTRA-DETTAGLIATA (minimo 100 parole) per generare l'immagine dell'ad tramite AI. IMPORTANTE: Devi descrivere esplicitamente quale dei 9 TEMPLATE VISIVI hai scelto e come applicarlo (es. "Immagine stile [7. Foto emozionale + caption] che raffigura..."). Quando il template richiede testo nell'immagine (come Liste, Quote, Hook), scrivi il testo brevissimo e inequivocabile in maiuscolo. IL CALCIO (se non è un layout solo testo) DEVE ESSERE IMMEDIATAMENTE RICONOSCIBILE.`
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
