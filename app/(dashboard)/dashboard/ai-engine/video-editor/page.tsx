@@ -667,6 +667,8 @@ export default function VideoEditorProPage() {
         if (!headline.trim()) return;
         setLoading(true);
         setError(null);
+        setAudioBase64(''); // Flush audio to prevent browser decoding errors
+        setWords([]); // Flush words completely
         setAvatarVideoUrl(''); // Clear previous avatar video so it doesn't mute new TTS
         setHeygenStatus(null);
         try {
@@ -1025,7 +1027,6 @@ export default function VideoEditorProPage() {
                                             >
                                                 <option value="none">Disattivato (Mantiene il muro originale)</option>
                                                 <option value="green">Chroma Key (Solo per Green Screen 🟢)</option>
-                                                <option value="white">Fusione AI (Per Sfondi Chiari/Bianchi ⚪)</option>
                                             </select>
                                             <p className="text-[10px] text-zinc-500 mt-1">Per usare sfondi 3D e VFX dietro l'avatar, il video DEVE essere girato su telo verde.</p>
                                         </div>
@@ -1064,10 +1065,10 @@ export default function VideoEditorProPage() {
                                             <h4 className="text-[10px] font-bold text-yellow-500 uppercase">☀️ Luce Principale (Key Light)</h4>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between"><span className="text-[10px] text-zinc-400">Angolo ({lightKeyAngle}°)</span></div>
-                                                <input type="range" min="0" max="360" defaultValue={lightKeyAngle} onPointerUp={(e) => setLightKeyAngle(Number(e.currentTarget.value))} className="w-full" />
+                                                <input type="range" min="0" max="360" value={lightKeyAngle} onChange={(e) => setLightKeyAngle(Number(e.target.value))} className="w-full" />
                                                 <div className="flex gap-2">
                                                     <input type="color" value={lightKeyColor} onChange={(e) => setLightKeyColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
-                                                    <input type="range" min="0" max="1" step="0.1" defaultValue={lightKeyIntensity} onPointerUp={(e) => setLightKeyIntensity(Number(e.currentTarget.value))} className="w-full" />
+                                                    <input type="range" min="0" max="1" step="0.1" value={lightKeyIntensity} onChange={(e) => setLightKeyIntensity(Number(e.target.value))} className="w-full" />
                                                 </div>
                                             </div>
                                         </div>
@@ -1076,7 +1077,7 @@ export default function VideoEditorProPage() {
                                             <h4 className="text-[10px] font-bold text-purple-400 uppercase">🌓 Luce Riempimento (Fill)</h4>
                                             <div className="flex gap-2">
                                                 <input type="color" value={lightFillColor} onChange={(e) => setLightFillColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
-                                                <input type="range" min="0" max="1" step="0.1" defaultValue={lightFillIntensity} onPointerUp={(e) => setLightFillIntensity(Number(e.currentTarget.value))} className="w-full" />
+                                                <input type="range" min="0" max="1" step="0.1" value={lightFillIntensity} onChange={(e) => setLightFillIntensity(Number(e.target.value))} className="w-full" />
                                             </div>
                                         </div>
 
@@ -1084,7 +1085,7 @@ export default function VideoEditorProPage() {
                                             <h4 className="text-[10px] font-bold text-cyan-400 uppercase">✨ Controluce (Rim Light Neon)</h4>
                                             <div className="flex gap-2">
                                                 <input type="color" value={lightRimColor} onChange={(e) => setLightRimColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
-                                                <input type="range" min="0" max="1" step="0.1" defaultValue={lightRimIntensity} onPointerUp={(e) => setLightRimIntensity(Number(e.currentTarget.value))} className="w-full" />
+                                                <input type="range" min="0" max="1" step="0.1" value={lightRimIntensity} onChange={(e) => setLightRimIntensity(Number(e.target.value))} className="w-full" />
                                             </div>
                                         </div>
                                     </div>
