@@ -68,6 +68,16 @@ export interface SincroVideoProps {
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
     enableZoomPulse?: boolean;
     subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
+    customBackgroundUrl?: string;
+    enable3DParallax?: boolean;
+    enableAutoBackgroundRemoval?: boolean;
+    lightKeyAngle?: number;
+    lightKeyIntensity?: number;
+    lightKeyColor?: string;
+    lightFillIntensity?: number;
+    lightFillColor?: string;
+    lightRimIntensity?: number;
+    lightRimColor?: string;
 }
 
 import { Video } from 'remotion';
@@ -113,7 +123,17 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     enableMoneyVFX = true,
     backgroundMood = 'warm-studio',
     enableZoomPulse = true,
-    subtitleStyle = 'impact',
+    subtitleStyle = 'tiktok',
+    customBackgroundUrl,
+    enable3DParallax = false,
+    enableAutoBackgroundRemoval = true,
+    lightKeyAngle = 45,
+    lightKeyIntensity = 0.8,
+    lightKeyColor = '#ffffff',
+    lightFillIntensity = 0.4,
+    lightFillColor = '#a855f7',
+    lightRimIntensity = 0.6,
+    lightRimColor = '#06b6d4',
 }) => {
     const { fps, durationInFrames } = useVideoConfig();
     const width = 1080;
@@ -243,6 +263,22 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     // ═══ RENDER CONTENT ═══
     const videoContent = (
         <AbsoluteFill style={{ backgroundColor: '#000000', color: 'white', overflow: 'hidden' }}>
+            {/* INJECT SVG CHROMA KEY FILTER */}
+            <svg width="0" height="0" style={{ position: 'absolute' }}>
+                <filter id="chroma-key">
+                  <feColorMatrix type="matrix" values="
+                    1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    -1 2.5 -1 0 0" result="alpha-mask"/>
+                  <feColorMatrix type="matrix" values="
+                    1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 -1 1" in="alpha-mask"/>
+                </filter>
+            </svg>
+
             <div style={{ width: '100%', height: '100%', transform: earthquakeTransform, transformOrigin: 'center center' }}>
                 {/* Audio */}
                 {audioBase64 && (
@@ -254,60 +290,115 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     />
                 )}
 
-                {/* ═══ Z-0: SFONDO CINEMATICO ═══ */}
-                <AbsoluteFill style={{ zIndex: 0 }}>
-                    <CinematicBackground mood={backgroundMood} />
-                </AbsoluteFill>
-
-                {/* ═══ Z-10: PARTICLES & WEBGL ═══ */}
-                <AbsoluteFill style={{ zIndex: 10 }}>
-                    {show3DChart && activeWordData && (
-                        <ThreeCanvas width={width} height={height}>
-                            <RoasChart3D startFrame={wordStartFrame} />
-                        </ThreeCanvas>
+                {/* ═══ ENGINE 3D PARALLAX ═══ */}
+                <AbsoluteFill 
+                    style={{ 
+                        perspective: enable3DParallax ? '1500px' : 'none',
+                        transformStyle: 'preserve-3d',
+                    }}
+                >
+                    {/* ═══ Z-0: SFONDO CINEMATICO ═══ */}
+                    {customBackgroundUrl ? (
+                        <AbsoluteFill style={{ 
+                            zIndex: 0, 
+                            transform: enable3DParallax ? 'translateZ(-300px) scale(1.4)' : 'none',
+                        }}>
+                            <img src={customBackgroundUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </AbsoluteFill>
+                    ) : (
+                        <AbsoluteFill style={{ 
+                            zIndex: 0,
+                            transform: enable3DParallax ? 'translateZ(-300px) scale(1.4)' : 'none',
+                        }}>
+                            <CinematicBackground mood={backgroundMood} />
+                        </AbsoluteFill>
                     )}
-                    {enableMoneyVFX && moneyStartFrame !== -1 && (
-                         <FallingMoney startFrame={moneyStartFrame} />
-                    )}
-                </AbsoluteFill>
 
-                {/* ═══ Z-15: EMOJI REACTIONS ═══ */}
-                <AbsoluteFill style={{ zIndex: 15 }}>
-                    {emojiAssets.map((asset, i) => (
-                        <div key={`emoji-wrap-${i}`} style={getTransformStyle(asset)}>
-                            <EmojiReaction
-                                startFrame={Math.ceil((asset.startMs / 1000) * fps)}
-                                endFrame={Math.ceil((asset.endMs / 1000) * fps)}
-                                emojis={asset.emojis || ['🔥', '❤️', '💪', '⚡', '🏆']}
-                                intensity={(asset.intensity as any) || 'medium'}
-                            />
-                        </div>
-                    ))}
-                </AbsoluteFill>
+                    {/* ═══ Z-10: PARTICLES & WEBGL ═══ */}
+                    <AbsoluteFill style={{ 
+                        zIndex: 10,
+                        transform: enable3DParallax ? 'translateZ(-100px) scale(1.1)' : 'none',
+                    }}>
+                        {show3DChart && activeWordData && (
+                            <ThreeCanvas width={width} height={height}>
+                                <RoasChart3D startFrame={wordStartFrame} />
+                            </ThreeCanvas>
+                        )}
+                        {enableMoneyVFX && moneyStartFrame !== -1 && (
+                             <FallingMoney startFrame={moneyStartFrame} />
+                        )}
+                    </AbsoluteFill>
 
-                {/* ═══ Z-40: ASSET BACKGROUND ═══ */}
-                <AbsoluteFill style={{zIndex: 40}}>
-                   {visualAssets.filter(a => a.layerOrder === 'back').map((asset, i) => (
-                       <div key={'back-'+i} style={getTransformStyle(asset)}>
-                           {asset.type === 'giant-text' && <GiantImpactText line1={asset.query} line2={asset.line2} highlightWord={asset.highlightWord} textStyle={(asset.textStyle as any) || 'impact'} highlightColor={asset.color || '#EAB308'} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} />}
-                           {asset.type === 'newspaper' && <FakeNewspaper headline={asset.query} endFrame={Math.ceil((asset.endMs/1000)*fps)} startFrame={Math.ceil((asset.startMs/1000)*fps)} />}
-                           {asset.type === 'b-roll' && <DynamicCard3D imageUrl={asset.url || asset.imageUrl || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length])} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} variant={asset.variant as any || 'slide-right'} position={asset.position as any || 'center'} />}
-                       </div>
-                   ))}
-                </AbsoluteFill>
+                    {/* ═══ Z-15: EMOJI REACTIONS ═══ */}
+                    <AbsoluteFill style={{ 
+                        zIndex: 15,
+                        transform: enable3DParallax ? 'translateZ(0px)' : 'none',
+                    }}>
+                        {emojiAssets.map((asset, i) => (
+                            <div key={`emoji-wrap-${i}`} style={getTransformStyle(asset)}>
+                                <EmojiReaction
+                                    startFrame={Math.ceil((asset.startMs / 1000) * fps)}
+                                    endFrame={Math.ceil((asset.endMs / 1000) * fps)}
+                                    emojis={asset.emojis || ['🔥', '❤️', '💪', '⚡', '🏆']}
+                                    intensity={(asset.intensity as any) || 'medium'}
+                                />
+                            </div>
+                        ))}
+                    </AbsoluteFill>
 
-                {/* ═══ Z-50: AVATAR SPEAKER ═══ */}
-                <AbsoluteFill style={{ zIndex: 50, pointerEvents: 'none' }}>
-                    {avatarVideoUrl && (
-                         <AbsoluteFill>
-                             <Video 
-                                src={avatarVideoUrl} 
-                                crossOrigin="anonymous"
-                                style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
-                                onError={(e) => console.warn('Avatar video failed to load:', e)}
-                             />
-                         </AbsoluteFill>
-                    )}
+                    {/* ═══ Z-40: ASSET BACKGROUND ═══ */}
+                    <AbsoluteFill style={{ 
+                        zIndex: 40,
+                        transform: enable3DParallax ? 'translateZ(50px)' : 'none',
+                    }}>
+                       {visualAssets.filter(a => a.layerOrder === 'back').map((asset, i) => (
+                           <div key={'back-'+i} style={getTransformStyle(asset)}>
+                               {asset.type === 'giant-text' && <GiantImpactText line1={asset.query} line2={asset.line2} highlightWord={asset.highlightWord} textStyle={(asset.textStyle as any) || 'impact'} highlightColor={asset.color || '#EAB308'} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} />}
+                               {asset.type === 'newspaper' && <FakeNewspaper headline={asset.query} endFrame={Math.ceil((asset.endMs/1000)*fps)} startFrame={Math.ceil((asset.startMs/1000)*fps)} />}
+                               {asset.type === 'b-roll' && <DynamicCard3D imageUrl={asset.url || asset.imageUrl || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length])} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} variant={asset.variant as any || 'slide-right'} position={asset.position as any || 'center'} />}
+                           </div>
+                       ))}
+                    </AbsoluteFill>
+
+                    {/* ═══ Z-50: AVATAR SPEAKER (VIRTUAL LIGHTING STUDIO) ═══ */}
+                    <AbsoluteFill style={{ 
+                        zIndex: 50, 
+                        pointerEvents: 'none',
+                        transform: enable3DParallax ? 'translateZ(150px) scale(0.95)' : 'none',
+                        transformStyle: 'preserve-3d', // Per eventuale tilt
+                    }}>
+                        {avatarVideoUrl && (
+                             <AbsoluteFill style={{
+                                 // Il Rim Light (Controluce) si fa con drop-shadow intenso e opacità!
+                                 filter: `drop-shadow(0px -10px 40px ${lightRimColor}) drop-shadow(0px 10px 80px ${lightRimColor}) opacity(${lightRimIntensity + 0.3})`
+                             }}>
+                                 <Video 
+                                    src={avatarVideoUrl} 
+                                    crossOrigin="anonymous"
+                                    style={{ objectFit: 'cover', width: '100%', height: '100%', filter: enableAutoBackgroundRemoval ? 'url(#chroma-key)' : 'none' }} 
+                                    onError={(e) => console.warn('Avatar video failed to load:', e)}
+                                 />
+
+                                 {/* Key Light (Luce Principale ☀️) */}
+                                 <div style={{
+                                     position: 'absolute', inset: 0,
+                                     background: `linear-gradient(${lightKeyAngle}deg, ${lightKeyColor} 0%, transparent 60%)`,
+                                     mixBlendMode: 'overlay',
+                                     opacity: lightKeyIntensity,
+                                     pointerEvents: 'none'
+                                 }} />
+
+                                 {/* Fill Light (Luce di Riempimento 🌓) */}
+                                 <div style={{
+                                     position: 'absolute', inset: 0,
+                                     background: `linear-gradient(${(lightKeyAngle + 180) % 360}deg, ${lightFillColor} 0%, transparent 70%)`,
+                                     mixBlendMode: 'soft-light',
+                                     opacity: lightFillIntensity,
+                                     pointerEvents: 'none'
+                                 }} />
+                             </AbsoluteFill>
+                        )}
+                    </AbsoluteFill>
                 </AbsoluteFill>
 
                 {/* ═══ Z-100: COUNTER ANIMATION ═══ */}

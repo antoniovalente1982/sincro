@@ -72,9 +72,12 @@ export async function POST(req: Request) {
                         voice: voicePayload
                     }
                 ],
-                remove_background: true, // Tentativo di rimozione sfondo per trasparenza natively
+                remove_background: true, 
                 aspect_ratio: '9:16', // TikTok/Reels Layout
-                title: title
+                title: title,
+                video_setting: {
+                    format: "webm" // WebM supporta il canale alpha (trasparenza nativa) e MP4 no
+                }
             })
         });
 

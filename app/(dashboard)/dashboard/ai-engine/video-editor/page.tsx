@@ -222,16 +222,42 @@ function SortableLayerRow({
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: layer.id });
     const trackRef = React.useRef<HTMLDivElement>(null);
-    const [dragState, setDragState] = useState<{ active: 'left' | 'right' | null, initialX: number, initialStartMs: number, initialEndMs: number }>({ active: null, initialX: 0, initialStartMs: 0, initialEndMs: 0 });
+    
+    // UI Local State for 60fps buttery smooth dragging without triggering global re-renders
+    const [dragState, setDragState] = useState<{ 
+        active: 'left' | 'right' | null, 
+        initialX: number, 
+        initialStartMs: number, 
+        initialEndMs: number,
+        localStartMs: number,
+        localEndMs: number
+    }>({ 
+        active: null, 
+        initialX: 0, 
+        initialStartMs: 0, 
+        initialEndMs: 0,
+        localStartMs: layer.startMs,
+        localEndMs: layer.endMs
+    });
+
+    // Sync local state when parent updates layer via properties panel, but NOT while we are actively dragging
+    React.useEffect(() => {
+        if (!dragState.active) {
+            setDragState(prev => ({ ...prev, localStartMs: layer.startMs, localEndMs: layer.endMs }));
+        }
+    }, [layer.startMs, layer.endMs, dragState.active]);
 
     const handlePointerDown = (edge: 'left' | 'right', e: React.PointerEvent) => {
         e.stopPropagation();
-        setDragState({
+        setDragState(prev => ({
+            ...prev,
             active: edge,
             initialX: e.clientX,
             initialStartMs: layer.startMs,
-            initialEndMs: layer.endMs
-        });
+            initialEndMs: layer.endMs,
+            localStartMs: layer.startMs,
+            localEndMs: layer.endMs
+        }));
         (e.target as Element).setPointerCapture(e.pointerId);
     };
 
@@ -245,31 +271,35 @@ function SortableLayerRow({
 
         if (dragState.active === 'left') {
             let newStart = Math.max(0, dragState.initialStartMs + deltaMs);
-            newStart = Math.min(newStart, layer.endMs - 100); // min 100ms
-            onUpdate({ startMs: newStart });
+            newStart = Math.min(newStart, dragState.localEndMs - 100); // min 100ms
+            setDragState(prev => ({ ...prev, localStartMs: newStart }));
         } else {
-            let newEnd = Math.max(layer.startMs + 100, dragState.initialEndMs + deltaMs);
-            onUpdate({ endMs: newEnd });
+            let newEnd = Math.max(dragState.localStartMs + 100, dragState.initialEndMs + deltaMs);
+            setDragState(prev => ({ ...prev, localEndMs: newEnd }));
         }
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
         if (dragState.active) {
             (e.target as Element).releasePointerCapture(e.pointerId);
+            // COMMIT the local state to the global video engine ONLY on mouse release!
+            onUpdate({ startMs: dragState.localStartMs, endMs: dragState.localEndMs });
             setDragState(prev => ({ ...prev, active: null }));
         }
     };
 
     const style = {
         transform: CSS.Transform.toString(transform),
-        transition: dragState.active ? 'none' : transition, // disabilita transition se in resize res
+        transition: dragState.active ? 'none' : transition,
         opacity: isDragging ? 0.5 : 1,
         position: 'relative' as const,
         zIndex: isDragging ? 50 : 1,
     };
 
-    const leftPc = Math.max(0, (layer.startMs / durationMs) * 100);
-    const widthPc = Math.max(1, ((layer.endMs - layer.startMs) / durationMs) * 100);
+    // Use localStartMs for rendering UI width/offsets to achieve 60fps without video stutter
+    const leftPc = Math.max(0, (dragState.localStartMs / durationMs) * 100);
+    const widthPc = Math.max(1, ((dragState.localEndMs - dragState.localStartMs) / durationMs) * 100);
+    const visualDurationMs = Math.round(dragState.localEndMs - dragState.localStartMs);
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-center gap-0 h-8" onClick={onSelect}>
@@ -297,19 +327,25 @@ function SortableLayerRow({
                         onPointerDown={(e) => handlePointerDown('left', e)}
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerUp}
-                        className="w-2 h-full cursor-ew-resize hover:bg-white/30 z-10 -ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
+                        className="w-3 h-full cursor-ew-resize hover:bg-white/30 z-10 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                        <div className="w-[1px] h-3 bg-white/50" />
+                    </div>
 
-                    <span className="text-[8px] text-white/60 px-1.5 truncate block flex-1 pointer-events-none">{Math.round(layer.endMs - layer.startMs)}ms {layer.props.query ? `- ${layer.props.query}` : ''}</span>
+                    <span className="text-[8px] text-white/60 px-1.5 truncate block flex-1 pointer-events-none">
+                        {visualDurationMs}ms {layer.props.query ? `- ${layer.props.query}` : ''}
+                    </span>
 
                     {/* Right Resize Handle */}
                     <div 
                         onPointerDown={(e) => handlePointerDown('right', e)}
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerUp}
-                        className="w-2 h-full cursor-ew-resize border-r-[3px] hover:bg-white/30 z-10 -mr-[3px] opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="w-3 h-full cursor-ew-resize border-r-[3px] hover:bg-white/30 z-10 -mr-[3px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                         style={{ borderColor: cat?.color || '#666' }}
-                    />
+                    >
+                        <div className="w-[1px] h-3 bg-white/50 mr-[2px]" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -334,6 +370,19 @@ export default function VideoEditorProPage() {
     const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none'>('impact');
     const [exportQuality, setExportQuality] = useState<'1080p' | '4k'>('4k');
     const [exportFps, setExportFps] = useState<30 | 60>(60);
+    const [backgroundMood, setBackgroundMood] = useState<'warm-studio'|'neon-cyber'|'dark-minimal'|'corporate'|'neon-grid'|'money-matrix'|'custom'>('warm-studio');
+    const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('');
+    const [enable3DParallax, setEnable3DParallax] = useState<boolean>(false);
+    const [enableAutoBackgroundRemoval, setEnableAutoBackgroundRemoval] = useState<boolean>(true); // Per nuovo HeyGen WebM o ChromaKey
+    
+    // ═══ VIRTUAL LIGHTING STUDIO ═══
+    const [lightKeyAngle, setLightKeyAngle] = useState<number>(45);
+    const [lightKeyIntensity, setLightKeyIntensity] = useState<number>(0.8);
+    const [lightKeyColor, setLightKeyColor] = useState<string>('#ffffff');
+    const [lightFillIntensity, setLightFillIntensity] = useState<number>(0.4);
+    const [lightFillColor, setLightFillColor] = useState<string>('#a855f7');
+    const [lightRimIntensity, setLightRimIntensity] = useState<number>(0.6);
+    const [lightRimColor, setLightRimColor] = useState<string>('#06b6d4');
     
     // ═══ AVATAR STATE ═══
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
@@ -429,13 +478,33 @@ export default function VideoEditorProPage() {
     }, [words, layers, customDurationMs]);
 
     const durationInFrames = Math.max(30, Math.ceil((durationMs / 1000) * 60)); // Assicuriamoci che non sia 0 frame
-    const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    
+    // Playhead Scrubber Logic (Click & Drag)
+    const handleTimelinePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
         if (!playerRef.current) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = Math.max(0, e.clientX - rect.left);
-        const percent = Math.min(1, x / rect.width);
-        const targetFrame = Math.round(percent * durationInFrames);
-        playerRef.current.seekTo(targetFrame);
+        const target = e.currentTarget;
+        target.setPointerCapture(e.pointerId);
+        
+        const updatePlayhead = (clientX: number) => {
+            const rect = target.getBoundingClientRect();
+            const x = Math.max(0, clientX - rect.left);
+            const percent = Math.min(1, x / rect.width);
+            const targetFrame = Math.round(percent * durationInFrames);
+            playerRef.current?.seekTo(targetFrame);
+        };
+        
+        // Clic iniziale
+        updatePlayhead(e.clientX);
+        
+        const onPointerMove = (moveEvt: PointerEvent) => updatePlayhead(moveEvt.clientX);
+        const onPointerUp = (upEvt: PointerEvent) => {
+            target.releasePointerCapture(upEvt.pointerId);
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+        };
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
     };
 
     const selectedLayer = layers.find(l => l.id === selectedLayerId) || null;
@@ -536,10 +605,20 @@ export default function VideoEditorProPage() {
                 enableMoneyVFX: layers.some(l => l.type === 'money-rain'),
                 avatarVideoUrl: avatarVideoUrl || null,
                 iosMessageText: layers.find(l => l.type === 'imessage')?.props?.query || null,
-                backgroundMood: 'warm-studio',
+                backgroundMood,
                 subtitleStyle,
                 exportQuality,
                 exportFps,
+                customBackgroundUrl,
+                enable3DParallax,
+                enableAutoBackgroundRemoval,
+                lightKeyAngle,
+                lightKeyIntensity,
+                lightKeyColor,
+                lightFillIntensity,
+                lightFillColor,
+                lightRimIntensity,
+                lightRimColor,
             };
 
             const res = await fetch('/api/render/job', {
@@ -854,10 +933,10 @@ export default function VideoEditorProPage() {
 
                     {currentStep === 4 && (
                         <>
-                            {/* Tab Switcher Widget / VFX */}
+                            {/* Tab Switcher Widget / VFX / Luci */}
                             <div className="p-2 border-b border-zinc-800 flex gap-1">
                                 <button
-                                    onClick={() => setVfxTab('widgets')}
+                                    onClick={() => setVfxTab('widgets' as any)}
                                     className={`flex-1 text-[10px] uppercase tracking-widest font-bold py-2 px-3 rounded-lg transition-all ${
                                         vfxTab === 'widgets' ? 'bg-purple-600 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                                     }`}
@@ -865,12 +944,20 @@ export default function VideoEditorProPage() {
                                     📦 Widget
                                 </button>
                                 <button
-                                    onClick={() => setVfxTab('vfx')}
+                                    onClick={() => setVfxTab('vfx' as any)}
                                     className={`flex-1 text-[10px] uppercase tracking-widest font-bold py-2 px-3 rounded-lg transition-all ${
                                         vfxTab === 'vfx' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                                     }`}
                                 >
                                     ✨ VFX Pro
+                                </button>
+                                <button
+                                    onClick={() => setVfxTab('lighting' as any)}
+                                    className={`flex-1 text-[10px] uppercase tracking-widest font-bold py-2 px-3 rounded-lg transition-all ${
+                                        vfxTab === ('lighting' as any) ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                                    }`}
+                                >
+                                    💡 Luci
                                 </button>
                             </div>
 
@@ -919,6 +1006,82 @@ export default function VideoEditorProPage() {
                                         <p className="text-[10px] text-purple-300 font-medium">🎥 10 effetti cinematici professionali. Aggiungi alla timeline e personalizza dal pannello destro.</p>
                                     </div>
                                 </>
+                            )}
+
+                            {vfxTab === ('lighting' as any) && (
+                                <div className="p-4 space-y-6 overflow-y-auto">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-xs font-bold text-zinc-300">Magia Cinema & 3D</h3>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" checked={enable3DParallax} onChange={(e) => setEnable3DParallax(e.target.checked)} className="rounded bg-zinc-800 border-zinc-700 text-purple-500 focus:ring-purple-500" />
+                                                <span className="text-xs text-white">Abilita 3D Parallasse 🎥</span>
+                                            </label>
+                                        </div>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={enableAutoBackgroundRemoval} onChange={(e) => setEnableAutoBackgroundRemoval(e.target.checked)} className="rounded bg-zinc-800 border-zinc-700 text-purple-500 focus:ring-purple-500" />
+                                            <span className="text-xs text-white">Foratura Sfondo Green Screen AI 🟢</span>
+                                        </label>
+                                        
+                                        <div>
+                                            <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Genera Sfondo AI Personalizzato</label>
+                                            <div className="flex gap-2 relative">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Es. Interno di una navicella spaziale neon..."
+                                                    className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            const prompt = e.currentTarget.value;
+                                                            if (!prompt.trim()) return;
+                                                            // Hack veloce: riutilizziamo la funzione handleGenerateImage passando un fake id
+                                                            setCustomBackgroundUrl('loading');
+                                                            fetch('/api/ai-engine/generate-image', {
+                                                                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, size: '1024x1792' })
+                                                            }).then(res => res.json()).then(data => { if(data.url) setCustomBackgroundUrl(data.url); else setCustomBackgroundUrl(''); }).catch(() => setCustomBackgroundUrl(''));
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-zinc-500 mt-1">Premi Invio per generare. Verrà applicato subito dietro di te.</p>
+                                            {customBackgroundUrl === 'loading' && <p className="text-[10px] text-purple-400 mt-1 animate-pulse">Generazione sfondo in corso...</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-zinc-800" />
+
+                                    <div className="space-y-4">
+                                        <h3 className="text-xs font-bold text-zinc-300">Set Illuminazione a 3 Punti 💡</h3>
+                                        
+                                        <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-lg space-y-3">
+                                            <h4 className="text-[10px] font-bold text-yellow-500 uppercase">☀️ Luce Principale (Key Light)</h4>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between"><span className="text-[10px] text-zinc-400">Angolo ({lightKeyAngle}°)</span></div>
+                                                <input type="range" min="0" max="360" value={lightKeyAngle} onChange={(e) => setLightKeyAngle(Number(e.target.value))} className="w-full" />
+                                                <div className="flex gap-2">
+                                                    <input type="color" value={lightKeyColor} onChange={(e) => setLightKeyColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
+                                                    <input type="range" min="0" max="1" step="0.1" value={lightKeyIntensity} onChange={(e) => setLightKeyIntensity(Number(e.target.value))} className="w-full" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-lg space-y-3">
+                                            <h4 className="text-[10px] font-bold text-purple-400 uppercase">🌓 Luce Riempimento (Fill)</h4>
+                                            <div className="flex gap-2">
+                                                <input type="color" value={lightFillColor} onChange={(e) => setLightFillColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
+                                                <input type="range" min="0" max="1" step="0.1" value={lightFillIntensity} onChange={(e) => setLightFillIntensity(Number(e.target.value))} className="w-full" />
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-lg space-y-3">
+                                            <h4 className="text-[10px] font-bold text-cyan-400 uppercase">✨ Controluce (Rim Light Neon)</h4>
+                                            <div className="flex gap-2">
+                                                <input type="color" value={lightRimColor} onChange={(e) => setLightRimColor(e.target.value)} className="w-8 h-8 rounded shrink-0 border-0 bg-transparent p-0" />
+                                                <input type="range" min="0" max="1" step="0.1" value={lightRimIntensity} onChange={(e) => setLightRimIntensity(Number(e.target.value))} className="w-full" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </>
                     )}
@@ -1001,10 +1164,20 @@ export default function VideoEditorProPage() {
                                         visualAssets={visualAssets}
                                         messageText={iosMessageText || undefined}
                                         useMoney={enableMoneyVFX}
-                                        backgroundMood="warm-studio"
+                                        backgroundMood={backgroundMood}
                                         subtitleStyle={subtitleStyle}
                                         durationInFrames={durationInFrames}
                                         fps={exportFps}
+                                        customBackgroundUrl={customBackgroundUrl}
+                                        enable3DParallax={enable3DParallax}
+                                        enableAutoBackgroundRemoval={enableAutoBackgroundRemoval}
+                                        lightKeyAngle={lightKeyAngle}
+                                        lightKeyIntensity={lightKeyIntensity}
+                                        lightKeyColor={lightKeyColor}
+                                        lightFillIntensity={lightFillIntensity}
+                                        lightFillColor={lightFillColor}
+                                        lightRimIntensity={lightRimIntensity}
+                                        lightRimColor={lightRimColor}
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex flex-col items-center justify-center text-center p-8 gap-4">
@@ -1219,8 +1392,8 @@ export default function VideoEditorProPage() {
                 
                 {/* PLAYHEAD & SCRUBBER OVERLAY */}
                 <div 
-                    className="absolute top-10 bottom-0 left-[144px] right-4 z-50 cursor-text"
-                    onClick={handleTimelineClick}
+                    className="absolute top-10 bottom-0 left-[144px] right-4 z-50 cursor-col-resize hover:bg-white/5 transition-colors"
+                    onPointerDown={handleTimelinePointerDown}
                 >
                     <div 
                         ref={playheadUiRef}
