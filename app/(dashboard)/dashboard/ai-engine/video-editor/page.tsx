@@ -409,19 +409,26 @@ export default function VideoEditorProPage() {
         loadAvatars();
     }, []);
     
-    // ═══ LAYER STATE ═══
     const [layers, dispatch] = useReducer(layerReducer, []);
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+    const [customDurationMs, setCustomDurationMs] = useState<number | null>(null);
 
-    // Duration from audio
+    // Duration calculation
     const durationMs = useMemo(() => {
+        if (customDurationMs) return customDurationMs;
+        
+        let maxMs = 0;
         if (words.length > 0) {
-            return Math.max(...words.map(w => w.endMs)) + 2000; // +2s buffer
+            maxMs = Math.max(maxMs, ...words.map(w => w.endMs));
         }
-        return 12000; // default 12s
-    }, [words]);
+        if (layers.length > 0) {
+            maxMs = Math.max(maxMs, ...layers.map(l => l.endMs));
+        }
+        
+        return maxMs > 0 ? maxMs : 12000;
+    }, [words, layers, customDurationMs]);
 
-    const durationInFrames = Math.max(600, Math.ceil((durationMs / 1000) * 60));
+    const durationInFrames = Math.max(30, Math.ceil((durationMs / 1000) * 60)); // Assicuriamoci che non sia 0 frame
     const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!playerRef.current) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -1164,9 +1171,42 @@ export default function VideoEditorProPage() {
                             </button>
                         </div>
                     ) : (
-                        <div className="p-6 flex flex-col items-center justify-center text-center gap-3 text-zinc-600 flex-1">
-                            <Layers className="w-8 h-8" />
-                            <p className="text-xs">Seleziona un layer dalla timeline o aggiungine uno dalla libreria</p>
+                        <div className="p-4 space-y-6">
+                            <div className="flex flex-col items-center justify-center text-center gap-3 text-zinc-500 border-b border-zinc-800 pb-6 border-dashed">
+                                <Layers className="w-8 h-8 opacity-50" />
+                                <p className="text-xs">Seleziona un layer o modificane le impostazioni globali qui sotto</p>
+                            </div>
+                            
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 flex items-center justify-between">
+                                    <span>✂️ Fine Video (Durata Totale)</span>
+                                    {!customDurationMs && <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[8px] text-zinc-400">Automatica</span>}
+                                    {customDurationMs && <span className="bg-purple-600/20 text-purple-400 px-1.5 py-0.5 rounded text-[8px]">Manuale</span>}
+                                </label>
+                                <p className="text-[10px] text-zinc-400 mb-3 leading-relaxed">
+                                    Il video termina automaticamente appena finiscono l'audio o le animazioni <b>({Math.round(durationMs / 100) / 10} sec)</b>.<br/> 
+                                    Per tagliarlo prima, o estenderlo nel vuoto stile CapCut, sovrascrivi la durata in millisecondi (es. 15000 = 15s):
+                                </p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        value={customDurationMs || ''}
+                                        placeholder={`Es. ${durationMs}`}
+                                        onChange={e => setCustomDurationMs(e.target.value ? Number(e.target.value) : null)}
+                                        className="flex-1 bg-black border border-zinc-800 rounded p-2 text-white text-xs focus:border-purple-500 outline-none placeholder:text-zinc-600"
+                                        step={100}
+                                        min={1000}
+                                    />
+                                    <button 
+                                        onClick={() => setCustomDurationMs(null)}
+                                        disabled={!customDurationMs}
+                                        className="px-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-400 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
+                                        title="Ripristina su base audio"
+                                    >
+                                        Auto
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
