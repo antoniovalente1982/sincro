@@ -15,8 +15,10 @@ export interface WordTiming {
 export interface VisualAsset {
     type: 'b-roll' | 'newspaper' | 'giant-text' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter'
         | 'vfx-glitch' | 'vfx-glow' | 'vfx-color-grading' | 'vfx-lens-flare' | 'vfx-particles'
-        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform';
+        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform'
+        | 'vfx-film-grain' | 'vfx-light-leak' | 'vfx-film-burn' | 'vfx-ken-burns' | 'vfx-motion-sticker';
     query: string;
+    url?: string;
     startMs: number;
     endMs: number;
     variant?: string;
@@ -65,7 +67,7 @@ export interface SincroVideoProps {
     enableMoneyVFX?: boolean;
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
     enableZoomPulse?: boolean;
-    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'none';
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
 }
 
 import { Video } from 'remotion';
@@ -93,6 +95,13 @@ import { CinematicBars } from './components/CinematicBarsVFX';
 import { ChromaticAberration } from './components/ChromaticAberration';
 import { SpeedRamp } from './components/SpeedRamp';
 import { Transform3D } from './components/Transform3D';
+// ★★★ LEONARDO STYLE UPGRADE 7.0 ★★★
+import { KineticSubtitles } from './components/KineticSubtitles';
+import { FilmGrain } from './components/FilmGrain';
+import { LightLeak } from './components/LightLeak';
+import { FilmBurn } from './components/FilmBurn';
+import { MotionSticker } from './components/MotionSticker';
+import { KenBurns } from './components/KenBurns';
 
 export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ 
     headline, 
@@ -282,7 +291,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                        <div key={'back-'+i} style={getTransformStyle(asset)}>
                            {asset.type === 'giant-text' && <GiantImpactText line1={asset.query} line2={asset.line2} highlightWord={asset.highlightWord} textStyle={(asset.textStyle as any) || 'impact'} highlightColor={asset.color || '#EAB308'} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} />}
                            {asset.type === 'newspaper' && <FakeNewspaper headline={asset.query} endFrame={Math.ceil((asset.endMs/1000)*fps)} startFrame={Math.ceil((asset.startMs/1000)*fps)} />}
-                           {asset.type === 'b-roll' && <DynamicCard3D imageUrl={asset.imageUrl || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length])} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} variant={asset.variant as any || 'slide-right'} position={asset.position as any || 'center'} />}
+                           {asset.type === 'b-roll' && <DynamicCard3D imageUrl={asset.url || asset.imageUrl || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length])} startFrame={Math.ceil((asset.startMs/1000)*fps)} endFrame={Math.ceil((asset.endMs/1000)*fps)} variant={asset.variant as any || 'slide-right'} position={asset.position as any || 'center'} />}
                        </div>
                    ))}
                 </AbsoluteFill>
@@ -320,7 +329,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                 <AbsoluteFill style={{ zIndex: 200, pointerEvents: 'none' }}>
                     {/* B-Roll Cards */}
                     {brollAssets.filter(a => a.layerOrder !== 'back').map((asset, i) => {
-                        const imgUrl = asset.imageUrl 
+                        const imgUrl = asset.url || asset.imageUrl 
                             || ((asset.query || '').includes('http') ? asset.query : fallbackImages[i % fallbackImages.length]);
                         return (
                             <div key={`broll-wrap-${i}`} style={getTransformStyle(asset)}>
@@ -355,7 +364,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                 endFrame={Math.ceil((asset.endMs / 1000) * fps)}
                                 title={asset.query}
                                 subtitle={asset.line2}
-                                thumbnailUrl={asset.imageUrl}
+                                thumbnailUrl={asset.url || asset.imageUrl}
                             />
                         </div>
                     ))}
@@ -396,15 +405,24 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         <IOSMessageBubble startFrame={impactStartFrame - 5} text={iosMessageText} />
                     )}
 
-                    {/* Block Subtitles o Titolo Cortesia */}
+                    {/* Subtitles — Old Block or New Kinetic */}
                     {subtitleStyle !== 'none' && (
                         words && words.length > 0 ? (
-                            <BlockSubtitles 
-                                words={words} 
-                                wordsPerBlock={3}
-                                yPosition={avatarVideoUrl ? 350 : 500}
-                                subStyle={subtitleStyle}
-                            />
+                            // Kinetic styles use word-by-word, legacy styles use block
+                            subtitleStyle === 'hormozi' || subtitleStyle === 'neon-word' || subtitleStyle === 'minimal-word' ? (
+                                <KineticSubtitles
+                                    words={words}
+                                    yPosition={avatarVideoUrl ? 350 : 500}
+                                    style={subtitleStyle === 'hormozi' ? 'hormozi' : subtitleStyle === 'neon-word' ? 'neon' : 'minimal'}
+                                />
+                            ) : (
+                                <BlockSubtitles
+                                    words={words}
+                                    wordsPerBlock={3}
+                                    yPosition={avatarVideoUrl ? 350 : 500}
+                                    subStyle={subtitleStyle as 'tiktok' | 'impact' | 'karaoke'}
+                                />
+                            )
                         ) : (
                             <h1 style={{
                                 fontFamily: 'Inter, sans-serif',
@@ -481,6 +499,15 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                 return <ChromaticAberration key={`vfx-${i}`} startFrame={sf} endFrame={ef} intensity={(asset.vfxDensity as any) || 'medium'} animated={asset.vfxAnimated !== false} color1={asset.color || '#ff0040'} color2={asset.vfxColor2 || '#00d4ff'} />;
                             case 'vfx-speed-ramp':
                                 return <SpeedRamp key={`vfx-${i}`} startFrame={sf} endFrame={ef} type={(asset.vfxType as any) || 'slow-motion'} intensity={asset.vfxIntensity ?? 0.5} />;
+                            // ═══ LEONARDO STYLE VFX ═══
+                            case 'vfx-film-grain':
+                                return <FilmGrain key={`vfx-${i}`} startFrame={sf} endFrame={ef} intensity={(asset.vfxDensity as any) || 'subtle'} color={(asset.vfxType as any) || 'neutral'} />;
+                            case 'vfx-light-leak':
+                                return <LightLeak key={`vfx-${i}`} startFrame={sf} endFrame={ef} color={(asset.vfxType as any) || 'warm'} position={(asset.position as any) || 'left'} intensity={(asset.vfxDensity as any) || 'medium'} />;
+                            case 'vfx-film-burn':
+                                return <FilmBurn key={`vfx-${i}`} startFrame={sf} endFrame={ef} color={asset.color || '#FF6B00'} speed={(asset.vfxType as any) || 'medium'} direction={(asset.vfxDirection as any) || 'center-out'} />;
+                            case 'vfx-motion-sticker':
+                                return <MotionSticker key={`vfx-${i}`} startFrame={sf} endFrame={ef} type={(asset.vfxType as any) || 'arrow-point'} color={asset.color || '#EAB308'} size={asset.vfxIntensity ? asset.vfxIntensity * 100 : 100} posX={asset.xOffset ?? 50} posY={asset.yOffset ?? 50} rotation={asset.vfxAngle ?? 0} />;
                             default:
                                 return null;
                         }

@@ -14,7 +14,8 @@ export interface LayerItem {
     id: string;
     type: 'giant-text' | 'b-roll' | 'newspaper' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter' | 'imessage' | 'money-rain'
         | 'vfx-glitch' | 'vfx-glow' | 'vfx-color-grading' | 'vfx-lens-flare' | 'vfx-particles'
-        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform';
+        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform'
+        | 'vfx-film-grain' | 'vfx-light-leak' | 'vfx-film-burn' | 'vfx-ken-burns' | 'vfx-motion-sticker';
     label: string;
     startMs: number;
     endMs: number;
@@ -47,6 +48,12 @@ const VFX_CATALOG = [
     { type: 'vfx-chromatic', label: '🌈 Chromatic', icon: '🌈', color: '#EC4899', defaultProps: { vfxDensity: 'medium', vfxAnimated: true, color: '#ff0040', vfxColor2: '#00d4ff' } },
     { type: 'vfx-speed-ramp', label: '⚡ Speed Ramp', icon: '⚡', color: '#3B82F6', defaultProps: { vfxType: 'slow-motion', vfxIntensity: 0.5 } },
     { type: 'vfx-3d-transform', label: '🔄 3D Transform', icon: '🔄', color: '#14B8A6', defaultProps: { vfxAnimation: 'orbit', vfxSpeed: 1, vfxRotateX: 0, vfxRotateY: 0, vfxRotateZ: 0, vfxPerspective: 1200 } },
+    // ═══ LEONARDO STYLE ═══
+    { type: 'vfx-film-grain', label: '🎬 Film Grain', icon: '🎬', color: '#A3A3A3', defaultProps: { vfxDensity: 'subtle', vfxType: 'neutral' } },
+    { type: 'vfx-light-leak', label: '☀️ Light Leak', icon: '☀️', color: '#FF9500', defaultProps: { vfxType: 'warm', position: 'left', vfxDensity: 'medium' } },
+    { type: 'vfx-film-burn', label: '🔥 Film Burn', icon: '🔥', color: '#FF4500', defaultProps: { color: '#FF6B00', vfxType: 'medium', vfxDirection: 'center-out' } },
+    { type: 'vfx-motion-sticker', label: '✍️ Motion Sticker', icon: '✍️', color: '#EAB308', defaultProps: { vfxType: 'arrow-point', color: '#EAB308', vfxIntensity: 1, xOffset: 50, yOffset: 50, vfxAngle: 0 } },
+    { type: 'vfx-ken-burns', label: '🎥 Ken Burns', icon: '🎥', color: '#8B5CF6', defaultProps: { vfxType: 'zoom-in', vfxDensity: 'subtle' } },
 ] as const;
 
 // ═══ LAYER REDUCER ═══
@@ -168,22 +175,101 @@ const PROPERTY_FIELDS: Record<string, { label: string; key: string; type: 'text'
         { label: 'Rotazione Y', key: 'vfxRotateY', type: 'range', min: -45, max: 45, step: 1, default: 0 },
         { label: 'Prospettiva', key: 'vfxPerspective', type: 'range', min: 400, max: 2000, step: 50, default: 1200 },
     ],
+    // ═══ LEONARDO STYLE PROPERTY FIELDS ═══
+    'vfx-film-grain': [
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['subtle', 'medium', 'heavy'] },
+        { label: 'Tono', key: 'vfxType', type: 'select', options: ['neutral', 'warm', 'cool'] },
+    ],
+    'vfx-light-leak': [
+        { label: 'Colore', key: 'vfxType', type: 'select', options: ['warm', 'teal', 'purple', 'golden'] },
+        { label: 'Posizione', key: 'position', type: 'select', options: ['left', 'right', 'top', 'center', 'random'] },
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['soft', 'medium', 'bright'] },
+    ],
+    'vfx-film-burn': [
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Velocità', key: 'vfxType', type: 'select', options: ['slow', 'medium', 'fast'] },
+        { label: 'Direzione', key: 'vfxDirection', type: 'select', options: ['center-out', 'edges-in', 'left-to-right', 'right-to-left'] },
+    ],
+    'vfx-motion-sticker': [
+        { label: 'Tipo', key: 'vfxType', type: 'select', options: ['arrow-point', 'circle-highlight', 'underline', 'cross-out', 'bracket', 'star-burst', 'checkmark', 'exclamation'] },
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Scala', key: 'vfxIntensity', type: 'range', min: 0.3, max: 3, step: 0.1, default: 1 },
+        { label: 'Pos. X (%)', key: 'xOffset', type: 'range', min: 0, max: 100, step: 1, default: 50 },
+        { label: 'Pos. Y (%)', key: 'yOffset', type: 'range', min: 0, max: 100, step: 1, default: 50 },
+        { label: 'Rotazione', key: 'vfxAngle', type: 'range', min: -180, max: 180, step: 5, default: 0 },
+    ],
+    'vfx-ken-burns': [
+        { label: 'Direzione', key: 'vfxType', type: 'select', options: ['zoom-in', 'zoom-out', 'pan-left', 'pan-right', 'pan-up', 'pan-down', 'drift'] },
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['subtle', 'medium', 'strong'] },
+    ],
 };
 
 // ═══ SORTABLE LAYER ROW ═══
-function SortableLayerRow({ layer, durationMs, isSelected, onSelect, cat }: { layer: LayerItem, durationMs: number, isSelected: boolean, onSelect: () => void, cat: any }) {
+function SortableLayerRow({ 
+    layer, 
+    durationMs, 
+    isSelected, 
+    onSelect, 
+    onUpdate,
+    cat 
+}: { 
+    layer: LayerItem, 
+    durationMs: number, 
+    isSelected: boolean, 
+    onSelect: () => void, 
+    onUpdate: (updates: Partial<LayerItem>) => void,
+    cat: any 
+}) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: layer.id });
-    
+    const trackRef = React.useRef<HTMLDivElement>(null);
+    const [dragState, setDragState] = useState<{ active: 'left' | 'right' | null, initialX: number, initialStartMs: number, initialEndMs: number }>({ active: null, initialX: 0, initialStartMs: 0, initialEndMs: 0 });
+
+    const handlePointerDown = (edge: 'left' | 'right', e: React.PointerEvent) => {
+        e.stopPropagation();
+        setDragState({
+            active: edge,
+            initialX: e.clientX,
+            initialStartMs: layer.startMs,
+            initialEndMs: layer.endMs
+        });
+        (e.target as Element).setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!dragState.active || !trackRef.current) return;
+        
+        const rect = trackRef.current.getBoundingClientRect();
+        const pxPerMs = rect.width / durationMs;
+        const deltaX = e.clientX - dragState.initialX;
+        const deltaMs = deltaX / pxPerMs;
+
+        if (dragState.active === 'left') {
+            let newStart = Math.max(0, dragState.initialStartMs + deltaMs);
+            newStart = Math.min(newStart, layer.endMs - 100); // min 100ms
+            onUpdate({ startMs: newStart });
+        } else {
+            let newEnd = Math.max(layer.startMs + 100, dragState.initialEndMs + deltaMs);
+            onUpdate({ endMs: newEnd });
+        }
+    };
+
+    const handlePointerUp = (e: React.PointerEvent) => {
+        if (dragState.active) {
+            (e.target as Element).releasePointerCapture(e.pointerId);
+            setDragState(prev => ({ ...prev, active: null }));
+        }
+    };
+
     const style = {
         transform: CSS.Transform.toString(transform),
-        transition,
+        transition: dragState.active ? 'none' : transition, // disabilita transition se in resize res
         opacity: isDragging ? 0.5 : 1,
         position: 'relative' as const,
         zIndex: isDragging ? 50 : 1,
     };
 
     const leftPc = Math.max(0, (layer.startMs / durationMs) * 100);
-    const widthPc = Math.max(3, ((layer.endMs - layer.startMs) / durationMs) * 100);
+    const widthPc = Math.max(1, ((layer.endMs - layer.startMs) / durationMs) * 100);
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-center gap-0 h-8" onClick={onSelect}>
@@ -196,9 +282,9 @@ function SortableLayerRow({ layer, durationMs, isSelected, onSelect, cat }: { la
                 <span className="truncate text-[10px] font-medium cursor-pointer">{layer.label.replace(/^.{2} /, '')}</span>
             </div>
             {/* Track bar */}
-            <div className="flex-1 relative h-full bg-zinc-900/50 rounded-r cursor-pointer">
+            <div ref={trackRef} className="flex-1 relative h-full bg-zinc-900/50 rounded-r cursor-pointer">
                 <div 
-                    className={`absolute h-full rounded transition-all ${isSelected ? 'ring-1 ring-white/40' : ''}`}
+                    className={`absolute h-full rounded flex items-center justify-between group ${isSelected ? 'ring-1 ring-white/40' : ''}`}
                     style={{ 
                         left: `${leftPc}%`, 
                         width: `${widthPc}%`,
@@ -206,7 +292,24 @@ function SortableLayerRow({ layer, durationMs, isSelected, onSelect, cat }: { la
                         borderLeft: `3px solid ${cat?.color || '#666'}`,
                     }}
                 >
-                    <span className="text-[8px] text-white/60 px-1.5 truncate block leading-8">{layer.props.query || ''}</span>
+                    {/* Left Resize Handle */}
+                    <div 
+                        onPointerDown={(e) => handlePointerDown('left', e)}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        className="w-2 h-full cursor-ew-resize hover:bg-white/30 z-10 -ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+
+                    <span className="text-[8px] text-white/60 px-1.5 truncate block flex-1 pointer-events-none">{Math.round(layer.endMs - layer.startMs)}ms {layer.props.query ? `- ${layer.props.query}` : ''}</span>
+
+                    {/* Right Resize Handle */}
+                    <div 
+                        onPointerDown={(e) => handlePointerDown('right', e)}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        className="w-2 h-full cursor-ew-resize border-r-[3px] hover:bg-white/30 z-10 -mr-[3px] opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ borderColor: cat?.color || '#666' }}
+                    />
                 </div>
             </div>
         </div>
@@ -225,9 +328,12 @@ export default function VideoEditorProPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [avatarVideoUrl, setAvatarVideoUrl] = useState('');
+    const [generatingImageId, setGeneratingImageId] = useState<string | null>(null);
     
     // ═══ GLOBAL VIDEO SETTINGS ═══
-    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'none'>('impact');
+    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none'>('impact');
+    const [exportQuality, setExportQuality] = useState<'1080p' | '4k'>('4k');
+    const [exportFps, setExportFps] = useState<30 | 60>(60);
     
     // ═══ AVATAR STATE ═══
     const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
@@ -237,6 +343,7 @@ export default function VideoEditorProPage() {
     // ═══ PLAYER TIMELINE ═══
     const playerRef = React.useRef<any>(null);
     const playheadUiRef = React.useRef<HTMLDivElement>(null);
+    const timecodeUiRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         let af: number;
@@ -247,6 +354,15 @@ export default function VideoEditorProPage() {
                 const totalF = parseFloat(playheadUiRef.current.dataset.duration || '600');
                 const pct = Math.min(100, Math.max(0, (currentFrame / totalF) * 100));
                 playheadUiRef.current.style.left = `${pct}%`;
+
+                // Aggiorna contatore testuale CapCut style
+                if (timecodeUiRef.current) {
+                    const sec = currentFrame / 30; // 30 fps
+                    const mins = Math.floor(sec / 60);
+                    const secs = Math.floor(sec % 60);
+                    const ms = Math.floor((sec % 1) * 10);
+                    timecodeUiRef.current.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`;
+                }
             }
             af = requestAnimationFrame(tick);
         };
@@ -336,6 +452,33 @@ export default function VideoEditorProPage() {
         if (selectedLayerId === id) setSelectedLayerId(null);
     };
 
+    const handleGenerateImage = async (layerId: string, prompt: string) => {
+        if (!prompt) return alert('Inserisci prima un prompt nel campo relativo');
+        setGeneratingImageId(layerId);
+        try {
+            const res = await fetch('/api/ai-engine/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            const layer = layers.find(l => l.id === layerId);
+            if (layer) {
+                dispatch({
+                    type: 'UPDATE',
+                    id: layer.id,
+                    updates: { props: { ...layer.props, url: data.imageUrl } }
+                });
+            }
+        } catch (err: any) {
+            alert(err.message || 'Errore generazione immagine');
+        } finally {
+            setGeneratingImageId(null);
+        }
+    };
+
     const handleUpdateProp = (key: string, value: any) => {
         if (!selectedLayer) return;
         dispatch({
@@ -387,7 +530,9 @@ export default function VideoEditorProPage() {
                 avatarVideoUrl: avatarVideoUrl || null,
                 iosMessageText: layers.find(l => l.type === 'imessage')?.props?.query || null,
                 backgroundMood: 'warm-studio',
-                subtitleStyle
+                subtitleStyle,
+                exportQuality,
+                exportFps,
             };
 
             const res = await fetch('/api/render/job', {
@@ -611,6 +756,9 @@ export default function VideoEditorProPage() {
                                     className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 outline-none cursor-pointer"
                                 >
                                     <option value="impact">Impact (Bouncy & Giallo)</option>
+                                    <option value="hormozi">⭐ Hormozi (Parola x Parola)</option>
+                                    <option value="neon-word">💫 Neon (Parola x Parola)</option>
+                                    <option value="minimal-word">➖ Minimal (Parola x Parola)</option>
                                     <option value="tiktok">TikTok (High Contrast)</option>
                                     <option value="karaoke">Karaoke (Verde/Hormozi)</option>
                                 </select>
@@ -773,9 +921,35 @@ export default function VideoEditorProPage() {
                 <div className="flex-1 bg-zinc-900 flex flex-col items-center justify-center p-4">
                     {currentStep === 5 ? (
                         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 max-w-md w-full text-center space-y-6">
-                            <h2 className="text-white font-bold text-xl">Esporta in 4K 60FPS</h2>
-                            <p className="text-sm text-zinc-400">Tutti i livelli verranno calcolati alla massima risoluzione per Instagram/TikTok.</p>
+                            <h2 className="text-white font-bold text-xl">Esporta Video</h2>
+                            <p className="text-sm text-zinc-400">Tutti i livelli verranno calcolati alla massima risoluzione scelta per Instagram/TikTok.</p>
                             
+                            {/* Export Settings */}
+                            <div className="grid grid-cols-2 gap-4 text-left">
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Risoluzione</label>
+                                    <select 
+                                        value={exportQuality} 
+                                        onChange={(e) => setExportQuality(e.target.value as any)}
+                                        className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm outline-none focus:border-purple-500 cursor-pointer"
+                                    >
+                                        <option value="1080p">1080p (Full HD)</option>
+                                        <option value="4k">4K (Ultra HD)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-2 block">Framerate</label>
+                                    <select 
+                                        value={exportFps} 
+                                        onChange={(e) => setExportFps(Number(e.target.value) as any)}
+                                        className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-white text-sm outline-none focus:border-purple-500 cursor-pointer"
+                                    >
+                                        <option value={30}>30 FPS (Standard)</option>
+                                        <option value={60}>60 FPS (Fluido)</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <button 
                                 onClick={handleExportMP4}
                                 disabled={loading || renderJobId !== null || !audioBase64}
@@ -910,12 +1084,27 @@ export default function VideoEditorProPage() {
                                     </label>
                                     
                                     {field.type === 'text' && (
-                                        <input
-                                            type="text"
-                                            value={val || ''}
-                                            onChange={e => handleUpdateProp(field.key, e.target.value)}
-                                            className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs focus:border-purple-500 outline-none"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={val || ''}
+                                                onChange={e => handleUpdateProp(field.key, e.target.value)}
+                                                className="w-full bg-black border border-zinc-800 rounded p-2 text-white text-xs focus:border-purple-500 outline-none pr-8"
+                                                placeholder={field.key === 'query' ? 'Es. Donna che lavora al pc' : undefined}
+                                            />
+                                            {field.key === 'query' && ['b-roll', 'swipe-card'].includes(selectedLayer.type) && (
+                                                <button 
+                                                    onClick={() => handleGenerateImage(selectedLayer.id, val)}
+                                                    disabled={generatingImageId === selectedLayer.id}
+                                                    title="Genera Immagine con AI"
+                                                    className="absolute right-1 top-1 bottom-1 px-2 flex items-center justify-center bg-purple-600/80 hover:bg-purple-500 text-white rounded text-xs transition-colors disabled:opacity-50 disabled:cursor-wait"
+                                                >
+                                                    {generatingImageId === selectedLayer.id ? (
+                                                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    ) : '✨'}
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                                     {field.type === 'number' && (
                                         <input
@@ -994,10 +1183,17 @@ export default function VideoEditorProPage() {
                     <div 
                         ref={playheadUiRef}
                         data-duration={durationInFrames}
-                        className="absolute top-0 bottom-0 w-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,1)] pointer-events-none"
+                        className="absolute top-0 bottom-0 w-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,1)] pointer-events-none flex flex-col items-center"
                         style={{ left: `0%` }}
                     >
-                        <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                        {/* Timecode Box CapCut Style */}
+                        <div 
+                            ref={timecodeUiRef}
+                            className="bg-red-500 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shadow-lg -translate-y-6 select-none whitespace-nowrap"
+                        >
+                            00:00.0
+                        </div>
+                        <div className="absolute top-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
                     </div>
                 </div>
 
@@ -1040,6 +1236,7 @@ export default function VideoEditorProPage() {
                                             durationMs={durationMs}
                                             isSelected={selectedLayerId === layer.id}
                                             onSelect={() => setSelectedLayerId(layer.id)}
+                                            onUpdate={(updates) => dispatch({ type: 'UPDATE', id: layer.id, updates })}
                                             cat={cat}
                                         />
                                     );

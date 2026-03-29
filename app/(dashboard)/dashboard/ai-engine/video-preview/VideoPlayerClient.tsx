@@ -14,7 +14,7 @@ interface VideoPlayerClientProps {
     avatarVideoUrl?: string;
     messageText?: string;
     backgroundMood?: string;
-    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'none';
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
 }
 
 const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({ 
