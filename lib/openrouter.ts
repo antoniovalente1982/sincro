@@ -384,20 +384,19 @@ PRODUCI ESATTAMENTE QUESTO JSON:
 REGOLE DI REGIA OBBLIGATORIE:
 1. **Tags**: Tagga MASSIMO il 10% delle parole con emoji (solo parole BOMBA/impatto).
 2. **backgroundMood**: "warm-studio" (marketing), "cold-blue" (sport/tech), "purple-haze" (lusso).
-3. **SEQUENZA DI COMPOSIZIONE (IMPORTANTISSIMO)**:
-   - PRIMO asset (0-2 parole) = SEMPRE "giant-text" con l'hook iniziale → cattura attenzione
-   - SECONDO (prime 3-5 parole) = "b-roll" card con immagine legata allo script
-   - TERZO = "newspaper" o "swipe-card" → credibilità/autorità
-   - Se lo script parla di SOLDI/GUADAGNI → aggiungi "counter" con il valore
-   - Se c'è un momento emozionale → aggiungi "emoji-reaction"
-   - ULTIMO asset = SEMPRE "cta" (bottone rosso) → sull'ultima parola dello script
-4. **Varietà**: Non usare MAI 2 tipi uguali consecutivi! Alterna sempre.
-5. **variant per card b-roll**: "slide-right", "slide-left", "scale-up", "rotate-in" — alterna!
-6. **position per card b-roll**: "top-right", "top-left", "center", "bottom-right" — alterna!
-7. **imagePrompt**: Descrivi l'immagine in ITALIANO con dettagli visivi precisi.
-8. **query per newspaper**: Titolo SHOCK in ITALIANO stile Forbes/Gazzetta.
-9. **startWord e endWord DEVONO esistere nello script!**
-10. Genera 5-8 asset per script da 2-3 frasi. Mai meno di 4.`;
+3. **SEQUENZA DI COMPOSIZIONE**:
+   - PRIMO asset = SEMPRE "giant-text" con l'hook iniziale
+   - SECONDO = "b-roll" card con immagine legata allo script
+   - TERZO = "newspaper" o "swipe-card"
+   - Se c'è un momento emozionale → "emoji-reaction"
+   - ULTIMO asset = SEMPRE "cta" (bottone rosso)
+4. **imagePrompt (REGOLE DI BUSINESS CRITICHE)**:
+   - ⚠️ IL SOGGETTO DEVE AVERE 15-18 ANNI. Mai descrivere bambini piccoli (sotto i 14 anni).
+   - ⚠️ ASSOLUTAMENTE VIETATO usare o descrivere nomi di calciatori famosi veri. Crea giocatori generici, volto coperto o non riconoscibile.
+   - ⚠️ Il target finale è un GENITORE preoccupato per il figlio fragile mentalmente, usa immagini empatiche o di riscatto sportivo.
+5. **query per newspaper**: Titolo SHOCK in ITALIANO stile Forbes.
+6. **startWord e endWord DEVONO esistere nello script!**
+7. Genera 5-8 asset per script. Mai meno di 4.`;
 
     try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
