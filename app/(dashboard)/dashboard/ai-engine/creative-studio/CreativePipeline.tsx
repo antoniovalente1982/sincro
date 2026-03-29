@@ -471,6 +471,17 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                         {/* Quick Actions */}
                                         {(creative.status === 'ready' || creative.status === 'approved') && !isLoading && (
                                             <>
+                                                <button onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const fullScript = `${creative.copy_headline || ''}\n\n${creative.copy_primary || ''}`;
+                                                    window.location.href = `/dashboard/ai-engine/video-editor?autopilotText=${encodeURIComponent(fullScript)}`;
+                                                }}
+                                                    className="h-7 px-2.5 rounded-lg flex items-center justify-center gap-1 transition-all hover:scale-105"
+                                                    style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+                                                    title="Genera Video Cinematico (Autopilot)">
+                                                    <Play className="w-3 h-3" style={{ color: '#a855f7' }} />
+                                                    <span className="text-[10px] font-semibold" style={{ color: '#a855f7' }}>Video AI</span>
+                                                </button>
                                                 <button onClick={(e) => { e.stopPropagation(); handleApprove(creative.id, 'approve') }}
                                                     className="h-7 px-2.5 rounded-lg flex items-center justify-center gap-1 transition-all hover:scale-105"
                                                     style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}
