@@ -5,7 +5,7 @@ interface BlockSubtitlesProps {
     words: { word: string; startMs: number; endMs: number; emoji?: string; isImpact?: boolean }[];
     wordsPerBlock?: number;
     yPosition?: number;
-    subStyle?: 'tiktok' | 'impact' | 'karaoke';
+    subStyle?: 'tiktok' | 'impact' | 'karaoke' | 'cyber-scanline';
 }
 
 /**
@@ -133,6 +133,47 @@ export const BlockSubtitles: React.FC<BlockSubtitlesProps> = ({
                             }}>
                                 {wordData.word}
                             </span>
+                        </div>
+                    );
+                }
+                // --- STILE CYBER SCANLINE (Neon Cyan VHS) ---
+                if (subStyle === 'cyber-scanline' as any) {
+                    return (
+                        <div key={i} style={{ display: 'inline-flex', alignItems: 'center', transform: `scale(${wordScale})` }}>
+                            {isImpact ? (
+                                <span style={{
+                                    fontFamily: '"Outfit", "Inter", sans-serif', 
+                                    fontSize: 130, 
+                                    fontWeight: 900, 
+                                    textTransform: 'uppercase', 
+                                    letterSpacing: '-4px',
+                                    color: 'transparent',
+                                    backgroundImage: 'repeating-linear-gradient(to bottom, #00e5ff 0px, #00e5ff 6px, transparent 6px, transparent 8px)',
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text',
+                                    // Drop shadow per il neon
+                                    filter: 'drop-shadow(0 0 15px rgba(0, 229, 255, 0.4)) drop-shadow(0 8px 15px rgba(0,0,0,0.8))',
+                                    padding: '0 10px',
+                                    lineHeight: 0.9,
+                                    transition: 'all 0.1s'
+                                }}>
+                                    {wordData.word}
+                                </span>
+                            ) : (
+                                <span style={{
+                                    fontFamily: '"Inter", sans-serif', 
+                                    fontSize: 75, 
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    padding: '0 6px',
+                                    textShadow: '0 6px 15px rgba(0,0,0,1), 0 2px 5px rgba(0,0,0,0.8)',
+                                    opacity: isPast ? 1 : 0.6,
+                                    transform: isSpoken ? 'scale(1.05)' : 'none',
+                                    transition: 'all 0.1s'
+                                }}>
+                                    {wordData.word}
+                                </span>
+                            )}
                         </div>
                     );
                 }

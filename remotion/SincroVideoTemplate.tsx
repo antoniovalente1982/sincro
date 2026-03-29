@@ -67,7 +67,7 @@ export interface SincroVideoProps {
     enableMoneyVFX?: boolean;
     backgroundMood?: 'warm-studio' | 'cold-blue' | 'purple-haze';
     enableZoomPulse?: boolean;
-    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
+    subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'cyber-scanline' | 'none';
     customBackgroundUrl?: string;
     enable3DParallax?: boolean;
     enableAutoBackgroundRemoval?: string | boolean;
@@ -518,7 +518,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                     words={words}
                                     wordsPerBlock={3}
                                     yPosition={avatarVideoUrl ? 350 : 500}
-                                    subStyle={subtitleStyle as 'tiktok' | 'impact' | 'karaoke'}
+                                    subStyle={subtitleStyle as 'tiktok' | 'impact' | 'karaoke' | 'cyber-scanline'}
                                 />
                             )
                         ) : (

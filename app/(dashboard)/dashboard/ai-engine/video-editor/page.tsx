@@ -367,7 +367,7 @@ export default function VideoEditorProPage() {
     const [generatingImageId, setGeneratingImageId] = useState<string | null>(null);
     
     // ═══ GLOBAL VIDEO SETTINGS ═══
-    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none'>('impact');
+    const [subtitleStyle, setSubtitleStyle] = useState<'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'cyber-scanline' | 'none'>('impact');
     const [exportQuality, setExportQuality] = useState<'1080p' | '4k'>('4k');
     const [exportFps, setExportFps] = useState<30 | 60>(60);
     const [backgroundMood, setBackgroundMood] = useState<'warm-studio'|'neon-cyber'|'dark-minimal'|'corporate'|'neon-grid'|'money-matrix'|'custom'>('warm-studio');
@@ -849,6 +849,7 @@ export default function VideoEditorProPage() {
                                     <option value="minimal-word">➖ Minimal (Parola x Parola)</option>
                                     <option value="tiktok">TikTok (High Contrast)</option>
                                     <option value="karaoke">Karaoke (Verde/Hormozi)</option>
+                                    <option value="cyber-scanline">🔥 Cyber Scanline (Neon Ciano)</option>
                                 </select>
                             </div>
                             <button onClick={() => setCurrentStep(2)} className="w-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold py-3 rounded-lg transition-colors">
