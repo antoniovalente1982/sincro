@@ -15,6 +15,8 @@ interface VideoPlayerClientProps {
     messageText?: string;
     backgroundMood?: string;
     subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
+    durationInFrames?: number;
+    fps?: number;
 }
 
 const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({ 
@@ -27,10 +29,12 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
     messageText,
     backgroundMood,
     subtitleStyle = 'impact',
+    durationInFrames: parentDuration,
+    fps: parentFps = 60,
 }, ref) => {
-    // If we have audio, use a longer duration, otherwise 600 frames default
-    const durationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
-    const durationInFrames = Math.max(600, Math.ceil((durationMls / 1000) * 60));
+    // Usa duration genitore o calcola fallback
+    const computedDurationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
+    const durationInFrames = parentDuration || Math.max(600, Math.ceil((computedDurationMls / 1000) * parentFps));
 
     return (
         <Player
@@ -52,7 +56,7 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
                 subtitleStyle: subtitleStyle,
             }}
             durationInFrames={durationInFrames}
-            fps={60}
+            fps={parentFps}
             compositionWidth={2160}
             compositionHeight={3840}
             style={{

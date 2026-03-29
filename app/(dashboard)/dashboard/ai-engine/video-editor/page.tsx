@@ -1003,6 +1003,8 @@ export default function VideoEditorProPage() {
                                         useMoney={enableMoneyVFX}
                                         backgroundMood="warm-studio"
                                         subtitleStyle={subtitleStyle}
+                                        durationInFrames={durationInFrames}
+                                        fps={exportFps}
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex flex-col items-center justify-center text-center p-8 gap-4">
