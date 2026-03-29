@@ -376,9 +376,9 @@ export async function getOrgDataContextLite(orgId: string) {
         try {
             // Fetch campaigns status + today's insights + 7-day insights in parallel
             const [campaignsApiRes, todayInsightsRes, weekInsightsRes] = await Promise.all([
-                fetch(`https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget&limit=30&access_token=${token}`),
-                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`),
-                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/campaigns?fields=name,status,daily_budget&limit=30&access_token=${token}`, { cache: 'no-store' }),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: todayISO, until: todayISO }))}&limit=30&access_token=${token}`, { cache: 'no-store' }),
+                fetch(`https://graph.facebook.com/v21.0/${adAccount}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions,cost_per_action_type,purchase_roas&level=campaign&time_range=${encodeURIComponent(JSON.stringify({ since: sevenDaysAgoStr, until: todayISO }))}&limit=30&access_token=${token}`, { cache: 'no-store' }),
             ])
 
             // Parse campaigns

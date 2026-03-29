@@ -325,7 +325,7 @@ async function handleStatsCommand(orgId: string, botToken: string, chatId: strin
         `📥 <b>Lead oggi:</b> ${s.leads_today}\n` +
         `📅 <b>Lead ultimi 7 giorni:</b> ${s.leads_this_week}\n\n` +
         `📢 <b>Campagne attive:</b> ${s.active_campaigns}\n` +
-        `💰 <b>Spesa totale:</b> €${s.total_spend}\n` +
+        `💰 <b>Spesa oggi:</b> ${s.total_spend}\n` +
         `📉 <b>CPL medio:</b> €${s.avg_cpl}\n\n` +
         (ctx.stage_distribution.length > 0
             ? `📋 <b>Pipeline:</b>\n` + ctx.stage_distribution.map(st => `  • ${st.name}: <b>${st.count}</b>`).join('\n')

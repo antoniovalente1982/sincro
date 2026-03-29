@@ -1,14 +1,14 @@
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 
-// Read custom cloned voice from ENV ("Antonio Valente" etc), fallback to "Brando M"
-const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'o5tUAYEqld5GJZ1Lv8uC'
+// DANTE (Assistant) Voice ID - We use a default professional voice so it doesn't sound like Antonio
+const DANTE_VOICE_ID = 'o5tUAYEqld5GJZ1Lv8uC'
 const MODEL_ID = 'eleven_multilingual_v2'
 
 /**
  * Convert text to speech using ElevenLabs API
  * Returns an audio buffer (mp3)
  */
-export async function textToSpeech(text: string): Promise<Uint8Array | null> {
+export async function textToSpeech(text: string, voiceId?: string): Promise<Uint8Array | null> {
     if (!ELEVENLABS_API_KEY) {
         console.error('ElevenLabs API key not configured')
         return null
@@ -52,7 +52,8 @@ export async function textToSpeech(text: string): Promise<Uint8Array | null> {
         .trim()
 
     try {
-        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${DEFAULT_VOICE_ID}`, {
+        const targetVoice = voiceId || DANTE_VOICE_ID;
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoice}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ export async function textToSpeechWithTimestamps(text: string, voiceId?: string)
     }
 
     const cleanText = text.replace(/<[^>]*>/g, '').trim();
-    const targetVoice = voiceId || DEFAULT_VOICE_ID;
+    const targetVoice = voiceId || DANTE_VOICE_ID;
 
     try {
         const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoice}/with-timestamps`, {
