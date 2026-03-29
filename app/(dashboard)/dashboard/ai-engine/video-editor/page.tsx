@@ -373,7 +373,7 @@ export default function VideoEditorProPage() {
     const [backgroundMood, setBackgroundMood] = useState<'warm-studio'|'neon-cyber'|'dark-minimal'|'corporate'|'neon-grid'|'money-matrix'|'custom'>('warm-studio');
     const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('');
     const [enable3DParallax, setEnable3DParallax] = useState<boolean>(false);
-    const [enableAutoBackgroundRemoval, setEnableAutoBackgroundRemoval] = useState<boolean>(true); // Per nuovo HeyGen WebM o ChromaKey
+    const [enableAutoBackgroundRemoval, setEnableAutoBackgroundRemoval] = useState<string>('green'); // 'none', 'green', 'white'
     
     // ═══ VIRTUAL LIGHTING STUDIO ═══
     const [lightKeyAngle, setLightKeyAngle] = useState<number>(45);
@@ -1001,10 +1001,6 @@ export default function VideoEditorProPage() {
                                             </button>
                                         ))}
                                     </div>
-                                    {/* VFX Pack info */}
-                                    <div className="p-3 mt-2 mx-2 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                                        <p className="text-[10px] text-purple-300 font-medium">🎥 10 effetti cinematici professionali. Aggiungi alla timeline e personalizza dal pannello destro.</p>
-                                    </div>
                                 </>
                             )}
 
@@ -1018,10 +1014,21 @@ export default function VideoEditorProPage() {
                                                 <span className="text-xs text-white">Abilita 3D Parallasse 🎥</span>
                                             </label>
                                         </div>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" checked={enableAutoBackgroundRemoval} onChange={(e) => setEnableAutoBackgroundRemoval(e.target.checked)} className="rounded bg-zinc-800 border-zinc-700 text-purple-500 focus:ring-purple-500" />
-                                            <span className="text-xs text-white">Foratura Sfondo Green Screen AI 🟢</span>
-                                        </label>
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1">
+                                                <h3 className="text-xs font-bold text-zinc-300">Rimozione Sfondo (AI Avatar)</h3>
+                                            </div>
+                                            <select 
+                                                value={enableAutoBackgroundRemoval} 
+                                                onChange={(e) => setEnableAutoBackgroundRemoval(e.target.value)} 
+                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-white text-xs focus:border-purple-500 outline-none"
+                                            >
+                                                <option value="none">Disattivato (Mantiene il muro originale)</option>
+                                                <option value="green">Chroma Key (Solo per Green Screen 🟢)</option>
+                                                <option value="white">Fusione AI (Per Sfondi Chiari/Bianchi ⚪)</option>
+                                            </select>
+                                            <p className="text-[10px] text-zinc-500 mt-1">Per usare sfondi 3D e VFX dietro l'avatar, il video DEVE essere girato su telo verde.</p>
+                                        </div>
                                         
                                         <div>
                                             <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Genera Sfondo AI Personalizzato</label>

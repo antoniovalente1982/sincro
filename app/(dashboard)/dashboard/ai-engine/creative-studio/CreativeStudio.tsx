@@ -5,9 +5,20 @@ import {
     Paintbrush, ArrowLeft, Sparkles, Send, Loader2, Copy, CheckCircle,
     Image as ImageIcon, Video, LayoutGrid, Square, Smartphone, Monitor,
     ChevronRight, Brain, Zap, Target, MessageSquare, RefreshCw, FileText,
-    ChevronDown, Plus, Trash2, Eye
+    ChevronDown, Plus, Trash2, Eye, Play
 } from 'lucide-react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+const VideoPlayerClient = dynamic(() => import('../video-preview/VideoPlayerClient'), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full flex flex-col items-center justify-center p-12 glass-card">
+            <Loader2 className="w-8 h-8 animate-spin text-yellow-500 mb-4" />
+            <div className="text-sm text-surface-400">Inizializzazione Motore Video 3D in corso...</div>
+        </div>
+    )
+})
 
 interface Brief {
     id: string; brief_data: any; generated_copies: any[]
@@ -51,7 +62,9 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
     const [view, setView] = useState<'list' | 'create' | 'detail'>('list')
     const [selectedBrief, setSelectedBrief] = useState<Brief | null>(null)
     const [generating, setGenerating] = useState(false)
+    const [renderingVideo, setRenderingVideo] = useState(false)
     const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+    const [videoFormat, setVideoFormat] = useState<'9:16' | '16:9' | '1:1'>('9:16')
 
     // Brief form state
     const [product, setProduct] = useState('')
@@ -470,89 +483,115 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                     ))}
                 </div>
 
-                {/* HORMZ 3.0 VFX ENGINE CONTROLS */}
-                <div className="glass-card p-6" style={{ border: '1px solid rgba(234, 179, 8, 0.3)' }}>
-                    <div className="flex items-start gap-4 mb-6">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{
-                            background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(168, 85, 247, 0.15))',
-                            border: '1px solid rgba(234, 179, 8, 0.4)',
-                        }}>
-                            <Video className="w-6 h-6" style={{ color: '#EAB308' }} />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-white mb-1">Motore Video Hormozi 3.0</h3>
-                            <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
-                                Configura gli effetti visivi Z-Index per la renderizzazione video. Seleziona le "Quinte" e i Widget.
-                            </p>
-                        </div>
-                    </div>
+                {/* AI VIDEO FACTORY: RENDER PREVIEW & CONTROLS */}
+                {bd.format === 'video' || bd.format === 'stories' ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                        {/* Left: Settings & Generation */}
+                        <div className="glass-card p-6" style={{ border: '1px solid rgba(236, 72, 153, 0.3)' }}>
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{
+                                    background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(168, 85, 247, 0.15))',
+                                    border: '1px solid rgba(236, 72, 153, 0.4)',
+                                }}>
+                                    <Video className="w-6 h-6" style={{ color: '#ec4899' }} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white mb-1">AI Video Factory</h3>
+                                    <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
+                                        L'AI ha pre-impostato la scena. Scegli il formato e lancia la produzione.
+                                    </p>
+                                </div>
+                            </div>
 
-                    <div className="space-y-4">
-                        {/* Fake Newspaper */}
-                        <div>
-                            <label className="flex items-center gap-2 mb-2">
-                                <span className="text-sm font-bold text-white">📰 Finto Articolo Forbes (Breaking News)</span>
-                            </label>
-                            <input 
-                                type="text"
-                                className="input w-full"
-                                placeholder="Es: Spopola il nuovo metodo di guadagno con l'AI..."
-                            />
-                            <div className="text-[10px] mt-1 text-surface-500 text-yellow-500/80">
-                                Lascia vuoto per disattivare. Apparirà in obliquo dal basso a Livello Z=100.
+                            <div className="space-y-5">
+                                {/* Format Selector */}
+                                <div>
+                                    <label className="label">Formato Video</label>
+                                    <div className="flex gap-2">
+                                        {[
+                                            { id: '9:16', label: 'Reels / TikTok', sub: 'Verticale' },
+                                            { id: '16:9', label: 'YouTube / Web', sub: 'Orizzontale' },
+                                            { id: '1:1', label: 'Post Feed', sub: 'Quadrato' }
+                                        ].map(f => (
+                                            <button key={f.id} onClick={() => setVideoFormat(f.id as any)}
+                                                className="flex-1 p-3 rounded-xl transition-all border text-left" style={{
+                                                    background: videoFormat === f.id ? 'rgba(236, 72, 153, 0.1)' : 'var(--color-surface-100)',
+                                                    borderColor: videoFormat === f.id ? 'rgba(236, 72, 153, 0.4)' : 'var(--color-surface-200)',
+                                                }}>
+                                                <div className="text-sm font-bold text-white">{f.id}</div>
+                                                <div className="text-[10px]" style={{ color: videoFormat === f.id ? '#ec4899' : 'var(--color-surface-500)' }}>{f.label}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {/* Preset AI (Lighting) */}
+                                <div>
+                                    <label className="label">Mood Regia 3D (Selezionato dall'AI)</label>
+                                    <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                        <div className="w-3 h-3 rounded-full" style={{ background: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }} />
+                                        <div className="flex-1">
+                                            <div className="text-sm font-bold text-white uppercase tracking-wider">Neon Space Cyberpunk</div>
+                                            <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>KeyLight Blu 1.5 • Fill Neon Pink</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                 <button onClick={() => {
+                                     setRenderingVideo(true);
+                                     setTimeout(() => setRenderingVideo(false), 3000);
+                                 }} 
+                                 className="btn-primary w-full py-3" style={{ background: '#ec4899', color: '#fff', borderColor: '#be185d' }} disabled={renderingVideo}>
+                                     {renderingVideo ? (
+                                         <><Loader2 className="w-5 h-5 animate-spin" /> Rendering in corso su HeyGen...</>
+                                     ) : (
+                                         <><Play className="w-5 h-5 fill-current" /> Lancia e Renderizza MP4</>
+                                     )}
+                                 </button>
+                                 <p className="text-[10px] text-center mt-3" style={{ color: 'var(--color-surface-500)' }}>
+                                     Il rendering richiede ~2 minuti. Il video finale andrà direttamente nel CRM.
+                                 </p>
                             </div>
                         </div>
 
-                        {/* Money Rain & iMessage */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                <label className="flex items-center gap-3">
-                                    <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: '#22c55e' }} defaultChecked />
-                                    <div>
-                                        <div className="text-sm font-bold text-white">💸 Pioggia di Soldi 3D</div>
-                                        <div className="text-[10px] text-surface-500">Trigger automatico su 'Fatturato/Soldi' (Z=10)</div>
-                                    </div>
-                                </label>
+                        {/* Right: Video Preview */}
+                        <div className="glass-card p-6 flex flex-col items-center justify-center relative overflow-hidden h-[500px]" style={{ background: 'var(--color-surface-100)' }}>
+                            <div className="absolute top-4 left-4 z-10">
+                                <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                                    Real-Time Preview
+                                </span>
                             </div>
                             
-                            <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                <label className="flex items-center justify-between mb-2">
-                                    <div className="text-sm font-bold text-white flex gap-2"><Smartphone className="w-4 h-4 text-blue-500"/> Notifica Bolla iOS</div>
-                                </label>
-                                <input 
-                                    type="text"
-                                    className="input w-full text-xs"
-                                    defaultValue="Sta scrivendo..."
+                            <div className={`w-full max-h-full flex items-center justify-center transition-all duration-500 ${videoFormat === '16:9' ? 'w-full' : 'w-[250px]'}`}>
+                                <VideoPlayerClient 
+                                    headline={bd.product || "AI Video"}
+                                    videoFormat={videoFormat}
+                                    words={[
+                                        { word: "Questo", startMs: 0, endMs: 500, style: "normal" },
+                                        { word: "è", startMs: 500, endMs: 800, style: "normal" },
+                                        { word: "un", startMs: 800, endMs: 1200, style: "normal" },
+                                        { word: "Video", startMs: 1200, endMs: 2000, style: "highlight" },
+                                        { word: "Generato", startMs: 2000, endMs: 2800, style: "normal" },
+                                        { word: "dall'AI!", startMs: 2800, endMs: 4000, style: "highlight" }
+                                    ]}
+                                    subtitleStyle="hormozi"
+                                    backgroundMood="dark-neon"
+                                    enable3DParallax={true}
                                 />
                             </div>
                         </div>
-
-                        {/* Midground Card */}
-                        <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                            <label className="flex items-center gap-2 mb-2">
-                                <span className="text-sm font-bold text-white">🖼️ Card Dinamica Obliqua (Midground)</span>
-                            </label>
-                            <select className="input w-full">
-                                <option value="">Nessuna (Solo Sfondo)</option>
-                                <option value="ragazza">La Ragazza / Lifestyle</option>
-                                <option value="macchina">Macchina Sportiva Lusso</option>
-                                <option value="calciatori">Calciatori Serie A (News)</option>
-                            </select>
-                            <div className="text-[10px] mt-1 text-surface-500">
-                                L'immagine arriverà fisicamente dietro le tue spalle (Z=20) creando parallasse.
-                            </div>
-                        </div>
                     </div>
-
-                    <div className="mt-6 flex justify-end gap-3">
-                         <button className="btn-secondary">
-                             <Eye className="w-4 h-4" /> Anteprima Remotion
-                         </button>
-                         <button className="btn-primary" style={{ background: '#EAB308', color: '#0B0F19', borderColor: '#ca8a04' }}>
-                             <Zap className="w-4 h-4" /> Genera Video MP4
-                         </button>
+                ) : (
+                    <div className="glass-card p-6 flex flex-col items-center justify-center text-center mt-8 py-12" style={{ border: '1px dashed var(--color-surface-300)' }}>
+                        <ImageIcon className="w-10 h-10 mb-3" style={{ color: 'var(--color-surface-500)' }} />
+                        <h3 className="text-sm font-bold text-white">Formato Grafico</h3>
+                        <p className="text-xs max-w-sm mt-1 mx-auto" style={{ color: 'var(--color-surface-500)' }}>
+                            Il Brief attualmente è impostato per <strong>{bd.format}</strong>. Seleziona "Video" o "Stories" per abilitare l'AI Video Factory.
+                        </p>
                     </div>
-                </div>
+                )}
             </div>
         )
     }

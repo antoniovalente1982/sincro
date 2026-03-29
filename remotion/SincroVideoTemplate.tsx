@@ -70,7 +70,7 @@ export interface SincroVideoProps {
     subtitleStyle?: 'tiktok' | 'impact' | 'karaoke' | 'hormozi' | 'neon-word' | 'minimal-word' | 'none';
     customBackgroundUrl?: string;
     enable3DParallax?: boolean;
-    enableAutoBackgroundRemoval?: boolean;
+    enableAutoBackgroundRemoval?: string | boolean;
     lightKeyAngle?: number;
     lightKeyIntensity?: number;
     lightKeyColor?: string;
@@ -123,10 +123,10 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     enableMoneyVFX = true,
     backgroundMood = 'warm-studio',
     enableZoomPulse = true,
-    subtitleStyle = 'tiktok',
+    subtitleStyle = 'impact',
     customBackgroundUrl,
     enable3DParallax = false,
-    enableAutoBackgroundRemoval = true,
+    enableAutoBackgroundRemoval = 'green',
     lightKeyAngle = 45,
     lightKeyIntensity = 0.8,
     lightKeyColor = '#ffffff',
@@ -375,7 +375,13 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                  <Video 
                                     src={avatarVideoUrl} 
                                     crossOrigin="anonymous"
-                                    style={{ objectFit: 'cover', width: '100%', height: '100%', filter: enableAutoBackgroundRemoval ? 'url(#chroma-key)' : 'none' }} 
+                                    style={{ 
+                                        objectFit: 'cover', 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        filter: (enableAutoBackgroundRemoval === 'green' || enableAutoBackgroundRemoval === true) ? 'url(#chroma-key)' : 'none',
+                                        mixBlendMode: enableAutoBackgroundRemoval === 'white' ? 'multiply' : 'normal',
+                                    }} 
                                     onError={(e) => console.warn('Avatar video failed to load:', e)}
                                  />
 
