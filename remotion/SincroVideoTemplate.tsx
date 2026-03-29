@@ -370,7 +370,8 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                         {avatarVideoUrl && (
                              <AbsoluteFill style={{
                                  // Il Rim Light (Controluce) si fa con drop-shadow intenso e opacità!
-                                 filter: `drop-shadow(0px -10px 40px ${lightRimColor}) drop-shadow(0px 10px 80px ${lightRimColor}) opacity(${lightRimIntensity + 0.3})`
+                                 filter: `drop-shadow(0px -10px 40px ${lightRimColor}) drop-shadow(0px 10px 80px ${lightRimColor}) opacity(${Math.min(1, lightRimIntensity + 0.3)})`,
+                                 mixBlendMode: enableAutoBackgroundRemoval === 'white' ? 'multiply' : 'normal',
                              }}>
                                  <Video 
                                     src={avatarVideoUrl} 
@@ -379,8 +380,8 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                         objectFit: 'cover', 
                                         width: '100%', 
                                         height: '100%', 
-                                        filter: (enableAutoBackgroundRemoval === 'green' || enableAutoBackgroundRemoval === true) ? 'url(#chroma-key)' : 'none',
-                                        mixBlendMode: enableAutoBackgroundRemoval === 'white' ? 'multiply' : 'normal',
+                                        // Aggiungiamo brightness basato sull'intensità delle luci per il 'buio totale'
+                                        filter: `${(enableAutoBackgroundRemoval === 'green' || enableAutoBackgroundRemoval === true) ? 'url(#chroma-key) ' : ''}brightness(${Math.max(0.1, Math.max(lightKeyIntensity, lightFillIntensity, lightRimIntensity))})`,
                                     }} 
                                     onError={(e) => console.warn('Avatar video failed to load:', e)}
                                  />
