@@ -478,6 +478,15 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                         </div>
                                     )}
                                 </div>
+                                
+                                <div className="pt-4 mt-2 border-t flex justify-end" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                     <button onClick={() => {
+                                         const fullScript = `${copy.headline} ${copy.body} ${copy.cta}`;
+                                         window.location.href = `/dashboard/ai-engine/video-editor?autopilotText=${encodeURIComponent(fullScript)}`;
+                                     }} className="btn-primary" style={{ background: 'linear-gradient(to right, #ec4899, #a855f7)', border: 'none' }}>
+                                         <Video className="w-4 h-4" /> Genera Video Cinematico (Autopilot)
+                                     </button>
+                                </div>
                             </div>
                         </div>
                     ))}

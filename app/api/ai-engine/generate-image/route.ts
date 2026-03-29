@@ -19,33 +19,43 @@ export async function POST(req: Request) {
 
         console.log(`Richiesta generazione immagine. Prompt: "${prompt}"`);
 
-        // === INTEGRAZIONE API NANO BANANA / GEMINI STUDIO ===
-        // Qui andrà la logica per chiamare la tua API per la generazione delle immagini
-        // Esempio:
-        /*
-        const response = await fetch('URL_BANANA_DEV_O_GEMINI_STUDIO', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.GEMINI_STUDIO_API_KEY}`
-            },
-            body: JSON.stringify({ prompt: prompt })
-        });
-        const data = await response.json();
-        const generatedImageUrl = data.url; 
-        */
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+        if (!GEMINI_API_KEY) {
+            return NextResponse.json({ error: 'Configurazione Gemini API mancante' }, { status: 500 });
+        }
 
-        // MOCKUP TEMPORANEO (Ritorna un'immagine dummy se non integrato)
-        // Questo mock dimostra il corretto funzionamento end-to-end della UI
-        
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simula latenza di 2 secondi
-        
-        // Un'immagine placeholder dimostrativa in base a ciò che è stato richiesto
-        const mockupImageUrl = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80";
+        // Chiamata all'API Imagen 3 tramite Google Generative Language API
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                instances: [
+                    { prompt: `Photorealistic, super detailed, cinematic lighting, 8k quality, realistic photography of: ${prompt}` }
+                ],
+                parameters: {
+                    sampleCount: 1,
+                    aspectRatio: "9:16",
+                    outputOptions: { mimeType: "image/jpeg" }
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Gemini Imagen Error:', errorText);
+            return NextResponse.json({ error: 'Errore generazione con Gemini' }, { status: 500 });
+        }
+
+        const data = await response.json();
+        const base64Image = data?.predictions?.[0]?.bytesBase64Encoded;
+
+        if (!base64Image) {
+            return NextResponse.json({ error: 'Nessuna immagine generata' }, { status: 500 });
+        }
 
         return NextResponse.json({
             success: true,
-            imageUrl: mockupImageUrl,
+            imageUrl: `data:image/jpeg;base64,${base64Image}`,
         });
 
     } catch (error) {

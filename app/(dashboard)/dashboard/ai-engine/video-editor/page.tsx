@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useReducer, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useReducer, useCallback, useMemo, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import { Video, Smartphone, Layers, Sparkles, Plus, Trash2, GripVertical, Settings, ArrowBigUp, Wand2 } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -425,6 +426,18 @@ export default function VideoEditorProPage() {
     const [renderProgress, setRenderProgress] = useState<string | null>(null);
     const [renderUrl, setRenderUrl] = useState<string | null>(null);
 
+    // ═══ AUTOPILOT INIT ═══
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const text = params.get('autopilotText');
+            if (text) {
+                setHeadline(text);
+                // The user can now click "Genera Audio e Struttura"
+            }
+        }
+    }, []);
+
     // Load Avatars on mount
     useEffect(() => {
         const loadAvatars = async () => {
@@ -681,21 +694,39 @@ export default function VideoEditorProPage() {
             if (res.ok && data.audioBase64) {
                 setAudioBase64(data.audioBase64);
                 setWords(data.words);
-                // Auto-populate layers from AI se richiesto (Disabilitato come da richiesta utente)
-                // if (data.visualAssets?.length > 0) {
-                //     const aiLayers: LayerItem[] = data.visualAssets.map((asset: any, i: number) => {
-                //         const cat = WIDGET_CATALOG.find(c => c.type === asset.type) || WIDGET_CATALOG[0];
-                //         return {
-                //             id: `ai-${asset.type}-${i}-${Date.now()}`,
-                //             type: asset.type || 'b-roll',
-                //             label: cat.label,
-                //             startMs: asset.startMs,
-                //             endMs: asset.endMs,
-                //             props: { ...asset },
-                //         };
-                //     });
-                //     dispatch({ type: 'SET_ALL', layers: aiLayers });
-                // }
+                // Auto-populate layers from AI 
+                if (data.visualAssets?.length > 0) {
+                    const aiLayers: LayerItem[] = data.visualAssets.map((asset: any, i: number) => {
+                        const cat = WIDGET_CATALOG.find(c => c.type === asset.type) || WIDGET_CATALOG[0];
+                        return {
+                            id: `ai-${asset.type}-${i}-${Date.now()}`,
+                            type: asset.type || 'b-roll',
+                            label: cat.label,
+                            startMs: asset.startMs,
+                            endMs: asset.endMs,
+                            props: { ...asset },
+                        };
+                    });
+                    dispatch({ type: 'SET_ALL', layers: aiLayers });
+
+                    // TRIGGER BACKGROUND IMAGE GENERATION
+                    aiLayers.forEach(layer => {
+                        if (layer.props.imagePrompt && layer.type === 'b-roll') {
+                            fetch('/api/ai-engine/generate-image', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ prompt: layer.props.imagePrompt })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success && data.imageUrl) {
+                                    dispatch({ type: 'UPDATE', id: layer.id, updates: { props: { ...layer.props, imageUrl: data.imageUrl } } });
+                                }
+                            })
+                            .catch(err => console.error('Auto image gen failed:', err));
+                        }
+                    });
+                }
             } else {
                 setError(data.error || "Errore sconosciuto");
             }
