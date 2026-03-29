@@ -12,7 +12,9 @@ const VideoPlayerClient = dynamic(() => import('../video-preview/VideoPlayerClie
 // ═══ DATA MODEL ═══
 export interface LayerItem {
     id: string;
-    type: 'giant-text' | 'b-roll' | 'newspaper' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter' | 'imessage' | 'money-rain';
+    type: 'giant-text' | 'b-roll' | 'newspaper' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter' | 'imessage' | 'money-rain'
+        | 'vfx-glitch' | 'vfx-glow' | 'vfx-color-grading' | 'vfx-lens-flare' | 'vfx-particles'
+        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform';
     label: string;
     startMs: number;
     endMs: number;
@@ -31,6 +33,20 @@ const WIDGET_CATALOG = [
     { type: 'counter', label: '💰 Contatore', icon: '💰', color: '#22C55E', defaultProps: { query: '€', toValue: 15000, color: '#22C55E' } },
     { type: 'imessage', label: '💬 iMessage', icon: '💬', color: '#0072FF', defaultProps: { query: 'Sta scrivendo...' } },
     { type: 'money-rain', label: '💸 Pioggia Soldi', icon: '💸', color: '#16A34A', defaultProps: {} },
+] as const;
+
+// VFX Pro Catalog
+const VFX_CATALOG = [
+    { type: 'vfx-glitch', label: '🌊 Glitch', icon: '🌊', color: '#FF0040', defaultProps: { vfxType: 'digital', vfxDensity: 'medium', color: '#ff0040' } },
+    { type: 'vfx-glow', label: '✨ Glow & Bloom', icon: '✨', color: '#A855F7', defaultProps: { color: '#a855f7', vfxDensity: 'medium', position: 'center', vfxAnimated: true } },
+    { type: 'vfx-color-grading', label: '🎨 Color Grading', icon: '🎨', color: '#F59E0B', defaultProps: { vfxPreset: 'teal-orange', vfxIntensity: 0.8 } },
+    { type: 'vfx-lens-flare', label: '🔮 Lens Flare', icon: '🔮', color: '#FFD700', defaultProps: { color: '#FFD700', vfxAngle: 30, vfxType: 'medium', vfxDensity: 'medium' } },
+    { type: 'vfx-particles', label: '💫 Particles', icon: '💫', color: '#F97316', defaultProps: { vfxType: 'sparks', color: '#FFD700', vfxDensity: 'medium', vfxDirection: 'up', vfxSpeed: 1 } },
+    { type: 'vfx-camera-shake', label: '📐 Camera Shake', icon: '📐', color: '#EF4444', defaultProps: { vfxDensity: 'medium', vfxType: 'handheld' } },
+    { type: 'vfx-cinematic-bars', label: '🎭 Cinematic Bars', icon: '🎭', color: '#6B7280', defaultProps: { vfxBarSize: 12, color: '#000000', vfxAnimation: 'slide' } },
+    { type: 'vfx-chromatic', label: '🌈 Chromatic', icon: '🌈', color: '#EC4899', defaultProps: { vfxDensity: 'medium', vfxAnimated: true, color: '#ff0040', vfxColor2: '#00d4ff' } },
+    { type: 'vfx-speed-ramp', label: '⚡ Speed Ramp', icon: '⚡', color: '#3B82F6', defaultProps: { vfxType: 'slow-motion', vfxIntensity: 0.5 } },
+    { type: 'vfx-3d-transform', label: '🔄 3D Transform', icon: '🔄', color: '#14B8A6', defaultProps: { vfxAnimation: 'orbit', vfxSpeed: 1, vfxRotateX: 0, vfxRotateY: 0, vfxRotateZ: 0, vfxPerspective: 1200 } },
 ] as const;
 
 // ═══ LAYER REDUCER ═══
@@ -99,6 +115,59 @@ const PROPERTY_FIELDS: Record<string, { label: string; key: string; type: 'text'
         { label: 'Testo', key: 'query', type: 'text' },
     ],
     'money-rain': [],
+    // ═══ VFX PRO PROPERTY FIELDS ═══
+    'vfx-glitch': [
+        { label: 'Variante', key: 'vfxType', type: 'select', options: ['digital', 'vhs', 'rgb-split'] },
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['low', 'medium', 'high'] },
+        { label: 'Colore', key: 'color', type: 'color' },
+    ],
+    'vfx-glow': [
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['soft', 'medium', 'intense'] },
+        { label: 'Posizione', key: 'position', type: 'select', options: ['center', 'top', 'bottom', 'edges'] },
+    ],
+    'vfx-color-grading': [
+        { label: 'Preset', key: 'vfxPreset', type: 'select', options: ['teal-orange', 'desaturated', 'vintage', 'neon', 'noir', 'golden-hour', 'cyberpunk', 'cold-blue'] },
+        { label: 'Intensità', key: 'vfxIntensity', type: 'range', min: 0.1, max: 1.0, step: 0.05, default: 0.8 },
+    ],
+    'vfx-lens-flare': [
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Angolo', key: 'vfxAngle', type: 'range', min: 0, max: 360, step: 5, default: 30 },
+        { label: 'Velocità', key: 'vfxType', type: 'select', options: ['slow', 'medium', 'fast'] },
+        { label: 'Dimensione', key: 'vfxDensity', type: 'select', options: ['small', 'medium', 'large'] },
+    ],
+    'vfx-particles': [
+        { label: 'Tipo', key: 'vfxType', type: 'select', options: ['sparks', 'bokeh', 'snow', 'smoke', 'fire', 'dust', 'stars'] },
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Densità', key: 'vfxDensity', type: 'select', options: ['low', 'medium', 'high'] },
+        { label: 'Direzione', key: 'vfxDirection', type: 'select', options: ['up', 'down', 'left', 'right', 'scatter'] },
+        { label: 'Velocità', key: 'vfxSpeed', type: 'range', min: 0.3, max: 3.0, step: 0.1, default: 1.0 },
+    ],
+    'vfx-camera-shake': [
+        { label: 'Tipo', key: 'vfxType', type: 'select', options: ['handheld', 'impact', 'vibrate'] },
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['subtle', 'medium', 'earthquake'] },
+    ],
+    'vfx-cinematic-bars': [
+        { label: 'Altezza Barre (%)', key: 'vfxBarSize', type: 'range', min: 2, max: 25, step: 1, default: 12 },
+        { label: 'Colore', key: 'color', type: 'color' },
+        { label: 'Animazione', key: 'vfxAnimation', type: 'select', options: ['slide', 'fade', 'instant'] },
+    ],
+    'vfx-chromatic': [
+        { label: 'Intensità', key: 'vfxDensity', type: 'select', options: ['subtle', 'medium', 'heavy'] },
+        { label: 'Colore 1', key: 'color', type: 'color' },
+        { label: 'Colore 2', key: 'vfxColor2', type: 'color' },
+    ],
+    'vfx-speed-ramp': [
+        { label: 'Tipo', key: 'vfxType', type: 'select', options: ['slow-motion', 'fast-forward', 'freeze', 'pulse'] },
+        { label: 'Intensità', key: 'vfxIntensity', type: 'range', min: 0.1, max: 4.0, step: 0.1, default: 0.5 },
+    ],
+    'vfx-3d-transform': [
+        { label: 'Animazione', key: 'vfxAnimation', type: 'select', options: ['static', 'orbit', 'flip', 'tilt-rock'] },
+        { label: 'Velocità', key: 'vfxSpeed', type: 'range', min: 0.3, max: 3.0, step: 0.1, default: 1.0 },
+        { label: 'Rotazione X', key: 'vfxRotateX', type: 'range', min: -45, max: 45, step: 1, default: 0 },
+        { label: 'Rotazione Y', key: 'vfxRotateY', type: 'range', min: -45, max: 45, step: 1, default: 0 },
+        { label: 'Prospettiva', key: 'vfxPerspective', type: 'range', min: 400, max: 2000, step: 50, default: 1200 },
+    ],
 };
 
 // ═══ SORTABLE LAYER ROW ═══
@@ -146,6 +215,7 @@ function SortableLayerRow({ layer, durationMs, isSelected, onSelect, cat }: { la
 
 export default function VideoEditorProPage() {
     const [currentStep, setCurrentStep] = useState<number>(1);
+    const [vfxTab, setVfxTab] = useState<'widgets' | 'vfx'>('widgets');
     
     // ═══ SCRIPT & AUDIO STATE ═══
     const [headline, setHeadline] = useState("Sblocca il tuo vero potenziale con il Metodo Sincro. Stai ancora aspettando o agisci?");
@@ -629,22 +699,72 @@ export default function VideoEditorProPage() {
 
                     {currentStep === 4 && (
                         <>
-                            <div className="p-3 border-b border-zinc-800">
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Libreria VFX</span>
+                            {/* Tab Switcher Widget / VFX */}
+                            <div className="p-2 border-b border-zinc-800 flex gap-1">
+                                <button
+                                    onClick={() => setVfxTab('widgets')}
+                                    className={`flex-1 text-[10px] uppercase tracking-widest font-bold py-2 px-3 rounded-lg transition-all ${
+                                        vfxTab === 'widgets' ? 'bg-purple-600 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                                    }`}
+                                >
+                                    📦 Widget
+                                </button>
+                                <button
+                                    onClick={() => setVfxTab('vfx')}
+                                    className={`flex-1 text-[10px] uppercase tracking-widest font-bold py-2 px-3 rounded-lg transition-all ${
+                                        vfxTab === 'vfx' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                                    }`}
+                                >
+                                    ✨ VFX Pro
+                                </button>
                             </div>
-                            <div className="p-2 space-y-1">
-                                {WIDGET_CATALOG.map(widget => (
-                                    <button
-                                        key={widget.type}
-                                        onClick={() => handleAddLayer(widget)}
-                                        className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-all text-left group"
-                                    >
-                                        <span className="text-lg">{widget.icon}</span>
-                                        <span className="text-xs font-medium text-zinc-300 group-hover:text-white flex-1">{widget.label.replace(/^.{2} /, '')}</span>
-                                        <Plus className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
-                                    </button>
-                                ))}
-                            </div>
+
+                            {vfxTab === 'widgets' && (
+                                <>
+                                    <div className="p-3 border-b border-zinc-800">
+                                        <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Libreria Widget</span>
+                                    </div>
+                                    <div className="p-2 space-y-1">
+                                        {WIDGET_CATALOG.map(widget => (
+                                            <button
+                                                key={widget.type}
+                                                onClick={() => handleAddLayer(widget)}
+                                                className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-all text-left group"
+                                            >
+                                                <span className="text-lg">{widget.icon}</span>
+                                                <span className="text-xs font-medium text-zinc-300 group-hover:text-white flex-1">{widget.label.replace(/^.{2} /, '')}</span>
+                                                <Plus className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {vfxTab === 'vfx' && (
+                                <>
+                                    <div className="p-3 border-b border-zinc-800">
+                                        <span className="text-[10px] uppercase tracking-widest font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">After Effects VFX</span>
+                                    </div>
+                                    <div className="p-2 space-y-1">
+                                        {VFX_CATALOG.map(vfx => (
+                                            <button
+                                                key={vfx.type}
+                                                onClick={() => handleAddLayer(vfx as any)}
+                                                className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-purple-500/30 transition-all text-left group"
+                                            >
+                                                <span className="text-lg">{vfx.icon}</span>
+                                                <span className="text-xs font-medium text-zinc-300 group-hover:text-white flex-1">{vfx.label.replace(/^.{2} /, '')}</span>
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: vfx.color }} />
+                                                <Plus className="w-3 h-3 text-zinc-600 group-hover:text-pink-400 transition-colors" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {/* VFX Pack info */}
+                                    <div className="p-3 mt-2 mx-2 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                                        <p className="text-[10px] text-purple-300 font-medium">🎥 10 effetti cinematici professionali. Aggiungi alla timeline e personalizza dal pannello destro.</p>
+                                    </div>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
@@ -734,7 +854,7 @@ export default function VideoEditorProPage() {
                         <div className="p-4 space-y-4">
                             {/* Layer info */}
                             <div className="flex items-center gap-2 bg-zinc-900 p-3 rounded-lg">
-                                <span className="text-lg">{WIDGET_CATALOG.find(w => w.type === selectedLayer.type)?.icon || '⬛'}</span>
+                                <span className="text-lg">{(WIDGET_CATALOG.find(w => w.type === selectedLayer.type) || VFX_CATALOG.find(w => w.type === selectedLayer.type))?.icon || '⬛'}</span>
                                 <div>
                                     <div className="text-xs font-bold text-white">{selectedLayer.label}</div>
                                     <div className="text-[10px] text-zinc-500">{selectedLayer.id.slice(0, 20)}...</div>
@@ -912,7 +1032,7 @@ export default function VideoEditorProPage() {
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                             <SortableContext items={layers.map(l => l.id)} strategy={verticalListSortingStrategy}>
                                 {layers.map(layer => {
-                                    const cat = WIDGET_CATALOG.find(w => w.type === layer.type);
+                                    const cat = WIDGET_CATALOG.find(w => w.type === layer.type) || VFX_CATALOG.find(w => w.type === layer.type);
                                     return (
                                         <SortableLayerRow 
                                             key={layer.id} 

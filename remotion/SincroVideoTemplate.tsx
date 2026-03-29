@@ -13,7 +13,9 @@ export interface WordTiming {
 }
 
 export interface VisualAsset {
-    type: 'b-roll' | 'newspaper' | 'giant-text' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter';
+    type: 'b-roll' | 'newspaper' | 'giant-text' | 'cta' | 'swipe-card' | 'emoji-reaction' | 'counter'
+        | 'vfx-glitch' | 'vfx-glow' | 'vfx-color-grading' | 'vfx-lens-flare' | 'vfx-particles'
+        | 'vfx-camera-shake' | 'vfx-cinematic-bars' | 'vfx-chromatic' | 'vfx-speed-ramp' | 'vfx-3d-transform';
     query: string;
     startMs: number;
     endMs: number;
@@ -35,6 +37,22 @@ export interface VisualAsset {
     toValue?: number;
     emojis?: string[];
     intensity?: string;
+    // VFX Props
+    vfxPreset?: string;
+    vfxIntensity?: number;
+    vfxSpeed?: number;
+    vfxAngle?: number;
+    vfxDensity?: string;
+    vfxDirection?: string;
+    vfxType?: string;
+    vfxBarSize?: number;
+    vfxAnimation?: string;
+    vfxAnimated?: boolean;
+    vfxColor2?: string;
+    vfxRotateX?: number;
+    vfxRotateY?: number;
+    vfxRotateZ?: number;
+    vfxPerspective?: number;
 }
 
 export interface SincroVideoProps {
@@ -64,6 +82,17 @@ import { SwipeCard } from './components/SwipeCard';
 import { EmojiReaction } from './components/EmojiReaction';
 import { ZoomPulse } from './components/ZoomPulse';
 import { CounterAnimation } from './components/CounterAnimation';
+// ★★★ AFTER EFFECTS VFX 6.0 ★★★
+import { GlitchEffect } from './components/GlitchEffect';
+import { GlowBloom } from './components/GlowBloom';
+import { ColorGrading } from './components/ColorGrading';
+import { LensFlare } from './components/LensFlare';
+import { ParticleSystem } from './components/ParticleSystem';
+import { CameraShake } from './components/CameraShakeVFX';
+import { CinematicBars } from './components/CinematicBarsVFX';
+import { ChromaticAberration } from './components/ChromaticAberration';
+import { SpeedRamp } from './components/SpeedRamp';
+import { Transform3D } from './components/Transform3D';
 
 export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({ 
     headline, 
@@ -427,6 +456,35 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                             text="Scopri di più"
                         />
                     )}
+                </AbsoluteFill>
+
+                {/* ═══ Z-500: AFTER EFFECTS VFX LAYER ═══ */}
+                <AbsoluteFill style={{ zIndex: 500, pointerEvents: 'none' }}>
+                    {visualAssets.filter(a => a.type.startsWith('vfx-')).map((asset, i) => {
+                        const sf = Math.ceil((asset.startMs / 1000) * fps);
+                        const ef = Math.ceil((asset.endMs / 1000) * fps);
+
+                        switch (asset.type) {
+                            case 'vfx-glitch':
+                                return <GlitchEffect key={`vfx-${i}`} startFrame={sf} endFrame={ef} intensity={(asset.vfxDensity as any) || 'medium'} color={asset.color || '#ff0040'} variant={(asset.vfxType as any) || 'digital'} />;
+                            case 'vfx-glow':
+                                return <GlowBloom key={`vfx-${i}`} startFrame={sf} endFrame={ef} color={asset.color || '#a855f7'} intensity={(asset.vfxDensity as any) || 'medium'} position={(asset.position as any) || 'center'} animated={asset.vfxAnimated !== false} />;
+                            case 'vfx-color-grading':
+                                return <ColorGrading key={`vfx-${i}`} startFrame={sf} endFrame={ef} preset={(asset.vfxPreset as any) || 'teal-orange'} intensity={asset.vfxIntensity ?? 0.8} />;
+                            case 'vfx-lens-flare':
+                                return <LensFlare key={`vfx-${i}`} startFrame={sf} endFrame={ef} color={asset.color || '#FFD700'} angle={asset.vfxAngle ?? 30} speed={(asset.vfxType as any) || 'medium'} size={(asset.vfxDensity as any) || 'medium'} />;
+                            case 'vfx-particles':
+                                return <ParticleSystem key={`vfx-${i}`} startFrame={sf} endFrame={ef} type={(asset.vfxType as any) || 'sparks'} color={asset.color || '#FFD700'} density={(asset.vfxDensity as any) || 'medium'} direction={(asset.vfxDirection as any) || 'up'} speed={asset.vfxSpeed ?? 1} />;
+                            case 'vfx-cinematic-bars':
+                                return <CinematicBars key={`vfx-${i}`} startFrame={sf} endFrame={ef} barSize={asset.vfxBarSize ?? 12} color={asset.color || '#000000'} animation={(asset.vfxAnimation as any) || 'slide'} />;
+                            case 'vfx-chromatic':
+                                return <ChromaticAberration key={`vfx-${i}`} startFrame={sf} endFrame={ef} intensity={(asset.vfxDensity as any) || 'medium'} animated={asset.vfxAnimated !== false} color1={asset.color || '#ff0040'} color2={asset.vfxColor2 || '#00d4ff'} />;
+                            case 'vfx-speed-ramp':
+                                return <SpeedRamp key={`vfx-${i}`} startFrame={sf} endFrame={ef} type={(asset.vfxType as any) || 'slow-motion'} intensity={asset.vfxIntensity ?? 0.5} />;
+                            default:
+                                return null;
+                        }
+                    })}
                 </AbsoluteFill>
             </div>
         </AbsoluteFill>
