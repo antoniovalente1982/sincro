@@ -143,10 +143,18 @@ export async function appendLeadToSheet(orgId: string, leadData: {
             ? `${originParts[0]} (${utmParts.join(' | ')})`
             : originParts[0]
 
-        // Format date as DD/MM/YYYY in Italian timezone (Europe/Rome)
+        // Format date as DD/MM/YYYY HH:mm:ss in Italian timezone (Europe/Rome)
         const date = new Date(leadData.created_at)
-        const italianDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }))
-        const formattedDate = `${String(italianDate.getDate()).padStart(2, '0')}/${String(italianDate.getMonth() + 1).padStart(2, '0')}/${italianDate.getFullYear()}`
+        let formattedDate = ''
+        if (!isNaN(date.getTime())) {
+            formattedDate = date.toLocaleString('it-IT', { 
+                timeZone: 'Europe/Rome', 
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }).replace(',', '') // 29/03/2026 15:30:00
+        } else {
+            formattedDate = leadData.created_at
+        }
 
         // Columns: data | NOME | NUMERO DI TELEFONO | MAIL | ORIGINE
         const values = [[
@@ -284,15 +292,28 @@ export async function syncAllLeadsToSheet(orgId: string): Promise<{ success: boo
     // Build values array with header
     const values = [
         ['Data', 'Nome', 'Email', 'Telefono', 'Funnel/Prodotto', 'UTM Source', 'UTM Campaign'],
-        ...leads.map(l => [
-            l.created_at || '',
-            l.name || '',
-            l.email || '',
-            l.phone || '',
-            l.product || '',
-            l.utm_source || '',
-            l.utm_campaign || '',
-        ])
+        ...leads.map(l => {
+            let formattedDate = l.created_at || ''
+            if (formattedDate) {
+                const dateObj = new Date(formattedDate)
+                if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toLocaleString('it-IT', { 
+                        timeZone: 'Europe/Rome', 
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    }).replace(',', '')
+                }
+            }
+            return [
+                formattedDate,
+                l.name || '',
+                l.email || '',
+                l.phone || '',
+                l.product || '',
+                l.utm_source || '',
+                l.utm_campaign || '',
+            ]
+        })
     ]
 
     try {
