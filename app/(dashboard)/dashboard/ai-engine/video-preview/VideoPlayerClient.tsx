@@ -2,7 +2,7 @@
 
 import { Player, PlayerRef } from '@remotion/player';
 import { SincroVideoTemplate } from '@/remotion/SincroVideoTemplate';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo, useEffect, useState } from 'react';
 
 interface VideoPlayerClientProps {
     headline: string;
@@ -36,6 +36,52 @@ interface VideoPlayerClientProps {
     videoFormat?: '9:16' | '16:9' | '1:1';
 }
 
+/**
+ * Converts a base64 audio string to a Blob URL for reliable browser playback.
+ * Data URIs can silently fail on large audio files; Blob URLs bypass this.
+ */
+function base64ToBlobUrl(base64: string): string {
+    // If it's already a usable URL, return as-is
+    if (base64.startsWith('blob:') || base64.startsWith('http')) return base64;
+    
+    // Strip data URI prefix if present
+    const raw = base64.startsWith('data:') 
+        ? base64.split(',')[1] 
+        : base64;
+    
+    try {
+        const byteChars = atob(raw);
+        const byteArray = new Uint8Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) {
+            byteArray[i] = byteChars.charCodeAt(i);
+        }
+        const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+        return URL.createObjectURL(blob);
+    } catch (e) {
+        console.error('Failed to convert base64 to Blob URL:', e);
+        // Fallback to data URI
+        return `data:audio/mpeg;base64,${raw}`;
+    }
+}
+
+/**
+ * Stable wrapper component for Remotion Player.
+ * CRITICAL: This must be defined OUTSIDE of the VideoPlayerClient render function
+ * to avoid Remotion re-mounting the entire composition on every render,
+ * which kills all audio elements.
+ */
+const ScaledTemplate: React.FC<any> = (props) => {
+    // We read the dimensions from a data attribute on the composition
+    // to avoid creating a closure over changing variables
+    const baseWidth = props.__baseWidth || 1080;
+    const baseHeight = props.__baseHeight || 1920;
+    return (
+        <div style={{ transform: 'scale(2)', transformOrigin: 'top left', width: baseWidth, height: baseHeight, position: 'absolute' }}>
+            <SincroVideoTemplate {...props} />
+        </div>
+    );
+};
+
 const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({ 
     headline, 
     audioBase64, 
@@ -60,37 +106,29 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
     lightRimColor,
     videoFormat = '9:16',
 }, ref) => {
+    // ═══ CONVERT BASE64 → BLOB URL ═══
+    // Data URIs silently fail on large audio payloads (>500KB).
+    // Blob URLs are the recommended approach for Remotion audio.
+    const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (audioBase64 && audioBase64.length > 0) {
+            const url = base64ToBlobUrl(audioBase64);
+            setAudioBlobUrl(url);
+            // Cleanup: revoke old blob URL when audioBase64 changes
+            return () => {
+                if (url.startsWith('blob:')) {
+                    URL.revokeObjectURL(url);
+                }
+            };
+        } else {
+            setAudioBlobUrl(null);
+        }
+    }, [audioBase64]);
+
     // Usa duration genitore o calcola fallback
     const computedDurationMls = words && words.length > 0 ? words[words.length - 1].endMs + 2000 : 10000;
     const durationInFrames = parentDuration || Math.max(600, Math.ceil((computedDurationMls / 1000) * parentFps));
-
-    // Memoizzato per evitare ricreazioni a nastro su Remotion Player e lag mortali
-    const memoizedInputProps = React.useMemo(() => ({
-        headline, 
-        audioBase64: audioBase64 || '', 
-        words: words || [],
-        visualAssets: visualAssets || [],
-        enableMoneyVFX: useMoney,
-        avatarVideoUrl: avatarVideoUrl || null,
-        iosMessageText: messageText || null,
-        backgroundMood: (backgroundMood as any) || 'warm-studio',
-        subtitleStyle: subtitleStyle,
-        customBackgroundUrl,
-        enable3DParallax,
-        enableAutoBackgroundRemoval,
-        lightKeyAngle,
-        lightKeyIntensity,
-        lightKeyColor,
-        lightFillIntensity,
-        lightFillColor,
-        lightRimIntensity,
-        lightRimColor,
-    }), [
-        headline, audioBase64, words, visualAssets, useMoney, avatarVideoUrl, messageText, backgroundMood,
-        subtitleStyle, customBackgroundUrl, enable3DParallax, enableAutoBackgroundRemoval,
-        lightKeyAngle, lightKeyIntensity, lightKeyColor, lightFillIntensity, lightFillColor,
-        lightRimIntensity, lightRimColor, videoFormat
-    ]);
 
     let baseWidth = 1080;
     let baseHeight = 1920;
@@ -108,14 +146,42 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
     const compWidth = baseWidth * 2;
     const compHeight = baseHeight * 2;
 
+    // Memoizzato per evitare ricreazioni a nastro su Remotion Player e lag mortali
+    const memoizedInputProps = useMemo(() => ({
+        headline, 
+        // Pass the Blob URL instead of raw base64
+        audioBase64: audioBlobUrl || '', 
+        words: words || [],
+        visualAssets: visualAssets || [],
+        enableMoneyVFX: useMoney,
+        avatarVideoUrl: avatarVideoUrl || null,
+        iosMessageText: messageText || null,
+        backgroundMood: (backgroundMood as any) || 'warm-studio',
+        subtitleStyle: subtitleStyle,
+        customBackgroundUrl,
+        enable3DParallax,
+        enableAutoBackgroundRemoval,
+        lightKeyAngle,
+        lightKeyIntensity,
+        lightKeyColor,
+        lightFillIntensity,
+        lightFillColor,
+        lightRimIntensity,
+        lightRimColor,
+        // Pass dimensions for the ScaledTemplate wrapper
+        __baseWidth: baseWidth,
+        __baseHeight: baseHeight,
+    }), [
+        headline, audioBlobUrl, words, visualAssets, useMoney, avatarVideoUrl, messageText, backgroundMood,
+        subtitleStyle, customBackgroundUrl, enable3DParallax, enableAutoBackgroundRemoval,
+        lightKeyAngle, lightKeyIntensity, lightKeyColor, lightFillIntensity, lightFillColor,
+        lightRimIntensity, lightRimColor, baseWidth, baseHeight
+    ]);
+
     return (
         <Player
             ref={ref}
-            component={(props: any) => (
-                <div style={{ transform: 'scale(2)', transformOrigin: 'top left', width: baseWidth, height: baseHeight, position: 'absolute' }}>
-                    <SincroVideoTemplate {...props} />
-                </div>
-            )}
+            component={ScaledTemplate}
             inputProps={memoizedInputProps}
             durationInFrames={durationInFrames}
             fps={parentFps}
@@ -129,6 +195,7 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
                 overflow: 'hidden',
                 backgroundColor: '#000'
             }}
+            numberOfSharedAudioTags={5}
             controls
             loop
         />

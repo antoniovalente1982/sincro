@@ -281,12 +281,13 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
 
             <div style={{ width: '100%', height: '100%', transform: earthquakeTransform, transformOrigin: 'center center' }}>
                 {/* Audio */}
-                {audioBase64 && (
+                {audioBase64 && audioBase64.length > 0 && (
                     <Audio 
                         src={audioBase64.startsWith('blob:') || audioBase64.startsWith('http') || audioBase64.startsWith('data:') 
                              ? audioBase64 
                              : `data:audio/mpeg;base64,${audioBase64}`} 
-                        volume={1} // FORCE MAX VOLUME
+                        volume={1}
+                        pauseWhenBuffering
                     />
                 )}
 
