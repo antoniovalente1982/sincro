@@ -106,9 +106,30 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // 3. Aggrega Revenue dal CRM (per i lead VENDUTI in questo periodo)
-        // Use updated_at (reflects when lead was moved to "Vendita" stage)
-        // NOT created_at (which is when the lead first entered the pipeline)
+        // 3. Count REAL leads from CRM (ground truth) for each campaign
+        // Meta API underreports leads due to attribution gaps (iOS ATT, cookie blocking)
+        // even though CAPI events are all received successfully.
+        // CRM leads matched by utm_campaign are the accurate count.
+        const { data: crmLeads } = await getSupabaseAdmin()
+            .from('leads')
+            .select('id, utm_campaign, value, stage_id')
+            .eq('organization_id', orgId)
+            .gte('created_at', since + 'T00:00:00+02:00')
+            .lte('created_at', until + 'T23:59:59+02:00')
+
+        // Build CRM leads count per campaign name (case-insensitive match)
+        const crmLeadsMap: Record<string, number> = {}
+        let unattributedLeads = 0
+        for (const lead of (crmLeads || [])) {
+            if (lead.utm_campaign) {
+                const campKey = lead.utm_campaign.toLowerCase().trim()
+                crmLeadsMap[campKey] = (crmLeadsMap[campKey] || 0) + 1
+            } else {
+                unattributedLeads++
+            }
+        }
+
+        // 4. Aggrega Revenue dal CRM (per i lead VENDUTI in questo periodo)
         const { data: wonLeads } = await getSupabaseAdmin()
             .from('leads')
             .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
@@ -125,44 +146,49 @@ export async function GET(req: NextRequest) {
                 const campKey = lead.utm_campaign.toLowerCase().trim()
                 crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
             } else {
-                // Lead without utm_campaign — attribute to highest-spend campaign
                 unattributedRevenue += (Number(lead.value) || 0)
             }
         }
 
-        // Attribute unmatched revenue to highest-spend campaign
-        if (unattributedRevenue > 0) {
-            let highestSpendCampKey = ''
-            let highestSpend = 0
-            for (const c of allCampaigns) {
-                const spend = parseFloat(insightsMap[c.id]?.spend || '0')
-                if (spend > highestSpend) {
-                    highestSpend = spend
-                    highestSpendCampKey = (c.name || '').toLowerCase().trim()
-                }
+        // Attribute unmatched revenue & leads to highest-spend campaign
+        let highestSpendCampKey = ''
+        let highestSpend = 0
+        for (const c of allCampaigns) {
+            const spend = parseFloat(insightsMap[c.id]?.spend || '0')
+            if (spend > highestSpend) {
+                highestSpend = spend
+                highestSpendCampKey = (c.name || '').toLowerCase().trim()
             }
-            if (highestSpendCampKey) {
+        }
+        if (highestSpendCampKey) {
+            if (unattributedRevenue > 0) {
                 crmRevenueMap[highestSpendCampKey] = (crmRevenueMap[highestSpendCampKey] || 0) + unattributedRevenue
+            }
+            if (unattributedLeads > 0) {
+                crmLeadsMap[highestSpendCampKey] = (crmLeadsMap[highestSpendCampKey] || 0) + unattributedLeads
             }
         }
 
-        // 4. Build combined data — show ALL campaigns with their real-time status,
-        //    but with spend/metrics only from the selected period
+        // 5. Build combined data — show ALL campaigns with their real-time status,
+        //    CRM lead counts (ground truth), and Meta spend/traffic metrics
         const campaigns = allCampaigns.map((c: any) => {
             const insight = insightsMap[c.id] || {}
-            const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
-            const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+            const metaLeadsCount = parseInt(insight.actions?.find((a: any) => a.action_type === 'lead')?.value || '0')
             const purchaseValue = parseFloat(insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || '0')
             const spendNum = parseFloat(insight.spend || '0')
 
             const campKey = (c.name || '').toLowerCase().trim()
+            const crmLeadCount = crmLeadsMap[campKey] || 0
             const crmRevenue = crmRevenueMap[campKey] || 0
             
-            // To prevent double counting if CAPI successfully sent the offline conversion, we take the max
+            // Use CRM leads as ground truth (always >= Meta reported)
+            // Fall back to Meta count only if CRM has 0 (edge case: leads without utm_campaign)
+            const realLeads = crmLeadCount > 0 ? crmLeadCount : metaLeadsCount
+            const realCPL = realLeads > 0 && spendNum > 0 ? spendNum / realLeads : 0
+
             const totalRevenue = Math.max(purchaseValue, crmRevenue)
             const roas = spendNum > 0 && totalRevenue > 0 ? totalRevenue / spendNum : 0
 
-            // Link clicks: outbound_clicks contains clicks to external URLs
             const linkClicks = insight.outbound_clicks?.find((a: any) => a.action_type === 'outbound_click')?.value || 0
             const linkClickCtr = parseFloat(insight.inline_link_click_ctr || '0')
 
@@ -178,8 +204,9 @@ export async function GET(req: NextRequest) {
                 ctr: parseFloat(insight.ctr || '0'),
                 link_clicks: parseInt(linkClicks),
                 link_click_ctr: linkClickCtr,
-                leads_count: parseInt(leadsCount),
-                cpl: parseFloat(cplValue),
+                leads_count: realLeads,
+                meta_leads_count: metaLeadsCount,  // Keep Meta's count for reference
+                cpl: realCPL,
                 cpc: parseFloat(insight.cpc || '0'),
                 roas,
                 date_range_start: since,

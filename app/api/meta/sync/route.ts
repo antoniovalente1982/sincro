@@ -177,21 +177,58 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         }
     }
 
+    // Count REAL leads from CRM (lifetime) for each campaign
+    const { data: allCrmLeads } = await getSupabaseAdmin()
+        .from('leads')
+        .select('id, utm_campaign')
+        .eq('organization_id', orgId)
+
+    const crmLeadsMap: Record<string, number> = {}
+    let unattributedLeads = 0
+    for (const lead of (allCrmLeads || [])) {
+        if (lead.utm_campaign) {
+            const campKey = lead.utm_campaign.toLowerCase().trim()
+            crmLeadsMap[campKey] = (crmLeadsMap[campKey] || 0) + 1
+        } else {
+            unattributedLeads++
+        }
+    }
+
+    // Attribute unmatched leads to highest-spend campaign
+    if (unattributedLeads > 0) {
+        let topCampKey = ''
+        let topSpend = 0
+        for (const campaign of campaigns) {
+            const spend = parseFloat(insightsMap[campaign.id]?.spend || '0')
+            if (spend > topSpend) {
+                topSpend = spend
+                topCampKey = (campaign.name || '').toLowerCase().trim()
+            }
+        }
+        if (topCampKey) {
+            crmLeadsMap[topCampKey] = (crmLeadsMap[topCampKey] || 0) + unattributedLeads
+        }
+    }
+
     // 4. Upsert campaigns with insights
     let synced = 0
     for (const campaign of campaigns) {
         const insight = insightsMap[campaign.id] || {}
         const hasInsights = !!insight.spend // Only update metrics if Meta returned data
 
-        const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
-        const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+        const metaLeadsCount = parseInt(insight.actions?.find((a: any) => a.action_type === 'lead')?.value || '0')
         const purchaseCount = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0
         const purchaseValue = parseFloat(insight.actions?.find((a: any) => a.action_type === 'omni_purchase')?.value || '0')
         const spendNum = parseFloat(insight.spend || '0')
         
         const campKey = (campaign.name || '').toLowerCase().trim()
+        const crmLeadCount = crmLeadsMap[campKey] || 0
         const crmRevenue = crmRevenueMap[campKey] || 0
         const totalRevenue = Math.max(purchaseValue, crmRevenue)
+
+        // Use CRM leads as ground truth
+        const realLeads = crmLeadCount > 0 ? crmLeadCount : metaLeadsCount
+        const realCPL = realLeads > 0 && spendNum > 0 ? spendNum / realLeads : 0
 
         const roas = spendNum > 0 && totalRevenue > 0 ? totalRevenue / spendNum : 0
 
@@ -211,8 +248,8 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
             upsertData.spend = spendNum
             upsertData.impressions = parseInt(insight.impressions || '0')
             upsertData.clicks = parseInt(insight.clicks || '0')
-            upsertData.leads_count = parseInt(leadsCount)
-            upsertData.cpl = parseFloat(cplValue)
+            upsertData.leads_count = realLeads
+            upsertData.cpl = realCPL
             upsertData.cpc = parseFloat(insight.cpc || '0')
             upsertData.ctr = parseFloat(insight.ctr || '0')
             upsertData.conversions = parseInt(purchaseCount)
