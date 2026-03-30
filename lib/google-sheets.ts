@@ -143,9 +143,10 @@ export async function appendLeadToSheet(orgId: string, leadData: {
             ? `${originParts[0]} (${utmParts.join(' | ')})`
             : originParts[0]
 
-        // Format date as DD/MM/YYYY
+        // Format date as DD/MM/YYYY in Italian timezone (Europe/Rome)
         const date = new Date(leadData.created_at)
-        const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
+        const italianDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }))
+        const formattedDate = `${String(italianDate.getDate()).padStart(2, '0')}/${String(italianDate.getMonth() + 1).padStart(2, '0')}/${italianDate.getFullYear()}`
 
         // Columns: data | NOME | NUMERO DI TELEFONO | MAIL | ORIGINE
         const values = [[
