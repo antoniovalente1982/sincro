@@ -432,7 +432,7 @@ export async function POST(req: NextRequest) {
 
     if (action === 'approve_creative') {
         // Approve or reject an ad creative (from Dante/Telegram or dashboard)
-        const { creative_id, creative_name, decision } = body // decision: 'approve' | 'reject'
+        const { creative_id, creative_name, decision, rejection_reason } = body // decision: 'approve' | 'reject'
 
         // Find creative by ID or name
         let query = supabase.from('ad_creatives')
@@ -451,11 +451,16 @@ export async function POST(req: NextRequest) {
         if (!creative) return NextResponse.json({ error: 'Creative not found' }, { status: 404 })
 
         const newStatus = decision === 'approve' ? 'approved' : 'rejected'
+        const updatePayload: Record<string, any> = {
+            status: newStatus,
+            approved_by: decision === 'approve' ? user.id : null,
+        }
+        // Save rejection reason for AI learning loop
+        if (decision === 'reject' && rejection_reason) {
+            updatePayload.rejection_reason = rejection_reason
+        }
         const { error } = await supabase.from('ad_creatives')
-            .update({
-                status: newStatus,
-                approved_by: decision === 'approve' ? user.id : null,
-            })
+            .update(updatePayload)
             .eq('id', creative.id)
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -464,10 +469,11 @@ export async function POST(req: NextRequest) {
         try {
             const { sendTelegramMessage } = await import('@/lib/telegram')
             const emoji = decision === 'approve' ? '✅' : '❌'
-            await sendTelegramMessage(
-                member.organization_id,
-                `${emoji} <b>Ad ${creative.name}</b> — ${decision === 'approve' ? 'APPROVATA' : 'RIFIUTATA'}\n\nAngolo: ${creative.angle} | Pocket: #${creative.pocket_id} ${creative.pocket_name}`
-            )
+            let tgMsg = `${emoji} <b>Ad ${creative.name}</b> — ${decision === 'approve' ? 'APPROVATA' : 'RIFIUTATA'}\n\nAngolo: ${creative.angle} | Pocket: #${creative.pocket_id} ${creative.pocket_name}`
+            if (decision === 'reject' && rejection_reason) {
+                tgMsg += `\n\n📝 Motivo: ${rejection_reason}`
+            }
+            await sendTelegramMessage(member.organization_id, tgMsg)
         } catch {}
 
         return NextResponse.json({ success: true, status: newStatus })
@@ -531,6 +537,54 @@ export async function POST(req: NextRequest) {
             creatives,
             summary: { by_status: byStatus, by_angle: byAngle, total: allCreatives.length },
         })
+    }
+
+    if (action === 'submit_feedback') {
+        const { creative_id, feedback_text, feedback_type } = body
+        // feedback_type: 'positive' | 'negative' | 'suggestion'
+        if (!creative_id || !feedback_text) {
+            return NextResponse.json({ error: 'creative_id and feedback_text required' }, { status: 400 })
+        }
+
+        const { data: creative } = await supabase
+            .from('ad_creatives')
+            .select('id, name, human_feedback, angle')
+            .eq('id', creative_id)
+            .eq('organization_id', member.organization_id)
+            .single()
+
+        if (!creative) return NextResponse.json({ error: 'Creative not found' }, { status: 404 })
+
+        const existingFeedback = Array.isArray(creative.human_feedback) ? creative.human_feedback : []
+        const newEntry = {
+            text: feedback_text.trim(),
+            type: feedback_type || 'suggestion',
+            created_at: new Date().toISOString(),
+        }
+        const updatedFeedback = [...existingFeedback, newEntry]
+
+        const { error } = await supabase
+            .from('ad_creatives')
+            .update({ human_feedback: updatedFeedback, updated_at: new Date().toISOString() })
+            .eq('id', creative_id)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        // Log to AI episodes for memory
+        await supabase.from('ai_episodes').insert({
+            organization_id: member.organization_id,
+            episode_type: 'feedback',
+            action_type: `creative_feedback_${feedback_type || 'suggestion'}`,
+            target_type: 'ad_creative',
+            target_id: creative_id,
+            target_name: creative.name,
+            context: { feedback_text, feedback_type, angle: creative.angle },
+            reasoning: `Feedback umano su ad "${creative.name}": ${feedback_text}`,
+            outcome: feedback_type === 'positive' ? 'positive' : feedback_type === 'negative' ? 'negative' : 'neutral',
+            outcome_score: feedback_type === 'positive' ? 0.8 : feedback_type === 'negative' ? -0.5 : 0.3,
+        })
+
+        return NextResponse.json({ success: true, feedback_count: updatedFeedback.length })
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })

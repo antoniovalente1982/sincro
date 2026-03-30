@@ -683,9 +683,14 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
     }
 
     // Update status
+    const updatePayload: Record<string, any> = { status: newStatus }
+    // Save rejection reason for AI learning loop
+    if (newStatus === 'rejected' && params.rejection_reason) {
+        updatePayload.rejection_reason = params.rejection_reason
+    }
     const { error } = await getSupabaseAdmin()
         .from('ad_creatives')
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq('id', creative.id)
 
     if (error) {
@@ -694,9 +699,10 @@ async function approveCreative(orgId: string, params: Record<string, any>, newSt
 
     // If REJECTED → done
     if (newStatus === 'rejected') {
+        const reasonNote = params.rejection_reason ? `\n\n📝 Motivo: "${params.rejection_reason}"\n🧠 Questo feedback migliorerà le prossime generazioni AI.` : ''
         return {
             success: true,
-            message: `❌ Ad <b>${creative.name}</b> RIFIUTATA\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}`,
+            message: `❌ Ad <b>${creative.name}</b> RIFIUTATA\n\n🎯 Angolo: ${creative.angle}\n🧠 Pocket: #${creative.pocket_id} ${creative.pocket_name}${reasonNote}`,
         }
     }
 

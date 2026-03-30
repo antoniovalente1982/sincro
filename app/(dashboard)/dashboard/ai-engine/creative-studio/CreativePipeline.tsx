@@ -3,7 +3,8 @@
 import { useState, useCallback } from 'react'
 import {
     Zap, Loader2, CheckCircle, XCircle, Rocket, RefreshCw, Brain,
-    Target, ArrowRight, Clock, Trash2, Eye, ChevronDown, Filter, Play, X
+    Target, ArrowRight, Clock, Trash2, Eye, ChevronDown, Filter, Play, X,
+    MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, Send
 } from 'lucide-react'
 
 interface AdCreative {
@@ -32,6 +33,8 @@ interface AdCreative {
     created_by: string
     created_at: string
     launched_at: string | null
+    rejection_reason: string | null
+    human_feedback: { text: string; type: string; created_at: string }[] | null
 }
 
 interface PipelineSummary {
@@ -75,6 +78,12 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [pipelineResult, setPipelineResult] = useState<any>(null)
     const [approveResult, setApproveResult] = useState<any>(null)
     const [pipelineStep, setPipelineStep] = useState(0) // 0 = not running
+    const [rejectingId, setRejectingId] = useState<string | null>(null)
+    const [rejectionReason, setRejectionReason] = useState('')
+    const [feedbackId, setFeedbackId] = useState<string | null>(null)
+    const [feedbackText, setFeedbackText] = useState('')
+    const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | 'suggestion'>('suggestion')
+    const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -89,14 +98,24 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         }
     }, [])
 
-    const handleApprove = async (id: string, decision: 'approve' | 'reject') => {
+    const handleApprove = async (id: string, decision: 'approve' | 'reject', rejectionReasonText?: string) => {
+        // If rejecting without a reason, open the modal first
+        if (decision === 'reject' && !rejectionReasonText) {
+            setRejectingId(id)
+            setRejectionReason('')
+            return
+        }
         setLoading(prev => ({ ...prev, [id]: true }))
         setApproveResult(null)
         try {
+            const payload: Record<string, any> = { action: 'approve_creative', creative_id: id, decision }
+            if (decision === 'reject' && rejectionReasonText) {
+                payload.rejection_reason = rejectionReasonText
+            }
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'approve_creative', creative_id: id, decision }),
+                body: JSON.stringify(payload),
             })
             const data = await res.json()
             if (data.error) throw new Error(data.error)
@@ -111,7 +130,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                 if (launchData.error) throw new Error(`Errore lancio Meta: ${launchData.error}`)
                 setApproveResult({ success: true, message: '🚀 Ad lanciata con successo su Meta!' })
             } else {
-                setApproveResult(data)
+                setApproveResult({ success: true, message: `❌ Ad rifiutata — il feedback migliorerà le prossime generazioni AI` })
             }
             
             await refresh()
@@ -121,6 +140,17 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         }
         setLoading(prev => ({ ...prev, [id]: false }))
         setTimeout(() => setApproveResult(null), 10000)
+    }
+
+    const submitRejection = () => {
+        if (!rejectingId) return
+        const reason = rejectionReason.trim()
+        if (!reason) {
+            alert('Scrivi il motivo del rifiuto per aiutare l\'AI a migliorare')
+            return
+        }
+        setRejectingId(null)
+        handleApprove(rejectingId, 'reject', reason)
     }
 
     const handleDelete = async (id: string, name: string) => {
@@ -141,6 +171,39 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         }
         setLoading(prev => ({ ...prev, [id]: false }))
         setTimeout(() => setApproveResult(null), 5000)
+    }
+
+    const handleSubmitFeedback = async () => {
+        if (!feedbackId || !feedbackText.trim()) {
+            alert('Scrivi il tuo feedback per aiutare l\'AI a migliorare')
+            return
+        }
+        setFeedbackSubmitting(true)
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'submit_feedback',
+                    creative_id: feedbackId,
+                    feedback_text: feedbackText.trim(),
+                    feedback_type: feedbackType,
+                }),
+            })
+            const data = await res.json()
+            if (data.error) throw new Error(data.error)
+
+            const typeEmoji = feedbackType === 'positive' ? '✅' : feedbackType === 'negative' ? '❌' : '💡'
+            setApproveResult({ success: true, message: `${typeEmoji} Feedback salvato — l'AI ne terrà conto nelle prossime generazioni` })
+            setFeedbackId(null)
+            setFeedbackText('')
+            setFeedbackType('suggestion')
+            await refresh()
+        } catch (err: any) {
+            setApproveResult({ error: err.message })
+        }
+        setFeedbackSubmitting(false)
+        setTimeout(() => setApproveResult(null), 8000)
     }
 
     const PIPELINE_STEPS = [
@@ -508,6 +571,27 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                                 <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
                                             </button>
                                         )}
+
+                                        {/* Feedback Button — available on ALL ads */}
+                                        {!isLoading && (
+                                            <button onClick={(e) => {
+                                                e.stopPropagation()
+                                                setFeedbackId(creative.id)
+                                                setFeedbackText('')
+                                                setFeedbackType('suggestion')
+                                            }}
+                                                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110 relative"
+                                                style={{ background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.2)' }}
+                                                title="Lascia feedback per l'AI">
+                                                <MessageSquare className="w-3.5 h-3.5" style={{ color: '#6366f1' }} />
+                                                {(creative.human_feedback?.length || 0) > 0 && (
+                                                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-bold flex items-center justify-center"
+                                                        style={{ background: '#6366f1', color: '#fff' }}>
+                                                        {creative.human_feedback!.length}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        )}
                                         {isLoading && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#6366f1' }} />}
 
                                         <ChevronDown className="w-4 h-4 transition-transform" style={{
@@ -571,6 +655,51 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                             </div>
                                         )}
 
+                                        {/* Rejection Reason */}
+                                        {creative.status === 'rejected' && creative.rejection_reason && (
+                                            <div className="mt-2 p-3 rounded-xl" style={{
+                                                background: 'rgba(239, 68, 68, 0.05)',
+                                                border: '1px solid rgba(239, 68, 68, 0.15)',
+                                            }}>
+                                                <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: '#ef4444' }}>📝 Motivo Rifiuto</div>
+                                                <div className="text-xs" style={{ color: 'var(--color-surface-600)' }}>"{creative.rejection_reason}"</div>
+                                                <div className="text-[10px] mt-1 italic" style={{ color: 'var(--color-surface-500)' }}>Questo feedback verrà usato per migliorare le prossime generazioni AI</div>
+                                            </div>
+                                        )}
+
+                                        {/* Human Feedback Entries */}
+                                        {creative.human_feedback && creative.human_feedback.length > 0 && (
+                                            <div className="mt-2 space-y-2">
+                                                <div className="text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5" style={{ color: '#6366f1' }}>
+                                                    <Brain className="w-3 h-3" />
+                                                    Feedback AI Learning ({creative.human_feedback.length})
+                                                </div>
+                                                {creative.human_feedback.map((fb, idx) => {
+                                                    const typeConfig = fb.type === 'positive'
+                                                        ? { emoji: '✅', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.05)', border: 'rgba(34, 197, 94, 0.15)', label: 'Positivo' }
+                                                        : fb.type === 'negative'
+                                                        ? { emoji: '❌', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.05)', border: 'rgba(239, 68, 68, 0.15)', label: 'Negativo' }
+                                                        : { emoji: '💡', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.05)', border: 'rgba(245, 158, 11, 0.15)', label: 'Suggerimento' }
+                                                    return (
+                                                        <div key={idx} className="p-2.5 rounded-xl flex items-start gap-2" style={{
+                                                            background: typeConfig.bg,
+                                                            border: `1px solid ${typeConfig.border}`,
+                                                        }}>
+                                                            <span className="text-xs flex-shrink-0">{typeConfig.emoji}</span>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-xs" style={{ color: 'var(--color-surface-600)' }}>"{fb.text}"</div>
+                                                                <div className="text-[9px] mt-1 flex items-center gap-2" style={{ color: 'var(--color-surface-500)' }}>
+                                                                    <span style={{ color: typeConfig.color }}>{typeConfig.label}</span>
+                                                                    <span>•</span>
+                                                                    <span>{new Date(fb.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+
                                         {/* Performance (mobile) */}
                                         {creative.spend > 0 && (
                                             <div className="md:hidden grid grid-cols-4 gap-2">
@@ -612,6 +741,185 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                         {runningPipeline ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
                         Avvia Creative Pipeline
                     </button>
+                </div>
+            )}
+
+            {/* Rejection Reason Modal */}
+            {rejectingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+                    onClick={() => setRejectingId(null)}>
+                    <div className="glass-card p-6 w-full max-w-lg mx-4 animate-fade-in" onClick={e => e.stopPropagation()}
+                        style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                                <XCircle className="w-5 h-5" style={{ color: '#ef4444' }} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold text-white">Rifiuta Ad Creative</h3>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
+                                    Il tuo feedback migliorerà automaticamente le prossime generazioni AI
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="text-xs font-semibold mb-2 block" style={{ color: 'var(--color-surface-400)' }}>
+                                Perché rifiuti questa ad? *
+                            </label>
+                            <textarea
+                                value={rejectionReason}
+                                onChange={e => setRejectionReason(e.target.value)}
+                                placeholder="Es: Copy troppo lungo, immagine sembra un bambino piccolo, headline debole, testo illeggibile sull'immagine..."
+                                className="w-full p-3 rounded-xl text-sm text-white resize-none focus:outline-none focus:ring-2"
+                                style={{
+                                    background: 'var(--color-surface-100)',
+                                    border: '1px solid var(--color-surface-200)',
+                                    minHeight: '100px',
+                                }}
+                                autoFocus
+                                onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) submitRejection() }}
+                            />
+                            <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>
+                                ⌘+Enter per confermare • Più sei specifico, meglio l'AI apprende
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                            <button onClick={() => setRejectingId(null)}
+                                className="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                                style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-200)' }}>
+                                Annulla
+                            </button>
+                            <button onClick={submitRejection}
+                                className="px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                                style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                                ❌ Rifiuta e Invia Feedback
+                            </button>
+                        </div>
+
+                        <div className="mt-4 p-3 rounded-xl" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                            <div className="flex items-center gap-2 text-[10px]" style={{ color: '#6366f1' }}>
+                                <Brain className="w-3 h-3" />
+                                <span className="font-semibold">Come funziona il learning loop</span>
+                            </div>
+                            <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>
+                                Il tuo feedback viene iniettato direttamente nel prompt di generazione AI.
+                                Le prossime ads terranno conto dei tuoi rifiuti per NON ripetere gli stessi errori.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Feedback Modal — for ANY ad */}
+            {feedbackId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+                    onClick={() => setFeedbackId(null)}>
+                    <div className="glass-card p-6 w-full max-w-lg mx-4 animate-fade-in" onClick={e => e.stopPropagation()}
+                        style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                                <MessageSquare className="w-5 h-5" style={{ color: '#6366f1' }} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold text-white">Feedback per l'AI Engine</h3>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
+                                    Il tuo feedback calibra automaticamente le prossime generazioni
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Feedback Type Selector */}
+                        <div className="mb-4">
+                            <label className="text-xs font-semibold mb-2 block" style={{ color: 'var(--color-surface-400)' }}>
+                                Tipo di feedback
+                            </label>
+                            <div className="flex gap-2">
+                                {[
+                                    { type: 'positive' as const, label: 'Positivo', emoji: '✅', icon: ThumbsUp, color: '#22c55e', desc: 'Da replicare' },
+                                    { type: 'negative' as const, label: 'Negativo', emoji: '❌', icon: ThumbsDown, color: '#ef4444', desc: 'Da evitare' },
+                                    { type: 'suggestion' as const, label: 'Suggerimento', emoji: '💡', icon: Lightbulb, color: '#f59e0b', desc: 'Idea / nota' },
+                                ].map(opt => (
+                                    <button key={opt.type} onClick={() => setFeedbackType(opt.type)}
+                                        className="flex-1 p-3 rounded-xl text-center transition-all hover:scale-[1.02]"
+                                        style={{
+                                            background: feedbackType === opt.type ? `${opt.color}15` : 'var(--color-surface-100)',
+                                            border: `1.5px solid ${feedbackType === opt.type ? opt.color : 'var(--color-surface-200)'}`,
+                                        }}>
+                                        <opt.icon className="w-4 h-4 mx-auto mb-1" style={{ color: feedbackType === opt.type ? opt.color : 'var(--color-surface-500)' }} />
+                                        <div className="text-xs font-semibold" style={{ color: feedbackType === opt.type ? opt.color : 'var(--color-surface-500)' }}>
+                                            {opt.label}
+                                        </div>
+                                        <div className="text-[9px] mt-0.5" style={{ color: 'var(--color-surface-500)' }}>{opt.desc}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Feedback Text */}
+                        <div className="mb-4">
+                            <label className="text-xs font-semibold mb-2 block" style={{ color: 'var(--color-surface-400)' }}>
+                                {feedbackType === 'positive' ? 'Cosa ti piace di questa ad?' :
+                                 feedbackType === 'negative' ? 'Cosa non funziona in questa ad?' :
+                                 'Che suggerimento hai per le prossime ads?'} *
+                            </label>
+                            <textarea
+                                value={feedbackText}
+                                onChange={e => setFeedbackText(e.target.value)}
+                                placeholder={feedbackType === 'positive'
+                                    ? 'Es: Hook efficace, immagine potente, copy diretto e persuasivo...'
+                                    : feedbackType === 'negative'
+                                    ? 'Es: Immagine troppo generica, copy poco emotivo, headline debole...'
+                                    : 'Es: Provare più copy brevi, usare più social proof, testare angolo trauma...'}
+                                className="w-full p-3 rounded-xl text-sm text-white resize-none focus:outline-none focus:ring-2"
+                                style={{
+                                    background: 'var(--color-surface-100)',
+                                    border: '1px solid var(--color-surface-200)',
+                                    minHeight: '100px',
+                                }}
+                                autoFocus
+                                onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmitFeedback() }}
+                            />
+                            <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>
+                                ⌘+Enter per confermare • Più dettagli dai, meglio l'AI impara
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                            <button onClick={() => setFeedbackId(null)}
+                                className="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                                style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-200)' }}>
+                                Annulla
+                            </button>
+                            <button onClick={handleSubmitFeedback} disabled={feedbackSubmitting || !feedbackText.trim()}
+                                className="px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105 flex items-center gap-1.5"
+                                style={{
+                                    background: 'rgba(99, 102, 241, 0.15)',
+                                    color: '#6366f1',
+                                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                                    opacity: feedbackSubmitting || !feedbackText.trim() ? 0.5 : 1,
+                                }}>
+                                {feedbackSubmitting
+                                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    : <Send className="w-3.5 h-3.5" />}
+                                Invia Feedback
+                            </button>
+                        </div>
+
+                        <div className="mt-4 p-3 rounded-xl" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                            <div className="flex items-center gap-2 text-[10px]" style={{ color: '#6366f1' }}>
+                                <Brain className="w-3 h-3" />
+                                <span className="font-semibold">Come funziona il learning loop</span>
+                            </div>
+                            <div className="text-[10px] mt-1 space-y-1" style={{ color: 'var(--color-surface-500)' }}>
+                                <div>✅ <strong>Positivo</strong> → L'AI replicherà questi pattern nelle nuove ads</div>
+                                <div>❌ <strong>Negativo</strong> → L'AI eviterà questi errori nelle generazioni future</div>
+                                <div>💡 <strong>Suggerimento</strong> → L'AI considererà questa nota come direttiva creativa</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

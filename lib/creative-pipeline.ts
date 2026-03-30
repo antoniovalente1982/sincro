@@ -108,6 +108,8 @@ export interface CreativeDNA {
     }
     avoid_patterns: {
         killed_ads: { name: string; spend: number; leads: number; kill_reason: string }[]
+        rejected_ads: { name: string; angle: string; rejection_reason: string; copy_headline: string; image_description: string }[]
+        human_feedbacks: { name: string; angle: string; feedback_text: string; feedback_type: string; status: string; copy_headline: string }[]
     }
     distribution: Record<string, { active: number; target: number; deficit: number }>
     total_budget_daily: number
@@ -144,6 +146,36 @@ export async function analyzeCreativeDNA(
             leads: c.leads_count || 0,
             kill_reason: c.kill_reason || 'unknown',
         }))
+
+    // Fetch REJECTED ads with human feedback (for AI learning loop)
+    const rejectedCreatives = (existingCreatives || [])
+        .filter(c => c.status === 'rejected' && c.rejection_reason)
+        .slice(0, 15)  // Keep last 15 rejection feedbacks
+        .map(c => ({
+            name: c.name,
+            angle: c.angle || '',
+            rejection_reason: c.rejection_reason,
+            copy_headline: c.copy_headline || '',
+            image_description: c.brief_data?.image_prompt?.substring(0, 200) || '',
+        }))
+
+    // Fetch ALL human feedback entries from any ad (learning loop v2)
+    const humanFeedbacks: { name: string; angle: string; feedback_text: string; feedback_type: string; status: string; copy_headline: string }[] = []
+    ;(existingCreatives || []).forEach(c => {
+        const entries = Array.isArray(c.human_feedback) ? c.human_feedback : []
+        entries.forEach((entry: any) => {
+            humanFeedbacks.push({
+                name: c.name,
+                angle: c.angle || '',
+                feedback_text: entry.text || '',
+                feedback_type: entry.type || 'suggestion',
+                status: c.status || '',
+                copy_headline: c.copy_headline || '',
+            })
+        })
+    })
+    // Keep the most recent 20 feedbacks
+    const sortedFeedbacks = humanFeedbacks.slice(-20)
 
     // 2. Analyze ad-level metrics from Meta
     const validAds = adMetrics.filter(a => (Number(a.spend) || 0) > 5)
@@ -261,6 +293,8 @@ export async function analyzeCreativeDNA(
         },
         avoid_patterns: {
             killed_ads: killedCreatives,
+            rejected_ads: rejectedCreatives,
+            human_feedbacks: sortedFeedbacks,
         },
         distribution,
         total_budget_daily: totalDailyBudget,
@@ -458,6 +492,55 @@ async function generateCopyFromPocket(
             dna.avoid_patterns.killed_ads.slice(0, 3).forEach(ad => {
                 winningContextSection += `❌ "${ad.name}" — Spesa €${ad.spend.toFixed(2)}, ${ad.leads} lead, Motivo: ${ad.kill_reason}\n`
             })
+        }
+
+        // 🧠 AI LEARNING LOOP: Include human rejection feedback
+        if (dna.avoid_patterns.rejected_ads && dna.avoid_patterns.rejected_ads.length > 0) {
+            winningContextSection += `\n═══ 🚫 FEEDBACK DAL CLIENTE (ads rifiutate manualmente) ═══\n`
+            winningContextSection += `ATTENZIONE: Queste ads sono state RIFIUTATE dal cliente con motivazione specifica. NON ripetere questi errori.\n\n`
+            dna.avoid_patterns.rejected_ads.forEach(ad => {
+                winningContextSection += `❌ "${ad.name}" (${ad.angle})\n`
+                winningContextSection += `   MOTIVO RIFIUTO: "${ad.rejection_reason}"\n`
+                if (ad.copy_headline) winningContextSection += `   Headline rifiutata: "${ad.copy_headline}"\n`
+                winningContextSection += `\n`
+            })
+            winningContextSection += `REGOLA: Usa questi feedback per MIGLIORARE le prossime generazioni. Evita gli stessi errori segnalati sopra.\n`
+        }
+
+        // 🧠 AI LEARNING LOOP v2: Include all human feedback (positive, negative, suggestions)
+        if (dna.avoid_patterns.human_feedbacks && dna.avoid_patterns.human_feedbacks.length > 0) {
+            const positives = dna.avoid_patterns.human_feedbacks.filter(f => f.feedback_type === 'positive')
+            const negatives = dna.avoid_patterns.human_feedbacks.filter(f => f.feedback_type === 'negative')
+            const suggestions = dna.avoid_patterns.human_feedbacks.filter(f => f.feedback_type === 'suggestion')
+
+            if (positives.length > 0) {
+                winningContextSection += `\n═══ ✅ FEEDBACK POSITIVI DAL CLIENTE (cosa ha apprezzato) ═══\n`
+                winningContextSection += `Replica questi elementi nelle prossime generazioni:\n\n`
+                positives.forEach(f => {
+                    winningContextSection += `✅ "${f.name}" (${f.angle}, status: ${f.status})\n`
+                    winningContextSection += `   APPREZZATO: "${f.feedback_text}"\n\n`
+                })
+            }
+
+            if (negatives.length > 0) {
+                winningContextSection += `\n═══ ❌ FEEDBACK NEGATIVI DAL CLIENTE (cosa NON ha funzionato) ═══\n`
+                winningContextSection += `EVITA questi elementi nelle prossime generazioni:\n\n`
+                negatives.forEach(f => {
+                    winningContextSection += `❌ "${f.name}" (${f.angle}, status: ${f.status})\n`
+                    winningContextSection += `   PROBLEMA: "${f.feedback_text}"\n\n`
+                })
+            }
+
+            if (suggestions.length > 0) {
+                winningContextSection += `\n═══ 💡 SUGGERIMENTI DAL CLIENTE ═══\n`
+                winningContextSection += `Considera questi suggerimenti per le prossime generazioni:\n\n`
+                suggestions.forEach(f => {
+                    winningContextSection += `💡 "${f.name}" (${f.angle}): "${f.feedback_text}"\n`
+                })
+                winningContextSection += `\n`
+            }
+
+            winningContextSection += `REGOLA: Il cliente ha fornito ${dna.avoid_patterns.human_feedbacks.length} feedback. Usali ATTIVAMENTE per calibrare tono, stile, elementi visivi e copy delle prossime ads.\n`
         }
     }
 
