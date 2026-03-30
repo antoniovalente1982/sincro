@@ -94,16 +94,42 @@ export async function GET(req: NextRequest) {
         }
 
         // 2. Get insights for the specific date range
+        // IMPORTANT: Include ALL campaign delivery statuses to capture spend from
+        // campaigns that were paused mid-day or had residual delivery
         const timeRange = JSON.stringify({ since, until })
-        const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type,outbound_clicks,inline_link_click_ctr&level=campaign&time_range=${encodeURIComponent(timeRange)}&limit=500&access_token=${access_token}`
+        const filtering = JSON.stringify([{
+            field: 'campaign.delivery_info',
+            operator: 'IN',
+            value: ['active', 'inactive', 'completed', 'limited', 'not_delivering', 'not_published', 'pending_review', 'recently_completed', 'recently_rejected', 'rejected', 'scheduled']
+        }])
+        const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type,outbound_clicks,inline_link_click_ctr&level=campaign&time_range=${encodeURIComponent(timeRange)}&use_account_attribution_setting=true&limit=500&access_token=${access_token}`
         const insightsRes = await fetch(insightsUrl)
 
         let insightsMap: Record<string, any> = {}
         if (insightsRes.ok) {
             const insightsData = await insightsRes.json()
-            for (const insight of (insightsData.data || [])) {
+            const allInsights = insightsData.data || []
+            
+            // Handle pagination — Meta may split results across pages
+            let nextPageUrl = insightsData.paging?.next
+            while (nextPageUrl) {
+                const pageRes = await fetch(nextPageUrl)
+                if (pageRes.ok) {
+                    const pageData = await pageRes.json()
+                    allInsights.push(...(pageData.data || []))
+                    nextPageUrl = pageData.paging?.next
+                } else {
+                    break
+                }
+            }
+
+            for (const insight of allInsights) {
                 insightsMap[insight.campaign_id] = insight
             }
+            
+            // Debug: log total spend from Meta for this period
+            const metaTotalSpend = allInsights.reduce((s: number, i: any) => s + parseFloat(i.spend || '0'), 0)
+            console.log(`[META INSIGHTS] Period ${since} → ${until}: ${allInsights.length} campaigns with data, total spend: €${metaTotalSpend.toFixed(2)}`)
         }
 
         // 3. Count REAL leads from CRM (ground truth) for each campaign
