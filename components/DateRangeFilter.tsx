@@ -21,19 +21,27 @@ const PRESETS = [
 function getPresetRange(key: string): { from: Date; to: Date } {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+    
+    // Robust date math using setDate to avoid DST bugs (23h or 25h days)
+    const addDays = (d: Date, days: number) => {
+        const copy = new Date(d)
+        copy.setDate(copy.getDate() + days)
+        return copy
+    }
+
+    const tomorrow = addDays(today, 1)
 
     switch (key) {
         case 'today':
             return { from: today, to: tomorrow }
         case 'yesterday': {
-            const yest = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+            const yest = addDays(today, -1)
             return { from: yest, to: today }
         }
         case '7d':
-            return { from: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000), to: tomorrow }
+            return { from: addDays(today, -7), to: tomorrow }
         case '30d':
-            return { from: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000), to: tomorrow }
+            return { from: addDays(today, -30), to: tomorrow }
         case 'all':
             return { from: new Date(2020, 0, 1), to: tomorrow }
         default:
@@ -48,9 +56,12 @@ export function useDateRange(defaultKey: string = 'all') {
 
     const range: DateRange = useMemo(() => {
         if (activeKey === 'custom' && customFrom && customTo) {
+            const endOfDay = new Date(customTo)
+            endOfDay.setDate(endOfDay.getDate() + 1)
+            
             return {
                 from: new Date(customFrom),
-                to: new Date(new Date(customTo).getTime() + 24 * 60 * 60 * 1000), // end of day
+                to: endOfDay, // end of day
                 label: `${customFrom} — ${customTo}`,
                 key: 'custom',
             }

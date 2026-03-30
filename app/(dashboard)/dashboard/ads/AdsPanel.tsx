@@ -121,8 +121,8 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             return
         }
         const since = formatLocalDate(range.from)
-        // range.to is exclusive (next day midnight), so subtract 1 day for inclusive end
-        const untilDate = new Date(range.to.getTime() - 24 * 60 * 60 * 1000)
+        const untilDate = new Date(range.to)
+        untilDate.setDate(untilDate.getDate() - 1)
         const until = formatLocalDate(untilDate)
         fetchLiveInsights(since, until)
     }, [activeKey, range.from.getTime(), range.to.getTime(), fetchLiveInsights])
@@ -188,8 +188,9 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 // If a period is selected, also refresh live data
                 if (activeKey !== 'all') {
                     const since = formatLocalDate(range.from)
-                    const until = formatLocalDate(new Date(range.to.getTime() - 24 * 60 * 60 * 1000))
-                    await fetchLiveInsights(since, until)
+                    const untilDate = new Date(range.to)
+                    untilDate.setDate(untilDate.getDate() - 1)
+                    await fetchLiveInsights(since, formatLocalDate(untilDate))
                 } else {
                     window.location.reload()
                 }
