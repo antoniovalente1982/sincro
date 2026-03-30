@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!serviceKey) {
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
 
         // 1. Get all campaigns (for name, status, objective)
         const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget&limit=500&access_token=${access_token}`
-        const campaignsRes = await fetch(campaignsUrl)
+        const campaignsRes = await fetch(campaignsUrl, { cache: 'no-store' })
 
         if (!campaignsRes.ok) {
             const errText = await campaignsRes.text()
@@ -103,7 +105,7 @@ export async function GET(req: NextRequest) {
             value: ['active', 'inactive', 'completed', 'limited', 'not_delivering', 'not_published', 'pending_review', 'recently_completed', 'recently_rejected', 'rejected', 'scheduled']
         }])
         const insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type,outbound_clicks,inline_link_click_ctr&level=campaign&time_range=${encodeURIComponent(timeRange)}&use_account_attribution_setting=true&limit=500&access_token=${access_token}`
-        const insightsRes = await fetch(insightsUrl)
+        const insightsRes = await fetch(insightsUrl, { cache: 'no-store' })
 
         let insightsMap: Record<string, any> = {}
         if (insightsRes.ok) {
@@ -113,7 +115,7 @@ export async function GET(req: NextRequest) {
             // Handle pagination — Meta may split results across pages
             let nextPageUrl = insightsData.paging?.next
             while (nextPageUrl) {
-                const pageRes = await fetch(nextPageUrl)
+                const pageRes = await fetch(nextPageUrl, { cache: 'no-store' })
                 if (pageRes.ok) {
                     const pageData = await pageRes.json()
                     allInsights.push(...(pageData.data || []))
