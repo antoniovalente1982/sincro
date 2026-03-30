@@ -247,9 +247,15 @@ export async function GET(req: NextRequest) {
             campaigns,
             period: { since, until },
             fetched_at: new Date().toISOString(),
+        }, {
+            headers: {
+                'Cache-Control': 'no-store, must-revalidate, max-age=0',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
         })
     } catch (err: any) {
         console.error('Meta insights error:', err)
-        return NextResponse.json({ error: err.message || 'Failed' }, { status: 500 })
+        return NextResponse.json({ error: err.message || 'Failed' }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
     }
 }

@@ -82,8 +82,11 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         try {
             const supabase = createClient()
             const { data: { session } } = await supabase.auth.getSession()
-            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}`, {
-                headers: { Authorization: `Bearer ${session?.access_token}` },
+            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}&_t=${Date.now()}`, {
+                headers: { 
+                    Authorization: `Bearer ${session?.access_token}`,
+                    'Cache-Control': 'no-cache'
+                },
             })
             const data = await res.json()
             if (data.success && data.campaigns) {
