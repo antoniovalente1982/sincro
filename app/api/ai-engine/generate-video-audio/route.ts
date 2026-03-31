@@ -3,6 +3,9 @@ import { textToSpeechWithTimestamps } from '@/lib/elevenlabs';
 import { generateVideoVFXTags } from '@/lib/openrouter';
 import { createClient } from '@/lib/supabase/server';
 
+// ElevenLabs TTS + OpenRouter VFX in parallel can take 20-40s for long scripts
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
     try {
         const supabase = await createClient();
