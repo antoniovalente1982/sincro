@@ -136,6 +136,7 @@ export async function POST(req: NextRequest) {
             }
             if (!existingLead.phone && phone) updateData.phone = phone
             if (!existingLead.name && name) updateData.name = name
+            if (utm_source) updateData.product = utm_source
 
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
 
@@ -148,6 +149,7 @@ export async function POST(req: NextRequest) {
             const { data: createdLead, error } = await supabase.from('leads').insert({
                 organization_id: orgId,
                 email, name, phone, stage_id: firstStageId, value: 0,
+                product: utm_source || 'Sito Web (Gravity)',
                 meta_data: { 
                     source: 'gravity_forms', 
                     utm_source, utm_medium, utm_campaign, fbp, fbc 
