@@ -84,6 +84,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [feedbackText, setFeedbackText] = useState('')
     const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | 'suggestion'>('suggestion')
     const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
+    const [bulkDeleting, setBulkDeleting] = useState(false)
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -206,6 +207,30 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         setTimeout(() => setApproveResult(null), 8000)
     }
 
+    // Bulk cleanup — delete all rejected/archived/draft ads
+    const cleanableStatuses = ['rejected', 'archived', 'draft']
+    const cleanableCount = creatives.filter(c => cleanableStatuses.includes(c.status)).length
+
+    const handleBulkCleanup = async () => {
+        if (!confirm(`Eliminare definitivamente ${cleanableCount} ads (rifiutate, archiviate, bozze)?\n\nQuesta azione è irreversibile.`)) return
+        setBulkDeleting(true)
+        try {
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'bulk_delete_creatives', statuses: cleanableStatuses }),
+            })
+            const data = await res.json()
+            if (data.error) throw new Error(data.error)
+            setApproveResult({ success: true, message: data.message || `🗑️ ${data.deleted_count} ads eliminate` })
+            await refresh()
+        } catch (err: any) {
+            setApproveResult({ error: err.message })
+        }
+        setBulkDeleting(false)
+        setTimeout(() => setApproveResult(null), 8000)
+    }
+
     const PIPELINE_STEPS = [
         { label: 'Sincronizzazione ads attive', icon: '🔄', duration: 4000 },
         { label: 'Analisi performance', icon: '📊', duration: 3000 },
@@ -283,6 +308,19 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     </p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
+                    {cleanableCount > 0 && (
+                        <button onClick={handleBulkCleanup} disabled={bulkDeleting}
+                            className="text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all hover:scale-105"
+                            style={{
+                                background: 'rgba(239, 68, 68, 0.08)',
+                                border: '1px solid rgba(239, 68, 68, 0.25)',
+                                color: '#ef4444',
+                                opacity: bulkDeleting ? 0.6 : 1,
+                            }}>
+                            {bulkDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                            Pulisci ({cleanableCount})
+                        </button>
+                    )}
                     <button onClick={handleRunPipeline} disabled={runningPipeline}
                         className="btn-primary text-xs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {runningPipeline ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />}

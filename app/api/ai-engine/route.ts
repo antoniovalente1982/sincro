@@ -508,6 +508,41 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, deleted: creative.name })
     }
 
+    if (action === 'bulk_delete_creatives') {
+        // Bulk delete creatives by status — only allows safe statuses
+        const { statuses } = body as { statuses?: string[] }
+        const allowedStatuses = ['rejected', 'archived', 'draft', 'ready']
+        const targetStatuses = (statuses || ['rejected', 'archived', 'draft']).filter(s => allowedStatuses.includes(s))
+
+        if (targetStatuses.length === 0) {
+            return NextResponse.json({ error: 'Nessuno stato valido per la cancellazione in blocco' }, { status: 400 })
+        }
+
+        // First count how many will be deleted
+        const { data: toDelete } = await supabase.from('ad_creatives')
+            .select('id, name, status')
+            .eq('organization_id', member.organization_id)
+            .in('status', targetStatuses)
+
+        if (!toDelete || toDelete.length === 0) {
+            return NextResponse.json({ success: true, deleted_count: 0, message: 'Nessuna ad da eliminare con questi stati' })
+        }
+
+        const { error } = await supabase.from('ad_creatives')
+            .delete()
+            .eq('organization_id', member.organization_id)
+            .in('status', targetStatuses)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        return NextResponse.json({
+            success: true,
+            deleted_count: toDelete.length,
+            deleted_statuses: targetStatuses,
+            message: `🗑️ ${toDelete.length} ads eliminate (${targetStatuses.join(', ')})`,
+        })
+    }
+
     if (action === 'get_creative_pipeline_status') {
         // Get current state of the creative pipeline
         const [creativesRes, deficitData] = await Promise.all([
