@@ -447,6 +447,7 @@ export default function VideoEditorProPage() {
                 const apiAvatars = res.ok ? (await res.json()).avatars || [] : [];
                 
                 const customAvatars = [
+                    { avatar_id: 'e507805bfcf14a7dbbbbb6b56dbb36e5', avatar_name: 'Antonio Valente (🟢 Green Screen)' },
                     { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente (Video)' },
                     { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente (Foto)' },
                 ];
@@ -459,6 +460,7 @@ export default function VideoEditorProPage() {
             } catch (err) {
                 console.warn('Errore avatar HeyGen:', err);
                 const fallback = [
+                    { avatar_id: 'e507805bfcf14a7dbbbbb6b56dbb36e5', avatar_name: 'Antonio Valente (🟢 Green Screen)' },
                     { avatar_id: 'df8fc9c5f0f74afba2217797cf1d83f4', avatar_name: 'Antonio Valente (Video)' },
                     { avatar_id: '56433fd8787d4f509a7d5d1470019277', avatar_name: 'Antonio Valente (Foto)' },
                 ];
