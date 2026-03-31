@@ -267,19 +267,19 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
             <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }}>
                 <defs>
                     <filter id="chroma-key" colorInterpolationFilters="sRGB">
+                        {/* 
+                            Matrix for Green Screen Removal in 1 step. 
+                            If Green is the only active channel, A becomes negative.
+                            If it's white, Yellow (R+G) or Cyan (G+B) the other channels offset the negative G and A remains > 1.
+                        */}
                         <feColorMatrix
                             type="matrix"
                             values="
                                 1 0 0 0 0
                                 0 1 0 0 0
                                 0 0 1 0 0
-                                -1.5 2.5 -1.5 0 0" 
-                            result="greenness"
+                                12 -12 12 0 1" 
                         />
-                        <feComponentTransfer in="greenness" result="mask">
-                            <feFuncA type="linear" slope="-4" intercept="2" />
-                        </feComponentTransfer>
-                        <feComposite in="SourceGraphic" in2="mask" operator="in" />
                     </filter>
                 </defs>
             </svg>
@@ -382,6 +382,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                                  <Video 
                                     src={avatarVideoUrl} 
                                     crossOrigin="anonymous"
+                                    muted={true}
                                     style={{ 
                                         objectFit: 'cover', 
                                         width: '100%', 

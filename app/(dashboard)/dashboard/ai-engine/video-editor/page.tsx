@@ -1051,18 +1051,22 @@ export default function VideoEditorProPage() {
                                             </label>
                                         </div>
                                         <div>
-                                            <div className="flex items-center justify-between mb-1">
-                                                <h3 className="text-xs font-bold text-zinc-300">Rimozione Sfondo (AI Avatar)</h3>
+                                            <div className="flex items-center gap-3 p-3 bg-zinc-900 border border-purple-500/50 rounded-lg cursor-pointer hover:bg-zinc-800 transition-colors" onClick={() => setEnableAutoBackgroundRemoval(prev => prev === 'green' ? 'none' : 'green')}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={enableAutoBackgroundRemoval === 'green'} 
+                                                    onChange={() => {}} 
+                                                    className="w-5 h-5 rounded border-zinc-700 text-purple-600 focus:ring-purple-600 focus:ring-offset-zinc-900 bg-zinc-800 shrink-0 cursor-pointer" 
+                                                />
+                                                <div className="flex-1">
+                                                    <h3 className="text-xs font-bold text-white flex items-center gap-2">
+                                                        Rimuovi Sfondo (Chroma Key 🟢)
+                                                    </h3>
+                                                    <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                                                        Nasconde il verde dell'Avatar permettendo di vedere gli Sfondi AI 3D. <span className="text-purple-400 font-bold">Mettilo su ON.</span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <select 
-                                                value={enableAutoBackgroundRemoval} 
-                                                onChange={(e) => setEnableAutoBackgroundRemoval(e.target.value)} 
-                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-white text-xs focus:border-purple-500 outline-none"
-                                            >
-                                                <option value="none">Disattivato (Mantiene il muro originale)</option>
-                                                <option value="green">Chroma Key (Solo per Green Screen 🟢)</option>
-                                            </select>
-                                            <p className="text-[10px] text-zinc-500 mt-1">Per usare sfondi 3D e VFX dietro l'avatar, il video DEVE essere girato su telo verde.</p>
                                         </div>
                                         
                                         <div>
