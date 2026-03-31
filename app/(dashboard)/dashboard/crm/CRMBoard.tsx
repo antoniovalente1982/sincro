@@ -186,7 +186,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
-            const d = new Date(l.created_at)
+            // CRM should show leads created today OR returning leads that resubmitted today
+            const d = new Date(l.meta_data?.last_submission_at || l.updated_at || l.created_at)
             return d >= range.from && d < range.to
         })()
         return matchSearch && matchObjective && matchPipeline && matchDate
