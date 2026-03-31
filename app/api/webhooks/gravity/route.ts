@@ -82,7 +82,14 @@ export async function POST(req: NextRequest) {
         
         // Map common fields dynamically
         const email = (body.email || body.email_address || body.Email || '')?.toString().toLowerCase().trim()
-        const name = (body.name || body.first_name || body.Nome || body.Nome_Cognome || '')?.toString().trim()
+        let rawName = body.name || body.Name || body.nome || body.Nome || ''
+        let rawLastName = body.cognome || body.Cognome || body.last_name || body.lastName || ''
+        
+        // Combine them if both exist
+        if (rawName && rawLastName) {
+            rawName = `${rawName} ${rawLastName}`
+        }
+        const name = rawName.toString().trim()
         const phone = (body.phone || body.phone_number || body.Telefono || '')?.toString().trim()
         
         if (!email) {
