@@ -588,9 +588,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     <User className="w-3 h-3" /> Figlio: {lead.meta_data.child_age} anni
                                                 </div>
                                             )}
-                                            {lead.value && (
+                                            {(lead.value ?? 0) > 0 && (
                                                 <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-success)' }}>
-                                                    <DollarSign className="w-3 h-3" /> {formatCurrency(lead.value)}
+                                                    <DollarSign className="w-3 h-3" /> {formatCurrency(lead.value!)}
                                                 </div>
                                             )}
                                         </div>
