@@ -212,6 +212,16 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, rule_id: data.id })
     }
 
+    if (action === 'update_rule') {
+        const { rule_id, updates } = body
+        if (!rule_id) return NextResponse.json({ error: 'rule_id required' }, { status: 400 })
+        const { error } = await supabase.from('ad_automation_rules')
+            .update({ ...updates, updated_at: new Date().toISOString() })
+            .eq('id', rule_id).eq('organization_id', member.organization_id)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
+    }
+
     // ⚡ Force Run — triggers the cron pipeline manually
     if (action === 'force_run') {
         try {
