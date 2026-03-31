@@ -64,24 +64,6 @@ function base64ToBlobUrl(base64: string): string {
     }
 }
 
-/**
- * Stable wrapper component for Remotion Player.
- * CRITICAL: This must be defined OUTSIDE of the VideoPlayerClient render function
- * to avoid Remotion re-mounting the entire composition on every render,
- * which kills all audio elements.
- */
-const ScaledTemplate: React.FC<any> = (props) => {
-    // We read the dimensions from a data attribute on the composition
-    // to avoid creating a closure over changing variables
-    const baseWidth = props.__baseWidth || 1080;
-    const baseHeight = props.__baseHeight || 1920;
-    return (
-        <div style={{ transform: 'scale(2)', transformOrigin: 'top left', width: baseWidth, height: baseHeight, position: 'absolute' }}>
-            <SincroVideoTemplate {...props} />
-        </div>
-    );
-};
-
 const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({ 
     headline, 
     audioBase64, 
@@ -143,8 +125,9 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
         aspectString = '1 / 1';
     }
 
-    const compWidth = baseWidth * 2;
-    const compHeight = baseHeight * 2;
+    // Use base dimensions directly to avoid 4K massive WebGL canvas which freezes the browser!
+    const compWidth = baseWidth;
+    const compHeight = baseHeight;
 
     // Memoizzato per evitare ricreazioni a nastro su Remotion Player e lag mortali
     const memoizedInputProps = useMemo(() => ({
@@ -168,20 +151,17 @@ const VideoPlayerClient = forwardRef<PlayerRef, VideoPlayerClientProps>(({
         lightFillColor,
         lightRimIntensity,
         lightRimColor,
-        // Pass dimensions for the ScaledTemplate wrapper
-        __baseWidth: baseWidth,
-        __baseHeight: baseHeight,
     }), [
         headline, audioBlobUrl, words, visualAssets, useMoney, avatarVideoUrl, messageText, backgroundMood,
         subtitleStyle, customBackgroundUrl, enable3DParallax, enableAutoBackgroundRemoval,
         lightKeyAngle, lightKeyIntensity, lightKeyColor, lightFillIntensity, lightFillColor,
-        lightRimIntensity, lightRimColor, baseWidth, baseHeight
+        lightRimIntensity, lightRimColor
     ]);
 
     return (
         <Player
             ref={ref}
-            component={ScaledTemplate}
+            component={SincroVideoTemplate}
             inputProps={memoizedInputProps}
             durationInFrames={durationInFrames}
             fps={parentFps}

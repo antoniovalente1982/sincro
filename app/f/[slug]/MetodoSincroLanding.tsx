@@ -100,7 +100,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             }
 
             // Fire pixel Lead event with same event_id for CAPI dedup
-            firePixelEvent('Lead', leadEventId)
+            firePixelEvent('Lead', leadEventId, { value: 0.00, currency: 'EUR' })
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })

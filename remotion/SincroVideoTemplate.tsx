@@ -135,9 +135,7 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     lightRimIntensity = 0.6,
     lightRimColor = '#06b6d4',
 }) => {
-    const { fps, durationInFrames } = useVideoConfig();
-    const width = 1080;
-    const height = 1920;
+    const { fps, durationInFrames, width, height } = useVideoConfig();
     const frame = useCurrentFrame();
     const currentMs = (frame / fps) * 1000;
 

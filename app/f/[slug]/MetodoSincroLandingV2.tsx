@@ -217,8 +217,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 throw new Error(data.error || 'Errore')
             }
 
-            // Fire pixel Lead event with same event_id for CAPI dedup
-            firePixelEvent('Lead', leadEventId)
+            // Fire standard event immediately
+            firePixelEvent('Lead', leadEventId, { value: 0.00, currency: 'EUR' })
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })

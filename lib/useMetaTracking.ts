@@ -139,7 +139,7 @@ export function fireAdvancedMatching(pixelId: string, data: { email?: string; ph
 /**
  * Fire a Pixel event with eventID for CAPI dedup.
  */
-export function firePixelEvent(eventName: string, eventId: string) {
+export function firePixelEvent(eventName: string, eventId: string, properties: any = {}) {
     if (typeof window === 'undefined' || !(window as any).fbq) return
-    ;(window as any).fbq('track', eventName, {}, { eventID: eventId })
+    ;(window as any).fbq('track', eventName, properties, { eventID: eventId })
 }

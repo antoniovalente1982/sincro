@@ -63,6 +63,9 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
             return null
         }
 
+        // Fix double-escaped newlines if they exist
+        key.private_key = key.private_key.replace(/\\n/g, '\n')
+
         // Use Node.js native crypto for reliable JWT signing
         const { createSign } = await import('crypto')
 
@@ -80,7 +83,7 @@ async function getServiceAccountToken(serviceAccountKey: string): Promise<string
         // Sign with RSA-SHA256 using Node.js native crypto
         const sign = createSign('RSA-SHA256')
         sign.update(`${header}.${claim}`)
-        const sig = toBase64Url(sign.sign(key.private_key, 'base64'))
+        const sig = toBase64Url(sign.sign(key.private_key))
 
         const jwt = `${header}.${claim}.${sig}`
 
