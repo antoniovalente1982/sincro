@@ -100,7 +100,9 @@ function PageContent() {
           cognome: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          utm_source: searchParams.get('source') || 'Link Diretto (Consulenza Native)'
+          utm_source: searchParams.get('source') || 'Link Diretto (Consulenza Native)',
+          utm_campaign: searchParams.get('campaign') || searchParams.get('utm_campaign') || '',
+          utm_medium: searchParams.get('medium') || searchParams.get('utm_medium') || ''
         })
       })
 
