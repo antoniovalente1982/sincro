@@ -107,49 +107,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
-    const [syncing, setSyncing] = useState(false)
-
-    // Sync Handler
-    const handleSyncSheets = async () => {
-        setSyncing(true)
-        try {
-            const res = await fetch('/api/google-sheets/sync-incoming')
-            let data;
-            
-            try {
-                data = await res.json()
-            } catch(jsonErr) {
-                setNewLeadAlert('⚠️ Errore di timeout dal server di Google. Riprova tra poco.')
-                setTimeout(() => setNewLeadAlert(null), 6000)
-                setSyncing(false)
-                return
-            }
-
-            if (res.ok) {
-                if (data.stats.totalCreated > 0 || data.stats.totalUpdated > 0) {
-                    setNewLeadAlert(`✅ Sync Completato! Letti ${data.stats.totalCreated} nuovi, ${data.stats.totalUpdated} aggiornati.`)
-                } else {
-                    setNewLeadAlert('ℹ️ Nessun dato nuovo trovato nei Fogli Google (già tutto aggiornato).')
-                }
-                setTimeout(() => setNewLeadAlert(null), 6000)
-
-                // Force an immediate fetch to refresh the board instead of waiting 60s
-                const leRes = await fetch('/api/leads')
-                if (leRes.ok) {
-                    const freshLeads = await leRes.json()
-                    if (Array.isArray(freshLeads)) setLeads(freshLeads)
-                }
-            } else {
-                setNewLeadAlert('❌ ' + (data.error || 'Errore di sincronizzazione db.'))
-                setTimeout(() => setNewLeadAlert(null), 6000)
-            }
-        } catch (e) {
-            setNewLeadAlert('❌ Errore di connessione. Verifica la rete.')
-            setTimeout(() => setNewLeadAlert(null), 6000)
-        }
-        setSyncing(false)
-    }
-
+    
     // Auto-refresh: poll /api/leads every 60s for new leads
     const leadsRef = useRef(leads)
     leadsRef.current = leads
@@ -429,9 +387,6 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             onChange={e => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <button onClick={handleSyncSheets} disabled={syncing} className="btn-secondary whitespace-nowrap" style={{ padding: '0 12px' }}>
-                        <RefreshCcw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} style={{ color: 'var(--color-surface-500)' }} /> Fogli Google
-                    </button>
                     <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary">
                         <Plus className="w-4 h-4" /> Nuovo Lead
                     </button>

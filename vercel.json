@@ -23,10 +23,6 @@
     {
       "path": "/api/cron/creative-pipeline",
       "schedule": "5 0 * * *"
-    },
-    {
-      "path": "/api/google-sheets/sync-incoming",
-      "schedule": "*/15 * * * *"
     }
   ]
 }
