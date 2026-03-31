@@ -93,7 +93,7 @@ export const EmojiReaction: React.FC<{
                             fontSize: p.size,
                             transform: `scale(${scale}) rotate(${p.rotation + localFrame * 2}deg)`,
                             opacity: opacity * 0.85,
-                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                             willChange: 'transform',
                         }}
                     >

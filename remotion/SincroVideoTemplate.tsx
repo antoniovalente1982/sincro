@@ -375,8 +375,10 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
                     }}>
                         {avatarVideoUrl && (
                              <AbsoluteFill style={{
-                                 // Il Rim Light (Controluce) si fa con drop-shadow intenso e opacità!
-                                 filter: `drop-shadow(0px -10px 40px ${lightRimColor}) drop-shadow(0px 10px 80px ${lightRimColor}) opacity(${Math.min(1, lightRimIntensity + 0.3)})`,
+                                 // OPTIMIZATION: Disabilitiamo l'ombra se il chroma key è attivo, altrimenti il browser crasha/si freeza
+                                 filter: (enableAutoBackgroundRemoval === 'green' || enableAutoBackgroundRemoval === true) 
+                                    ? `opacity(${Math.min(1, lightRimIntensity + 0.3)})`
+                                    : `drop-shadow(0px -10px 40px ${lightRimColor}) drop-shadow(0px 10px 80px ${lightRimColor}) opacity(${Math.min(1, lightRimIntensity + 0.3)})`,
                                  mixBlendMode: enableAutoBackgroundRemoval === 'white' ? 'multiply' : 'normal',
                              }}>
                                  <Video 
