@@ -114,13 +114,25 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         setSyncing(true)
         try {
             const res = await fetch('/api/google-sheets/sync-incoming')
-            const data = await res.json()
+            let data;
+            
+            try {
+                data = await res.json()
+            } catch(jsonErr) {
+                setNewLeadAlert('⚠️ Errore di timeout dal server di Google. Riprova tra poco.')
+                setTimeout(() => setNewLeadAlert(null), 6000)
+                setSyncing(false)
+                return
+            }
+
             if (res.ok) {
                 if (data.stats.totalCreated > 0 || data.stats.totalUpdated > 0) {
-                    alert(`✅ Sincronizzazione completata!\n\nNuovi Lead: ${data.stats.totalCreated}\nAggiornati/Spostati: ${data.stats.totalUpdated}`)
+                    setNewLeadAlert(`✅ Sync Completato! Letti ${data.stats.totalCreated} nuovi, ${data.stats.totalUpdated} aggiornati.`)
                 } else {
-                    alert('Nessun nuovo aggiornamento trovato nei fogli (Tutti i dati sono già sincronizzati).')
+                    setNewLeadAlert('ℹ️ Nessun dato nuovo trovato nei Fogli Google (già tutto aggiornato).')
                 }
+                setTimeout(() => setNewLeadAlert(null), 6000)
+
                 // Force an immediate fetch to refresh the board instead of waiting 60s
                 const leRes = await fetch('/api/leads')
                 if (leRes.ok) {
@@ -128,10 +140,12 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     if (Array.isArray(freshLeads)) setLeads(freshLeads)
                 }
             } else {
-                alert(data.error || 'Errore di sincronizzazione')
+                setNewLeadAlert('❌ ' + (data.error || 'Errore di sincronizzazione db.'))
+                setTimeout(() => setNewLeadAlert(null), 6000)
             }
         } catch (e) {
-            alert('Errore di rete durante il sync')
+            setNewLeadAlert('❌ Errore di connessione. Verifica la rete.')
+            setTimeout(() => setNewLeadAlert(null), 6000)
         }
         setSyncing(false)
     }
