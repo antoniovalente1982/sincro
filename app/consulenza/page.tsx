@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react'
@@ -75,12 +75,20 @@ function PageContent() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [referrer, setReferrer] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
   })
+  
+  // Cattura magica del sito di provenienza (l'articolo del blog)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && document.referrer) {
+      setReferrer(document.referrer)
+    }
+  }, [])
 
   const isValid = formData.firstName.trim() !== '' && formData.email.includes('@') && formData.phone.length > 5
 
@@ -101,7 +109,7 @@ function PageContent() {
           email: formData.email,
           phone: formData.phone,
           utm_source: searchParams.get('source') || 'Link Diretto (Consulenza Native)',
-          utm_campaign: searchParams.get('campaign') || searchParams.get('utm_campaign') || '',
+          utm_campaign: searchParams.get('campaign') || searchParams.get('utm_campaign') || referrer || '',
           utm_medium: searchParams.get('medium') || searchParams.get('utm_medium') || ''
         })
       })
