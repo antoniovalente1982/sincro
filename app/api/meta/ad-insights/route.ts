@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
 
         // 1. Get ad-level insights
         let insightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
-            `fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,adset_name,spend,impressions,clicks,ctr,cpc,frequency,actions,cost_per_action_type,outbound_clicks` +
+            `fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,adset_name,spend,impressions,clicks,ctr,cpc,frequency,actions,cost_per_action_type,outbound_clicks,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click` +
             `&level=ad&time_range=${encodeURIComponent(timeRange)}&limit=500&access_token=${access_token}`
 
         if (campaignId) {
@@ -120,7 +120,9 @@ export async function GET(req: NextRequest) {
                 spend: spendNum,
                 impressions: parseInt(insight.impressions || '0'),
                 clicks: parseInt(insight.clicks || '0'),
-                link_clicks: parseInt(linkClicks),
+                link_clicks: parseInt(insight.inline_link_clicks || linkClicks || '0'),
+                link_ctr: parseFloat(insight.inline_link_click_ctr || '0'),
+                cpc_link: parseFloat(insight.cost_per_inline_link_click || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
                 cpc: parseFloat(insight.cpc || '0'),
                 frequency: parseFloat(insight.frequency || '0'),

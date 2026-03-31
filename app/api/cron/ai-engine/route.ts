@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
             const buildInsightsUrl = (since: string, until: string) =>
                 `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
-                `fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type` +
+                `fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click` +
                 `&level=ad&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}&limit=500&access_token=${access_token}`
 
             const [insights7dRes, insightsTodayRes] = await Promise.all([
@@ -110,6 +110,10 @@ export async function GET(req: NextRequest) {
                         frequency: parseFloat(insight.frequency || '0'),
                         leads_count: parseInt(leadsCount),
                         cpl: parseFloat(cplValue),
+                        // Link click metrics for quality-based kill rules
+                        link_clicks: parseInt(insight.inline_link_clicks || '0'),
+                        link_ctr: parseFloat(insight.inline_link_click_ctr || '0'),
+                        cpc_link: parseFloat(insight.cost_per_inline_link_click || '0'),
                     }
                 }).filter((a: any) => a.status === 'ACTIVE')
 
@@ -649,12 +653,16 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
 function extractMetrics(ad: any): Record<string, number> {
     const spend = Number(ad.spend) || 0
     const leads = Number(ad.leads_count) || 0
+    const link_clicks = Number(ad.link_clicks) || 0
     return {
         spend, leads,
         cpl: Number(ad.cpl) || (spend > 0 && leads > 0 ? spend / leads : 0),
         ctr: Number(ad.ctr) || 0,
         impressions: Number(ad.impressions) || 0,
         frequency: Number(ad.frequency) || 0,
+        link_clicks,
+        link_ctr: Number(ad.link_ctr) || 0,
+        cpc_link: Number(ad.cpc_link) || (spend > 0 && link_clicks > 0 ? spend / link_clicks : 0),
     }
 }
 

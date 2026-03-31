@@ -189,6 +189,29 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true })
     }
 
+    if (action === 'create_rule') {
+        const { rule } = body
+        if (!rule?.name || !rule?.category) return NextResponse.json({ error: 'name and category required' }, { status: 400 })
+
+        // Check if rule with same name already exists
+        const { data: existing } = await supabase.from('ad_automation_rules')
+            .select('id').eq('organization_id', member.organization_id).eq('name', rule.name).single()
+        if (existing) return NextResponse.json({ success: true, message: 'Rule already exists', rule_id: existing.id })
+
+        const { data, error } = await supabase.from('ad_automation_rules').insert({
+            organization_id: member.organization_id,
+            name: rule.name,
+            category: rule.category,
+            conditions: rule.conditions || [],
+            actions: rule.actions || [],
+            min_spend_before_eval: rule.min_spend_before_eval || 0,
+            min_days_before_eval: rule.min_days_before_eval || 0,
+            is_enabled: rule.is_enabled ?? true,
+        }).select('id').single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true, rule_id: data.id })
+    }
+
     // ⚡ Force Run — triggers the cron pipeline manually
     if (action === 'force_run') {
         try {
@@ -750,6 +773,7 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
 function extractAdMetrics(ad: any): Record<string, number> {
     const spend = Number(ad.spend) || 0
     const leads = Number(ad.leads_count) || 0
+    const link_clicks = Number(ad.link_clicks) || 0
     return {
         spend,
         leads,
@@ -757,6 +781,9 @@ function extractAdMetrics(ad: any): Record<string, number> {
         ctr: Number(ad.ctr) || 0,
         impressions: Number(ad.impressions) || 0,
         frequency: Number(ad.frequency) || 0,
+        link_clicks,
+        link_ctr: Number(ad.link_ctr) || 0,
+        cpc_link: Number(ad.cpc_link) || (spend > 0 && link_clicks > 0 ? spend / link_clicks : 0),
     }
 }
 

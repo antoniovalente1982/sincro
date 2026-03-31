@@ -279,6 +279,8 @@ export default function RulesPanel({ campaigns }: Props) {
                                             </div>
                                             <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>
                                                 Metriche: SPD €{r.metrics?.spend?.toFixed(2)} | CPL €{r.metrics?.cpl?.toFixed(2)} | CTR {r.metrics?.ctr?.toFixed(2)}%
+                                                {r.metrics?.link_ctr > 0 && ` | Link CTR ${r.metrics.link_ctr.toFixed(2)}%`}
+                                                {r.metrics?.cpc_link > 0 && ` | CPC Link €${r.metrics.cpc_link.toFixed(2)}`}
                                             </div>
                                         </div>
                                         <span className="badge text-[9px]" style={{
