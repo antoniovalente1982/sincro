@@ -264,19 +264,24 @@ export const SincroVideoTemplate: React.FC<SincroVideoProps> = ({
     const videoContent = (
         <AbsoluteFill style={{ backgroundColor: '#000000', color: 'white', overflow: 'hidden' }}>
             {/* INJECT SVG CHROMA KEY FILTER */}
-            <svg width="0" height="0" style={{ position: 'absolute' }}>
-                <filter id="chroma-key">
-                  <feColorMatrix type="matrix" values="
-                    1 0 0 0 0
-                    0 1 0 0 0
-                    0 0 1 0 0
-                    -1 2.5 -1 0 0" result="alpha-mask"/>
-                  <feColorMatrix type="matrix" values="
-                    1 0 0 0 0
-                    0 1 0 0 0
-                    0 0 1 0 0
-                    0 0 0 -1 1" in="alpha-mask"/>
-                </filter>
+            <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }}>
+                <defs>
+                    <filter id="chroma-key" colorInterpolationFilters="sRGB">
+                        <feColorMatrix
+                            type="matrix"
+                            values="
+                                1 0 0 0 0
+                                0 1 0 0 0
+                                0 0 1 0 0
+                                -1.5 2.5 -1.5 0 0" 
+                            result="greenness"
+                        />
+                        <feComponentTransfer in="greenness" result="mask">
+                            <feFuncA type="linear" slope="-4" intercept="2" />
+                        </feComponentTransfer>
+                        <feComposite in="SourceGraphic" in2="mask" operator="in" />
+                    </filter>
+                </defs>
             </svg>
 
             <div style={{ width: '100%', height: '100%', transform: earthquakeTransform, transformOrigin: 'center center' }}>

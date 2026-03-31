@@ -1080,7 +1080,7 @@ export default function VideoEditorProPage() {
                                                             setCustomBackgroundUrl('loading');
                                                             fetch('/api/ai-engine/generate-image', {
                                                                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, size: '1024x1792' })
-                                                            }).then(res => res.json()).then(data => { if(data.url) setCustomBackgroundUrl(data.url); else setCustomBackgroundUrl(''); }).catch(() => setCustomBackgroundUrl(''));
+                                                            }).then(res => res.json()).then(data => { if(data.imageUrl) setCustomBackgroundUrl(data.imageUrl); else setCustomBackgroundUrl(''); }).catch(() => setCustomBackgroundUrl(''));
                                                         }
                                                     }}
                                                 />
