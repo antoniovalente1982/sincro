@@ -510,6 +510,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                 {stageLeads.map(lead => {
                                     const aiScore = calculateLeadScore(lead)
                                     const ScoreIcon = aiScore.icon
+                                    
+                                    // Check if this lead resubmitted TODAY
+                                    const isReturnedToday = lead.meta_data?.last_submission_at && 
+                                        new Date(lead.meta_data.last_submission_at).toDateString() === new Date().toDateString();
+
                                     return (
                                     <div
                                         key={lead.id}
@@ -518,17 +523,28 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         className="group p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all duration-200 hover:scale-[1.02]"
                                         style={{
                                             background: 'rgba(15, 15, 19, 0.8)',
-                                            border: `1px solid ${aiScore.label === 'Hot' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.06)'}`,
+                                            border: `1px solid ${(aiScore.label === 'Hot' || isReturnedToday) ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255,255,255,0.06)'}`,
                                             opacity: dragLead === lead.id ? 0.5 : 1,
-                                            boxShadow: aiScore.label === 'Hot' ? '0 0 20px rgba(239, 68, 68, 0.05)' : undefined,
+                                            boxShadow: (aiScore.label === 'Hot' || isReturnedToday) ? '0 0 20px rgba(239, 68, 68, 0.08)' : undefined,
                                         }}
                                     >
                                         <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30" style={{ color: 'var(--color-surface-500)' }} />
-                                                <span className="text-sm font-semibold text-white truncate">{lead.name}</span>
+                                            <div className="flex flex-col flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30" style={{ color: 'var(--color-surface-500)' }} />
+                                                    <span className="text-sm font-semibold text-white truncate">{lead.name}</span>
+                                                </div>
                                             </div>
                                             <div className="flex items-center gap-1 flex-shrink-0">
+                                                {isReturnedToday && (
+                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase tracking-wide animate-pulse" style={{
+                                                        background: 'rgba(239, 68, 68, 0.15)',
+                                                        color: '#ef4444',
+                                                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                                                    }}>
+                                                        🔥 RITORNO OGGI
+                                                    </span>
+                                                )}
                                                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5" style={{
                                                     background: `${aiScore.color}15`,
                                                     color: aiScore.color,
@@ -544,7 +560,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </div>
 
                                         {lead.product && (
-                                            <div className="mt-2">
+                                            <div className="mt-2 text-xs">
                                                 <span className="badge" style={{
                                                     background: lead.product === 'Platinum' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                                                     color: lead.product === 'Platinum' ? '#8b5cf6' : '#f59e0b',
@@ -557,9 +573,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         )}
 
                                         <div className="mt-2 space-y-1">
-                                            {(lead.meta_data?.resubmit_count ?? 0) > 0 && (
+                                            {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
                                                 <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#f97316' }}>
-                                                    🔄 Ritorno{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
+                                                    🔄 Ritorno Storico{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
                                                 </div>
                                             )}
                                             {lead.phone && (
@@ -580,8 +596,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </div>
 
                                         <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                                                {formatDate(lead.created_at)}
+                                            <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }} title={`Data creazione: ${formatDate(lead.created_at)}`}>
+                                                {formatDate(lead.meta_data?.last_submission_at || lead.updated_at || lead.created_at)}
                                             </span>
                                             {lead.assigned_to && (
                                                 <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
