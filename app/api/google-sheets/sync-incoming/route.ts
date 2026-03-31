@@ -56,13 +56,18 @@ const monthNamesIT = [
     'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
 ]
 
-function getCurrentTabNames() {
+function getCurrentTabNames(allSheetNames: string[]) {
     const d = new Date()
-    const month = monthNamesIT[d.getMonth()]
-    const yearShort = d.getFullYear().toString().substring(2)
+    const month = monthNamesIT[d.getMonth()].toLowerCase() // "marzo"
+    const yearShort = d.getFullYear().toString().substring(2) // "26"
+    const yearFull = d.getFullYear().toString() // "2026"
+
+    let leadTab = allSheetNames.find(s => s.toLowerCase().includes('lead') && s.toLowerCase().includes(month) && (s.includes(yearShort) || s.includes(yearFull)))
+    let appTab = allSheetNames.find(s => (s.toLowerCase().includes('app') || s.toLowerCase().includes('vendit')) && s.toLowerCase().includes(month) && (s.includes(yearShort) || s.includes(yearFull)))
+
     return {
-        leadTab: `Lead ${month}${yearShort}`,
-        appTab: `App ${month}${yearShort}`
+        leadTab: leadTab || `Lead ${monthNamesIT[d.getMonth()]}${yearShort}`,
+        appTab: appTab || `App ${monthNamesIT[d.getMonth()]}${yearShort}`
     }
 }
 
@@ -85,6 +90,7 @@ export async function GET(req: NextRequest) {
 
     let totalCreated = 0
     let totalUpdated = 0
+    const debugLog: any = { logs: [], errors: [], parsedSetter: 0, parsedSeller: 0 }
 
     // Fetch pipeline info generically per organization to map stages
     for (const conn of connections) {
@@ -94,9 +100,18 @@ export async function GET(req: NextRequest) {
         const token = await getServiceAccountToken(conn.credentials.service_account_key)
         if (!token) continue
 
-        const { leadTab, appTab } = getCurrentTabNames()
+        // Fetch actual sheet names first
+        let allSheetNames: string[] = []
+        try {
+            const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${conn.credentials.spreadsheet_id}`, { headers: { 'Authorization': `Bearer ${token}` }})
+            const metaData = await metaRes.json()
+            allSheetNames = metaData.sheets?.map((s: any) => s.properties.title) || []
+        } catch(e) {}
 
-        // 1. Get Pipeline Stages 
+        const { leadTab, appTab } = getCurrentTabNames(allSheetNames)
+        debugLog.allSheets = allSheetNames
+
+        // 1. Get Pipeline Stages  
         const { data: pipelines } = await supabase.from('pipelines')
             .select('id, name')
             .eq('organization_id', orgId)
@@ -128,7 +143,7 @@ export async function GET(req: NextRequest) {
         const getSheetData = async (tabName: string) => {
             try {
                 const res = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${conn.credentials.spreadsheet_id}/values/${encodeURIComponent(tabName)}!A1:Z500`,
+                    `https://sheets.googleapis.com/v4/spreadsheets/${conn.credentials.spreadsheet_id}/values/${encodeURIComponent(`'${tabName}'`)}!A1:Z500`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 )
                 if (!res.ok) return []
@@ -141,6 +156,8 @@ export async function GET(req: NextRequest) {
 
         const leadsRows = await getSheetData(leadTab)
         const appsRows = await getSheetData(appTab)
+
+        debugLog.logs.push(`Reading Tabs: ${leadTab} (Rows: ${leadsRows.length}), ${appTab} (Rows: ${appsRows.length})`)
 
         // Maps to hold incoming data by email
         type IncomingLead = { email: string; name: string; phone: string; esito: string; source: string }
@@ -175,6 +192,8 @@ export async function GET(req: NextRequest) {
                         source: sourceIdx !== -1 ? row[sourceIdx] || 'Google Sheet' : 'Google Sheet',
                     })
                 }
+            } else {
+                debugLog.errors.push(`No Email column found in Setter Tab. Headers: ${headerRow.join(',')}`)
             }
         }
 
@@ -201,8 +220,13 @@ export async function GET(req: NextRequest) {
                         descrizione: descIdx !== -1 ? (typeof row[descIdx] === 'string' ? row[descIdx].toLowerCase() : '') : '',
                     })
                 }
+            } else {
+                debugLog.errors.push(`No Email column found in Apps Tab. Headers: ${headerRow.join(',')}`)
             }
         }
+
+        debugLog.parsedSetter = setterLeads.size
+        debugLog.parsedSeller = sellerApps.size
 
         // Retrieve existing leads to compare
         const validEmails = Array.from(new Set([...Array.from(setterLeads.keys()), ...Array.from(sellerApps.keys())]))
@@ -241,6 +265,8 @@ export async function GET(req: NextRequest) {
                         activity_type: 'stage_changed', to_stage_id: firstStageId,
                         notes: `🔄 Importato automaticamente da Fogli Google (Tab Setter: ${leadTab})`
                     })
+                } else {
+                    debugLog.errors.push(`Failed to insert lead ${email}: ${newErr?.message}`)
                 }
             }
         }
@@ -318,6 +344,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ 
         success: true, 
         message: 'Sync completed',
-        stats: { totalCreated, totalUpdated }
+        stats: { totalCreated, totalUpdated },
+        debugLog
     })
 }
