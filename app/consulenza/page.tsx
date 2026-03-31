@@ -67,7 +67,7 @@ const CONFIG_MAP: Record<string, PageConfig> = {
 function PageContent() {
   const searchParams = useSearchParams()
   const sourceParam = searchParams.get('source') || 'default'
-  const orgId = searchParams.get('org') || '01d90fc9-d5ab-406c-8ab5-f127cb46c6ad'
+  const orgId = searchParams.get('org') || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
 
   // Trova la configurazione o usa la default
   const config = CONFIG_MAP[sourceParam as keyof typeof CONFIG_MAP] || CONFIG_MAP['default']
