@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { syncNewLeadToSheet } from '@/lib/google-sheets'
+import { appendLeadToSheet } from '@/lib/google-sheets'
 
 function getSupabaseAdmin() {
     return createClient(
@@ -166,16 +166,21 @@ export async function POST(req: NextRequest) {
             })
         }
 
-        // ── Backup to Google Sheet 'Leads (social)'
-        try {
-            await syncNewLeadToSheet(orgId, {
-                email, name, phone, 
-                source: utm_source || 'Gravity Forms', 
-                campaign: utm_campaign || 'WP Webhook'
-            }, "Leads (social)")
-        } catch (e) {
-            console.error('Spreadsheet backup failed for Gravity Lead', e)
-        }
+// ── Backup to Google Sheet
+try {
+    const backupSource = utm_source ? String(utm_source) : 'Gravity Forms'
+    await appendLeadToSheet(orgId, {
+        email, 
+        name, 
+        phone, 
+        funnel: 'Gravity Webhook',
+        utm_source: backupSource, 
+        utm_campaign: utm_campaign ? String(utm_campaign) : 'WP Webhook',
+        created_at: new Date().toISOString()
+    })
+} catch (e) {
+    console.error('Spreadsheet backup failed for Gravity Lead', e)
+}
 
         // ── Trigger Server-Side META CAPI
         const { data: orgConfig } = await supabase.from('organizations')
