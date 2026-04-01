@@ -340,9 +340,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
 
-    // Stats
-    const totalValue = leads.reduce((s, l) => s + (l.value || 0), 0)
-    const hotLeads = leads.filter(l => calculateLeadScore(l).label === 'Hot').length
+    // Stats - Calculated dynamically based on the current filters (Pipeline, Date, Search)
+    const totalValue = filteredLeads.reduce((s, l) => s + (l.value || 0), 0)
+    const hotLeads = filteredLeads.filter(l => calculateLeadScore(l).label === 'Hot').length
 
     return (
         <div className="space-y-5 animate-fade-in">
@@ -364,7 +364,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         CRM Pipeline
                     </h1>
                     <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                        {leads.length} lead{leads.length !== 1 ? 's' : ''} • {hotLeads > 0 && <span style={{ color: '#ef4444' }}>🔥 {hotLeads} hot</span>}{hotLeads > 0 && ' • '}{totalValue > 0 && <span style={{ color: '#22c55e' }}>{formatCurrency(totalValue)}</span>}
+                        {filteredLeads.length} lead{filteredLeads.length !== 1 ? 's' : ''} • {hotLeads > 0 && <span style={{ color: '#ef4444' }}>🔥 {hotLeads} hot</span>}{hotLeads > 0 && ' • '}{totalValue > 0 && <span style={{ color: '#22c55e' }}>{formatCurrency(totalValue)}</span>}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
