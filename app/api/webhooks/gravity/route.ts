@@ -146,10 +146,10 @@ export async function POST(req: NextRequest) {
             if (!existingLead.name && name) updateData.name = name
             if (utm_source) {
                 const lowerSource = String(utm_source).toLowerCase();
-                if (lowerSource.includes('valenteantonio')) updateData.product = 'Sito: valenteantonio.it';
-                else if (lowerSource.includes('metodosincro')) updateData.product = 'Sito: metodosincro.it';
-                else if (lowerSource.includes('protocollo27')) updateData.product = 'Sito: protocollo27.it';
-                else updateData.product = utm_source;
+                if (lowerSource.includes('valenteantonio')) updateData.product = 'Fonte: valenteantonio.it';
+                else if (lowerSource.includes('metodosincro')) updateData.product = 'Fonte: metodosincro.it';
+                else if (lowerSource.includes('protocollo27')) updateData.product = 'Fonte: protocollo27.it';
+                else updateData.product = 'Fonte: Ads - Meta';
             }
 
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
@@ -160,12 +160,13 @@ export async function POST(req: NextRequest) {
                 notes: `🔁 Rientrato da Form (Gravity Forms)`
             })
         } else {
-            let productLabel = utm_source || 'Sito Web (Gravity)';
+            let productLabel = utm_source || 'Fonte: Ads - Meta';
             if (utm_source) {
                 const lowerSource = String(utm_source).toLowerCase();
-                if (lowerSource.includes('valenteantonio')) productLabel = 'Sito: valenteantonio.it';
-                else if (lowerSource.includes('metodosincro')) productLabel = 'Sito: metodosincro.it';
-                else if (lowerSource.includes('protocollo27')) productLabel = 'Sito: protocollo27.it';
+                if (lowerSource.includes('valenteantonio')) productLabel = 'Fonte: valenteantonio.it';
+                else if (lowerSource.includes('metodosincro')) productLabel = 'Fonte: metodosincro.it';
+                else if (lowerSource.includes('protocollo27')) productLabel = 'Fonte: protocollo27.it';
+                else productLabel = 'Fonte: Ads - Meta';
             }
 
             const { data: createdLead, error } = await supabase.from('leads').insert({

@@ -196,10 +196,10 @@ export async function POST(req: NextRequest) {
                     utm_campaign: utm_campaign || null,
                     product: (() => {
                         const lower = String(funnel.name).toLowerCase();
-                        if (lower.includes('valenteantonio')) return 'Sito: valenteantonio.it';
-                        if (lower.includes('metodosincro')) return 'Sito: metodosincro.it';
-                        if (lower.includes('protocollo27')) return 'Sito: protocollo27.it';
-                        return funnel.name;
+                        if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                        if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                        if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                        return 'Fonte: Ads - Meta';
                     })(),
                     meta_data: {
                         source: 'funnel', funnel_name: funnel.name,
