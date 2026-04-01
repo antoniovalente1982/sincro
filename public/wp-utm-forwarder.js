@@ -1,160 +1,140 @@
 /**
  * METODO SINCRO® — UTM Attribution Forwarder per WordPress
- * 
- * INSTALLAZIONE:
- * 1. Vai su WordPress Admin → Aspetto → Editor del tema (o usa plugin "Insert Headers and Footers")
- * 2. Incolla questo script nel campo "Scripts in Footer" (o prima di </body>)
- * 3. Installa su TUTTI E 3 i siti: valenteantonio.it, metodosincro.it, protocollo27.it
- * 
- * COSA FA:
- * - Legge i parametri URL quando l'utente atterra dalla Meta Ad
- *   (es: metodosincro.it?utm_campaign=MS-Lead&utm_content=AD_ID&fbclid=...)
- * - Salva questi parametri in sessionStorage e localStorage (30 giorni)
- * - Aggiorna AUTOMATICAMENTE tutti i link CTA che puntano alla landing Sincro
- *   appendendo i parametri utm_* all'URL di destinazione
- * - In questo modo quando l'utente clicca "Prenota Consulenza Gratuita" su WordPress
- *   viene portato a /f/metodo-sincro?utm_campaign=X&utm_content=Y (TRACCIATO)
- *   invece di /f/metodo-sincro (NON TRACCIATO)
+ * Versione: 1.1
+ *
+ * ════════════════════════════════════════════════════════════════
+ * PROBLEMA CHE RISOLVE:
+ *
+ * Quando Meta Ads manda traffico su metodosincro.it?utm_campaign=X,
+ * il visitatore legge la pagina WordPress e poi clicca il bottone CTA
+ * che va su landing.metodosincro.com/f/form-metodosincro-it
+ *
+ * SENZA questo script:
+ *   CTA href = landing.metodosincro.com/f/form-metodosincro-it
+ *              → lead arriva SENZA utm_campaign → attributione persa ❌
+ *
+ * CON questo script:
+ *   CTA href = landing.metodosincro.com/f/form-metodosincro-it?utm_campaign=X&utm_content=Y
+ *              → lead arriva CON attributione completa ✅
+ *
+ * ════════════════════════════════════════════════════════════════
+ * INSTALLAZIONE (fare su TUTTI E 3 i siti WordPress):
+ *
+ * MODO A — Plugin "Insert Headers and Footers":
+ *   1. WP Admin → Plugin → Installa "Insert Headers and Footers"
+ *   2. Impostazioni → "Scripts in Footer" → incolla questo script
+ *   3. Salva
+ *
+ * MODO B — functions.php (tema):
+ *   function sincro_utm() {
+ *     wp_enqueue_script('sincro-utm',
+ *       'https://landing.metodosincro.com/wp-utm-forwarder.js',
+ *       [], null, true);
+ *   }
+ *   add_action('wp_enqueue_scripts', 'sincro_utm');
+ *
+ * ════════════════════════════════════════════════════════════════
  */
 (function () {
     'use strict';
 
-    // ── Configurazione ──────────────────────────────────────────────────────
-    // URL base della Sincro landing — aggiorna se cambia
+    // ── Domini e path della Sincro landing ──────────────────────────────────
+    // Lo script aggiorna automaticamente tutti i link che puntano a questi domini
     var SINCRO_DOMAINS = [
+        'landing.metodosincro.com',
         'adpilotik.com',
-        'metodosincro.it', // se il funnel è su questo dominio
     ];
-    // Path della landing principale (aggiorna se il funnel cambia slug)
-    var SINCRO_LANDING_PATH = '/f/metodo-sincro';
 
-    // ── Storage keys (devono essere identici a useMetaTracking.ts) ──────────
-    var UTM_STORAGE_KEY = '_sincro_utms';
-    var UTM_TS_KEY = '_sincro_utms_ts';
-    var UTM_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 giorni
-
-    // ── Leggi parametri dall'URL corrente ──────────────────────────────────
-    var params = new URLSearchParams(window.location.search);
+    // ── Parametri da catturare e forwardare ─────────────────────────────────
     var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'];
 
+    // ── Leggi parametri dall'URL corrente della pagina WP ──────────────────
+    var params = new URLSearchParams(window.location.search);
     var utms = {};
     UTM_KEYS.forEach(function (key) {
         var val = params.get(key);
         if (val) utms[key] = val;
     });
 
-    // Se abbiamo UTM dalla URL, salvali (autoritative)
-    if (Object.keys(utms).length > 0) {
-        try {
-            var payload = JSON.stringify(utms);
-            sessionStorage.setItem(UTM_STORAGE_KEY, payload);
-            localStorage.setItem(UTM_STORAGE_KEY, payload);
-            localStorage.setItem(UTM_TS_KEY, String(Date.now()));
-            console.log('[Sincro Tracking] UTM salvati:', utms);
-        } catch (e) { /* storage bloccato */ }
-    } else {
-        // Fallback: leggi da sessionStorage o localStorage
-        try {
-            var ss = sessionStorage.getItem(UTM_STORAGE_KEY);
-            if (ss) {
-                utms = JSON.parse(ss);
-            } else {
-                var ts = parseInt(localStorage.getItem(UTM_TS_KEY) || '0', 10);
-                if (Date.now() - ts < UTM_TTL_MS) {
-                    var ls = localStorage.getItem(UTM_STORAGE_KEY);
-                    if (ls) utms = JSON.parse(ls);
-                }
-            }
-        } catch (e) { /* parse error */ }
-    }
+    // Se non abbiamo UTM dall'URL, non c'è niente da forwardare
+    if (Object.keys(utms).length === 0) return;
 
-    // ── Funzione: aggiorna un href con i parametri UTM ──────────────────────
-    function appendUtmsToUrl(href, utmData) {
-        if (!href || !utmData || Object.keys(utmData).length === 0) return href;
+    console.log('[Sincro UTM] Parametri rilevati:', utms);
+
+    // ── Funzione: aggiunge UTM a un href che punta alla Sincro landing ──────
+    function appendUtmsToHref(href) {
+        if (!href) return href;
         try {
-            // Costruisci URL assoluta se necessario
             var url;
-            if (href.startsWith('http')) {
+            if (href.startsWith('http://') || href.startsWith('https://')) {
                 url = new URL(href);
             } else if (href.startsWith('/')) {
+                // Link relativo come /f/form-metodosincro-it
                 url = new URL(href, window.location.origin);
             } else {
-                return href; // mailto:, tel:, # ecc.
+                return href; // mailto:, tel:, #anchor — non toccare
             }
-            // Aggiungi ogni UTM param solo se non già presente nell'URL
-            Object.keys(utmData).forEach(function (key) {
+
+            // Aggiungi ogni UTM solo se NON già presente nell'URL di destinazione
+            Object.keys(utms).forEach(function (key) {
                 if (!url.searchParams.has(key)) {
-                    url.searchParams.set(key, utmData[key]);
+                    url.searchParams.set(key, utms[key]);
                 }
             });
+
             return url.toString();
         } catch (e) {
             return href;
         }
     }
 
-    // ── Funzione: determina se un link punta alla Sincro landing ───────────
-    function isSincroLink(href) {
+    // ── Verifica se un href punta alla Sincro landing ──────────────────────
+    function isSincroHref(href) {
         if (!href) return false;
-        // Link relativi che puntano al funnel
-        if (href.startsWith('/f/') || href.includes(SINCRO_LANDING_PATH)) return true;
+        // Link relativi /f/...
+        if (href.startsWith('/f/')) return true;
         // Link assoluti verso i domini Sincro
         return SINCRO_DOMAINS.some(function (domain) {
-            return href.includes(domain);
+            return href.indexOf(domain) !== -1;
         });
     }
 
-    // ── Aggiorna tutti i link CTA nella pagina ───────────────────────────────
-    function updateCtaLinks() {
-        if (Object.keys(utms).length === 0) return;
-
+    // ── Aggiorna tutti i link CTA nella pagina ─────────────────────────────
+    function updateAllCtaLinks() {
         var links = document.querySelectorAll('a[href]');
-        var updated = 0;
-        links.forEach(function (link) {
+        var count = 0;
+        for (var i = 0; i < links.length; i++) {
+            var link = links[i];
             var href = link.getAttribute('href');
-            if (isSincroLink(href)) {
-                var newHref = appendUtmsToUrl(href, utms);
-                if (newHref !== href) {
-                    link.setAttribute('href', newHref);
-                    updated++;
+            if (isSincroHref(href)) {
+                var updatedHref = appendUtmsToHref(href);
+                if (updatedHref !== href) {
+                    link.setAttribute('href', updatedHref);
+                    count++;
                 }
             }
-        });
-        if (updated > 0) {
-            console.log('[Sincro Tracking] Aggiornati ' + updated + ' link CTA con UTM params');
+        }
+        if (count > 0) {
+            console.log('[Sincro UTM] ' + count + ' link CTA aggiornati con UTM params');
         }
     }
 
-    // ── Esegui subito e poi osserva eventuali link aggiunti dinamicamente ───
+    // ── Esegui al caricamento della pagina ─────────────────────────────────
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateCtaLinks);
+        document.addEventListener('DOMContentLoaded', updateAllCtaLinks);
     } else {
-        updateCtaLinks();
+        updateAllCtaLinks();
     }
 
-    // Observer per link aggiunti dopo il caricamento (popup, sticky bars, ecc.)
+    // ── Observer per link aggiunti da JS (popup, slider, sticky bar, ecc.) ─
     if (window.MutationObserver) {
-        var observer = new MutationObserver(function () {
-            updateCtaLinks();
+        var observer = new MutationObserver(function (mutations) {
+            var hasNewNodes = mutations.some(function (m) {
+                return m.addedNodes && m.addedNodes.length > 0;
+            });
+            if (hasNewNodes) updateAllCtaLinks();
         });
         observer.observe(document.body, { childList: true, subtree: true });
     }
-
-    // ── Intercetta anche i click sui bottoni (non solo link) ────────────────
-    // Alcuni temi WordPress usano <button> o <div> con onclick per i CTA
-    document.addEventListener('click', function (e) {
-        var el = e.target;
-        // Risali l'albero DOM per trovare un elemento con data-href o onclick sincro
-        while (el && el !== document.body) {
-            var dataHref = el.getAttribute && el.getAttribute('data-href');
-            if (dataHref && isSincroLink(dataHref)) {
-                e.preventDefault();
-                var newUrl = appendUtmsToUrl(dataHref, utms);
-                window.location.href = newUrl;
-                return;
-            }
-            el = el.parentElement;
-        }
-    }, true);
 
 })();
