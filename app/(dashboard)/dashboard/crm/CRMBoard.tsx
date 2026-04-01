@@ -610,13 +610,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </div>
 
                                         <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                            <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: '#a1a1aa' /* grigio molto più chiaro var(--color-surface-400) */ }}>
                                                 <span title="Data del primissimo contatto">Entrato: {formatDate(lead.created_at)}</span>
                                                 {lead.meta_data?.last_submission_at && (
-                                                    <span style={{ color: '#f97316' }} title="Ha compilato un modulo una seconda volta">Ri-registrato: {formatDate(lead.meta_data.last_submission_at)}</span>
+                                                    <span style={{ color: '#fca5a5' /* rosso/arancio chiaro molto più leggibile su scuro */ }} title="Ha compilato un modulo una seconda volta">Ri-registrato: {formatDate(lead.meta_data.last_submission_at)}</span>
                                                 )}
                                                 {(lead.updated_at > lead.created_at) && !lead.meta_data?.last_submission_at && (
-                                                    <span style={{ opacity: 0.6 }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
+                                                    <span style={{ color: '#71717a' }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
                                                 )}
                                             </div>
                                             {lead.assigned_to && (
