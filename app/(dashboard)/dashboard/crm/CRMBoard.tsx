@@ -193,18 +193,19 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
-            // CRM should show leads created today OR returning leads that resubmitted today
-            const d = new Date(l.meta_data?.last_submission_at || l.updated_at || l.created_at)
+            // I filtri del CRM guardano SOLO l'ingresso del lead o un'eventuale ri-registrazione.
+            // Ignorano le modifiche manuali o gli spostamenti drag&drop (updated_at) per non sfalsare le metriche giornaliere.
+            const d = new Date(l.meta_data?.last_submission_at || l.created_at)
             return d >= range.from && d < range.to
         })()
         return matchSearch && matchObjective && matchPipeline && matchDate
     })
 
-    // Sort leads by arrival time (most recent first) within each stage
+    // Sort leads by arrival time (most recent first) considering re-submissions
     const getLeadsForStage = (stageId: string) =>
         filteredLeads
             .filter(l => l.stage_id === stageId)
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .sort((a, b) => new Date(b.meta_data?.last_submission_at || b.created_at).getTime() - new Date(a.meta_data?.last_submission_at || a.created_at).getTime())
 
     // Calculate stage value totals
     const getStageValue = (stageId: string) =>
@@ -609,9 +610,15 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </div>
 
                                         <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }} title={`Data creazione: ${formatDate(lead.created_at)}`}>
-                                                {formatDate(lead.meta_data?.last_submission_at || lead.updated_at || lead.created_at)}
-                                            </span>
+                                            <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                <span title="Data del primissimo contatto">Entrato: {formatDate(lead.created_at)}</span>
+                                                {lead.meta_data?.last_submission_at && (
+                                                    <span style={{ color: '#f97316' }} title="Ha compilato un modulo una seconda volta">Ri-registrato: {formatDate(lead.meta_data.last_submission_at)}</span>
+                                                )}
+                                                {(lead.updated_at > lead.created_at) && !lead.meta_data?.last_submission_at && (
+                                                    <span style={{ opacity: 0.6 }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
+                                                )}
+                                            </div>
                                             {lead.assigned_to && (
                                                 <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
                                                     background: 'rgba(59, 130, 246, 0.1)',
