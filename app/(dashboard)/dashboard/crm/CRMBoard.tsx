@@ -50,6 +50,12 @@ interface Member {
     profiles: { full_name?: string; email?: string } | null
 }
 
+interface TrafficSource {
+    id: string
+    name: string
+    color: string
+}
+
 interface Props {
     pipelines: Pipeline[]
     stages: Stage[]
@@ -58,6 +64,7 @@ interface Props {
     userRole: string
     objectives: string[]
     activeCampaigns: string[]
+    trafficSources: TrafficSource[]
 }
 
 // ── AI Lead Scoring Algorithm ──
@@ -92,7 +99,7 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns, trafficSources }: Props) {
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
@@ -559,18 +566,24 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                             </div>
                                         </div>
 
-                                        {lead.product && (
-                                            <div className="mt-2 text-xs">
-                                                <span className="badge" style={{
-                                                    background: lead.product === 'Platinum' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                                                    color: lead.product === 'Platinum' ? '#8b5cf6' : '#f59e0b',
-                                                    border: `1px solid ${lead.product === 'Platinum' ? 'rgba(139, 92, 246, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
-                                                    fontSize: '11px',
-                                                }}>
-                                                    {lead.product}
-                                                </span>
-                                            </div>
-                                        )}
+                                        {lead.product && (() => {
+                                            const sourceMatch = trafficSources.find(s => s.name === lead.product)
+                                            const bgColor = sourceMatch ? `${sourceMatch.color}15` : 'rgba(245, 158, 11, 0.1)'
+                                            const txColor = sourceMatch ? sourceMatch.color : '#f59e0b'
+                                            const bdColor = sourceMatch ? `${sourceMatch.color}30` : 'rgba(245, 158, 11, 0.2)'
+                                            return (
+                                                <div className="mt-2 text-xs">
+                                                    <span className="badge" style={{
+                                                        background: bgColor,
+                                                        color: txColor,
+                                                        border: `1px solid ${bdColor}`,
+                                                        fontSize: '11px',
+                                                    }}>
+                                                        {lead.product}
+                                                    </span>
+                                                </div>
+                                            )
+                                        })()}
 
                                         <div className="mt-2 space-y-1">
                                             {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
@@ -633,6 +646,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     activePipelineId={activePipelineId}
                     members={members}
                     activeCampaigns={activeCampaigns}
+                    trafficSources={trafficSources}
                     saving={saving}
                     onSave={handleSaveLead}
                     onClose={() => { setShowModal(false); setEditingLead(null) }}
@@ -646,6 +660,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     stages={stages}
                     members={members}
                     activities={activities}
+                    trafficSources={trafficSources}
                     loadingActivities={loadingActivities}
                     onClose={() => setSelectedLead(null)}
                     onEdit={(lead) => { setSelectedLead(null); setEditingLead(lead); setShowModal(true) }}
@@ -661,13 +676,14 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 }
 
 // ── Lead Create/Edit Modal ──
-function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeCampaigns, saving, onSave, onClose }: {
+function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeCampaigns, trafficSources, saving, onSave, onClose }: {
     lead: Lead | null
     stages: Stage[]
     pipelines: Pipeline[]
     activePipelineId: string
     members: Member[]
     activeCampaigns: string[]
+    trafficSources: TrafficSource[]
     saving: boolean
     onSave: (data: any) => void
     onClose: () => void
@@ -738,12 +754,11 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="label">Prodotto</label>
-                            <select className="input" value={form.product} onChange={e => setForm({ ...form, product: e.target.value })}>
-                                <option value="">Seleziona...</option>
-                                <option value="Platinum">Platinum — €2.250</option>
-                                <option value="Impact">Impact — €3.000</option>
-                            </select>
+                            <label className="label">Fonte di Traffico</label>
+                            <input className="input" list="traffic-sources-list" value={form.product} onChange={e => setForm({ ...form, product: e.target.value })} placeholder="Es: Fonte: Ads - Meta" />
+                            <datalist id="traffic-sources-list">
+                                {trafficSources.map(s => <option key={s.id} value={s.name} />)}
+                            </datalist>
                         </div>
                         <div>
                             <label className="label">Valore (€)</label>
@@ -830,12 +845,13 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 }
 
 // ── Lead Detail Panel ──
-function LeadDetail({ lead, stages, members, activities, loadingActivities, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency }: {
+function LeadDetail({ lead, stages, members, activities, loadingActivities, trafficSources, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency }: {
     lead: Lead
     stages: Stage[]
     members: Member[]
     activities: any[]
     loadingActivities: boolean
+    trafficSources: TrafficSource[]
     onClose: () => void
     onEdit: (lead: Lead) => void
     onDelete: (id: string) => void
@@ -872,12 +888,18 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, onCl
                             <div className="text-sm font-bold" style={{ color: stage.color }}>{stage.name}</div>
                         </div>
                     )}
-                    {lead.product && (
-                        <div className="p-3 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-500)' }}>Prodotto</div>
-                            <div className="text-sm font-bold" style={{ color: '#8b5cf6' }}>{lead.product}</div>
-                        </div>
-                    )}
+                    {lead.product && (() => {
+                        const sourceMatch = trafficSources.find(s => s.name === lead.product)
+                        const bgColor = sourceMatch ? `${sourceMatch.color}10` : 'rgba(139, 92, 246, 0.05)'
+                        const txColor = sourceMatch ? sourceMatch.color : '#8b5cf6'
+                        const bdColor = sourceMatch ? `${sourceMatch.color}20` : 'rgba(139, 92, 246, 0.1)'
+                        return (
+                            <div className="p-3 rounded-xl" style={{ background: bgColor, border: `1px solid ${bdColor}` }}>
+                                <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-500)' }}>Fonte/Traffico</div>
+                                <div className="text-sm font-bold" style={{ color: txColor }}>{lead.product}</div>
+                            </div>
+                        )
+                    })()}
                     {lead.value && (
                         <div className="p-3 rounded-xl" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.1)' }}>
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-500)' }}>Valore</div>

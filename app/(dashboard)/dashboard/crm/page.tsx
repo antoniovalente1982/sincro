@@ -13,7 +13,7 @@ export default async function CRMPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [pipelinesRes, stagesRes, leadsRes, membersRes, funnelsRes] = await Promise.all([
+    const [pipelinesRes, stagesRes, leadsRes, membersRes, funnelsRes, sourcesRes] = await Promise.all([
         supabase
             .from('pipelines')
             .select('*')
@@ -38,6 +38,10 @@ export default async function CRMPage() {
             .select('id, name, objective')
             .eq('organization_id', orgId)
             .order('name'),
+        supabase
+            .from('traffic_sources')
+            .select('*')
+            .eq('organization_id', orgId),
     ])
 
     // Flatten profiles from array to single object
@@ -61,6 +65,7 @@ export default async function CRMPage() {
             userRole={member?.role || 'viewer'}
             objectives={objectives}
             activeCampaigns={activeCampaigns as string[]}
+            trafficSources={sourcesRes?.data || []}
         />
     )
 }

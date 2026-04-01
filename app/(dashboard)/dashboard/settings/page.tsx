@@ -13,11 +13,12 @@ export default async function SettingsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [orgRes, stagesRes, profileRes, pipelinesRes] = await Promise.all([
+    const [orgRes, stagesRes, profileRes, pipelinesRes, sourcesRes] = await Promise.all([
         supabase.from('organizations').select('*').eq('id', orgId).single(),
         supabase.from('pipeline_stages').select('*').eq('organization_id', orgId).order('sort_order'),
         supabase.from('profiles').select('*').eq('id', user?.id || '').single(),
         supabase.from('pipelines').select('*').eq('organization_id', orgId).order('sort_order'),
+        supabase.from('traffic_sources').select('*').eq('organization_id', orgId).order('name'),
     ])
 
     return (
@@ -25,6 +26,7 @@ export default async function SettingsPage() {
             organization={orgRes.data}
             stages={stagesRes.data || []}
             pipelines={pipelinesRes.data || []}
+            trafficSources={sourcesRes.data || []}
             profile={profileRes.data}
             userRole={member?.role || 'viewer'}
             userEmail={user?.email || ''}

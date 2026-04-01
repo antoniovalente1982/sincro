@@ -134,23 +134,46 @@ export async function POST(req: NextRequest) {
             .order('created_at', { ascending: false })
             .limit(1).single()
 
+        // Pre-fetch dummy source funnels
+        const { data: sourceFunnels } = await supabase.from('funnels')
+            .select('id, slug')
+            .in('slug', ['form-valenteantonio-it', 'form-metodosincro-it', 'form-protocollo27-it'])
+            .eq('organization_id', orgId);
+
+        let funnelIdToAssign: string | null = null;
+        let productLabel = utm_source || 'Fonte: Ads - Meta';
+        
+        if (utm_source) {
+            const lowerSource = String(utm_source).toLowerCase();
+            if (lowerSource.includes('valenteantonio')) {
+                productLabel = 'Fonte: valenteantonio.it';
+                funnelIdToAssign = sourceFunnels?.find(f => f.slug === 'form-valenteantonio-it')?.id || null;
+            }
+            else if (lowerSource.includes('metodosincro')) {
+                productLabel = 'Fonte: metodosincro.it';
+                funnelIdToAssign = sourceFunnels?.find(f => f.slug === 'form-metodosincro-it')?.id || null;
+            }
+            else if (lowerSource.includes('protocollo27')) {
+                productLabel = 'Fonte: protocollo27.it';
+                funnelIdToAssign = sourceFunnels?.find(f => f.slug === 'form-protocollo27-it')?.id || null;
+            }
+            else {
+                productLabel = 'Fonte: Ads - Meta';
+            }
+        }
+
         let leadId = null
 
         if (existingLead) {
             leadId = existingLead.id
             const updateData: any = {
                 stage_id: firstStageId,
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
+                product: productLabel
             }
             if (!existingLead.phone && phone) updateData.phone = phone
             if (!existingLead.name && name) updateData.name = name
-            if (utm_source) {
-                const lowerSource = String(utm_source).toLowerCase();
-                if (lowerSource.includes('valenteantonio')) updateData.product = 'Fonte: valenteantonio.it';
-                else if (lowerSource.includes('metodosincro')) updateData.product = 'Fonte: metodosincro.it';
-                else if (lowerSource.includes('protocollo27')) updateData.product = 'Fonte: protocollo27.it';
-                else updateData.product = 'Fonte: Ads - Meta';
-            }
+            if (!existingLead.funnel_id && funnelIdToAssign) updateData.funnel_id = funnelIdToAssign
 
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
 
@@ -160,19 +183,11 @@ export async function POST(req: NextRequest) {
                 notes: `🔁 Rientrato da Form (Gravity Forms)`
             })
         } else {
-            let productLabel = utm_source || 'Fonte: Ads - Meta';
-            if (utm_source) {
-                const lowerSource = String(utm_source).toLowerCase();
-                if (lowerSource.includes('valenteantonio')) productLabel = 'Fonte: valenteantonio.it';
-                else if (lowerSource.includes('metodosincro')) productLabel = 'Fonte: metodosincro.it';
-                else if (lowerSource.includes('protocollo27')) productLabel = 'Fonte: protocollo27.it';
-                else productLabel = 'Fonte: Ads - Meta';
-            }
-
             const { data: createdLead, error } = await supabase.from('leads').insert({
                 organization_id: orgId,
                 email, name, phone, stage_id: firstStageId, value: 0,
                 product: productLabel,
+                funnel_id: funnelIdToAssign,
                 meta_data: { 
                     source: 'gravity_forms', 
                     utm_source, utm_medium, utm_campaign, utm_content, fbp, fbc 

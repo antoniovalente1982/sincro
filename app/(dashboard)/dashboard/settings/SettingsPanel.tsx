@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2 } from 'lucide-react'
+import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 interface Stage {
@@ -13,16 +13,21 @@ interface Pipeline {
     id: string; name: string; slug: string; source_type: string; color: string; is_default: boolean
 }
 
+interface TrafficSource {
+    id: string; name: string; color: string
+}
+
 interface Props {
     organization: any
     stages: Stage[]
     pipelines: Pipeline[]
+    trafficSources: TrafficSource[]
     profile: any
     userRole: string
     userEmail: string
 }
 
-export default function SettingsPanel({ organization, stages: initialStages, pipelines, profile, userRole, userEmail }: Props) {
+export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, profile, userRole, userEmail }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
@@ -30,6 +35,10 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [showNewStage, setShowNewStage] = useState(false)
     const [newStage, setNewStage] = useState({ name: '', color: '#6366f1', fire_capi_event: '', pipeline_id: '' })
     const [addToPipelineId, setAddToPipelineId] = useState<string>('')
+
+    const [sources, setSources] = useState<TrafficSource[]>(initialSources || [])
+    const [showNewSource, setShowNewSource] = useState(false)
+    const [newSource, setNewSource] = useState({ name: '', color: '#6366f1' })
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
 
@@ -154,6 +163,27 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         } else {
             alert('Errore durante l\'eliminazione. Riprova.')
         }
+    }
+
+    const handleCreateSource = async () => {
+        if (!newSource.name) return
+        const result = await saveAction('create_traffic_source', newSource)
+        if (result?.id) {
+            setSources(prev => [...prev, result].sort((a, b) => a.name.localeCompare(b.name)))
+            setNewSource({ name: '', color: '#6366f1' })
+            setShowNewSource(false)
+        }
+    }
+
+    const handleUpdateSource = async (source: TrafficSource, updates: Partial<TrafficSource>) => {
+        const result = await saveAction('update_traffic_source', { id: source.id, ...updates })
+        if (result) setSources(prev => prev.map(s => s.id === source.id ? { ...s, ...updates } : s))
+    }
+
+    const handleDeleteSource = async (id: string, name: string) => {
+        if (!confirm(`Vuoi davvero eliminare la fonte "${name}"? I lead che la possiedono non perderanno il testo, ma la fonte non avrà più il suo colore personalizzato.`)) return
+        const res = await saveAction('delete_traffic_source', { id })
+        if (res) setSources(prev => prev.filter(s => s.id !== id))
     }
 
     const stageColors = ['#3b82f6', '#8b5cf6', '#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#14b8a6', '#f97316']
@@ -330,6 +360,86 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 <Plus className="w-4 h-4" />
                             </button>
                             <button onClick={() => { setShowNewStage(false); setAddToPipelineId('') }} className="p-2 rounded-lg hover:bg-white/5">
+                                <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Traffic Sources */}
+            <div className="glass-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
+                        <h3 className="text-sm font-bold text-white">Fonti di Traffico (Tag)</h3>
+                    </div>
+                    {canEdit && (
+                        <button
+                            onClick={() => setShowNewSource(true)}
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            style={{ color: '#6366f1' }}
+                        >
+                            <Plus className="w-3 h-3" /> Aggiungi fonte
+                        </button>
+                    )}
+                </div>
+
+                <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
+                    Personalizza il colore del badge che apparirà sulle card dei lead raggruppati per "Fonte di traffico".
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {sources.map(source => (
+                        <div key={source.id} className="flex items-center justify-between p-3 rounded-xl group" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: source.color }} />
+                                {canEdit ? (
+                                    <input
+                                        className="bg-transparent text-xs font-semibold text-white border-none outline-none w-full truncate"
+                                        value={source.name}
+                                        onChange={e => setSources(prev => prev.map(s => s.id === source.id ? { ...s, name: e.target.value } : s))}
+                                        onBlur={() => handleUpdateSource(source, { name: source.name })}
+                                    />
+                                ) : (
+                                    <span className="text-xs font-semibold text-white truncate">{source.name}</span>
+                                )}
+                            </div>
+                            {canEdit && (
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <input
+                                        type="color"
+                                        value={source.color}
+                                        onChange={e => handleUpdateSource(source, { color: e.target.value })}
+                                        className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
+                                    />
+                                    <button onClick={() => handleDeleteSource(source.id, source.name)} className="p-1 rounded-lg hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    {sources.length === 0 && (
+                        <div className="col-span-full text-xs text-center py-4" style={{ color: 'var(--color-surface-500)' }}>Nessuna fonte configurata.</div>
+                    )}
+                </div>
+
+                {showNewSource && (
+                    <div className="mt-4 p-3 rounded-xl animate-fade-in" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                        <div className="flex items-center gap-3">
+                            <input
+                                className="input flex-1 !py-2 text-xs"
+                                placeholder="Nome esatto della fonte (es: Fonte: Ads - Meta)"
+                                value={newSource.name}
+                                onChange={e => setNewSource({ ...newSource, name: e.target.value })}
+                                autoFocus
+                            />
+                            <input type="color" value={newSource.color} onChange={e => setNewSource({ ...newSource, color: e.target.value })} className="w-7 h-7 rounded cursor-pointer border-0 bg-transparent p-0" />
+                            <button onClick={handleCreateSource} className="btn-primary !py-2 !px-3" disabled={!newSource.name}>
+                                <Plus className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => setShowNewSource(false)} className="p-2 rounded-lg hover:bg-white/5">
                                 <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                             </button>
                         </div>

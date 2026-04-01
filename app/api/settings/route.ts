@@ -100,6 +100,45 @@ export async function PUT(req: NextRequest) {
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ success: true })
     }
+    
+    if (body.action === 'create_traffic_source') {
+        const { name, color } = body
+        const { data, error } = await supabase
+            .from('traffic_sources')
+            .insert({
+                organization_id: ctx.organization_id,
+                name,
+                color: color || '#6366f1',
+            })
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
+    if (body.action === 'update_traffic_source') {
+        const { id, name, color } = body
+        const { data, error } = await supabase
+            .from('traffic_sources')
+            .update({ name, color })
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
+    if (body.action === 'delete_traffic_source') {
+        const { id } = body
+        const { error } = await supabase
+            .from('traffic_sources')
+            .delete()
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
+    }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
