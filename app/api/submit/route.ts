@@ -195,10 +195,20 @@ export async function POST(req: NextRequest) {
                     utm_source: utm_source || null,
                     utm_campaign: utm_campaign || null,
                     product: (() => {
-                        const lower = String(funnel.name).toLowerCase();
-                        if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
-                        if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
-                        if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                        // First priority: incoming UTM Source URL parameter
+                        if (utm_source) {
+                            const lower = String(utm_source).toLowerCase();
+                            if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                            if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                            if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                        }
+                        // Second priority: Funnel name
+                        const funnelLower = String(funnel.name).toLowerCase();
+                        if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                        if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                        if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                        
+                        // Default fallback
                         return 'Fonte: Ads - Meta';
                     })(),
                     meta_data: {
