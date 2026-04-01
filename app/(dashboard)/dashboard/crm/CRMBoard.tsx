@@ -538,9 +538,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                     >
                                         <div className="flex items-start justify-between">
                                             <div className="flex flex-col flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30" style={{ color: 'var(--color-surface-500)' }} />
-                                                    <span className="text-sm font-semibold text-white truncate">{lead.name}</span>
+                                                <div className="flex items-start gap-2">
+                                                    <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30 mt-1" style={{ color: 'var(--color-surface-500)' }} />
+                                                    <span className="text-[15px] font-bold text-white leading-tight break-words">{lead.name}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 flex-shrink-0">
