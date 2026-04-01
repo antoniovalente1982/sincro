@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         // Get all orgs with autopilot active
         const { data: configs } = await getSupabaseAdmin()
             .from('ai_agent_config')
-            .select('organization_id, autopilot_active, execution_mode, analysis_interval_minutes')
+            .select('organization_id, autopilot_active, execution_mode, analysis_interval_minutes, objectives')
             .eq('autopilot_active', true)
 
         if (!configs?.length) {
@@ -61,31 +61,35 @@ export async function GET(req: NextRequest) {
             const { access_token, ad_account_id } = conn.credentials
             const adAccount = `act_${ad_account_id}`
 
-            // Fetch ad-level insights — DUAL WINDOW:
-            // 1) Last 7 days → for scale/winner/fatigue rules (need enough data for trends)
-            // 2) Today only → for kill rules (catch ads burning money RIGHT NOW)
+            // ── V2: TRI-WINDOW FETCH (3d + 7d + lifetime) ─────────────────
+            // Kill rules are handled by the Kill Guardian cron (every 4h).
+            // This cron is the Intelligence Engine: Scale, Champion, Fatigue.
             const today = new Date().toISOString().slice(0, 10)
+            const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
             const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
-            const buildInsightsUrl = (since: string, until: string) =>
-                `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?` +
-                `fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click` +
-                `&level=ad&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}&limit=500&access_token=${access_token}`
+            const insightsFields = 'ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click'
 
-            const [insights7dRes, insightsTodayRes] = await Promise.all([
+            const buildInsightsUrl = (since: string, until: string, datePreset?: string) => {
+                const base = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=${insightsFields}&level=ad&limit=500&access_token=${access_token}`
+                if (datePreset) return `${base}&date_preset=${datePreset}`
+                return `${base}&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`
+            }
+
+            const [insights3dRes, insights7dRes, insightsLifetimeRes, adsRes] = await Promise.all([
+                fetch(buildInsightsUrl(threeDaysAgo, today)),
                 fetch(buildInsightsUrl(sevenDaysAgo, today)),
-                fetch(buildInsightsUrl(today, today)),
+                fetch(buildInsightsUrl('', '', 'maximum')),
+                fetch(`https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=id,status,effective_status,campaign_id&limit=500&access_token=${access_token}`),
             ])
             if (!insights7dRes.ok) continue
 
-            const insights7d = await insights7dRes.json()
-            const insightsToday = insightsTodayRes.ok ? await insightsTodayRes.json() : { data: [] }
-
-            // Get ad statuses
-            const adsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?` +
-                `fields=id,status,effective_status,campaign_id&limit=500&access_token=${access_token}`
-            const adsRes = await fetch(adsUrl)
-            const adsData = adsRes.ok ? await adsRes.json() : { data: [] }
+            const [insights3d, insights7d, insightsLifetime, adsData] = await Promise.all([
+                insights3dRes.ok ? insights3dRes.json() : { data: [] },
+                insights7dRes.json(),
+                insightsLifetimeRes.ok ? insightsLifetimeRes.json() : { data: [] },
+                adsRes.ok ? adsRes.json() : { data: [] },
+            ])
 
             const adStatusMap: Record<string, string> = {}
             for (const ad of (adsData.data || [])) {
@@ -110,20 +114,25 @@ export async function GET(req: NextRequest) {
                         frequency: parseFloat(insight.frequency || '0'),
                         leads_count: parseInt(leadsCount),
                         cpl: parseFloat(cplValue),
-                        // Link click metrics for quality-based kill rules
                         link_clicks: parseInt(insight.inline_link_clicks || '0'),
                         link_ctr: parseFloat(insight.inline_link_click_ctr || '0'),
                         cpc_link: parseFloat(insight.cost_per_inline_link_click || '0'),
                     }
                 }).filter((a: any) => a.status === 'ACTIVE')
 
+            const ads3d = buildAds(insights3d)
             const ads7d = buildAds(insights7d)
-            const adsToday = buildAds(insightsToday)
+            const adsLifetime = buildAds(insightsLifetime)
 
-            if (ads7d.length === 0 && adsToday.length === 0) continue
+            if (ads7d.length === 0) continue
 
-            // Use ALL active ads for the status map (combines both windows)
-            const allActiveAds = ads7d.length > 0 ? ads7d : adsToday
+            // Build lookup maps by ad_id for 3d and lifetime
+            const ads3dMap: Record<string, any> = {}
+            for (const a of ads3d) ads3dMap[a.ad_id] = a
+            const adsLifetimeMap: Record<string, any> = {}
+            for (const a of adsLifetime) adsLifetimeMap[a.ad_id] = a
+
+            const allActiveAds = ads7d
 
             // Get campaign budgets
             const campaignIds = [...new Set(allActiveAds.map((a: any) => a.campaign_id))]
@@ -149,48 +158,18 @@ export async function GET(req: NextRequest) {
             const rules = rulesRes.data || []
             const targets = targetsRes.data || null
 
-            // TRI-TIER EVALUATION (Andromeda Edition):
-            // 1) 7-day data → all rules including CPL Shield + standard kill + winner/fatigue/scale
-            // 2) Today data → ONLY emergency kills (>€30 and 0 leads — ad is broken NOW)
-            // 3) CPL Shield results are logged but do NOT queue for execution
-            const results7d = evaluateRulesAdLevel(rules, ads7d, campaignBudgets, targets)
+            // ── V2: INTELLIGENCE ENGINE EVALUATION ────────────────────────
+            // Kill logic is fully delegated to /api/cron/kill-guardian (every 4h).
+            // This engine focuses on: Scale, Champion detection, Fatigue alerts.
+            const objectives = config.objectives || {}
+            const targetCPL: number = objectives.target_cpl || targets?.target_cpl || 20
+            const scaleRatio3d: number = objectives.scale_cpl_ratio_3d || 0.85
+            const scaleRatio7d: number = objectives.scale_cpl_ratio_7d || 1.0
+            const championMinDays: number = objectives.champion_min_spend_days || 14
 
-            // Emergency kills use daily window — bypass CPL Shield (emergency = technical failure)
-            const emergencyResults = adsToday.length > 0
-                ? evaluateEmergencyKills(rules, adsToday, targets)
-                : []
-
-            // Merge: emergency kills take priority, deduplicate by ad_id + action
-            const emergencyAdIds = new Set(emergencyResults.map((r: any) => `${r.ad_id}_${r.action}`))
-            const results = [
-                ...emergencyResults.map((r: any) => ({ ...r, source: 'emergency_today' })),
-                // From 7d: include everything EXCEPT actions already covered by emergency
-                // Also exclude pure 'shield_active' entries from execution queue (they're informational)
-                ...results7d.filter((r: any) =>
-                    !emergencyAdIds.has(`${r.ad_id}_${r.action}`) &&
-                    r.action !== 'shield_active'
-                ).map((r: any) => ({ ...r, source: '7d' })),
-            ]
-
-            // Separately log CPL Shield activations to Telegram (informational, not actionable)
-            const shieldResults = results7d.filter((r: any) => r.action === 'shield_active')
-            if (shieldResults.length > 0) {
-                await getSupabaseAdmin().from('ai_episodes').insert(
-                    shieldResults.map((r: any) => ({
-                        organization_id: orgId,
-                        episode_type: 'automation',
-                        action_type: 'cpl_shield_active',
-                        target_type: 'ad',
-                        target_id: r.ad_id,
-                        target_name: r.entity_name,
-                        context: { rule_name: r.rule_name, category: 'cpl_shield', cron: true },
-                        reasoning: r.reason,
-                        metrics_before: r.metrics,
-                        outcome: 'positive',
-                        outcome_score: 0.5,
-                    }))
-                )
-            }
+            const results = evaluateIntelligenceV2(ads7d, ads3dMap, adsLifetimeMap, campaignBudgets, rules, {
+                targetCPL, scaleRatio3d, scaleRatio7d, championMinDays,
+            })
 
             if (results.length === 0) continue
 
@@ -383,6 +362,104 @@ export async function GET(req: NextRequest) {
         console.error('AI Engine cron error:', err)
         return NextResponse.json({ error: 'Internal error' }, { status: 500 })
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EVALUATE INTELLIGENCE V2 — Scale, Champion, Fatigue (NO kills)
+// Called once daily by the intelligence cron.
+// Kill logic is fully delegated to /api/cron/kill-guardian.
+// ═══════════════════════════════════════════════════════════════════════════
+function evaluateIntelligenceV2(
+    ads7d: any[],
+    ads3dMap: Record<string, any>,
+    adsLifetimeMap: Record<string, any>,
+    campaignBudgets: Record<string, number>,
+    rules: any[],
+    params: { targetCPL: number; scaleRatio3d: number; scaleRatio7d: number; championMinDays: number }
+): any[] {
+    const { targetCPL, scaleRatio3d, scaleRatio7d, championMinDays } = params
+    const results: any[] = []
+
+    for (const ad of ads7d) {
+        const ad3d = ads3dMap[ad.ad_id]
+        const adLt = adsLifetimeMap[ad.ad_id]
+        const dailyBudget = campaignBudgets[ad.campaign_id] || 0
+
+        // ── Scale: Triple Confirmed Winner ─────────────────────────────────
+        // cpl_3d < target × scale_ratio_3d  AND  cpl_7d ≤ target × scale_ratio_7d
+        // AND enough leads in 7d for confidence
+        const cpl3d = ad3d?.cpl ?? 0
+        const leads3d = ad3d?.leads_count ?? 0
+        const cpl7d = ad.cpl ?? 0
+        const leads7d = ad.leads_count ?? 0
+
+        if (
+            cpl3d > 0 && cpl3d <= targetCPL * scaleRatio3d &&
+            cpl7d > 0 && cpl7d <= targetCPL * scaleRatio7d &&
+            leads7d >= 3 &&
+            dailyBudget > 0 && ad.spend >= dailyBudget * 1.5 // has had meaningful budget
+        ) {
+            results.push({
+                ad_id: ad.ad_id,
+                campaign_id: ad.campaign_id,
+                entity_name: ad.ad_name,
+                entity_type: 'campaign',
+                action: 'increase_budget',
+                action_value: 25,
+                rule_name: 'V2: Scale — Vincitore Triplo Confermato',
+                category: 'budget_scale_up',
+                reason: `Scale V2: CPL 3gg €${cpl3d.toFixed(2)} (<${(targetCPL*scaleRatio3d).toFixed(2)} target 85%) | CPL 7gg €${cpl7d.toFixed(2)} | ${leads7d} lead`,
+                metrics: { cpl_3d: cpl3d, cpl_7d: cpl7d, leads_7d: leads7d, spend_7d: ad.spend, target_cpl: targetCPL },
+            })
+            continue // if scaling, skip fatigue check
+        }
+
+        // ── Champion Detection ──────────────────────────────────────────────
+        // Lifetime CPL ≤ 90% target, significant history
+        if (
+            adLt && adLt.cpl > 0 &&
+            adLt.cpl <= targetCPL * 0.9 &&
+            adLt.leads_count >= 10 &&
+            dailyBudget > 0 && adLt.spend >= dailyBudget * championMinDays
+        ) {
+            results.push({
+                ad_id: ad.ad_id,
+                campaign_id: ad.campaign_id,
+                entity_name: ad.ad_name,
+                entity_type: 'ad',
+                action: 'flag_winner',
+                action_value: 0,
+                rule_name: 'V2: Champion Shield — Campione Lifetime',
+                category: 'creative_winner',
+                reason: `Campione Lifetime: CPL storico €${adLt.cpl.toFixed(2)} (${Math.round(adLt.cpl/targetCPL*100)}% target) su ${adLt.leads_count} lead totali`,
+                metrics: { cpl_lifetime: adLt.cpl, leads_lifetime: adLt.leads_count, spend_lifetime: adLt.spend, target_cpl: targetCPL },
+            })
+        }
+
+        // ── Fatigue Alert (no kill — only alert) ───────────────────────────
+        // High frequency + declining engagement vs lifetime baseline
+        const freqLt = adLt?.frequency ?? 0
+        if (
+            ad.frequency >= 4.5 &&
+            ad.spend >= 20 &&
+            (ad.ctr < (adLt?.ctr ?? ad.ctr) * 0.7 || (freqLt > 0 && ad.frequency > freqLt * 1.5))
+        ) {
+            results.push({
+                ad_id: ad.ad_id,
+                campaign_id: ad.campaign_id,
+                entity_name: ad.ad_name,
+                entity_type: 'ad',
+                action: 'alert',
+                action_value: 0,
+                rule_name: 'V2: Fatigue Predittiva',
+                category: 'fatigue',
+                reason: `Fatigue: frequency ${ad.frequency.toFixed(1)} (alta) | CTR ${(ad.ctr*100).toFixed(2)}% in calo. Prepara creative fresh.`,
+                metrics: { frequency_7d: ad.frequency, ctr_7d: ad.ctr, frequency_lifetime: freqLt },
+            })
+        }
+    }
+
+    return results
 }
 
 // --- Telegram Report ---

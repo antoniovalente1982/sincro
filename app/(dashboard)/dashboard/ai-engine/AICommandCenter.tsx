@@ -126,15 +126,24 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
     const formatNumber = (v: number) =>
         new Intl.NumberFormat('it-IT').format(v)
 
-    // Health Score (0-100) — uses real CPL target if available
+    // Health Score V2 — budget efficiency + CPL + activity
     const cplTarget = targets?.target_cpl || 20
+    // Budget Efficiency: how close (leads × target_cpl) / spend is to 1.0
+    const budgetEfficiency = totalSpend > 0 && totalLeads > 0
+        ? Math.min((totalLeads * cplTarget) / totalSpend, 1.5)
+        : 0
     const healthFactors: number[] = []
-    if (avgCTR > 2) healthFactors.push(100); else if (avgCTR > 1) healthFactors.push(60); else if (avgCTR > 0) healthFactors.push(30); else healthFactors.push(0)
     // CPL scored against real target
     if (avgCPL > 0 && avgCPL <= cplTarget * 0.8) healthFactors.push(100)
-    else if (avgCPL > 0 && avgCPL <= cplTarget) healthFactors.push(70)
-    else if (avgCPL > 0 && avgCPL <= cplTarget * 1.3) healthFactors.push(40)
+    else if (avgCPL > 0 && avgCPL <= cplTarget) healthFactors.push(75)
+    else if (avgCPL > 0 && avgCPL <= cplTarget * 1.3) healthFactors.push(45)
     else if (avgCPL > 0) healthFactors.push(15)
+    else healthFactors.push(0)
+    // Budget efficiency score
+    if (budgetEfficiency >= 0.9) healthFactors.push(100)
+    else if (budgetEfficiency >= 0.7) healthFactors.push(70)
+    else if (budgetEfficiency >= 0.5) healthFactors.push(40)
+    else if (budgetEfficiency > 0) healthFactors.push(15)
     else healthFactors.push(0)
     if (avgROAS > 3) healthFactors.push(100); else if (avgROAS > 1.5) healthFactors.push(70); else if (avgROAS > 0) healthFactors.push(30); else healthFactors.push(0)
     if (activeCampaigns > 0) healthFactors.push(80); else healthFactors.push(0)
@@ -502,17 +511,19 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                         })}
                     </div>
 
-                    {/* Andromeda Rules Strategy — Updated Full-Funnel */}
+                    {/* Andromeda Rules Strategy — V2 Kill Guardian */}
                     <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                        <div className="text-[10px] uppercase font-bold mb-3" style={{ color: '#818cf8' }}>Strategia Regole — Andromeda Full-Funnel</div>
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="text-[10px] uppercase font-bold" style={{ color: '#818cf8' }}>Strategia V2 — Kill Guardian + Intelligence Engine</div>
+                            <div className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(129,140,248,0.1)', color: '#818cf8' }}>Andromeda Ready</div>
+                        </div>
                         <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
                             {[
-                                { phase: '🛡 Scudo CPL', rules: 'CPL 7gg ≤ 1.3x target → IMMUNE', color: '#22c55e', desc: 'La tua gallina d\'oro non si tocca' },
-                                { phase: '⏸ Learn', rules: '< 1500 imp → proteggi', color: '#8b5cf6', desc: 'Rispetta la learning phase' },
-                                { phase: '🚨 Emergency', rules: '>€30/oggi e 0 lead', color: '#ef4444', desc: 'Solo crisi tecniche giornaliere' },
-                                { phase: '🔴 Kill 7gg', rules: 'CPL > 3x • €55+ no lead', color: '#f97316', desc: 'Dati su 7 giorni, non su oggi' },
-                                { phase: '🟢 Winner', rules: 'CPL < 80% target + lead', color: '#10b981', desc: 'Excellence flag + scale +25%' },
-                                { phase: '📈 Scale', rules: 'Budget +15-25% ogni 48h', color: '#f59e0b', desc: 'Scala senza rompere delivery' },
+                                { phase: '⏸ Learning', rules: '< 0.7× budget → 48h max', color: '#8b5cf6', desc: 'Rispetta Meta learning phase' },
+                                { phase: '🔴 Kill 4h', rules: '3× budget senza lead', color: '#ef4444', desc: 'Budget-relativo, no soglie fisse €' },
+                                { phase: '🛡 Champion', rules: 'CPL lt ≤ 90% target', color: '#22c55e', desc: 'Soglia kill estesa a 5×' },
+                                { phase: '📈 Scale 25%', rules: 'CPL 3gg < 85% + 7gg OK', color: '#f59e0b', desc: 'Triplo confermato ogni 48h' },
+                                { phase: '⚠️ Fatigue', rules: 'Freq > 4.5 + CTR calo', color: '#f97316', desc: 'Solo alert, prepara creative' },
                             ].map((s, i) => (
                                 <div key={i} className="flex-1 min-w-[120px] p-2.5 rounded-lg text-center" style={{ background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
                                     <div className="text-[11px] font-bold mb-1" style={{ color: s.color }}>{s.phase}</div>
@@ -520,6 +531,20 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                                     <div className="text-[8px] mt-1" style={{ color: 'var(--color-surface-600)' }}>{s.desc}</div>
                                 </div>
                             ))}
+                        </div>
+                        {/* Budget efficiency indicator */}
+                        <div className="mt-3 p-2.5 rounded-lg flex items-center gap-3" style={{ background: 'var(--color-surface-200)' }}>
+                            <div className="text-[9px] uppercase font-semibold" style={{ color: 'var(--color-surface-500)' }}>Efficienza Budget</div>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-300)' }}>
+                                <div className="h-full rounded-full transition-all" style={{
+                                    width: `${Math.min(budgetEfficiency * 100, 100)}%`,
+                                    background: budgetEfficiency >= 0.9 ? '#22c55e' : budgetEfficiency >= 0.7 ? '#f59e0b' : '#ef4444',
+                                }} />
+                            </div>
+                            <div className="text-[10px] font-bold" style={{ color: budgetEfficiency >= 0.9 ? '#22c55e' : budgetEfficiency >= 0.7 ? '#f59e0b' : '#ef4444' }}>
+                                {budgetEfficiency > 0 ? `${(budgetEfficiency * 100).toFixed(0)}%` : 'N/D'}
+                            </div>
+                            <div className="text-[8px]" style={{ color: 'var(--color-surface-600)' }}>(leads × CPL target) ÷ spend</div>
                         </div>
                     </div>
                 </div>
