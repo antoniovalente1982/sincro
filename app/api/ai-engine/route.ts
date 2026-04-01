@@ -660,28 +660,42 @@ export async function POST(req: NextRequest) {
 
 // --- Rules Evaluation Engine ---
 
-// --- CBO Ad-Level Rules Evaluation ---
+// --- CBO Ad-Level Rules Evaluation (mirrors cron logic — Andromeda Full-Funnel) ---
 
 function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<string, number>, targets: any) {
     const results: any[] = []
     const targetCPL = targets?.target_cpl || 20
 
-    // Separate rules by level
     const learningRules = rules.filter(r => r.category === 'learning_protection')
-    const adLevelRules = rules.filter(r => ['creative_kill', 'creative_winner', 'fatigue'].includes(r.category))
+    const standardKillRules = rules.filter(r => r.category === 'creative_kill' && !r.name.includes('Emergenza'))
+    const adLevelRules = rules.filter(r => ['creative_winner', 'fatigue'].includes(r.category))
     const campaignLevelRules = rules.filter(r => ['budget_scale_up', 'budget_scale_down'].includes(r.category))
 
-    // 1. FIRST: check which ads are in learning phase — they're protected from all other rules
-    // IMPORTANT: Ads that have spent > 2x target CPL are NOT protected — they're past learning
-    // and clearly burning money. This ensures kill rules can fire on underperformers.
-    const protectedAdIds = new Set<string>()
-
+    // ─── STEP 1: CPL SHIELD ──────────────────────────────────────────────
+    // Ads with CPL <= 1.3x target are UNTOUCHABLE by kill rules
+    const cplShieldedAdIds = new Set<string>()
     ads.forEach(ad => {
         const metrics = extractAdMetrics(ad)
+        const effectiveCPL = metrics.leads > 0 ? metrics.spend / metrics.leads : 0
+        if (metrics.leads >= 1 && effectiveCPL > 0 && effectiveCPL <= targetCPL * 1.3) {
+            cplShieldedAdIds.add(ad.ad_id)
+            results.push({
+                rule_id: 'cpl_shield', rule_name: 'Scudo CPL', category: 'cpl_shield',
+                campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                entity_name: `🛡 ${ad.ad_name || 'Ad'} (${ad.campaign_name || ''})`,
+                entity_type: 'ad', action: 'shield_active', action_value: null,
+                reason: `CPL Shield: €${effectiveCPL.toFixed(2)} ≤ €${(targetCPL * 1.3).toFixed(2)} (130% target). Kill rules sospese.`,
+                metrics,
+            })
+        }
+    })
 
-        // OVERRIDE: If ad spent > 2x target CPL with 0 leads, it's NOT in learning — it's burning money
+    // ─── STEP 2: LEARNING PHASE ──────────────────────────────────────────
+    const protectedAdIds = new Set<string>(cplShieldedAdIds)
+    ads.forEach(ad => {
+        if (protectedAdIds.has(ad.ad_id)) return
+        const metrics = extractAdMetrics(ad)
         if (metrics.spend > targetCPL * 2 && metrics.leads === 0) return
-        // OVERRIDE: If ad spent > target CPL, it has had enough budget to prove itself
         if (metrics.spend > targetCPL) return
 
         learningRules.forEach(rule => {
@@ -693,40 +707,60 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
                     campaign_id: ad.campaign_id, ad_id: ad.ad_id,
                     entity_name: `⏸ ${ad.ad_name || 'Ad'} (${ad.campaign_name || ''})`,
                     entity_type: 'ad', action: 'block_other_rules', action_value: null,
-                    reason: `In learning phase: spend €${metrics.spend.toFixed(2)}, ${metrics.impressions} impressions — le altre regole NON si applicano`,
+                    reason: `Learning phase: €${metrics.spend.toFixed(2)} spesi, ${metrics.impressions} impression — regole sospese`,
                     metrics,
                 })
             }
         })
     })
 
-    // 2. Evaluate ad-level rules ONLY on ads NOT in learning phase
+    // ─── STEP 3: KILL RULES (standard, 7gg data) ─────────────────────────
     const evaluableAds = ads.filter(ad => !protectedAdIds.has(ad.ad_id))
-
     evaluableAds.forEach(ad => {
-        const metrics = extractAdMetrics(ad)
-        const name = ad.ad_name || 'Ad'
-        const campaignName = ad.campaign_name || ''
+        const metricsRaw = extractAdMetrics(ad)
+        // CPL=0 BUG FIX: inflate CPL for ads with spend but no leads
+        const metrics = {
+            ...metricsRaw,
+            cpl: metricsRaw.leads > 0 ? metricsRaw.spend / metricsRaw.leads : (metricsRaw.spend > 0 ? metricsRaw.spend * 99 : 0),
+        }
 
-        adLevelRules.forEach(rule => {
-            if (metrics.spend < (rule.min_spend_before_eval || 0)) return
+        standardKillRules.forEach(rule => {
+            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
             if (evaluateConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
                 const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value || c.value_multiplier + 'x target'}`).join(' AND ')}`
+                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
                 actions.forEach((act: any) => {
                     results.push({
                         rule_id: rule.id, rule_name: rule.name, category: rule.category,
                         campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                        entity_name: `${name} (${campaignName})`, entity_type: 'ad',
-                        action: act.type, action_value: act.value, reason, metrics,
+                        entity_name: `${ad.ad_name || 'Ad'} (${ad.campaign_name || ''})`, entity_type: 'ad',
+                        action: act.type, action_value: act.value, reason, metrics: metricsRaw,
+                    })
+                })
+            }
+        })
+
+        // ─── STEP 4: WINNER + FATIGUE ────────────────────────────────────
+        adLevelRules.forEach(rule => {
+            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            if (evaluateConditions(conditions, metricsRaw, targetCPL) && conditions.length > 0) {
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
+                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                        entity_name: `${ad.ad_name || 'Ad'} (${ad.campaign_name || ''})`, entity_type: 'ad',
+                        action: act.type, action_value: act.value, reason, metrics: metricsRaw,
                     })
                 })
             }
         })
     })
 
-    // 2. Evaluate campaign-level rules (aggregate ads by campaign for budget decisions)
+    // ─── STEP 5: CAMPAIGN-LEVEL BUDGET RULES ─────────────────────────────
     const byCampaign: Record<string, { spend: number; leads: number; cpl: number; ctr: number; impressions: number; frequency: number; campaign_name: string; ad_count: number }> = {}
     ads.forEach(ad => {
         const cId = ad.campaign_id
@@ -738,37 +772,27 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
         c.leads += Number(ad.leads_count) || 0
         c.impressions += Number(ad.impressions) || 0
         c.ad_count++
-        // Weighted averages
         c.frequency = Math.max(c.frequency, Number(ad.frequency) || 0)
     })
-    // Calculate aggregated CPL and CTR
     Object.values(byCampaign).forEach(c => {
         c.cpl = c.leads > 0 ? c.spend / c.leads : 0
-        c.ctr = c.impressions > 0 ? (c.spend > 0 ? (Number(c.impressions) > 0 ? 0 : 0) : 0) : 0
     })
 
     Object.entries(byCampaign).forEach(([campaignId, c]) => {
         const dailyBudget = campaignBudgets[campaignId] || 0
-
         campaignLevelRules.forEach(rule => {
             if (c.spend < (rule.min_spend_before_eval || 0)) return
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
             const allMet = evaluateConditions(conditions, { spend: c.spend, leads: c.leads, cpl: c.cpl, ctr: c.ctr, impressions: c.impressions, frequency: c.frequency }, targetCPL)
-
             if (allMet && conditions.length > 0) {
                 const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value || cd.value_multiplier + 'x target'}`).join(' AND ')}`
+                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value ?? (cd.value_multiplier + 'x target')}`).join(' AND ')}`
                 actions.forEach((act: any) => {
                     results.push({
-                        rule_id: rule.id,
-                        rule_name: rule.name,
-                        category: rule.category,
+                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
                         campaign_id: campaignId,
                         entity_name: `📊 ${c.campaign_name} (${c.ad_count} ads, budget €${dailyBudget.toFixed(0)}/day)`,
-                        entity_type: 'campaign',
-                        action: act.type,
-                        action_value: act.value,
-                        reason,
+                        entity_type: 'campaign', action: act.type, action_value: act.value, reason,
                         metrics: { spend: c.spend, leads: c.leads, cpl: c.cpl, impressions: c.impressions, frequency: c.frequency, daily_budget: dailyBudget },
                     })
                 })

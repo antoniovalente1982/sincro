@@ -149,21 +149,48 @@ export async function GET(req: NextRequest) {
             const rules = rulesRes.data || []
             const targets = targetsRes.data || null
 
-            // DUAL EVALUATION:
-            // 1) 7-day data → scale/winner/fatigue rules (need trend data)
-            // 2) Today data → kill rules (catch daily money-burners)
+            // TRI-TIER EVALUATION (Andromeda Edition):
+            // 1) 7-day data → all rules including CPL Shield + standard kill + winner/fatigue/scale
+            // 2) Today data → ONLY emergency kills (>€30 and 0 leads — ad is broken NOW)
+            // 3) CPL Shield results are logged but do NOT queue for execution
             const results7d = evaluateRulesAdLevel(rules, ads7d, campaignBudgets, targets)
-            const killRules = rules.filter(r => ['creative_kill'].includes(r.category))
-            const resultsToday = adsToday.length > 0
-                ? evaluateRulesAdLevel(killRules, adsToday, campaignBudgets, targets)
+
+            // Emergency kills use daily window — bypass CPL Shield (emergency = technical failure)
+            const emergencyResults = adsToday.length > 0
+                ? evaluateEmergencyKills(rules, adsToday, targets)
                 : []
 
-            // Merge results, deduplicate by ad_id + action (today's kill takes priority)
-            const todayKillAdIds = new Set(resultsToday.map((r: any) => `${r.ad_id}_${r.action}`))
+            // Merge: emergency kills take priority, deduplicate by ad_id + action
+            const emergencyAdIds = new Set(emergencyResults.map((r: any) => `${r.ad_id}_${r.action}`))
             const results = [
-                ...resultsToday.map((r: any) => ({ ...r, source: 'today' })),
-                ...results7d.filter((r: any) => !todayKillAdIds.has(`${r.ad_id}_${r.action}`)).map((r: any) => ({ ...r, source: '7d' })),
+                ...emergencyResults.map((r: any) => ({ ...r, source: 'emergency_today' })),
+                // From 7d: include everything EXCEPT actions already covered by emergency
+                // Also exclude pure 'shield_active' entries from execution queue (they're informational)
+                ...results7d.filter((r: any) =>
+                    !emergencyAdIds.has(`${r.ad_id}_${r.action}`) &&
+                    r.action !== 'shield_active'
+                ).map((r: any) => ({ ...r, source: '7d' })),
             ]
+
+            // Separately log CPL Shield activations to Telegram (informational, not actionable)
+            const shieldResults = results7d.filter((r: any) => r.action === 'shield_active')
+            if (shieldResults.length > 0) {
+                await getSupabaseAdmin().from('ai_episodes').insert(
+                    shieldResults.map((r: any) => ({
+                        organization_id: orgId,
+                        episode_type: 'automation',
+                        action_type: 'cpl_shield_active',
+                        target_type: 'ad',
+                        target_id: r.ad_id,
+                        target_name: r.entity_name,
+                        context: { rule_name: r.rule_name, category: 'cpl_shield', cron: true },
+                        reasoning: r.reason,
+                        metrics_before: r.metrics,
+                        outcome: 'positive',
+                        outcome_score: 0.5,
+                    }))
+                )
+            }
 
             if (results.length === 0) continue
 
@@ -378,6 +405,7 @@ async function sendCronTelegramReport(
             creative_kill: '🔴', creative_winner: '🟢',
             budget_scale_up: '📈', budget_scale_down: '📉',
             fatigue: '🔄', learning_protection: '⏸',
+            cpl_shield: '🛡',
         }
 
         const modeLabel = isLive ? '🟢 LIVE' : '🟡 DRY RUN'
@@ -550,26 +578,59 @@ async function sendCronTelegramReport(
     }
 }
 
-// --- Rules Evaluation (same logic as ai-engine API, duplicated for cron context) ---
+// ═══════════════════════════════════════════════════════════════════════
+// Rules Evaluation — Full-Funnel Aware Engine (Andromeda Edition)
+//
+// HIERARCHY OF PROTECTION (in order of priority):
+// 1. 🛡 CPL SHIELD: Se l'ad ha CPL storico (7gg) <= 1.3x target → IMMUNE da kill rules
+// 2. ⏸ LEARNING: Se l'ad ha speso < target CPL e < 1500 imp → in learning, protetta
+// 3. 🔴 EMERGENCY KILL: Valutazione su finestra DAILY (>€30 e 0 lead, ad consolidata)
+// 4. 🔴 KILL: Valutazione su finestra 7gg standard
+// 5. 📈 SCALE: Solo su ads con CPL comprovato (min spend elevato)
+// ═══════════════════════════════════════════════════════════════════════
 
 function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<string, number>, targets: any) {
     const results: any[] = []
     const targetCPL = targets?.target_cpl || 20
 
     const learningRules = rules.filter(r => r.category === 'learning_protection')
-    const adLevelRules = rules.filter(r => ['creative_kill', 'creative_winner', 'fatigue'].includes(r.category))
+    // Emergency kill rules are evaluated on DAILY window (handled in caller with adsToday)
+    const emergencyKillRules = rules.filter(r => r.category === 'creative_kill' && r.name.includes('Emergenza'))
+    const standardKillRules = rules.filter(r => r.category === 'creative_kill' && !r.name.includes('Emergenza'))
+    const adLevelRules = rules.filter(r => ['creative_winner', 'fatigue'].includes(r.category))
     const campaignLevelRules = rules.filter(r => ['budget_scale_up', 'budget_scale_down'].includes(r.category))
 
-    // 1. Learning phase protection
-    // IMPORTANT: Ads that have spent > 2x target CPL are NOT protected — they're past learning
-    // and clearly burning money. This ensures kill rules can fire on underperformers.
-    const protectedAdIds = new Set<string>()
+    // ─── STEP 1: CPL SHIELD ─────────────────────────────────────────────
+    // Ads with 7-day CPL <= 1.3x target are UNTOUCHABLE by kill rules.
+    // This protects high-performing ads from daily volatility.
+    const cplShieldedAdIds = new Set<string>()
     ads.forEach(ad => {
         const metrics = extractMetrics(ad)
+        const effectiveCPL = metrics.leads > 0 ? metrics.spend / metrics.leads : 0
+        // Shield activates only if ad has generated at least 1 lead AND CPL is within 130% of target
+        if (metrics.leads >= 1 && effectiveCPL > 0 && effectiveCPL <= targetCPL * 1.3) {
+            cplShieldedAdIds.add(ad.ad_id)
+            results.push({
+                rule_id: 'cpl_shield', rule_name: 'Scudo CPL (7gg)', category: 'cpl_shield',
+                campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                entity_name: `🛡 ${ad.ad_name} (${ad.campaign_name})`,
+                entity_type: 'ad', action: 'shield_active', action_value: null,
+                reason: `CPL Shield attivo: CPL €${effectiveCPL.toFixed(2)} ≤ €${(targetCPL * 1.3).toFixed(2)} (130% target). Kill rules sospese.`,
+                metrics,
+            })
+        }
+    })
 
-        // OVERRIDE: If ad spent > 2x target CPL with 0 leads, it's NOT in learning — it's burning money
+    // ─── STEP 2: LEARNING PHASE PROTECTION ──────────────────────────────
+    // CPL-shielded ads bypass learning check (they've already proven themselves)
+    const protectedAdIds = new Set<string>(cplShieldedAdIds)
+    ads.forEach(ad => {
+        if (protectedAdIds.has(ad.ad_id)) return // Already shielded
+        const metrics = extractMetrics(ad)
+
+        // OVERRIDE: If spend > 2x target CPL with 0 leads → NOT in learning, burning money
         if (metrics.spend > targetCPL * 2 && metrics.leads === 0) return
-        // OVERRIDE: If ad spent > target CPL, it has had enough budget to prove itself
+        // OVERRIDE: If spend > target CPL → had enough budget to prove itself
         if (metrics.spend > targetCPL) return
 
         learningRules.forEach(rule => {
@@ -581,36 +642,62 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
                     campaign_id: ad.campaign_id, ad_id: ad.ad_id,
                     entity_name: `⏸ ${ad.ad_name} (${ad.campaign_name})`,
                     entity_type: 'ad', action: 'block_other_rules', action_value: null,
-                    reason: `Learning phase: €${metrics.spend.toFixed(2)} spent, ${metrics.impressions} impressions`,
+                    reason: `Learning phase: €${metrics.spend.toFixed(2)} spesi, ${metrics.impressions} impression`,
                     metrics,
                 })
             }
         })
     })
 
-    // 2. Ad-level rules (skip protected)
+    // ─── STEP 3: KILL RULES (7gg window) — skip CPL-shielded and learning ─
+    // FIX: CPL=0 bug — if spend > 0 and leads = 0, set effective_cpl to a high sentinel
+    // so multiplier-based kill rules (3x target) fire correctly
     const evaluableAds = ads.filter(ad => !protectedAdIds.has(ad.ad_id))
     evaluableAds.forEach(ad => {
-        const metrics = extractMetrics(ad)
-        adLevelRules.forEach(rule => {
-            if (metrics.spend < (rule.min_spend_before_eval || 0)) return
+        const metricsRaw = extractMetrics(ad)
+        // CPL=0 BUG FIX: If spent but no leads, assign effective CPL = spend (infinite cost per lead)
+        const metrics = {
+            ...metricsRaw,
+            cpl: metricsRaw.leads > 0 ? metricsRaw.spend / metricsRaw.leads : (metricsRaw.spend > 0 ? metricsRaw.spend * 99 : 0),
+        }
+
+        standardKillRules.forEach(rule => {
+            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
             if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
                 const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value || c.value_multiplier + 'x target'}`).join(' AND ')}`
+                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
                 actions.forEach((act: any) => {
                     results.push({
                         rule_id: rule.id, rule_name: rule.name, category: rule.category,
                         campaign_id: ad.campaign_id, ad_id: ad.ad_id,
                         entity_name: `${ad.ad_name} (${ad.campaign_name})`,
-                        entity_type: 'ad', action: act.type, action_value: act.value, reason, metrics,
+                        entity_type: 'ad', action: act.type, action_value: act.value, reason, metrics: metricsRaw,
+                    })
+                })
+            }
+        })
+
+        // ─── STEP 4: WINNER + FATIGUE rules (all unprotected ads) ─
+        adLevelRules.forEach(rule => {
+            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            if (evalConditions(conditions, metricsRaw, targetCPL) && conditions.length > 0) {
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
+                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                        entity_name: `${ad.ad_name} (${ad.campaign_name})`,
+                        entity_type: 'ad', action: act.type, action_value: act.value, reason, metrics: metricsRaw,
                     })
                 })
             }
         })
     })
 
-    // 3. Campaign-level rules (aggregate)
+    // ─── STEP 5: CAMPAIGN-LEVEL RULES (budget scale up/down) ────────────
     const byCampaign: Record<string, any> = {}
     ads.forEach(ad => {
         if (!byCampaign[ad.campaign_id]) {
@@ -625,16 +712,15 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
     })
     Object.values(byCampaign).forEach((c: any) => {
         c.cpl = c.leads > 0 ? c.spend / c.leads : 0
-        c.ctr = c.impressions > 0 ? 0 : 0
     })
 
     Object.entries(byCampaign).forEach(([campaignId, c]: [string, any]) => {
         campaignLevelRules.forEach(rule => {
             if (c.spend < (rule.min_spend_before_eval || 0)) return
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, { spend: c.spend, leads: c.leads, cpl: c.cpl, ctr: c.ctr, impressions: c.impressions, frequency: c.frequency }, targetCPL) && conditions.length > 0) {
+            if (evalConditions(conditions, { spend: c.spend, leads: c.leads, cpl: c.cpl, ctr: c.ctr || 0, impressions: c.impressions, frequency: c.frequency }, targetCPL) && conditions.length > 0) {
                 const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value || cd.value_multiplier + 'x target'}`).join(' AND ')}`
+                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value ?? (cd.value_multiplier + 'x target')}`).join(' AND ')}`
                 actions.forEach((act: any) => {
                     results.push({
                         rule_id: rule.id, rule_name: rule.name, category: rule.category,
@@ -650,13 +736,44 @@ function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<
     return results
 }
 
+// Evaluate ONLY emergency kill rules on today's data (daily window)
+// These bypass the CPL Shield — emergency = ad IS broken right now
+export function evaluateEmergencyKills(rules: any[], adsToday: any[], targets: any) {
+    const targetCPL = targets?.target_cpl || 20
+    const emergencyRules = rules.filter(r => r.category === 'creative_kill' && r.name.includes('Emergenza'))
+    const results: any[] = []
+
+    adsToday.forEach(ad => {
+        const metrics = extractMetrics(ad)
+        emergencyRules.forEach(rule => {
+            if (metrics.spend < (rule.min_spend_before_eval || 0)) return
+            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
+            if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
+                const actions = Array.isArray(rule.actions) ? rule.actions : []
+                const reason = `🚨 ${rule.name} [OGGI]: €${metrics.spend.toFixed(2)} spesi, ${metrics.leads} lead`
+                actions.forEach((act: any) => {
+                    results.push({
+                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
+                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
+                        entity_name: `🚨 ${ad.ad_name} (${ad.campaign_name})`,
+                        entity_type: 'ad', action: act.type, action_value: act.value,
+                        reason, metrics, source: 'emergency_today',
+                    })
+                })
+            }
+        })
+    })
+    return results
+}
+
 function extractMetrics(ad: any): Record<string, number> {
     const spend = Number(ad.spend) || 0
     const leads = Number(ad.leads_count) || 0
     const link_clicks = Number(ad.link_clicks) || 0
     return {
         spend, leads,
-        cpl: Number(ad.cpl) || (spend > 0 && leads > 0 ? spend / leads : 0),
+        // Real CPL only when there are leads; 0 otherwise (fix applied at call site when needed)
+        cpl: leads > 0 ? spend / leads : 0,
         ctr: Number(ad.ctr) || 0,
         impressions: Number(ad.impressions) || 0,
         frequency: Number(ad.frequency) || 0,
@@ -670,7 +787,8 @@ function evalConditions(conditions: any[], metrics: Record<string, number>, targ
     return conditions.every((cond: any) => {
         const metricVal = metrics[cond.metric] ?? 0
         let threshold = Number(cond.value) || 0
-        if (cond.value_multiplier && cond.reference === 'target_cpl') threshold = targetCPL * Number(cond.value_multiplier)
+        // Support both `value_multiplier + reference` and new `value_multiplier` alone
+        if (cond.value_multiplier) threshold = targetCPL * Number(cond.value_multiplier)
         if (cond.value_reference === 'target_cpl') threshold = targetCPL
         switch (cond.operator) {
             case '>': return metricVal > threshold

@@ -126,10 +126,16 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
     const formatNumber = (v: number) =>
         new Intl.NumberFormat('it-IT').format(v)
 
-    // Health Score (0-100)
+    // Health Score (0-100) — uses real CPL target if available
+    const cplTarget = targets?.target_cpl || 20
     const healthFactors: number[] = []
     if (avgCTR > 2) healthFactors.push(100); else if (avgCTR > 1) healthFactors.push(60); else if (avgCTR > 0) healthFactors.push(30); else healthFactors.push(0)
-    if (avgCPL > 0 && avgCPL < 5) healthFactors.push(100); else if (avgCPL < 15) healthFactors.push(60); else if (avgCPL > 0) healthFactors.push(20); else healthFactors.push(0)
+    // CPL scored against real target
+    if (avgCPL > 0 && avgCPL <= cplTarget * 0.8) healthFactors.push(100)
+    else if (avgCPL > 0 && avgCPL <= cplTarget) healthFactors.push(70)
+    else if (avgCPL > 0 && avgCPL <= cplTarget * 1.3) healthFactors.push(40)
+    else if (avgCPL > 0) healthFactors.push(15)
+    else healthFactors.push(0)
     if (avgROAS > 3) healthFactors.push(100); else if (avgROAS > 1.5) healthFactors.push(70); else if (avgROAS > 0) healthFactors.push(30); else healthFactors.push(0)
     if (activeCampaigns > 0) healthFactors.push(80); else healthFactors.push(0)
     const healthScore = campaigns.length > 0
@@ -496,17 +502,17 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                         })}
                     </div>
 
-                    {/* Andromeda Rules Strategy */}
+                    {/* Andromeda Rules Strategy — Updated Full-Funnel */}
                     <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                        <div className="text-[10px] uppercase font-bold mb-3" style={{ color: '#818cf8' }}>Strategia Regole — Allineata a Meta Andromeda</div>
+                        <div className="text-[10px] uppercase font-bold mb-3" style={{ color: '#818cf8' }}>Strategia Regole — Andromeda Full-Funnel</div>
                         <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
                             {[
-                                { phase: '⏸ Learn', rules: '< 1500 imp → proteggi', color: '#8b5cf6', desc: 'Rispetta la learning phase di 7-14gg' },
-                                { phase: '🔍 Valuta', rules: 'Dopo 7gg e €15+ spesi', color: '#3b82f6', desc: 'Dati sufficienti per decidere' },
-                                { phase: '🔴 Kill', rules: 'CPL >3x • CTR <1% • €40+ no lead', color: '#ef4444', desc: 'Taglia i costi inutili' },
-                                { phase: '🟢 Winner', rules: 'CPL <target • CTR >2.5%', color: '#22c55e', desc: 'Identifica le creative top' },
-                                { phase: '📈 Scale', rules: 'Budget +15-20% max ogni 48h', color: '#f59e0b', desc: 'Scala senza rompere la delivery' },
-                                { phase: '🧠 Ottimizza', rules: 'Target -10% settimanale', color: '#a855f7', desc: 'Auto-miglioramento continuo' },
+                                { phase: '🛡 Scudo CPL', rules: 'CPL 7gg ≤ 1.3x target → IMMUNE', color: '#22c55e', desc: 'La tua gallina d\'oro non si tocca' },
+                                { phase: '⏸ Learn', rules: '< 1500 imp → proteggi', color: '#8b5cf6', desc: 'Rispetta la learning phase' },
+                                { phase: '🚨 Emergency', rules: '>€30/oggi e 0 lead', color: '#ef4444', desc: 'Solo crisi tecniche giornaliere' },
+                                { phase: '🔴 Kill 7gg', rules: 'CPL > 3x • €55+ no lead', color: '#f97316', desc: 'Dati su 7 giorni, non su oggi' },
+                                { phase: '🟢 Winner', rules: 'CPL < 80% target + lead', color: '#10b981', desc: 'Excellence flag + scale +25%' },
+                                { phase: '📈 Scale', rules: 'Budget +15-25% ogni 48h', color: '#f59e0b', desc: 'Scala senza rompere delivery' },
                             ].map((s, i) => (
                                 <div key={i} className="flex-1 min-w-[120px] p-2.5 rounded-lg text-center" style={{ background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
                                     <div className="text-[11px] font-bold mb-1" style={{ color: s.color }}>{s.phase}</div>
