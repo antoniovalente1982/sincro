@@ -4,18 +4,22 @@ import { useEffect, useRef, useCallback } from 'react'
 
 /**
  * Shared hook for Meta Pixel + CAPI tracking on all landing pages.
- * 
- * Handles:
- * - fbc/fbp cookie management (always prefers Meta Pixel's authoritative cookies)
- * - PageView event (client Pixel + server CAPI with dedup)
- * - UTM parameter extraction
- * - Visitor ID generation/retrieval
- * - fb_login_id extraction (c_user cookie, when available)
- * 
- * Usage in any landing page:
- *   const { getFbIds, utmParams, visitorId } = useMetaTracking({ orgId, funnelId, pixelId, abVariant })
- *   // then on form submit: ...getFbIds(), ...utmParams, visitor_id: visitorId
+ *
+ * UTM parameter extraction with 3-layer fallback:
+ *   1. URL current page params (?utm_campaign=...)      ← authoritative
+ *   2. sessionStorage (same session, cross-page redirect)
+ *   3. localStorage (cross-session, 30-day window)
+ *
+ * WHY 3-LAYER FALLBACK:
+ * When Meta Ad sends traffic to metodosincro.it?utm_campaign=X, and the
+ * WordPress CTA button redirects to /f/metodo-sincro (losing the query params),
+ * the UTMs are still recoverable from session/local storage.
  */
+
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'] as const
+const UTM_STORAGE_KEY = '_sincro_utms'
+const UTM_TS_KEY = '_sincro_utms_ts'
+const UTM_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 interface MetaTrackingOptions {
     orgId: string
@@ -32,6 +36,44 @@ function parseCookies(): Record<string, string> {
     }, {})
 }
 
+/** Read UTMs with 3-layer fallback: URL > sessionStorage > localStorage */
+function readUtmsWithFallback(params: URLSearchParams): Record<string, string> {
+    // Layer 1: URL params (authoritative — always save if present)
+    const fromUrl: Record<string, string> = {}
+    for (const key of UTM_KEYS) {
+        const val = params.get(key)
+        if (val) fromUrl[key] = val
+    }
+
+    if (Object.keys(fromUrl).length > 0) {
+        // Save to BOTH session and local storage for future pages in the same journey
+        try {
+            const payload = JSON.stringify(fromUrl)
+            sessionStorage.setItem(UTM_STORAGE_KEY, payload)
+            localStorage.setItem(UTM_STORAGE_KEY, payload)
+            localStorage.setItem(UTM_TS_KEY, String(Date.now()))
+        } catch { /* storage blocked */ }
+        return fromUrl
+    }
+
+    // Layer 2: sessionStorage (same browser session, survives soft navigations)
+    try {
+        const ss = sessionStorage.getItem(UTM_STORAGE_KEY)
+        if (ss) return JSON.parse(ss)
+    } catch { /* parse error */ }
+
+    // Layer 3: localStorage (cross-session, 30-day TTL)
+    try {
+        const ts = parseInt(localStorage.getItem(UTM_TS_KEY) || '0', 10)
+        if (Date.now() - ts < UTM_TTL_MS) {
+            const ls = localStorage.getItem(UTM_STORAGE_KEY)
+            if (ls) return JSON.parse(ls)
+        }
+    } catch { /* parse error */ }
+
+    return {}
+}
+
 export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTrackingOptions) {
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const utmParamsRef = useRef<Record<string, string | undefined>>({})
@@ -40,15 +82,15 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
 
-        // Extract UTM params
-        const utms = {
-            utm_source: params.get('utm_source') || undefined,
-            utm_medium: params.get('utm_medium') || undefined,
-            utm_campaign: params.get('utm_campaign') || undefined,
-            utm_content: params.get('utm_content') || undefined,
-            utm_term: params.get('utm_term') || undefined,
+        // Extract UTM params with 3-layer fallback
+        const utms = readUtmsWithFallback(params)
+        utmParamsRef.current = {
+            utm_source: utms.utm_source,
+            utm_medium: utms.utm_medium,
+            utm_campaign: utms.utm_campaign,
+            utm_content: utms.utm_content,
+            utm_term: utms.utm_term,
         }
-        utmParamsRef.current = utms
 
         // Generate or retrieve visitor_id
         let vid = localStorage.getItem('_sincro_vid')
@@ -58,19 +100,17 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         }
         visitorIdRef.current = vid
 
-        // Generate event_id for PageView deduplication (pixel ↔ CAPI)
+        // Generate event_id for PageView deduplication (pixel <-> CAPI)
         const pageViewEventId = `pv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         // Read initial cookies
         const cookies = parseCookies()
 
-        // Compute fbc as initial fallback — Meta Pixel will set the authoritative _fbc cookie
+        // Compute fbc — prefer Meta Pixel's authoritative _fbc cookie
         // Our manual fbc is ONLY used if Meta Pixel hasn't written _fbc yet
         let initialFbc = cookies._fbc || undefined
-        if (!initialFbc) {
-            const fbclid = params.get('fbclid')
-            if (fbclid) initialFbc = `fb.1.${Date.now()}.${fbclid}`
-        }
+        const fbclid = params.get('fbclid') || utms.fbclid
+        if (!initialFbc && fbclid) initialFbc = `fb.1.${Date.now()}.${fbclid}`
         const initialFbp = cookies._fbp || undefined
         fbIdsRef.current = { fbc: initialFbc, fbp: initialFbp }
 
@@ -80,16 +120,11 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         }
 
         // Delay CAPI PageView by 2s to let Meta Pixel set _fbp and _fbc cookies first
-        // IMPORTANT: Always prefer Meta Pixel's _fbc cookie over our manual construction
-        // to avoid the "fbclid modificato" diagnostic error
         setTimeout(() => {
-            // Re-read cookies — Meta Pixel's _fbc/fbp are now the authoritative source
             const freshCookies = parseCookies()
-            // Pixel's cookie takes absolute priority; manual fbc is last resort only
             const freshFbc = freshCookies._fbc || initialFbc
             const freshFbp = freshCookies._fbp || initialFbp
 
-            // Update ref so form submission also uses the Pixel's authoritative values
             fbIdsRef.current = { fbc: freshFbc, fbp: freshFbp }
 
             fetch('/api/track/pageview', {
@@ -116,7 +151,6 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         }, 2000)
     }, [orgId, funnelId, abVariant])
 
-    // Stable getter — always returns the latest fbc/fbp (Pixel's authoritative values)
     const getFbIds = useCallback(() => fbIdsRef.current, [])
     const getUtmParams = useCallback(() => utmParamsRef.current, [])
     const getVisitorId = useCallback(() => visitorIdRef.current, [])
@@ -126,7 +160,6 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
 
 /**
  * Fire Advanced Matching on form submit (re-init pixel with user PII).
- * Call this right before submitting the form.
  */
 export function fireAdvancedMatching(pixelId: string, data: { email?: string; phone?: string }) {
     if (typeof window === 'undefined' || !(window as any).fbq || !pixelId) return
