@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
         const utm_source = body.utm_source || null
         const utm_medium = body.utm_medium || null
         const utm_campaign = body.utm_campaign || null
+        const utm_content = body.utm_content || body.utm_term || null
         const fbp = body.fbp || null
         const fbc = body.fbc || null
 
@@ -143,7 +144,13 @@ export async function POST(req: NextRequest) {
             }
             if (!existingLead.phone && phone) updateData.phone = phone
             if (!existingLead.name && name) updateData.name = name
-            if (utm_source) updateData.product = utm_source
+            if (utm_source) {
+                const lowerSource = String(utm_source).toLowerCase();
+                if (lowerSource.includes('valenteantonio')) updateData.product = 'Sito: valenteantonio.it';
+                else if (lowerSource.includes('metodosincro')) updateData.product = 'Sito: metodosincro.it';
+                else if (lowerSource.includes('protocollo27')) updateData.product = 'Sito: protocollo27.it';
+                else updateData.product = utm_source;
+            }
 
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
 
@@ -153,13 +160,21 @@ export async function POST(req: NextRequest) {
                 notes: `🔁 Rientrato da Form (Gravity Forms)`
             })
         } else {
+            let productLabel = utm_source || 'Sito Web (Gravity)';
+            if (utm_source) {
+                const lowerSource = String(utm_source).toLowerCase();
+                if (lowerSource.includes('valenteantonio')) productLabel = 'Sito: valenteantonio.it';
+                else if (lowerSource.includes('metodosincro')) productLabel = 'Sito: metodosincro.it';
+                else if (lowerSource.includes('protocollo27')) productLabel = 'Sito: protocollo27.it';
+            }
+
             const { data: createdLead, error } = await supabase.from('leads').insert({
                 organization_id: orgId,
                 email, name, phone, stage_id: firstStageId, value: 0,
-                product: utm_source || 'Sito Web (Gravity)',
+                product: productLabel,
                 meta_data: { 
                     source: 'gravity_forms', 
-                    utm_source, utm_medium, utm_campaign, fbp, fbc 
+                    utm_source, utm_medium, utm_campaign, utm_content, fbp, fbc 
                 }
             }).select('id').single()
 
@@ -185,6 +200,7 @@ try {
         funnel: 'Gravity Webhook',
         utm_source: backupSource, 
         utm_campaign: utm_campaign ? String(utm_campaign) : 'WP Webhook',
+        utm_content: utm_content ? String(utm_content) : undefined,
         created_at: new Date().toISOString()
     })
 } catch (e) {

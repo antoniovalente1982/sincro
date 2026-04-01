@@ -194,7 +194,13 @@ export async function POST(req: NextRequest) {
                     phone: phone || null,
                     utm_source: utm_source || null,
                     utm_campaign: utm_campaign || null,
-                    product: funnel.name,
+                    product: (() => {
+                        const lower = String(funnel.name).toLowerCase();
+                        if (lower.includes('valenteantonio')) return 'Sito: valenteantonio.it';
+                        if (lower.includes('metodosincro')) return 'Sito: metodosincro.it';
+                        if (lower.includes('protocollo27')) return 'Sito: protocollo27.it';
+                        return funnel.name;
+                    })(),
                     meta_data: {
                         source: 'funnel', funnel_name: funnel.name,
                         utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
@@ -274,6 +280,8 @@ export async function POST(req: NextRequest) {
                     funnel: funnel.name,
                     utm_source: utm_source || '',
                     utm_campaign: utm_campaign || '',
+                    utm_content: utm_content || '',
+                    utm_term: utm_term || '',
                     created_at: new Date().toISOString(),
                     landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
                 }).catch(err => {

@@ -117,6 +117,8 @@ export async function appendLeadToSheet(orgId: string, leadData: {
     funnel: string
     utm_source: string
     utm_campaign: string
+    utm_content?: string
+    utm_term?: string
     created_at: string
     landing_url?: string
 }): Promise<boolean> {
@@ -134,17 +136,27 @@ export async function appendLeadToSheet(orgId: string, leadData: {
 
     try {
         // Build origin string like: landing.metodosincro.com (utm_source=facebook | utm_campaign=...)
-        const originParts: string[] = []
-        if (leadData.landing_url) originParts.push(leadData.landing_url)
-        else originParts.push('AdPilotik')
-        
-        const utmParts: string[] = []
-        if (leadData.utm_source) utmParts.push(`utm_source=${leadData.utm_source}`)
-        if (leadData.utm_campaign) utmParts.push(`utm_campaign=${leadData.utm_campaign}`)
-        
-        const origin = utmParts.length > 0 
-            ? `${originParts[0]} (${utmParts.join(' | ')})`
-            : originParts[0]
+        let origin = ''
+        const hasUtms = leadData.utm_source || leadData.utm_campaign || leadData.utm_content || leadData.utm_term
+
+        if (hasUtms) {
+            const parts = []
+            if (leadData.utm_source) parts.push(leadData.utm_source)
+            else parts.push('AdPilotik')
+
+            if (leadData.utm_campaign) parts.push(leadData.utm_campaign)
+
+            if (leadData.utm_content) parts.push(leadData.utm_content)
+            else if (leadData.utm_term) parts.push(leadData.utm_term)
+
+            origin = parts.join(' | ')
+        } else {
+            if (leadData.landing_url) {
+                origin = leadData.landing_url.replace(/^https?:\/\//, '')
+            } else {
+                origin = leadData.funnel || 'Sito Web'
+            }
+        }
 
         // Format date as DD/MM/YYYY HH:mm:ss in Italian timezone (Europe/Rome)
         const date = new Date(leadData.created_at)
