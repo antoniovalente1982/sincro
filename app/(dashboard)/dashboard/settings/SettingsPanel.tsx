@@ -31,10 +31,14 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
+    const [pipelineList, setPipelineList] = useState<Pipeline[]>(pipelines || [])
     const [saving, setSaving] = useState<string | null>(null)
     const [showNewStage, setShowNewStage] = useState(false)
     const [newStage, setNewStage] = useState({ name: '', color: '#6366f1', fire_capi_event: '', pipeline_id: '' })
     const [addToPipelineId, setAddToPipelineId] = useState<string>('')
+
+    const [showNewPipeline, setShowNewPipeline] = useState(false)
+    const [newPipeline, setNewPipeline] = useState({ name: '', color: '#3b82f6', source_type: 'custom' })
 
     const [sources, setSources] = useState<TrafficSource[]>(initialSources || [])
     const [showNewSource, setShowNewSource] = useState(false)
@@ -150,6 +154,50 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         }
     }
 
+    const handleCreatePipeline = async () => {
+        if (!newPipeline.name) return
+        setSaving('create_pipeline')
+        try {
+            const res = await fetch('/api/pipelines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newPipeline),
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setPipelineList(prev => [...prev, data])
+                setNewPipeline({ name: '', color: '#3b82f6', source_type: 'custom' })
+                setShowNewPipeline(false)
+                // Force a page turn refresh because stages are tied to pipeline creation defaults
+                window.location.reload()
+            } else {
+                const err = await res.json()
+                alert(err.error || 'Errore nella creazione della pipeline')
+            }
+        } catch {}
+        setSaving(null)
+    }
+
+    const handleUpdatePipeline = async (pipeline: Pipeline, updates: Partial<Pipeline>) => {
+        const result = await saveAction('update_pipeline', { id: pipeline.id, ...updates })
+        if (result) setPipelineList(prev => prev.map(p => p.id === pipeline.id ? { ...p, ...updates } : p))
+    }
+
+    const handleDeletePipeline = async (id: string, name: string) => {
+        if (!confirm(`Vuoi davvero eliminare la pipeline "${name}" e TUTTI i suoi stage? L'azione è irreversibile.`)) return
+        setSaving('delete_pipeline')
+        try {
+            const res = await fetch(`/api/pipelines?id=${id}`, { method: 'DELETE' })
+            if (res.ok) {
+                setPipelineList(prev => prev.filter(p => p.id !== id))
+            } else {
+                const err = await res.json()
+                alert(err.error || 'Errore durante l\'eliminazione. Ci sono lead in questa pipeline?')
+            }
+        } catch {}
+        setSaving(null)
+    }
+
     const handleUpdateStage = async (stage: Stage, updates: Partial<Stage>) => {
         const result = await saveAction('update_stage', { id: stage.id, ...updates })
         if (result) setStages(prev => prev.map(s => s.id === stage.id ? { ...s, ...updates } : s))
@@ -226,6 +274,15 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         <Layers className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         <h3 className="text-sm font-bold text-white">Pipeline Stages</h3>
                     </div>
+                    {canEdit && (
+                        <button
+                            onClick={() => setShowNewPipeline(true)}
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            style={{ color: '#6366f1' }}
+                        >
+                            <Plus className="w-3 h-3" /> Crea Pipeline
+                        </button>
+                    )}
                 </div>
 
                 <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
@@ -233,15 +290,52 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 </p>
 
                 <div className="space-y-6">
-                    {pipelines.map(pipeline => {
+                    {/* Add new pipeline row */}
+                    {showNewPipeline && (
+                        <div className="p-3 mb-6 rounded-xl animate-fade-in border border-indigo-500/20 bg-indigo-500/5">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    className="input flex-1 !py-2 text-xs"
+                                    placeholder="Nome nuova pipeline (es. Lancio Libri)"
+                                    value={newPipeline.name}
+                                    onChange={e => setNewPipeline({ ...newPipeline, name: e.target.value })}
+                                />
+                                <input type="color" value={newPipeline.color} onChange={e => setNewPipeline({ ...newPipeline, color: e.target.value })} className="w-7 h-7 rounded cursor-pointer border-0 bg-transparent p-0" />
+                                <button onClick={handleCreatePipeline} className="btn-primary !py-2 !px-3" disabled={!newPipeline.name || saving === 'create_pipeline'}>
+                                    {saving === 'create_pipeline' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                </button>
+                                <button onClick={() => setShowNewPipeline(false)} className="p-2 rounded-lg hover:bg-white/5">
+                                    <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {pipelineList.map(pipeline => {
                         const pipelineStages = stages.filter(s => s.pipeline_id === pipeline.id)
                         return (
                             <div key={pipeline.id}>
                                 {/* Pipeline Header */}
-                                <div className="flex items-center justify-between mb-3 pb-2 border-b" style={{ borderColor: `${pipeline.color}30` }}>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full" style={{ background: pipeline.color }} />
-                                        <span className="text-sm font-bold" style={{ color: pipeline.color }}>{pipeline.name}</span>
+                                <div className="flex items-center justify-between mb-3 pb-2 border-b group" style={{ borderColor: `${pipeline.color}30` }}>
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <input
+                                            type="color"
+                                            value={pipeline.color}
+                                            onChange={e => handleUpdatePipeline(pipeline, { color: e.target.value })}
+                                            className="w-3 h-3 rounded-full cursor-pointer border-0 bg-transparent p-0 flex-shrink-0"
+                                            disabled={!canEdit}
+                                        />
+                                        {canEdit ? (
+                                            <input
+                                                className="bg-transparent text-sm font-bold border-none outline-none flex-1 min-w-0 px-1 hover:bg-white/5 rounded transition-colors"
+                                                style={{ color: pipeline.color }}
+                                                value={pipeline.name}
+                                                onChange={e => setPipelineList(prev => prev.map(p => p.id === pipeline.id ? { ...p, name: e.target.value } : p))}
+                                                onBlur={() => handleUpdatePipeline(pipeline, { name: pipeline.name })}
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-bold" style={{ color: pipeline.color }}>{pipeline.name}</span>
+                                        )}
                                         <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
                                             background: `${pipeline.color}15`,
                                             color: pipeline.color,
@@ -252,13 +346,20 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         )}
                                     </div>
                                     {canEdit && (
-                                        <button
-                                            onClick={() => { setAddToPipelineId(pipeline.id); setShowNewStage(true) }}
-                                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
-                                            style={{ color: pipeline.color }}
-                                        >
-                                            <Plus className="w-3 h-3" /> Aggiungi stage
-                                        </button>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => { setAddToPipelineId(pipeline.id); setShowNewStage(true) }}
+                                                className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/10"
+                                                style={{ color: pipeline.color }}
+                                            >
+                                                <Plus className="w-3 h-3" /> Aggiungi
+                                            </button>
+                                            {!pipeline.is_default && (
+                                                <button onClick={() => handleDeletePipeline(pipeline.id, pipeline.name)} className="p-1 rounded-lg hover:bg-white/10 ml-1">
+                                                    <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
 

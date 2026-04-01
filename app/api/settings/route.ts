@@ -140,5 +140,18 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ success: true })
     }
 
+    if (body.action === 'update_pipeline') {
+        const { id, name, color } = body
+        const { data, error } = await supabase
+            .from('pipelines')
+            .update({ name, color })
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
