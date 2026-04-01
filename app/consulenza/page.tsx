@@ -90,6 +90,13 @@ function PageContent() {
     }
   }, [])
 
+  // Leggi UTM params correttamente (utm_campaign, non 'campaign')
+  const utmSource   = searchParams.get('utm_source')   || searchParams.get('source') || 'Consulenza Page'
+  const utmMedium   = searchParams.get('utm_medium')   || searchParams.get('medium') || 'direct'
+  const utmCampaign = searchParams.get('utm_campaign') || searchParams.get('campaign') || ''
+  const utmContent  = searchParams.get('utm_content')  || ''
+  const utmTerm     = searchParams.get('utm_term')     || ''
+
   const isValid = formData.firstName.trim() !== '' && formData.email.includes('@') && formData.phone.length > 5
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,9 +115,11 @@ function PageContent() {
           cognome: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          utm_source: searchParams.get('source') || 'Link Diretto (Consulenza Native)',
-          utm_campaign: searchParams.get('campaign') || searchParams.get('utm_campaign') || referrer || '',
-          utm_medium: searchParams.get('medium') || searchParams.get('utm_medium') || ''
+          utm_source:   utmSource,
+          utm_medium:   utmMedium,
+          utm_campaign: utmCampaign || referrer || sourceParam,
+          utm_content:  utmContent,
+          utm_term:     utmTerm,
         })
       })
 
