@@ -220,7 +220,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             }
 
             // Fire standard event immediately
-            firePixelEvent('Lead', leadEventId, { value: 0.00, currency: 'EUR' })
+            firePixelEvent('Lead', leadEventId, { content_category: funnel.objective || 'cliente' })
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })

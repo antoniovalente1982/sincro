@@ -260,8 +260,6 @@ export async function POST(req: NextRequest) {
                 fbc: body.fbc || undefined,
                 fbp: body.fbp || undefined,
                 content_category: funnel.objective || 'cliente',
-                value: 0.00,
-                currency: 'EUR',
                 client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
                 client_user_agent: req.headers.get('user-agent') || undefined,
                 event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
