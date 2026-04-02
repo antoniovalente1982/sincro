@@ -17,17 +17,22 @@ interface TrafficSource {
     id: string; name: string; color: string
 }
 
+interface CrmTag {
+    id: string; name: string; color: string
+}
+
 interface Props {
     organization: any
     stages: Stage[]
     pipelines: Pipeline[]
     trafficSources: TrafficSource[]
+    crmTags: CrmTag[]
     profile: any
     userRole: string
     userEmail: string
 }
 
-export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, profile, userRole, userEmail }: Props) {
+export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userEmail }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
@@ -43,6 +48,10 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [sources, setSources] = useState<TrafficSource[]>(initialSources || [])
     const [showNewSource, setShowNewSource] = useState(false)
     const [newSource, setNewSource] = useState({ name: '', color: '#6366f1' })
+
+    const [tagsList, setTagsList] = useState<CrmTag[]>(initialCrmTags || [])
+    const [showNewTag, setShowNewTag] = useState(false)
+    const [newTagInput, setNewTagInput] = useState({ name: '', color: '#10b981' })
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
 
@@ -232,6 +241,42 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         if (!confirm(`Vuoi davvero eliminare la fonte "${name}"? I lead che la possiedono non perderanno il testo, ma la fonte non avrà più il suo colore personalizzato.`)) return
         const res = await saveAction('delete_traffic_source', { id })
         if (res) setSources(prev => prev.filter(s => s.id !== id))
+    }
+
+    const handleCreateTag = async () => {
+        if (!newTagInput.name) return
+        try {
+            const res = await fetch('/api/crm-tags', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newTagInput.name, color: newTagInput.color }),
+            })
+            if (res.ok) {
+                const created = await res.json()
+                setTagsList(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+                setNewTagInput({ name: '', color: '#10b981' })
+                setShowNewTag(false)
+            }
+        } catch(e) { console.error(e) }
+    }
+
+    const handleUpdateTag = async (tag: CrmTag, updates: Partial<CrmTag>) => {
+        setTagsList(prev => prev.map(t => t.id === tag.id ? { ...t, ...updates } : t))
+        try {
+            await fetch('/api/crm-tags', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: tag.id, ...updates }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
+    const handleDeleteTag = async (id: string, name: string) => {
+        if (!confirm(`Vuoi davvero eliminare il tag "${name}"? Verrà rimosso da tutti i lead (azione irreversibile).`)) return
+        setTagsList(prev => prev.filter(t => t.id !== id))
+        try {
+            await fetch(`/api/crm-tags?id=${id}`, { method: 'DELETE' })
+        } catch(e) { console.error(e) }
     }
 
     const stageColors = ['#3b82f6', '#8b5cf6', '#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#14b8a6', '#f97316']
@@ -541,6 +586,82 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 <Plus className="w-4 h-4" />
                             </button>
                             <button onClick={() => setShowNewSource(false)} className="p-2 rounded-lg hover:bg-white/5">
+                                <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* CRM Tags */}
+            <div className="glass-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
+                        <h3 className="text-sm font-bold text-white">Tag CRM</h3>
+                    </div>
+                    {canEdit && (
+                        <button
+                            onClick={() => setShowNewTag(true)}
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            style={{ color: '#10b981' }}
+                        >
+                            <Plus className="w-3 h-3" /> Crea Tag
+                        </button>
+                    )}
+                </div>
+
+                <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
+                    Crea tag globali da poter assegnare ai Lead all'interno delle loro schede.
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                    {tagsList.map(tag => (
+                        <div key={tag.id} className="flex items-center gap-2 px-3 py-1.5 rounded-lg group" style={{ background: `${tag.color}15`, border: `1px solid ${tag.color}30` }}>
+                            {canEdit ? (
+                                <>
+                                    <input
+                                        type="color"
+                                        value={tag.color}
+                                        onChange={e => handleUpdateTag(tag, { color: e.target.value })}
+                                        className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent p-0 flex-shrink-0"
+                                    />
+                                    <input
+                                        className="bg-transparent text-xs font-semibold border-none outline-none min-w-[60px] max-w-[150px]"
+                                        style={{ color: tag.color }}
+                                        value={tag.name}
+                                        onChange={e => setTagsList(prev => prev.map(t => t.id === tag.id ? { ...t, name: e.target.value } : t))}
+                                        onBlur={() => handleUpdateTag(tag, { name: tag.name })}
+                                    />
+                                    <button onClick={() => handleDeleteTag(tag.id, tag.name)} className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 hover:opacity-70">
+                                        <X className="w-3 h-3" style={{ color: tag.color }} />
+                                    </button>
+                                </>
+                            ) : (
+                                <span className="text-xs font-semibold" style={{ color: tag.color }}>{tag.name}</span>
+                            )}
+                        </div>
+                    ))}
+                    {tagsList.length === 0 && (
+                        <div className="text-xs py-2 w-full" style={{ color: 'var(--color-surface-500)' }}>Nessun tag disponibile.</div>
+                    )}
+                </div>
+
+                {showNewTag && (
+                    <div className="mt-4 p-3 rounded-xl animate-fade-in" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                        <div className="flex items-center gap-3">
+                            <input
+                                className="input flex-1 !py-2 text-xs"
+                                placeholder="Nome del tag (es: VIP, Urgente...)"
+                                value={newTagInput.name}
+                                onChange={e => setNewTagInput({ ...newTagInput, name: e.target.value })}
+                                autoFocus
+                            />
+                            <input type="color" value={newTagInput.color} onChange={e => setNewTagInput({ ...newTagInput, color: e.target.value })} className="w-7 h-7 rounded cursor-pointer border-0 bg-transparent p-0" />
+                            <button onClick={handleCreateTag} className="btn-primary !py-2 !px-3" disabled={!newTagInput.name}>
+                                <Plus className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => setShowNewTag(false)} className="p-2 rounded-lg hover:bg-white/5">
                                 <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                             </button>
                         </div>

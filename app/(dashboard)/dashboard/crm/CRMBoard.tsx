@@ -775,37 +775,8 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         utm_content: lead?.meta_data?.utm_content || '',
         tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[]
     })
-    const [tagInput, setTagInput] = useState('')
-    const [localTags, setLocalTags] = useState<Tag[]>(globalTags)
-    
-    const handleTagKeyDown = async (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            const val = tagInput.trim()
-            if (!val) return
-            
-            // Check if exists
-            const existing = localTags.find(t => t.name.toLowerCase() === val.toLowerCase())
-            if (existing) {
-                if (!form.tags.includes(existing.id)) setForm(f => ({ ...f, tags: [...f.tags, existing.id] }))
-            } else {
-                // Create new on the fly!
-                try {
-                    const res = await fetch('/api/crm-tags', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: val })
-                    })
-                    if (res.ok) {
-                        const newTag = await res.json()
-                        setLocalTags(prev => [...prev, newTag])
-                        setForm(f => ({ ...f, tags: [...f.tags, newTag.id] }))
-                    }
-                } catch(e) { console.error('Error creating tag', e) }
-            }
-            setTagInput('')
-        }
-    }
+    // Tags configuration happens globally (in SettingsPanel), here we only select
+
 
     // When pipeline changes, reset stage to first stage of new pipeline
     const handlePipelineChange = (newPipelineId: string) => {
@@ -891,10 +862,10 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 
                     {/* Tag Manager (Multi-Select) */}
                     <div>
-                        <label className="label">Tag (premi Invio per creare)</label>
+                        <label className="label">Tag CRM</label>
                         <div className="flex flex-wrap gap-2 mb-2">
                             {form.tags.map(tId => {
-                                const tag = localTags.find(t => t.id === tId)
+                                const tag = globalTags.find(t => t.id === tId)
                                 if(!tag) return null
                                 return (
                                     <span key={tag.id} className="text-xs px-2 py-1 rounded-md font-semibold flex items-center gap-1.5" style={{
@@ -908,10 +879,22 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                                 )
                             })}
                         </div>
-                        <input className="input" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} placeholder="Cerca o crea un tag..." list="tag-suggestions" />
-                        <datalist id="tag-suggestions">
-                            {localTags.filter(t => !form.tags.includes(t.id)).map(t => <option key={t.id} value={t.name} />)}
-                        </datalist>
+                        <select 
+                            className="input"
+                            value=""
+                            onChange={e => {
+                                const val = e.target.value
+                                if (val && !form.tags.includes(val)) {
+                                    setForm(f => ({ ...f, tags: [...f.tags, val] }))
+                                }
+                            }}
+                        >
+                            <option value="">Seleziona un tag...</option>
+                            {globalTags.filter(t => !form.tags.includes(t.id)).map(t => (
+                                <option key={t.id} value={t.id}>{t.name}</option>
+                            ))}
+                        </select>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Puoi creare o gestire i Tag dalle Impostazioni.</p>
                     </div>
 
                     <div>
