@@ -269,7 +269,6 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                                             value={lastName}
                                             onChange={e => setLastName(e.target.value)}
                                             required
-                                            style={{ paddingLeft: '16px' }}
                                         />
                                     </div>
                                 </div>

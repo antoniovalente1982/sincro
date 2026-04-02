@@ -364,13 +364,13 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
                             </div>
                             <div className="lp-hf-fields">
-                                <div className="lp-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`}>
+                                <div className="lp-field" style={{ display: 'flex', gap: '8px' }}>
+                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`} style={{ flex: 1 }}>
                                         <User size={18} />
                                         <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} required />
                                     </div>
-                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`}>
-                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required style={{ paddingLeft: '16px' }} />
+                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`} style={{ flex: 1 }}>
+                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required />
                                     </div>
                                 </div>
                                 <div className="lp-field">
