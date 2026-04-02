@@ -64,6 +64,9 @@ const CONFIG_MAP: Record<string, PageConfig> = {
   }
 }
 
+// Metodo Sincro organization ID
+const MS_ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
+
 // Map del parametro ?source= al funnel_id corretto nel DB
 const FUNNEL_ID_MAP: Record<string, string> = {
   'MetodoSincro':      '1539adea-4b2e-40ff-8f35-0eb1b89d13eb',
@@ -90,11 +93,38 @@ function PageContent() {
     phone: '',
   })
   
-  // Cattura magica del sito di provenienza (l'articolo del blog)
+  // Cattura sito di provenienza
   useEffect(() => {
     if (typeof window !== 'undefined' && document.referrer) {
       setReferrer(document.referrer)
     }
+  }, [])
+
+  // ── PageView tracking: registra la visita nella piattaforma
+  useEffect(() => {
+    const funnelId = FUNNEL_ID_MAP[sourceParam] || FUNNEL_ID_MAP['MetodoSincro']
+    const visitorId = sessionStorage.getItem('visitor_id') || `v_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    sessionStorage.setItem('visitor_id', visitorId)
+
+    fetch('/api/track/pageview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        organization_id: MS_ORG_ID,
+        funnel_id: funnelId,
+        page_path: `/consulenza?source=${sourceParam}`,
+        page_variant: 'A',
+        visitor_id: visitorId,
+        utm_source:   searchParams.get('utm_source')   || sourceParam,
+        utm_medium:   searchParams.get('utm_medium')   || 'direct',
+        utm_campaign: searchParams.get('utm_campaign') || '',
+        utm_content:  searchParams.get('utm_content')  || '',
+        utm_term:     searchParams.get('utm_term')     || '',
+        referrer: typeof window !== 'undefined' ? document.referrer : '',
+        page_url: typeof window !== 'undefined' ? window.location.href : '',
+      }),
+    }).catch(() => {/* silent fail */})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Leggi UTM params correttamente (utm_campaign, non 'campaign')
