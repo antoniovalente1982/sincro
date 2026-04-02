@@ -232,16 +232,35 @@ export async function POST(req: NextRequest) {
             if (!cronSecret) {
                 return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
             }
-            const cronRes = await fetch(`${baseUrl}/api/cron/ai-engine`, {
-                headers: { 'Authorization': `Bearer ${cronSecret}` },
-            })
-            const cronData = await cronRes.json()
+            
+            // Run both engines in parallel
+            const [engineRes, killRes] = await Promise.all([
+                fetch(`${baseUrl}/api/cron/ai-engine`, { headers: { 'Authorization': `Bearer ${cronSecret}` } }),
+                fetch(`${baseUrl}/api/cron/kill-guardian`, { headers: { 'Authorization': `Bearer ${cronSecret}` } })
+            ])
+            
+            const engineData = await engineRes.json()
+            const killData = await killRes.json()
+
+            // Merge results
+            const totalActions = (engineData.totalActions || 0) + (killData.kills || 0)
+            const actions = [
+                ...(engineData.actions || []),
+                ...(killData.results || []).map((r: any) => ({
+                    name: r.adName || r.campaign,
+                    action: r.action,
+                    status: r.executed ? 'executed' : 'dry_run',
+                    category: 'creative_kill',
+                    rule: 'Kill Guardian V2'
+                }))
+            ]
+
             return NextResponse.json({
-                ok: cronData.ok,
-                totalActions: cronData.totalActions || 0,
-                actions: cronData.actions || [],
-                message: cronData.message || `${cronData.totalActions || 0} azioni processate`,
-                error: cronData.error,
+                ok: engineData.ok && killData.ok,
+                totalActions,
+                actions,
+                message: `${totalActions} azioni processate (AI Engine + Kill Guardian)`,
+                error: engineData.error || killData.error,
             })
         } catch (err: any) {
             return NextResponse.json({ error: `Force run failed: ${err.message}` }, { status: 500 })
