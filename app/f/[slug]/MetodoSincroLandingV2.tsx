@@ -300,6 +300,9 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <Star size={18} fill="#fff" color="#fff" />
                             Leggi 350+ Storie di Successo
                         </a>
+                        <a href="https://valenteantonio.it" target="_blank" rel="noopener noreferrer" className="lp-site-link">
+                            Visita il sito ufficiale Metodo Sincro®
+                        </a>
                     </div>
                 </main>
                 <style>{STYLES}</style>
@@ -337,6 +340,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     .lp-ty-footer { text-align: center; margin-top: 8px; }
                     .lp-trust-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: linear-gradient(135deg, #00b67a, #009567); color: #fff; font-weight: 700; font-size: 15px; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0, 182, 122, 0.3); }
                     .lp-trust-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 182, 122, 0.4); }
+                    .lp-site-link { display: inline-block; margin-top: 16px; font-size: 13px; color: #71717a; text-decoration: underline; transition: color 0.2s; }
+                    .lp-site-link:hover { color: #d4d4d8; }
                     
                     @keyframes pulseSuccess { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
                 `}} />
