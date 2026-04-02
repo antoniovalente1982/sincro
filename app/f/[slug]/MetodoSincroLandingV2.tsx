@@ -271,7 +271,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         </div>
 
                         {/* STEP 2 */}
-                        <div className="lp-ty-step">
+                        <div className="lp-ty-step lp-step-prep">
                             <div className="lp-ty-step-icon"><Brain size={24} color="#38bdf8" /></div>
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 2</span>
@@ -289,8 +289,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-ty-step-icon"><Gift size={24} color="#ec4899" /></div>
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 3 (Omaggio Sbloccato)</span>
-                                <h3>Anthon Chat Premium</h3>
-                                <p>Se ti presenti alla consulenza avrai accesso in omaggio ad <strong>Anthon Chat</strong>, il Coach AI di Antonio Valente disponibile 24/7.</p>
+                                <h3>Anthon Chat</h3>
+                                <p>Presentandoti alla chiamata, avrai accesso in omaggio ad <strong>Anthon Chat</strong>, il Coach AI di Antonio Valente disponibile 24/7.</p>
                             </div>
                         </div>
                     </div>
@@ -310,22 +310,25 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     .lp-ty-header h1 { font-size: 28px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -0.5px; }
                     .lp-ty-header p { font-size: 15px; color: #a1a1aa; line-height: 1.4; margin: 0; }
                     
-                    .lp-ty-steps { display: flex; flex-direction: column; gap: 10px; }
-                    .lp-ty-step { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; gap: 16px; align-items: center; transition: all 0.3s; }
-                    .lp-ty-step:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
-                    .lp-ty-step-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                    .lp-step-urgent { background: rgba(250, 204, 21, 0.02); border-color: rgba(250, 204, 21, 0.15); }
+                    .lp-ty-steps { position: relative; display: flex; flex-direction: column; gap: 10px; }
+                    .lp-ty-steps::before { content: ''; position: absolute; top: 40px; bottom: 40px; left: 37px; width: 2px; background: rgba(255,255,255,0.06); z-index: 0; }
+                    .lp-ty-step { position: relative; z-index: 1; background: #131317; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; gap: 16px; align-items: center; transition: all 0.3s; }
+                    .lp-ty-step:hover { background: #18181c; transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+                    .lp-ty-step-icon { position: relative; z-index: 2; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                    .lp-step-urgent { border-color: rgba(250, 204, 21, 0.15); }
                     .lp-step-urgent .lp-ty-step-icon { background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.2); }
-                    .lp-step-gift { background: rgba(236, 72, 153, 0.02); }
+                    .lp-step-prep .lp-ty-step-icon { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.15); }
+                    .lp-step-gift {  }
                     .lp-step-gift .lp-ty-step-icon { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); }
                     
                     .lp-ty-step-content { flex: 1; }
-                    .lp-ty-badge-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #52525b; margin-bottom: 3px; display: block; }
+                    .lp-ty-badge-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; margin-bottom: 3px; display: block; }
                     .lp-step-urgent .lp-ty-badge-num { color: #facc15; }
+                    .lp-step-prep .lp-ty-badge-num { color: #38bdf8; }
                     .lp-step-gift .lp-ty-badge-num { color: #ec4899; }
                     .lp-ty-step-content h3 { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px 0; }
-                    .lp-ty-step-content p { font-size: 13.5px; color: #a1a1aa; line-height: 1.4; margin: 0; }
-                    .lp-ty-step-content ul { margin: 6px 0 0; padding-left: 16px; color: #a1a1aa; font-size: 13px; line-height: 1.4; }
+                    .lp-ty-step-content p { font-size: 13.5px; color: #d4d4d8; line-height: 1.4; margin: 0; }
+                    .lp-ty-step-content ul { margin: 6px 0 0; padding-left: 16px; color: #d4d4d8; font-size: 13px; line-height: 1.4; list-style-type: disc; }
                     .lp-ty-step-content li { margin-bottom: 2px; }
                     .lp-ty-step-content strong { color: #e4e4e7; }
                     .lp-step-urgent p { color: #d4d4d8; }
