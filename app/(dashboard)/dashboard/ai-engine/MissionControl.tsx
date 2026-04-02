@@ -139,6 +139,26 @@ export default function MissionControl() {
     fetchData()
   }
 
+  const [learningLoading, setLearningLoading] = useState(false)
+  const handleForceLearning = async () => {
+    if (!orgId) return
+    setLearningLoading(true)
+    showToast('🔄 Apprendimento e Sincronizzazione in corso...')
+    try {
+      await fetch('/api/mission-control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'force_learning', org_id: orgId }),
+      })
+      showToast('✅ Apprendimento completato con successo!')
+      fetchData()
+    } catch {
+      showToast('❌ Errore durante l\'apprendimento')
+    }
+    setLearningLoading(false)
+  }
+
+
   const handleOverrideAction = async (angle: string, newAction: string) => {
     if (!orgId) return
     await fetch('/api/mission-control', {
@@ -209,6 +229,13 @@ export default function MissionControl() {
           </button>
           <button onClick={() => setSettingsOpen(true)} style={styles.btnSettings}>
             ⚙️ Obiettivi
+          </button>
+          <button 
+            onClick={handleForceLearning} 
+            disabled={learningLoading}
+            style={{...styles.btnSettings, opacity: learningLoading ? 0.5 : 1}}
+          >
+            {learningLoading ? '⏳ Sincronizzo...' : '⚡ Forza Apprendimento'}
           </button>
           <button onClick={fetchData} style={styles.btnRefresh}>
             ↺

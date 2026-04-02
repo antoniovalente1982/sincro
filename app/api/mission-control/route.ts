@@ -225,12 +225,18 @@ Usa un tono diretto e pratico, non generico.`
             return NextResponse.json({ ok: true, angle, new_action })
         }
 
-        // ── force_ratchet ─────────────────────────────────────
-        if (action === 'force_ratchet') {
+        // ── force_learning ─────────────────────────────────────
+        if (action === 'force_learning') {
             const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('supabase')
                 ? process.env.NEXTAUTH_URL || 'http://localhost:3000'
                 : 'http://localhost:3000'
 
+            // 1. Aggiorna prima le metriche (Hybrid Tracking)
+            await fetch(`${baseUrl}/api/cron/ai-engine`, {
+                headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` },
+            })
+
+            // 2. Forza valutazione Ratchet
             const ratchetRes = await fetch(`${baseUrl}/api/cron/ratchet-evaluator`, {
                 headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` },
             })
