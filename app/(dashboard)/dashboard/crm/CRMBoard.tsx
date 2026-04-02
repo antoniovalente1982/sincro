@@ -448,7 +448,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-2xl shadow-inner">
+            <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-2xl shadow-inner relative z-50">
                 <div className="flex items-center gap-1.5 mr-2">
                     <Filter className="w-4 h-4 text-indigo-400" />
                     <span className="text-xs font-semibold text-gray-300">Filtri:</span>

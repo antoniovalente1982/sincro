@@ -46,11 +46,13 @@ const FAQ_ITEMS = [
 
 export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [fullName, setFullName] = useState('')
+    const [fullNameError, setFullNameError] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
     const [childAge, setChildAge] = useState('')
     const [phoneError, setPhoneError] = useState('')
     const [emailError, setEmailError] = useState('')
+    const [submitAttempted, setSubmitAttempted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
@@ -84,9 +86,16 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const reachedBottomRef = useRef(false) // tracks if user scrolled to bottom
 
     // Validation helpers
+    const handleNameChange = (val: string) => {
+        setFullName(val)
+        if (!val.trim()) setFullNameError('Inserisci nome e cognome')
+        else if (!val.trim().includes(' ')) setFullNameError('Inserisci anche il cognome')
+        else setFullNameError('')
+    }
     const handlePhoneChange = (val: string) => {
         setPhone(val)
-        if (val && !/^[+\d\s\-()]+$/.test(val)) setPhoneError('Inserisci solo numeri')
+        if (!val) setPhoneError('Telefono obbligatorio')
+        else if (!/^[+\d\s\-()]+$/.test(val) || val.length < 5) setPhoneError('Inserisci solo numeri')
         else setPhoneError('')
     }
     const handleEmailChange = (val: string) => {
@@ -95,7 +104,12 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         else if (!val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
         else setEmailError('')
     }
-    const isFormValid = fullName.trim().length > 0 && fullName.trim().includes(' ') && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
+    
+    // Evaluate if fields are actually completely valid for styling (green borders)
+    const isNameValid = fullName.trim().length > 0 && fullName.trim().includes(' ') && !fullNameError
+    const isPhoneValid = phone.trim().length > 4 && !phoneError
+    const isEmailValid = email.trim().length > 0 && email.includes('@') && !emailError
+    const isFormValid = isNameValid && isPhoneValid && isEmailValid
 
     // Dynamic viewer count
     useEffect(() => {
@@ -224,9 +238,15 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     }
 
     const handleSubmit = async () => {
-        if (!fullName || !phone || !email || phoneError || emailError) return
-        if (phone && !/^[+\d\s\-()]+$/.test(phone)) { setPhoneError('Inserisci solo numeri'); return }
-        if (email && !email.includes('@')) { setEmailError('Inserisci un\'email valida'); return }
+        setSubmitAttempted(true)
+
+        let isValid = true
+        if (!isNameValid) { setFullNameError(fullNameError || 'Inserisci nome e cognome'); isValid = false }
+        if (!isPhoneValid) { setPhoneError(phoneError || 'Telefono obbligatorio'); isValid = false }
+        if (!isEmailValid) { setEmailError(emailError || 'Email obbligatoria'); isValid = false }
+
+        if (!isValid) return
+
         setLoading(true)
         setError('')
 
@@ -465,18 +485,19 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                             <div className="lp-hf-fields">
                                 <div className="lp-field">
-                                    <div className={`lp-input-wrap ${fullName ? 'filled' : ''}`}>
+                                    <div className={`lp-input-wrap ${isNameValid ? 'filled' : ''} ${(submitAttempted && !isNameValid) || fullNameError ? 'has-error' : ''}`}>
                                         <User size={18} style={{ flexShrink: 0 }} />
-                                        <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => setFullName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
+                                        <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)} onFocus={handleFirstFieldFocus} style={{ minWidth: 0, width: '100%' }} />
                                     </div>
+                                    {((submitAttempted && !isNameValid) || fullNameError) && <span className="lp-field-error">{fullNameError}</span>}
                                 </div>
                                 <div className="lp-field">
-                                    <div className={`lp-input-wrap ${phone && !phoneError ? 'filled' : ''} ${phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} required /></div>
-                                    {phoneError && <span className="lp-field-error">{phoneError}</span>}
+                                    <div className={`lp-input-wrap ${isPhoneValid ? 'filled' : ''} ${(submitAttempted && !isPhoneValid) || phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} /></div>
+                                    {((submitAttempted && !isPhoneValid) || phoneError) && <span className="lp-field-error">{phoneError}</span>}
                                 </div>
                                 <div className="lp-field">
-                                    <div className={`lp-input-wrap ${email && !emailError ? 'filled' : ''} ${emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
-                                    {emailError && <span className="lp-field-error">{emailError}</span>}
+                                    <div className={`lp-input-wrap ${isEmailValid ? 'filled' : ''} ${(submitAttempted && !isEmailValid) || emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                                    {((submitAttempted && !isEmailValid) || emailError) && <span className="lp-field-error">{emailError}</span>}
                                 </div>
                                 <div className="lp-field">
                                     <div className={`lp-input-wrap lp-select-wrap ${childAge ? 'filled' : ''}`}>
