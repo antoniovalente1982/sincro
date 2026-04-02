@@ -296,7 +296,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 })
                 const updated = await res.json()
                 if (!res.ok) throw new Error(updated.error)
-                setLeads(prev => prev.map(l => l.id === editingLead.id ? { ...l, ...formData } : l))
+                
+                // Optimistic UI mapping for tags
+                const mappedLeadTags = (formData.tags || []).map((tagId: string) => ({
+                    id: `opt-${Math.random()}`,
+                    lead_id: editingLead.id,
+                    tag_id: tagId,
+                    crm_tags: globalTags.find(t => t.id === tagId)
+                }))
+
+                setLeads(prev => prev.map(l => l.id === editingLead.id ? { ...l, ...formData, lead_tags: mappedLeadTags } : l))
             } else {
                 const res = await fetch('/api/leads', {
                     method: 'POST',
@@ -305,6 +314,15 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 })
                 const newLead = await res.json()
                 if (!res.ok) throw new Error(newLead.error)
+                
+                const mappedLeadTags = (formData.tags || []).map((tagId: string) => ({
+                    id: `opt-${Math.random()}`,
+                    lead_id: newLead.id,
+                    tag_id: tagId,
+                    crm_tags: globalTags.find(t => t.id === tagId)
+                }))
+                newLead.lead_tags = mappedLeadTags
+                
                 setLeads(prev => [newLead, ...prev])
             }
             setShowModal(false)
