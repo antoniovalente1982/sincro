@@ -137,7 +137,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
                         </div>
-                        <h1>Ottimo, {firstName.trim()}! ⚽</h1>
+                        <h1>Ben Fatto{firstName ? ` ${firstName.trim()}` : ''}! ⚽</h1>
                         <p>Richiesta confermata. Segui questi 3 passaggi ora:</p>
                     </div>
 
@@ -159,9 +159,9 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                                 <span className="lp-ty-badge-num">Passo 2</span>
                                 <h3>Preparati alla call</h3>
                                 <ul>
-                                    <li>Qual è il suo problema mentale in gara?</li>
-                                    <li>Da quanto tempo esiste il blocco?</li>
-                                    <li>Qual è l'obiettivo da raggiungere?</li>
+                                    <li>Qual è il suo blocco principale in gara?</li>
+                                    <li>Da quanto tempo noti questa situazione?</li>
+                                    <li>Qual è l'obiettivo che volete raggiungere?</li>
                                 </ul>
                             </div>
                         </div>
@@ -172,7 +172,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 3 (Omaggio Sbloccato)</span>
                                 <h3>Anthon Chat Premium</h3>
-                                <p>Se ti presenti alla consulenza avrai gratis il <strong>Coach AI di Valente</strong> 24/7.</p>
+                                <p>Se ti presenti alla consulenza avrai accesso in omaggio ad <strong>Anthon Chat</strong>, il Coach AI di Antonio Valente disponibile 24/7.</p>
                             </div>
                         </div>
                     </div>
