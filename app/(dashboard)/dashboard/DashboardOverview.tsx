@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink, Loader2, Eye } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
+import { createClient } from '@/lib/supabase/client'
 
 interface Lead {
     id: string; value?: number; stage_id?: string; created_at: string; updated_at: string
@@ -36,6 +37,63 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
     const leads = filterByDateRange(allLeads, range, dateFilterMode === 'created' ? 'created_at' : 'updated_at')
+
+    const [metaSummary, setMetaSummary] = useState<{
+        spend: number, leads: number, appts: number, showups: number, sales: number, revenue: number
+    } | null>(null)
+    const [loadingMeta, setLoadingMeta] = useState(false)
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            setLoadingMeta(true)
+            try {
+                const supabase = createClient()
+                const { data: { session } } = await supabase.auth.getSession()
+                
+                let since = '', until = ''
+                const formatLocalDate = (d: Date) => {
+                    const y = d.getFullYear()
+                    const m = String(d.getMonth() + 1).padStart(2, '0')
+                    const day = String(d.getDate()).padStart(2, '0')
+                    return `${y}-${m}-${day}`
+                }
+
+                if (activeKey === 'all') {
+                    const d = new Date()
+                    until = formatLocalDate(d)
+                    d.setDate(d.getDate() - 30)
+                    since = formatLocalDate(d)
+                } else {
+                    since = formatLocalDate(range.from)
+                    const uDate = new Date(range.to)
+                    uDate.setDate(uDate.getDate() - 1)
+                    until = formatLocalDate(uDate)
+                }
+
+                const res = await fetch(`/api/meta/insights?since=${since}&until=${until}&date_mode=${dateFilterMode}&_t=${Date.now()}`, {
+                    headers: { Authorization: `Bearer ${session?.access_token}` }
+                })
+                const data = await res.json()
+                if (data.success && data.campaigns) {
+                    let spend = 0, mLeads = 0, appts = 0, showups = 0, sales = 0, revenue = 0
+                    for (const c of data.campaigns) {
+                        spend += (Number(c.spend) || 0)
+                        mLeads += (Number(c.leads_count) || 0)
+                        appts += (Number(c.crm_appts) || 0)
+                        showups += (Number(c.crm_showups) || 0)
+                        sales += (Number(c.crm_sales) || 0)
+                        revenue += (Number(c.crm_revenue) || 0)
+                    }
+                    setMetaSummary({ spend, leads: mLeads, appts, showups, sales, revenue })
+                }
+            } catch (e) {
+                console.error(e)
+            } finally {
+                setLoadingMeta(false)
+            }
+        }
+        fetchSummary()
+    }, [activeKey, range.from.getTime(), range.to.getTime(), dateFilterMode])
 
     const getRelativeTime = (dateStr: string) => {
         const diffMs = Date.now() - new Date(dateStr).getTime()
@@ -134,11 +192,24 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
         }
     }
 
-    const kpis = [
-        { label: 'Lead totali', value: leads.length, icon: Users, color: '#3b82f6', href: '/dashboard/crm' },
-        { label: 'Conversion Rate', value: `${conversionRate}%`, icon: TrendingUp, color: '#22c55e', href: '/dashboard/analytics' },
-        { label: 'Valore Pipeline', value: `€${pipelineValue.toLocaleString('it-IT')}`, icon: DollarSign, color: '#f59e0b', href: '/dashboard/crm' },
-        { label: 'Funnel attivi', value: funnelCount, icon: Target, color: '#8b5cf6', href: '/dashboard/funnels' },
+    const formatCurrency = (v: number) =>
+        new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
+
+    const ms = metaSummary || { spend: 0, leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
+    const cpl = ms.leads > 0 ? ms.spend / ms.leads : 0
+    const cpAppt = ms.appts > 0 ? ms.spend / ms.appts : 0
+    const cpShowup = ms.showups > 0 ? ms.spend / ms.showups : 0
+    const cac = ms.sales > 0 ? ms.spend / ms.sales : 0
+    const roas = ms.spend > 0 ? ms.revenue / ms.spend : 0
+
+    const metaKpis = [
+        { label: 'Spesa Meta', value: formatCurrency(ms.spend), icon: DollarSign, color: '#ef4444' },
+        { label: 'CPL Medio', value: formatCurrency(cpl), icon: TrendingUp, color: '#f59e0b' },
+        { label: 'Costo Appt', value: formatCurrency(cpAppt), icon: Target, color: '#3b82f6' },
+        { label: 'Costo ShowUp', value: formatCurrency(cpShowup), icon: Eye, color: '#8b5cf6' },
+        { label: 'CAC Medio', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 500 ? '#22c55e' : '#f43f5e' },
+        { label: `Vendite (${ms.sales})`, value: formatCurrency(ms.revenue), icon: DollarSign, color: '#22c55e' },
+        { label: 'ROAS', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 3 ? '#22c55e' : '#f59e0b' },
     ]
 
     return (
@@ -174,21 +245,23 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {kpis.map((kpi) => (
-                    <Link key={kpi.label} href={kpi.href}>
-                        <div className="kpi-card group cursor-pointer">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${kpi.color}15`, border: `1px solid ${kpi.color}30` }}>
-                                    <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
-                                </div>
-                                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--color-surface-500)' }} />
+            {/* Main Financial KPI Cards (Meta Data) */}
+            <div className="flex items-center gap-2 mt-4 mb-2">
+                <span className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--color-surface-400)' }}>Metriche Funnel Finanziario in Tempo Reale</span>
+                {loadingMeta && <Loader2 className="w-4 h-4 animate-spin text-[#818cf8]" />}
+            </div>
+            
+            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 transition-opacity duration-300 ${loadingMeta ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
+                {metaKpis.map(kpi => (
+                    <div key={kpi.label} className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-default" style={{ border: `1px solid ${kpi.color}15`, background: 'rgba(255,255,255,0.02)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 rounded-md flex justify-center items-center" style={{ background: `${kpi.color}15` }}>
+                                <kpi.icon className="w-3.5 h-3.5" style={{ color: kpi.color }} />
                             </div>
-                            <div className="text-2xl font-bold text-white mb-0.5">{kpi.value}</div>
-                            <div className="text-xs" style={{ color: 'var(--color-surface-600)' }}>{kpi.label}</div>
+                            <span className="text-[10px] font-semibold tracking-wide uppercase" style={{ color: 'var(--color-surface-400)' }}>{kpi.label}</span>
                         </div>
-                    </Link>
+                        <div className="text-xl font-bold whitespace-nowrap" style={{ color: kpi.color }}>{kpi.value}</div>
+                    </div>
                 ))}
             </div>
 
