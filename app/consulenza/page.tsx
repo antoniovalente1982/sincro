@@ -64,10 +64,17 @@ const CONFIG_MAP: Record<string, PageConfig> = {
   }
 }
 
+// Map del parametro ?source= al funnel_id corretto nel DB
+const FUNNEL_ID_MAP: Record<string, string> = {
+  'MetodoSincro':      '1539adea-4b2e-40ff-8f35-0eb1b89d13eb',
+  'metodosincro.it':   '1539adea-4b2e-40ff-8f35-0eb1b89d13eb',
+  'valenteantonio.it': '503ee812-5a60-4c9a-8d68-bd5d02a43453',
+  'Protocollo27':      '95a2f73a-a8e9-46c5-998b-5d12d5bc5fd0',
+}
+
 function PageContent() {
   const searchParams = useSearchParams()
   const sourceParam = searchParams.get('source') || 'default'
-  const orgId = searchParams.get('org') || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
 
   // Trova la configurazione o usa la default
   const config = CONFIG_MAP[sourceParam as keyof typeof CONFIG_MAP] || CONFIG_MAP['default']
@@ -107,19 +114,23 @@ function PageContent() {
     setError('')
 
     try {
-      const res = await fetch(`/api/webhooks/gravity?org=${orgId}`, {
+      // Mappa source → funnel_id (con fallback a MetodoSincro)
+      const funnelId = FUNNEL_ID_MAP[sourceParam] || FUNNEL_ID_MAP['MetodoSincro']
+
+      const res = await fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.firstName,
-          cognome: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
+          funnel_id:    funnelId,
+          name:         `${formData.firstName} ${formData.lastName}`.trim(),
+          email:        formData.email,
+          phone:        formData.phone,
           utm_source:   utmSource,
           utm_medium:   utmMedium,
           utm_campaign: utmCampaign || referrer || sourceParam,
           utm_content:  utmContent,
           utm_term:     utmTerm,
+          landing_url:  typeof window !== 'undefined' ? window.location.hostname : 'landing.metodosincro.com',
         })
       })
 
