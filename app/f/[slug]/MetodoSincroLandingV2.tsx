@@ -452,10 +452,16 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             </div>
                             <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
                             <p className="lp-hf-sub">Compila il form — ti richiamiamo noi</p>
-                            <div className="lp-hf-trust">
+                            <div className="lp-hf-trust" style={{ alignItems: 'center' }}>
                                 <div><Lock size={12} /> Dati protetti</div>
                                 <div><Clock size={12} /> 30 secondi</div>
-                                <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}>
+                                    <span style={{ color: '#00b67a', fontWeight: 800, fontSize: '12px', letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>Trustpilot</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                        {[1,2,3,4,5].map(i => <Star key={i} size={9} fill="#00b67a" color="#00b67a" />)} 
+                                        <span style={{ marginLeft: '2px', fontWeight: 700, color: '#3f3f46' }}>4.9</span>
+                                    </div>
+                                </div>
                             </div>
                             <div className="lp-hf-fields">
                                 <div className="lp-field">
