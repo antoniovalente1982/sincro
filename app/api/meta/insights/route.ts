@@ -197,6 +197,17 @@ export async function GET(req: NextRequest) {
             }
         }
 
+        // Fetch funnel mappings from cache
+        const { data: cachedFunnels } = await getSupabaseAdmin()
+            .from('campaigns_cache')
+            .select('external_campaign_id, funnel_id')
+            .eq('organization_id', orgId)
+
+        const funnelMap: Record<string, string> = {}
+        for (const cf of (cachedFunnels || [])) {
+            if (cf.funnel_id) funnelMap[cf.external_campaign_id] = cf.funnel_id
+        }
+
         // 5. Build combined data — show ALL campaigns with their real-time status,
         //    CRM lead counts (ground truth), and Meta spend/traffic metrics
         const campaigns = allCampaigns.map((c: any) => {
@@ -239,6 +250,7 @@ export async function GET(req: NextRequest) {
                 roas,
                 date_range_start: since,
                 date_range_end: until,
+                funnel_id: funnelMap[c.id] || null,
             }
         })
 
