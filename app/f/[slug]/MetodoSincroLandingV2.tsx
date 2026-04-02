@@ -45,7 +45,8 @@ const FAQ_ITEMS = [
 ]
 
 export default function MetodoSincroLandingV2({ funnel }: Props) {
-    const [name, setName] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
     const [childAge, setChildAge] = useState('')
@@ -76,7 +77,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         else if (!val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
         else setEmailError('')
     }
-    const isFormValid = name.trim().length > 0 && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
+    const isFormValid = firstName.trim().length > 0 && lastName.trim().length > 0 && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
 
     // Dynamic viewer count
     useEffect(() => {
@@ -183,7 +184,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     }
 
     const handleSubmit = async () => {
-        if (!name || !phone || !email || phoneError || emailError) return
+        if (!firstName || !lastName || !phone || !email || phoneError || emailError) return
         if (phone && !/^[+\d\s\-()]+$/.test(phone)) { setPhoneError('Inserisci solo numeri'); return }
         if (email && !email.includes('@')) { setEmailError('Inserisci un\'email valida'); return }
         setLoading(true)
@@ -193,15 +194,16 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
+            const fullName = `${firstName.trim()} ${lastName.trim()}`
             // Advanced Matching via shared helper
-            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone })
+            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone, fn: firstName.trim(), ln: lastName.trim() })
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     funnel_id: funnel.id,
-                    name, email, phone,
+                    name: fullName, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: { sport: 'calcio', child_age: childAge, adset_angle: adsetAngle },
                     landing_url: window.location.host + window.location.pathname,
@@ -242,7 +244,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
             <div className="lp">
                 <div className="lp-ty">
                     <div className="lp-ty-icon"><CheckCircle size={48} color="#22c55e" /></div>
-                    <h1>Perfetto, {name.split(' ')[0]}! ⚽</h1>
+                    <h1>Perfetto, {firstName.trim()}! ⚽</h1>
                     <p>La tua richiesta è stata inviata con successo.</p>
                     <div className="lp-ty-box">
                         <Phone size={20} color="#facc15" />
@@ -362,8 +364,14 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
                             </div>
                             <div className="lp-hf-fields">
-                                <div className="lp-field">
-                                    <div className={`lp-input-wrap ${name ? 'filled' : ''}`}><User size={18} /><input type="text" placeholder="Nome e Cognome *" value={name} onChange={e => setName(e.target.value)} required /></div>
+                                <div className="lp-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`}>
+                                        <User size={18} />
+                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+                                    </div>
+                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`}>
+                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required style={{ paddingLeft: '16px' }} />
+                                    </div>
                                 </div>
                                 <div className="lp-field">
                                     <div className={`lp-input-wrap ${phone && !phoneError ? 'filled' : ''} ${phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} required /></div>

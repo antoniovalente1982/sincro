@@ -161,11 +161,13 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
 /**
  * Fire Advanced Matching on form submit (re-init pixel with user PII).
  */
-export function fireAdvancedMatching(pixelId: string, data: { email?: string; phone?: string }) {
+export function fireAdvancedMatching(pixelId: string, data: { email?: string; phone?: string; fn?: string; ln?: string }) {
     if (typeof window === 'undefined' || !(window as any).fbq || !pixelId) return
     const matchData: any = {}
     if (data.email) matchData.em = data.email.toLowerCase().trim()
     if (data.phone) matchData.ph = data.phone.replace(/\D/g, '')
+    if (data.fn) matchData.fn = data.fn.toLowerCase().trim()
+    if (data.ln) matchData.ln = data.ln.toLowerCase().trim()
     ;(window as any).fbq('init', pixelId, matchData)
 }
 

@@ -36,7 +36,8 @@ const REVIEWS = [
 ]
 
 export default function MetodoSincroLanding({ funnel }: Props) {
-    const [name, setName] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
@@ -67,7 +68,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     })
 
     const handleSubmit = async () => {
-        if (!name || !phone) return
+        if (!firstName || !lastName || !phone) return
         setLoading(true)
         setError('')
 
@@ -75,15 +76,16 @@ export default function MetodoSincroLanding({ funnel }: Props) {
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
+            const fullName = `${firstName.trim()} ${lastName.trim()}`
             // Advanced Matching via shared helper
-            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone })
+            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone, fn: firstName.trim(), ln: lastName.trim() })
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     funnel_id: funnel.id,
-                    name, email, phone,
+                    name: fullName, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: { sport: 'calcio' },
                     landing_url: window.location.host + window.location.pathname,
@@ -244,17 +246,32 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
                     <div className="ms-form-card">
                         <div className="ms-form-step">
-                            <div className="ms-field">
-                                <label>Nome e Cognome *</label>
-                                <div className="ms-input-wrap">
-                                    <User size={18} />
-                                    <input
-                                        type="text"
-                                        placeholder="Es. Marco Rossi"
-                                        value={name}
-                                        onChange={e => setName(e.target.value)}
-                                        required
-                                    />
+                            <div className="ms-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label>Nome *</label>
+                                    <div className="ms-input-wrap">
+                                        <User size={18} />
+                                        <input
+                                            type="text"
+                                            placeholder="Es. Marco"
+                                            value={firstName}
+                                            onChange={e => setFirstName(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label>Cognome *</label>
+                                    <div className="ms-input-wrap">
+                                        <input
+                                            type="text"
+                                            placeholder="Es. Rossi"
+                                            value={lastName}
+                                            onChange={e => setLastName(e.target.value)}
+                                            required
+                                            style={{ paddingLeft: '16px' }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className="ms-field">
@@ -289,7 +306,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
                             <button
                                 className="ms-btn-submit"
-                                disabled={!name || !phone || loading}
+                                disabled={!firstName || !lastName || !phone || loading}
                                 onClick={handleSubmit}
                             >
                                 {loading ? (
