@@ -3,12 +3,18 @@
 import { useState, useMemo } from 'react'
 import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar } from 'lucide-react'
 
+interface Pipeline {
+    id: string; name: string; is_default?: boolean
+}
+
 interface Funnel {
     id: string; name: string; slug: string; description?: string
     objective?: string
     status: 'draft' | 'active' | 'paused' | 'archived'
     meta_pixel_id?: string; settings?: any; created_at: string; updated_at: string
     submission_count?: number
+    pipeline_id?: string
+    ai_settings?: any
 }
 
 interface PageView {
@@ -38,8 +44,8 @@ function countUniqueVisitors(views: PageView[]): number {
     return seen.size
 }
 
-export default function FunnelsPanel({ initialFunnels, pageViews = [], submissions = [] }: {
-    initialFunnels: Funnel[]; pageViews?: PageView[]; submissions?: Submission[]
+export default function FunnelsPanel({ initialFunnels, pageViews = [], submissions = [], pipelines = [] }: {
+    initialFunnels: Funnel[]; pageViews?: PageView[]; submissions?: Submission[]; pipelines?: Pipeline[]
 }) {
     const [funnels, setFunnels] = useState<Funnel[]>(initialFunnels)
     const [showModal, setShowModal] = useState(false)
@@ -674,6 +680,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
             {showModal && (
                 <FunnelModal
                     funnel={editing}
+                    pipelines={pipelines}
                     saving={saving}
                     onSave={handleSave}
                     onClose={() => { setShowModal(false); setEditing(null) }}
@@ -683,8 +690,8 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
     )
 }
 
-function FunnelModal({ funnel, saving, onSave, onClose }: {
-    funnel: Funnel | null; saving: boolean; onSave: (data: any) => void; onClose: () => void
+function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
+    funnel: Funnel | null; pipelines: Pipeline[]; saving: boolean; onSave: (data: any) => void; onClose: () => void
 }) {
     const [form, setForm] = useState({
         name: funnel?.name || '',
@@ -692,6 +699,7 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
         description: funnel?.description || '',
         objective: funnel?.objective || 'cliente',
         meta_pixel_id: funnel?.meta_pixel_id || '',
+        pipeline_id: funnel?.pipeline_id || '',
         status: funnel?.status || 'draft',
         settings: {
             headline: funnel?.settings?.headline || '',
@@ -704,6 +712,14 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
             ab_variant_b_slug: funnel?.settings?.ab_variant_b_slug || '',
             template: funnel?.settings?.template || '',
             organization_id: funnel?.settings?.organization_id || '',
+            google_ads_id: funnel?.settings?.google_ads_id || '',
+            google_ads_label: funnel?.settings?.google_ads_label || '',
+            tiktok_pixel_id: funnel?.settings?.tiktok_pixel_id || '',
+        },
+        ai_settings: {
+            tone: funnel?.ai_settings?.tone || '',
+            target: funnel?.ai_settings?.target || '',
+            optimize_for: funnel?.ai_settings?.optimize_for || 'lead_quality',
         },
     })
 
@@ -714,6 +730,10 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
 
     const updateSettings = (key: string, val: any) => {
         setForm({ ...form, settings: { ...form.settings, [key]: val } })
+    }
+
+    const updateAi = (key: string, val: any) => {
+        setForm({ ...form, ai_settings: { ...form.ai_settings, [key]: val } })
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -824,9 +844,78 @@ function FunnelModal({ funnel, saving, onSave, onClose }: {
                         </div>
                     </div>
 
-                    <div>
-                        <label className="label">Meta Pixel ID</label>
-                        <input className="input" value={form.meta_pixel_id} onChange={e => setForm({ ...form, meta_pixel_id: e.target.value })} placeholder="1234567890" />
+                    {/* Pipeline CRM */}
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Target className="w-4 h-4" style={{ color: '#22c55e' }} />
+                            <span className="text-xs font-semibold text-white">Pipeline CRM</span>
+                        </div>
+                        <div>
+                            <label className="label">Pipeline dei Lead</label>
+                            <select className="input" value={form.pipeline_id} onChange={e => setForm({ ...form, pipeline_id: e.target.value })}>
+                                <option value="">Pipeline di default</option>
+                                {pipelines.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name}{p.is_default ? ' (default)' : ''}</option>
+                                ))}
+                            </select>
+                            <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>I lead da questo funnel entrano nella pipeline selezionata. Lascia vuoto per usare la default.</p>
+                        </div>
+                    </div>
+
+                    {/* Tracking Pixels */}
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Eye className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                            <span className="text-xs font-semibold text-white">Pixel di Tracciamento</span>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="label">Meta Pixel ID</label>
+                                <input className="input" value={form.meta_pixel_id} onChange={e => setForm({ ...form, meta_pixel_id: e.target.value })} placeholder="1234567890" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="label">Google Ads ID <span style={{ color: 'var(--color-surface-400)', fontWeight: 400 }}>(prossimamente)</span></label>
+                                    <input className="input" value={form.settings.google_ads_id} onChange={e => updateSettings('google_ads_id', e.target.value)} placeholder="AW-123456789" disabled style={{ opacity: 0.5 }} />
+                                </div>
+                                <div>
+                                    <label className="label">Google Ads Label</label>
+                                    <input className="input" value={form.settings.google_ads_label} onChange={e => updateSettings('google_ads_label', e.target.value)} placeholder="conversion label" disabled style={{ opacity: 0.5 }} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="label">TikTok Pixel ID <span style={{ color: 'var(--color-surface-400)', fontWeight: 400 }}>(prossimamente)</span></label>
+                                <input className="input" value={form.settings.tiktok_pixel_id} onChange={e => updateSettings('tiktok_pixel_id', e.target.value)} placeholder="C12345ABCDE" disabled style={{ opacity: 0.5 }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* AI Engine per funnel */}
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Sparkles className="w-4 h-4" style={{ color: '#a855f7' }} />
+                            <span className="text-xs font-semibold text-white">AI Engine — Configurazione Funnel</span>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="label">Tone of Voice</label>
+                                <input className="input" value={form.ai_settings.tone} onChange={e => updateAi('tone', e.target.value)} placeholder="es. autorevole e motivazionale, professionale ma diretto..." />
+                                <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>L&apos;AI userà questo tono quando crea copy e creatività per questo funnel</p>
+                            </div>
+                            <div>
+                                <label className="label">Target Audience</label>
+                                <input className="input" value={form.ai_settings.target} onChange={e => updateAi('target', e.target.value)} placeholder="es. genitori 35-50 anni con figli calciatori 14-18 anni" />
+                            </div>
+                            <div>
+                                <label className="label">Ottimizza per</label>
+                                <select className="input" value={form.ai_settings.optimize_for} onChange={e => updateAi('optimize_for', e.target.value)}>
+                                    <option value="lead_quality">🎯 Qualità Lead (CPL + Show-up rate)</option>
+                                    <option value="volume">📈 Volume Lead (CPL basso)</option>
+                                    <option value="roas">💰 ROAS (Ritorno sulla spesa)</option>
+                                    <option value="awareness">📢 Awareness (Impression e reach)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button type="button" onClick={onClose} className="btn-secondary flex-1">Annulla</button>

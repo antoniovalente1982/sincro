@@ -13,7 +13,7 @@ export default async function FunnelsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [funnelsRes, pageViewsRes, submissionsRes] = await Promise.all([
+    const [funnelsRes, pageViewsRes, submissionsRes, pipelinesRes] = await Promise.all([
         supabase
             .from('funnels')
             .select('*')
@@ -31,6 +31,11 @@ export default async function FunnelsPage() {
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
             .limit(5000),
+        supabase
+            .from('pipelines')
+            .select('id, name, is_default')
+            .eq('organization_id', orgId)
+            .order('is_default', { ascending: false }),
     ])
 
     return (
@@ -38,6 +43,7 @@ export default async function FunnelsPage() {
             initialFunnels={funnelsRes.data || []}
             pageViews={pageViewsRes.data || []}
             submissions={submissionsRes.data || []}
+            pipelines={pipelinesRes.data || []}
         />
     )
 }

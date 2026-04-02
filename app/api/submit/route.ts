@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         // Get funnel and its organization
         const { data: funnel, error: funnelError } = await getSupabaseAdmin()
             .from('funnels')
-            .select('id, organization_id, name, status, meta_pixel_id, objective')
+            .select('id, organization_id, name, status, meta_pixel_id, objective, pipeline_id, ai_settings, settings')
             .eq('id', funnel_id)
             .single()
 
@@ -83,21 +83,27 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: subError.message }, { status: 500 })
         }
 
-        // Get first stage of the DEFAULT pipeline to assign to the lead
-        const { data: defaultPipeline } = await getSupabaseAdmin()
-            .from('pipelines')
-            .select('id')
-            .eq('organization_id', funnel.organization_id)
-            .eq('is_default', true)
-            .single()
+        // ── Pipeline routing: use funnel's dedicated pipeline, fallback to org default ──
+        let targetPipelineId: string | null = funnel.pipeline_id || null
+
+        if (!targetPipelineId) {
+            // No dedicated pipeline on funnel → use org default
+            const { data: defaultPipeline } = await getSupabaseAdmin()
+                .from('pipelines')
+                .select('id')
+                .eq('organization_id', funnel.organization_id)
+                .eq('is_default', true)
+                .single()
+            targetPipelineId = defaultPipeline?.id || null
+        }
 
         let firstStageId: string | null = null
-        if (defaultPipeline) {
+        if (targetPipelineId) {
             const { data: firstStage } = await getSupabaseAdmin()
                 .from('pipeline_stages')
                 .select('id')
                 .eq('organization_id', funnel.organization_id)
-                .eq('pipeline_id', defaultPipeline.id)
+                .eq('pipeline_id', targetPipelineId)
                 .order('sort_order', { ascending: true })
                 .limit(1)
                 .single()
@@ -105,7 +111,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!firstStageId) {
-            // Fallback: get any first stage
+            // Final fallback: any first stage in org
             const { data: fallbackStage } = await getSupabaseAdmin()
                 .from('pipeline_stages')
                 .select('id')
