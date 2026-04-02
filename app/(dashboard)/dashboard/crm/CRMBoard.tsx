@@ -729,8 +729,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     🔄 Ritorno Storico{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
                                                 </div>
                                             )}
+                                            {lead.email && (
+                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
+                                                    <Mail className="w-3 h-3" /> {lead.email}
+                                                </div>
+                                            )}
                                             {lead.phone && (
-                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
                                                     <Phone className="w-3 h-3" /> {lead.phone}
                                                 </div>
                                             )}
