@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles } from 'lucide-react'
+import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles, Brain } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
 
 interface Props {
@@ -115,34 +115,103 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
     /* ======================== THANK YOU ======================== */
     if (submitted) {
+        const hour = new Date().getHours()
+        const callbackMsg = hour >= 9 && hour < 18
+            ? 'Ti chiameremo entro le prossime 2 ore'
+            : hour >= 18
+                ? 'Ti chiameremo domani mattina'
+                : 'Ti chiameremo in mattinata'
+                
         return (
             <div className="ms-page">
-                <div className="ms-thankyou">
-                    <div className="ms-thankyou-icon">
-                        <CheckCircle size={48} color="#22c55e" />
+                <main className="lp-ty-modern">
+                    <div className="lp-ty-header">
+                        <div className="lp-ty-success-pulse">
+                            <CheckCircle size={56} color="#22c55e" />
+                        </div>
+                        <h1>Ottimo, {firstName.trim()}! ⚽</h1>
+                        <p>Richiesta confermata. Segui questi 3 passaggi ora:</p>
                     </div>
-                    <h1>Perfetto! ⚽</h1>
-                    <p>La tua richiesta è stata inviata con successo.</p>
-                    <div className="ms-thankyou-box">
-                        <Phone size={20} color="#facc15" />
-                        <div>
-                            <strong>Un nostro esperto ti contatterà</strong>
-                            <span>entro 24 ore al numero {phone}</span>
+
+                    <div className="lp-ty-steps">
+                        {/* STEP 1 */}
+                        <div className="lp-ty-step lp-step-urgent">
+                            <div className="lp-ty-step-icon"><Phone size={24} color="#facc15" /></div>
+                            <div className="lp-ty-step-content">
+                                <span className="lp-step-num">Passo 1</span>
+                                <h3>Attendi la nostra chiamata</h3>
+                                <p><strong>{callbackMsg}</strong> al numero <strong>{phone}</strong>. Tieniti pronto a rispondere, se non lo fai il posto passerà al prossimo genitore.</p>
+                            </div>
+                        </div>
+
+                        {/* STEP 2 */}
+                        <div className="lp-ty-step">
+                            <div className="lp-ty-step-icon"><Brain size={24} color="#38bdf8" /></div>
+                            <div className="lp-ty-step-content">
+                                <span className="lp-step-num">Passo 2</span>
+                                <h3>Preparati alla call</h3>
+                                <ul>
+                                    <li>Qual è il suo problema mentale in gara?</li>
+                                    <li>Da quanto tempo esiste il blocco?</li>
+                                    <li>Qual è l'obiettivo da raggiungere?</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* STEP 3 */}
+                        <div className="lp-ty-step lp-step-gift">
+                            <div className="lp-ty-step-icon"><Gift size={24} color="#ec4899" /></div>
+                            <div className="lp-ty-step-content">
+                                <span className="lp-step-num">Passo 3 (Omaggio Sbloccato)</span>
+                                <h3>Anthon Chat Premium</h3>
+                                <p>Se ti presenti alla consulenza avrai gratis il <strong>Coach AI di Valente</strong> 24/7.</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="ms-thankyou-bonus">
-                        <Gift size={20} color="#facc15" />
-                        <div>
-                            <strong>In più, avrai accesso esclusivo ad Anthon Chat®</strong>
-                            <span>Il nostro assistente AI per il mental coaching — incluso per 3 giorni</span>
-                        </div>
+
+                    <div className="lp-ty-footer">
+                        <a href="https://it.trustpilot.com/review/valenteantonio.it" target="_blank" rel="noopener noreferrer" className="lp-trust-btn">
+                            <Star size={18} fill="#fff" color="#fff" />
+                            Leggi 350+ Storie di Successo
+                        </a>
                     </div>
-                    <p className="ms-thankyou-sub">
-                        Preparati a scoprire come sbloccare il vero potenziale di tuo figlio.
-                    </p>
-                </div>
+                </main>
 
                 <style>{STYLES}</style>
+                <style dangerouslySetInnerHTML={{__html: `
+                    .lp-ty-modern { max-width: 500px; margin: 40px auto; padding: 0 20px; font-family: inherit; display: flex; flex-direction: column; gap: 20px; }
+                    .lp-ty-header { text-align: center; }
+                    .lp-ty-success-pulse { display: inline-flex; animation: pulseSuccess 2s infinite; margin-bottom: 12px; border-radius: 50%; }
+                    .lp-ty-header h1 { font-size: 28px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -0.5px; }
+                    .lp-ty-header p { font-size: 15px; color: #a1a1aa; line-height: 1.4; margin: 0; }
+                    
+                    .lp-ty-steps { display: flex; flex-direction: column; gap: 10px; }
+                    .lp-ty-step { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; gap: 16px; align-items: center; transition: all 0.3s; }
+                    .lp-ty-step:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+                    .lp-ty-step-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                    .lp-step-urgent { background: rgba(250, 204, 21, 0.02); border-color: rgba(250, 204, 21, 0.15); }
+                    .lp-step-urgent .lp-ty-step-icon { background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.2); }
+                    .lp-step-gift { background: rgba(236, 72, 153, 0.02); }
+                    .lp-step-gift .lp-ty-step-icon { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); }
+                    
+                    .lp-ty-step-content { flex: 1; }
+                    .lp-step-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #52525b; margin-bottom: 3px; display: block; }
+                    .lp-step-urgent .lp-step-num { color: #facc15; }
+                    .lp-step-gift .lp-step-num { color: #ec4899; }
+                    .lp-ty-step-content h3 { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px 0; }
+                    .lp-ty-step-content p { font-size: 13.5px; color: #a1a1aa; line-height: 1.4; margin: 0; }
+                    .lp-ty-step-content ul { margin: 6px 0 0; padding-left: 16px; color: #a1a1aa; font-size: 13px; line-height: 1.4; }
+                    .lp-ty-step-content li { margin-bottom: 2px; }
+                    .lp-ty-step-content strong { color: #e4e4e7; }
+                    .lp-step-urgent p { color: #d4d4d8; }
+                    .lp-step-urgent strong { color: #fff; font-weight: 800; }
+                    
+                    .lp-ty-footer { text-align: center; margin-top: 8px; }
+                    .lp-trust-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: linear-gradient(135deg, #00b67a, #009567); color: #fff; font-weight: 700; font-size: 15px; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0, 182, 122, 0.3); }
+                    .lp-trust-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 182, 122, 0.4); }
+                    
+                    @keyframes pulseSuccess { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+                `}} />
             </div>
         )
     }
