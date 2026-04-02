@@ -39,7 +39,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const leads = filterByDateRange(allLeads, range, dateFilterMode === 'created' ? 'created_at' : 'updated_at')
 
     const [metaSummary, setMetaSummary] = useState<{
-        spend: number, leads: number, appts: number, showups: number, sales: number, revenue: number
+        spend: number
     } | null>(null)
     const [loadingMeta, setLoadingMeta] = useState(false)
 
@@ -75,16 +75,11 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 })
                 const data = await res.json()
                 if (data.success && data.campaigns) {
-                    let spend = 0, mLeads = 0, appts = 0, showups = 0, sales = 0, revenue = 0
+                    let spend = 0
                     for (const c of data.campaigns) {
                         spend += (Number(c.spend) || 0)
-                        mLeads += (Number(c.leads_count) || 0)
-                        appts += (Number(c.crm_appts) || 0)
-                        showups += (Number(c.crm_showups) || 0)
-                        sales += (Number(c.crm_sales) || 0)
-                        revenue += (Number(c.crm_revenue) || 0)
                     }
-                    setMetaSummary({ spend, leads: mLeads, appts, showups, sales, revenue })
+                    setMetaSummary({ spend })
                 }
             } catch (e) {
                 console.error(e)
@@ -195,20 +190,33 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
 
-    const ms = metaSummary || { spend: 0, leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
-    const cpl = ms.leads > 0 ? ms.spend / ms.leads : 0
-    const cpAppt = ms.appts > 0 ? ms.spend / ms.appts : 0
-    const cpShowup = ms.showups > 0 ? ms.spend / ms.showups : 0
-    const cac = ms.sales > 0 ? ms.spend / ms.sales : 0
-    const roas = ms.spend > 0 ? ms.revenue / ms.spend : 0
+    // CRM Metrics Extraction from local filtered data
+    let totalAppts = 0, totalShowups = 0, totalSales = 0, totalRevenue = 0
+    leads.forEach(l => {
+        const s = stages.find(st => st.id === l.stage_id)
+        if (!s) return
+        if (s.slug === 'appuntamento' || s.slug === 'show-up' || s.is_won) totalAppts++
+        if (s.slug === 'show-up' || s.is_won) totalShowups++
+        if (s.is_won) {
+            totalSales++
+            totalRevenue += (Number(l.value) || 0)
+        }
+    })
+
+    const spend = metaSummary?.spend || 0
+    const cpl = totalLeads > 0 ? spend / totalLeads : 0
+    const cpAppt = totalAppts > 0 ? spend / totalAppts : 0
+    const cpShowup = totalShowups > 0 ? spend / totalShowups : 0
+    const cac = totalSales > 0 ? spend / totalSales : 0
+    const roas = spend > 0 ? totalRevenue / spend : 0
 
     const metaKpis = [
-        { label: 'Spesa Meta', value: formatCurrency(ms.spend), icon: DollarSign, color: '#ef4444' },
+        { label: 'Spesa Meta', value: formatCurrency(spend), icon: DollarSign, color: '#ef4444' },
         { label: 'CPL Medio', value: formatCurrency(cpl), icon: TrendingUp, color: '#f59e0b' },
         { label: 'Costo Appt', value: formatCurrency(cpAppt), icon: Target, color: '#3b82f6' },
         { label: 'Costo ShowUp', value: formatCurrency(cpShowup), icon: Eye, color: '#8b5cf6' },
         { label: 'CAC Medio', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 500 ? '#22c55e' : '#f43f5e' },
-        { label: `Vendite (${ms.sales})`, value: formatCurrency(ms.revenue), icon: DollarSign, color: '#22c55e' },
+        { label: `Vendite (${totalSales})`, value: formatCurrency(totalRevenue), icon: DollarSign, color: '#22c55e' },
         { label: 'ROAS', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 3 ? '#22c55e' : '#f59e0b' },
     ]
 
