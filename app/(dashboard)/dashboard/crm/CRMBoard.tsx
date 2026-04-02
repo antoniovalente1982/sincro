@@ -403,7 +403,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             )}
 
             {/* Header */}
-            <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                         <User className="w-6 h-6" style={{ color: '#3b82f6' }} />
@@ -413,74 +413,20 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         {filteredLeads.length} lead{filteredLeads.length !== 1 ? 's' : ''} • {hotLeads > 0 && <span style={{ color: '#ef4444' }}>🔥 {hotLeads} hot</span>}{hotLeads > 0 && ' • '}{totalValue > 0 && <span style={{ color: '#22c55e' }}>{formatCurrency(totalValue)}</span>}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    {objectives.length > 0 && (
-                        <select
-                            className="input !w-[180px] text-xs"
-                            value={objectiveFilter}
-                            onChange={e => setObjectiveFilter(e.target.value)}
-                        >
-                            <option value="all">🎯 Tutti gli obiettivi</option>
-                            {objectives.map(obj => (
-                                <option key={obj} value={obj}>
-                                    {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                    {tags.length > 0 && (
-                        <select
-                            className="input !w-[160px] text-xs"
-                            value={tagFilter}
-                            onChange={e => setTagFilter(e.target.value)}
-                        >
-                            <option value="all">🏷️ Tutti i Tag</option>
-                            {tags.map(tag => (
-                                <option key={tag.id} value={tag.id}>{tag.name}</option>
-                            ))}
-                        </select>
-                    )}
-                    {trafficSources.length > 0 && (
-                        <select
-                            className="input !w-[160px] text-xs"
-                            value={sourceFilter}
-                            onChange={e => setSourceFilter(e.target.value)}
-                        >
-                            <option value="all">🌐 Tutte le Fonti</option>
-                            {trafficSources.map(s => (
-                                <option key={s.id} value={s.name}>{s.name}</option>
-                            ))}
-                        </select>
-                    )}
-                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setDateFilterMode('created')}
-                        >
-                            Data Acquisizione
-                        </button>
-                        <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
-                            onClick={() => setDateFilterMode('updated')}
-                        >
-                            Ultimo Movimento
-                        </button>
-                    </div>
-                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
-                        customFrom={customFrom} customTo={customTo}
-                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                <div className="flex items-center gap-2 flex-wrap">
+                    {/* Move Filters out of here */}
                     <div className="relative">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-surface-500)' }} />
                         <input
                             type="text"
-                            className="input pl-10 !w-[220px]"
+                            className="input pl-10 !w-[180px] focus:!w-[220px] transition-all"
                             placeholder="Cerca lead..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 h-[42px]">
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 h-[42px] ml-2">
                         <button 
                             onClick={() => handleViewSwitch('kanban')}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
@@ -495,9 +441,78 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </button>
                     </div>
 
-                    <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary">
+                    <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary ml-2 py-2">
                         <Plus className="w-4 h-4" /> Nuovo Lead
                     </button>
+                </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-2xl shadow-inner">
+                <div className="flex items-center gap-1.5 mr-2">
+                    <Filter className="w-4 h-4 text-indigo-400" />
+                    <span className="text-xs font-semibold text-gray-300">Filtri:</span>
+                </div>
+                
+                {objectives.length > 0 && (
+                    <select
+                        className="input !w-[160px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
+                        value={objectiveFilter}
+                        onChange={e => setObjectiveFilter(e.target.value)}
+                    >
+                        <option value="all">🎯 Tutti gli obiettivi</option>
+                        {objectives.map(obj => (
+                            <option key={obj} value={obj}>
+                                {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
+                            </option>
+                        ))}
+                    </select>
+                )}
+                {tags.length > 0 && (
+                    <select
+                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
+                        value={tagFilter}
+                        onChange={e => setTagFilter(e.target.value)}
+                    >
+                        <option value="all">🏷️ Tutti i Tag</option>
+                        {tags.map(tag => (
+                            <option key={tag.id} value={tag.id}>{tag.name}</option>
+                        ))}
+                    </select>
+                )}
+                {trafficSources.length > 0 && (
+                    <select
+                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
+                        value={sourceFilter}
+                        onChange={e => setSourceFilter(e.target.value)}
+                    >
+                        <option value="all">🌐 Tutte le Fonti</option>
+                        {trafficSources.map(s => (
+                            <option key={s.id} value={s.name}>{s.name}</option>
+                        ))}
+                    </select>
+                )}
+
+                <div className="ml-auto flex items-center gap-3">
+                    <div className="flex bg-black/40 rounded-lg p-0.5" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <button 
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('created')}
+                        >
+                            Data Acquisizione
+                        </button>
+                        <button 
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('updated')}
+                        >
+                            Ultimo Movimento
+                        </button>
+                    </div>
+                    <div className="scale-90 origin-right">
+                        <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                            customFrom={customFrom} customTo={customTo}
+                            onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                    </div>
                 </div>
             </div>
 
