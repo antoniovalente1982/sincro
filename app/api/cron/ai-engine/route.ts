@@ -408,7 +408,7 @@ async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30)
             .from('leads')
             .select(`
                 id,
-                utm_term,
+                id,
                 utm_campaign,
                 meta_data,
                 value,
