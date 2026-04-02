@@ -146,7 +146,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         <div className="lp-ty-step lp-step-urgent">
                             <div className="lp-ty-step-icon"><Phone size={24} color="#facc15" /></div>
                             <div className="lp-ty-step-content">
-                                <span className="lp-step-num">Passo 1</span>
+                                <span className="lp-ty-badge-num">Passo 1</span>
                                 <h3>Attendi la nostra chiamata</h3>
                                 <p><strong>{callbackMsg}</strong> al numero <strong>{phone}</strong>. Tieniti pronto a rispondere, se non lo fai il posto passerà al prossimo genitore.</p>
                             </div>
@@ -156,7 +156,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         <div className="lp-ty-step">
                             <div className="lp-ty-step-icon"><Brain size={24} color="#38bdf8" /></div>
                             <div className="lp-ty-step-content">
-                                <span className="lp-step-num">Passo 2</span>
+                                <span className="lp-ty-badge-num">Passo 2</span>
                                 <h3>Preparati alla call</h3>
                                 <ul>
                                     <li>Qual è il suo problema mentale in gara?</li>
@@ -170,7 +170,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                         <div className="lp-ty-step lp-step-gift">
                             <div className="lp-ty-step-icon"><Gift size={24} color="#ec4899" /></div>
                             <div className="lp-ty-step-content">
-                                <span className="lp-step-num">Passo 3 (Omaggio Sbloccato)</span>
+                                <span className="lp-ty-badge-num">Passo 3 (Omaggio Sbloccato)</span>
                                 <h3>Anthon Chat Premium</h3>
                                 <p>Se ti presenti alla consulenza avrai gratis il <strong>Coach AI di Valente</strong> 24/7.</p>
                             </div>
@@ -203,9 +203,9 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     .lp-step-gift .lp-ty-step-icon { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); }
                     
                     .lp-ty-step-content { flex: 1; }
-                    .lp-step-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #52525b; margin-bottom: 3px; display: block; }
-                    .lp-step-urgent .lp-step-num { color: #facc15; }
-                    .lp-step-gift .lp-step-num { color: #ec4899; }
+                    .lp-ty-badge-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #52525b; margin-bottom: 3px; display: block; }
+                    .lp-step-urgent .lp-ty-badge-num { color: #facc15; }
+                    .lp-step-gift .lp-ty-badge-num { color: #ec4899; }
                     .lp-ty-step-content h3 { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px 0; }
                     .lp-ty-step-content p { font-size: 13.5px; color: #a1a1aa; line-height: 1.4; margin: 0; }
                     .lp-ty-step-content ul { margin: 6px 0 0; padding-left: 16px; color: #a1a1aa; font-size: 13px; line-height: 1.4; }
