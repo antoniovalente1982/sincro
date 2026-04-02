@@ -255,8 +255,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
                         </div>
-                        <h1>Ben Fatto{firstName ? ` ${firstName.trim()}` : ''}! ⚽</h1>
-                        <p>Richiesta confermata. Segui questi 3 passaggi ora:</p>
+                        <h1>Perfetto{firstName ? `, ${firstName.trim()}` : ''}! ⚽</h1>
+                        <p>La tua richiesta è stata inviata con successo. Segui questi 3 passaggi ora:</p>
                     </div>
 
                     <div className="lp-ty-steps">
