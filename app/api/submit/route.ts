@@ -122,23 +122,38 @@ export async function POST(req: NextRequest) {
             firstStageId = fallbackStage?.id || null
         }
 
-        // ── Lead Deduplication: if email exists, update existing lead instead of creating duplicate ──
+        // ── Lead Deduplication: if email or phone exists, update existing lead instead of creating duplicate ──
         let lead: any = null
         let isExisting = false
+        let existingLead: any = null
 
-        if (email) {
-            const { data: existingLead } = await getSupabaseAdmin()
+        if (email || phone) {
+            let query = getSupabaseAdmin()
                 .from('leads')
                 .select('*')
                 .eq('organization_id', funnel.organization_id)
-                .eq('email', email.toLowerCase().trim())
+
+            if (email && phone) {
+                query = query.or(`email.eq.${email.toLowerCase().trim()},phone.eq.${phone.trim()}`)
+            } else if (email) {
+                query = query.eq('email', email.toLowerCase().trim())
+            } else if (phone) {
+                query = query.eq('phone', phone.trim())
+            }
+
+            const { data: match } = await query
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .single()
 
-            if (existingLead) {
-                isExisting = true
-                // Update existing lead with fresh data (phone, utm if missing, submission link)
+            if (match) {
+                existingLead = match
+            }
+        }
+
+        if (existingLead) {
+            isExisting = true
+            // Update existing lead with fresh data (phone, utm if missing, submission link)
                 // IMPORTANT: Reset stage to first stage so they reappear in pipeline
                 // (lead might have gone cold months ago, now they're back with fresh interest)
                 const updateData: any = {
@@ -184,9 +199,6 @@ export async function POST(req: NextRequest) {
 
                 console.log(`[DEDUP] Lead ${email} resubmitted (id: ${existingLead.id}), reset to first stage`)
             }
-        }
-
-        // Create NEW lead only if no existing one was found
         if (!isExisting) {
             const { data: newLead, error: leadError } = await getSupabaseAdmin()
                 .from('leads')
