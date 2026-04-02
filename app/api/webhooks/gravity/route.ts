@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { appendLeadToSheet } from '@/lib/google-sheets'
 
 function getSupabaseAdmin() {
     return createClient(
@@ -206,22 +205,8 @@ export async function POST(req: NextRequest) {
             })
         }
 
-// ── Backup to Google Sheet
-try {
-    const backupSource = utm_source ? String(utm_source) : 'Gravity Forms'
-    await appendLeadToSheet(orgId, {
-        email, 
-        name, 
-        phone, 
-        funnel: 'Gravity Webhook',
-        utm_source: backupSource, 
-        utm_campaign: utm_campaign ? String(utm_campaign) : 'WP Webhook',
-        utm_content: utm_content ? String(utm_content) : undefined,
-        created_at: new Date().toISOString()
-    })
-} catch (e) {
-    console.error('Spreadsheet backup failed for Gravity Lead', e)
-}
+// NOTE: appendLeadToSheet removed — Gravity Forms no longer active.
+// The lead is already written to Google Sheets via /api/submit when it arrives natively.
 
         // ── Trigger Server-Side META CAPI
         const { data: orgConfig } = await supabase.from('organizations')
