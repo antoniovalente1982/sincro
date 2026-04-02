@@ -455,11 +455,11 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                             <div className="lp-hf-trust" style={{ alignItems: 'center' }}>
                                 <div><Lock size={12} /> Dati protetti</div>
                                 <div><Clock size={12} /> 30 secondi</div>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}>
-                                    <span style={{ color: '#00b67a', fontWeight: 800, fontSize: '12px', letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>Trustpilot</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '1px' }}>
+                                    <span style={{ color: '#00b67a', fontWeight: 800, fontSize: '13px', letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif', lineHeight: 1, paddingLeft: '1px' }}>Trustpilot</span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                        {[1,2,3,4,5].map(i => <Star key={i} size={9} fill="#00b67a" color="#00b67a" />)} 
-                                        <span style={{ marginLeft: '2px', fontWeight: 700, color: '#3f3f46' }}>4.9</span>
+                                        {[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 
+                                        <span style={{ marginLeft: '2px', fontWeight: 700, color: '#3f3f46', lineHeight: 1 }}>4.9</span>
                                     </div>
                                 </div>
                             </div>
