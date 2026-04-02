@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url)
         const since = searchParams.get('since')
         const until = searchParams.get('until')
+        const dateMode = searchParams.get('date_mode') || 'created'
 
         if (!since || !until) {
             return NextResponse.json({ error: 'Missing since/until params' }, { status: 400 })
@@ -134,47 +135,56 @@ export async function GET(req: NextRequest) {
             console.log(`[META INSIGHTS] Period ${since} → ${until}: ${allInsights.length} campaigns with data, total spend: €${metaTotalSpend.toFixed(2)}`)
         }
 
-        // 3. Count REAL leads from CRM (ground truth) for each campaign
-        // Meta API underreports leads due to attribution gaps (iOS ATT, cookie blocking)
-        // even though CAPI events are all received successfully.
-        // CRM leads matched by utm_campaign are the accurate count.
-        const { data: crmLeads } = await getSupabaseAdmin()
+        // 3. Extract CRM Pipeline Data (Appts, Showups, Sales, Revenue, Leads)
+        // We use either 'created_at' or 'updated_at' depending on dateMode
+        const dateColumn = dateMode === 'created' ? 'created_at' : 'updated_at'
+        
+        const { data: crmData } = await getSupabaseAdmin()
             .from('leads')
-            .select('id, utm_campaign, value, stage_id')
+            .select(`
+                id, 
+                created_at,
+                utm_campaign, 
+                value, 
+                pipeline_stages (slug, is_won, is_lost)
+            `)
             .eq('organization_id', orgId)
-            .gte('created_at', since + 'T00:00:00+02:00')
-            .lte('created_at', until + 'T23:59:59+02:00')
+            .gte(dateColumn, since + 'T00:00:00+02:00')
+            .lte(dateColumn, until + 'T23:59:59+02:00')
 
-        // Build CRM leads count per campaign name (case-insensitive match)
-        const crmLeadsMap: Record<string, number> = {}
-        let unattributedLeads = 0
-        for (const lead of (crmLeads || [])) {
-            if (lead.utm_campaign) {
-                const campKey = lead.utm_campaign.toLowerCase().trim()
-                crmLeadsMap[campKey] = (crmLeadsMap[campKey] || 0) + 1
-            } else {
-                unattributedLeads++
+        const campMetrics: Record<string, {
+            leads: number,
+            appts: number,
+            showups: number,
+            sales: number,
+            revenue: number
+        }> = {}
+
+        let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
+        const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
+        const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
+
+        for (const lead of (crmData || [])) {
+            const campKey = (lead.utm_campaign || '').toLowerCase().trim()
+            const metrics = campKey ? (campMetrics[campKey] = campMetrics[campKey] || { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }) : unattributed
+            
+            // Only count as "Lead generato" if it was actually newly created in this period
+            const createdTs = new Date(lead.created_at).getTime()
+            if (dateMode === 'created' || (createdTs >= sinceMs && createdTs <= untilMs)) {
+                metrics.leads++
             }
-        }
 
-        // 4. Aggrega Revenue dal CRM (per i lead VENDUTI in questo periodo)
-        const { data: wonLeads } = await getSupabaseAdmin()
-            .from('leads')
-            .select(`value, utm_campaign, pipeline_stages!inner(is_won)`)
-            .eq('organization_id', orgId)
-            .eq('pipeline_stages.is_won', true)
-            .gte('updated_at', since)
-            .lte('updated_at', until + 'T23:59:59.999Z')
-            .not('value', 'is', null)
+            const stage = Array.isArray(lead.pipeline_stages) ? lead.pipeline_stages[0] : lead.pipeline_stages
+            if (!stage) continue
 
-        const crmRevenueMap: Record<string, number> = {}
-        let unattributedRevenue = 0
-        for (const lead of (wonLeads || [])) {
-            if (lead.utm_campaign) {
-                const campKey = lead.utm_campaign.toLowerCase().trim()
-                crmRevenueMap[campKey] = (crmRevenueMap[campKey] || 0) + (Number(lead.value) || 0)
-            } else {
-                unattributedRevenue += (Number(lead.value) || 0)
+            const slug = stage.slug
+            const isWon = stage.is_won
+
+            if (slug === 'appuntamento' || slug === 'show-up' || isWon) metrics.appts++
+            if (slug === 'show-up' || isWon) metrics.showups++
+            if (isWon) {
+                metrics.sales++
+                metrics.revenue += (Number(lead.value) || 0)
             }
         }
 
@@ -188,13 +198,14 @@ export async function GET(req: NextRequest) {
                 highestSpendCampKey = (c.name || '').toLowerCase().trim()
             }
         }
-        if (highestSpendCampKey) {
-            if (unattributedRevenue > 0) {
-                crmRevenueMap[highestSpendCampKey] = (crmRevenueMap[highestSpendCampKey] || 0) + unattributedRevenue
-            }
-            if (unattributedLeads > 0) {
-                crmLeadsMap[highestSpendCampKey] = (crmLeadsMap[highestSpendCampKey] || 0) + unattributedLeads
-            }
+        
+        if (highestSpendCampKey && (unattributed.leads > 0 || unattributed.revenue > 0 || unattributed.appts > 0)) {
+            const highestTarget = campMetrics[highestSpendCampKey] = campMetrics[highestSpendCampKey] || { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
+            highestTarget.leads += unattributed.leads
+            highestTarget.appts += unattributed.appts
+            highestTarget.showups += unattributed.showups
+            highestTarget.sales += unattributed.sales
+            highestTarget.revenue += unattributed.revenue
         }
 
         // Fetch funnel mappings from cache
@@ -217,17 +228,15 @@ export async function GET(req: NextRequest) {
             const spendNum = parseFloat(insight.spend || '0')
 
             const campKey = (c.name || '').toLowerCase().trim()
-            const crmLeadCount = crmLeadsMap[campKey] || 0
-            const crmRevenue = crmRevenueMap[campKey] || 0
+            const cm = campMetrics[campKey] || { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
             
             // Use CRM leads as ground truth (always >= Meta reported)
-            // Fall back to Meta count only if CRM has 0 (edge case: leads without utm_campaign)
-            const realLeads = crmLeadCount > 0 ? crmLeadCount : metaLeadsCount
+            const realLeads = cm.leads > 0 ? cm.leads : metaLeadsCount
             const realCPL = realLeads > 0 && spendNum > 0 ? spendNum / realLeads : 0
-
-            const totalRevenue = Math.max(purchaseValue, crmRevenue)
+            
+            const totalRevenue = Math.max(purchaseValue, cm.revenue)
             const roas = spendNum > 0 && totalRevenue > 0 ? totalRevenue / spendNum : 0
-
+            
             const linkClicks = insight.outbound_clicks?.find((a: any) => a.action_type === 'outbound_click')?.value || 0
             const linkClickCtr = parseFloat(insight.inline_link_click_ctr || '0')
 
@@ -244,9 +253,16 @@ export async function GET(req: NextRequest) {
                 link_clicks: parseInt(linkClicks),
                 link_click_ctr: linkClickCtr,
                 leads_count: realLeads,
-                meta_leads_count: metaLeadsCount,  // Keep Meta's count for reference
+                meta_leads_count: metaLeadsCount,
+                crm_appts: cm.appts,
+                crm_showups: cm.showups,
+                crm_sales: cm.sales,
+                crm_revenue: totalRevenue, // Use highest of CRM vs Meta purchases
                 cpl: realCPL,
                 cpc: parseFloat(insight.cpc || '0'),
+                cp_appt: cm.appts > 0 && spendNum > 0 ? spendNum / cm.appts : null,
+                cp_showup: cm.showups > 0 && spendNum > 0 ? spendNum / cm.showups : null,
+                cac: cm.sales > 0 && spendNum > 0 ? spendNum / cm.sales : null,
                 roas,
                 date_range_start: since,
                 date_range_end: until,

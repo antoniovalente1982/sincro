@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2 } from 'lucide-react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -23,6 +23,13 @@ interface Campaign {
     ctr?: number
     conversions?: number
     roas?: number
+    crm_appts?: number
+    crm_showups?: number
+    crm_sales?: number
+    crm_revenue?: number
+    cp_appt?: number
+    cp_showup?: number
+    cac?: number
     synced_at?: string
     date_range_start?: string
     date_range_end?: string
@@ -83,15 +90,16 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
     const [liveError, setLiveError] = useState<string | null>(null)
+    const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
 
     // When user changes period (not "Tutto"), fetch live data from Meta
-    const fetchLiveInsights = useCallback(async (since: string, until: string) => {
+    const fetchLiveInsights = useCallback(async (since: string, until: string, dMode: string) => {
         setLoadingInsights(true)
         setLiveError(null)
         try {
             const supabase = createClient()
             const { data: { session } } = await supabase.auth.getSession()
-            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}&_t=${Date.now()}`, {
+            const res = await fetch(`/api/meta/insights?since=${since}&until=${until}&date_mode=${dMode}&_t=${Date.now()}`, {
                 headers: { 
                     Authorization: `Bearer ${session?.access_token}`,
                     'Cache-Control': 'no-cache'
@@ -133,8 +141,8 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         const untilDate = new Date(range.to)
         untilDate.setDate(untilDate.getDate() - 1)
         const until = formatLocalDate(untilDate)
-        fetchLiveInsights(since, until)
-    }, [activeKey, range.from.getTime(), range.to.getTime(), fetchLiveInsights])
+        fetchLiveInsights(since, until, dateFilterMode)
+    }, [activeKey, range.from.getTime(), range.to.getTime(), dateFilterMode, fetchLiveInsights])
 
     // Use live data when available, otherwise cached
     const campaigns = liveCampaigns || cachedCampaigns
@@ -206,7 +214,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     const since = formatLocalDate(range.from)
                     const untilDate = new Date(range.to)
                     untilDate.setDate(untilDate.getDate() - 1)
-                    await fetchLiveInsights(since, formatLocalDate(untilDate))
+                    await fetchLiveInsights(since, formatLocalDate(untilDate), dateFilterMode)
                 } else {
                     window.location.reload()
                 }
@@ -222,10 +230,16 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
 
     const totalSpend = campaigns.reduce((s, c) => s + (Number(c.spend) || 0), 0)
     const totalLeads = campaigns.reduce((s, c) => s + (Number(c.leads_count) || 0), 0)
-    const totalClicks = campaigns.reduce((s, c) => s + (Number(c.clicks) || 0), 0)
-    const totalImpressions = campaigns.reduce((s, c) => s + (Number(c.impressions) || 0), 0)
+    const totalAppts = campaigns.reduce((s, c) => s + (Number(c.crm_appts) || 0), 0)
+    const totalShowups = campaigns.reduce((s, c) => s + (Number(c.crm_showups) || 0), 0)
+    const totalSales = campaigns.reduce((s, c) => s + (Number(c.crm_sales) || 0), 0)
+    const totalRevenue = campaigns.reduce((s, c) => s + (Number(c.crm_revenue) || 0), 0)
+
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
-    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
+    const cpAppt = totalAppts > 0 ? totalSpend / totalAppts : 0
+    const cpShowup = totalShowups > 0 ? totalSpend / totalShowups : 0
+    const cac = totalSales > 0 ? totalSpend / totalSales : 0
+    const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
@@ -302,8 +316,22 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                         <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
                         {syncing ? 'Sincronizzando...' : '🔄 Sync Now'}
                     </button>
-            {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
+                    {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
                     {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
+                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('created')}
+                        >
+                            Data Acquisizione
+                        </button>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('updated')}
+                        >
+                            Ultimo Movimento
+                        </button>
+                    </div>
                     <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
                         customFrom={customFrom} customTo={customTo}
                         onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
@@ -321,19 +349,24 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             </div>
 
             {/* KPI Summary */}
-            <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
+            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
                 {[
-                    { label: 'Spesa Totale', value: formatCurrency(totalSpend), icon: DollarSign, color: '#ef4444' },
-                    { label: 'Lead Generati', value: formatNumber(totalLeads), icon: Target, color: '#3b82f6' },
+                    { label: 'Spesa Meta', value: formatCurrency(totalSpend), icon: DollarSign, color: '#ef4444' },
                     { label: 'CPL Medio', value: formatCurrency(avgCPL), icon: TrendingUp, color: '#f59e0b' },
-                    { label: 'Click Totali', value: formatNumber(totalClicks), icon: MousePointerClick, color: '#8b5cf6' },
+                    { label: 'Costo Appt', value: formatCurrency(cpAppt), icon: Target, color: '#3b82f6' },
+                    { label: 'Costo ShowUp', value: formatCurrency(cpShowup), icon: Eye, color: '#8b5cf6' },
+                    { label: 'CAC Medio', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 500 ? '#22c55e' : '#f43f5e' },
+                    { label: `Vendite (${totalSales})`, value: formatCurrency(totalRevenue), icon: DollarSign, color: '#22c55e' },
+                    { label: 'ROAS', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 3 ? '#22c55e' : '#f59e0b' },
                 ].map(kpi => (
-                    <div key={kpi.label} className="kpi-card">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${kpi.color}15`, border: `1px solid ${kpi.color}30` }}>
-                            <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
+                    <div key={kpi.label} className="glass-card p-4 flex flex-col justify-between" style={{ border: `1px solid ${kpi.color}15` }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 rounded-md flex justify-center items-center" style={{ background: `${kpi.color}15` }}>
+                                <kpi.icon className="w-3.5 h-3.5" style={{ color: kpi.color }} />
+                            </div>
+                            <span className="text-[10px] font-semibold tracking-wide uppercase" style={{ color: 'var(--color-surface-400)' }}>{kpi.label}</span>
                         </div>
-                        <div className="text-xl font-bold text-white">{kpi.value}</div>
-                        <div className="text-xs mt-1" style={{ color: 'var(--color-surface-500)' }}>{kpi.label}</div>
+                        <div className="text-xl font-bold whitespace-nowrap" style={{ color: kpi.color }}>{kpi.value}</div>
                     </div>
                 ))}
             </div>
