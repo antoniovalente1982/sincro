@@ -45,8 +45,7 @@ const FAQ_ITEMS = [
 ]
 
 export default function MetodoSincroLandingV2({ funnel }: Props) {
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
+    const [fullName, setFullName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
     const [childAge, setChildAge] = useState('')
@@ -96,7 +95,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         else if (!val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
         else setEmailError('')
     }
-    const isFormValid = firstName.trim().length > 0 && lastName.trim().length > 0 && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
+    const isFormValid = fullName.trim().length > 0 && fullName.trim().includes(' ') && phone.trim().length > 3 && email.trim().length > 0 && email.includes('@') && !phoneError && !emailError
 
     // Dynamic viewer count
     useEffect(() => {
@@ -205,19 +204,15 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
 
     // Sticky bottom bar: show when form is scrolled past
     useEffect(() => {
-        const formEl = formRef.current
-        if (!formEl) return
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                // Don't toggle during smooth scroll animation
-                if (scrollLockRef.current) return
-                setShowStickyBar(!entry.isIntersecting)
-            },
-            { threshold: 0, rootMargin: '0px 0px -60px 0px' }
-        )
-        observer.observe(formEl)
-        return () => observer.disconnect()
-    }, [submitted])
+        const handleScroll = () => {
+            if (scrollLockRef.current) return
+            const formBottom = formRef.current?.getBoundingClientRect().bottom || 0
+            setShowStickyBar(formBottom < 0)
+        }
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        handleScroll()
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const scrollToForm = () => {
         // Lock the sticky bar to prevent fisarmonica during smooth scroll
@@ -229,7 +224,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     }
 
     const handleSubmit = async () => {
-        if (!firstName || !lastName || !phone || !email || phoneError || emailError) return
+        if (!fullName || !phone || !email || phoneError || emailError) return
         if (phone && !/^[+\d\s\-()]+$/.test(phone)) { setPhoneError('Inserisci solo numeri'); return }
         if (email && !email.includes('@')) { setEmailError('Inserisci un\'email valida'); return }
         setLoading(true)
@@ -239,16 +234,18 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
-            const fullName = `${firstName.trim()} ${lastName.trim()}`
-            // Advanced Matching via shared helper
-            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone, fn: firstName.trim(), ln: lastName.trim() })
+            const nameToPass = fullName.trim()
+            // Advanced Matching via shared helper: we split the name for fn and ln locally, same as backend
+            const fn = nameToPass.split(' ')[0] || ''
+            const ln = nameToPass.split(' ').slice(1).join(' ') || ''
+            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone, fn, ln })
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     funnel_id: funnel.id,
-                    name: fullName, email, phone,
+                    name: nameToPass, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: {
                         sport: 'calcio',
@@ -296,7 +293,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
                         </div>
-                        <h1>Perfetto{firstName ? `, ${firstName.trim()}` : ''}! ⚽</h1>
+                        <h1>Perfetto{fullName ? `, ${fullName.split(' ')[0]}` : ''}! ⚽</h1>
                         <p>La tua richiesta è stata inviata con successo. Segui questi 3 passaggi ora:</p>
                     </div>
 
@@ -461,13 +458,10 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
                             </div>
                             <div className="lp-hf-fields">
-                                <div className="lp-field lp-name-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
-                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`}>
+                                <div className="lp-field">
+                                    <div className={`lp-input-wrap ${fullName ? 'filled' : ''}`}>
                                         <User size={18} style={{ flexShrink: 0 }} />
-                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
-                                    </div>
-                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`}>
-                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
+                                        <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => setFullName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
                                     </div>
                                 </div>
                                 <div className="lp-field">
