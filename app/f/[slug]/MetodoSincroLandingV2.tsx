@@ -58,6 +58,14 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
     const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
+
+    // Easter egg / Dev tool per visualizzare la TKP
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search)
+            if (urlParams.get('tkp') === 'true') setSubmitted(true)
+        }
+    }, [])
     const [showExitPopup, setShowExitPopup] = useState(false)
     const [showStickyBar, setShowStickyBar] = useState(false)
     const formRef = useRef<HTMLDivElement>(null)

@@ -45,6 +45,14 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [error, setError] = useState('')
     const [viewerCount, setViewerCount] = useState(14)
 
+    // Easter egg / Dev tool per visualizzare la TKP
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search)
+            if (urlParams.get('tkp') === 'true') setSubmitted(true)
+        }
+    }, [])
+
     // Dynamic viewer count between 14 and 35
     useEffect(() => {
         const updateCount = () => {
