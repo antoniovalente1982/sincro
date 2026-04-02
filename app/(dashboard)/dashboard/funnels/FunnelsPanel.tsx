@@ -126,12 +126,14 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
             // UTM campaign breakdown
             const campaignMap: Record<string, { views: number; conversions: number }> = {}
             views.forEach(v => {
-                const camp = v.utm_campaign || 'Diretto'
+                let camp = v.utm_campaign || 'Diretto'
+                if (camp.startsWith('http')) camp = 'Diretto'
                 if (!campaignMap[camp]) campaignMap[camp] = { views: 0, conversions: 0 }
                 campaignMap[camp].views++
             })
             subs.forEach(s => {
-                const camp = s.utm_campaign || 'Diretto'
+                let camp = s.utm_campaign || 'Diretto'
+                if (camp.startsWith('http')) camp = 'Diretto'
                 if (!campaignMap[camp]) campaignMap[camp] = { views: 0, conversions: 0 }
                 campaignMap[camp].conversions++
             })
