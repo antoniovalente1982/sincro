@@ -347,8 +347,8 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 },
                 custom_data: {
                     content_category: userData.content_category || undefined,
-                    value: userData.value || undefined,
-                    currency: userData.currency || undefined,
+                    currency: 'EUR',
+                    value: userData.value || 0,
                 },
             }],
         }
