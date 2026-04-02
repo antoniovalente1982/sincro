@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
             const prompt = `Sei il consulente strategico di Metodo Sincro.
 
 OBIETTIVI SETTIMANA (targets):
-CPL: €${objectives?.target_cpl || 20} | CAC: €${objectives?.target_cac || 1500} | Lead: ${objectives?.weekly_leads_target || 20} | Vendite: ${objectives?.weekly_sales_target || 2}
+CPL: €${objectives?.target_cpl || 20} | CAC: €${objectives?.target_cac || 500} | Lead: ${objectives?.weekly_leads_target || 20} | Vendite: ${objectives?.weekly_sales_target || 2}
 
 SITUAZIONE ANGOLI:
 ${anglesContext}
@@ -257,7 +257,7 @@ function getDefaultObjectives(orgId: string) {
         monthly_sales_target: 8,
         monthly_revenue_target: 16000,
         target_cpl: 20,
-        target_cac: 1500,
+        target_cac: 500,
         target_lead_to_appt_rate: 0.40,
         target_appt_show_rate: 0.70,
         target_close_rate: 0.35,

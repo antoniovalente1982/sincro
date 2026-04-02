@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
             const isLive = config.execution_mode === 'live'
             const objectives = config.objectives || {}
             const targetCPL: number = objectives.target_cpl || 20
-            const targetCAC: number = objectives.target_cac || 1500
+            const targetCAC: number = objectives.target_cac || 500
             const scaleRatio3d: number = objectives.scale_cpl_ratio_3d || 0.85
             const scaleRatio7d: number = objectives.scale_cpl_ratio_7d || 1.0
 
@@ -573,7 +573,7 @@ function computeAllScores(
     mission: any
 ): Record<string, any> {
     const targetCPL: number = mission.target_cpl || 20
-    const targetCAC: number = mission.target_cac || 1500
+    const targetCAC: number = mission.target_cac || 500
     const targetLTAR: number = mission.target_lead_to_appt_rate || 0.40
     const optimizeFor: string = mission.optimize_for || 'cac'
     const results: Record<string, any> = {}

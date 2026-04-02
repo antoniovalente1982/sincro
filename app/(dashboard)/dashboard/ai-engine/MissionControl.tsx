@@ -315,8 +315,8 @@ export default function MissionControl() {
               <KPICard
                 label="CAC Reale"
                 value={kpi.cac ? `€${kpi.cac.toFixed(0)}` : 'n/d'}
-                target={`Target: €${objectives?.target_cac || 1500}`}
-                good={kpi.cac !== null && kpi.cac <= (objectives?.target_cac || 1500)}
+                target={`Target: €${objectives?.target_cac || 500}`}
+                good={kpi.cac !== null && kpi.cac <= (objectives?.target_cac || 500)}
                 highlight
               />
               <KPICard
