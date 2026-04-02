@@ -1,27 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 import { sendTelegramDirect } from '@/lib/telegram'
-import { pauseAd, updateCampaignBudget, calculateNewBudget } from '@/lib/meta-actions'
+import { updateCampaignBudget, calculateNewBudget } from '@/lib/meta-actions'
+
+// ═══════════════════════════════════════════════════════════════
+// 🧠 MENTE EVOLUTIVA — Intelligence Engine v3 (Ratchet Loop)
+//
+// Runs every 60 minutes via Vercel Cron.
+// Single responsibility: LEARN and STRATEGIZE (not kill).
+//
+// Loop:
+//  1. Fetch tri-window Meta data (3d / 7d / lifetime)
+//  2. Fetch CRM funnel data (Lead→Appt→Sale by angle via UTM)
+//  3. Score each angle (-1.0 → +1.0) against CAC baseline
+//  4. LLM proposes ONE hypothesis (what to change this week)
+//  5. Write hypothesis to ai_strategy_log (outcome: 'pending')
+//  6. Update ai_angle_scores with latest metrics
+//  7. Update ai_funnel_snapshots (daily snapshot)
+//  8. Execute approved scaling actions (budget increase only)
+//  9. Telegram report with strategy insight
+//
+// Kill logic → delegated to /api/cron/kill-guardian (runs every 4h)
+// ═══════════════════════════════════════════════════════════════
+
+export const maxDuration = 60
+const META_API_VERSION = 'v21.0'
+const MAX_SCALE_ACTIONS_PER_RUN = 2
 
 function getSupabaseAdmin() {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (!serviceKey) {
-        console.error('SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to ANON_KEY, which may cause RLS errors.')
-    }
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
 }
-
-const META_API_VERSION = 'v21.0'
-const MAX_ACTIONS_PER_RUN = 5
-const COOLDOWN_HOURS = 24
-const MIN_ACTIVE_ADS_PER_CAMPAIGN = 2 // Safety: never kill ALL ads in a campaign
-
-// AI Engine Cron — called every 60 minutes
-// Fetches ad data from Meta, evaluates rules, and optionally executes actions
-export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization')
@@ -29,11 +40,13 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const supabase = getSupabaseAdmin()
+
     try {
         // Get all orgs with autopilot active
-        const { data: configs } = await getSupabaseAdmin()
+        const { data: configs } = await supabase
             .from('ai_agent_config')
-            .select('organization_id, autopilot_active, execution_mode, analysis_interval_minutes, objectives')
+            .select('organization_id, autopilot_active, execution_mode, objectives')
             .eq('autopilot_active', true)
 
         if (!configs?.length) {
@@ -41,14 +54,19 @@ export async function GET(req: NextRequest) {
         }
 
         let totalActions = 0
-        const allExecutedResults: any[] = []
+        const allResults: any[] = []
 
         for (const config of configs) {
             const orgId = config.organization_id
             const isLive = config.execution_mode === 'live'
+            const objectives = config.objectives || {}
+            const targetCPL: number = objectives.target_cpl || 20
+            const targetCAC: number = objectives.target_cac || 1500
+            const scaleRatio3d: number = objectives.scale_cpl_ratio_3d || 0.85
+            const scaleRatio7d: number = objectives.scale_cpl_ratio_7d || 1.0
 
-            // Get Meta credentials
-            const { data: conn } = await getSupabaseAdmin()
+            // ── Get Meta credentials ──────────────────────────────────
+            const { data: conn } = await supabase
                 .from('connections')
                 .select('credentials')
                 .eq('organization_id', orgId)
@@ -57,258 +75,176 @@ export async function GET(req: NextRequest) {
                 .single()
 
             if (!conn?.credentials?.access_token) continue
-
             const { access_token, ad_account_id } = conn.credentials
             const adAccount = `act_${ad_account_id}`
 
-            // ── V2: TRI-WINDOW FETCH (3d + 7d + lifetime) ─────────────────
-            // Kill rules are handled by the Kill Guardian cron (every 4h).
-            // This cron is the Intelligence Engine: Scale, Champion, Fatigue.
+            // ── Get Mission Objectives ────────────────────────────────
+            const { data: missionObj } = await supabase
+                .from('ai_mission_objectives')
+                .select('*')
+                .eq('organization_id', orgId)
+                .single()
+
+            const mission = missionObj || {
+                target_cpl: targetCPL,
+                target_cac: targetCAC,
+                target_lead_to_appt_rate: 0.40,
+                target_close_rate: 0.35,
+                optimize_for: 'cac',
+            }
+
+            // ── PHASE 1: Tri-window Meta Fetch ────────────────────────
             const today = new Date().toISOString().slice(0, 10)
             const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
             const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
-            const insightsFields = 'ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click'
+            const insightsFields = 'ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type,inline_link_clicks,inline_link_click_ctr'
 
-            const buildInsightsUrl = (since: string, until: string, datePreset?: string) => {
+            const buildUrl = (since: string, until: string, datePreset?: string) => {
                 const base = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=${insightsFields}&level=ad&limit=500&access_token=${access_token}`
                 if (datePreset) return `${base}&date_preset=${datePreset}`
                 return `${base}&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`
             }
 
-            const [insights3dRes, insights7dRes, insightsLifetimeRes, adsRes] = await Promise.all([
-                fetch(buildInsightsUrl(threeDaysAgo, today)),
-                fetch(buildInsightsUrl(sevenDaysAgo, today)),
-                fetch(buildInsightsUrl('', '', 'maximum')),
-                fetch(`https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=id,status,effective_status,campaign_id&limit=500&access_token=${access_token}`),
+            const [res3d, res7d, resLt, adsRes] = await Promise.all([
+                fetch(buildUrl(threeDaysAgo, today)),
+                fetch(buildUrl(sevenDaysAgo, today)),
+                fetch(buildUrl('', '', 'maximum')),
+                fetch(`https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=id,status,effective_status,campaign_id,adset_id&limit=500&access_token=${access_token}`),
             ])
-            if (!insights7dRes.ok) continue
 
-            const [insights3d, insights7d, insightsLifetime, adsData] = await Promise.all([
-                insights3dRes.ok ? insights3dRes.json() : { data: [] },
-                insights7dRes.json(),
-                insightsLifetimeRes.ok ? insightsLifetimeRes.json() : { data: [] },
+            if (!res7d.ok) continue
+
+            const [data3d, data7d, dataLt, adsData] = await Promise.all([
+                res3d.ok ? res3d.json() : { data: [] },
+                res7d.json(),
+                resLt.ok ? resLt.json() : { data: [] },
                 adsRes.ok ? adsRes.json() : { data: [] },
             ])
 
-            const adStatusMap: Record<string, string> = {}
-            for (const ad of (adsData.data || [])) {
-                adStatusMap[ad.id] = ad.effective_status
-            }
+            const activeAdIds = new Set<string>(
+                (adsData.data || []).filter((a: any) => a.effective_status === 'ACTIVE').map((a: any) => a.id)
+            )
 
-            // Build ad data from insights
-            const buildAds = (insightsData: any) =>
-                (insightsData.data || []).map((insight: any) => {
-                    const leadsCount = insight.actions?.find((a: any) => a.action_type === 'lead')?.value || 0
-                    const cplValue = insight.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0
+            // Parse insights into structured ads
+            const parseAds = (raw: any[]) =>
+                (raw || []).map((i: any) => {
+                    const leads = Number(i.actions?.find((a: any) => a.action_type === 'lead')?.value || 0)
+                    const cpl = Number(i.cost_per_action_type?.find((a: any) => a.action_type === 'lead')?.value || 0)
                     return {
-                        ad_id: insight.ad_id,
-                        ad_name: insight.ad_name,
-                        campaign_id: insight.campaign_id,
-                        campaign_name: insight.campaign_name,
-                        status: adStatusMap[insight.ad_id] || 'UNKNOWN',
-                        spend: parseFloat(insight.spend || '0'),
-                        impressions: parseInt(insight.impressions || '0'),
-                        clicks: parseInt(insight.clicks || '0'),
-                        ctr: parseFloat(insight.ctr || '0'),
-                        frequency: parseFloat(insight.frequency || '0'),
-                        leads_count: parseInt(leadsCount),
-                        cpl: parseFloat(cplValue),
-                        link_clicks: parseInt(insight.inline_link_clicks || '0'),
-                        link_ctr: parseFloat(insight.inline_link_click_ctr || '0'),
-                        cpc_link: parseFloat(insight.cost_per_inline_link_click || '0'),
+                        ad_id: i.ad_id,
+                        ad_name: i.ad_name || '',
+                        adset_id: i.adset_id || '',
+                        adset_name: i.adset_name || '',
+                        campaign_id: i.campaign_id,
+                        campaign_name: i.campaign_name || '',
+                        status: activeAdIds.has(i.ad_id) ? 'ACTIVE' : 'INACTIVE',
+                        spend: parseFloat(i.spend || '0'),
+                        impressions: parseInt(i.impressions || '0'),
+                        clicks: parseInt(i.clicks || '0'),
+                        ctr: parseFloat(i.ctr || '0'),
+                        frequency: parseFloat(i.frequency || '0'),
+                        leads_count: leads,
+                        cpl,
+                        link_clicks: parseInt(i.inline_link_clicks || '0'),
+                        link_ctr: parseFloat(i.inline_link_click_ctr || '0'),
+                        angle: detectAngle(i.ad_name || '', i.adset_name || ''),
                     }
-                }).filter((a: any) => a.status === 'ACTIVE')
+                }).filter((a: any) => a.status === 'ACTIVE' || a.spend > 0)
 
-            const ads3d = buildAds(insights3d)
-            const ads7d = buildAds(insights7d)
-            const adsLifetime = buildAds(insightsLifetime)
+            const ads3d = parseAds(data3d.data || [])
+            const ads7d = parseAds(data7d.data || [])
+            const adsLt = parseAds(dataLt.data || [])
 
             if (ads7d.length === 0) continue
 
-            // Build lookup maps by ad_id for 3d and lifetime
+            // Build lookup maps
             const ads3dMap: Record<string, any> = {}
             for (const a of ads3d) ads3dMap[a.ad_id] = a
-            const adsLifetimeMap: Record<string, any> = {}
-            for (const a of adsLifetime) adsLifetimeMap[a.ad_id] = a
+            const adsLtMap: Record<string, any> = {}
+            for (const a of adsLt) adsLtMap[a.ad_id] = a
 
-            const allActiveAds = ads7d
-
-            // Get campaign budgets
-            const campaignIds = [...new Set(allActiveAds.map((a: any) => a.campaign_id))]
+            // ── PHASE 2: Campaign budgets ─────────────────────────────
+            const campaignIds = [...new Set(ads7d.map((a: any) => a.campaign_id))]
             const campaignBudgets: Record<string, number> = {}
-            for (const cId of campaignIds) {
+            await Promise.all(campaignIds.map(async (cId) => {
                 try {
-                    const cRes = await fetch(`https://graph.facebook.com/${META_API_VERSION}/${cId}?fields=daily_budget&access_token=${access_token}`)
-                    if (cRes.ok) {
-                        const cData = await cRes.json()
-                        campaignBudgets[cId as string] = parseFloat(cData.daily_budget || '0') / 100
+                    const r = await fetch(`https://graph.facebook.com/${META_API_VERSION}/${cId}?fields=daily_budget&access_token=${access_token}`)
+                    if (r.ok) {
+                        const d = await r.json()
+                        campaignBudgets[cId as string] = parseFloat(d.daily_budget || '0') / 100
                     }
                 } catch { }
-            }
+            }))
 
-            // Get rules and targets
-            const [rulesRes, targetsRes] = await Promise.all([
-                getSupabaseAdmin().from('ad_automation_rules').select('*')
-                    .eq('organization_id', orgId).eq('is_enabled', true),
-                getSupabaseAdmin().from('ad_optimization_targets').select('*')
-                    .eq('organization_id', orgId).single(),
-            ])
+            // ── PHASE 3: CRM Funnel Data by Angle ────────────────────
+            const funnelByAngle = await getFunnelByAngle(supabase, orgId, 30)
 
-            const rules = rulesRes.data || []
-            const targets = targetsRes.data || null
-
-            // ── V2: INTELLIGENCE ENGINE EVALUATION ────────────────────────
-            // Kill logic is fully delegated to /api/cron/kill-guardian (every 4h).
-            // This engine focuses on: Scale, Champion detection, Fatigue alerts.
-            const objectives = config.objectives || {}
-            const targetCPL: number = objectives.target_cpl || targets?.target_cpl || 20
-            const scaleRatio3d: number = objectives.scale_cpl_ratio_3d || 0.85
-            const scaleRatio7d: number = objectives.scale_cpl_ratio_7d || 1.0
-            const championMinDays: number = objectives.champion_min_spend_days || 14
-
-            const results = evaluateIntelligenceV2(ads7d, ads3dMap, adsLifetimeMap, campaignBudgets, rules, {
-                targetCPL, scaleRatio3d, scaleRatio7d, championMinDays,
-            })
-
-            if (results.length === 0) continue
-
-            // Check cooldown — skip ads/campaigns with recent actions
-            const { data: recentExecutions } = await getSupabaseAdmin()
-                .from('ad_rule_executions')
-                .select('campaign_id, entity_name, executed_at')
+            // ── PHASE 4: Angle Score Engine ───────────────────────────
+            const existingScores: Record<string, any> = {}
+            const { data: currentScores } = await supabase
+                .from('ai_angle_scores')
+                .select('*')
                 .eq('organization_id', orgId)
-                .eq('result', 'executed')
-                .gte('executed_at', new Date(Date.now() - COOLDOWN_HOURS * 60 * 60 * 1000).toISOString())
 
-            const recentIds = new Set((recentExecutions || []).map(e => e.campaign_id))
-
-            // Filter out cooled-down and limit actions
-            const actionable = results
-                .filter(r => !recentIds.has(r.ad_id || r.campaign_id))
-                .slice(0, MAX_ACTIONS_PER_RUN)
-
-            // Safety guard: count active ads per campaign to prevent killing ALL ads
-            const activeAdsPerCampaign: Record<string, number> = {}
-            allActiveAds.forEach((ad: any) => {
-                if (!activeAdsPerCampaign[ad.campaign_id]) activeAdsPerCampaign[ad.campaign_id] = 0
-                activeAdsPerCampaign[ad.campaign_id]++
-            })
-
-            // Track kills per campaign during this run
-            const killsThisRun: Record<string, number> = {}
-
-            // Execute or dry-run
-            const executedResults: any[] = []
-            const skippedSafety: any[] = [] // Ads skipped due to safety guard
-            for (const result of actionable) {
-                let executionResult = 'dry_run'
-                let executionDetails: any = null
-
-                if (isLive) {
-                    // LIVE: execute real actions on Meta
-                    if (result.action === 'pause_ad' && result.ad_id) {
-                        // SAFETY: Don't kill if it would leave campaign with < MIN_ACTIVE_ADS
-                        const campaignId = result.campaign_id
-                        const currentActive = (activeAdsPerCampaign[campaignId] || 0) - (killsThisRun[campaignId] || 0)
-                        if (currentActive <= MIN_ACTIVE_ADS_PER_CAMPAIGN) {
-                            executionResult = 'skipped_safety'
-                            executionDetails = { reason: `Safety guard: solo ${currentActive} ad attive nella campagna, serve minimo ${MIN_ACTIVE_ADS_PER_CAMPAIGN}` }
-                            skippedSafety.push(result)
-                        } else {
-                            const actionRes = await pauseAd(result.ad_id, access_token)
-                            executionResult = actionRes.success ? 'executed' : 'failed'
-                            executionDetails = actionRes
-                            if (actionRes.success) {
-                                killsThisRun[campaignId] = (killsThisRun[campaignId] || 0) + 1
-                            }
-                        }
-                    } else if (result.action === 'increase_budget' && result.campaign_id) {
-                        const currentBudget = campaignBudgets[result.campaign_id] || 0
-                        if (currentBudget > 0) {
-                            const { newBudgetCents } = calculateNewBudget(currentBudget, result.action_value || 15)
-                            const actionRes = await updateCampaignBudget(result.campaign_id, newBudgetCents, access_token)
-                            executionResult = actionRes.success ? 'executed' : 'failed'
-                            executionDetails = { ...actionRes, previousBudget: currentBudget }
-                        }
-                    } else if (result.action === 'decrease_budget' && result.campaign_id) {
-                        const currentBudget = campaignBudgets[result.campaign_id] || 0
-                        if (currentBudget > 0) {
-                            const { newBudgetCents } = calculateNewBudget(currentBudget, -(result.action_value || 15))
-                            const actionRes = await updateCampaignBudget(result.campaign_id, newBudgetCents, access_token)
-                            executionResult = actionRes.success ? 'executed' : 'failed'
-                            executionDetails = { ...actionRes, previousBudget: currentBudget }
-                        }
-                    } else if (result.action === 'flag_winner' || result.action === 'alert') {
-                        executionResult = 'logged' // These don't need Meta API calls
-                    }
-                }
-
-                executedResults.push({ ...result, executionResult, executionDetails })
+            for (const s of (currentScores || [])) {
+                existingScores[s.angle] = s
             }
 
-            // Log to ad_rule_executions
-            if (executedResults.length > 0) {
-                await getSupabaseAdmin().from('ad_rule_executions').insert(
-                    executedResults.map(r => ({
-                        organization_id: orgId,
-                        rule_id: r.rule_id,
-                        rule_name: r.rule_name,
-                        campaign_id: r.campaign_id || r.ad_id,
-                        entity_name: r.entity_name,
-                        action_taken: r.action,
-                        metrics_snapshot: r.metrics,
-                        result: r.executionResult,
-                        notes: r.reason + (r.executionDetails ? ` | Details: ${JSON.stringify(r.executionDetails)}` : ''),
-                    }))
-                )
+            // Aggregate metrics by angle from 7d data
+            const metricsByAngle = aggregateByAngle(ads7d, funnelByAngle)
+            const scoreResults = computeAllScores(metricsByAngle, existingScores, mission)
 
-                // Log to AI Episodes
-                await getSupabaseAdmin().from('ai_episodes').insert(
-                    executedResults.map(r => ({
-                        organization_id: orgId,
-                        episode_type: 'automation',
-                        action_type: `rule_${r.action}`,
-                        target_type: r.entity_type || 'ad',
-                        target_id: r.ad_id || r.campaign_id,
-                        target_name: r.entity_name,
-                        context: {
-                            rule_name: r.rule_name,
-                            category: r.category,
-                            action_value: r.action_value,
-                            phase: r.executionResult,
-                            cron: true,
-                        },
-                        reasoning: r.reason,
-                        metrics_before: r.metrics,
-                        outcome: r.executionResult === 'executed' ? 'positive' : 'neutral',
-                        outcome_score: r.executionResult === 'executed' ? 0.7 : 0,
-                    }))
-                )
+            // ── PHASE 5: Upsert ai_angle_scores ──────────────────────
+            for (const [angle, computed] of Object.entries(scoreResults)) {
+                const existing = existingScores[angle]
+                const scoreHistory: number[] = existing?.score_history || []
+                if (scoreHistory.length >= 14) scoreHistory.shift()
+                scoreHistory.push(computed.score)
 
-                totalActions += executedResults.length
-                allExecutedResults.push(...executedResults)
+                const trend = computeTrend(scoreHistory)
 
-                // Send Telegram notification with creative refresh recommendations
-                const killedAds = executedResults.filter(r => r.action === 'pause_ad' && r.executionResult === 'executed')
-                await sendCronTelegramReport(orgId, executedResults, isLive, killedAds, allActiveAds, skippedSafety)
+                await supabase.from('ai_angle_scores').upsert({
+                    organization_id: orgId,
+                    angle,
+                    score: computed.score,
+                    score_trend: trend,
+                    score_history: scoreHistory,
+                    total_spend: computed.total_spend,
+                    total_leads: computed.total_leads,
+                    total_appointments: computed.total_appointments,
+                    total_showups: computed.total_showups,
+                    total_sales: computed.total_sales,
+                    avg_cpl: computed.avg_cpl,
+                    avg_cac: computed.avg_cac,
+                    avg_ctr: computed.avg_ctr,
+                    avg_lead_to_appt_rate: computed.lead_to_appt_rate,
+                    active_ads: computed.active_ads,
+                    recommended_action: computed.recommended_action,
+                    recommended_budget_ratio: computed.recommended_budget_ratio,
+                    action_reason: computed.action_reason,
+                    // Preserve best_pocket_id, best_template_id — only update if we have new data
+                    baseline_cpl: existing?.baseline_cpl || computed.avg_cpl,
+                    baseline_cac: existing?.baseline_cac || computed.avg_cac,
+                    baseline_week: existing?.baseline_week || getCurrentWeekLabel(),
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: 'organization_id,angle' })
             }
 
-            // ═══ SYNC CREATIVE PIPELINE PERFORMANCE ═══
-            // Update metrics for all launched/active ad_creatives
+            // ── PHASE 6: Sync ad_creatives performance ────────────────
             try {
-                const { data: launchedCreatives } = await getSupabaseAdmin()
+                const { data: launchedCreatives } = await supabase
                     .from('ad_creatives')
                     .select('id, meta_ad_id, status')
                     .eq('organization_id', orgId)
                     .in('status', ['launched', 'active'])
                     .not('meta_ad_id', 'is', null)
 
-                if (launchedCreatives && launchedCreatives.length > 0) {
+                if (launchedCreatives?.length) {
                     for (const creative of launchedCreatives) {
                         try {
                             const [insRes, stRes] = await Promise.all([
-                                fetch(`https://graph.facebook.com/${META_API_VERSION}/${creative.meta_ad_id}/insights?fields=spend,impressions,clicks,actions,cost_per_action_type,purchase_roas,ctr&date_preset=lifetime&access_token=${access_token}`),
+                                fetch(`https://graph.facebook.com/${META_API_VERSION}/${creative.meta_ad_id}/insights?fields=spend,impressions,clicks,actions,cost_per_action_type,ctr&date_preset=lifetime&access_token=${access_token}`),
                                 fetch(`https://graph.facebook.com/${META_API_VERSION}/${creative.meta_ad_id}?fields=effective_status&access_token=${access_token}`),
                             ])
                             const insData = await insRes.json()
@@ -322,153 +258,444 @@ export async function GET(req: NextRequest) {
                                 const leadAction = (ins.actions || []).find((a: any) => a.action_type === 'lead')
                                 const leads = leadAction ? Number(leadAction.value) || 0 : 0
                                 const cpl = leads > 0 ? spend / leads : 0
-                                const roasArr = ins.purchase_roas || []
-                                const roas = roasArr.length > 0 ? Number(roasArr[0]?.value) || 0 : 0
-
+                                const eff = stData.effective_status
                                 let newStatus = creative.status
                                 let killReason: string | null = null
-                                const eff = stData.effective_status
                                 if (eff === 'PAUSED' || eff === 'CAMPAIGN_PAUSED' || eff === 'ADSET_PAUSED') {
                                     newStatus = 'killed'
                                     killReason = `Meta: ${eff}`
                                 } else if (eff === 'ACTIVE') {
                                     newStatus = 'active'
                                 }
-
-                                await getSupabaseAdmin().from('ad_creatives').update({
+                                await supabase.from('ad_creatives').update({
                                     spend, clicks, impressions: Number(ins.impressions) || 0,
                                     leads_count: leads, cpl: cpl > 0 ? cpl : null,
-                                    ctr: ctr > 0 ? ctr : null, roas: roas > 0 ? roas : null,
-                                    status: newStatus, kill_reason: killReason || undefined,
+                                    ctr: ctr > 0 ? ctr : null, status: newStatus,
+                                    kill_reason: killReason || undefined,
                                 }).eq('id', creative.id)
                             }
-                        } catch {}
+                        } catch { }
                     }
                 }
-            } catch {}
+            } catch { }
+
+            // ── PHASE 7: LLM Hypothesis Generator ────────────────────
+            const hypothesis = await generateHypothesis(scoreResults, metricsByAngle, mission, targetCPL, targetCAC)
+
+            // ── PHASE 8: Scale Actions (budget only, no kills) ────────
+            const scaleActions: any[] = []
+            const scaleTargets = Object.entries(scoreResults)
+                .filter(([_, s]: [string, any]) => s.recommended_action === 'scale' && s.total_leads >= 3)
+                .slice(0, MAX_SCALE_ACTIONS_PER_RUN)
+
+            for (const [angle, scoreData] of scaleTargets) {
+                // Find best performing campaign for this angle
+                const angleCampaigns = ads7d.filter((a: any) => a.angle === angle)
+                const uniqueCampaignIds = [...new Set(angleCampaigns.map((a: any) => a.campaign_id))]
+
+                for (const cId of uniqueCampaignIds.slice(0, 1)) {
+                    const currentBudget = campaignBudgets[cId as string] || 0
+                    if (currentBudget <= 0) continue
+
+                    let executionResult = 'dry_run'
+                    if (isLive) {
+                        const { newBudgetCents } = calculateNewBudget(currentBudget, 20)
+                        const actionRes = await updateCampaignBudget(cId as string, newBudgetCents, access_token)
+                        executionResult = actionRes.success ? 'executed' : 'failed'
+                    }
+
+                    scaleActions.push({
+                        angle,
+                        campaign_id: cId,
+                        action: 'increase_budget',
+                        action_value: 20,
+                        result: executionResult,
+                        reason: `Score ${(scoreData as any).score.toFixed(2)} — ${(scoreData as any).action_reason}`,
+                    })
+                    totalActions++
+                }
+            }
+
+            // ── PHASE 9: Write to ai_strategy_log ────────────────────
+            const cycleId = `${getCurrentWeekLabel()}-intelligence-${Date.now()}`
+            const topAngleMetrics = Object.entries(scoreResults)
+                .sort((a: any, b: any) => b[1].score - a[1].score)
+                .slice(0, 3)
+                .reduce((acc: any, [angle, s]: [string, any]) => {
+                    acc[angle] = { score: s.score, cpl: s.avg_cpl, cac: s.avg_cac, leads: s.total_leads }
+                    return acc
+                }, {})
+
+            await supabase.from('ai_strategy_log').insert({
+                organization_id: orgId,
+                cycle_id: cycleId,
+                cycle_type: 'intelligence',
+                hypothesis: hypothesis || { message: 'Dati insufficienti per generare ipotesi' },
+                baseline_metrics: {
+                    by_angle: topAngleMetrics,
+                    total_spend_7d: ads7d.reduce((s: number, a: any) => s + a.spend, 0),
+                    total_leads_7d: ads7d.reduce((s: number, a: any) => s + a.leads_count, 0),
+                    target_cpl: targetCPL,
+                    target_cac: targetCAC,
+                },
+            })
+
+            // ── PHASE 10: Daily funnel snapshot ──────────────────────
+            await upsertFunnelSnapshot(supabase, orgId, ads7d, funnelByAngle, mission)
+
+            // Log to ai_episodes
+            await supabase.from('ai_episodes').insert({
+                organization_id: orgId,
+                episode_type: 'automation',
+                action_type: 'intelligence_v3_cycle',
+                target_type: 'system',
+                context: {
+                    cycle_id: cycleId,
+                    angles_scored: Object.keys(scoreResults).length,
+                    scale_actions: scaleActions.length,
+                    hypothesis_angle: (hypothesis as any)?.angle || null,
+                    is_live: isLive,
+                },
+                reasoning: `Ciclo Intelligence v3: ${Object.keys(scoreResults).length} angoli valutati, ${scaleActions.length} azioni di scala`,
+                outcome: 'positive',
+                outcome_score: 0.6,
+            })
+
+            // ── PHASE 11: Telegram Report ─────────────────────────────
+            await sendIntelligenceReport(supabase, orgId, scoreResults, metricsByAngle, scaleActions, hypothesis, mission, isLive, targetCPL, targetCAC)
+
+            allResults.push({ orgId, scaleActions, anglesScored: Object.keys(scoreResults).length })
         }
 
-        // Build summary for Force Run UI
-        const actionsSummary = allExecutedResults.map((r: any) => ({
-            name: r.entity_name,
-            action: r.action,
-            status: r.executionResult || 'dry_run',
-            category: r.category,
-            rule: r.rule_name,
-        }))
-
-        return NextResponse.json({ ok: true, totalActions, actions: actionsSummary })
-    } catch (err) {
-        console.error('AI Engine cron error:', err)
-        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+        return NextResponse.json({ ok: true, totalActions, results: allResults })
+    } catch (err: any) {
+        console.error('[AI Intelligence Engine v3] Fatal error:', err)
+        return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 })
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EVALUATE INTELLIGENCE V2 — Scale, Champion, Fatigue (NO kills)
-// Called once daily by the intelligence cron.
-// Kill logic is fully delegated to /api/cron/kill-guardian.
-// ═══════════════════════════════════════════════════════════════════════════
-function evaluateIntelligenceV2(
-    ads7d: any[],
-    ads3dMap: Record<string, any>,
-    adsLifetimeMap: Record<string, any>,
-    campaignBudgets: Record<string, number>,
-    rules: any[],
-    params: { targetCPL: number; scaleRatio3d: number; scaleRatio7d: number; championMinDays: number }
-): any[] {
-    const { targetCPL, scaleRatio3d, scaleRatio7d, championMinDays } = params
-    const results: any[] = []
+// ═══════════════════════════════════════════════════════════════
+// ANGLE DETECTION — from ad name or adset name
+// ═══════════════════════════════════════════════════════════════
+function detectAngle(adName: string, adsetName?: string): string {
+    const text = `${adName} ${adsetName || ''}`.toLowerCase()
+    if (text.includes('emo') || text.includes('dolore') || text.includes('emotional')) return 'emotional'
+    if (text.includes('eff') || text.includes('efficiency') || text.includes('split') || text.includes('gap')) return 'efficiency'
+    if (text.includes('sys') || text.includes('system') || text.includes('metodo')) return 'system'
+    if (text.includes('status') || text.includes('corona') || text.includes('87')) return 'status'
+    if (text.includes('edu') || text.includes('lente') || text.includes('lavagna') || text.includes('education')) return 'education'
+    if (text.includes('growth') || text.includes('crescita')) return 'growth'
+    if (text.includes('trasf') || text.includes('reels')) return 'transformation'
+    // Try from adset name angle keywords
+    const knownAngles = ['emotional', 'efficiency', 'system', 'status', 'education', 'growth', 'transformation']
+    for (const angle of knownAngles) {
+        if (text.includes(angle)) return angle
+    }
+    return 'generic'
+}
 
-    for (const ad of ads7d) {
-        const ad3d = ads3dMap[ad.ad_id]
-        const adLt = adsLifetimeMap[ad.ad_id]
-        const dailyBudget = campaignBudgets[ad.campaign_id] || 0
+// ═══════════════════════════════════════════════════════════════
+// CRM FUNNEL BY ANGLE
+// ═══════════════════════════════════════════════════════════════
+async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30): Promise<Record<string, any>> {
+    try {
+        const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+        const { data: leads } = await supabase
+            .from('leads')
+            .select('id, utm_term, utm_content, status, deal_value, created_at')
+            .eq('organization_id', orgId)
+            .gte('created_at', since)
 
-        // ── Scale: Triple Confirmed Winner ─────────────────────────────────
-        // cpl_3d < target × scale_ratio_3d  AND  cpl_7d ≤ target × scale_ratio_7d
-        // AND enough leads in 7d for confidence
-        const cpl3d = ad3d?.cpl ?? 0
-        const leads3d = ad3d?.leads_count ?? 0
-        const cpl7d = ad.cpl ?? 0
-        const leads7d = ad.leads_count ?? 0
+        if (!leads?.length) return {}
 
-        if (
-            cpl3d > 0 && cpl3d <= targetCPL * scaleRatio3d &&
-            cpl7d > 0 && cpl7d <= targetCPL * scaleRatio7d &&
-            leads7d >= 3 &&
-            dailyBudget > 0 && ad.spend >= dailyBudget * 1.5 // has had meaningful budget
-        ) {
-            results.push({
-                ad_id: ad.ad_id,
-                campaign_id: ad.campaign_id,
-                entity_name: ad.ad_name,
-                entity_type: 'campaign',
-                action: 'increase_budget',
-                action_value: 25,
-                rule_name: 'V2: Scale — Vincitore Triplo Confermato',
-                category: 'budget_scale_up',
-                reason: `Scale V2: CPL 3gg €${cpl3d.toFixed(2)} (<${(targetCPL*scaleRatio3d).toFixed(2)} target 85%) | CPL 7gg €${cpl7d.toFixed(2)} | ${leads7d} lead`,
-                metrics: { cpl_3d: cpl3d, cpl_7d: cpl7d, leads_7d: leads7d, spend_7d: ad.spend, target_cpl: targetCPL },
-            })
-            continue // if scaling, skip fatigue check
+        const byAngle: Record<string, { leads: number; appointments: number; showups: number; sales: number; revenue: number }> = {}
+
+        for (const lead of leads) {
+            // utm_term = adset angle identifier (e.g., 'emotional', 'efficiency')
+            // utm_content = ad name (fallback for angle detection)
+            const angle = lead.utm_term || detectAngle(lead.utm_content || '', '') || 'unknown'
+            if (!byAngle[angle]) byAngle[angle] = { leads: 0, appointments: 0, showups: 0, sales: 0, revenue: 0 }
+
+            byAngle[angle].leads++
+            const status = (lead.status || '').toLowerCase()
+            if (['appuntamento', 'show_up', 'perso', 'cliente'].includes(status)) byAngle[angle].appointments++
+            if (['show_up', 'perso', 'cliente'].includes(status)) byAngle[angle].showups++
+            if (status === 'cliente') {
+                byAngle[angle].sales++
+                byAngle[angle].revenue += Number(lead.deal_value) || 0
+            }
         }
 
-        // ── Champion Detection ──────────────────────────────────────────────
-        // Lifetime CPL ≤ 90% target, significant history
-        if (
-            adLt && adLt.cpl > 0 &&
-            adLt.cpl <= targetCPL * 0.9 &&
-            adLt.leads_count >= 10 &&
-            dailyBudget > 0 && adLt.spend >= dailyBudget * championMinDays
-        ) {
-            results.push({
-                ad_id: ad.ad_id,
-                campaign_id: ad.campaign_id,
-                entity_name: ad.ad_name,
-                entity_type: 'ad',
-                action: 'flag_winner',
-                action_value: 0,
-                rule_name: 'V2: Champion Shield — Campione Lifetime',
-                category: 'creative_winner',
-                reason: `Campione Lifetime: CPL storico €${adLt.cpl.toFixed(2)} (${Math.round(adLt.cpl/targetCPL*100)}% target) su ${adLt.leads_count} lead totali`,
-                metrics: { cpl_lifetime: adLt.cpl, leads_lifetime: adLt.leads_count, spend_lifetime: adLt.spend, target_cpl: targetCPL },
-            })
+        return byAngle
+    } catch {
+        return {}
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AGGREGATE METRICS BY ANGLE FROM ADS + CRM
+// ═══════════════════════════════════════════════════════════════
+function aggregateByAngle(ads: any[], funnelByAngle: Record<string, any>) {
+    const byAngle: Record<string, any> = {}
+
+    for (const ad of ads) {
+        const angle = ad.angle || 'generic'
+        if (!byAngle[angle]) byAngle[angle] = {
+            spend: 0, leads: 0, impressions: 0, clicks: 0, ctr_sum: 0, ad_count: 0, active_ads: 0,
+        }
+        const a = byAngle[angle]
+        a.spend += ad.spend
+        a.leads += ad.leads_count
+        a.impressions += ad.impressions
+        a.clicks += ad.clicks
+        a.ctr_sum += ad.ctr
+        a.ad_count++
+        if (ad.status === 'ACTIVE') a.active_ads++
+    }
+
+    // Merge CRM funnel data
+    for (const [angle, meta] of Object.entries(byAngle)) {
+        const crm = funnelByAngle[angle] || { leads: 0, appointments: 0, showups: 0, sales: 0, revenue: 0 }
+        const m = meta as any
+        m.avg_cpl = m.leads > 0 ? m.spend / m.leads : 0
+        m.avg_ctr = m.ad_count > 0 ? m.ctr_sum / m.ad_count : 0
+        m.crm_appointments = crm.appointments
+        m.crm_showups = crm.showups
+        m.crm_sales = crm.sales
+        m.crm_revenue = crm.revenue
+        // Use CRM leads as denominator for rates (more accurate than Meta)
+        const crmLeads = crm.leads || m.leads
+        m.lead_to_appt_rate = crmLeads > 0 ? crm.appointments / crmLeads : 0
+        m.appt_show_rate = crm.appointments > 0 ? crm.showups / crm.appointments : 0
+        m.close_rate = crm.showups > 0 ? crm.sales / crm.showups : 0
+        m.avg_cac = crm.sales > 0 ? m.spend / crm.sales : 0
+    }
+
+    return byAngle
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCORE ENGINE — computes score [-1, +1] for each angle
+// ═══════════════════════════════════════════════════════════════
+function computeAllScores(
+    metricsByAngle: Record<string, any>,
+    existingScores: Record<string, any>,
+    mission: any
+): Record<string, any> {
+    const targetCPL: number = mission.target_cpl || 20
+    const targetCAC: number = mission.target_cac || 1500
+    const targetLTAR: number = mission.target_lead_to_appt_rate || 0.40
+    const optimizeFor: string = mission.optimize_for || 'cac'
+    const results: Record<string, any> = {}
+
+    for (const [angle, m] of Object.entries(metricsByAngle)) {
+        const existing = existingScores[angle]
+        let score = 0
+
+        // ── CPL component (25%) ───────────────────
+        if (m.avg_cpl > 0) {
+            const cplRatio = (targetCPL - m.avg_cpl) / targetCPL
+            score += clamp(cplRatio, -1, 1) * 0.25
         }
 
-        // ── Fatigue Alert (no kill — only alert) ───────────────────────────
-        // High frequency + declining engagement vs lifetime baseline
-        const freqLt = adLt?.frequency ?? 0
-        if (
-            ad.frequency >= 4.5 &&
-            ad.spend >= 20 &&
-            (ad.ctr < (adLt?.ctr ?? ad.ctr) * 0.7 || (freqLt > 0 && ad.frequency > freqLt * 1.5))
-        ) {
-            results.push({
-                ad_id: ad.ad_id,
-                campaign_id: ad.campaign_id,
-                entity_name: ad.ad_name,
-                entity_type: 'ad',
-                action: 'alert',
-                action_value: 0,
-                rule_name: 'V2: Fatigue Predittiva',
-                category: 'fatigue',
-                reason: `Fatigue: frequency ${ad.frequency.toFixed(1)} (alta) | CTR ${(ad.ctr*100).toFixed(2)}% in calo. Prepara creative fresh.`,
-                metrics: { frequency_7d: ad.frequency, ctr_7d: ad.ctr, frequency_lifetime: freqLt },
-            })
+        // ── CAC component (35%) — most important ──
+        if (m.avg_cac > 0) {
+            const cacRatio = (targetCAC - m.avg_cac) / targetCAC
+            score += clamp(cacRatio, -1, 1) * 0.35
+        } else if (m.leads > 0 && m.crm_sales === 0 && m.spend > targetCPL * 2) {
+            // Has CPL data but no sales yet — penalty proportional to spend
+            score -= 0.10
+        }
+
+        // ── Lead→Appt rate (20%) ──────────────────
+        if (m.lead_to_appt_rate > 0) {
+            const ltarRatio = (m.lead_to_appt_rate - targetLTAR) / targetLTAR
+            score += clamp(ltarRatio, -1, 1) * 0.20
+        }
+
+        // ── CTR component (10%) ───────────────────
+        if (m.avg_ctr > 0) {
+            const ctrBenchmark = 1.5 // 1.5% baseline CTR
+            const ctrRatio = (m.avg_ctr - ctrBenchmark) / ctrBenchmark
+            score += clamp(ctrRatio, -1, 1) * 0.10
+        }
+
+        // ── Data confidence (10% penalty if < 5 leads) ─
+        if (m.leads < 3) {
+            score = score * 0.5  // halve score if insufficient data
+        }
+
+        score = clamp(score, -1, 1)
+
+        // Determine recommended action
+        let recommended_action = 'maintain'
+        let recommended_budget_ratio = 0.16  // 1/6 default
+        let action_reason = 'Stabilità — mantieni il budget corrente'
+
+        if (score >= 0.45) {
+            recommended_action = 'scale'
+            recommended_budget_ratio = 0.25
+            action_reason = `Score ${score.toFixed(2)} eccellente — scala budget +20%`
+        } else if (score >= 0.20) {
+            recommended_action = 'maintain'
+            recommended_budget_ratio = 0.20
+            action_reason = `Score ${score.toFixed(2)} positivo — mantieni e ottimizza`
+        } else if (score >= -0.10) {
+            recommended_action = 'test'
+            recommended_budget_ratio = 0.12
+            action_reason = `Score ${score.toFixed(2)} neutro — genera nuove ads per testare`
+        } else if (score >= -0.40) {
+            recommended_action = 'reduce'
+            recommended_budget_ratio = 0.08
+            action_reason = `Score ${score.toFixed(2)} negativo — riduci budget, non generare nuove ads`
+        } else {
+            recommended_action = 'pause'
+            recommended_budget_ratio = 0
+            action_reason = `Score ${score.toFixed(2)} critico — considera pausa angolo`
+        }
+
+        results[angle] = {
+            score,
+            avg_cpl: m.avg_cpl || 0,
+            avg_cac: m.avg_cac || 0,
+            avg_ctr: m.avg_ctr || 0,
+            lead_to_appt_rate: m.lead_to_appt_rate || 0,
+            total_spend: m.spend || 0,
+            total_leads: m.leads || 0,
+            total_appointments: m.crm_appointments || 0,
+            total_showups: m.crm_showups || 0,
+            total_sales: m.crm_sales || 0,
+            active_ads: m.active_ads || 0,
+            recommended_action,
+            recommended_budget_ratio,
+            action_reason,
         }
     }
 
     return results
 }
 
-// --- Telegram Report ---
-async function sendCronTelegramReport(
-    orgId: string, results: any[], isLive: boolean,
-    killedAds: any[] = [], allAds: any[] = [], skippedSafety: any[] = []
+// ═══════════════════════════════════════════════════════════════
+// LLM HYPOTHESIS GENERATOR
+// ═══════════════════════════════════════════════════════════════
+async function generateHypothesis(
+    scoreResults: Record<string, any>,
+    metricsByAngle: Record<string, any>,
+    mission: any,
+    targetCPL: number,
+    targetCAC: number
+): Promise<any> {
+    try {
+        const apiKey = process.env.OPENROUTER_API_KEY
+        if (!apiKey) return null
+
+        const anglesReport = Object.entries(scoreResults)
+            .sort((a: any, b: any) => b[1].score - a[1].score)
+            .map(([angle, s]: [string, any]) => {
+                const m = metricsByAngle[angle] as any
+                return `- ${angle.toUpperCase()}: score=${s.score.toFixed(2)} | CPL €${s.avg_cpl.toFixed(2)} | CAC €${s.avg_cac > 0 ? s.avg_cac.toFixed(0) : 'n/d'} | lead: ${s.total_leads} | appt→sale: ${m?.crm_appointments || 0}→${m?.crm_sales || 0} | azione: ${s.recommended_action}`
+            }).join('\n')
+
+        const prompt = `Sei il cervello strategico di Metodo Sincro (coaching mentale calcio).
+Analizza questi dati degli angoli creativi Meta Ads e proponi UNA SOLA ipotesi strategica da testare questa settimana.
+
+OBIETTIVI SETTIMANA:
+- CPL target: €${targetCPL}
+- CAC target: €${targetCAC}
+- Ottimizza per: ${mission.optimize_for || 'cac'}
+
+SITUAZIONE ANGOLI (7 giorni):
+${anglesReport}
+
+REGOLE:
+- Proponi UN'UNICA azione concreta e misurabile
+- Scegli tra: 'scale_budget_20pct', 'generate_3_new_ads', 'pause_angle', 'test_new_pocket', 'increase_frequency_post'
+- Stima l'impatto atteso in % sul CAC o CPL
+- Sii specifico sull'angolo e sul motivo
+
+Rispondi SOLO con JSON valido:
+{"angle":"...","action":"...","expected_delta_cac_pct":0,"reasoning":"...","confidence":"low|medium|high"}`
+
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({
+                model: 'google/gemini-2.5-flash',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.3,
+            }),
+        })
+
+        if (!res.ok) return null
+        const data = await res.json()
+        const reply = data.choices?.[0]?.message?.content || ''
+        const jsonMatch = reply.match(/\{[\s\S]*\}/)
+        if (jsonMatch) return JSON.parse(jsonMatch[0])
+        return null
+    } catch {
+        return null
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FUNNEL SNAPSHOT UPSERT
+// ═══════════════════════════════════════════════════════════════
+async function upsertFunnelSnapshot(supabase: any, orgId: string, ads7d: any[], funnelByAngle: Record<string, any>, mission: any) {
+    try {
+        const totalSpend = ads7d.reduce((s: number, a: any) => s + a.spend, 0)
+        const totalLeads = ads7d.reduce((s: number, a: any) => s + a.leads_count, 0)
+        const allCRM = Object.values(funnelByAngle).reduce((acc: any, v: any) => ({
+            appointments: (acc.appointments || 0) + v.appointments,
+            showups: (acc.showups || 0) + v.showups,
+            sales: (acc.sales || 0) + v.sales,
+            revenue: (acc.revenue || 0) + v.revenue,
+        }), {})
+
+        const snap = {
+            organization_id: orgId,
+            snapshot_date: new Date().toISOString().slice(0, 10),
+            total_spend: totalSpend,
+            total_leads: totalLeads,
+            total_appointments: allCRM.appointments || 0,
+            total_showups: allCRM.showups || 0,
+            total_sales: allCRM.sales || 0,
+            total_revenue: allCRM.revenue || 0,
+            cpl: totalLeads > 0 ? totalSpend / totalLeads : null,
+            cac: allCRM.sales > 0 ? totalSpend / allCRM.sales : null,
+            lead_to_appt_rate: totalLeads > 0 ? (allCRM.appointments || 0) / totalLeads : null,
+            appt_show_rate: (allCRM.appointments || 0) > 0 ? (allCRM.showups || 0) / (allCRM.appointments || 0) : null,
+            close_rate: (allCRM.showups || 0) > 0 ? (allCRM.sales || 0) / (allCRM.showups || 0) : null,
+            roas: allCRM.revenue > 0 && totalSpend > 0 ? allCRM.revenue / totalSpend : null,
+            by_angle: funnelByAngle,
+            vs_weekly_leads_pct: mission.weekly_leads_target > 0 ? (totalLeads / mission.weekly_leads_target) * 100 : null,
+            vs_weekly_sales_pct: mission.weekly_sales_target > 0 ? ((allCRM.sales || 0) / mission.weekly_sales_target) * 100 : null,
+            vs_weekly_spend_pct: mission.weekly_spend_budget > 0 ? (totalSpend / mission.weekly_spend_budget) * 100 : null,
+            week_label: getCurrentWeekLabel(),
+        }
+
+        await supabase.from('ai_funnel_snapshots')
+            .upsert(snap, { onConflict: 'organization_id,snapshot_date' })
+    } catch (e) {
+        console.error('[Intelligence Engine] Snapshot error:', e)
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TELEGRAM REPORT
+// ═══════════════════════════════════════════════════════════════
+async function sendIntelligenceReport(
+    supabase: any, orgId: string,
+    scoreResults: Record<string, any>,
+    metricsByAngle: Record<string, any>,
+    scaleActions: any[],
+    hypothesis: any,
+    mission: any,
+    isLive: boolean,
+    targetCPL: number,
+    targetCAC: number
 ) {
     try {
-        const { data: conn } = await getSupabaseAdmin()
+        const { data: conn } = await supabase
             .from('connections')
             .select('credentials')
             .eq('organization_id', orgId)
@@ -478,402 +705,73 @@ async function sendCronTelegramReport(
 
         if (!conn?.credentials?.bot_token || !conn?.credentials?.chat_id) return
 
-        const categoryEmoji: Record<string, string> = {
-            creative_kill: '🔴', creative_winner: '🟢',
-            budget_scale_up: '📈', budget_scale_down: '📉',
-            fatigue: '🔄', learning_protection: '⏸',
-            cpl_shield: '🛡',
+        const mode = isLive ? '🟢 LIVE' : '🟡 DRY RUN'
+        const scoreBar = (score: number) => {
+            const filled = Math.round((score + 1) * 5)
+            return '█'.repeat(Math.max(0, filled)) + '░'.repeat(Math.max(0, 10 - filled))
+        }
+        const trendIcon = (trend: string) => ({ rising: '↑', falling: '↓', stable: '→' })[trend] || '→'
+
+        let msg = `🧠 <b>Intelligence Engine v3</b> [${mode}]\n`
+        msg += `─────────────────\n\n`
+
+        msg += `📊 <b>SCORE ANGOLI</b>\n`
+        const sorted = Object.entries(scoreResults).sort((a: any, b: any) => b[1].score - a[1].score)
+        for (const [angle, s] of sorted as [string, any][]) {
+            const emoji = s.score > 0.3 ? '🟢' : s.score > -0.1 ? '🟡' : '🔴'
+            const cac = s.avg_cac > 0 ? `CAC €${s.avg_cac.toFixed(0)}` : 'CAC n/d'
+            msg += `${emoji} <b>${angle.toUpperCase()}</b> [${scoreBar(s.score)}]\n`
+            msg += `  CPL €${s.avg_cpl.toFixed(2)} | ${cac} | ${s.total_leads} lead → ${s.total_appointments} appt\n`
+            msg += `  → ${s.recommended_action.toUpperCase()}: ${s.action_reason}\n\n`
         }
 
-        const modeLabel = isLive ? '🟢 LIVE' : '🟡 DRY RUN'
-        let msg = `🤖 <b>AI Engine — Cron Automatico</b>\n`
-        msg += `${modeLabel} • ${results.length} regole attivate\n\n`
-
-        const grouped: Record<string, any[]> = {}
-        results.forEach(r => {
-            if (!grouped[r.category]) grouped[r.category] = []
-            grouped[r.category].push(r)
-        })
-
-        for (const [cat, items] of Object.entries(grouped)) {
-            const emoji = categoryEmoji[cat] || '•'
-            msg += `${emoji} <b>${cat.replace(/_/g, ' ').toUpperCase()}</b>\n`
-            for (const r of items) {
-                const statusIcon = r.executionResult === 'executed' ? '✅' :
-                    r.executionResult === 'failed' ? '❌' :
-                    r.executionResult === 'skipped_safety' ? '🛡' : '📝'
-                msg += `  ${statusIcon} ${r.entity_name}: ${r.action}`
-                if (r.action_value) msg += ` (${r.action_value}%)`
-                if (r.executionResult === 'skipped_safety') msg += ' (SAFETY: min ads attive)'
-                msg += '\n'
+        if (scaleActions.length > 0) {
+            msg += `📈 <b>AZIONI SCALA</b>\n`
+            for (const a of scaleActions) {
+                const icon = a.result === 'executed' ? '✅' : '📝'
+                msg += `${icon} ${a.angle.toUpperCase()} +${a.action_value}% budget\n`
+                msg += `  ${a.reason}\n\n`
             }
-            msg += '\n'
         }
 
-        // Safety guard warning
-        if (skippedSafety.length > 0) {
-            msg += `🛡 <b>SAFETY GUARD</b>: ${skippedSafety.length} kill bloccate per mantenere minimo ${MIN_ACTIVE_ADS_PER_CAMPAIGN} ads attive per campagna\n\n`
+        if (hypothesis) {
+            const confIcon = { high: '🎯', medium: '💡', low: '🔬' }[hypothesis.confidence as string] || '💡'
+            msg += `${confIcon} <b>IPOTESI QUESTA SETTIMANA</b>\n`
+            msg += `Angolo: <b>${(hypothesis.angle || '').toUpperCase()}</b>\n`
+            msg += `Azione: ${hypothesis.action}\n`
+            msg += `Impatto atteso: ${hypothesis.expected_delta_cac_pct > 0 ? '+' : ''}${hypothesis.expected_delta_cac_pct}% CAC\n`
+            msg += `📝 ${hypothesis.reasoning}\n`
+            msg += `Confidence: ${hypothesis.confidence}\n\n`
         }
 
-        // Count active ads remaining
-        const activeCount = allAds.filter((a: any) => a.status === 'ACTIVE').length
-        const killedCount = killedAds.length
-        msg += `📊 Ads attive: ${activeCount - killedCount}/${activeCount}`
-        if (killedCount > 0) msg += ` (${killedCount} pausate)`
-        msg += '\n'
-
-        // 🏆 WINNER INTELLIGENCE — Analyze what's working and WHY
-        const adsWithLeads = allAds.filter((a: any) => a.leads_count > 0 && a.spend > 0)
-        if (adsWithLeads.length > 0) {
-            // Sort by CPL (lowest = best)
-            const topPerformers = [...adsWithLeads]
-                .sort((a: any, b: any) => (a.spend / a.leads_count) - (b.spend / b.leads_count))
-                .slice(0, 3)
-
-            msg += '\n🏆 <b>WINNER INTELLIGENCE</b>\n'
-            msg += '─────────────────\n'
-
-            for (const ad of topPerformers) {
-                const cpl = (ad.spend / ad.leads_count).toFixed(2)
-                const adName = ad.ad_name || ''
-
-                // Detect creative angle from ad name
-                let angle = '🎯 Angolo generico'
-                let whyItWorks = 'Buone metriche generali'
-
-                if (adName.includes('EMO') || adName.includes('Emozione') || adName.includes('Dolore')) {
-                    angle = '😢 EMOTIONAL'
-                    whyItWorks = 'Hook emotivo forte → il prospect si identifica nel dolore → azione immediata'
-                } else if (adName.includes('EFF') || adName.includes('Effic') || adName.includes('Split') || adName.includes('Gap')) {
-                    angle = '⚡ EFFICIENCY'
-                    whyItWorks = 'Confronto/gap visivo → il prospect capisce la differenza → urgenza di agire'
-                } else if (adName.includes('SYS') || adName.includes('System') || adName.includes('Metodo')) {
-                    angle = '⚙️ SYSTEM'
-                    whyItWorks = 'Proposta di metodo strutturato → il prospect vede un percorso chiaro → fiducia'
-                } else if (adName.includes('Status') || adName.includes('Corona') || adName.includes('87')) {
-                    angle = '👑 STATUS'
-                    whyItWorks = 'Social proof + aspirazione → il prospect vuole far parte del gruppo vincente'
-                } else if (adName.includes('EDU') || adName.includes('Lente') || adName.includes('Lavagna')) {
-                    angle = '📚 EDUCATION'
-                    whyItWorks = 'Contenuto di valore → il prospect impara qualcosa → autorità del brand'
-                } else if (adName.includes('Trasf') || adName.includes('Reels')) {
-                    angle = '🔄 TRASFORMAZIONE'
-                    whyItWorks = 'Before/after visivo → il prospect visualizza il risultato → desiderio'
-                }
-
-                // Detect format from ad name hints
-                let format = '📸 Immagine'
-                if (adName.toLowerCase().includes('video') || adName.toLowerCase().includes('reel')) format = '🎬 Video/Reel'
-
-                msg += `\n✅ <b>${adName}</b>\n`
-                msg += `  📊 CPL: €${cpl} | ${ad.leads_count} leads | €${ad.spend.toFixed(0)} spend\n`
-                msg += `  🎨 ${angle}\n`
-                msg += `  💡 Perché funziona: ${whyItWorks}\n`
-            }
-
-            // Summary insight
-            const bestAngle = topPerformers[0]
-            const bestAdName = bestAngle?.ad_name || ''
-            let bestAngleType = 'generico'
-            if (bestAdName.includes('EMO')) bestAngleType = 'EMOTIONAL'
-            else if (bestAdName.includes('EFF') || bestAdName.includes('Gap') || bestAdName.includes('Split')) bestAngleType = 'EFFICIENCY'
-            else if (bestAdName.includes('SYS')) bestAngleType = 'SYSTEM'
-            else if (bestAdName.includes('Status')) bestAngleType = 'STATUS'
-            else if (bestAdName.includes('EDU')) bestAngleType = 'EDUCATION'
-
-            msg += `\n🧠 <b>Insight:</b> L'angolo ${bestAngleType} è il più performante. Crea nuove varianti con lo stesso angolo ma diverso hook/visual per scalare.\n`
-            msg += `💡 <b>Andromeda tip:</b> duplica la winner, cambia solo l'hook nei primi 3 secondi (video) o nel titolo (immagine). Meta testerà automaticamente.\n`
-
-            // 🚀 SCALA I VINCENTI — Primary recommendation: double down on what works
-            const winnerAngles = new Set<string>()
-            topPerformers.forEach((ad: any) => {
-                const n = ad.ad_name || ''
-                if (n.includes('EFF') || n.includes('Effic') || n.includes('Split') || n.includes('Gap')) winnerAngles.add('EFFICIENCY')
-                else if (n.includes('EMO') || n.includes('Emozione') || n.includes('Dolore')) winnerAngles.add('EMOTIONAL')
-                else if (n.includes('SYS') || n.includes('System') || n.includes('Metodo')) winnerAngles.add('SYSTEM')
-                else if (n.includes('Status') || n.includes('Corona')) winnerAngles.add('STATUS')
-                else if (n.includes('EDU') || n.includes('Lente') || n.includes('Lavagna')) winnerAngles.add('EDUCATION')
-                else if (n.includes('Trasf') || n.includes('Reels')) winnerAngles.add('TRASFORMAZIONE')
-            })
-
-            msg += '\n🚀 <b>AZIONE: SCALA I VINCENTI</b>\n'
-            msg += '─────────────────\n'
-
-            const scaleGuides: Record<string, string> = {
-                'EFFICIENCY': '⚡ Crea 2-3 varianti EFFICIENCY: stesso confronto/gap ma diverso hook visivo (split screen, numeri, before-after)',
-                'EMOTIONAL': '😢 Crea 2-3 varianti EMOTIONAL: stesso dolore ma diverso scenario (allenamento, partita, panchina)',
-                'SYSTEM': '⚙️ Crea 2-3 varianti SYSTEM: stesso metodo ma diverso formato (step-by-step, schema, timeline)',
-                'STATUS': '👑 Crea 2-3 varianti STATUS: stesso social proof ma diverso visual (testimonial, achievement, lifestyle)',
-                'EDUCATION': '📚 Crea 2-3 varianti EDUCATION: stessa curiosità ma diverso hook (domanda, statistica, fatto sorprendente)',
-                'TRASFORMAZIONE': '🔄 Crea 2-3 varianti TRASFORMAZIONE: stesso before/after ma diverso soggetto e formato',
-            }
-
-            for (const angle of winnerAngles) {
-                msg += `\n✅ <b>${angle}</b> — FUNZIONA!\n`
-                msg += `  ${scaleGuides[angle] || '🎯 Duplica la winner con diverso hook e visual'}\n`
-                msg += `  💡 Andromeda: cambia solo l'hook nei primi 3sec. Meta ottimizzerà il delivery automaticamente.\n`
-            }
-
-            msg += '\n'
-        }
-
-        // ❌ ANGOLI DA RIVEDERE — Killed angles are NOT working, don't invest more
-        if (killedCount > 0) {
-            // Detect which angles were killed
-            const killedAngles: Record<string, string[]> = {}
-            killedAds.forEach((k: any) => {
-                const adName = k.entity_name || ''
-                let angle = 'ALTRO'
-                if (adName.includes('EMO')) angle = 'EMOTIONAL'
-                else if (adName.includes('SYS')) angle = 'SYSTEM'
-                else if (adName.includes('EFF')) angle = 'EFFICIENCY'
-                else if (adName.includes('EDU')) angle = 'EDUCATION'
-                else if (adName.includes('Status')) angle = 'STATUS'
-                
-                if (!killedAngles[angle]) killedAngles[angle] = []
-                killedAngles[angle].push(adName.split('(')[0].trim())
-            })
-
-            msg += '❌ <b>ANGOLI DA RIVEDERE</b>\n'
-            msg += '─────────────────\n'
-            
-            for (const [angle, ads] of Object.entries(killedAngles)) {
-                msg += `\n⛔ <b>${angle}</b> — NON performante\n`
-                msg += `  Ads killate: ${ads.join(', ')}\n`
-                msg += `  ⚠️ Non creare altre ads con questo angolo nella campagna principale\n`
-                msg += `  💡 Se vuoi ritestare → campagna di TEST separata con budget limitato (€10-20/giorno)\n`
-            }
-
-            msg += '\n'
-        }
-
-        msg += `\n⏰ Prossima valutazione tra 60 min`
+        msg += `⏰ Prossimo ciclo tra 60 min\n`
+        msg += `🔁 Ratchet Evaluator: ore 23:00`
 
         await sendTelegramDirect(conn.credentials.bot_token, conn.credentials.chat_id, msg)
-    } catch (err) {
-        console.error('Telegram cron report error:', err)
+    } catch (e) {
+        console.error('[Intelligence Engine] Telegram error:', e)
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// Rules Evaluation — Full-Funnel Aware Engine (Andromeda Edition)
-//
-// HIERARCHY OF PROTECTION (in order of priority):
-// 1. 🛡 CPL SHIELD: Se l'ad ha CPL storico (7gg) <= 1.3x target → IMMUNE da kill rules
-// 2. ⏸ LEARNING: Se l'ad ha speso < target CPL e < 1500 imp → in learning, protetta
-// 3. 🔴 EMERGENCY KILL: Valutazione su finestra DAILY (>€30 e 0 lead, ad consolidata)
-// 4. 🔴 KILL: Valutazione su finestra 7gg standard
-// 5. 📈 SCALE: Solo su ads con CPL comprovato (min spend elevato)
-// ═══════════════════════════════════════════════════════════════════════
-
-function evaluateRulesAdLevel(rules: any[], ads: any[], campaignBudgets: Record<string, number>, targets: any) {
-    const results: any[] = []
-    const targetCPL = targets?.target_cpl || 20
-
-    const learningRules = rules.filter(r => r.category === 'learning_protection')
-    // Emergency kill rules are evaluated on DAILY window (handled in caller with adsToday)
-    const emergencyKillRules = rules.filter(r => r.category === 'creative_kill' && r.name.includes('Emergenza'))
-    const standardKillRules = rules.filter(r => r.category === 'creative_kill' && !r.name.includes('Emergenza'))
-    const adLevelRules = rules.filter(r => ['creative_winner', 'fatigue'].includes(r.category))
-    const campaignLevelRules = rules.filter(r => ['budget_scale_up', 'budget_scale_down'].includes(r.category))
-
-    // ─── STEP 1: CPL SHIELD ─────────────────────────────────────────────
-    // Ads with 7-day CPL <= 1.3x target are UNTOUCHABLE by kill rules.
-    // This protects high-performing ads from daily volatility.
-    const cplShieldedAdIds = new Set<string>()
-    ads.forEach(ad => {
-        const metrics = extractMetrics(ad)
-        const effectiveCPL = metrics.leads > 0 ? metrics.spend / metrics.leads : 0
-        // Shield activates only if ad has generated at least 1 lead AND CPL is within 130% of target
-        if (metrics.leads >= 1 && effectiveCPL > 0 && effectiveCPL <= targetCPL * 1.3) {
-            cplShieldedAdIds.add(ad.ad_id)
-            results.push({
-                rule_id: 'cpl_shield', rule_name: 'Scudo CPL (7gg)', category: 'cpl_shield',
-                campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                entity_name: `🛡 ${ad.ad_name} (${ad.campaign_name})`,
-                entity_type: 'ad', action: 'shield_active', action_value: null,
-                reason: `CPL Shield attivo: CPL €${effectiveCPL.toFixed(2)} ≤ €${(targetCPL * 1.3).toFixed(2)} (130% target). Kill rules sospese.`,
-                metrics,
-            })
-        }
-    })
-
-    // ─── STEP 2: LEARNING PHASE PROTECTION ──────────────────────────────
-    // CPL-shielded ads bypass learning check (they've already proven themselves)
-    const protectedAdIds = new Set<string>(cplShieldedAdIds)
-    ads.forEach(ad => {
-        if (protectedAdIds.has(ad.ad_id)) return // Already shielded
-        const metrics = extractMetrics(ad)
-
-        // OVERRIDE: If spend > 2x target CPL with 0 leads → NOT in learning, burning money
-        if (metrics.spend > targetCPL * 2 && metrics.leads === 0) return
-        // OVERRIDE: If spend > target CPL → had enough budget to prove itself
-        if (metrics.spend > targetCPL) return
-
-        learningRules.forEach(rule => {
-            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
-                protectedAdIds.add(ad.ad_id)
-                results.push({
-                    rule_id: rule.id, rule_name: rule.name, category: 'learning_protection',
-                    campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                    entity_name: `⏸ ${ad.ad_name} (${ad.campaign_name})`,
-                    entity_type: 'ad', action: 'block_other_rules', action_value: null,
-                    reason: `Learning phase: €${metrics.spend.toFixed(2)} spesi, ${metrics.impressions} impression`,
-                    metrics,
-                })
-            }
-        })
-    })
-
-    // ─── STEP 3: KILL RULES (7gg window) — skip CPL-shielded and learning ─
-    // FIX: CPL=0 bug — if spend > 0 and leads = 0, set effective_cpl to a high sentinel
-    // so multiplier-based kill rules (3x target) fire correctly
-    const evaluableAds = ads.filter(ad => !protectedAdIds.has(ad.ad_id))
-    evaluableAds.forEach(ad => {
-        const metricsRaw = extractMetrics(ad)
-        // CPL=0 BUG FIX: If spent but no leads, assign effective CPL = spend (infinite cost per lead)
-        const metrics = {
-            ...metricsRaw,
-            cpl: metricsRaw.leads > 0 ? metricsRaw.spend / metricsRaw.leads : (metricsRaw.spend > 0 ? metricsRaw.spend * 99 : 0),
-        }
-
-        standardKillRules.forEach(rule => {
-            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
-            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
-                const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
-                actions.forEach((act: any) => {
-                    results.push({
-                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
-                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                        entity_name: `${ad.ad_name} (${ad.campaign_name})`,
-                        entity_type: 'ad', action: act.type, action_value: act.value, reason, metrics: metricsRaw,
-                    })
-                })
-            }
-        })
-
-        // ─── STEP 4: WINNER + FATIGUE rules (all unprotected ads) ─
-        adLevelRules.forEach(rule => {
-            if (metricsRaw.spend < (rule.min_spend_before_eval || 0)) return
-            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, metricsRaw, targetCPL) && conditions.length > 0) {
-                const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((c: any) => `${c.metric} ${c.operator} ${c.value ?? (c.value_multiplier + 'x target')}`).join(' AND ')}`
-                actions.forEach((act: any) => {
-                    results.push({
-                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
-                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                        entity_name: `${ad.ad_name} (${ad.campaign_name})`,
-                        entity_type: 'ad', action: act.type, action_value: act.value, reason, metrics: metricsRaw,
-                    })
-                })
-            }
-        })
-    })
-
-    // ─── STEP 5: CAMPAIGN-LEVEL RULES (budget scale up/down) ────────────
-    const byCampaign: Record<string, any> = {}
-    ads.forEach(ad => {
-        if (!byCampaign[ad.campaign_id]) {
-            byCampaign[ad.campaign_id] = { spend: 0, leads: 0, impressions: 0, frequency: 0, campaign_name: ad.campaign_name, ad_count: 0 }
-        }
-        const c = byCampaign[ad.campaign_id]
-        c.spend += Number(ad.spend) || 0
-        c.leads += Number(ad.leads_count) || 0
-        c.impressions += Number(ad.impressions) || 0
-        c.ad_count++
-        c.frequency = Math.max(c.frequency, Number(ad.frequency) || 0)
-    })
-    Object.values(byCampaign).forEach((c: any) => {
-        c.cpl = c.leads > 0 ? c.spend / c.leads : 0
-    })
-
-    Object.entries(byCampaign).forEach(([campaignId, c]: [string, any]) => {
-        campaignLevelRules.forEach(rule => {
-            if (c.spend < (rule.min_spend_before_eval || 0)) return
-            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, { spend: c.spend, leads: c.leads, cpl: c.cpl, ctr: c.ctr || 0, impressions: c.impressions, frequency: c.frequency }, targetCPL) && conditions.length > 0) {
-                const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `${rule.name}: ${conditions.map((cd: any) => `${cd.metric} ${cd.operator} ${cd.value ?? (cd.value_multiplier + 'x target')}`).join(' AND ')}`
-                actions.forEach((act: any) => {
-                    results.push({
-                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
-                        campaign_id: campaignId, entity_name: `📊 ${c.campaign_name} (${c.ad_count} ads)`,
-                        entity_type: 'campaign', action: act.type, action_value: act.value, reason,
-                        metrics: { spend: c.spend, leads: c.leads, cpl: c.cpl, impressions: c.impressions, frequency: c.frequency },
-                    })
-                })
-            }
-        })
-    })
-
-    return results
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function clamp(val: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, val))
 }
 
-// Evaluate ONLY emergency kill rules on today's data (daily window)
-// These bypass the CPL Shield — emergency = ad IS broken right now
-export function evaluateEmergencyKills(rules: any[], adsToday: any[], targets: any) {
-    const targetCPL = targets?.target_cpl || 20
-    const emergencyRules = rules.filter(r => r.category === 'creative_kill' && r.name.includes('Emergenza'))
-    const results: any[] = []
-
-    adsToday.forEach(ad => {
-        const metrics = extractMetrics(ad)
-        emergencyRules.forEach(rule => {
-            if (metrics.spend < (rule.min_spend_before_eval || 0)) return
-            const conditions = Array.isArray(rule.conditions) ? rule.conditions : []
-            if (evalConditions(conditions, metrics, targetCPL) && conditions.length > 0) {
-                const actions = Array.isArray(rule.actions) ? rule.actions : []
-                const reason = `🚨 ${rule.name} [OGGI]: €${metrics.spend.toFixed(2)} spesi, ${metrics.leads} lead`
-                actions.forEach((act: any) => {
-                    results.push({
-                        rule_id: rule.id, rule_name: rule.name, category: rule.category,
-                        campaign_id: ad.campaign_id, ad_id: ad.ad_id,
-                        entity_name: `🚨 ${ad.ad_name} (${ad.campaign_name})`,
-                        entity_type: 'ad', action: act.type, action_value: act.value,
-                        reason, metrics, source: 'emergency_today',
-                    })
-                })
-            }
-        })
-    })
-    return results
+function computeTrend(history: number[]): string {
+    if (history.length < 3) return 'stable'
+    const recent = history.slice(-3)
+    const delta = recent[2] - recent[0]
+    if (delta > 0.05) return 'rising'
+    if (delta < -0.05) return 'falling'
+    return 'stable'
 }
 
-function extractMetrics(ad: any): Record<string, number> {
-    const spend = Number(ad.spend) || 0
-    const leads = Number(ad.leads_count) || 0
-    const link_clicks = Number(ad.link_clicks) || 0
-    return {
-        spend, leads,
-        // Real CPL only when there are leads; 0 otherwise (fix applied at call site when needed)
-        cpl: leads > 0 ? spend / leads : 0,
-        ctr: Number(ad.ctr) || 0,
-        impressions: Number(ad.impressions) || 0,
-        frequency: Number(ad.frequency) || 0,
-        link_clicks,
-        link_ctr: Number(ad.link_ctr) || 0,
-        cpc_link: Number(ad.cpc_link) || (spend > 0 && link_clicks > 0 ? spend / link_clicks : 0),
-    }
-}
-
-function evalConditions(conditions: any[], metrics: Record<string, number>, targetCPL: number): boolean {
-    return conditions.every((cond: any) => {
-        const metricVal = metrics[cond.metric] ?? 0
-        let threshold = Number(cond.value) || 0
-        // Support both `value_multiplier + reference` and new `value_multiplier` alone
-        if (cond.value_multiplier) threshold = targetCPL * Number(cond.value_multiplier)
-        if (cond.value_reference === 'target_cpl') threshold = targetCPL
-        switch (cond.operator) {
-            case '>': return metricVal > threshold
-            case '<': return metricVal < threshold
-            case '>=': return metricVal >= threshold
-            case '<=': return metricVal <= threshold
-            case '=': return metricVal === threshold
-            default: return true
-        }
-    })
+function getCurrentWeekLabel(): string {
+    const now = new Date()
+    const startOfYear = new Date(now.getFullYear(), 0, 1)
+    const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7)
+    return `${now.getFullYear()}-W${String(weekNum).padStart(2, '0')}`
 }

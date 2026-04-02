@@ -4,7 +4,7 @@ import './landing-v2.css'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
-import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireInitiateCheckout } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -57,7 +57,18 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
-    const [adsetAngle, setAdsetAngle] = useState<'emotional'|'system'|'efficiency'|'status'|'default'>('default')
+    const [adsetAngle, setAdsetAngle] = useState<
+        'emotional'|'system'|'efficiency'|'status'|'education'|
+        'growth'|'authority'|'security'|'trauma'|'decision'|
+        'sport_performance'|'mental_coaching'|'generic'
+    >('generic')
+    const checkoutFiredRef = useRef(false)
+
+    const handleFirstFieldFocus = useCallback(() => {
+        if (checkoutFiredRef.current) return
+        checkoutFiredRef.current = true
+        fireInitiateCheckout(funnel.name)
+    }, [funnel.name])
 
     // Easter egg / Dev tool per visualizzare la TKP
     useEffect(() => {
@@ -107,14 +118,40 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         abVariant: funnel.settings?.ab_variant,
     })
 
-    // Detect adset angle from utm_term
+    // Detect adset angle from utm_term — aligned with creative-pipeline.ts adsetAngles
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const utmTerm = (params.get('utm_term') || '').toUpperCase()
-        if (utmTerm.includes('EMOTIONAL') || utmTerm.includes('SOVRACCARICO')) setAdsetAngle('emotional')
-        else if (utmTerm.includes('SYSTEM') || utmTerm.includes('CONTROLLO')) setAdsetAngle('system')
-        else if (utmTerm.includes('EFFICIENCY') || utmTerm.includes('OTTIMIZZAT')) setAdsetAngle('efficiency')
-        else if (utmTerm.includes('STATUS') || utmTerm.includes('ELITE') || utmTerm.includes('CORONA')) setAdsetAngle('status')
+        const t = (params.get('utm_term') || '').toLowerCase()
+        if (!t) return
+        // Exact match first (pipeline uses these exact strings as utm_term)
+        const ANGLE_MAP: Record<string, typeof adsetAngle> = {
+            'efficiency':       'efficiency',
+            'system':           'system',
+            'emotional':        'emotional',
+            'status':           'status',
+            'education':        'education',
+            'growth':           'growth',
+            'authority':        'authority',
+            'security':         'security',
+            'trauma':           'trauma',
+            'decision':         'decision',
+            'sport_performance':'sport_performance',
+            'mental_coaching':  'mental_coaching',
+        }
+        // Exact match
+        if (ANGLE_MAP[t]) { setAdsetAngle(ANGLE_MAP[t]); return }
+        // Partial match fallbacks for legacy naming
+        if (t.includes('emozion') || t.includes('dolor') || t.includes('trauma')) setAdsetAngle('trauma')
+        else if (t.includes('system') || t.includes('metodo') || t.includes('controllo')) setAdsetAngle('system')
+        else if (t.includes('efficien') || t.includes('ottimiz')) setAdsetAngle('efficiency')
+        else if (t.includes('status') || t.includes('elite') || t.includes('corona')) setAdsetAngle('status')
+        else if (t.includes('edu') || t.includes('learn')) setAdsetAngle('education')
+        else if (t.includes('grow') || t.includes('trasf')) setAdsetAngle('growth')
+        else if (t.includes('author') || t.includes('leader')) setAdsetAngle('authority')
+        else if (t.includes('secur') || t.includes('sicur')) setAdsetAngle('security')
+        else if (t.includes('decis')) setAdsetAngle('decision')
+        else if (t.includes('sport') || t.includes('calcio') || t.includes('perf')) setAdsetAngle('sport_performance')
+        else if (t.includes('mental')) setAdsetAngle('mental_coaching')
     }, [])
 
     // Exit intent — ONLY after user has scrolled to bottom of page
@@ -213,8 +250,12 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     funnel_id: funnel.id,
                     name: fullName, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
-                    extra_data: { sport: 'calcio', child_age: childAge, adset_angle: adsetAngle },
-                    landing_url: window.location.host + window.location.pathname,
+                    extra_data: {
+                        sport: 'calcio',
+                        child_age: childAge,
+                        adset_angle: adsetAngle === 'generic' ? undefined : adsetAngle
+                    },
+                    landing_url: window.location.href,
                     event_id: leadEventId,
                     visitor_id: getVisitorId(),
                     ...getUtmParams(),
@@ -423,10 +464,10 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div className="lp-field lp-name-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
                                     <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`}>
                                         <User size={18} style={{ flexShrink: 0 }} />
-                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} required style={{ minWidth: 0, width: '100%' }} />
+                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
                                     </div>
                                     <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`}>
-                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required style={{ minWidth: 0, width: '100%' }} />
+                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} onFocus={handleFirstFieldFocus} required style={{ minWidth: 0, width: '100%' }} />
                                     </div>
                                 </div>
                                 <div className="lp-field">

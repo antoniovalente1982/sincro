@@ -44,6 +44,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
     const [viewerCount, setViewerCount] = useState(14)
+    const [adsetAngle, setAdsetAngle] = useState<string>('')
 
     // Easter egg / Dev tool per visualizzare la TKP
     useEffect(() => {
@@ -51,6 +52,30 @@ export default function MetodoSincroLanding({ funnel }: Props) {
             const urlParams = new URLSearchParams(window.location.search)
             if (urlParams.get('tkp') === 'true') setSubmitted(true)
         }
+    }, [])
+
+    // Detect adset angle from utm_term — aligned with creative-pipeline.ts
+    useEffect(() => {
+        const t = (new URLSearchParams(window.location.search).get('utm_term') || '').toLowerCase()
+        if (!t) return
+        const ANGLE_MAP: Record<string, string> = {
+            'efficiency': 'efficiency', 'system': 'system', 'emotional': 'emotional',
+            'status': 'status', 'education': 'education', 'growth': 'growth',
+            'authority': 'authority', 'security': 'security', 'trauma': 'trauma',
+            'decision': 'decision', 'sport_performance': 'sport_performance', 'mental_coaching': 'mental_coaching',
+        }
+        if (ANGLE_MAP[t]) { setAdsetAngle(ANGLE_MAP[t]); return }
+        if (t.includes('emozion') || t.includes('trauma')) setAdsetAngle('trauma')
+        else if (t.includes('system') || t.includes('metodo')) setAdsetAngle('system')
+        else if (t.includes('efficien')) setAdsetAngle('efficiency')
+        else if (t.includes('status') || t.includes('elite')) setAdsetAngle('status')
+        else if (t.includes('edu')) setAdsetAngle('education')
+        else if (t.includes('grow') || t.includes('trasf')) setAdsetAngle('growth')
+        else if (t.includes('auth') || t.includes('leader')) setAdsetAngle('authority')
+        else if (t.includes('secur')) setAdsetAngle('security')
+        else if (t.includes('decis')) setAdsetAngle('decision')
+        else if (t.includes('sport') || t.includes('calcio')) setAdsetAngle('sport_performance')
+        else if (t.includes('mental')) setAdsetAngle('mental_coaching')
     }, [])
 
     // Dynamic viewer count between 14 and 35
@@ -95,7 +120,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                     funnel_id: funnel.id,
                     name: fullName, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
-                    extra_data: { sport: 'calcio' },
+                    extra_data: { sport: 'calcio', ...(adsetAngle ? { adset_angle: adsetAngle } : {}) },
                     landing_url: window.location.host + window.location.pathname,
                     event_id: leadEventId,
                     visitor_id: getVisitorId(),

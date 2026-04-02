@@ -273,12 +273,14 @@ export async function POST(req: NextRequest) {
         // the serverless function before these async operations complete
         if (lead) {
             const childAge = body.extra_data?.child_age
+            const adsetAngleNotif = body.extra_data?.adset_angle
             const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
                 `👤 <b>Nome:</b> ${name}\n` +
                 (email ? `📧 <b>Email:</b> ${email}\n` : '') +
                 (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
                 (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
                 `🔗 <b>Funnel:</b> ${funnel.name}\n` +
+                (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
                 (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
                 (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
 

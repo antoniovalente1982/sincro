@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import AICommandCenter from './AICommandCenter'
+import MissionControl from './MissionControl'
 
 export default async function AIEnginePage() {
     const supabase = await createClient()
@@ -86,21 +87,26 @@ export default async function AIEnginePage() {
     ])
 
     return (
-        <AICommandCenter
-            campaigns={campaignsRes.data || []}
-            recommendations={recommendationsRes.data || []}
-            briefs={briefsRes.data || []}
-            snapshots={snapshotsRes.data || []}
-            connections={connectionsRes.data || []}
-            orgId={orgId}
-            agentConfig={agentConfigRes.data || null}
-            budgetTracking={budgetRes.data || []}
-            episodes={episodesRes.data || []}
-            knowledge={knowledgeRes.data || []}
-            workingMemory={workingMemRes.data || null}
-            targets={targetsRes.data || null}
-            funnelsAI={funnelsAIRes.data || []}
-        />
+        <div>
+            {/* 🧠 Mente Evolutiva — Mission Control */}
+            <MissionControl />
+            {/* Legacy Command Center */}
+            <AICommandCenter
+                campaigns={campaignsRes.data || []}
+                recommendations={recommendationsRes.data || []}
+                briefs={briefsRes.data || []}
+                snapshots={snapshotsRes.data || []}
+                connections={connectionsRes.data || []}
+                orgId={orgId}
+                agentConfig={agentConfigRes.data || null}
+                budgetTracking={budgetRes.data || []}
+                episodes={episodesRes.data || []}
+                knowledge={knowledgeRes.data || []}
+                workingMemory={workingMemRes.data || null}
+                targets={targetsRes.data || null}
+                funnelsAI={funnelsAIRes.data || []}
+            />
+        </div>
     )
 }
 

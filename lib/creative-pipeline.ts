@@ -833,19 +833,26 @@ export async function runFullPipelineWithApiFetch(orgId: string): Promise<Pipeli
     ads.forEach((ad: any) => {
         if (!adsetAngles[ad.adset_id]) {
             const name = (ad.adset_name || '').toLowerCase()
+            // ── CANONICAL ANGLE MAPPING (aligned with landing page utm_term) ──
             let angle = 'generic'
-            if (name.includes('efficien') || name.includes('eff')) angle = 'efficiency'
-            else if (name.includes('system') || name.includes('metodo') || name.includes('sys')) angle = 'system'
-            else if (name.includes('emozion') || name.includes('dolor') || name.includes('emo')) angle = 'emotional'
-            else if (name.includes('status') || name.includes('corona')) angle = 'status'
-            else if (name.includes('edu') || name.includes('educaz')) angle = 'education'
-            else if (name.includes('trasf') || name.includes('transform')) angle = 'transformation'
-            else if (name.includes('calcio')) angle = 'sport_performance'
-            else if (name.includes('mental')) angle = 'mental_coaching'
+            if      (name.includes('efficien') || name.includes('_eff'))     angle = 'efficiency'
+            else if (name.includes('system')   || name.includes('metodo') || name.includes('_sys')) angle = 'system'
+            else if (name.includes('emozion')  || name.includes('_emo') || name.includes('emotional')) angle = 'emotional'
+            else if (name.includes('status')   || name.includes('corona') || name.includes('elite')) angle = 'status'
+            else if (name.includes('edu')      || name.includes('educaz') || name.includes('learn')) angle = 'education'
+            else if (name.includes('grow')     || name.includes('crescit') || name.includes('trasform')) angle = 'growth'
+            else if (name.includes('author')   || name.includes('leader')) angle = 'authority'
+            else if (name.includes('secur')    || name.includes('sicur')) angle = 'security'
+            else if (name.includes('trauma')   || name.includes('dolor') || name.includes('blocco')) angle = 'trauma'
+            else if (name.includes('decis')    || name.includes('scelt')) angle = 'decision'
+            else if (name.includes('sport')    || name.includes('calcio') || name.includes('perf')) angle = 'sport_performance'
+            else if (name.includes('mental'))  angle = 'mental_coaching'
+            // ──────────────────────────────────────────────────────────────────
 
             adsetAngles[ad.adset_id] = angle
-            adsetNames[ad.adset_id] = ad.adset_name
-            adsetUtmTerms[ad.adset_id] = angle.replace(/[^a-z_]/g, '_')
+            adsetNames[ad.adset_id]  = ad.adset_name
+            // utm_term matches exactly the angle string (lowercase, underscores)
+            adsetUtmTerms[ad.adset_id] = angle
         }
     })
 
@@ -905,6 +912,26 @@ export async function runCreativePipeline(
     // 1. Analyze Creative DNA
     const dna = await analyzeCreativeDNA(orgId, adMetrics, campaignBudgets, adsetAngles)
 
+    // ── MENTE EVOLUTIVA: Load angle scores from ai_angle_scores ──────────────
+    // Use them to: (a) skip paused angles, (b) sort by score, (c) use best_pocket_id
+    const angleScoresMap: Record<string, {
+        score: number; recommended_action: string; best_pocket_id: number | null
+    }> = {}
+    try {
+        const { data: angleScores } = await supabase
+            .from('ai_angle_scores')
+            .select('angle, score, recommended_action, best_pocket_id')
+            .eq('organization_id', orgId)
+        for (const s of (angleScores || [])) {
+            angleScoresMap[s.angle] = {
+                score: s.score || 0,
+                recommended_action: s.recommended_action || 'maintain',
+                best_pocket_id: s.best_pocket_id || null,
+            }
+        }
+    } catch { /* proceed without scores */ }
+    // ──────────────────────────────────────────────────────────────────────────
+
     // 2. Check cooldown — don't generate if we generated recently
     const cooldownSince = new Date(Date.now() - COOLDOWN_HOURS * 60 * 60 * 1000).toISOString()
     const { data: recentCreatives } = await supabase
@@ -917,9 +944,24 @@ export async function runCreativePipeline(
     const recentAngles = new Set((recentCreatives || []).map(c => c.angle))
 
     // 3. For each angle with deficit, generate briefs
+    // ── MENTE EVOLUTIVA: Sort by score (descending) — best angles first ──────
     const sortedAngles = Object.entries(dna.distribution)
-        .filter(([_, d]) => d.deficit > 0)
-        .sort((a, b) => b[1].deficit - a[1].deficit) // Highest deficit first
+        .filter(([angle, d]) => {
+            if (d.deficit <= 0) return false
+            const action = angleScoresMap[angle]?.recommended_action
+            if (action === 'pause') {
+                result.skipped_reasons.push(`${angle}: skip — Intelligence Engine = PAUSE`)
+                return false
+            }
+            return true
+        })
+        .sort((a, b) => {
+            const scoreA = angleScoresMap[a[0]]?.score ?? 0
+            const scoreB = angleScoresMap[b[0]]?.score ?? 0
+            if (Math.abs(scoreA - scoreB) > 0.05) return scoreB - scoreA
+            return b[1].deficit - a[1].deficit
+        })
+    // ──────────────────────────────────────────────────────────────────────────
 
     let briefsGenerated = 0
 
@@ -953,7 +995,10 @@ export async function runCreativePipeline(
         }
 
         // Generate brief (1 per cycle per angle to avoid spam)
-        const brief = await generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+        // ── MENTE EVOLUTIVA: pass best_pocket_id hint to selectBuyerPocket ──
+        const pocketHint = angleScoresMap[angle]?.best_pocket_id || null
+        const brief = await generateCreativeBriefWithHint(orgId, angle, adset, dna, funnelSettings, pocketHint)
+        // ─────────────────────────────────────────────────────────────────────
         if (!brief) {
             result.skipped_reasons.push(`${angle}: impossibile generare brief (pocket esauriti?)`)
             continue
@@ -1017,10 +1062,93 @@ export async function runCreativePipeline(
             continue
         }
 
+        // ── MENTE EVOLUTIVA: Write to ai_strategy_log for ratchet tracking ──
+        try {
+            const angleScore = angleScoresMap[angle]
+            await supabase.from('ai_strategy_log').insert({
+                organization_id: orgId,
+                cycle_id: `creative-${Date.now()}-${angle}`,
+                cycle_type: 'creative',
+                hypothesis: {
+                    angle,
+                    action: 'generate_new_ad',
+                    pocket_id: brief.pocket.pocket_id,
+                    pocket_name: brief.pocket.pocket_name,
+                    adset_id: adset.id,
+                    reasoning: `Generata nuova ad per deficit (${dist.active}/${dist.target} attive). Score angolo: ${(angleScore?.score ?? 0).toFixed(2)}. Pocket: ${brief.pocket.pocket_name}.`,
+                },
+                baseline_metrics: {
+                    angle_score: angleScore?.score ?? null,
+                    def_active: dist.active,
+                    def_target: dist.target,
+                    pocket_selection_reason: brief.pocket.selection_reason,
+                },
+                outcome: 'pending',
+            })
+        } catch { /* non blocking */ }
+        // ─────────────────────────────────────────────────────────────────────
+
         if (imageUrl) brief.image_url = imageUrl
         result.briefs_generated.push(brief)
         briefsGenerated++
     }
 
     return result
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// WRAPPER: generateCreativeBriefWithHint
+// Extends generateCreativeBrief to prefer a specific pocket_id if known
+// (best_pocket_id from ai_angle_scores — set by human override or ratchet)
+// ══════════════════════════════════════════════════════════════════════════
+async function generateCreativeBriefWithHint(
+    orgId: string,
+    angle: string,
+    adset: { id: string; name: string; utm_term: string },
+    dna: CreativeDNA,
+    funnelSettings?: FunnelAISettings,
+    bestPocketId?: number | null,
+): Promise<CreativeBrief | null> {
+    if (!bestPocketId) {
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+    }
+
+    // Try to load the specific pocket
+    const supabase = getSupabaseAdmin()
+    const pockets = await loadBuyerPockets()
+    const preferredPocket = pockets.find(p => p.pocket_id === bestPocketId)
+
+    if (!preferredPocket) {
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+    }
+
+    // Check if this pocket is already used in the adset
+    const { data: existingAds } = await supabase
+        .from('ad_creatives')
+        .select('pocket_id')
+        .eq('organization_id', orgId)
+        .eq('target_adset_id', adset.id)
+        .in('status', ['active', 'launched', 'approved', 'ready'])
+        .eq('pocket_id', bestPocketId)
+
+    if (existingAds && existingAds.length > 0) {
+        // Preferred pocket already in use — fall back to normal selection
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+    }
+
+    // Use the preferred pocket directly
+    const selectedPocket = { ...preferredPocket, selection_reason: `Pocket preferito da Intelligence Engine (id: ${bestPocketId})` } as any
+    const copy = await generateCopyFromPocket(selectedPocket, angle, dna, funnelSettings)
+    const imagePrompt = generateImagePrompt(selectedPocket, angle, dna, copy.image_description, copy.headline)
+    const pocketShort = preferredPocket.pocket_name.replace(/\s+/g, '_').substring(0, 20)
+    const briefName = `${angle}_${pocketShort}_${Date.now()}`
+    const topAdsSummary = dna.winning_patterns.top_ads.length > 0
+        ? `Top performer: ${dna.winning_patterns.top_ads[0].name} (CPL €${dna.winning_patterns.top_ads[0].cpl.toFixed(2)}, CTR ${dna.winning_patterns.top_ads[0].ctr.toFixed(2)}%)`
+        : 'Nessun dato di performance disponibile'
+
+    return {
+        name: briefName, angle, pocket: selectedPocket, adset, copy,
+        image_prompt: imagePrompt, cta_type: 'LEARN_MORE', aspect_ratio: '4:5',
+        winning_context: { top_ads_summary: topAdsSummary, avg_cpl: dna.winning_patterns.avg_cpl_winners, avg_ctr: dna.winning_patterns.avg_ctr_winners },
+    }
 }

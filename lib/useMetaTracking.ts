@@ -119,6 +119,52 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
             (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
         }
 
+        // ── ViewContent after 3s of active visit ──────────────────────────────
+        // Signals to Meta that the user actually read the page (not a bounce).
+        // Fires client-side immediately + CAPI after 2s delay.
+        const vcEventId = `vc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        let vcFired = false
+        const fireViewContent = () => {
+            if (vcFired) return
+            vcFired = true
+            if (typeof window !== 'undefined' && (window as any).fbq) {
+                ;(window as any).fbq('track', 'ViewContent', { content_name: 'landing' }, { eventID: vcEventId })
+            }
+            // CAPI ViewContent
+            setTimeout(() => {
+                const vc = parseCookies()
+                fetch('/api/track/pageview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        organization_id: orgId,
+                        funnel_id: funnelId,
+                        page_path: window.location.pathname + '?vc=1',
+                        page_variant: abVariant || 'A',
+                        visitor_id: vid,
+                        utm_source: utms.utm_source, utm_medium: utms.utm_medium,
+                        utm_campaign: utms.utm_campaign, utm_content: utms.utm_content,
+                        utm_term: utms.utm_term,
+                        event_id: vcEventId,
+                        fbc: vc._fbc || initialFbc,
+                        fbp: vc._fbp || initialFbp,
+                        page_url: window.location.href,
+                    }),
+                }).catch(() => {})
+            }, 2000)
+        }
+        const vcTimer = setTimeout(fireViewContent, 3000)
+        // Also fire on scroll past 30% of page
+        const onScroll = () => {
+            if (window.scrollY > document.body.scrollHeight * 0.3) {
+                clearTimeout(vcTimer)
+                fireViewContent()
+                window.removeEventListener('scroll', onScroll, { passive: true } as any)
+            }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+        // ──────────────────────────────────────────────────────────────────────
+
         // Delay CAPI PageView by 2s to let Meta Pixel set _fbp and _fbc cookies first
         setTimeout(() => {
             const freshCookies = parseCookies()
@@ -145,7 +191,7 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
                     fbc: freshFbc,
                     fbp: freshFbp,
                     fb_login_id: freshCookies.c_user || undefined,
-                    page_url: window.location.href,
+                    page_url: window.location.href,  // ← full URL with params
                 }),
             }).catch(() => {})
         }, 2000)
@@ -156,6 +202,21 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
     const getVisitorId = useCallback(() => visitorIdRef.current, [])
 
     return { getFbIds, getUtmParams, getVisitorId }
+}
+
+/**
+ * Fire InitiateCheckout — call on first form field focus.
+ * Signals Meta that the user started filling the lead form.
+ * This is the #1 retargeting signal for "Hot" audiences.
+ */
+export function fireInitiateCheckout(funnelName?: string) {
+    if (typeof window === 'undefined' || !(window as any).fbq) return
+    const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    ;(window as any).fbq('track', 'InitiateCheckout', {
+        content_name: funnelName || 'lead_form',
+        currency: 'EUR',
+        value: 0,
+    }, { eventID: eventId })
 }
 
 /**
