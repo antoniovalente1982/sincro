@@ -147,6 +147,9 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         const totalConv = filteredSubs.length
         const totalRate = totalUniqueVisitors > 0 ? (totalConv / totalUniqueVisitors * 100) : 0
 
+        // Sort alphabetically/numerically
+        funnelStats.sort((a, b) => a.funnel.name.localeCompare(b.funnel.name, undefined, { numeric: true }))
+
         return { funnelStats, totalViews, totalUniqueVisitors, totalConv, totalRate }
     }, [funnels, pageViews, submissions, timeRange, customFrom, customTo])
 
