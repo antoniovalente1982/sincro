@@ -20,11 +20,11 @@ export default function CRMGrid({ leads, stages, onLeadClick }: CRMGridProps) {
             <table className="w-full text-left text-sm text-gray-300 whitespace-nowrap">
                 <thead className="sticky top-0 bg-[#0a0a0e] shadow-[0_1px_0_0_rgba(255,255,255,0.05)] z-10">
                     <tr>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Data Ins.</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Contatto</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Fase / Stage</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Valore</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Sorgente / Note</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Data Ins.</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -36,6 +36,9 @@ export default function CRMGrid({ leads, stages, onLeadClick }: CRMGridProps) {
                                 onClick={() => onLeadClick(lead)}
                                 className="hover:bg-white/[0.02] cursor-pointer transition-colors"
                             >
+                                <td className="px-5 py-4 text-xs font-semibold text-gray-400 whitespace-nowrap">
+                                    {formatDate(lead.meta_data?.last_submission_at || lead.created_at)}
+                                </td>
                                 <td className="px-5 py-4 max-w-[280px] truncate">
                                     <div className="font-semibold text-white">{lead.name}</div>
                                     <div className="text-xs text-gray-400 mt-0.5">{lead.email || ''} {lead.email && lead.phone ? '•' : ''} {lead.phone || ''}</div>
@@ -60,9 +63,6 @@ export default function CRMGrid({ leads, stages, onLeadClick }: CRMGridProps) {
                                         <span className="bg-white/5 px-2 py-1 rounded border border-white/10 mr-2">{lead.utm_source || lead.product}</span>
                                     ) : null}
                                     {lead.utm_campaign || lead.funnels?.name || ''}
-                                </td>
-                                <td className="px-5 py-4 text-xs text-gray-500">
-                                    {formatDate(lead.meta_data?.last_submission_at || lead.created_at)}
                                 </td>
                             </tr>
                         )
