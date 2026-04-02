@@ -210,6 +210,17 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
         }
     }
 
+    // Fetch existing campaigns to preserve funnel_id during upsert
+    const { data: existingCampaigns } = await getSupabaseAdmin()
+        .from('campaigns_cache')
+        .select('external_campaign_id, funnel_id')
+        .eq('organization_id', orgId);
+        
+    const existingFunnelsMap: Record<string, string | null> = {};
+    for (const ec of (existingCampaigns || [])) {
+        if (ec.funnel_id) existingFunnelsMap[ec.external_campaign_id] = ec.funnel_id;
+    }
+
     // 4. Upsert campaigns with insights
     let synced = 0
     for (const campaign of campaigns) {
@@ -241,6 +252,7 @@ async function syncCampaigns(orgId: string, credentials: any, timeRangeOverride?
             objective: campaign.objective || null,
             daily_budget: campaign.daily_budget ? parseFloat(campaign.daily_budget) / 100 : null,
             synced_at: new Date().toISOString(),
+            funnel_id: existingFunnelsMap[campaign.id] || null,
         }
 
         // Only overwrite metrics if Meta actually returned insights for this campaign

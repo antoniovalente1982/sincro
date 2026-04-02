@@ -78,6 +78,9 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const [lastSync, setLastSync] = useState<string | null>(null)
     const [sortKey, setSortKey] = useState<SortKey>('status')
     const [sortDir, setSortDir] = useState<SortDir>('desc')
+    const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'ALL'>('ACTIVE')
+    const [pageSize, setPageSize] = useState<number>(50)
+    const [currentPage, setCurrentPage] = useState<number>(1)
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
     const [liveError, setLiveError] = useState<string | null>(null)
     const [campaignFunnels, setCampaignFunnels] = useState<Record<string, string>>(
@@ -142,7 +145,11 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
 
     // Sort campaigns: ACTIVE first, then by selected sort key
     const sortedCampaigns = useMemo(() => {
-        return [...campaigns].sort((a, b) => {
+        let list = [...campaigns]
+        if (statusFilter === 'ACTIVE') {
+            list = list.filter(c => c.status === 'ACTIVE')
+        }
+        return list.sort((a, b) => {
             // Active campaigns always first
             const aActive = a.status === 'ACTIVE' ? 1 : 0
             const bActive = b.status === 'ACTIVE' ? 1 : 0
@@ -168,7 +175,10 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             }
             return sortDir === 'desc' ? bVal - aVal : aVal - bVal
         })
-    }, [campaigns, sortKey, sortDir])
+    }, [campaigns, sortKey, sortDir, statusFilter])
+
+    const totalPages = Math.ceil(sortedCampaigns.length / pageSize)
+    const paginatedCampaigns = sortedCampaigns.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
@@ -373,11 +383,27 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             <div className="glass-card overflow-hidden">
                 <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
                     <h3 className="text-sm font-bold text-white">Campagne ({sortedCampaigns.length})</h3>
-                    <div className="flex items-center gap-2">
-                        <ArrowUpDown className="w-3 h-3" style={{ color: 'var(--color-surface-500)' }} />
-                        <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                            Clicca sulle colonne per ordinare
-                        </span>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <select
+                            className="text-xs rounded-lg px-2 py-1 border-0 outline-none cursor-pointer"
+                            style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-500)' }}
+                            value={statusFilter}
+                            onChange={e => { setStatusFilter(e.target.value as any); setCurrentPage(1) }}
+                        >
+                            <option value="ACTIVE">Solo Attive</option>
+                            <option value="ALL">Tutte</option>
+                        </select>
+                        <select
+                            className="text-xs rounded-lg px-2 py-1 border-0 outline-none cursor-pointer"
+                            style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-500)' }}
+                            value={pageSize}
+                            onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1) }}
+                        >
+                            <option value="10">10 per pagina</option>
+                            <option value="50">50 per pagina</option>
+                            <option value="200">200 per pagina</option>
+                            <option value="1000000">Mostra tutte</option>
+                        </select>
                     </div>
                 </div>
                 {sortedCampaigns.length > 0 ? (
@@ -399,7 +425,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedCampaigns.map(c => (
+                                {paginatedCampaigns.map(c => (
                                     <tr key={c.id} className="hover:bg-white/[0.02] transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
                                         <td className="px-4 py-3 text-sm font-semibold text-white max-w-[250px] truncate">{c.campaign_name || '—'}</td>
                                         <td className="px-4 py-3">
@@ -446,6 +472,27 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 ) : (
                     <div className="p-8 text-center">
                         <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>Nessuna campagna sincronizzata. I dati appariranno dopo il primo sync con Meta.</p>
+                    </div>
+                )}
+                {totalPages > 1 && (
+                    <div className="p-4 flex items-center justify-center gap-4" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="btn-secondary !py-1 !px-3 text-xs disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                            Precedente
+                        </button>
+                        <span className="text-xs font-semibold" style={{ color: 'var(--color-surface-400)' }}>
+                            Pagina {currentPage} di {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="btn-secondary !py-1 !px-3 text-xs disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                            Successiva
+                        </button>
                     </div>
                 )}
             </div>
