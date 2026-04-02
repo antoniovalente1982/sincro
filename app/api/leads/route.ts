@@ -23,7 +23,8 @@ export async function GET() {
         .select(`
             *,
             pipeline_stages (id, name, slug, color, sort_order),
-            assigned_profile:assigned_to (id, email, full_name)
+            assigned_profile:assigned_to (id, email, full_name),
+            lead_tags (crm_tags (id, name, color))
         `)
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { utm_term, utm_content, ...insertData } = body
+    const { utm_term, utm_content, tags, ...insertData } = body
 
     if (utm_term !== undefined || utm_content !== undefined) {
         insertData.meta_data = {
@@ -55,7 +56,24 @@ export async function POST(req: NextRequest) {
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+
+    // Insert Tags if present
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+        const tagInserts = tags.map(tagId => ({
+            lead_id: data.id,
+            tag_id: tagId
+        }))
+        await supabase.from('lead_tags').insert(tagInserts)
+    }
+
+    // Refetch to include joined tags
+    const { data: finalData } = await supabase
+        .from('leads')
+        .select(`*, pipeline_stages(id, name, color), assigned_profile:assigned_to(id, email, full_name), lead_tags(crm_tags(id, name, color))`)
+        .eq('id', data.id)
+        .single()
+
+    return NextResponse.json(finalData || data)
 }
 
 export async function PUT(req: NextRequest) {
@@ -64,7 +82,7 @@ export async function PUT(req: NextRequest) {
     if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { id, utm_term, utm_content, ...updates } = body
+    const { id, utm_term, utm_content, tags, ...updates } = body
 
     if (utm_term !== undefined || utm_content !== undefined) {
         const { data: existing } = await supabase.from('leads').select('meta_data').eq('id', id).single()
@@ -179,7 +197,27 @@ export async function PUT(req: NextRequest) {
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+
+    // Update Tags if explicitly passed
+    if (tags && Array.isArray(tags)) {
+        await supabase.from('lead_tags').delete().eq('lead_id', id)
+        if (tags.length > 0) {
+            const tagInserts = tags.map(tagId => ({
+                lead_id: id,
+                tag_id: tagId
+            }))
+            await supabase.from('lead_tags').insert(tagInserts)
+        }
+    }
+
+    // Refetch to include joined tags
+    const { data: finalData } = await supabase
+        .from('leads')
+        .select(`*, pipeline_stages(id, name, color), assigned_profile:assigned_to(id, email, full_name), lead_tags(crm_tags(id, name, color))`)
+        .eq('id', id)
+        .single()
+
+    return NextResponse.json(finalData || data)
 }
 
 export async function DELETE(req: NextRequest) {

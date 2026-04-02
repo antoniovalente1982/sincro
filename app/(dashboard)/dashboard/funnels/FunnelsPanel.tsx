@@ -132,7 +132,8 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
             })
             subs.forEach(s => {
                 const camp = s.utm_campaign || 'Diretto'
-                if (campaignMap[camp]) campaignMap[camp].conversions++
+                if (!campaignMap[camp]) campaignMap[camp] = { views: 0, conversions: 0 }
+                campaignMap[camp].conversions++
             })
 
             return { funnel: f, views: views.length, uniqueVisitors, conversions: subs.length, convRate, variantStats, winner, abActive, devices, campaigns: campaignMap }

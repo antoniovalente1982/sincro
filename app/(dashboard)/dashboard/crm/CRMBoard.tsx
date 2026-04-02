@@ -26,6 +26,12 @@ interface Pipeline {
     sort_order: number
 }
 
+interface Tag {
+    id: string
+    name: string
+    color: string
+}
+
 interface Lead {
     id: string
     name: string
@@ -42,6 +48,7 @@ interface Lead {
     created_at: string
     updated_at: string
     funnels?: { id: string; name: string; objective: string } | null
+    lead_tags?: { crm_tags: Tag }[]
 }
 
 interface Member {
@@ -65,6 +72,7 @@ interface Props {
     objectives: string[]
     activeCampaigns: string[]
     trafficSources: TrafficSource[]
+    globalTags: Tag[]
 }
 
 // ── AI Lead Scoring Algorithm ──
@@ -99,7 +107,7 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns, trafficSources }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
@@ -114,6 +122,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
+    const [tagFilter, setTagFilter] = useState<string>('all')
+    const [sourceFilter, setSourceFilter] = useState<string>('all')
+    const [tags, setTags] = useState<Tag[]>(globalTags)
     
     // Auto-refresh: poll /api/leads every 60s for new leads
     const leadsRef = useRef(leads)
@@ -193,12 +204,13 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
-            // I filtri del CRM guardano SOLO l'ingresso del lead o un'eventuale ri-registrazione.
-            // Ignorano le modifiche manuali o gli spostamenti drag&drop (updated_at) per non sfalsare le metriche giornaliere.
             const d = new Date(l.meta_data?.last_submission_at || l.created_at)
             return d >= range.from && d < range.to
         })()
-        return matchSearch && matchObjective && matchPipeline && matchDate
+        const matchSource = sourceFilter === 'all' || l.product === sourceFilter
+        const matchTag = tagFilter === 'all' || (l.lead_tags || []).some(lt => lt.crm_tags?.id === tagFilter)
+        
+        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag
     })
 
     // Sort leads by arrival time (most recent first) considering re-submissions
@@ -379,6 +391,30 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                 <option key={obj} value={obj}>
                                     {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
                                 </option>
+                            ))}
+                        </select>
+                    )}
+                    {tags.length > 0 && (
+                        <select
+                            className="input !w-[160px] text-xs"
+                            value={tagFilter}
+                            onChange={e => setTagFilter(e.target.value)}
+                        >
+                            <option value="all">🏷️ Tutti i Tag</option>
+                            {tags.map(tag => (
+                                <option key={tag.id} value={tag.id}>{tag.name}</option>
+                            ))}
+                        </select>
+                    )}
+                    {trafficSources.length > 0 && (
+                        <select
+                            className="input !w-[160px] text-xs"
+                            value={sourceFilter}
+                            onChange={e => setSourceFilter(e.target.value)}
+                        >
+                            <option value="all">🌐 Tutte le Fonti</option>
+                            {trafficSources.map(s => (
+                                <option key={s.id} value={s.name}>{s.name}</option>
                             ))}
                         </select>
                     )}
@@ -586,6 +622,25 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                             )
                                         })()}
 
+                                        {/* RENDER TAGS DELLA CARD */}
+                                        {lead.lead_tags && lead.lead_tags.length > 0 && (
+                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                {lead.lead_tags.map(lt => {
+                                                    const tag = lt.crm_tags;
+                                                    if(!tag) return null;
+                                                    return (
+                                                        <span key={tag.id} className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold" style={{
+                                                            background: `${tag.color}15`,
+                                                            color: tag.color,
+                                                            border: `1px solid ${tag.color}30`
+                                                        }}>
+                                                            {tag.name}
+                                                        </span>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+
                                         <div className="mt-2 space-y-1">
                                             {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
                                                 <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#f97316' }}>
@@ -654,6 +709,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     members={members}
                     activeCampaigns={activeCampaigns}
                     trafficSources={trafficSources}
+                    globalTags={tags}
                     saving={saving}
                     onSave={handleSaveLead}
                     onClose={() => { setShowModal(false); setEditingLead(null) }}
@@ -683,7 +739,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 }
 
 // ── Lead Create/Edit Modal ──
-function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeCampaigns, trafficSources, saving, onSave, onClose }: {
+function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeCampaigns, trafficSources, globalTags, saving, onSave, onClose }: {
     lead: Lead | null
     stages: Stage[]
     pipelines: Pipeline[]
@@ -691,6 +747,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
     members: Member[]
     activeCampaigns: string[]
     trafficSources: TrafficSource[]
+    globalTags: Tag[]
     saving: boolean
     onSave: (data: any) => void
     onClose: () => void
@@ -716,7 +773,39 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         utm_campaign: lead?.utm_campaign || '',
         utm_term: lead?.meta_data?.utm_term || '',
         utm_content: lead?.meta_data?.utm_content || '',
+        tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[]
     })
+    const [tagInput, setTagInput] = useState('')
+    const [localTags, setLocalTags] = useState<Tag[]>(globalTags)
+    
+    const handleTagKeyDown = async (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            const val = tagInput.trim()
+            if (!val) return
+            
+            // Check if exists
+            const existing = localTags.find(t => t.name.toLowerCase() === val.toLowerCase())
+            if (existing) {
+                if (!form.tags.includes(existing.id)) setForm(f => ({ ...f, tags: [...f.tags, existing.id] }))
+            } else {
+                // Create new on the fly!
+                try {
+                    const res = await fetch('/api/crm-tags', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: val })
+                    })
+                    if (res.ok) {
+                        const newTag = await res.json()
+                        setLocalTags(prev => [...prev, newTag])
+                        setForm(f => ({ ...f, tags: [...f.tags, newTag.id] }))
+                    }
+                } catch(e) { console.error('Error creating tag', e) }
+            }
+            setTagInput('')
+        }
+    }
 
     // When pipeline changes, reset stage to first stage of new pipeline
     const handlePipelineChange = (newPipelineId: string) => {
@@ -798,6 +887,31 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                                 </option>
                             ))}
                         </select>
+                    </div>
+
+                    {/* Tag Manager (Multi-Select) */}
+                    <div>
+                        <label className="label">Tag (premi Invio per creare)</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {form.tags.map(tId => {
+                                const tag = localTags.find(t => t.id === tId)
+                                if(!tag) return null
+                                return (
+                                    <span key={tag.id} className="text-xs px-2 py-1 rounded-md font-semibold flex items-center gap-1.5" style={{
+                                        background: `${tag.color}15`,
+                                        color: tag.color,
+                                        border: `1px solid ${tag.color}30`
+                                    }}>
+                                        {tag.name}
+                                        <button type="button" onClick={() => setForm(f => ({ ...f, tags: f.tags.filter(id => id !== tag.id) }))} className="hover:opacity-70"><X className="w-3 h-3" /></button>
+                                    </span>
+                                )
+                            })}
+                        </div>
+                        <input className="input" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} placeholder="Cerca o crea un tag..." list="tag-suggestions" />
+                        <datalist id="tag-suggestions">
+                            {localTags.filter(t => !form.tags.includes(t.id)).map(t => <option key={t.id} value={t.name} />)}
+                        </datalist>
                     </div>
 
                     <div>
@@ -933,14 +1047,6 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                             <Phone className="w-4 h-4" /> {lead.phone}
                         </div>
                     )}
-                    {lead.meta_data?.child_age && (
-                        <div className="flex items-center gap-2 text-sm" style={{ color: '#f59e0b' }}>
-                            <User className="w-4 h-4" /> Età figlio: {lead.meta_data.child_age} anni
-                        </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
-                        <Calendar className="w-4 h-4" /> Creato: {formatDate(lead.created_at)}
-                    </div>
                 </div>
 
                 {/* Marketing Attribution */}
