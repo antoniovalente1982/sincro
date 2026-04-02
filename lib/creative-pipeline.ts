@@ -25,6 +25,17 @@ function getSupabaseAdmin() {
 }
 
 // ═══════════════════════════════════════════════
+// FUNNEL AI SETTINGS — Configurazione per-funnel
+// ═══════════════════════════════════════════════
+
+export interface FunnelAISettings {
+    funnel_name?: string
+    tone?: string          // es: 'persuasivo', 'empatico', 'autorevole'
+    target?: string        // override target audience
+    optimize_for?: string  // 'qualità lead' | 'volume' | 'ROAS' | 'awareness'
+}
+
+// ═══════════════════════════════════════════════
 // BUYER POCKETS — I 100 profili buyer dal CSV
 // Mappatura Angolo AdSet → Clusters utilizzabili
 // ═══════════════════════════════════════════════
@@ -412,14 +423,15 @@ export async function generateCreativeBrief(
     orgId: string,
     angle: string,
     adset: { id: string; name: string; utm_term: string },
-    dna: CreativeDNA
+    dna: CreativeDNA,
+    funnelSettings?: FunnelAISettings
 ): Promise<CreativeBrief | null> {
     // 1. Select the best buyer pocket for this angle
     const pocket = await selectBuyerPocket(orgId, angle, adset.id)
     if (!pocket) return null
 
     // 2. Generate copy + image description based on pocket + winning patterns
-    const copy = await generateCopyFromPocket(pocket, angle, dna)
+    const copy = await generateCopyFromPocket(pocket, angle, dna, funnelSettings)
 
     // 3. Generate image prompt using the AI-generated image_description and headline
     const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description, copy.headline)
@@ -458,7 +470,8 @@ export async function generateCreativeBrief(
 async function generateCopyFromPocket(
     pocket: SelectedPocket,
     angle: string,
-    dna?: CreativeDNA
+    dna?: CreativeDNA,
+    funnelSettings?: FunnelAISettings
 ): Promise<{ primary: string; headline: string; description: string; image_description: string }> {
     const { buyer_state, core_question, primary_trigger, pocket_name } = pocket
 
@@ -544,6 +557,31 @@ async function generateCopyFromPocket(
         }
     }
 
+    // ── FUNNEL AI SETTINGS INJECTION ──────────────────────────────────────
+    let funnelContextSection = ''
+    if (funnelSettings && (funnelSettings.tone || funnelSettings.target || funnelSettings.optimize_for)) {
+        funnelContextSection += '\n\n═══ ⚙️ CONFIGURAZIONE FUNNEL-SPECIFICA (PRIORITÀ ASSOLUTA) ═══\n'
+        if (funnelSettings.funnel_name) {
+            funnelContextSection += `📍 Funnel attivo: "${funnelSettings.funnel_name}"\n`
+        }
+        if (funnelSettings.tone) {
+            funnelContextSection += `🎭 TONO OVERRIDE: Adotta OBBLIGATORIAMENTE un tono "${funnelSettings.tone}" in tutto il copy. Questo sovrascrive le impostazioni generali di tono.\n`
+        }
+        if (funnelSettings.target) {
+            funnelContextSection += `🎯 TARGET PERSONALIZZATO: ${funnelSettings.target}. Calibra il copy su questa specifica audience, mantenendo comunque il punto di vista del genitore.\n`
+        }
+        if (funnelSettings.optimize_for) {
+            const optGuide: Record<string, string> = {
+                'qualità lead': 'Punta su domande qualificanti e problem awareness alta. Filtra il target con domande specifiche nel copy. Evita promesse vaghe o troppo inclusive.',
+                'volume': 'Massimizza appeal e accessibilità. CTA semplice e bassa barriera di ingresso. Linguaggio ampio e inclusivo.',
+                'ROAS': 'Enfatizza il ROI concreto, i risultati economici e il valore percepito. Integra social proof di risultati tangibili e specifici.',
+                'awareness': 'Focus su brand storytelling e contenuto educativo. Meno spinta alla conversione immediata, più costruzione di credibilità e fiducia nel brand.',
+            }
+            funnelContextSection += `⚡ OTTIMIZZA PER "${funnelSettings.optimize_for}": ${optGuide[funnelSettings.optimize_for] || funnelSettings.optimize_for}\n`
+        }
+        funnelContextSection += '════════════════════════════════════════════════\n'
+    }
+
     const systemPrompt = `Sei un esperto copywriter di Metodo Sincro, un sistema di mental coaching per giovani calciatori.
 Devi scrivere il copy per una nuova ad di Facebook E descrivere l'immagine ideale per accompagnarla.
 
@@ -578,7 +616,7 @@ D. MOSTRA IMMEDIATAMENTE DI COSA SI TRATTA: Fai emergere subito il contesto calc
 7. REPLICA I PATTERN VINCENTI: Studia attentamente le ads vincenti sotto e replica il loro stile, le leve emotive, la struttura del copy.
 8. MAI MENZIONARE ETÀ SPECIFICHE. Usa "giovane calciatore", "tuo figlio".
 9. AUTORITÀ (CONI): Puoi citare nel copy primario "Mental Coach con diploma nazionale rilasciato dal CONI". MA NON CHIEDERE MAI LOGHI AI NELLA FOTO.
-${winningContextSection}
+${funnelContextSection}${winningContextSection}
 
 ═══ BRIEF PER LA NUOVA AD ═══
 • Buyer Pocket: "${pocket_name}"
@@ -811,7 +849,35 @@ export async function runFullPipelineWithApiFetch(orgId: string): Promise<Pipeli
         }
     })
 
-    return runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms)
+    // Load funnel AI settings — use the first active funnel with ai_settings configured
+    let funnelSettings: FunnelAISettings | undefined
+    try {
+        const { data: funnelsWithSettings } = await supabase
+            .from('funnels')
+            .select('name, ai_settings')
+            .eq('organization_id', orgId)
+            .eq('status', 'active')
+            .not('ai_settings', 'is', null)
+            .limit(3)
+
+        if (funnelsWithSettings && funnelsWithSettings.length > 0) {
+            const firstFunnel = funnelsWithSettings[0]
+            const settings = firstFunnel.ai_settings as any
+            if (settings && (settings.tone || settings.target || settings.optimize_for)) {
+                funnelSettings = {
+                    funnel_name: firstFunnel.name,
+                    tone: settings.tone || undefined,
+                    target: settings.target || undefined,
+                    optimize_for: settings.optimize_for || undefined,
+                }
+                console.log('[AI Pipeline] Funnel settings injected:', funnelSettings.funnel_name, JSON.stringify(funnelSettings))
+            }
+        }
+    } catch (e) {
+        console.warn('[AI Pipeline] Could not load funnel settings, proceeding without:', e)
+    }
+
+    return runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms, funnelSettings)
 }
 
 export async function runCreativePipeline(
@@ -821,6 +887,7 @@ export async function runCreativePipeline(
     adsetAngles: Record<string, string>,    // adset_id → angle
     adsetNames: Record<string, string>,     // adset_id → name
     adsetUtmTerms: Record<string, string>,  // adset_id → utm_term
+    funnelSettings?: FunnelAISettings,      // per-funnel AI context
 ): Promise<PipelineResult> {
     const supabase = getSupabaseAdmin()
     const MAX_BRIEFS_PER_CYCLE = 3
@@ -886,7 +953,7 @@ export async function runCreativePipeline(
         }
 
         // Generate brief (1 per cycle per angle to avoid spam)
-        const brief = await generateCreativeBrief(orgId, angle, adset, dna)
+        const brief = await generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
         if (!brief) {
             result.skipped_reasons.push(`${angle}: impossibile generare brief (pocket esauriti?)`)
             continue

@@ -13,7 +13,7 @@ export default async function AIEnginePage() {
 
     const orgId = member?.organization_id || ''
 
-    const [campaignsRes, recommendationsRes, briefsRes, snapshotsRes, connectionsRes, agentConfigRes, budgetRes, episodesRes, knowledgeRes, workingMemRes, targetsRes] = await Promise.all([
+    const [campaignsRes, recommendationsRes, briefsRes, snapshotsRes, connectionsRes, agentConfigRes, budgetRes, episodesRes, knowledgeRes, workingMemRes, targetsRes, funnelsAIRes] = await Promise.all([
         supabase
             .from('campaigns_cache')
             .select('*')
@@ -76,6 +76,13 @@ export default async function AIEnginePage() {
             .select('*')
             .eq('organization_id', orgId)
             .single(),
+        // Load active funnels with AI settings for context injection
+        supabase
+            .from('funnels')
+            .select('id, name, ai_settings')
+            .eq('organization_id', orgId)
+            .eq('status', 'active')
+            .not('ai_settings', 'is', null),
     ])
 
     return (
@@ -92,6 +99,7 @@ export default async function AIEnginePage() {
             knowledge={knowledgeRes.data || []}
             workingMemory={workingMemRes.data || null}
             targets={targetsRes.data || null}
+            funnelsAI={funnelsAIRes.data || []}
         />
     )
 }

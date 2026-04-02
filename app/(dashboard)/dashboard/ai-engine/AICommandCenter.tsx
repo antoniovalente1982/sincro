@@ -36,6 +36,12 @@ interface Snapshot {
     ai_commentary?: string
 }
 
+interface FunnelAIConfig {
+    id: string; name: string; ai_settings: {
+        tone?: string; target?: string; optimize_for?: string
+    } | null
+}
+
 interface Props {
     campaigns: Campaign[]
     recommendations: Recommendation[]
@@ -49,9 +55,10 @@ interface Props {
     knowledge: any[]
     workingMemory: any
     targets: { target_cpl: number; target_cpa_appointment: number; target_cpa_show: number; target_cac: number; target_roas: number } | null
+    funnelsAI?: FunnelAIConfig[]
 }
 
-export default function AICommandCenter({ campaigns: cachedCampaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory, targets }: Props) {
+export default function AICommandCenter({ campaigns: cachedCampaigns, recommendations: initialRecs, briefs, snapshots, connections, orgId, agentConfig, budgetTracking, episodes, knowledge, workingMemory, targets, funnelsAI = [] }: Props) {
     const [recommendations, setRecommendations] = useState(initialRecs)
     const [generating, setGenerating] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -418,6 +425,11 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                                     background: agentConfig?.autopilot_active ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.1)',
                                     color: agentConfig?.autopilot_active ? '#22c55e' : '#ef4444',
                                 }}>{agentConfig?.autopilot_active ? '🟢 ATTIVO' : '🔴 INATTIVO'}</span>
+                                {funnelsAI.length > 0 && funnelsAI.some(f => f.ai_settings && (f.ai_settings.tone || f.ai_settings.optimize_for)) && (
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>
+                                        ⚡ Funnel AI
+                                    </span>
+                                )}
                             </div>
                             <p className="text-xs mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
                                 {agentConfig?.autopilot_active
@@ -456,6 +468,59 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
                     </div>
                 </div>
             </div>
+
+            {/* Funnel AI Context — mostra cosa viene iniettato nella generazione */}
+            {funnelsAI.length > 0 && funnelsAI.some(f => f.ai_settings) && (
+                <div className="glass-card p-5" style={{ borderColor: 'rgba(139, 92, 246, 0.2)' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                            <Brain className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
+                        </div>
+                        <h3 className="text-sm font-bold text-white">Funnel AI Context Attivo</h3>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+                            iniettato nei creativi automatici
+                        </span>
+                        <Link href="/dashboard/funnels" className="ml-auto text-[10px] flex items-center gap-1 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
+                            <Settings className="w-3 h-3" /> Modifica
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {funnelsAI.filter(f => f.ai_settings).map(f => {
+                            const s = f.ai_settings!
+                            return (
+                                <div key={f.id} className="p-3 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                                    <div className="text-xs font-bold text-white mb-2 flex items-center gap-1.5">
+                                        <Target className="w-3 h-3" style={{ color: '#8b5cf6' }} />
+                                        {f.name}
+                                    </div>
+                                    <div className="space-y-1">
+                                        {s.tone && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] uppercase font-semibold w-16 flex-shrink-0" style={{ color: 'var(--color-surface-500)' }}>Tono</span>
+                                                <span className="text-[11px] font-medium" style={{ color: '#c4b5fd' }}>{s.tone}</span>
+                                            </div>
+                                        )}
+                                        {s.target && (
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-[9px] uppercase font-semibold w-16 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-surface-500)' }}>Target</span>
+                                                <span className="text-[11px]" style={{ color: 'var(--color-surface-700)' }}>{s.target}</span>
+                                            </div>
+                                        )}
+                                        {s.optimize_for && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] uppercase font-semibold w-16 flex-shrink-0" style={{ color: 'var(--color-surface-500)' }}>Ottimizza</span>
+                                                <span className="text-[11px] px-1.5 py-0.5 rounded-md font-semibold" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                                                    {s.optimize_for}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Target & Strategia Andromeda */}
             {targets && (
