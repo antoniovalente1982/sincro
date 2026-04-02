@@ -364,13 +364,13 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                                 <div>{[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 4.9</div>
                             </div>
                             <div className="lp-hf-fields">
-                                <div className="lp-field" style={{ display: 'flex', gap: '8px' }}>
-                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`} style={{ flex: 1 }}>
-                                        <User size={18} />
-                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+                                <div className="lp-field lp-name-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                                    <div className={`lp-input-wrap ${firstName ? 'filled' : ''}`}>
+                                        <User size={18} style={{ flexShrink: 0 }} />
+                                        <input type="text" placeholder="Nome *" value={firstName} onChange={e => setFirstName(e.target.value)} required style={{ minWidth: 0, width: '100%' }} />
                                     </div>
-                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`} style={{ flex: 1 }}>
-                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required />
+                                    <div className={`lp-input-wrap ${lastName ? 'filled' : ''}`}>
+                                        <input type="text" placeholder="Cognome *" value={lastName} onChange={e => setLastName(e.target.value)} required style={{ minWidth: 0, width: '100%' }} />
                                     </div>
                                 </div>
                                 <div className="lp-field">
@@ -736,5 +736,6 @@ const STYLES = `
     .lp-exit-header h2 { font-size: 20px; }
     .lp-exit-emoji { font-size: 32px; }
     .lp-exit-cta { font-size: 14px; padding: 14px; }
+    .lp-name-row { grid-template-columns: 1fr !important; gap: 12px !important; }
 }
 `

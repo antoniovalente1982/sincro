@@ -246,17 +246,18 @@ export default function MetodoSincroLanding({ funnel }: Props) {
 
                     <div className="ms-form-card">
                         <div className="ms-form-step">
-                            <div className="ms-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div className="ms-field lp-name-row" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <label>Nome *</label>
                                     <div className="ms-input-wrap">
-                                        <User size={18} />
+                                        <User size={18} style={{ flexShrink: 0 }} />
                                         <input
                                             type="text"
                                             placeholder="Es. Marco"
                                             value={firstName}
                                             onChange={e => setFirstName(e.target.value)}
                                             required
+                                            style={{ minWidth: 0, width: '100%' }}
                                         />
                                     </div>
                                 </div>
@@ -269,6 +270,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                                             value={lastName}
                                             onChange={e => setLastName(e.target.value)}
                                             required
+                                            style={{ minWidth: 0, width: '100%' }}
                                         />
                                     </div>
                                 </div>
@@ -1583,11 +1585,18 @@ const STYLES = `
         .ms-chi-media { text-align: center; }
         .ms-media-logos { justify-content: center; }
 
-        .ms-problems-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .ms-problems-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
         .ms-problem-card { padding: 16px; }
         .ms-problem-icon { font-size: 22px; margin-bottom: 6px; }
         .ms-problem-card h3 { font-size: 13px; }
         .ms-problem-card p { font-size: 11px; }
+        .ms-hf-content { padding: 20px; }
+        .ms-hf-title { font-size: 20px; }
+        .ms-field { margin-bottom: 15px; }
+        .ms-input-wrap { padding: 0 12px; min-width: 0; }
+        .ms-input-wrap input { padding: 12px 0; font-size: 14px; min-width: 0; }
+        .ms-input-wrap select { padding: 12px 0; font-size: 14px; min-width: 0; }
+        .lp-name-row { grid-template-columns: 1fr !important; gap: 12px !important; }
 
         .ms-come-steps { flex-direction: column; gap: 20px; }
         .ms-come-arrow { transform: rotate(90deg); }
