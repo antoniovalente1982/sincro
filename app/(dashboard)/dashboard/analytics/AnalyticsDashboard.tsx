@@ -28,10 +28,12 @@ interface Props {
     reallocations: any[]
     dnaClusters: any[]
     objectives: string[]
+    funnels?: { id: string; name: string }[]
 }
 
-export default function AnalyticsDashboard({ pipelines, stages: allStages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives }: Props) {
+export default function AnalyticsDashboard({ pipelines, stages: allStages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives, funnels = [] }: Props) {
     const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
+    const [funnelFilter, setFunnelFilter] = useState<string>('all')
     const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>(defaultPipeline?.id || '')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
@@ -73,10 +75,13 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const stages = allStages.filter(s => s.pipeline_id === selectedPipelineId)
     const stageIds = new Set(stages.map(s => s.id))
 
-    // Filter leads by objective AND date AND pipeline
-    const leadsByObjective = objectiveFilter === 'all'
+    // Filter leads by funnel, objective, date, pipeline
+    const leadsByFunnel = funnelFilter === 'all'
         ? allLeads
-        : allLeads.filter(l => (l.funnels?.objective || '') === objectiveFilter)
+        : allLeads.filter(l => l.funnels?.id === funnelFilter)
+    const leadsByObjective = objectiveFilter === 'all'
+        ? leadsByFunnel
+        : leadsByFunnel.filter(l => (l.funnels?.objective || '') === objectiveFilter)
     const leadsByPipeline = leadsByObjective.filter(l => !l.stage_id || stageIds.has(l.stage_id))
     const leads = filterByDateRange(leadsByPipeline, range, 'created_at')
 
@@ -209,6 +214,18 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                                 <option key={p.id} value={p.id}>
                                     📊 {p.name}{p.is_default ? ' ★' : ''}
                                 </option>
+                            ))}
+                        </select>
+                    )}
+                    {funnels.length > 0 && (
+                        <select
+                            className="input !w-[180px] text-xs"
+                            value={funnelFilter}
+                            onChange={e => setFunnelFilter(e.target.value)}
+                        >
+                            <option value="all">🎯 Tutti i funnel</option>
+                            {funnels.map(f => (
+                                <option key={f.id} value={f.id}>⚡ {f.name}</option>
                             ))}
                         </select>
                     )}

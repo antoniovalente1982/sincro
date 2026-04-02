@@ -14,15 +14,21 @@ interface Stage {
     fire_capi_event?: string; is_won?: boolean; is_lost?: boolean
 }
 
+interface FunnelStat {
+    id: string; name: string; slug: string
+    views30d: number; leads30d: number
+}
+
 interface Props {
     userName: string; orgName: string
     leadCount: number; funnelCount: number; connectionCount: number
     stages: Stage[]
     leads: Lead[]
     recentActivities: any[]
+    funnels?: FunnelStat[]
 }
 
-export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads: allLeads, recentActivities }: Props) {
+export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads: allLeads, recentActivities, funnels = [] }: Props) {
     const firstName = userName.split(' ')[0]
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
@@ -290,6 +296,51 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                                 )}
                             </div>
                         ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Multi-Funnel Widget */}
+            {funnels.length > 0 && (
+                <div className="glass-card p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Target className="w-5 h-5" style={{ color: '#8b5cf6' }} />
+                            <h2 className="text-base font-bold text-white">Funnel Attivi — ultimi 30 giorni</h2>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>{funnels.length}</span>
+                        </div>
+                        <Link href="/dashboard/funnels" className="text-xs flex items-center gap-1 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
+                            Tutti i funnel <ArrowRight className="w-3 h-3" />
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {funnels.map(f => {
+                            const convRate = f.views30d > 0 ? ((f.leads30d / f.views30d) * 100).toFixed(1) : '0'
+                            return (
+                                <Link key={f.id} href={`/dashboard/analytics`}>
+                                    <div className="p-4 rounded-xl cursor-pointer hover:bg-white/[0.03] transition-all" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-bold text-white truncate max-w-[140px]">{f.name}</span>
+                                            <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>attivo</span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 text-center">
+                                            <div>
+                                                <div className="text-lg font-bold text-white">{f.views30d}</div>
+                                                <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Visite</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-lg font-bold" style={{ color: '#3b82f6' }}>{f.leads30d}</div>
+                                                <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Lead</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-lg font-bold" style={{ color: '#f59e0b' }}>{convRate}%</div>
+                                                <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>CVR</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            )
+                        })}
                     </div>
                 </div>
             )}

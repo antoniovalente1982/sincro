@@ -24,7 +24,7 @@ export default async function AnalyticsPage() {
         supabase.from('revenue_leaks').select('*').eq('organization_id', orgId).eq('is_resolved', false).order('estimated_lost_revenue', { ascending: false }).limit(15),
         supabase.from('budget_reallocations').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(10),
         supabase.from('audience_dna_clusters').select('*').eq('organization_id', orgId).order('cluster_rank').limit(5),
-        supabase.from('funnels').select('id, name, objective').eq('organization_id', orgId).order('name'),
+        supabase.from('funnels').select('id, name, objective').eq('organization_id', orgId).eq('status', 'active').order('name'),
     ])
 
     const objectives = [...new Set((funnelsRes.data || []).map((f: any) => f.objective).filter(Boolean))]
@@ -42,6 +42,7 @@ export default async function AnalyticsPage() {
             reallocations={reallocsRes.data || []}
             dnaClusters={clustersRes.data || []}
             objectives={objectives}
+            funnels={funnelsRes.data || []}
         />
     )
 }

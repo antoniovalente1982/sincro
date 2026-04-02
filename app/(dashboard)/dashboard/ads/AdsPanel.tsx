@@ -26,6 +26,11 @@ interface Campaign {
     synced_at?: string
     date_range_start?: string
     date_range_end?: string
+    funnel_id?: string
+}
+
+interface FunnelOption {
+    id: string; name: string; slug: string
 }
 
 interface Rule {
@@ -58,12 +63,13 @@ interface Props {
     rules: Rule[]
     connections: Connection[]
     recommendations: Recommendation[]
+    funnels?: FunnelOption[]
 }
 
 type SortKey = 'status' | 'spend' | 'impressions' | 'clicks' | 'link_clicks' | 'ctr' | 'leads_count' | 'cpl' | 'roas'
 type SortDir = 'asc' | 'desc'
 
-export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations }: Props) {
+export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations, funnels = [] }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
@@ -74,6 +80,10 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const [sortDir, setSortDir] = useState<SortDir>('desc')
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
     const [liveError, setLiveError] = useState<string | null>(null)
+    const [campaignFunnels, setCampaignFunnels] = useState<Record<string, string>>(
+        () => Object.fromEntries(cachedCampaigns.filter(c => c.funnel_id).map(c => [c.id, c.funnel_id!]))
+    )
+    const [savingFunnel, setSavingFunnel] = useState<string | null>(null)
 
     // When user changes period (not "Tutto"), fetch live data from Meta
     const fetchLiveInsights = useCallback(async (since: string, until: string) => {
@@ -210,6 +220,22 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const totalImpressions = campaigns.reduce((s, c) => s + (Number(c.impressions) || 0), 0)
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
     const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
+
+    const handleFunnelAssign = async (campaignId: string, funnelId: string) => {
+        setSavingFunnel(campaignId)
+        setCampaignFunnels(prev => ({ ...prev, [campaignId]: funnelId }))
+        try {
+            const supabase = createClient()
+            await supabase
+                .from('campaigns_cache')
+                .update({ funnel_id: funnelId || null })
+                .eq('id', campaignId)
+        } catch (e) {
+            console.error('Failed to assign funnel:', e)
+        } finally {
+            setSavingFunnel(null)
+        }
+    }
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
@@ -369,6 +395,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                     <SortHeader label="Lead" sortField="leads_count" />
                                     <SortHeader label="CPL" sortField="cpl" />
                                     <SortHeader label="ROAS" sortField="roas" />
+                                    {funnels.length > 0 && <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Funnel</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -391,6 +418,26 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
                                         <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#22c55e' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
+                                        {funnels.length > 0 && (
+                                            <td className="px-4 py-3">
+                                                <select
+                                                    className="text-[11px] rounded-lg px-2 py-1 border-0 outline-none cursor-pointer"
+                                                    style={{
+                                                        background: campaignFunnels[c.id] ? 'rgba(99, 102, 241, 0.12)' : 'var(--color-surface-100)',
+                                                        color: campaignFunnels[c.id] ? '#818cf8' : 'var(--color-surface-500)',
+                                                        opacity: savingFunnel === c.id ? 0.5 : 1,
+                                                    }}
+                                                    value={campaignFunnels[c.id] || ''}
+                                                    onChange={e => handleFunnelAssign(c.id, e.target.value)}
+                                                    disabled={savingFunnel === c.id}
+                                                >
+                                                    <option value="">— nessun funnel —</option>
+                                                    {funnels.map(f => (
+                                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
