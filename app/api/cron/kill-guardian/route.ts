@@ -171,9 +171,9 @@ export async function GET(req: NextRequest) {
                 const ad3d = map3d[adId]
                 const adLt = mapLt[adId]
 
-                // ── Kill trigger: 3× budget with 0 leads ─────────────────
-                const killThreshold = dailyBudget * killMultiplier
-                const championThreshold = dailyBudget * championMultiplier
+                // ── Kill trigger: 3× target CPL with 0 leads ─────────────────
+                const killThreshold = targetCPL * killMultiplier
+                const championThreshold = targetCPL * championMultiplier
 
                 // Not triggered yet
                 if (ad7d.spend <= killThreshold || ad7d.leads > 0) continue
@@ -198,7 +198,7 @@ export async function GET(req: NextRequest) {
                 else if (adLt && adLt.cpl > 0 && adLt.cpl <= targetCPL * 0.9 && adLt.leads >= 10 && adLt.spend >= dailyBudget * championMinDays) {
                     if (ad7d.spend <= championThreshold) {
                         protected_ = true
-                        protectionReason = `Campione Lifetime: CPL storico €${adLt.cpl.toFixed(2)} — soglia estesa a €${championThreshold.toFixed(0)} (${championMultiplier}× budget)`
+                        protectionReason = `Campione Lifetime: CPL storico €${adLt.cpl.toFixed(2)} — soglia estesa a €${championThreshold.toFixed(0)} (${championMultiplier}× CPL)`
                     }
                     // else: even champion gets killed above champion threshold
                 }
@@ -251,8 +251,8 @@ export async function GET(req: NextRequest) {
                         dry_run: !isLive,
                         source: 'kill_guardian_4h',
                     },
-                    reasoning: `Kill V2: €${spend.toFixed(2)} spesi in 7gg (${(spend / dailyBudget).toFixed(1)}× budget giornaliero €${dailyBudget.toFixed(0)}), 0 lead. Nessuna protezione attiva.`,
-                    metrics_before: { spend_7d: spend, leads_7d: 0, daily_budget: dailyBudget },
+                    reasoning: `Kill V2: €${spend.toFixed(2)} spesi in 7gg (${(spend / targetCPL).toFixed(1)}× target CPL €${targetCPL.toFixed(0)}), 0 lead. Nessuna protezione attiva.`,
+                    metrics_before: { spend_7d: spend, leads_7d: 0, target_cpl: targetCPL },
                     outcome: executed ? 'executed' : 'dry_run',
                     outcome_score: 0,
                 })
@@ -269,9 +269,9 @@ export async function GET(req: NextRequest) {
                 if (killResults.length > 0) {
                     msg += `\n🔴 <b>ADS KILLATE (${killResults.length})</b>\n`
                     for (const k of killResults) {
-                        const ratio = (k.spend / k.dailyBudget).toFixed(1)
+                        const ratio = (k.spend / targetCPL).toFixed(1)
                         msg += `• ${k.ad.ad_name}\n`
-                        msg += `  💸 €${k.spend.toFixed(0)} spesi (${ratio}× budget) | 0 lead in 7gg\n`
+                        msg += `  💸 €${k.spend.toFixed(0)} spesi (${ratio}× CPL target) | 0 lead in 7gg\n`
                         msg += `  ${k.executed ? '⛔ Pausata su Meta' : '🧪 Dry run — non eseguita'}\n`
                     }
                 }
