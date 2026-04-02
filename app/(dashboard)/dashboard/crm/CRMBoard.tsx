@@ -158,6 +158,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     // Date range filter
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
 
     // Pipeline CRUD state
     const [showCreatePipeline, setShowCreatePipeline] = useState(false)
@@ -204,7 +205,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
-            const d = new Date(l.meta_data?.last_submission_at || l.created_at)
+            const dStr = dateFilterMode === 'created' ? (l.meta_data?.last_submission_at || l.created_at) : (l.updated_at || l.created_at)
+            const d = new Date(dStr)
             return d >= range.from && d < range.to
         })()
         const matchSource = sourceFilter === 'all' || l.product === sourceFilter
@@ -436,6 +438,20 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             ))}
                         </select>
                     )}
+                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('created')}
+                        >
+                            Data Acquisizione
+                        </button>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('updated')}
+                        >
+                            Ultimo Movimento
+                        </button>
+                    </div>
                     <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
                         customFrom={customFrom} customTo={customTo}
                         onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />

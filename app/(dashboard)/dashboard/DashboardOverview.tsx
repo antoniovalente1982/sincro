@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
@@ -33,7 +34,8 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
-    const leads = filterByDateRange(allLeads, range, 'created_at')
+    const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
+    const leads = filterByDateRange(allLeads, range, dateFilterMode === 'created' ? 'created_at' : 'updated_at')
 
     const getRelativeTime = (dateStr: string) => {
         const diffMs = Date.now() - new Date(dateStr).getTime()
@@ -151,9 +153,25 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                         Ecco cosa succede su <span className="font-semibold" style={{ color: 'var(--color-sincro-400)' }}>{orgName}</span>
                     </p>
                 </div>
-                <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
-                    customFrom={customFrom} customTo={customTo}
-                    onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                <div className="flex items-center gap-3">
+                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('created')}
+                        >
+                            Data Acquisizione
+                        </button>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            onClick={() => setDateFilterMode('updated')}
+                        >
+                            Ultimo Movimento
+                        </button>
+                    </div>
+                    <DateRangeFilter activeKey={activeKey} onSelect={setActiveKey}
+                        customFrom={customFrom} customTo={customTo}
+                        onCustomFromChange={setCustomFrom} onCustomToChange={setCustomTo} />
+                </div>
             </div>
 
             {/* KPI Cards */}
