@@ -395,39 +395,122 @@ function detectAngle(adName: string, adsetName?: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CRM FUNNEL BY ANGLE
+// CRM FUNNEL BY ANGLE — reads real pipeline stage_id + meta_data
 // ═══════════════════════════════════════════════════════════════
 async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30): Promise<Record<string, any>> {
     try {
         const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+
+        // ── Fetch leads with their current stage slug ──────────────
+        // We JOIN pipeline_stages to convert stage_id → slug name
+        // utm_term lives in meta_data JSONB (not a direct column)
         const { data: leads } = await supabase
             .from('leads')
-            .select('id, utm_term, utm_content, status, deal_value, created_at')
+            .select(`
+                id,
+                utm_term,
+                utm_campaign,
+                meta_data,
+                value,
+                created_at,
+                pipeline_stages!leads_stage_id_fkey (
+                    id, slug, name, is_won, is_lost
+                )
+            `)
             .eq('organization_id', orgId)
             .gte('created_at', since)
 
         if (!leads?.length) return {}
 
-        const byAngle: Record<string, { leads: number; appointments: number; showups: number; sales: number; revenue: number }> = {}
+        const byAngle: Record<string, {
+            leads: number
+            qualified: number
+            appointments: number
+            showups: number
+            sales: number
+            lost: number
+            revenue: number
+            // Cost attribution (filled by aggregateByAngle from Meta spend)
+            spend?: number
+        }> = {}
 
         for (const lead of leads) {
-            // utm_term = adset angle identifier (e.g., 'emotional', 'efficiency')
-            // utm_content = ad name (fallback for angle detection)
-            const angle = lead.utm_term || detectAngle(lead.utm_content || '', '') || 'unknown'
-            if (!byAngle[angle]) byAngle[angle] = { leads: 0, appointments: 0, showups: 0, sales: 0, revenue: 0 }
+            // ── Resolve angle: priority order ──────────────────────
+            // 1. meta_data.utm_term (set by landing page from adset utm_term)
+            // 2. utm_term direct column (legacy fallback)
+            // 3. utm_campaign name detection
+            // 4. 'unknown' as fallback (not 'generic' — keeps it separate)
+            const rawTerm = (
+                lead.meta_data?.utm_term ||
+                lead.utm_term ||
+                ''
+            ).toLowerCase().trim()
+
+            const rawCampaign = (lead.utm_campaign || '').toLowerCase()
+
+            // Map to canonical angle names (same as creative pipeline)
+            const ANGLE_MAP: Record<string, string> = {
+                'efficiency': 'efficiency', 'system': 'system',
+                'emotional': 'emotional', 'status': 'status',
+                'education': 'education', 'growth': 'growth',
+                'authority': 'authority', 'security': 'security',
+                'trauma': 'trauma', 'decision': 'decision',
+                'sport_performance': 'sport_performance',
+                'mental_coaching': 'mental_coaching',
+                'generic': 'generic',
+            }
+
+            let angle = ANGLE_MAP[rawTerm] || null
+            if (!angle) {
+                // Partial match on utm_term
+                if (rawTerm.includes('efficien')) angle = 'efficiency'
+                else if (rawTerm.includes('system') || rawTerm.includes('metodo')) angle = 'system'
+                else if (rawTerm.includes('emozion') || rawTerm.includes('trauma')) angle = 'trauma'
+                else if (rawTerm.includes('status') || rawTerm.includes('elite')) angle = 'status'
+                else if (rawTerm.includes('edu') || rawTerm.includes('learn')) angle = 'education'
+                else if (rawTerm.includes('grow') || rawTerm.includes('crescit')) angle = 'growth'
+                else if (rawTerm.includes('auth') || rawTerm.includes('leader')) angle = 'authority'
+                else if (rawTerm.includes('secur') || rawTerm.includes('sicur')) angle = 'security'
+                else if (rawTerm.includes('decis')) angle = 'decision'
+                else if (rawTerm.includes('sport') || rawTerm.includes('calcio')) angle = 'sport_performance'
+                else if (rawTerm.includes('mental')) angle = 'mental_coaching'
+                // Fallback: try campaign name
+                else angle = detectAngle('', rawCampaign) || 'unknown'
+            }
+
+            if (!byAngle[angle]) {
+                byAngle[angle] = { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
+            }
 
             byAngle[angle].leads++
-            const status = (lead.status || '').toLowerCase()
-            if (['appuntamento', 'show_up', 'perso', 'cliente'].includes(status)) byAngle[angle].appointments++
-            if (['show_up', 'perso', 'cliente'].includes(status)) byAngle[angle].showups++
-            if (status === 'cliente') {
+
+            // ── Resolve funnel stage from pipeline_stages JOIN ──────
+            // The slug tells us exactly which step this lead is at
+            const stageSlug = (lead.pipeline_stages as any)?.slug || ''
+            const stageIsWon = (lead.pipeline_stages as any)?.is_won || false
+            const stageIsLost = (lead.pipeline_stages as any)?.is_lost || false
+
+            // Stages: lead → qualificato → appuntamento → show-up → vendita
+            //                                                       → perso (is_lost)
+            if (stageSlug === 'qualificato')   byAngle[angle].qualified++
+            if (stageSlug === 'appuntamento' || stageSlug === 'show-up' || stageIsWon) {
+                byAngle[angle].appointments++
+            }
+            if (stageSlug === 'show-up' || stageIsWon) {
+                byAngle[angle].showups++
+            }
+            if (stageIsWon) {
                 byAngle[angle].sales++
-                byAngle[angle].revenue += Number(lead.deal_value) || 0
+                byAngle[angle].revenue += Number(lead.value) || 0
+            }
+            if (stageIsLost) {
+                byAngle[angle].lost++
             }
         }
 
         return byAngle
-    } catch {
+    } catch (err) {
+        console.error('[CRM getFunnelByAngle] Error:', err)
         return {}
     }
 }
@@ -455,20 +538,27 @@ function aggregateByAngle(ads: any[], funnelByAngle: Record<string, any>) {
 
     // Merge CRM funnel data
     for (const [angle, meta] of Object.entries(byAngle)) {
-        const crm = funnelByAngle[angle] || { leads: 0, appointments: 0, showups: 0, sales: 0, revenue: 0 }
+        const crm = funnelByAngle[angle] || { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
         const m = meta as any
         m.avg_cpl = m.leads > 0 ? m.spend / m.leads : 0
         m.avg_ctr = m.ad_count > 0 ? m.ctr_sum / m.ad_count : 0
+        m.crm_leads = crm.leads
+        m.crm_qualified = crm.qualified
         m.crm_appointments = crm.appointments
         m.crm_showups = crm.showups
         m.crm_sales = crm.sales
+        m.crm_lost = crm.lost
         m.crm_revenue = crm.revenue
-        // Use CRM leads as denominator for rates (more accurate than Meta)
+        // Use CRM leads as denominator for rates (more accurate than Meta pixel)
         const crmLeads = crm.leads || m.leads
         m.lead_to_appt_rate = crmLeads > 0 ? crm.appointments / crmLeads : 0
         m.appt_show_rate = crm.appointments > 0 ? crm.showups / crm.appointments : 0
         m.close_rate = crm.showups > 0 ? crm.sales / crm.showups : 0
         m.avg_cac = crm.sales > 0 ? m.spend / crm.sales : 0
+        // Cost per appointment and cost per showup — key middle-funnel KPIs
+        m.avg_cost_per_appt = crm.appointments > 0 ? m.spend / crm.appointments : 0
+        m.avg_cost_per_showup = crm.showups > 0 ? m.spend / crm.showups : 0
+        m.roas = crm.revenue > 0 && m.spend > 0 ? crm.revenue / m.spend : 0
     }
 
     return byAngle
@@ -502,9 +592,15 @@ function computeAllScores(
         if (m.avg_cac > 0) {
             const cacRatio = (targetCAC - m.avg_cac) / targetCAC
             score += clamp(cacRatio, -1, 1) * 0.35
-        } else if (m.leads > 0 && m.crm_sales === 0 && m.spend > targetCPL * 2) {
-            // Has CPL data but no sales yet — penalty proportional to spend
-            score -= 0.10
+        } else if (m.crm_appointments > 0 && m.crm_sales === 0) {
+            // Has appointments but no sales yet — positive signal (funnel is working)
+            // Partial credit based on appointment rate vs target
+            const ltar = m.lead_to_appt_rate || 0
+            if (ltar > 0.20) score += 0.10  // Good appointment rate → hopeful
+            else score -= 0.05              // Low appointment rate → concern
+        } else if (m.leads > 0 && m.crm_appointments === 0 && m.spend > targetCPL * 3) {
+            // Spending money, lots of leads, zero appointments — punish
+            score -= 0.15
         }
 
         // ── Lead→Appt rate (20%) ──────────────────
@@ -718,10 +814,21 @@ async function sendIntelligenceReport(
         msg += `📊 <b>SCORE ANGOLI</b>\n`
         const sorted = Object.entries(scoreResults).sort((a: any, b: any) => b[1].score - a[1].score)
         for (const [angle, s] of sorted as [string, any][]) {
+            const m = metricsByAngle[angle] as any
             const emoji = s.score > 0.3 ? '🟢' : s.score > -0.1 ? '🟡' : '🔴'
             const cac = s.avg_cac > 0 ? `CAC €${s.avg_cac.toFixed(0)}` : 'CAC n/d'
+            const cpAppt = m?.avg_cost_per_appt > 0 ? ` | CPAppt €${m.avg_cost_per_appt.toFixed(0)}` : ''
             msg += `${emoji} <b>${angle.toUpperCase()}</b> [${scoreBar(s.score)}]\n`
-            msg += `  CPL €${s.avg_cpl.toFixed(2)} | ${cac} | ${s.total_leads} lead → ${s.total_appointments} appt\n`
+            msg += `  CPL €${s.avg_cpl.toFixed(2)} | ${cac}${cpAppt}\n`
+            // Full funnel: lead → appt → show-up → sale
+            const appt = m?.crm_appointments ?? s.total_appointments
+            const showup = m?.crm_showups ?? s.total_showups
+            const sale = m?.crm_sales ?? s.total_sales
+            const lost = m?.crm_lost ?? 0
+            const roas = m?.roas > 0 ? ` | ROAS ${m.roas.toFixed(1)}x` : ''
+            msg += `  📍 ${s.total_leads} lead → ${appt} appt → ${showup} show → ${sale} vendite${roas}`
+            if (lost > 0) msg += ` | ❌ ${lost} persi`
+            msg += `\n`
             msg += `  → ${s.recommended_action.toUpperCase()}: ${s.action_reason}\n\n`
         }
 
