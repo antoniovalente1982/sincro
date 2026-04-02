@@ -72,7 +72,7 @@ type SortDir = 'asc' | 'desc'
 export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations, funnels = [] }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
     const [syncing, setSyncing] = useState(false)
     const [loadingInsights, setLoadingInsights] = useState(false)
     const [lastSync, setLastSync] = useState<string | null>(null)
@@ -341,7 +341,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             </div>
 
             {/* KPI Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
                 {[
                     { label: 'Spesa Totale', value: formatCurrency(totalSpend), icon: DollarSign, color: '#ef4444' },
                     { label: 'Lead Generati', value: formatNumber(totalLeads), icon: Target, color: '#3b82f6' },
@@ -380,7 +380,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             )}
 
             {/* Campaigns */}
-            <div className="glass-card overflow-hidden">
+            <div className={`glass-card overflow-hidden transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
                 <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
                     <h3 className="text-sm font-bold text-white">Campagne ({sortedCampaigns.length})</h3>
                     <div className="flex flex-wrap items-center gap-4">
