@@ -182,7 +182,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                             <Star size={18} fill="#fff" color="#fff" />
                             Leggi 350+ Storie di Successo
                         </a>
-                        <a href="https://valenteantonio.it" target="_blank" rel="noopener noreferrer" className="lp-site-link">
+                        <a href="https://metodosincro.it" target="_blank" rel="noopener noreferrer" className="lp-site-link">
                             Visita il sito ufficiale Metodo Sincro®
                         </a>
                     </div>
