@@ -3,7 +3,7 @@
 import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Loader2, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Loader2, CheckCircle2, ArrowRight, ShieldCheck, Star, Lock, Clock, User, Phone, Mail, Users } from 'lucide-react'
 
 type PageConfig = {
   logoTitle: string;
@@ -86,12 +86,39 @@ function PageContent() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [referrer, setReferrer] = useState('')
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-  })
+  
+  const [fullName, setFullName] = useState('')
+  const [fullNameError, setFullNameError] = useState('')
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const [submitAttempted, setSubmitAttempted] = useState(false)
+
+  // Validation helpers
+  const handleNameChange = (val: string) => {
+      setFullName(val)
+      if (!val.trim()) setFullNameError('Inserisci nome e cognome')
+      else if (!val.trim().includes(' ')) setFullNameError('Inserisci anche il cognome')
+      else setFullNameError('')
+  }
+  const handlePhoneChange = (val: string) => {
+      setPhone(val)
+      if (!val) setPhoneError('Telefono obbligatorio')
+      else if (!/^[+\d\s\-()]+$/.test(val) || val.length < 5) setPhoneError('Inserisci solo numeri')
+      else setPhoneError('')
+  }
+  const handleEmailChange = (val: string) => {
+      setEmail(val)
+      if (!val.trim()) setEmailError('Email obbligatoria')
+      else if (!val.includes('@')) setEmailError('Inserisci un\'email valida (con @)')
+      else setEmailError('')
+  }
+
+  const isNameValid = fullName.trim().length > 0 && fullName.trim().includes(' ') && !fullNameError
+  const isPhoneValid = phone.trim().length > 4 && !phoneError
+  const isEmailValid = email.trim().length > 0 && email.includes('@') && !emailError
+  const isFormValid = isNameValid && isPhoneValid && isEmailValid
   
   // Cattura sito di provenienza
   useEffect(() => {
@@ -134,11 +161,16 @@ function PageContent() {
   const utmContent  = searchParams.get('utm_content')  || ''
   const utmTerm     = searchParams.get('utm_term')     || ''
 
-  const isValid = formData.firstName.trim() !== '' && formData.email.includes('@') && formData.phone.length > 5
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid) return
+    setSubmitAttempted(true)
+
+    let isValidLocal = true
+    if (!isNameValid) { setFullNameError(fullNameError || 'Inserisci nome e cognome'); isValidLocal = false }
+    if (!isPhoneValid) { setPhoneError(phoneError || 'Telefono obbligatorio'); isValidLocal = false }
+    if (!isEmailValid) { setEmailError(emailError || 'Email obbligatoria'); isValidLocal = false }
+
+    if (!isValidLocal) return
 
     setLoading(true)
     setError('')
@@ -152,9 +184,9 @@ function PageContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           funnel_id:    funnelId,
-          name:         `${formData.firstName} ${formData.lastName}`.trim(),
-          email:        formData.email,
-          phone:        formData.phone,
+          name:         fullName.trim(),
+          email:        email,
+          phone:        phone,
           utm_source:   utmSource,
           utm_medium:   utmMedium,
           utm_campaign: utmCampaign || referrer || sourceParam,
@@ -214,66 +246,76 @@ function PageContent() {
       </motion.div>
 
       <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="mt-10 sm:mx-auto sm:w-full sm:max-w-xl relative z-10">
-        <div className="bg-zinc-900/50 backdrop-blur-xl pt-10 pb-8 px-6 shadow-2xl shadow-black/50 sm:rounded-2xl border border-zinc-800/80 mx-4 sm:px-10">
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300">Nome</label>
-                <input
-                  type="text" required value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                  className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-colors"
-                  placeholder="Il tuo nome"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300">Cognome</label>
-                <input
-                  type="text" required value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-                  className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-colors"
-                  placeholder="Il tuo cognome"
-                />
-              </div>
-            </div>
+        <div className="bg-white border-[1.5px] border-zinc-200 rounded-[24px] p-7 shadow-[0_8px_40px_rgba(0,0,0,0.15),0_0_60px_rgba(250,204,21,0.06)] flex flex-col relative w-full sm:mx-auto sm:max-w-xl z-20">
+          <div className="flex items-center gap-2 mb-3.5">
+            <span className="text-[12px] font-extrabold text-red-500 tracking-[1.5px] uppercase animate-pulse">⚡ POSTI LIMITATI</span>
+          </div>
+          <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
+            Candidatura: <span className="text-[#facc15]">{config.logoAccent === 'SINCRO' ? 'Metodo Sincro' : config.logoTitle + ' ' + config.logoAccent}</span>
+          </h3>
+          <p className="text-[13px] text-zinc-500 mb-4">{config.subheadline}</p>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Email</label>
-              <input
-                type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-colors"
-                placeholder="es. mario.rossi@email.com"
-              />
+          <div className="flex flex-wrap justify-center gap-[14px] mb-[18px] pb-4 border-b border-zinc-200">
+            <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Lock className="w-3" /> Dati protetti</div>
+            <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Clock className="w-3" /> 30 secondi</div>
+            <div className="flex flex-col items-start gap-[1px]">
+                <span className="text-[#00b67a] font-extrabold text-[13px] tracking-tight leading-none pl-[1px]">Trustpilot</span>
+                <div className="flex items-center gap-[2px]">
+                {[1,2,3,4,5].map(i => <Star key={i} size={10} fill="#facc15" color="#facc15" />)} 
+                <span className="ml-[2px] font-bold text-zinc-700 leading-none text-[10px]">4.9</span>
+                </div>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Numero di Telefono (con Whatsapp)</label>
-              <input
-                type="tel" required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-colors"
-                placeholder="+39 333 123 4567"
-              />
-            </div>
+          <form className="flex flex-col gap-3">
+             <div className="mb-0 text-left">
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isNameValid ? 'border-green-500 bg-green-500/5' : ((submitAttempted && !isNameValid) || fullNameError) ? 'border-red-500 bg-red-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-yellow-400 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-yellow-400/20'}`}>
+                    <User className="w-5 h-5 text-zinc-500 shrink-0" />
+                    <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)}
+                           className="w-full bg-transparent border-none outline-none text-zinc-900 placeholder:text-zinc-400 text-[15px]" 
+                    />
+                </div>
+                {((submitAttempted && !isNameValid) || fullNameError) && <span className="block mt-1.5 text-[12px] font-medium text-red-500 px-1 text-left">{fullNameError}</span>}
+             </div>
 
-            {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">{error}</div>}
+             <div className="mb-0 text-left">
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isPhoneValid ? 'border-green-500 bg-green-500/5' : ((submitAttempted && !isPhoneValid) || phoneError) ? 'border-red-500 bg-red-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-yellow-400 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-yellow-400/20'}`}>
+                    <Phone className="w-5 h-5 text-zinc-500 shrink-0" />
+                    <input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)}
+                           className="w-full bg-transparent border-none outline-none text-zinc-900 placeholder:text-zinc-400 text-[15px]" 
+                    />
+                </div>
+                {((submitAttempted && !isPhoneValid) || phoneError) && <span className="block mt-1.5 text-[12px] font-medium text-red-500 px-1 text-left">{phoneError}</span>}
+             </div>
 
-            <button
-              type="submit" disabled={loading || !isValid}
-              className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-zinc-700 to-zinc-600 p-[1px] shadow-lg transition-all disabled:opacity-50 mt-4"
-            >
-              <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors z-10"></div>
-              <div className={`relative bg-gradient-to-r ${config.themeFrom} ${config.themeTo} py-4 px-6 rounded-[11px] flex items-center justify-center gap-2`}>
-                {loading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : (
-                  <>
-                    <span className="text-white font-bold text-lg tracking-wide shadow-black/20 text-shadow">{config.buttonText}</span>
-                    <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform drop-shadow" />
-                  </>
-                )}
-              </div>
-            </button>
-            <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs mt-6">
-              <ShieldCheck className="w-4 h-4" />
-              <span>I tuoi dati sono protetti e trattati secondo la privacy policy.</span>
-            </div>
+             <div className="mb-0 text-left">
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isEmailValid ? 'border-green-500 bg-green-500/5' : ((submitAttempted && !isEmailValid) || emailError) ? 'border-red-500 bg-red-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-yellow-400 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-yellow-400/20'}`}>
+                    <Mail className="w-5 h-5 text-zinc-500 shrink-0" />
+                    <input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)}
+                           className="w-full bg-transparent border-none outline-none text-zinc-900 placeholder:text-zinc-400 text-[15px]" 
+                    />
+                </div>
+                {((submitAttempted && !isEmailValid) || emailError) && <span className="block mt-1.5 text-[12px] font-medium text-red-500 px-1 text-left">{emailError}</span>}
+             </div>
+
+             {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200 mt-2">{error}</div>}
+
+             <button
+                type="button" disabled={loading}
+                onClick={handleSubmit}
+                className="w-full mt-2 py-4 rounded-xl text-[17px] font-bold text-white tracking-wide flex justify-center items-center gap-2 transition-all"
+                style={{
+                   background: 'linear-gradient(135deg, #34d058 0%, #22c55e 50%, #16a34a 100%)',
+                   boxShadow: isFormValid ? '0 0 50px rgba(34,197,94,0.5), 0 4px 16px rgba(34,197,94,0.4), inset 0 1px 0 rgba(255,255,255,0.25)' : 'none',
+                   textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                   opacity: loading ? 0.7 : 1
+                }}
+             >
+                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>{config.buttonText} <ArrowRight className="w-5 h-5" /></>}
+             </button>
+             <p className="text-center text-[11px] text-zinc-400 mt-2">
+                 🔒 I tuoi dati sono al sicuro. Zero spam.
+             </p>
           </form>
         </div>
       </motion.div>
