@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw } from 'lucide-react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
+import CRMGrid from './CRMGrid'
 
 interface Stage {
     id: string
@@ -159,6 +160,19 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     // Date range filter
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
+
+    // View Mode (Kanban vs Grid)
+    const [viewMode, setViewMode] = useState<'kanban' | 'grid'>('kanban')
+
+    useEffect(() => {
+        const savedView = localStorage.getItem('crmViewMode')
+        if (savedView === 'kanban' || savedView === 'grid') setViewMode(savedView)
+    }, [])
+
+    const handleViewSwitch = (mode: 'kanban' | 'grid') => {
+        setViewMode(mode)
+        localStorage.setItem('crmViewMode', mode)
+    }
 
     // Pipeline CRUD state
     const [showCreatePipeline, setShowCreatePipeline] = useState(false)
@@ -465,6 +479,22 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             onChange={e => setSearchQuery(e.target.value)}
                         />
                     </div>
+
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 h-[42px]">
+                        <button 
+                            onClick={() => handleViewSwitch('kanban')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <LayoutGrid className="w-4 h-4" /> Kanban
+                        </button>
+                        <button 
+                            onClick={() => handleViewSwitch('grid')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'grid' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <Table className="w-4 h-4" /> Griglia
+                        </button>
+                    </div>
+
                     <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary">
                         <Plus className="w-4 h-4" /> Nuovo Lead
                     </button>
@@ -540,7 +570,10 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </div>
             )}
 
-            {/* Kanban Board */}
+            {/* Multi View Render */}
+            {viewMode === 'grid' ? (
+                <CRMGrid leads={filteredLeads} stages={stages} onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} />
+            ) : (
             <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
                 {activeStages.map(stage => {
                     const stageLeads = getLeadsForStage(stage.id)
@@ -732,6 +765,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     )
                 })}
             </div>
+            )}
 
             {/* Lead Modal (Create/Edit) */}
             {showModal && (
