@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink, Loader2, Eye } from 'lucide-react'
+import { Users, Target, Plug, ArrowRight, BarChart3, TrendingUp, Rocket, Brain, Zap, DollarSign, Clock, AlertTriangle, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight, Sparkles, ExternalLink, Loader2, Eye, StarIcon } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -28,9 +28,10 @@ interface Props {
     leads: Lead[]
     recentActivities: any[]
     funnels?: FunnelStat[]
+    northStar?: any
 }
 
-export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads: allLeads, recentActivities, funnels = [] }: Props) {
+export default function DashboardOverview({ userName, orgName, leadCount, funnelCount, connectionCount, stages, leads: allLeads, recentActivities, funnels = [], northStar }: Props) {
     const firstName = userName.split(' ')[0]
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
@@ -272,6 +273,54 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                     </div>
                 ))}
             </div>
+
+            {/* AD PILOTIK NORTH STAR WIDGET */}
+            {northStar && (
+                <div className="glass-card p-6 mt-6 mb-6" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(168,85,247,0.05))', border: '1px solid rgba(168,85,247,0.2)' }}>
+                    <div className="flex items-center gap-2 mb-4">
+                        <StarIcon className="w-5 h-5 text-fuchsia-500" />
+                        <h2 className="text-base font-bold text-white">AdPilotik North Star — Limiti Operativi</h2>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>Guardians Attivi</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Vendite */}
+                        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="text-xs text-zinc-400 mb-1">Vendite Settimanali</div>
+                            <div className="text-xl font-bold text-emerald-400">{totalSales} <span className="text-sm font-normal text-zinc-500">/ {northStar.sales_target_monthly / 4 || 10}</span></div>
+                        </div>
+
+                        {/* Capacità Venditori */}
+                        {(() => {
+                           // Approx capacity limit
+                           const capLimit = (northStar.sellers_count || 1) * (northStar.max_appointments_per_seller || 10) * 5; 
+                           const capUsed = totalAppts;
+                           const capAlert = capUsed >= capLimit;
+                           return (
+                               <div className="p-4 rounded-xl" style={{ background: capAlert ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: capAlert ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                                   <div className="text-xs text-zinc-400 mb-1">Capacità Venditori</div>
+                                   <div className="text-xl font-bold text-white flex gap-2 items-center">
+                                       {capUsed} <span className="text-sm font-normal text-zinc-500">/ {capLimit}</span>
+                                       {capAlert && <AlertTriangle className="w-4 h-4 text-red-500" />}
+                                   </div>
+                               </div>
+                           )
+                        })()}
+
+                        {/* Budget Settimanale */}
+                        <div className="p-4 rounded-xl" style={{ background: spend >= northStar.budget_weekly ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)', border: spend >= northStar.budget_weekly ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="text-xs text-zinc-400 mb-1">Spesa Settimanale</div>
+                            <div className="text-xl font-bold text-blue-400">{formatCurrency(spend)} <span className="text-sm font-normal text-zinc-500">/ {formatCurrency(northStar.budget_weekly || 1500)}</span></div>
+                        </div>
+
+                        {/* CAC Target */}
+                        <div className="p-4 rounded-xl" style={{ background: cac > northStar.cac_target ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: cac > northStar.cac_target ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="text-xs text-zinc-400 mb-1">CAC Reale vs Target</div>
+                            <div className="text-xl font-bold text-white">{formatCurrency(cac)} <span className="text-sm font-normal text-zinc-500">/ {formatCurrency(northStar.cac_target || 500)}</span></div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* AI Insights */}
             {insights.length > 0 && (

@@ -65,9 +65,31 @@ export default function FunnelLandingPage({ funnel }: Props) {
         }
     }
 
+    const [dynamicHeadline, setDynamicHeadline] = useState<string | null>(null)
+
+    // Phase 3.4: Dynamic Funnel Headlines
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search)
+            const angle = params.get('utm_term') || params.get('utm_content')
+            if (angle) {
+                const lowerAngle = angle.toLowerCase()
+                if (lowerAngle.includes('status')) {
+                    setDynamicHeadline('Dominare in Campo: Il Sistema per Riconquistare il Posto da Titolare')
+                } else if (lowerAngle.includes('emotional') || lowerAngle.includes('emotivo')) {
+                    setDynamicHeadline('Aiuta Tuo Figlio a Ritrovare il Sorriso e la Serenità Pre-Gara')
+                } else if (lowerAngle.includes('efficiency') || lowerAngle.includes('tempo')) {
+                    setDynamicHeadline('Smetti di Inseguire i Sintomi: Risolvi il Problema alla Radice nel Minor Tempo Possibile')
+                } else if (lowerAngle.includes('metodo') || lowerAngle.includes('system')) {
+                    setDynamicHeadline('Scopri l\'Unico Protocollo Scientifico per la Gestione dell\'Ansia nel Calcio Giovanile')
+                }
+            }
+        }
+    }, [])
+
     const orgName = funnel.organizations?.name || 'ADPILOTIK'
     const settings = funnel.settings || {}
-    const headline = settings.headline || funnel.name
+    const headline = dynamicHeadline || settings.headline || funnel.name
     const subheadline = settings.subheadline || funnel.description || 'Compila il form per ricevere maggiori informazioni'
     const ctaText = settings.cta_text || 'Invia Richiesta'
     const thankYouText = settings.thank_you || 'Grazie! Ti contatteremo il prima possibile.'

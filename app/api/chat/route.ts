@@ -112,6 +112,28 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Empty message' }, { status: 400 })
         }
 
+        // --- PHASE 3.6: Best Practices Extract Command ---
+        if (message.trim().toLowerCase() === '/export') {
+            const { data: knowledge } = await getSupabaseAdmin()
+                .from('agent_knowledge')
+                .select('*')
+                .eq('organization_id', orgId)
+                .eq('still_valid', true)
+                .order('priority', { ascending: false });
+            
+            let exportReply = "📜 **Manifesto Sincro delle Regole d'Oro**\n\nEcco tutte le best practices, insight e divieti memorizzati storicamente e validati attualmente:\n\n";
+            if (knowledge && knowledge.length > 0) {
+                knowledge.forEach((k: any, i: number) => {
+                    const priorityIcon = k.priority === 'high' ? '🔥' : k.priority === 'medium' ? '⚡' : '📌';
+                    exportReply += `${i+1}. ${priorityIcon} ${k.category?.toUpperCase() || 'RULE'}: **${k.knowledge}** _(ID: ${k.id.split('-')[0]})_\n`;
+                });
+            } else {
+                exportReply += "Al momento la Brain-Memory è vuota. Prova a scrivermi qualche input su cosa funziona o cosa evitare!";
+            }
+
+            return NextResponse.json({ reply: exportReply, extractedKnowledge: null, success: true });
+        }
+
         // Build rich context with current time info
         const now = new Date()
         const italianNow = now.toLocaleString('it-IT', {
@@ -136,37 +158,100 @@ export async function POST(req: NextRequest) {
         // Add current message
         messages.push({ role: 'user', content: message })
 
-        // Call OpenRouter
+        // Call OpenRouter for Chat and Extractor in Parallel
+        const [chatRes, extractedKnowledge] = await Promise.all([
+            fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'https://adpilotik.com',
+                    'X-Title': 'AdPilotik AI Engine',
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages,
+                    max_tokens: 2000,
+                    temperature: 0.3,
+                }),
+            }),
+            extractKnowledge(message, orgId)
+        ])
+
+        if (!chatRes.ok) {
+            const err = await chatRes.text()
+            console.error('OpenRouter error:', chatRes.status, err)
+            return NextResponse.json({ error: 'AI error' }, { status: 500 })
+        }
+
+        const data = await chatRes.json()
+        const reply = data.choices?.[0]?.message?.content || 'Nessuna risposta generata.'
+
+        return NextResponse.json({ reply, extractedKnowledge, success: true })
+    } catch (err: any) {
+
+        console.error('Chat error:', err)
+        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    }
+}
+
+async function extractKnowledge(message: string, orgId: string): Promise<string | null> {
+    try {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                'HTTP-Referer': 'https://adpilotik.com',
-                'X-Title': 'AdPilotik AI Engine',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY!}`,
             },
             body: JSON.stringify({
-                model: MODEL,
-                messages,
-                max_tokens: 2000,
-                temperature: 0.3,
-            }),
-        })
+                model: 'google/gemini-2.5-flash',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `Sei l'estrattore di regole di AdPilotik. Analizza l'ultimo messaggio dell'operatore umano (Antonio).
+Se il messaggio contiene una direttiva operativa chiara, un divieto, o una costatazione ferrea su ciò che funziona o non funziona sulle Ads, estraila formulandola come una REGOLA (massimo 1 frase chiara e concisa).
+Se è solo una domanda, un saluto o una conversazione generica, non estrarre nulla.
+Rispondi con formato JSON rigoroso: {"has_knowledge": boolean, "knowledge": "La frase estratta", "priority": "high" | "medium" | "low"}`
+                    },
+                    { role: 'user', content: message }
+                ],
+                response_format: { type: "json_object" },
+                temperature: 0.1
+            })
+        });
 
-        if (!res.ok) {
-            const err = await res.text()
-            console.error('OpenRouter error:', res.status, err)
-            return NextResponse.json({ error: 'AI error' }, { status: 500 })
+        if (res.ok) {
+            const data = await res.json();
+            const reply = data.choices?.[0]?.message?.content;
+            if (reply) {
+                const parsed = JSON.parse(reply);
+                if (parsed.has_knowledge && parsed.knowledge) {
+                    // Check if it already exists to prevent pure duplicates
+                    const { data: existing } = await getSupabaseAdmin()
+                        .from('agent_knowledge')
+                        .select('id')
+                        .eq('organization_id', orgId)
+                        .eq('knowledge', parsed.knowledge)
+                        .single()
+
+                    if (!existing) {
+                        await getSupabaseAdmin().from('agent_knowledge').insert({
+                            organization_id: orgId,
+                            knowledge: parsed.knowledge,
+                            category: 'chat_insight',
+                            source: 'chat',
+                            priority: parsed.priority || 'medium',
+                            still_valid: true
+                        });
+                        return parsed.knowledge;
+                    }
+                }
+            }
         }
-
-        const data = await res.json()
-        const reply = data.choices?.[0]?.message?.content || 'Nessuna risposta generata.'
-
-        return NextResponse.json({ reply, success: true })
-    } catch (err: any) {
-        console.error('Chat error:', err)
-        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    } catch (e) {
+        console.error("Knowledge extraction failed:", e);
     }
+    return null;
 }
 
 async function buildContext(orgId: string): Promise<string> {

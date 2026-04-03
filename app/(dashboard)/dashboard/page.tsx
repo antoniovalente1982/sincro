@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         .single()
 
     // Get data — stages filtered by default pipeline only
-    const [leadsRes, funnelsRes, connectionsRes, stagesRes, activitiesRes, funnelStatsRes, pageViewsRes] = await Promise.all([
+    const [leadsRes, funnelsRes, connectionsRes, stagesRes, activitiesRes, funnelStatsRes, pageViewsRes, northStarRes] = await Promise.all([
         supabase.from('leads').select('id, value, stage_id, created_at, updated_at, funnel_id, utm_source').eq('organization_id', orgId),
         supabase.from('funnels').select('id, name, slug, status, meta_pixel_id').eq('organization_id', orgId).eq('status', 'active').order('name'),
         supabase.from('connections').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
@@ -43,6 +43,11 @@ export default async function DashboardPage() {
         supabase.from('page_views').select('funnel_id, created_at')
             .eq('organization_id', orgId)
             .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
+        supabase.from('ai_north_star').select('*')
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
     ])
 
     // Compute per-funnel stats (last 30d)
@@ -66,6 +71,7 @@ export default async function DashboardPage() {
             leads={leadsRes.data || []}
             recentActivities={activitiesRes.data || []}
             funnels={funnelsList}
+            northStar={northStarRes?.data || null}
         />
     )
 }

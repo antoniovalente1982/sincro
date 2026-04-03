@@ -7,6 +7,7 @@ interface Message {
     role: 'user' | 'assistant'
     content: string
     timestamp: Date
+    extractedKnowledge?: string
 }
 
 export default function DanteChat() {
@@ -54,6 +55,7 @@ export default function DanteChat() {
                 role: 'assistant',
                 content: data.reply || 'Errore nella risposta.',
                 timestamp: new Date(),
+                extractedKnowledge: data.extractedKnowledge,
             }])
         } catch {
             setMessages(prev => [...prev, {
@@ -167,6 +169,24 @@ export default function DanteChat() {
                                 style={{ color: msg.role === 'user' ? '#fff' : 'var(--color-surface-700)' }}
                                 dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }}
                             />
+                            
+                            {msg.extractedKnowledge && (
+                                <div className="mt-3 p-2.5 rounded-lg flex items-start gap-2" style={{
+                                    background: 'rgba(168, 85, 247, 0.08)',
+                                    border: '1px solid rgba(168, 85, 247, 0.2)',
+                                }}>
+                                    <div className="shrink-0 mt-0.5" style={{ fontSize: '12px' }}>📝</div>
+                                    <div>
+                                        <div className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#a855f7' }}>
+                                            Nuova Regola Memorizzata
+                                        </div>
+                                        <div className="text-[11px] font-medium" style={{ color: 'var(--color-surface-800)' }}>
+                                            "{msg.extractedKnowledge}"
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="text-[9px] mt-1.5 text-right" style={{
                                 color: msg.role === 'user' ? 'rgba(255,255,255,0.5)' : 'var(--color-surface-500)',
                             }}>
