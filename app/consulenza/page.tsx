@@ -251,9 +251,9 @@ function PageContent() {
             <span className="text-[12px] font-extrabold text-red-500 tracking-[1.5px] uppercase animate-pulse">⚡ POSTI LIMITATI</span>
           </div>
           <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
-            Candidatura: <span className="text-[#facc15]">{config.logoAccent === 'SINCRO' ? 'Metodo Sincro' : config.logoTitle + ' ' + config.logoAccent}</span>
+            Prenota la Consulenza <span className="text-[#facc15]">Gratuita</span>
           </h3>
-          <p className="text-[13px] text-zinc-500 mb-4">{config.subheadline}</p>
+          <p className="text-[13px] text-zinc-500 mb-4">Compila il form — ti richiamiamo noi</p>
 
           <div className="flex flex-wrap justify-center gap-[14px] mb-[18px] pb-4 border-b border-zinc-200">
             <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Lock className="w-3" /> Dati protetti</div>
