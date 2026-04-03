@@ -42,15 +42,15 @@ export default function DanteChat() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`,
                 },
                 body: JSON.stringify({
                     message: userMsg.content,
-                    history: messages.slice(-8).map(m => ({ role: m.role, content: m.content })),
-                }),
+                    history: messages.slice(-5).map(m => ({ role: m.role, content: m.content }))
+                })
             })
 
             const data = await res.json()
+
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: data.reply || 'Errore nella risposta.',
@@ -66,18 +66,6 @@ export default function DanteChat() {
         }
 
         setLoading(false)
-    }
-
-    const getToken = () => {
-        // Get supabase token from localStorage
-        const key = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
-        if (!key) return ''
-        try {
-            const data = JSON.parse(localStorage.getItem(key) || '{}')
-            return data.access_token || ''
-        } catch {
-            return ''
-        }
     }
 
     const formatMessage = (text: string) => {

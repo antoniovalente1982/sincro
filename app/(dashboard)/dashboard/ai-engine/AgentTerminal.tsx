@@ -41,7 +41,6 @@ export default function AgentTerminal() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
           message: userMsg.content,
@@ -59,22 +58,11 @@ export default function AgentTerminal() {
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: '⚠️ Errore di connessione. Riprova.',
+        content: '⚠️ Errore di comunicazione con il sistema centrale. Riprova.',
         timestamp: new Date(),
       }])
-    }
-
-    setLoading(false)
-  }
-
-  const getToken = () => {
-    const key = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
-    if (!key) return ''
-    try {
-      const data = JSON.parse(localStorage.getItem(key) || '{}')
-      return data.access_token || ''
-    } catch {
-      return ''
+    } finally {
+      setLoading(false)
     }
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 import { readKPIData, readAppointments } from '@/lib/google-sheets'
 
 function getSupabaseAdmin() {
@@ -7,7 +8,7 @@ function getSupabaseAdmin() {
     if (!serviceKey) {
         console.error('SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to ANON_KEY, which may cause RLS errors.')
     }
-    return createClient(
+    return createSupabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
@@ -81,20 +82,16 @@ PRECISIONE DEI DATI:
 
 export async function POST(req: NextRequest) {
     try {
-        // Auth check
-        const authHeader = req.headers.get('authorization')
-        if (!authHeader) {
-            return NextResponse.json({ reply: '⚠️ Manca il token di autorizzazione.', error: 'Unauthorized' }, { status: 401 })
-        }
-
-        const token = authHeader.replace('Bearer ', '')
-        const { data: { user }, error: authError } = await getSupabaseAdmin().auth.getUser(token)
+        // Auth check via robust Server Client cookies
+        const supabase = await createClient()
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        
         if (!user) {
             return NextResponse.json({ reply: `⚠️ Utente non autorizzato o token scaduto. Errore interno: ${authError?.message}`, error: 'Unauthorized' }, { status: 401 })
         }
 
         // Get org
-        const { data: member } = await getSupabaseAdmin()
+        const { data: member } = await supabase
             .from('organization_members')
             .select('organization_id')
             .eq('user_id', user.id)
