@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, Edit2, Trash2, Loader2, Save, X } from 'lucide-react'
+import { Link2, Plus, Edit2, Trash2, Loader2, Save, X, Info } from 'lucide-react'
 
 interface RoutingAngle {
   id: string
@@ -19,6 +19,7 @@ export default function AngleManager() {
   
   const [formData, setFormData] = useState<Partial<RoutingAngle>>({})
   const [isCreating, setIsCreating] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
 
   const supabase = createClient()
 
@@ -74,13 +75,59 @@ export default function AngleManager() {
             Gestisci i titoli e i sottotitoli dinamici delle landing page in base alle keywords delle Ads
           </p>
         </div>
-        <button 
-          onClick={() => { setIsCreating(true); setEditingId('new'); setFormData({}) }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#a855f7] text-white rounded-xl text-sm font-bold hover:bg-[#9333ea] transition-all"
-        >
-          <Plus size={16} /> Aggiungi Angolo
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowInfo(!showInfo)}
+            className="flex items-center gap-2 px-3 py-2 bg-[rgba(59,130,246,0.1)] text-[#3b82f6] border border-[rgba(59,130,246,0.3)] rounded-xl text-sm font-bold hover:bg-[rgba(59,130,246,0.2)] transition-all"
+          >
+            <Info size={16} /> Come Funziona
+          </button>
+          <button 
+            onClick={() => { setIsCreating(true); setEditingId('new'); setFormData({}) }}
+            className="flex items-center gap-2 px-4 py-2 bg-[#a855f7] text-white rounded-xl text-sm font-bold hover:bg-[#9333ea] transition-all"
+          >
+            <Plus size={16} /> Aggiungi Angolo
+          </button>
+        </div>
       </div>
+
+      {showInfo && (
+        <div className="glass-card p-5 animate-fade-in" style={{ border: '1px solid rgba(59,130,246,0.3)' }}>
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[rgba(59,130,246,0.1)] flex items-center justify-center flex-shrink-0">
+              <Info className="text-[#3b82f6]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white mb-2 text-lg">Come Funziona il Funnel Routing Dinamico</h3>
+              <p className="text-sm text-[var(--color-surface-400)] mb-4">
+                Questo sistema cambia in tempo reale il titolo e il sottotitolo della landing page in base all'annuncio che l'utente ha cliccato su Facebook. Questo aumenta drasticamente i tassi di conversione.
+              </p>
+              
+              <h4 className="font-bold text-white mb-2 text-sm">Cosa devi fare quando crei le Ads:</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#3b82f6] mt-0.5">•</span>
+                  <div>
+                    <strong className="text-white">1. Scegli una Trigger Keyword:</strong> Scegli o crea una parola chiave qui sotto (es. <code className="text-[#a855f7] bg-[rgba(168,85,247,0.1)] px-1 rounded">emotional</code>).
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#3b82f6] mt-0.5">•</span>
+                  <div>
+                    <strong className="text-white">2. Nominala su Meta Ads:</strong> Inserisci quella keyword nel NOME dell'inserzione su Facebook. Ad esempio: <em>"T: Emotional Video XYZ"</em>.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#3b82f6] mt-0.5">•</span>
+                  <div>
+                    <strong className="text-white">3. Setup Automatico:</strong> Finché il link dell'ad usa i parametri UTM standard previsti dal nostro Preflight (<code>utm_content=&#123;&#123;ad.name&#125;&#125;</code>), il sistema farà "match" con la tua keyword in automatico e mostrerà il titolo corretto.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(isCreating || editingId) && (
         <div className="glass-card p-6" style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)' }}>
