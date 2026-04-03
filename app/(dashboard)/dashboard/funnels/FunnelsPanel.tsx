@@ -221,9 +221,24 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         if (res.ok) setFunnels(prev => prev.map(f => f.id === funnel.id ? { ...f, settings: newSettings } : f))
     }
 
-    const copyUrl = (slug: string, id: string) => {
-        navigator.clipboard.writeText(`${baseUrl}/f/${slug}`)
-        setCopiedId(id)
+    const getPublicUrl = (funnel: Funnel) => {
+        if (funnel.settings?.custom_url) return funnel.settings.custom_url
+        return `${baseUrl}/f/${funnel.slug}`
+    }
+
+    const getDisplayUrl = (funnel: Funnel) => {
+        if (funnel.settings?.custom_url) {
+            try {
+                const u = new URL(funnel.settings.custom_url)
+                return u.pathname + u.search
+            } catch { return funnel.settings.custom_url }
+        }
+        return `/f/${funnel.slug}`
+    }
+
+    const copyUrl = (funnel: Funnel) => {
+        navigator.clipboard.writeText(getPublicUrl(funnel))
+        setCopiedId(funnel.id)
         setTimeout(() => setCopiedId(null), 2000)
     }
 
@@ -362,7 +377,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-bold text-white">{stat.funnel.name}</h3>
-                                        <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>/f/{stat.funnel.slug}</p>
+                                        <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{getDisplayUrl(stat.funnel)}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -582,7 +597,6 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                             {funnels.map(funnel => {
                                 const st = statusConfig[funnel.status] || statusConfig.draft
                                 const StIcon = st.icon
-                                const publicUrl = `${baseUrl}/f/${funnel.slug}`
                                 return (
                                     <div key={funnel.id} className="glass-card p-5 group">
                                         <div className="flex items-start justify-between mb-3">
@@ -630,10 +644,10 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="flex-1 text-[11px] font-mono px-2.5 py-1.5 rounded-lg truncate" style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-600)' }}>
                                                 <Link2 className="w-3 h-3 inline mr-1.5 opacity-50" />
-                                                /f/{funnel.slug}
+                                                {getDisplayUrl(funnel)}
                                             </div>
                                             <button
-                                                onClick={() => copyUrl(funnel.slug, funnel.id)}
+                                                onClick={() => copyUrl(funnel)}
                                                 className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                                                 title="Copia URL"
                                             >
@@ -643,7 +657,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                                 }
                                             </button>
                                             {funnel.status === 'active' && (
-                                                <a href={publicUrl} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-white/5">
+                                                <a href={getPublicUrl(funnel)} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-white/5">
                                                     <ExternalLink className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
                                                 </a>
                                             )}
@@ -721,6 +735,7 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
             google_ads_id: funnel?.settings?.google_ads_id || '',
             google_ads_label: funnel?.settings?.google_ads_label || '',
             tiktok_pixel_id: funnel?.settings?.tiktok_pixel_id || '',
+            custom_url: funnel?.settings?.custom_url || '',
         },
         ai_settings: {
             tone: funnel?.ai_settings?.tone || '',
@@ -763,6 +778,11 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                         <label className="label">Slug (URL)</label>
                         <input className="input" value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="landing-platinum" />
                         <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Pagina pubblica: /f/{form.slug || '...'}</p>
+                    </div>
+                    <div>
+                        <label className="label">URL Personalizzato <span style={{ color: 'var(--color-surface-400)', fontWeight: 400 }}>(opzionale)</span></label>
+                        <input className="input" value={form.settings.custom_url || ''} onChange={e => updateSettings('custom_url', e.target.value || undefined)} placeholder="https://landing.metodosincro.com/consulenza?source=..." />
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Se compilato, questo URL verrà usato al posto di /f/slug</p>
                     </div>
                     <div>
                         <label className="label">Obiettivo campagna</label>
