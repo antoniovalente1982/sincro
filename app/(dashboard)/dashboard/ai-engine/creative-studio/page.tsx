@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import CreativeStudio from './CreativeStudio'
 import CreativePipeline from './CreativePipeline'
+import AngleManager from './AngleManager'
 
 export default async function CreativeStudioPage() {
     const supabase = await createClient()
@@ -63,6 +64,12 @@ export default async function CreativeStudioPage() {
                 briefs={briefsRes.data || []}
                 campaigns={campaignsRes.data || []}
             />
+
+            {/* Divider */}
+            <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
+
+            {/* Angle Manager — Funnel Routing Engine */}
+            <AngleManager />
         </div>
     )
 }

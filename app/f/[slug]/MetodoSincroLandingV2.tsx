@@ -10,7 +10,8 @@ interface Props {
     funnel: {
         id: string; name: string; description?: string; meta_pixel_id?: string
         settings?: any; organizations?: any; objective?: string
-    }
+    };
+    routingAngles?: any[];
 }
 
 const FAMOUS_PLAYERS = [
@@ -44,7 +45,7 @@ const FAQ_ITEMS = [
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
 
-export default function MetodoSincroLandingV2({ funnel }: Props) {
+export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) {
     const [fullName, setFullName] = useState('')
     const [fullNameError, setFullNameError] = useState('')
     const [phone, setPhone] = useState('')
@@ -58,11 +59,8 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
     const [viewerCount, setViewerCount] = useState(18)
-    const [adsetAngle, setAdsetAngle] = useState<
-        'emotional'|'system'|'efficiency'|'status'|'education'|
-        'growth'|'authority'|'security'|'trauma'|'decision'|
-        'sport_performance'|'mental_coaching'|'generic'
-    >('generic')
+    const [activeAngle, setActiveAngle] = useState<any>(null)
+    const [customHeadline, setCustomHeadline] = useState<string | null>(null)
     const checkoutFiredRef = useRef(false)
 
     const handleFirstFieldFocus = useCallback(() => {
@@ -131,41 +129,41 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
         abVariant: funnel.settings?.ab_variant,
     })
 
-    // Detect adset angle from utm_term — aligned with creative-pipeline.ts adsetAngles
+    // Detect ad angle / adset angle from global UTM string matching against the database
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const t = (params.get('utm_term') || '').toLowerCase()
-        if (!t) return
-        // Exact match first (pipeline uses these exact strings as utm_term)
-        const ANGLE_MAP: Record<string, typeof adsetAngle> = {
-            'efficiency':       'efficiency',
-            'system':           'system',
-            'emotional':        'emotional',
-            'status':           'status',
-            'education':        'education',
-            'growth':           'growth',
-            'authority':        'authority',
-            'security':         'security',
-            'trauma':           'trauma',
-            'decision':         'decision',
-            'sport_performance':'sport_performance',
-            'mental_coaching':  'mental_coaching',
+        
+        // Estrai il titolo dell'ad se passato per avere congruenza 100% (Parametro Volontario)
+        let paramTitle = params.get('ad_title') || params.get('headline') || params.get('titolo')
+        
+        // NUOVO SUPER POTERE: Se non c'è nei parametri, leggi utm_content (Nome dell'Ad di Facebook)
+        // e cerca se Antonio ha inserito "T: " o "Titolo: " nel nome dell'inserzione.
+        if (!paramTitle) {
+            const adName = params.get('utm_content') || '';
+            const titleMatch = adName.match(/(?:T:|Titolo:|Headline:)\s*(.+)/i);
+            if (titleMatch && titleMatch[1]) {
+                paramTitle = titleMatch[1].trim();
+            }
         }
-        // Exact match
-        if (ANGLE_MAP[t]) { setAdsetAngle(ANGLE_MAP[t]); return }
-        // Partial match fallbacks for legacy naming
-        if (t.includes('emozion') || t.includes('dolor') || t.includes('trauma')) setAdsetAngle('trauma')
-        else if (t.includes('system') || t.includes('metodo') || t.includes('controllo')) setAdsetAngle('system')
-        else if (t.includes('efficien') || t.includes('ottimiz')) setAdsetAngle('efficiency')
-        else if (t.includes('status') || t.includes('elite') || t.includes('corona')) setAdsetAngle('status')
-        else if (t.includes('edu') || t.includes('learn')) setAdsetAngle('education')
-        else if (t.includes('grow') || t.includes('trasf')) setAdsetAngle('growth')
-        else if (t.includes('author') || t.includes('leader')) setAdsetAngle('authority')
-        else if (t.includes('secur') || t.includes('sicur')) setAdsetAngle('security')
-        else if (t.includes('decis')) setAdsetAngle('decision')
-        else if (t.includes('sport') || t.includes('calcio') || t.includes('perf')) setAdsetAngle('sport_performance')
-        else if (t.includes('mental')) setAdsetAngle('mental_coaching')
-    }, [])
+
+        if (paramTitle) {
+            setCustomHeadline(paramTitle)
+        }
+
+        // SALVATAGGIO ADSET UNIFICATI & DATABASE ROUTING
+        // Cerca l'angolo storico sia nell'Adset (utm_term) sia nel Nome Inserzione (utm_content)
+        const term = (params.get('utm_term') || '').toLowerCase()
+        const content = (params.get('utm_content') || '').toLowerCase()
+        const t = `${term} ${content}`
+        
+        if (!t.trim() || !routingAngles || routingAngles.length === 0) return
+        
+        // Cerca la prima trigger_keyword del DB che fa match con la stringa globale passata
+        const match = routingAngles.find((r: any) => t.includes(r.trigger_keyword.toLowerCase()))
+        if (match) {
+            setActiveAngle(match)
+        }
+    }, [routingAngles])
 
     // Exit intent — ONLY after user has scrolled to bottom of page
     useEffect(() => {
@@ -270,7 +268,7 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                     extra_data: {
                         sport: 'calcio',
                         child_age: childAge,
-                        adset_angle: adsetAngle === 'generic' ? undefined : adsetAngle
+                        adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined
                     },
                     landing_url: window.location.href,
                     event_id: leadEventId,
@@ -429,25 +427,21 @@ export default function MetodoSincroLandingV2({ funnel }: Props) {
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per Giovani Calciatori</div>
-                        {adsetAngle === 'emotional' ? (
+                        {customHeadline ? (
                             <>
-                                <h1>Lo Vedi Anche Tu, Vero?<br /><span className="lp-gold">In Allenamento È Un Altro. In Partita Si Spegne.</span></h1>
-                                <p className="lp-hero-sub">Sai che ha il talento. Ma qualcosa lo blocca ogni volta. <strong>Non è un problema tecnico — è un problema di mentalità.</strong> E con il percorso giusto, si risolve in 90 giorni. Il <strong>Metodo Sincro®</strong> è il Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                                <h1>
+                                    {customHeadline.split(' ').map((word, i, arr) => 
+                                        i >= Math.ceil(arr.length / 2) 
+                                            ? <span key={i} className="lp-gold">{word} </span> 
+                                            : <span key={i}>{word} </span>
+                                    )}
+                                </h1>
+                                <p className="lp-hero-sub">Sai che ha il talento. Ma qualcosa lo blocca ogni volta. <strong>Non è un problema tecnico — è un problema di mentalità.</strong> E con il percorso giusto, si risolve in 90 giorni. Il <strong>Metodo Sincro®</strong> è il percorso di Mental Coaching ONE-TO-ONE <strong>garantito per contratto</strong>.</p>
                             </>
-                        ) : adsetAngle === 'system' ? (
+                        ) : activeAngle ? (
                             <>
-                                <h1>Il Talento C'è.<br /><span className="lp-gold">La Mentalità Vincente Si Costruisce.</span></h1>
-                                <p className="lp-hero-sub">La differenza tra chi ce la fa e chi resta a guardare? <strong>La mentalità.</strong> E la mentalità vincente si allena — esattamente come la tecnica. Il <strong>Metodo Sincro®</strong> è il percorso di Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio e per fascia d'età — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
-                            </>
-                        ) : adsetAngle === 'efficiency' ? (
-                            <>
-                                <h1>Stesso Ragazzo.<br /><span className="lp-gold">Mentalità Diversa. In Soli 90 Giorni.</span></h1>
-                                <p className="lp-hero-sub">Ogni giorno che passa, il gap tra il suo talento e i suoi risultati si allarga. <strong>In 90 giorni il Metodo Sincro® trasforma la mentalità di tuo figlio</strong> — con un coach <strong>CONI dedicato</strong>, sessioni individuali e <strong>risultati garantiti per contratto</strong>.</p>
-                            </>
-                        ) : adsetAngle === 'status' ? (
-                            <>
-                                <h1>Tuo Figlio Merita<br /><span className="lp-gold">Il Percorso dei Campioni.</span></h1>
-                                <p className="lp-hero-sub">I migliori atleti italiani non sono arrivati lì solo col talento — hanno <strong>allenato la mentalità</strong>. Lo stesso percorso usato in <strong>Serie A, B e Lega Pro</strong> è ora disponibile per tuo figlio. <strong>Metodo Sincro®</strong>: Mental Coaching ONE-TO-ONE con coach <strong>CONI certificati</strong>, specializzati in calcio — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                                <h1>{activeAngle.headline_white} <br /><span className="lp-gold">{activeAngle.headline_gold}</span></h1>
+                                <p className="lp-hero-sub">{activeAngle.subtitle}</p>
                             </>
                         ) : (
                             <>

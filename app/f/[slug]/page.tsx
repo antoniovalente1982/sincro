@@ -33,7 +33,11 @@ export default async function PublicFunnelPage({ params }: Props) {
     // Use dedicated template if specified in settings
     const template = funnel.settings?.template
     if (template === 'metodo_sincro') {
-        return <MetodoSincroLanding funnel={funnel} />
+        const { data: routingAngles } = await getSupabaseAdmin()
+            .from('funnel_routing_engine')
+            .select('*')
+
+        return <MetodoSincroLanding funnel={funnel} routingAngles={routingAngles || []} />
     }
 
     return <FunnelLandingPage funnel={funnel} />
