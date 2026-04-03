@@ -34,7 +34,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const firstName = userName.split(' ')[0]
     const hour = new Date().getHours()
     const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera'
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
     const leads = filterByDateRange(allLeads, range, dateFilterMode === 'created' ? 'created_at' : 'updated_at')
 

@@ -79,7 +79,7 @@ type SortDir = 'asc' | 'desc'
 export default function AdsPanel({ campaigns: cachedCampaigns, rules, connections, recommendations, funnels = [] }: Props) {
     const hasMetaAds = connections.some(c => c.provider === 'meta_ads' && c.status === 'active')
     const hasMetaCapi = connections.some(c => c.provider === 'meta_capi' && c.status === 'active')
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
     const [syncing, setSyncing] = useState(false)
     const [loadingInsights, setLoadingInsights] = useState(false)
     const [lastSync, setLastSync] = useState<string | null>(null)

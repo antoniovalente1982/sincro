@@ -70,7 +70,7 @@ function getPresetRange(key: string): { from: Date; to: Date } {
     }
 }
 
-export function useDateRange(defaultKey: string = 'all') {
+export function useDateRange(defaultKey: string = 'this_month') {
     const [activeKey, setActiveKey] = useState(defaultKey)
     const [customFrom, setCustomFrom] = useState('')
     const [customTo, setCustomTo] = useState('')

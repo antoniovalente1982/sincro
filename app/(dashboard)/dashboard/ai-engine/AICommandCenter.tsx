@@ -62,7 +62,7 @@ export default function AICommandCenter({ campaigns: cachedCampaigns, recommenda
     const [recommendations, setRecommendations] = useState(initialRecs)
     const [generating, setGenerating] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
     const [loadingInsights, setLoadingInsights] = useState(false)
 

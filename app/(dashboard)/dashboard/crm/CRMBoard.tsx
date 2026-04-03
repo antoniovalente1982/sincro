@@ -158,7 +158,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     }, [])
 
     // Date range filter
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
 
     // View Mode (Kanban vs Grid)

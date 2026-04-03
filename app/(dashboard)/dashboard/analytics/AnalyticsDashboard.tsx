@@ -36,7 +36,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const [funnelFilter, setFunnelFilter] = useState<string>('all')
     const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>(defaultPipeline?.id || '')
-    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('today')
+    const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
     
     // Live Meta Insights for Revenue Attribution
     const [loadingInsights, setLoadingInsights] = useState(false)
