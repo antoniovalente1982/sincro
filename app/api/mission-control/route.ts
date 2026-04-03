@@ -11,7 +11,7 @@ import { createClient } from '@supabase/supabase-js'
 //
 // POST /api/mission-control
 //   body: { action, orgId, ...payload }
-//   actions: set_objectives | get_weekly_brief | override_angle_action | force_ratchet
+//   actions: set_mission_params | force_cron | get_weekly_brief | override_angle_action | force_learning
 // ═══════════════════════════════════════════════════════════════
 
 function getSupabaseAdmin() {
@@ -107,28 +107,65 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabaseAdmin()
 
     try {
-        // ── set_objectives ────────────────────────────────────
-        if (action === 'set_objectives') {
-            const { objectives } = body
-            const { error } = await supabase
-                .from('ai_mission_objectives')
-                .upsert({
+        // ── set_mission_params ────────────────────────────────────
+        if (action === 'set_mission_params') {
+            const { objectives, execution_mode, autopilot_active } = body
+            
+            // Upsert in ai_mission_objectives
+            if (objectives && Object.keys(objectives).length > 0) {
+                await supabase.from('ai_mission_objectives').upsert({
                     organization_id: org_id,
                     ...objectives,
                     updated_at: new Date().toISOString(),
                 }, { onConflict: 'organization_id' })
+            }
 
-            if (error) throw error
-            return NextResponse.json({ ok: true, message: 'Obiettivi aggiornati' })
+            // Update in ai_agent_config
+            if (execution_mode || autopilot_active !== undefined) {
+                const updatePayload: any = {}
+                if (execution_mode) updatePayload.execution_mode = execution_mode
+                if (autopilot_active !== undefined) updatePayload.autopilot_active = autopilot_active
+                
+                await supabase.from('ai_agent_config').upsert({
+                    organization_id: org_id,
+                    ...updatePayload,
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: 'organization_id' })
+            }
+
+            return NextResponse.json({ ok: true, message: 'Obiettivi e Modalità aggiornati' })
         }
 
-        // ── set_execution_mode ────────────────────────────────
-        if (action === 'set_execution_mode') {
-            const { mode } = body  // 'dry_run' | 'live'
-            await supabase.from('ai_agent_config')
-                .update({ execution_mode: mode })
-                .eq('organization_id', org_id)
-            return NextResponse.json({ ok: true, mode })
+        // ── force_cron ──────────────────────────────────────────
+        if (action === 'force_cron') {
+            const { cron_name } = body
+            const allowedCrons = ['ai-engine', 'kill-guardian', 'creative-pipeline', 'ads-monitor', 'ratchet-evaluator']
+            
+            if (!allowedCrons.includes(cron_name)) {
+                return NextResponse.json({ error: `Cron ${cron_name} non autorizzato` }, { status: 400 })
+            }
+
+            const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('supabase')
+                ? process.env.NEXTAUTH_URL || 'http://localhost:3000'
+                : 'http://localhost:3000'
+
+            const cronRes = await fetch(`${baseUrl}/api/cron/${cron_name}`, {
+                headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` },
+            })
+            
+            let cronData = null
+            try {
+                cronData = await cronRes.json()
+            } catch (e) {
+                cronData = await cronRes.text()
+            }
+
+            if (!cronRes.ok) {
+                console.error(`Error forcing cron ${cron_name}:`, cronData)
+                return NextResponse.json({ error: `Errore in ${cron_name}`, details: cronData }, { status: cronRes.status })
+            }
+
+            return NextResponse.json({ ok: true, message: `Esecuzione completata per ${cron_name}.`, data: cronData })
         }
 
         // ── get_weekly_brief ──────────────────────────────────

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Activity, Target, Zap, Shield, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Activity, Target, Zap, Shield, TrendingUp, AlertTriangle, Settings2 } from 'lucide-react'
+import MissionConsoleModal from './MissionConsoleModal'
 
 // Mapped from MissionControl
 interface MissionData {
@@ -21,6 +22,7 @@ export default function AgentHUD() {
   const [orgId, setOrgId] = useState<string | null>(null)
   const [data, setData] = useState<MissionData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showConsole, setShowConsole] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -74,14 +76,19 @@ export default function AgentHUD() {
           <Shield className="w-5 h-5 text-indigo-400" />
           <span className="text-sm font-bold text-white tracking-wider">SYSTEM STATUS</span>
         </div>
-        <div className="flex items-center gap-2">
-           <span className="relative flex h-3 w-3">
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${execution_mode === 'live' ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
-            <span className={`relative inline-flex rounded-full h-3 w-3 ${execution_mode === 'live' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-          </span>
-          <span className={`text-xs font-mono font-bold ${execution_mode === 'live' ? 'text-emerald-400' : 'text-amber-400'}`}>
-            {execution_mode.toUpperCase()}
-          </span>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowConsole(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-300 transition-colors border border-white/10">
+            <Settings2 className="w-3.5 h-3.5" /> CONSOLE
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-3 w-3">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${execution_mode === 'live' ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+              <span className={`relative inline-flex rounded-full h-3 w-3 ${execution_mode === 'live' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+            </span>
+            <span className={`text-xs font-mono font-bold ${execution_mode === 'live' ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {execution_mode.toUpperCase()}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -202,6 +209,16 @@ export default function AgentHUD() {
         </div>
 
       </div>
+      
+      <MissionConsoleModal 
+        isOpen={showConsole} 
+        onClose={() => setShowConsole(false)} 
+        orgId={orgId}
+        initialObjectives={data.objectives}
+        initialExecutionMode={data.execution_mode}
+        initialAutopilotActive={data.autopilot_active}
+        onSaved={() => fetchData()}
+      />
     </div>
   )
 }
