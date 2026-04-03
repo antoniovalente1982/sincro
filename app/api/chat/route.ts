@@ -84,13 +84,13 @@ export async function POST(req: NextRequest) {
         // Auth check
         const authHeader = req.headers.get('authorization')
         if (!authHeader) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return NextResponse.json({ reply: '⚠️ Manca il token di autorizzazione.', error: 'Unauthorized' }, { status: 401 })
         }
 
         const token = authHeader.replace('Bearer ', '')
-        const { data: { user } } = await getSupabaseAdmin().auth.getUser(token)
+        const { data: { user }, error: authError } = await getSupabaseAdmin().auth.getUser(token)
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return NextResponse.json({ reply: `⚠️ Utente non autorizzato o token scaduto. Errore interno: ${authError?.message}`, error: 'Unauthorized' }, { status: 401 })
         }
 
         // Get org
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
             .single()
 
         if (!member) {
-            return NextResponse.json({ error: 'No organization' }, { status: 403 })
+            return NextResponse.json({ reply: '⚠️ Organizzazione non trovata per questo utente.', error: 'No organization' }, { status: 403 })
         }
 
         const orgId = member.organization_id
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
         if (!chatRes.ok) {
             const err = await chatRes.text()
             console.error('OpenRouter error:', chatRes.status, err)
-            return NextResponse.json({ error: 'AI error' }, { status: 500 })
+            return NextResponse.json({ reply: `⚠️ Errore OpenRouter (${chatRes.status}): ${err}`, error: 'AI error' }, { status: 500 })
         }
 
         const data = await chatRes.json()
@@ -189,9 +189,8 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ reply, extractedKnowledge, success: true })
     } catch (err: any) {
-
         console.error('Chat error:', err)
-        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+        return NextResponse.json({ reply: `⚠️ Errore API Interno: ${err?.message || JSON.stringify(err)}`, error: 'Internal error' }, { status: 500 })
     }
 }
 
