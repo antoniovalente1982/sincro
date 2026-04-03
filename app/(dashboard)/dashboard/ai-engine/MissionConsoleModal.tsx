@@ -1,7 +1,15 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, Save, Shield, Settings2, PlayCircle, BookOpen, Activity, AlertTriangle, Zap } from 'lucide-react'
+import { X, Save, Shield, Settings2, PlayCircle, BookOpen, Activity, AlertTriangle, Zap, Cpu } from 'lucide-react'
+
+const LLM_MODELS = [
+  { id: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash', desc: 'Veloce, economico, ottimo per decisioni rapide', color: '#4285f4' },
+  { id: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro', desc: 'Ragionamento avanzato, analisi strategica profonda', color: '#0f9d58' },
+  { id: 'anthropic/claude-sonnet-4', label: 'Claude Sonnet 4', desc: 'Analisi sfumata, eccellente per brief creativi', color: '#d97757' },
+  { id: 'openai/gpt-4o', label: 'GPT-4o', desc: 'Polivalente, buon equilibrio velocità/qualità', color: '#10a37f' },
+  { id: 'meta-llama/llama-4-maverick', label: 'Llama 4 Maverick', desc: 'Open source, sperimentale, costo zero', color: '#6366f1' },
+]
 
 interface MissionConsoleModalProps {
   isOpen: boolean;
@@ -10,20 +18,22 @@ interface MissionConsoleModalProps {
   initialObjectives: any;
   initialExecutionMode: string;
   initialAutopilotActive: boolean;
-  onSaved: () => void; // Trigger refresh on parent
+  initialLlmModel?: string;
+  onSaved: () => void;
 }
 
 export default function MissionConsoleModal({
   isOpen, onClose, orgId,
   initialObjectives, initialExecutionMode, initialAutopilotActive,
+  initialLlmModel,
   onSaved
 }: MissionConsoleModalProps) {
   const [activeTab, setActiveTab] = useState<'objectives' | 'system' | 'lexicon'>('objectives')
   
-  // State for objectives form
   const [objectives, setObjectives] = useState(initialObjectives || {})
   const [executionMode, setExecutionMode] = useState(initialExecutionMode)
   const [autopilotActive, setAutopilotActive] = useState(initialAutopilotActive)
+  const [llmModel, setLlmModel] = useState(initialLlmModel || 'google/gemini-2.5-flash')
   
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -31,11 +41,11 @@ export default function MissionConsoleModal({
   const [cronResult, setCronResult] = useState<{type: string, message: string} | null>(null)
 
   useEffect(() => {
-    // Reset state when modal opens
     setObjectives(initialObjectives || {})
     setExecutionMode(initialExecutionMode)
     setAutopilotActive(initialAutopilotActive)
-  }, [isOpen, initialObjectives, initialExecutionMode, initialAutopilotActive])
+    setLlmModel(initialLlmModel || 'google/gemini-2.5-flash')
+  }, [isOpen, initialObjectives, initialExecutionMode, initialAutopilotActive, initialLlmModel])
 
   if (!isOpen) return null
 
@@ -56,7 +66,8 @@ export default function MissionConsoleModal({
           org_id: orgId, 
           objectives, 
           execution_mode: executionMode, 
-          autopilot_active: autopilotActive 
+          autopilot_active: autopilotActive,
+          llm_model: llmModel,
         })
       })
       
@@ -70,11 +81,10 @@ export default function MissionConsoleModal({
     }
   }
 
-  const forceCron = async (cronName: string, endpoint: string) => {
+  const forceCron = async (cronName: string) => {
     setExecutingCron(cronName)
     setCronResult(null)
     try {
-      // We will call an internal POST endpoint to safely trigger crons avoiding 401 Unauthorized
       const res = await fetch('/api/mission-control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,12 +100,12 @@ export default function MissionConsoleModal({
     }
   }
 
+  const selectedModel = LLM_MODELS.find(m => m.id === llmModel) || LLM_MODELS[0]
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       
-      {/* Modal Content */}
       <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#0a0a1a]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.15)] flex flex-col overflow-hidden">
         
         {/* Header */}
@@ -117,7 +127,7 @@ export default function MissionConsoleModal({
         {/* Tabs */}
         <div className="flex px-6 border-b border-white/5 bg-black/20">
           {[
-            { id: 'objectives', icon: Settings2, label: 'Objectives & Mode' },
+            { id: 'objectives', icon: Settings2, label: 'Objectives & Model' },
             { id: 'system', icon: Activity, label: 'System Vitals' },
             { id: 'lexicon', icon: BookOpen, label: 'Data Lexicon' }
           ].map(tab => (
@@ -139,7 +149,7 @@ export default function MissionConsoleModal({
           {activeTab === 'objectives' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
               
-              {/* Autopilot Mode */}
+              {/* Autopilot + Model Row */}
               <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
                 <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-400" /> Execution State
@@ -155,10 +165,48 @@ export default function MissionConsoleModal({
                   <div>
                     <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 flex">Action Mode</label>
                     <div className="flex gap-2">
-                      <button onClick={() => setExecutionMode('dry_run')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'dry_run' ? 'bg-amber-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>DRY RUN (Simulate Only)</button>
-                      <button onClick={() => setExecutionMode('live')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'live' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>LIVE (Execute Actions)</button>
+                      <button onClick={() => setExecutionMode('dry_run')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'dry_run' ? 'bg-amber-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>DRY RUN</button>
+                      <button onClick={() => setExecutionMode('live')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'live' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>LIVE</button>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* ── LLM MODEL SELECTOR ── */}
+              <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-cyan-400" /> AI Model (via OpenRouter)
+                </h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {LLM_MODELS.map(model => {
+                    const isSelected = llmModel === model.id
+                    return (
+                      <button
+                        key={model.id}
+                        onClick={() => setLlmModel(model.id)}
+                        className={`w-full flex items-center gap-4 p-3 rounded-xl border transition-all text-left ${
+                          isSelected 
+                            ? 'border-[#a855f7]/50 bg-[#a855f7]/10 shadow-[0_0_20px_rgba(168,85,247,0.1)]' 
+                            : 'border-white/5 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/10'
+                        }`}
+                      >
+                        <div
+                          className={`w-3 h-3 rounded-full shrink-0 transition-all ${isSelected ? 'scale-110' : 'opacity-50'}`}
+                          style={{ backgroundColor: model.color, boxShadow: isSelected ? `0 0 12px ${model.color}80` : 'none' }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-300'}`}>{model.label}</div>
+                          <div className="text-[10px] text-gray-500 truncate">{model.desc}</div>
+                        </div>
+                        {isSelected && (
+                          <div className="text-[10px] font-mono text-[#a855f7] bg-[#a855f7]/10 px-2 py-0.5 rounded-full shrink-0">ACTIVE</div>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-3 text-[10px] text-gray-500 font-mono">
+                  Modello attivo: <span className="text-cyan-400">{selectedModel.label}</span> — usato dal Loop, dalla Chat e dalla Weekly Review.
                 </div>
               </div>
 
@@ -185,7 +233,7 @@ export default function MissionConsoleModal({
                 </div>
               </div>
 
-              {/* Conversion Targets */}
+              {/* Volume Targets */}
               <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
                 <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Volume Targets</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -208,7 +256,7 @@ export default function MissionConsoleModal({
                 </div>
               </div>
 
-              {/* Save Button Area */}
+              {/* Save */}
               <div className="flex justify-end pt-4">
                 <button
                   onClick={handleSave}
@@ -216,11 +264,10 @@ export default function MissionConsoleModal({
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-[#a855f7] hover:bg-white text-white hover:text-[#0a0a1a] transition-all disabled:opacity-50"
                   style={{ boxShadow: '0 0 20px rgba(168,85,247,0.3)' }}
                 >
-                  {isSaving ? 'Sincronizzazione...' : saveSuccess ? 'Obiettivi Aggiornati' : 'Salva Parametri Missione'}
+                  {isSaving ? 'Sincronizzazione...' : saveSuccess ? '✅ Parametri Salvati' : 'Salva Parametri Missione'}
                   {!isSaving && !saveSuccess && <Save className="w-4 h-4" />}
                 </button>
               </div>
-
             </div>
           )}
 
@@ -232,60 +279,60 @@ export default function MissionConsoleModal({
                 <AlertTriangle className="w-6 h-6 text-amber-500 shrink-0" />
                 <p className="text-sm text-amber-100">
                   <strong className="text-amber-400 block mb-1">Area Operativa Manuale</strong>
-                  Questi bottoni forzano l'esecuzione immediata dell'intelligenza artificiale, scavalcando la normale programmazione temporale di Vercel. Usa con prudenza durante test o dopo aggiornamenti critici. Se l'Execution Mode è su "Live", l'agente <strong>eseguirà azioni reali</strong>.
+                  Questi bottoni forzano l'esecuzione immediata dei cron, scavalcando la programmazione di Vercel. Se il modo è &quot;Live&quot;, l'agente <strong>eseguirà azioni reali</strong> su Meta Ads.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
-                {/* Kill Guardian */}
-                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
-                   <div className="flex items-center gap-3 mb-2">
-                     <Shield className="w-5 h-5 text-rose-500" />
-                     <h3 className="font-bold text-white text-sm">Kill Guardian</h3>
-                   </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Scansiona tutte le Ads attive, valuta lo stato di CPL e CPC rispetto ai limiti imposti ed esegue l'abbattimento (Auto-Pause) letale dei rami secchi se necessari.</p>
-                   <button 
-                     onClick={() => forceCron('kill-guardian', '/api/cron/kill-guardian')}
-                     disabled={executingCron !== null}
-                     className="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-bold font-mono tracking-widest transition-all flex items-center justify-center gap-2"
-                   >
-                     <PlayCircle className="w-4 h-4" /> 
-                     {executingCron === 'kill-guardian' ? 'EXECUTING...' : 'FORCE KILL GUARDIAN'}
-                   </button>
-                </div>
-
-                {/* Intelligence Engine */}
+                {/* Agent Loop (unified) */}
                 <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Brain className="w-5 h-5 text-purple-500" />
-                     <h3 className="font-bold text-white text-sm">Intelligence Engine</h3>
+                     <h3 className="font-bold text-white text-sm">Agent Loop (Unificato)</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Il cuore dell'agente. Legge i dati Live da Meta, li incrocia col funnel reale del CRM, assegna gli Edge Score (Angle Radar) e formula un'ipotesi strategica.</p>
+                   <p className="text-xs text-gray-400 mb-4 h-12">Il cuore dell'agente: legge dati Meta + CRM, calcola gli score, esegue Kill Guardian + Scaling, formula ipotesi LLM.</p>
                    <button 
-                     onClick={() => forceCron('ai-engine', '/api/cron/ai-engine')}
+                     onClick={() => forceCron('agent-loop')}
                      disabled={executingCron !== null}
                      className="w-full py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-xs font-bold font-mono tracking-widest transition-all flex items-center justify-center gap-2"
                    >
                      <PlayCircle className="w-4 h-4" /> 
-                     {executingCron === 'ai-engine' ? 'EXECUTING...' : 'FORCE INTELLIGENCE (LEARN)'}
+                     {executingCron === 'agent-loop' ? 'EXECUTING...' : 'FORZA INTELLIGENZA'}
                    </button>
                 </div>
 
-                {/* Creative Pipeline */}
+                {/* Daily Snapshot */}
+                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                   <div className="flex items-center gap-3 mb-2">
+                     <Shield className="w-5 h-5 text-cyan-500" />
+                     <h3 className="font-bold text-white text-sm">Daily Snapshot</h3>
+                   </div>
+                   <p className="text-xs text-gray-400 mb-4 h-12">Salva lo snapshot giornaliero di spesa, lead e funnel CRM. Usato per i trend settimanali e l'HUD.</p>
+                   <button 
+                     onClick={() => forceCron('daily-snapshot')}
+                     disabled={executingCron !== null}
+                     className="w-full py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold font-mono tracking-widest transition-all flex items-center justify-center gap-2"
+                   >
+                     <PlayCircle className="w-4 h-4" /> 
+                     {executingCron === 'daily-snapshot' ? 'EXECUTING...' : 'FORZA SNAPSHOT'}
+                   </button>
+                </div>
+
+                {/* Weekly Review */}
                 <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Zap className="w-5 h-5 text-amber-500" />
-                     <h3 className="font-bold text-white text-sm">Creative Pipeline</h3>
+                     <h3 className="font-bold text-white text-sm">Weekly Review</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Legge le policy in atto e, se ci sono slot liberi per testare nuove Ads (Creative Refresh), innesca la generazione dinamica video o testi e fa publish su Meta.</p>
+                   <p className="text-xs text-gray-400 mb-4 h-12">Revisione settimanale con North Star Δ, analisi LLM e report strategico Telegram.</p>
                    <button 
-                     onClick={() => forceCron('creative-pipeline', '/api/cron/creative-pipeline')}
+                     onClick={() => forceCron('weekly-review')}
                      disabled={executingCron !== null}
                      className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold font-mono tracking-widest transition-all flex items-center justify-center gap-2"
                    >
                      <PlayCircle className="w-4 h-4" /> 
-                     {executingCron === 'creative-pipeline' ? 'EXECUTING...' : 'FORCE CREATIVE PIPELINE'}
+                     {executingCron === 'weekly-review' ? 'EXECUTING...' : 'FORZA REVIEW'}
                    </button>
                 </div>
 
@@ -295,14 +342,14 @@ export default function MissionConsoleModal({
                      <Activity className="w-5 h-5 text-emerald-500" />
                      <h3 className="font-bold text-white text-sm">Ads Global Monitor</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Task standard ad altissima frequenza. Legge la spesa oraria, impression e clic e aggiorna il database in tempo reale.</p>
+                   <p className="text-xs text-gray-400 mb-4 h-12">Sincronizza dati ads in tempo reale da Meta: spesa, impression, clic.</p>
                    <button 
-                     onClick={() => forceCron('ads-monitor', '/api/cron/ads-monitor')}
+                     onClick={() => forceCron('ads-monitor')}
                      disabled={executingCron !== null}
                      className="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold font-mono tracking-widest transition-all flex items-center justify-center gap-2"
                    >
                      <PlayCircle className="w-4 h-4" /> 
-                     {executingCron === 'ads-monitor' ? 'EXECUTING...' : 'FORCE FAST SYNC'}
+                     {executingCron === 'ads-monitor' ? 'EXECUTING...' : 'FORZA SYNC'}
                    </button>
                 </div>
 
@@ -322,27 +369,32 @@ export default function MissionConsoleModal({
                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 space-y-4">
                  <div>
                    <h4 className="text-white font-bold mb-1">Budget Spent</h4>
-                   <p className="text-gray-400">Somma reale spesa estratta via API ufficiale da <strong>Meta Ads</strong> nell'intervallo "ultimi 7 giorni".</p>
+                   <p className="text-gray-400">Somma reale spesa estratta via API ufficiale da <strong>Meta Ads</strong> nell&apos;intervallo &quot;ultimi 7 giorni&quot;.</p>
                  </div>
                  <hr className="border-white/5" />
                  <div>
                    <h4 className="text-white font-bold mb-1">Actual CAC (Cost Acquisition Customer)</h4>
-                   <p className="text-gray-400">Calcolato matematicamente: (Totale Budget Speso dalla piattaforma Ads) diviso (Totale vendite registrate nel <strong>CRM locale</strong> che provengono dalle ads e marcate come "Vinte"). Pura convergenza Cross-Channel.</p>
+                   <p className="text-gray-400">Calcolato: (Totale Budget Speso Ads) / (Vendite nel <strong>CRM locale</strong> marcate come &quot;Vinte&quot;). Convergenza Cross-Channel.</p>
                  </div>
                  <hr className="border-white/5" />
                  <div>
-                   <h4 className="text-white font-bold mb-1">Leads Gen & Sales</h4>
-                   <p className="text-gray-400">Numero in base alle conversion events passati (Meta Pixels/CAPI) validati da entrate effettive in CRM locale. <i>Sales</i> indica affari vinti nello stesso periodo.</p>
+                   <h4 className="text-white font-bold mb-1">Angle Radar (Score -1.0 → +1.0)</h4>
+                   <p className="text-gray-400">L&apos;agente rileva l&apos;angolo persuasivo dalla naming convention dell&apos;Ad. Associa metriche Meta + conversioni CRM per generare uno score composito (CPL 25%, CAC 35%, L→A rate 20%, CTR 10%).</p>
                  </div>
                  <hr className="border-white/5" />
                  <div>
-                   <h4 className="text-white font-bold mb-1">Angle Radar (Angles / Strategia)</h4>
-                   <p className="text-gray-400">L'agente capta l'angolo persuasivo leggendo la convenzione nominativa dell'Ad (es. <code>emotion_01</code>, <code>system_video</code>). Associa a ogni angolo metriche da Meta + Conversioni Locali per dare uno Score da -1.0 a +1.0.<br/>Criteri predominanti: Basso CAC, Alto CPL verso Appuntamento.</p>
+                   <h4 className="text-white font-bold mb-1">NorthStar Δ</h4>
+                   <p className="text-gray-400">Gap tracking tra la posizione attuale e gli obiettivi NorthStar. Misura budget consumption, CAC vs target, capacità venditori, e pace mensile vendite.</p>
                  </div>
                  <hr className="border-white/5" />
                  <div>
-                   <h4 className="text-white font-bold mb-1">Execution Mode</h4>
-                   <p className="text-gray-400">L'interruttore "Live" autorizza l'agente a chiamare richieste <code>POST / PATCH</code> sulle API di Meta Ads per scalare budget o mettere in pausa vere Ads con i tuoi soldi reali. Il "Dry Run" simula nel database l'azione ("l'avrei messa in pausa").</p>
+                   <h4 className="text-white font-bold mb-1">Agent Loop (Kill + Scale)</h4>
+                   <p className="text-gray-400">Il loop unificato ogni 4h: (1) valuta esperimenti passati, (2) legge Meta+CRM, (3) calcola score, (4) elimina ads con spesa &gt; 3×CPL target e 0 lead, (5) scala budget +20% per angoli con score &gt; 0.45. Tutto in un unico ciclo.</p>
+                 </div>
+                 <hr className="border-white/5" />
+                 <div>
+                   <h4 className="text-white font-bold mb-1">Modello LLM</h4>
+                   <p className="text-gray-400">Il modello AI usato per generare ipotesi strategiche, weekly review e risposte in chat. Selezionabile per fare A/B testing tra provider diversi (Gemini, Claude, GPT, Llama).</p>
                  </div>
                </div>
             </div>

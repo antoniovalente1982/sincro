@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
             supabase.from('ai_angle_scores').select('*').eq('organization_id', orgId).order('score', { ascending: false }),
             supabase.from('ai_strategy_log').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(20),
             supabase.from('ai_funnel_snapshots').select('*').eq('organization_id', orgId).order('snapshot_date', { ascending: false }).limit(30),
-            supabase.from('ai_agent_config').select('execution_mode, autopilot_active, objectives').eq('organization_id', orgId).single(),
+            supabase.from('ai_agent_config').select('execution_mode, autopilot_active, objectives, llm_model').eq('organization_id', orgId).single(),
         ])
 
         // Compute weekly progress from latest snapshot
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         }), {})
 
         const objectives = objectivesRes.data || getDefaultObjectives(orgId)
-        const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean }
+        const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean; llm_model?: string }
 
         // Progress percentages
         const progress = {
@@ -84,6 +84,7 @@ export async function GET(req: NextRequest) {
             objectives,
             execution_mode: agentConfig.execution_mode || 'dry_run',
             autopilot_active: agentConfig.autopilot_active || false,
+            llm_model: agentConfig.llm_model || 'google/gemini-2.5-flash',
             weekly_totals: weeklyTotals,
             progress,
             kpi,
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     try {
         // ── set_mission_params ────────────────────────────────────
         if (action === 'set_mission_params') {
-            const { objectives, execution_mode, autopilot_active } = body
+            const { objectives, execution_mode, autopilot_active, llm_model } = body
             
             // Upsert in ai_mission_objectives
             if (objectives && Object.keys(objectives).length > 0) {
@@ -121,10 +122,11 @@ export async function POST(req: NextRequest) {
             }
 
             // Update in ai_agent_config
-            if (execution_mode || autopilot_active !== undefined) {
+            if (execution_mode || autopilot_active !== undefined || llm_model) {
                 const updatePayload: any = {}
                 if (execution_mode) updatePayload.execution_mode = execution_mode
                 if (autopilot_active !== undefined) updatePayload.autopilot_active = autopilot_active
+                if (llm_model) updatePayload.llm_model = llm_model
                 
                 await supabase.from('ai_agent_config').upsert({
                     organization_id: org_id,
@@ -139,7 +141,7 @@ export async function POST(req: NextRequest) {
         // ── force_cron ──────────────────────────────────────────
         if (action === 'force_cron') {
             const { cron_name } = body
-            const allowedCrons = ['ai-engine', 'kill-guardian', 'creative-pipeline', 'ads-monitor', 'ratchet-evaluator']
+            const allowedCrons = ['agent-loop', 'daily-snapshot', 'weekly-review', 'ads-monitor', 'sync-campaigns', 'daily-report']
             
             if (!allowedCrons.includes(cron_name)) {
                 return NextResponse.json({ error: `Cron ${cron_name} non autorizzato` }, { status: 400 })

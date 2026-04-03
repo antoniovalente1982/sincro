@@ -15,7 +15,7 @@ function getSupabaseAdmin() {
 }
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const MODEL = 'google/gemini-2.5-flash'
+const DEFAULT_MODEL = 'google/gemini-2.5-flash'
 
 // Allow up to 60s for AI responses (Meta API + Google Sheets + OpenRouter)
 export const maxDuration = 60
@@ -105,6 +105,14 @@ export async function POST(req: NextRequest) {
         const body = await req.json()
         const { message, history = [] } = body
 
+        // Fetch dynamic LLM model from config
+        const { data: agentConfig } = await getSupabaseAdmin()
+            .from('ai_agent_config')
+            .select('llm_model')
+            .eq('organization_id', orgId)
+            .single()
+        const chatModel = agentConfig?.llm_model || DEFAULT_MODEL
+
         if (!message?.trim()) {
             return NextResponse.json({ error: 'Empty message' }, { status: 400 })
         }
@@ -166,7 +174,7 @@ export async function POST(req: NextRequest) {
                     'X-Title': 'AdPilotik AI Engine',
                 },
                 body: JSON.stringify({
-                    model: MODEL,
+                    model: chatModel,
                     messages,
                     max_tokens: 2000,
                     temperature: 0.3,

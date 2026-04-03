@@ -10,6 +10,7 @@ interface MissionData {
   objectives: any
   execution_mode: string
   autopilot_active: boolean
+  llm_model: string
   weekly_totals: any
   progress: any
   kpi: any
@@ -74,7 +75,10 @@ export default function AgentHUD() {
       <div className="p-5 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a1a]/95 backdrop-blur z-10">
         <div className="flex items-center gap-3">
           <Shield className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm font-bold text-white tracking-wider">SYSTEM STATUS</span>
+          <div>
+            <span className="text-sm font-bold text-white tracking-wider">SYSTEM STATUS</span>
+            <div className="text-[9px] font-mono text-gray-500">{(data.llm_model || 'gemini-2.5-flash').split('/').pop()}</div>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowConsole(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-300 transition-colors border border-white/10">
@@ -217,6 +221,7 @@ export default function AgentHUD() {
         initialObjectives={data.objectives}
         initialExecutionMode={data.execution_mode}
         initialAutopilotActive={data.autopilot_active}
+        initialLlmModel={data.llm_model}
         onSaved={() => fetchData()}
       />
     </div>
