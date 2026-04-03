@@ -111,8 +111,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const isActive = (href: string) => {
-        if (href === '/dashboard') return pathname === '/dashboard'
-        return pathname.startsWith(href)
+        const matchingItems = navItems.filter(item => pathname.startsWith(item.href))
+        const bestMatch = matchingItems.sort((a, b) => b.href.length - a.href.length)[0]
+        return bestMatch?.href === href
     }
 
     return (
