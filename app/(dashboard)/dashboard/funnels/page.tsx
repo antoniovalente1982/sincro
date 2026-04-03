@@ -24,13 +24,13 @@ export default async function FunnelsPage() {
             .select('id, funnel_id, page_path, page_variant, visitor_id, ip_hash, utm_source, utm_campaign, utm_content, device_type, created_at')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(10000),
+            .limit(2000),
         supabase
             .from('funnel_submissions')
             .select('id, funnel_id, page_variant, created_at, utm_source, utm_campaign')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(5000),
+            .limit(1000),
         supabase
             .from('pipelines')
             .select('id, name, is_default')

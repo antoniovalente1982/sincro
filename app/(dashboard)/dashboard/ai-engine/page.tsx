@@ -59,7 +59,7 @@ export default async function AIEnginePage() {
             .select('*')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false })
-            .limit(30),
+            .limit(15),
         supabase
             .from('ai_knowledge_base')
             .select('*')
@@ -109,4 +109,3 @@ export default async function AIEnginePage() {
         </div>
     )
 }
-
