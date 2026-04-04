@@ -465,12 +465,12 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                             : <span key={i}>{word} </span>
                                     )}
                                 </h1>
-                                <p className="lp-hero-sub">Sai che ha il talento. Ma qualcosa lo blocca ogni volta. <strong>Non è un problema tecnico — è un problema di mentalità.</strong> E con il percorso giusto, si risolve in 90 giorni. Il <strong>Metodo Sincro®</strong> è il percorso di Mental Coaching ONE-TO-ONE <strong>garantito per contratto</strong>.</p>
+                                <p className="lp-hero-sub">Ha il talento — lo vedi ogni giorno. Ma qualcosa <strong>lo blocca ogni volta</strong>. Non è un problema tecnico — è una questione di <strong>approccio mentale</strong>. E con il percorso giusto, si risolve in 90 giorni. Il <strong>Metodo Sincro®</strong> è il percorso di Mental Coaching ONE-TO-ONE <strong>garantito per contratto</strong>.</p>
                             </>
                         ) : activeAngle ? (
                             <>
                                 <h1>{activeAngle.headline_white} <br /><span className="lp-gold">{activeAngle.headline_gold}</span></h1>
-                                <p className="lp-hero-sub">{activeAngle.subtitle}</p>
+                                <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: activeAngle.subtitle }} />
                             </>
                         ) : (
                             <>

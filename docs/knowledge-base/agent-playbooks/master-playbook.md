@@ -230,3 +230,68 @@ Mix di **orgoglio, frustrazione e paura**. Vuole fare tutto il possibile per non
 ### Fase 4: Landing Page Agent
 - [ ] A/B testing headline e CTA
 - [ ] Coerenza ads ↔ landing copy
+
+---
+
+## 8. HOOK MODEL — FRAMEWORK COPY (Nir Eyal)
+
+> **"La gente non compra prodotti. Compra versioni migliori di sé stessa."** — Ogni copy (ads, landing, funnel) deve seguire il ciclo Hook.
+
+### Il Ciclo Hook applicato a Metodo Sincro
+
+```
+TRIGGER INTERNO (dolore del genitore)
+    ↓
+ACTION (click / compilare form)
+    ↓
+VARIABLE REWARD (curiosità: "cosa scoprirò?")
+    ↓
+INVESTMENT (dati inseriti → commitment)
+```
+
+### Regole Copy per Ads e Landing
+
+#### TITOLO = Trigger Interno
+Il titolo deve attivare un'emozione che il genitore **già prova** (frustrazione, impotenza, paura, urgenza). MAI descrivere il servizio.
+
+| ❌ Descrittivo | ✅ Trigger |
+|---|---|
+| "Sblocca il potenziale" | "Vedi anche tu che ha il talento, ma qualcosa lo blocca?" |
+| "Mentalità diversa" | "Stesso ragazzo. Stessa tecnica. Risultati opposti." |
+| "Coaching professionale" | "Ti fa male vederlo così, vero?" |
+
+#### SOTTOTITOLO = Variable Reward + Curiosità
+Il sottotitolo crea il desiderio di saperne di più. Le **parole chiave** vanno evidenziate in `<strong>` (renderizzate in gold/grassetto sulla landing). NON rivelare tutto — lascia un "gap di curiosità".
+
+#### DESCRIZIONE = Bridge verso l'Action
+Breve, guida verso il form. Deve contenere almeno 1 elemento di prova sociale o garanzia.
+
+### ⛔ Parole VIETATE (mai usare in ads e landing)
+| Parola | Perché |
+|---|---|
+| "Problema mentale" | Suona come patologia psichiatrica |
+| "Disturbo" | Clinico, spaventoso |
+| "Patologia" | Medico, non pertinente |
+| "Cura" / "Terapia" | Non siamo medici |
+| "Guarire" | Non è una malattia |
+
+### ✅ Parole CONSIGLIATE
+| Parola | Effetto |
+|---|---|
+| "Mentalità" | Neutro, positivo |
+| "Approccio mentale" | Professionale |
+| "Allenamento invisibile" | Curioso, intrigante |
+| "Corazza mentale" | Protettivo, forte |
+| "Carburante" (per la pressione) | Trasformativo |
+| "Sbloccare" | Azione positiva |
+| "Sicurezza in campo" | Obiettivo chiaro |
+
+### Formato Subtitle nel Funnel Routing Engine
+I subtitle nel DB supportano HTML inline. Usare `<strong>` per evidenziare 2-3 keyword per riga:
+```
+Ha il talento. Ma qualcosa <strong>lo blocca ogni volta</strong>. 
+Non è un problema tecnico — è una questione di <strong>approccio mentale</strong>.
+```
+
+### Tag T: nelle Inserzioni Meta
+In fondo al titolo interno di ogni inserzione, aggiungere `T: parola_tag` dove `parola_tag` corrisponde al `trigger_keyword` del funnel_routing_engine. Questo permette l'allineamento automatico ad ↔ landing.
