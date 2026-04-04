@@ -18,10 +18,10 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
 
   // Form state
   const [mode, setMode] = useState(execution_mode || 'dry_run')
+  const [selectedModel, setSelectedModel] = useState(llm_model || 'xiaomi/mimo-v2-pro')
   const [autopilot, setAutopilot] = useState(autopilot_active || false)
-  const [selectedModel, setSelectedModel] = useState(llm_model || 'google/gemini-2.5-flash')
-  const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget || 50)
-  const [targetCac, setTargetCac] = useState(objectives?.target_cac || 50)
+  const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget || 500)
+  const [targetCac, setTargetCac] = useState(objectives?.target_cac || 500)
   const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl || 20)
   const [targetRoas, setTargetRoas] = useState(objectives?.target_roas || 3)
   const [weeklyLeads, setWeeklyLeads] = useState(objectives?.weekly_leads_target || 20)
@@ -34,6 +34,21 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
   // Hermes Connection Status & Logs
   const [hermesStatus, setHermesStatus] = useState<'checking' | 'online' | 'offline'>('checking')
   const [hermesLogs, setHermesLogs] = useState<string[]>([])
+
+  // OpenRouter Dynamic Models
+  const [openRouterModels, setOpenRouterModels] = useState<{id: string, name: string}[]>([])
+
+  useEffect(() => {
+    fetch('https://openrouter.ai/api/v1/models')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          const sortedModels = data.data.sort((a: any, b: any) => a.name.localeCompare(b.name))
+          setOpenRouterModels(sortedModels)
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   useEffect(() => {
     const checkHermes = async () => {
@@ -120,11 +135,27 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none transition-colors cursor-pointer"
               >
-                <option value="xiaomi/mimo-v2-pro">MiMo V2 Pro (Ragionamento)</option>
-                <option value="google/gemini-2.5-flash">Gemini 2.5 Flash (Veloce)</option>
-                <option value="google/gemini-2.5-pro">Gemini 2.5 Pro (Avanzato)</option>
-                <option value="anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Ottimizzato)</option>
-                <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B (Open-Source)</option>
+                {!openRouterModels.length ? (
+                  <>
+                    <option value="xiaomi/mimo-v2-pro">MiMo V2 Pro (Ragionamento)</option>
+                    <option value="google/gemini-2.5-flash">Gemini 2.5 Flash (Veloce)</option>
+                    <option value="google/gemini-2.5-pro">Gemini 2.5 Pro (Avanzato)</option>
+                    <option value="anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Ottimizzato)</option>
+                    <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B (Open-Source)</option>
+                  </>
+                ) : (
+                  <>
+                    {/* Keep current active model if it is not in the list for some reason */}
+                    {!openRouterModels.find((m: any) => m.id === selectedModel) && selectedModel && (
+                      <option value={selectedModel}>{selectedModel}</option>
+                    )}
+                    {openRouterModels.map((m: any) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                 ▼
