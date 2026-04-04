@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { after } from 'next/server'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
 
@@ -264,58 +265,74 @@ export async function POST(req: NextRequest) {
             })
         }
 
-        if (funnel.meta_pixel_id && lead) {
-            await fireCapiEvent(funnel.organization_id, 'Lead', {
-                name: name || undefined,
-                email: email || undefined,
-                phone: phone || undefined,
-                fbc: body.fbc || undefined,
-                fbp: body.fbp || undefined,
-                content_category: funnel.objective || 'cliente',
-                client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
-                client_user_agent: req.headers.get('user-agent') || undefined,
-                event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
-                event_id: event_id || undefined,
-                external_id: body.visitor_id || undefined,
-            }, funnel.meta_pixel_id, lead.id)
-        }
-
-        // Send Telegram notification and append to Google Sheets
-        // IMPORTANT: Must await these before returning, otherwise Vercel kills
-        // the serverless function before these async operations complete
+        // ── EARLY RETURN: Send response NOW, run side-effects AFTER ──
+        // The user sees the Thank You page in ~300ms instead of ~3 seconds.
+        // CAPI, Telegram, and Google Sheets run in the background via Next.js after().
+        
         if (lead) {
+            const leadId = lead.id
+            const orgIdForAfter = funnel.organization_id
+            const funnelName = funnel.name
+            const pixelId = funnel.meta_pixel_id
+            const funnelObjective = funnel.objective
+            const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined
+            const clientUserAgent = req.headers.get('user-agent') || undefined
             const childAge = body.extra_data?.child_age
             const adsetAngleNotif = body.extra_data?.adset_angle
-            const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
-                `👤 <b>Nome:</b> ${name}\n` +
-                (email ? `📧 <b>Email:</b> ${email}\n` : '') +
-                (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
-                (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
-                `🔗 <b>Funnel:</b> ${funnel.name}\n` +
-                (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
-                (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
-                (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
 
-            // Run Telegram + Google Sheets in parallel, but AWAIT both
-            await Promise.allSettled([
-                sendTelegramMessage(funnel.organization_id, tgMsg).catch(err => {
-                    console.error('Telegram: exception for lead:', name, err)
-                }),
-                appendLeadToSheet(funnel.organization_id, {
-                    name,
-                    email: email || '',
-                    phone: phone || '',
-                    funnel: funnel.name,
-                    utm_source: utm_source || '',
-                    utm_campaign: utm_campaign || '',
-                    utm_content: utm_content || '',
-                    utm_term: utm_term || '',
-                    created_at: new Date().toISOString(),
-                    landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
-                }).catch(err => {
-                    console.error('Google Sheets: appendLeadToSheet exception for lead:', name, err)
-                }),
-            ])
+            after(async () => {
+                // 1. Fire CAPI event to Meta (server-side conversion tracking)
+                if (pixelId) {
+                    await fireCapiEvent(orgIdForAfter, 'Lead', {
+                        name: name || undefined,
+                        email: email || undefined,
+                        phone: phone || undefined,
+                        fbc: body.fbc || undefined,
+                        fbp: body.fbp || undefined,
+                        content_category: funnelObjective || 'cliente',
+                        client_ip: clientIp,
+                        client_user_agent: clientUserAgent,
+                        event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
+                        event_id: event_id || undefined,
+                        external_id: body.visitor_id || undefined,
+                    }, pixelId, leadId).catch(err => {
+                        console.error('CAPI after() error for lead:', name, err)
+                    })
+                }
+
+                // 2. Telegram + Google Sheets in parallel
+                const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
+                    `👤 <b>Nome:</b> ${name}\n` +
+                    (email ? `📧 <b>Email:</b> ${email}\n` : '') +
+                    (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
+                    (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
+                    `🔗 <b>Funnel:</b> ${funnelName}\n` +
+                    (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
+                    (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
+                    (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
+
+                await Promise.allSettled([
+                    sendTelegramMessage(orgIdForAfter, tgMsg).catch(err => {
+                        console.error('Telegram after() error for lead:', name, err)
+                    }),
+                    appendLeadToSheet(orgIdForAfter, {
+                        name,
+                        email: email || '',
+                        phone: phone || '',
+                        funnel: funnelName,
+                        utm_source: utm_source || '',
+                        utm_campaign: utm_campaign || '',
+                        utm_content: utm_content || '',
+                        utm_term: utm_term || '',
+                        created_at: new Date().toISOString(),
+                        landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
+                    }).catch(err => {
+                        console.error('Google Sheets after() error for lead:', name, err)
+                    }),
+                ])
+
+                console.log(`[AFTER] Background tasks completed for lead: ${name} (${leadId})`)
+            })
         }
 
         return NextResponse.json({ success: true, lead_id: lead?.id })
