@@ -17,7 +17,7 @@ export class HermesClient {
   private apiKey: string;
 
   constructor() {
-    this.apiUrl = process.env.HERMES_API_URL || 'http://76.13.136.176:8642';
+    this.apiUrl = process.env.HERMES_API_URL || 'http://76.13.136.176:8643';
     this.apiKey = process.env.HERMES_API_KEY || '';
 
     if (!this.apiKey) {

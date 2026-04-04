@@ -19,7 +19,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
   // Form state
   const [mode, setMode] = useState(execution_mode || 'dry_run')
   const [autopilot, setAutopilot] = useState(autopilot_active || false)
-  const selectedModel = llm_model || 'mimo-v2-pro'
+  const [selectedModel, setSelectedModel] = useState(llm_model || 'google/gemini-2.5-flash')
   const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget || 50)
   const [targetCac, setTargetCac] = useState(objectives?.target_cac || 50)
   const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl || 20)
@@ -107,22 +107,29 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* LEFT COLUMN */}
         <div className="space-y-5">
-          {/* LLM Model Blocked for VPS */}
-          <div className="glass-card p-5 opacity-90 border-[1px] border-purple-500/20">
+          {/* LLM Model Selection */}
+          <div className="glass-card p-5 border-[1px] border-purple-500/20">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
-              <h3 className="text-sm font-bold text-white">Modello LLM (Cervello)</h3>
+              <h3 className="text-sm font-bold text-white">Modello LLM (Routing VPS)</h3>
             </div>
-            <div className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left bg-black/40 border border-white/5 cursor-not-allowed">
-              <Cpu className="w-4 h-4 shrink-0" style={{ color: '#a855f7' }} />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-white truncate">Hermes VPS Orchestrator</div>
-                <div className="text-[10px] font-mono truncate text-green-400">Powered by MiMo-V2-Pro</div>
+            <div className="relative">
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none transition-colors cursor-pointer"
+              >
+                <option value="google/gemini-2.5-flash">Gemini 2.5 Flash (Veloce)</option>
+                <option value="google/gemini-2.5-pro">Gemini 2.5 Pro (Avanzato)</option>
+                <option value="anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Ottimizzato)</option>
+                <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B (Open-Source)</option>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                ▼
               </div>
-              <div className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-1 rounded">Delegato Remoto</div>
             </div>
-            <p className="text-[10px] text-gray-500 mt-3 italic mt-2">
-              L&apos;elaborazione è stata trasferita alla VPS dedicata per evitare rallentamenti e ban API locali. 
+            <p className="text-[10px] text-gray-400 mt-3 italic">
+              Il nodo Hermes sulla tua VPS utilizzerà questa API tramite OpenRouter.
             </p>
           </div>
 
