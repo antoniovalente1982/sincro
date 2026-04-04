@@ -64,7 +64,8 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orgId,
+          action: 'set_mission_params',
+          org_id: orgId,
           execution_mode: mode,
           autopilot_active: autopilot,
           llm_model: selectedModel,
@@ -119,6 +120,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none transition-colors cursor-pointer"
               >
+                <option value="xiaomi/mimo-v2-pro">MiMo V2 Pro (Ragionamento)</option>
                 <option value="google/gemini-2.5-flash">Gemini 2.5 Flash (Veloce)</option>
                 <option value="google/gemini-2.5-pro">Gemini 2.5 Pro (Avanzato)</option>
                 <option value="anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Ottimizzato)</option>
