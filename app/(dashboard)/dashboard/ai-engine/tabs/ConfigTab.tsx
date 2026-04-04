@@ -1,25 +1,16 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import {
-  Settings2, Shield, Zap, Save, Loader2, Search, Check,
-  ChevronDown, Play, Brain, DollarSign, Target, Users,
-  RefreshCw, AlertTriangle, X, Cpu
+  Settings2, Shield, Zap, Save, Loader2, Brain, DollarSign, Target, Users,
+  RefreshCw, AlertTriangle, Cpu
 } from 'lucide-react'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Props {
   data: any
   orgId: string
   onSaved: () => void
-}
-
-interface ORModel {
-  id: string
-  name: string
-  description: string
-  context_length: number
-  pricing: { prompt: string; completion: string }
-  architecture: string
 }
 
 export default function ConfigTab({ data, orgId, onSaved }: Props) {
@@ -28,7 +19,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
   // Form state
   const [mode, setMode] = useState(execution_mode || 'dry_run')
   const [autopilot, setAutopilot] = useState(autopilot_active || false)
-  const [selectedModel, setSelectedModel] = useState(llm_model || 'google/gemini-2.5-flash')
+  const selectedModel = llm_model || 'mimo-v2-pro'
   const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget || 50)
   const [targetCac, setTargetCac] = useState(objectives?.target_cac || 50)
   const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl || 20)
@@ -39,6 +30,32 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
   const [weeklySales, setWeeklySales] = useState(objectives?.weekly_sales_target || 2)
   const [saving, setSaving] = useState(false)
   const [cronRunning, setCronRunning] = useState<string | null>(null)
+
+  // Hermes Connection Status & Logs
+  const [hermesStatus, setHermesStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const [hermesLogs, setHermesLogs] = useState<string[]>([])
+
+  useEffect(() => {
+    const checkHermes = async () => {
+      try {
+        const res = await fetch('/api/hermes/status')
+        setHermesStatus(res.ok ? 'online' : 'offline')
+        if (res.ok) {
+          const logsRes = await fetch('/api/hermes/logs')
+          if (logsRes.ok) {
+            const logsData = await logsRes.json()
+            setHermesLogs(logsData.logs || [])
+          }
+        }
+      } catch {
+        setHermesStatus('offline')
+      }
+    }
+    checkHermes()
+    // Check every 30 seconds
+    const interval = setInterval(checkHermes, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSave = async () => {
     setSaving(true)
@@ -90,13 +107,23 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* LEFT COLUMN */}
         <div className="space-y-5">
-          {/* LLM Model Selector */}
-          <div className="glass-card p-5">
+          {/* LLM Model Blocked for VPS */}
+          <div className="glass-card p-5 opacity-90 border-[1px] border-purple-500/20">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
-              <h3 className="text-sm font-bold text-white">Modello LLM</h3>
+              <h3 className="text-sm font-bold text-white">Modello LLM (Cervello)</h3>
             </div>
-            <ModelSelector value={selectedModel} onChange={setSelectedModel} />
+            <div className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left bg-black/40 border border-white/5 cursor-not-allowed">
+              <Cpu className="w-4 h-4 shrink-0" style={{ color: '#a855f7' }} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-white truncate">Hermes VPS Orchestrator</div>
+                <div className="text-[10px] font-mono truncate text-green-400">Powered by MiMo-V2-Pro</div>
+              </div>
+              <div className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-1 rounded">Delegato Remoto</div>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-3 italic mt-2">
+              L&apos;elaborazione è stata trasferita alla VPS dedicata per evitare rallentamenti e ban API locali. 
+            </p>
           </div>
 
           {/* Execution Mode */}
@@ -158,7 +185,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
               background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', color: '#f59e0b'
             }}>
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-              Se il modo è "Live", le azioni sono REALI su Meta Ads
+              Se il modo è &quot;Live&quot;, le azioni sono REALI su Meta Ads
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -226,142 +253,55 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           </button>
         </div>
       </div>
-    </div>
-  )
-}
 
-/* ═══ MODEL SELECTOR ═══ */
-function ModelSelector({ value, onChange }: { value: string; onChange: (id: string) => void }) {
-  const [models, setModels] = useState<ORModel[]>([])
-  const [loading, setLoading] = useState(true)
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const searchRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    fetch('/api/openrouter/models')
-      .then(r => r.json())
-      .then(d => { setModels(d.models || []); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [])
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  useEffect(() => {
-    if (open) setTimeout(() => searchRef.current?.focus(), 100)
-  }, [open])
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return models.slice(0, 80)
-    const q = search.toLowerCase()
-    return models.filter(m =>
-      m.id.toLowerCase().includes(q) || m.name.toLowerCase().includes(q)
-    ).slice(0, 60)
-  }, [models, search])
-
-  const selectedObj = models.find(m => m.id === value)
-
-  const formatPrice = (p: string) => {
-    const n = parseFloat(p)
-    if (isNaN(n) || n === 0) return 'Free'
-    if (n < 0.001) return `$${(n * 1000000).toFixed(2)}/1M`
-    return `$${n.toFixed(4)}/1K`
-  }
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      {/* Trigger */}
-      <button onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl text-left transition-all"
-        style={{
-          background: 'var(--color-surface-100)',
-          border: `1px solid ${open ? 'rgba(168,85,247,0.4)' : 'var(--color-surface-300)'}`,
-          boxShadow: open ? '0 0 20px rgba(168,85,247,0.1)' : 'none',
-        }}>
-        <div className="flex items-center gap-3 min-w-0">
-          <Cpu className="w-4 h-4 shrink-0" style={{ color: '#a855f7' }} />
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-white truncate">{selectedObj?.name || value}</div>
-            <div className="text-[10px] font-mono truncate" style={{ color: 'var(--color-surface-500)' }}>{value}</div>
-          </div>
-        </div>
-        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-          style={{ color: 'var(--color-surface-500)' }} />
-      </button>
-
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-2 rounded-xl overflow-hidden shadow-2xl animate-fade-in"
-          style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-300)', maxHeight: '400px' }}>
-          {/* Search bar */}
-          <div className="p-3" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)' }}>
-              <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--color-surface-500)' }} />
-              <input
-                ref={searchRef}
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Cerca modello..."
-                className="bg-transparent outline-none text-sm text-white placeholder-gray-500 w-full"
-              />
-              {search && (
-                <button onClick={() => setSearch('')}><X className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} /></button>
-              )}
-            </div>
-            <div className="text-[10px] mt-2 px-1" style={{ color: 'var(--color-surface-600)' }}>
-              {loading ? 'Caricamento modelli...' : `${filtered.length} modelli${search ? ' trovati' : ' disponibili'}`}
-            </div>
-          </div>
-
-          {/* Models list */}
-          <div className="overflow-y-auto" style={{ maxHeight: '300px', scrollbarWidth: 'thin' }}>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#a855f7' }} />
+      {/* Hermes Realtime Console */}
+      <div className="glass-card p-6 flex flex-col h-[350px] mb-8 mt-8 border-[1px] border-green-500/20">
+          <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${hermesStatus === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Cpu className="w-4 h-4 text-green-400"/> Hermes Live Engine Console
+                  </h2>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{
+                      background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)'
+                  }}>
+                      live feed VPS
+                  </span>
               </div>
-            ) : filtered.length === 0 ? (
-              <div className="py-8 text-center text-xs" style={{ color: 'var(--color-surface-500)' }}>Nessun modello trovato</div>
-            ) : (
-              filtered.map(m => {
-                const isSelected = m.id === value
-                return (
-                  <button key={m.id}
-                    onClick={() => { onChange(m.id); setOpen(false); setSearch('') }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]"
-                    style={{
-                      background: isSelected ? 'rgba(168,85,247,0.08)' : 'transparent',
-                      borderBottom: '1px solid var(--color-surface-200)',
-                    }}>
-                    {isSelected ? (
-                      <Check className="w-4 h-4 shrink-0" style={{ color: '#a855f7' }} />
-                    ) : (
-                      <div className="w-4 h-4 shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{m.name}</div>
-                      <div className="text-[10px] font-mono truncate" style={{ color: 'var(--color-surface-500)' }}>{m.id}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-[10px] font-mono" style={{ color: '#22c55e' }}>{formatPrice(m.pricing.prompt)}</div>
-                      <div className="text-[9px]" style={{ color: 'var(--color-surface-600)' }}>
-                        {m.context_length > 0 ? `${(m.context_length / 1000).toFixed(0)}K ctx` : ''}
-                      </div>
-                    </div>
-                  </button>
-                )
-              })
-            )}
           </div>
-        </div>
-      )}
+          
+          <div className="flex-1 bg-black rounded-xl p-4 font-mono text-[10px] sm:text-xs overflow-y-auto" style={{ border: '1px solid var(--color-surface-200)' }}>
+              <div className="text-green-500/70 mb-2">Hermes Node: connection {hermesStatus === 'online' ? 'established' : 'failed'}.</div>
+              {hermesStatus === 'online' && <div className="text-green-500/70 mb-4">System ready... awaiting tasks from Vercel CRON.</div>}
+              
+              {hermesLogs.map((logLine, idx) => (
+                  <div key={idx} className="text-white mt-1">
+                      {logLine.includes('[Orchestrator]') ? (
+                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-purple-400">[Orchestrator] </span>{logLine.replace('[Orchestrator]', '')}</>
+                      ) : logLine.includes('[MediaBuyer]') ? (
+                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-yellow-400">[MediaBuyer] </span>{logLine.replace('[MediaBuyer]', '')}</>
+                      ) : logLine.includes('[System]') ? (
+                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-gray-400">[System] </span>{logLine.replace('[System]', '')}</>
+                      ) : (
+                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-green-400">[Out] </span>{logLine}</>
+                      )}
+                  </div>
+              ))}
+              
+              {hermesLogs.length === 0 && hermesStatus === 'online' && (
+                  <div className="text-gray-500 italic mt-4">Nessun log recente ricevuto dal nodo. In attesa di elaborazioni...</div>
+              )}
+
+              {hermesStatus === 'offline' && (
+                  <div className="mt-4 text-red-500">
+                      <span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span>
+                      Connection lost: No response from Hermes API. (La VPS è irraggiungibile)
+                  </div>
+              )}
+              <div className="animate-pulse mt-1 text-gray-500">_</div>
+          </div>
+      </div>
+
     </div>
   )
 }
