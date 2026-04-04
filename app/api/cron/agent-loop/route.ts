@@ -426,6 +426,13 @@ export async function GET(req: NextRequest) {
 
 function detectAngle(adName: string, adsetName?: string): string {
     const text = `${adName} ${adsetName || ''}`.toLowerCase()
+    
+    // NEW LOGIC: Estrazione esatta dal tag T: inserito nei nomi delle Ad
+    const tMatch = text.match(/t:\s*([a-z0-9_]+)/i)
+    if (tMatch && tMatch[1]) {
+        return tMatch[1] // es. "gap", "talento", "pressione"
+    }
+
     if (text.includes('emo') || text.includes('dolore') || text.includes('emotional')) return 'emotional'
     if (text.includes('eff') || text.includes('efficiency') || text.includes('split') || text.includes('gap')) return 'efficiency'
     if (text.includes('sys') || text.includes('system') || text.includes('metodo')) return 'system'
