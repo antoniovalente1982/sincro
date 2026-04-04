@@ -84,258 +84,200 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: subError.message }, { status: 500 })
         }
 
-        // ── Pipeline routing: use funnel's dedicated pipeline, fallback to org default ──
-        let targetPipelineId: string | null = funnel.pipeline_id || null
+        // ── EARLY RETURN: Only funnel validation + submission insert are synchronous ──
+        // Everything else (lead creation, pipeline, CAPI, Telegram, Sheets) runs AFTER response.
+        // This gives the user a ~200ms response time instead of ~1-3 seconds.
 
-        if (!targetPipelineId) {
-            // No dedicated pipeline on funnel → use org default
-            const { data: defaultPipeline } = await getSupabaseAdmin()
-                .from('pipelines')
-                .select('id')
-                .eq('organization_id', funnel.organization_id)
-                .eq('is_default', true)
-                .single()
-            targetPipelineId = defaultPipeline?.id || null
-        }
+        // Capture request headers before returning (can't access req in after())
+        const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined
+        const clientUserAgent = req.headers.get('user-agent') || undefined
 
-        let firstStageId: string | null = null
-        if (targetPipelineId) {
-            const { data: firstStage } = await getSupabaseAdmin()
-                .from('pipeline_stages')
-                .select('id')
-                .eq('organization_id', funnel.organization_id)
-                .eq('pipeline_id', targetPipelineId)
-                .order('sort_order', { ascending: true })
-                .limit(1)
-                .single()
-            firstStageId = firstStage?.id || null
-        }
-
-        if (!firstStageId) {
-            // Final fallback: any first stage in org
-            const { data: fallbackStage } = await getSupabaseAdmin()
-                .from('pipeline_stages')
-                .select('id')
-                .eq('organization_id', funnel.organization_id)
-                .order('sort_order', { ascending: true })
-                .limit(1)
-                .single()
-            firstStageId = fallbackStage?.id || null
-        }
-
-        // ── Lead Deduplication: if email or phone exists, update existing lead instead of creating duplicate ──
-        let lead: any = null
-        let isExisting = false
-        let existingLead: any = null
-
-        if (email || phone) {
-            let query = getSupabaseAdmin()
-                .from('leads')
-                .select('*')
-                .eq('organization_id', funnel.organization_id)
-
-            if (email && phone) {
-                query = query.or(`email.eq.${email.toLowerCase().trim()},phone.eq.${phone.trim()}`)
-            } else if (email) {
-                query = query.eq('email', email.toLowerCase().trim())
-            } else if (phone) {
-                query = query.eq('phone', phone.trim())
-            }
-
-            const { data: match } = await query
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single()
-
-            if (match) {
-                existingLead = match
-            }
-        }
-
-        if (existingLead) {
-            isExisting = true
-            // Update existing lead with fresh data (phone, utm if missing, submission link)
-                // IMPORTANT: Reset stage to first stage so they reappear in pipeline
-                // (lead might have gone cold months ago, now they're back with fresh interest)
-                const updateData: any = {
-                    submission_id: submission.id,
-                    stage_id: firstStageId, // ← Reset to "Lead" stage so team sees them again!
-                    updated_at: new Date().toISOString(),
-                }
-                // Only update fields that are currently empty on the existing lead
-                if (!existingLead.phone && phone) updateData.phone = phone
-                if (!existingLead.utm_source && utm_source) updateData.utm_source = utm_source
-                if (!existingLead.utm_campaign && utm_campaign) updateData.utm_campaign = utm_campaign
-                if (!existingLead.funnel_id && funnel_id) updateData.funnel_id = funnel_id
-
-                // Merge meta_data without overwriting existing tracking
-                const existingMeta = existingLead.meta_data || {}
-                updateData.meta_data = {
-                    ...existingMeta,
-                    ...((!existingMeta.utm_content && body.utm_content) ? { utm_content: body.utm_content } : {}),
-                    ...((!existingMeta.utm_term && body.utm_term) ? { utm_term: body.utm_term } : {}),
-                    ...((!existingMeta.fbc && body.fbc) ? { fbc: body.fbc } : {}),
-                    ...((!existingMeta.fbp && body.fbp) ? { fbp: body.fbp } : {}),
-                    last_submission_at: new Date().toISOString(),
-                    resubmit_count: (existingMeta.resubmit_count || 0) + 1,
+        after(async () => {
+            try {
+                // ── 1. Pipeline routing ──
+                let targetPipelineId: string | null = funnel.pipeline_id || null
+                if (!targetPipelineId) {
+                    const { data: defaultPipeline } = await getSupabaseAdmin()
+                        .from('pipelines').select('id')
+                        .eq('organization_id', funnel.organization_id)
+                        .eq('is_default', true).single()
+                    targetPipelineId = defaultPipeline?.id || null
                 }
 
-                const { data: updated } = await getSupabaseAdmin()
-                    .from('leads')
-                    .update(updateData)
-                    .eq('id', existingLead.id)
-                    .select()
-                    .single()
-                lead = updated || existingLead
+                let firstStageId: string | null = null
+                if (targetPipelineId) {
+                    const { data: firstStage } = await getSupabaseAdmin()
+                        .from('pipeline_stages').select('id')
+                        .eq('organization_id', funnel.organization_id)
+                        .eq('pipeline_id', targetPipelineId)
+                        .order('sort_order', { ascending: true }).limit(1).single()
+                    firstStageId = firstStage?.id || null
+                }
+                if (!firstStageId) {
+                    const { data: fallbackStage } = await getSupabaseAdmin()
+                        .from('pipeline_stages').select('id')
+                        .eq('organization_id', funnel.organization_id)
+                        .order('sort_order', { ascending: true }).limit(1).single()
+                    firstStageId = fallbackStage?.id || null
+                }
 
-                // Log re-entry activity so team knows this is a returning lead
-                await getSupabaseAdmin().from('lead_activities').insert({
-                    organization_id: funnel.organization_id,
-                    lead_id: existingLead.id,
-                    activity_type: 'stage_changed',
-                    from_stage_id: existingLead.stage_id,
-                    to_stage_id: firstStageId,
-                    notes: `🔄 Lead ha compilato di nuovo il form (resubmit #${(existingMeta.resubmit_count || 0) + 1}) — rimesso in pipeline`,
-                })
+                // ── 2. Lead Deduplication ──
+                let lead: any = null
+                let isExisting = false
 
-                console.log(`[DEDUP] Lead ${email} resubmitted (id: ${existingLead.id}), reset to first stage`)
-            }
-        if (!isExisting) {
-            const { data: newLead, error: leadError } = await getSupabaseAdmin()
-                .from('leads')
-                .insert({
-                    organization_id: funnel.organization_id,
-                    funnel_id,
-                    submission_id: submission.id,
-                    stage_id: firstStageId,
-                    name,
-                    email: email || null,
-                    phone: phone || null,
-                    utm_source: utm_source || null,
-                    utm_campaign: utm_campaign || null,
-                    product: (() => {
-                        // First priority: incoming UTM Source URL parameter
-                        if (utm_source) {
-                            const lower = String(utm_source).toLowerCase();
-                            if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
-                            if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
-                            if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                if (email || phone) {
+                    let query = getSupabaseAdmin()
+                        .from('leads').select('*')
+                        .eq('organization_id', funnel.organization_id)
+                    if (email && phone) {
+                        query = query.or(`email.eq.${email.toLowerCase().trim()},phone.eq.${phone.trim()}`)
+                    } else if (email) {
+                        query = query.eq('email', email.toLowerCase().trim())
+                    } else if (phone) {
+                        query = query.eq('phone', phone.trim())
+                    }
+                    const { data: match } = await query
+                        .order('created_at', { ascending: false }).limit(1).single()
+
+                    if (match) {
+                        isExisting = true
+                        const existingMeta = match.meta_data || {}
+                        const updateData: any = {
+                            submission_id: submission.id,
+                            stage_id: firstStageId,
+                            updated_at: new Date().toISOString(),
                         }
-                        // Second priority: Funnel name
-                        const funnelLower = String(funnel.name).toLowerCase();
-                        if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
-                        if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
-                        if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
-                        
-                        // Default fallback
-                        return 'Fonte: Ads - Meta';
-                    })(),
-                    meta_data: {
-                        source: 'funnel', funnel_name: funnel.name,
-                        utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
-                        // Form extra fields (age, adset angle)
-                        child_age: body.extra_data?.child_age || null,
-                        adset_angle: body.extra_data?.adset_angle || null,
-                        // Tracking data for CRM CAPI events (QualifiedLead, Schedule, etc.)
-                        fbc: body.fbc || null,
-                        fbp: body.fbp || null,
-                        visitor_id: body.visitor_id || null,
-                        client_ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || null,
-                        client_user_agent: req.headers.get('user-agent') || null,
-                        event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
-                    },
-                })
-                .select()
-                .single()
+                        if (!match.phone && phone) updateData.phone = phone
+                        if (!match.utm_source && utm_source) updateData.utm_source = utm_source
+                        if (!match.utm_campaign && utm_campaign) updateData.utm_campaign = utm_campaign
+                        if (!match.funnel_id && funnel_id) updateData.funnel_id = funnel_id
+                        updateData.meta_data = {
+                            ...existingMeta,
+                            ...((!existingMeta.utm_content && body.utm_content) ? { utm_content: body.utm_content } : {}),
+                            ...((!existingMeta.utm_term && body.utm_term) ? { utm_term: body.utm_term } : {}),
+                            ...((!existingMeta.fbc && body.fbc) ? { fbc: body.fbc } : {}),
+                            ...((!existingMeta.fbp && body.fbp) ? { fbp: body.fbp } : {}),
+                            last_submission_at: new Date().toISOString(),
+                            resubmit_count: (existingMeta.resubmit_count || 0) + 1,
+                        }
 
-            if (leadError) {
-                console.error('Lead creation error:', leadError)
-            }
-            lead = newLead
-        }
+                        const { data: updated } = await getSupabaseAdmin()
+                            .from('leads').update(updateData)
+                            .eq('id', match.id).select().single()
+                        lead = updated || match
 
-        // Log activity (only for NEW leads, not dedup updates)
-        if (lead && firstStageId && !isExisting) {
-            await getSupabaseAdmin().from('lead_activities').insert({
-                organization_id: funnel.organization_id,
-                lead_id: lead.id,
-                activity_type: 'stage_changed',
-                to_stage_id: firstStageId,
-                notes: `Lead catturato dal funnel "${funnel.name}"`,
-            })
-        }
-
-        // ── EARLY RETURN: Send response NOW, run side-effects AFTER ──
-        // The user sees the Thank You page in ~300ms instead of ~3 seconds.
-        // CAPI, Telegram, and Google Sheets run in the background via Next.js after().
-        
-        if (lead) {
-            const leadId = lead.id
-            const orgIdForAfter = funnel.organization_id
-            const funnelName = funnel.name
-            const pixelId = funnel.meta_pixel_id
-            const funnelObjective = funnel.objective
-            const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined
-            const clientUserAgent = req.headers.get('user-agent') || undefined
-            const childAge = body.extra_data?.child_age
-            const adsetAngleNotif = body.extra_data?.adset_angle
-
-            after(async () => {
-                // 1. Fire CAPI event to Meta (server-side conversion tracking)
-                if (pixelId) {
-                    await fireCapiEvent(orgIdForAfter, 'Lead', {
-                        name: name || undefined,
-                        email: email || undefined,
-                        phone: phone || undefined,
-                        fbc: body.fbc || undefined,
-                        fbp: body.fbp || undefined,
-                        content_category: funnelObjective || 'cliente',
-                        client_ip: clientIp,
-                        client_user_agent: clientUserAgent,
-                        event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
-                        event_id: event_id || undefined,
-                        external_id: body.visitor_id || undefined,
-                    }, pixelId, leadId).catch(err => {
-                        console.error('CAPI after() error for lead:', name, err)
-                    })
+                        await getSupabaseAdmin().from('lead_activities').insert({
+                            organization_id: funnel.organization_id,
+                            lead_id: match.id,
+                            activity_type: 'stage_changed',
+                            from_stage_id: match.stage_id,
+                            to_stage_id: firstStageId,
+                            notes: `🔄 Lead ha compilato di nuovo il form (resubmit #${(existingMeta.resubmit_count || 0) + 1}) — rimesso in pipeline`,
+                        })
+                        console.log(`[DEDUP] Lead ${email} resubmitted (id: ${match.id}), reset to first stage`)
+                    }
                 }
 
-                // 2. Telegram + Google Sheets in parallel
-                const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
-                    `👤 <b>Nome:</b> ${name}\n` +
-                    (email ? `📧 <b>Email:</b> ${email}\n` : '') +
-                    (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
-                    (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
-                    `🔗 <b>Funnel:</b> ${funnelName}\n` +
-                    (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
-                    (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
-                    (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
+                // ── 3. Create new lead if not existing ──
+                if (!isExisting) {
+                    const { data: newLead, error: leadError } = await getSupabaseAdmin()
+                        .from('leads')
+                        .insert({
+                            organization_id: funnel.organization_id,
+                            funnel_id,
+                            submission_id: submission.id,
+                            stage_id: firstStageId,
+                            name,
+                            email: email || null,
+                            phone: phone || null,
+                            utm_source: utm_source || null,
+                            utm_campaign: utm_campaign || null,
+                            product: (() => {
+                                if (utm_source) {
+                                    const lower = String(utm_source).toLowerCase();
+                                    if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                                    if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                                    if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                }
+                                const funnelLower = String(funnel.name).toLowerCase();
+                                if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                                if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                                if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                return 'Fonte: Ads - Meta';
+                            })(),
+                            meta_data: {
+                                source: 'funnel', funnel_name: funnel.name,
+                                utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
+                                child_age: body.extra_data?.child_age || null,
+                                adset_angle: body.extra_data?.adset_angle || null,
+                                fbc: body.fbc || null, fbp: body.fbp || null,
+                                visitor_id: body.visitor_id || null,
+                                client_ip: clientIp || null,
+                                client_user_agent: clientUserAgent || null,
+                                event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
+                            },
+                        })
+                        .select().single()
 
-                await Promise.allSettled([
-                    sendTelegramMessage(orgIdForAfter, tgMsg).catch(err => {
-                        console.error('Telegram after() error for lead:', name, err)
-                    }),
-                    appendLeadToSheet(orgIdForAfter, {
-                        name,
-                        email: email || '',
-                        phone: phone || '',
-                        funnel: funnelName,
-                        utm_source: utm_source || '',
-                        utm_campaign: utm_campaign || '',
-                        utm_content: utm_content || '',
-                        utm_term: utm_term || '',
-                        created_at: new Date().toISOString(),
-                        landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
-                    }).catch(err => {
-                        console.error('Google Sheets after() error for lead:', name, err)
-                    }),
-                ])
+                    if (leadError) console.error('Lead creation error:', leadError)
+                    lead = newLead
 
-                console.log(`[AFTER] Background tasks completed for lead: ${name} (${leadId})`)
-            })
-        }
+                    if (lead && firstStageId) {
+                        await getSupabaseAdmin().from('lead_activities').insert({
+                            organization_id: funnel.organization_id,
+                            lead_id: lead.id,
+                            activity_type: 'stage_changed',
+                            to_stage_id: firstStageId,
+                            notes: `Lead catturato dal funnel "${funnel.name}"`,
+                        })
+                    }
+                }
 
-        return NextResponse.json({ success: true, lead_id: lead?.id })
+                // ── 4. CAPI + Telegram + Google Sheets in parallel ──
+                if (lead) {
+                    const capiPromise = funnel.meta_pixel_id
+                        ? fireCapiEvent(funnel.organization_id, 'Lead', {
+                            name: name || undefined, email: email || undefined, phone: phone || undefined,
+                            fbc: body.fbc || undefined, fbp: body.fbp || undefined,
+                            content_category: funnel.objective || 'cliente',
+                            client_ip: clientIp, client_user_agent: clientUserAgent,
+                            event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
+                            event_id: event_id || undefined, external_id: body.visitor_id || undefined,
+                        }, funnel.meta_pixel_id, lead.id).catch(err => console.error('CAPI error:', name, err))
+                        : Promise.resolve()
+
+                    const childAge = body.extra_data?.child_age
+                    const adsetAngleNotif = body.extra_data?.adset_angle
+                    const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
+                        `👤 <b>Nome:</b> ${name}\n` +
+                        (email ? `📧 <b>Email:</b> ${email}\n` : '') +
+                        (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
+                        (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
+                        `🔗 <b>Funnel:</b> ${funnel.name}\n` +
+                        (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
+                        (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
+                        (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
+
+                    await Promise.allSettled([
+                        capiPromise,
+                        sendTelegramMessage(funnel.organization_id, tgMsg).catch(err => console.error('TG error:', name, err)),
+                        appendLeadToSheet(funnel.organization_id, {
+                            name, email: email || '', phone: phone || '',
+                            funnel: funnel.name, utm_source: utm_source || '',
+                            utm_campaign: utm_campaign || '', utm_content: utm_content || '',
+                            utm_term: utm_term || '', created_at: new Date().toISOString(),
+                            landing_url: body.landing_url || `landing.metodosincro.com/f/${body.slug || ''}`,
+                        }).catch(err => console.error('Sheets error:', name, err)),
+                    ])
+                }
+
+                console.log(`[AFTER] All background tasks completed for: ${name}`)
+            } catch (err) {
+                console.error('[AFTER] Critical error in background tasks:', err)
+            }
+        })
+
+        return NextResponse.json({ success: true })
     } catch (err: any) {
         console.error('Submission error:', err)
         return NextResponse.json({ error: 'Internal error' }, { status: 500 })

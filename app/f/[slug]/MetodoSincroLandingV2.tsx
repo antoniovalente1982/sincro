@@ -401,30 +401,33 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     @keyframes pulseSuccess { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
 
                     @media (max-width: 480px) {
-                        .lp-ty-modern { margin: 16px auto; padding: 0 12px; gap: 12px; }
-                        .lp-ty-success-pulse svg { width: 44px !important; height: 44px !important; }
+                        .lp-ty-modern { margin: 12px auto; padding: 0 10px; gap: 10px; }
+                        .lp-ty-success-pulse svg { width: 40px !important; height: 40px !important; }
                         .lp-ty-header h1 { font-size: 22px; }
                         .lp-ty-header p { font-size: 13px; }
                         .lp-ty-steps { gap: 6px; }
-                        .lp-ty-steps::before { left: 26px; }
-                        .lp-ty-step { padding: 10px; gap: 10px; border-radius: 10px; }
-                        .lp-ty-step-icon { width: 34px; height: 34px; border-radius: 8px; }
-                        .lp-ty-step-icon svg { width: 18px !important; height: 18px !important; }
-                        .lp-ty-step-content h3 { font-size: 14px; }
-                        .lp-ty-step-content p { font-size: 12px; }
-                        .lp-ty-step-content ul { font-size: 12px; padding-left: 14px; }
-                        .lp-ty-badge-num { font-size: 9px; }
-                        .lp-trust-btn { padding: 12px; font-size: 13px; }
+                        .lp-ty-steps::before { display: none; }
+                        .lp-ty-step { flex-direction: column; padding: 12px 14px; gap: 0; border-radius: 10px; }
+                        .lp-ty-step-icon { display: none; }
+                        .lp-ty-badge-num { font-size: 10px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+                        .lp-ty-step-content h3 { font-size: 15px; margin-bottom: 4px; }
+                        .lp-ty-step-content p { font-size: 13px; }
+                        .lp-ty-step-content ul { font-size: 13px; padding-left: 16px; }
+                        .lp-step-urgent { border-left: 3px solid #facc15; }
+                        .lp-step-prep { border-left: 3px solid #38bdf8; }
+                        .lp-step-gift { border-left: 3px solid #ec4899; }
+                        .lp-trust-btn { padding: 12px; font-size: 14px; }
                         .lp-site-link { font-size: 11px; margin-top: 10px; }
+                        .lp-ty-footer { margin-top: 2px; }
                     }
 
                     @media (max-width: 370px) {
-                        .lp-ty-modern { padding: 0 8px; gap: 10px; }
+                        .lp-ty-modern { padding: 0 8px; gap: 8px; }
                         .lp-ty-header h1 { font-size: 20px; }
-                        .lp-ty-step { padding: 8px; gap: 8px; }
-                        .lp-ty-step-icon { width: 30px; height: 30px; }
-                        .lp-ty-step-content h3 { font-size: 13px; }
-                        .lp-ty-step-content p { font-size: 11.5px; }
+                        .lp-ty-step { padding: 10px 12px; }
+                        .lp-ty-step-content h3 { font-size: 14px; }
+                        .lp-ty-step-content p { font-size: 12px; }
+                        .lp-ty-step-content ul { font-size: 12px; }
                     }
                 `}} />
             </div>
