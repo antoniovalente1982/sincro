@@ -184,7 +184,6 @@ export default function DashboardTab({ data, orgId }: Props) {
           { href: '/dashboard/crm', label: 'CRM Pipeline', icon: Users, color: '#3b82f6' },
           { href: '/dashboard/funnels', label: 'Funnel', icon: Target, color: '#22c55e' },
           { href: '/dashboard/ads', label: 'Ads Dashboard', icon: BarChart3, color: '#f59e0b' },
-          { href: '/dashboard/ai-engine/creative-studio', label: 'Creative Studio', icon: Sparkles, color: '#a855f7' },
         ].map(link => (
           <Link key={link.href} href={link.href}
             className="glass-card p-4 flex items-center gap-3 transition-all hover:scale-[1.02] hover:border-white/10 group">

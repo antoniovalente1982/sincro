@@ -6,6 +6,7 @@ import { buildGodPrompt, getPromptSystemTools } from '@/lib/agent-prompt'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
 import { pauseAd, updateCampaignBudget, calculateNewBudget } from '@/lib/meta-actions'
 import { sendTelegramDirect } from '@/lib/telegram'
+import { hermesClient } from '@/lib/hermes-client'
 
 // ═══════════════════════════════════════════════════════════════
 // 🧠 AGENT LOOP UNIFICATO v2 — Runs every 4h via Vercel Cron
@@ -544,29 +545,27 @@ function computeAllScores(metricsByAngle: Record<string, any>, existingScores: R
 
 async function generateHypothesis(scores: Record<string, any>, metrics: Record<string, any>, mission: any, targetCPL: number, targetCAC: number, model: string) {
     try {
-        const apiKey = process.env.OPENROUTER_API_KEY
-        if (!apiKey) return null
         const report = Object.entries(scores).sort((a: any, b: any) => b[1].score - a[1].score)
-            .map(([angle, s]: [string, any]) => `- ${angle.toUpperCase()}: score=${s.score.toFixed(2)} CPL €${s.avg_cpl.toFixed(2)} CAC €${s.avg_cac > 0 ? s.avg_cac.toFixed(0) : 'n/d'} leads:${s.total_leads} → ${s.recommended_action}`)
+            .map(([angle, s]: [string, any]) => `- ${angle.toUpperCase()}: score=${s.score.toFixed(2)} CPL €${s.avg_cpl.toFixed(2)} CAC ${s.avg_cac > 0 ? '€'+s.avg_cac.toFixed(0) : 'n/d'} leads:${s.total_leads} → ${s.recommended_action}`)
             .join('\n')
 
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-            body: JSON.stringify({
-                model,
-                messages: [{
-                    role: 'user',
-                    content: `Sei il cervello strategico di Metodo Sincro. CPL target €${targetCPL}, CAC target €${targetCAC}. Angoli 7gg:\n${report}\nProponi UNA ipotesi strategica. JSON: {"angle":"...","action":"...","expected_delta_cac_pct":0,"reasoning":"...","confidence":"low|medium|high"}`
-                }],
-                temperature: 0.3,
-            }),
-        })
-        if (!res.ok) return null
-        const data = await res.json()
-        const reply = data.choices?.[0]?.message?.content || ''
-        const jsonMatch = reply.match(/\{[\s\S]*\}/)
-        return jsonMatch ? JSON.parse(jsonMatch[0]) : null
+        const payload = {
+            task: `Sei il cervello strategico di Metodo Sincro. CPL target €${targetCPL}, CAC target €${targetCAC}. Angoli 7gg:\n${report}\nProponi UNA ipotesi strategica. Restituisci SOLO un JSON: {"angle":"...","action":"...","expected_delta_cac_pct":0,"reasoning":"...","confidence":"low|medium|high"}`,
+            context: {
+                targetCPL,
+                targetCAC,
+                report
+            },
+            agent_role: "orchestrator" as const
+        }
+
+        const res = await hermesClient.dispatchTask(payload)
+        if (res.choices && res.choices[0]?.message?.content) {
+            const reply = res.choices[0].message.content
+            const jsonMatch = reply.match(/\{[\s\S]*\}/)
+            return jsonMatch ? JSON.parse(jsonMatch[0]) : null
+        }
+        return null
     } catch { return null }
 }
 

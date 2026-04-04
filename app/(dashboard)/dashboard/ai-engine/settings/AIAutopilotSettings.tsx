@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
     ArrowLeft, Brain, Zap, DollarSign, Target, Shield, Flame,
     Activity, ToggleLeft, ToggleRight, Save, Loader2, Clock,
@@ -82,6 +82,32 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
+    // Hermes Connection Status & Logs
+    const [hermesStatus, setHermesStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+    const [hermesLogs, setHermesLogs] = useState<string[]>([])
+
+    useEffect(() => {
+        const checkHermes = async () => {
+            try {
+                const res = await fetch('/api/hermes/status')
+                setHermesStatus(res.ok ? 'online' : 'offline')
+                if (res.ok) {
+                    const logsRes = await fetch('/api/hermes/logs')
+                    if (logsRes.ok) {
+                        const logsData = await logsRes.json()
+                        setHermesLogs(logsData.logs || [])
+                    }
+                }
+            } catch {
+                setHermesStatus('offline')
+            }
+        }
+        checkHermes()
+        // Check every minute
+        const interval = setInterval(checkHermes, 60000)
+        return () => clearInterval(interval)
+    }, [])
+
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
 
@@ -118,12 +144,25 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                         className="text-xs flex items-center gap-1 mb-2 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
                         <ArrowLeft className="w-3 h-3" /> AI Engine
                     </Link>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Settings className="w-7 h-7" style={{ color: '#a855f7' }} />
-                        AI Autopilot Settings
-                    </h1>
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                            <Settings className="w-7 h-7" style={{ color: '#a855f7' }} />
+                            AI Autopilot Settings
+                        </h1>
+                        {/* Hermes Connection Badge */}
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-semibold border" style={{
+                            background: hermesStatus === 'online' ? 'rgba(34, 197, 94, 0.1)' : hermesStatus === 'offline' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                            borderColor: hermesStatus === 'online' ? 'rgba(34, 197, 94, 0.3)' : hermesStatus === 'offline' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)',
+                            color: hermesStatus === 'online' ? '#22c55e' : hermesStatus === 'offline' ? '#ef4444' : '#f59e0b',
+                        }}>
+                            {hermesStatus === 'checking' ? <RefreshCw className="w-3 h-3 animate-spin mx-0.5" /> : (
+                                <div className={`w-2 h-2 rounded-full ${hermesStatus === 'online' ? 'bg-green-500' : 'bg-red-500'} ${hermesStatus === 'online' ? 'animate-pulse' : ''}`} />
+                            )}
+                            HERMES VPS: {hermesStatus.toUpperCase()}
+                        </div>
+                    </div>
                     <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                        Configura budget, obiettivi e automazioni — l'AI lavora in autonomia 24/7
+                        Configura budget, obiettivi e automazioni — Hermes Agent lavora in autonomia sulla tua VPS
                     </p>
                 </div>
                 <button onClick={handleSave} className="btn-primary" disabled={saving}>
@@ -524,64 +563,105 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                 </div>
             </div>
 
-            {/* Agent Activity Logs */}
-            <div className="glass-card p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5" style={{ color: '#6366f1' }} />
-                        <h2 className="text-sm font-bold text-white">Agent Activity Log</h2>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
-                            background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1',
-                        }}>
-                            Ultime {logs.length} azioni
-                        </span>
+            {/* Agent Activity Logs & Hermes VPS Console */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Agent Activity Logs */}
+                <div className="glass-card p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Activity className="w-5 h-5" style={{ color: '#6366f1' }} />
+                            <h2 className="text-sm font-bold text-white">Cron Logs (Sincro)</h2>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
+                                background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1',
+                            }}>
+                                Ultime {logs.length} azioni
+                            </span>
+                        </div>
                     </div>
+
+                    {logs.length > 0 ? (
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {logs.map(log => {
+                                const Icon = actionIcons[log.action_type] || Brain
+                                const rColor = resultColors[log.result] || '#6366f1'
+                                return (
+                                    <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl" style={{
+                                        background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
+                                    }}>
+                                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{
+                                            background: `${rColor}15`, border: `1px solid ${rColor}30`,
+                                        }}>
+                                            <Icon className="w-3.5 h-3.5" style={{ color: rColor }} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <span className="text-xs font-semibold text-white">{log.action_type.replace(/_/g, ' ')}</span>
+                                                <span className="badge" style={{
+                                                    fontSize: '9px', background: `${rColor}15`, color: rColor,
+                                                    border: `1px solid ${rColor}30`,
+                                                }}>{log.result}</span>
+                                                <span className="text-[10px]" style={{ color: 'var(--color-surface-600)' }}>
+                                                    {new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                            {log.ai_reasoning && (
+                                                <p className="text-[11px] line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{log.ai_reasoning}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8">
+                            <Brain className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--color-surface-400)' }} />
+                            <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
+                                Nessuna attività del cron locale
+                            </p>
+                        </div>
+                    )}
                 </div>
 
-                {logs.length > 0 ? (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {logs.map(log => {
-                            const Icon = actionIcons[log.action_type] || Brain
-                            const rColor = resultColors[log.result] || '#6366f1'
-                            return (
-                                <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl" style={{
-                                    background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
-                                }}>
-                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{
-                                        background: `${rColor}15`, border: `1px solid ${rColor}30`,
-                                    }}>
-                                        <Icon className="w-3.5 h-3.5" style={{ color: rColor }} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <span className="text-xs font-semibold text-white">{log.action_type.replace(/_/g, ' ')}</span>
-                                            <span className="badge" style={{
-                                                fontSize: '9px', background: `${rColor}15`, color: rColor,
-                                                border: `1px solid ${rColor}30`,
-                                            }}>{log.result}</span>
-                                            <span className="text-[10px]" style={{ color: 'var(--color-surface-600)' }}>
-                                                {new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        </div>
-                                        {log.ai_reasoning && (
-                                            <p className="text-[11px] line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{log.ai_reasoning}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                {/* Hermes Realtime Console */}
+                <div className="glass-card p-6 flex flex-col h-[450px]">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <h2 className="text-sm font-bold text-white">Hermes VPS Console</h2>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{
+                                background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)'
+                            }}>
+                                live feed
+                            </span>
+                        </div>
                     </div>
-                ) : (
-                    <div className="text-center py-8">
-                        <Brain className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--color-surface-400)' }} />
-                        <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
-                            Nessuna attività dell'agente
-                        </p>
-                        <p className="text-xs mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                            Attiva l'Autopilot e l'AI inizierà a lavorare
-                        </p>
+                    
+                    <div className="flex-1 bg-black rounded-xl p-4 font-mono text-[10px] sm:text-xs overflow-y-auto" style={{ border: '1px solid var(--color-surface-200)' }}>
+                        <div className="text-green-500/70 mb-2">Hermes Node: connection established.</div>
+                        <div className="text-green-500/70 mb-4">System ready... awaiting tasks.</div>
+                        {hermesLogs.map((logLine, idx) => (
+                            <div key={idx} className="text-white mt-1">
+                                {logLine.includes('[Orchestrator]') ? (
+                                    <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-purple-400">[Orchestrator] </span>{logLine.replace('[Orchestrator]', '')}</>
+                                ) : logLine.includes('[MediaBuyer]') ? (
+                                    <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-yellow-400">[MediaBuyer] </span>{logLine.replace('[MediaBuyer]', '')}</>
+                                ) : (
+                                    <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-green-400">[System] </span>{logLine}</>
+                                )}
+                            </div>
+                        ))}
+                        {hermesLogs.length === 0 && hermesStatus === 'online' && (
+                            <div className="text-gray-400 italic mt-2">Nessun log ricevuto di recente.</div>
+                        )}
+                        {hermesStatus === 'offline' && (
+                            <div className="mt-4 text-red-500">
+                                <span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span>
+                                Connection lost: No response from Hermes API. (VPS Offline)
+                            </div>
+                        )}
+                        <div className="animate-pulse mt-1 text-gray-500">_</div>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Bottom save bar */}

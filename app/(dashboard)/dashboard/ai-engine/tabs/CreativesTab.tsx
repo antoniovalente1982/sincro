@@ -101,16 +101,6 @@ export default function CreativesTab({ orgId }: Props) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href="/dashboard/ai-engine/creative-studio"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-            style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', color: '#c084fc' }}>
-            <Palette className="w-3.5 h-3.5" /> Creative Studio
-          </Link>
-          <Link href="/dashboard/ai-engine/video-editor"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-            style={{ background: 'rgba(20,184,166,0.1)', border: '1px solid rgba(20,184,166,0.25)', color: '#14b8a6' }}>
-            <Film className="w-3.5 h-3.5" /> Video Editor
-          </Link>
         </div>
       </div>
 
