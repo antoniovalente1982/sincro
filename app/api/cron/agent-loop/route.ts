@@ -428,12 +428,21 @@ export async function GET(req: NextRequest) {
 function detectAngle(adName: string, adsetName?: string): string {
     const text = `${adName} ${adsetName || ''}`.toLowerCase()
     
-    // NEW LOGIC: Estrazione esatta dal tag T: inserito nei nomi delle Ad
-    const tMatch = text.match(/t:\s*([a-z0-9_]+)/i)
-    if (tMatch && tMatch[1]) {
-        return tMatch[1] // es. "gap", "talento", "pressione"
+    // Lista completa delle trigger keywords ufficiali (dal database Funnel Routing Engine)
+    const validAngles = [
+        'gap', 'potenziale', 'system', 'growth', 'trauma', 'talento', 
+        'efficiency', 'status', 'authority', 'decision', 'pressione', 
+        'emotional', 'education', 'security', 'sport_performance'
+    ]
+
+    // 1. Priorità assoluta: se il testo contiene esplicitamente una delle keyword routing ufficiali
+    for (const angle of validAngles) {
+        if (text.includes(angle)) {
+            return angle
+        }
     }
 
+    // 2. Fallbacks e vecchie nomenclature
     if (text.includes('emo') || text.includes('dolore') || text.includes('emotional')) return 'emotional'
     if (text.includes('eff') || text.includes('efficiency') || text.includes('split') || text.includes('gap')) return 'efficiency'
     if (text.includes('sys') || text.includes('system') || text.includes('metodo')) return 'system'
@@ -441,6 +450,17 @@ function detectAngle(adName: string, adsetName?: string): string {
     if (text.includes('edu') || text.includes('lente') || text.includes('lavagna')) return 'education'
     if (text.includes('growth') || text.includes('crescita')) return 'growth'
     if (text.includes('trasf') || text.includes('reels')) return 'transformation'
+
+    // 3. Regex T: ma ignorando articoli o stop-words italiane usate per sbaglio dai media buyer come prima parola
+    const tMatch = text.match(/t:\s*([a-z0-9_]+)/i)
+    if (tMatch && tMatch[1]) {
+        const w = tMatch[1].toLowerCase()
+        if (['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una', 'da', 'di', 'in', 'con', 'su', 'per', 'tra', 'fra', 'non', 'perch', 'stesso', 'decine', 'questo', 'quello'].includes(w)) {
+            return 'generic'
+        }
+        return w
+    }
+
     return 'generic'
 }
 
@@ -457,12 +477,17 @@ async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30)
         const byAngle: Record<string, any> = {}
 
         for (const lead of leads) {
-            const rawTerm = (lead.meta_data?.utm_term || '').toLowerCase().trim()
+            const rawTerm = (lead.meta_data?.utm_term || '').toLowerCase()
+            const rawContent = (lead.meta_data?.utm_content || '').toLowerCase()
             const rawCampaign = (lead.utm_campaign || '').toLowerCase()
-            let angle = rawTerm.includes('efficien') ? 'efficiency' : rawTerm.includes('system') || rawTerm.includes('metodo') ? 'system'
-                : rawTerm.includes('emozion') || rawTerm.includes('trauma') ? 'emotional' : rawTerm.includes('status') ? 'status'
-                : rawTerm.includes('edu') ? 'education' : rawTerm.includes('grow') ? 'growth'
-                : detectAngle('', rawCampaign) || 'unknown'
+            
+            // Il routing angle reale è tracciato principalmente in utm_content (ad.name) o utm_term (adset.name)
+            let angle = detectAngle(rawContent, rawTerm)
+            
+            // Fallback sulla campagna se non trova nulla di meglio
+            if (angle === 'generic') {
+                angle = detectAngle(rawCampaign, '') || 'generic'
+            }
 
             if (!byAngle[angle]) byAngle[angle] = { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
             byAngle[angle].leads++

@@ -90,7 +90,7 @@ export default function CommandCenter() {
 
   if (!data) return null;
   const { kpi, weekly_totals, execution_mode, autopilot_active, llm_model } = data
-  const modelShort = (llm_model || 'gemini-2.5-flash').split('/').pop() || ''
+  const modelShort = (llm_model && llm_model !== 'null' ? llm_model : 'Hermes VPS Orchestrator').split('/').pop() || ''
 
   return (
     <div className="space-y-0 animate-fade-in">
