@@ -2,19 +2,19 @@
   "crons": [
     {
       "path": "/api/cron/agent-loop",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 6,10,14,18 * * *"
     },
     {
       "path": "/api/cron/sync-campaigns",
-      "schedule": "0 0 * * *"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron/daily-snapshot",
-      "schedule": "55 23 * * *"
+      "schedule": "55 21 * * *"
     },
     {
       "path": "/api/cron/weekly-review",
-      "schedule": "0 21 * * 0"
+      "schedule": "0 18 * * 0"
     },
     {
       "path": "/api/cron/ads-monitor",
@@ -22,7 +22,7 @@
     },
     {
       "path": "/api/cron/reconcile-leads",
-      "schedule": "10 0 * * *"
+      "schedule": "10 22 * * *"
     },
     {
       "path": "/api/ai-engine/pulse",
