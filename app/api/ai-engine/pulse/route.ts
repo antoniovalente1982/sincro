@@ -67,10 +67,45 @@ export async function GET(req: NextRequest) {
         const hermesEndpoint = process.env.HERMES_VPS_URL || 'http://localhost:8643'
         const hermesKey = process.env.HERMES_API_KEY || 'AdPilotikHermesSecure2026!'
 
+        const { data: mc } = await supabase.from('mission_control').select('objectives').eq('organization_id', orgId).single()
+        const mission = mc?.objectives || {}
+
+        const bF = mission?.base_fatturato || 50000;
+        const bP = mission?.base_prezzo || 2250;
+        const bL2A = mission?.base_lead_to_appt || 40;
+        const bA2S = mission?.base_appt_to_showup || 60;
+        const bS2S = mission?.base_showup_to_sale || 20;
+
+        const clientiMensili = bP > 0 ? Math.ceil(bF / bP) : 0;
+        const showupsMensili = bS2S > 0 ? Math.ceil(clientiMensili / (bS2S / 100)) : 0;
+        const apptMensili = bA2S > 0 ? Math.ceil(showupsMensili / (bA2S / 100)) : 0;
+        const leadMensili = bL2A > 0 ? Math.ceil(apptMensili / (bL2A / 100)) : 0;
+        const budgetMensile = (mission?.target_cac || 300) * clientiMensili;
+
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const monthName = now.toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+
+        const formatPacing = (days: number, isFinal = false) => {
+            const r = days / daysInMonth;
+            const label = isFinal ? `[${days} Giorni] (Obiettivo Intero ${monthName.toUpperCase()})` : `[${days} ${days===1?'Giorno':'Giorni'}]`;
+            return `${label} Budget MAX: €${Math.round(budgetMensile * r)} | Lead attesi: ${Math.round(leadMensili * r)} | Appt: ${Math.round(apptMensili * r)} | Vendite: ${Math.round(clientiMensili * r)}`;
+        };
+
+        const pacingBlock = `\n🎯 TRACCIAMENTO OBIETTIVI (PACING DI BREVE, MEDIO E LUNGO TERMINE):
+${formatPacing(1)}
+${formatPacing(3)}
+${formatPacing(7)}
+${formatPacing(14)}
+${formatPacing(21)}
+${formatPacing(daysInMonth, true)}`;
+
         const systemMessage = `Sei Hermes, il CEO. Ti ho appena svegliato con il Pulse Orario. 
 Analizza i seguenti dati attuali (Sensory Input): ${JSON.stringify(sensoryPayload)}
 Se il CAC è OVER o il pace è BEHIND, delega immediatamente ad Andromeda una manovra correttiva.
-Se siamo ON_TRACK, rispondi con un check rassicurante. Fai una sintesi tattica molto breve della situazione.`
+Se siamo ON_TRACK, rispondi con un check rassicurante. Fai una sintesi tattica molto breve della situazione.
+Nota vitale: I target forniti (es. CAC target) sono la BASELINE (minimo vitale). Il tuo obiettivo assoluto e quello dei tuoi agenti è usare il continuous learning per battere questi record e scalare a costi inferiori.
+${pacingBlock}`
 
         const response = await fetch(`${hermesEndpoint}/v1/chat/completions`, {
             method: 'POST',

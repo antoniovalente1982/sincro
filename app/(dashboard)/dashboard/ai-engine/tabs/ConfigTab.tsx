@@ -34,20 +34,26 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
   const [baseCacTarget, setBaseCacTarget] = useState(objectives?.base_cac_target ?? 300)
   const [baseCpl, setBaseCpl] = useState(objectives?.base_cpl ?? 15)
 
-  // Sync basic state
-  useEffect(() => {
-    setMode(execution_mode ?? 'dry_run')
-    setSelectedModel(llm_model ?? 'xiaomi/mimo-v2-pro')
-    setAutopilot(autopilot_active ?? false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-    setBaseFatturato(objectives?.base_fatturato ?? 50000)
-    setBasePrezzo(objectives?.base_prezzo ?? 2250)
-    setBaseLeadToAppt(objectives?.base_lead_to_appt ?? 40)
-    setBaseApptToShowup(objectives?.base_appt_to_showup ?? 60)
-    setBaseShowupToSale(objectives?.base_showup_to_sale ?? 20)
-    setBaseCacTarget(objectives?.base_cac_target ?? 300)
-    setBaseCpl(objectives?.base_cpl ?? 15)
-  }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Sync basic state only on initial mount or when data becomes available
+  useEffect(() => {
+    if (data && !isInitialized) {
+      setMode(execution_mode ?? 'dry_run')
+      setSelectedModel(llm_model ?? 'xiaomi/mimo-v2-pro')
+      setAutopilot(autopilot_active ?? false)
+
+      setBaseFatturato(objectives?.base_fatturato ?? 50000)
+      setBasePrezzo(objectives?.base_prezzo ?? 2250)
+      setBaseLeadToAppt(objectives?.base_lead_to_appt ?? 40)
+      setBaseApptToShowup(objectives?.base_appt_to_showup ?? 60)
+      setBaseShowupToSale(objectives?.base_showup_to_sale ?? 20)
+      setBaseCacTarget(objectives?.base_cac_target ?? 300)
+      setBaseCpl(objectives?.base_cpl ?? 15)
+      
+      setIsInitialized(true)
+    }
+  }, [data, isInitialized, execution_mode, llm_model, autopilot_active, objectives])
 
   // Derive all variables dynamically (Flow: Lead -> Appt -> ShowUp -> Vendita)
   const clientiMensili = basePrezzo > 0 ? Math.ceil(baseFatturato / basePrezzo) : 0
@@ -317,9 +323,14 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
         <div className="space-y-5">
           {/* North Star Bases */}
           <div className="glass-card p-5 border-[1px] border-blue-500/20">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
                <Target className="w-4 h-4" style={{ color: '#3b82f6' }} />
                <h3 className="text-sm font-bold text-white">North Star Base Objectives</h3>
+            </div>
+            <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+               <p className="text-[11px] text-blue-200/80 leading-relaxed italic">
+                 <strong className="text-blue-400">Nota Strategica:</strong> Questi parametri rappresentano la Baseline minima accettabile. L'obiettivo primario di tutti gli agenti (Hermes e Andromeda) è sfruttare il Continuous Learning e l'autoapprendimento per <strong>battere questi obiettivi</strong> il prima possibile (es. abbattere il CAC, alzare i tassi di conversione).
+               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FieldInput label="Fatturato Mensile (€)" value={baseFatturato} onChange={setBaseFatturato} />

@@ -631,8 +631,39 @@ async function generateHypothesis(scores: Record<string, any>, metrics: Record<s
             .map(([angle, s]: [string, any]) => `- ${angle.toUpperCase()}: score=${s.score.toFixed(2)} CPL €${s.avg_cpl.toFixed(2)} CAC ${s.avg_cac > 0 ? '€'+s.avg_cac.toFixed(0) : 'n/d'} leads:${s.total_leads} → ${s.recommended_action}`)
             .join('\n')
 
+        const bF = mission?.base_fatturato || 50000;
+        const bP = mission?.base_prezzo || 2250;
+        const bL2A = mission?.base_lead_to_appt || 40;
+        const bA2S = mission?.base_appt_to_showup || 60;
+        const bS2S = mission?.base_showup_to_sale || 20;
+
+        const clientiMensili = bP > 0 ? Math.ceil(bF / bP) : 0;
+        const showupsMensili = bS2S > 0 ? Math.ceil(clientiMensili / (bS2S / 100)) : 0;
+        const apptMensili = bA2S > 0 ? Math.ceil(showupsMensili / (bA2S / 100)) : 0;
+        const leadMensili = bL2A > 0 ? Math.ceil(apptMensili / (bL2A / 100)) : 0;
+        const budgetMensile = (mission?.target_cac || targetCAC || 300) * clientiMensili;
+
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const monthName = now.toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+
+        const formatPacing = (days: number, isFinal = false) => {
+            const r = days / daysInMonth;
+            const label = isFinal ? `[${days} Giorni] (Obiettivo Intero ${monthName.toUpperCase()})` : `[${days} ${days===1?'Giorno':'Giorni'}]`;
+            return `${label} Budget MAX: €${Math.round(budgetMensile * r)} | Lead attesi: ${Math.round(leadMensili * r)} | Appt: ${Math.round(apptMensili * r)} | Vendite: ${Math.round(clientiMensili * r)}`;
+        };
+
+        const pacingBlock = `\n🎯 TRACCIAMENTO OBIETTIVI (PACING DI BREVE, MEDIO E LUNGO TERMINE):
+${formatPacing(1)}
+${formatPacing(3)}
+${formatPacing(7)}
+${formatPacing(14)}
+${formatPacing(21)}
+${formatPacing(daysInMonth, true)}`;
+
         const payload = {
-            task: `Sei il cervello strategico di Metodo Sincro. CPL target €${targetCPL}, CAC target €${targetCAC}. Angoli 7gg:\n${report}\nProponi UNA ipotesi strategica. Restituisci SOLO un JSON: {"angle":"...","action":"...","expected_delta_cac_pct":0,"reasoning":"...","confidence":"low|medium|high"}`,
+            task: `Sei il cervello strategico di Metodo Sincro. I target impostati (CPL target €${targetCPL}, CAC target €${targetCAC}) sono la tua BASELINE MINIMA. L'obiettivo tuo e dello sciame è usare l'auto-apprendimento per abbattere questa baseline! ${pacingBlock}
+Angoli 7gg:\n${report}\nProponi UNA ipotesi strategica per battere questa baseline. Restituisci SOLO un JSON: {"angle":"...","action":"...","expected_delta_cac_pct":0,"reasoning":"...","confidence":"low|medium|high"}`,
             context: {
                 targetCPL,
                 targetCAC,
