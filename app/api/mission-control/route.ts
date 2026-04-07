@@ -42,16 +42,17 @@ export async function GET(req: NextRequest) {
         // Compute weekly progress from latest snapshot
         const latestSnap = snapshotRes.data?.[0]
 
-        // Compute weekly totals from last 7 snapshots
-        const last7Snaps = (snapshotRes.data || []).slice(0, 7)
-        const weeklyTotals = last7Snaps.reduce((acc: any, snap: any) => ({
-            spend: (acc.spend || 0) + (snap.total_spend || 0),
-            leads: (acc.leads || 0) + (snap.total_leads || 0),
-            appointments: (acc.appointments || 0) + (snap.total_appointments || 0),
-            showups: (acc.showups || 0) + (snap.total_showups || 0),
-            sales: (acc.sales || 0) + (snap.total_sales || 0),
-            revenue: (acc.revenue || 0) + (snap.total_revenue || 0),
-        }), {})
+        // The latest snapshot ALREADY contains the rolling 7-day totals 
+        // (weekSpend, weekLeads, etc. as computed in daily-snapshot).
+        // Summing them again over the last 7 snapshots multiplies everything by 7.
+        const weeklyTotals = {
+            spend: latestSnap?.total_spend || 0,
+            leads: latestSnap?.total_leads || 0,
+            appointments: latestSnap?.total_appointments || 0,
+            showups: latestSnap?.total_showups || 0,
+            sales: latestSnap?.total_sales || 0,
+            revenue: latestSnap?.total_revenue || 0,
+        }
 
         const objectives = objectivesRes.data || getDefaultObjectives(orgId)
         const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean; llm_model?: string }
