@@ -19,11 +19,12 @@ CREATE TABLE IF NOT EXISTS public.ai_llm_models (
 -- Initialize with some cost-effective defaults
 INSERT INTO public.ai_llm_models (name, provider, model_id, input_cost_per_m, output_cost_per_m, capabilities, role_restriction)
 VALUES 
-('Claude 3.5 Haiku', 'openrouter', 'anthropic/claude-3-haiku', 0.25, 1.25, ARRAY['reasoning', 'speed'], NULL),
-('Claude 3.5 Sonnet', 'openrouter', 'anthropic/claude-3.5-sonnet', 3.00, 15.00, ARRAY['coding', 'copywriting', 'vision'], ARRAY['copywriter', 'cro_optimizer']),
+('Qwen 3.6 Plus (Free)', 'openrouter', 'qwen/qwen-3.6-plus:free', 0.00, 0.00, ARRAY['reasoning', 'coding', 'copywriting', 'speed'], NULL),
+('MiMo-V2-Pro', 'openrouter', 'xiaomi/mimo-v2-pro', 0.10, 0.20, ARRAY['reasoning', 'copywriting'], NULL),
+('Step 3.5 Flash (Free)', 'openrouter', 'stepfun/step-3.5-flash:free', 0.00, 0.00, ARRAY['speed'], ARRAY['cro_optimizer', 'copywriter']),
 ('Llama 3 70B', 'openrouter', 'meta-llama/llama-3-70b-instruct', 0.50, 0.50, ARRAY['reasoning', 'speed'], NULL),
-('GPT-4o Mini', 'openrouter', 'openai/gpt-4o-mini', 0.15, 0.60, ARRAY['vision', 'speed'], NULL)
-ON CONFLICT (model_id) DO NOTHING;
+('DeepSeek V3.2', 'openrouter', 'deepseek/deepseek-chat', 0.14, 0.28, ARRAY['coding', 'reasoning'], NULL)
+ON CONFLICT (model_id) DO UPDATE SET is_active = true;
 
 -- 2. AI Agents Directory (The Swarm)
 CREATE TABLE IF NOT EXISTS public.ai_agents (
