@@ -325,11 +325,11 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5 border-[1px] border-blue-500/20">
             <div className="flex items-center gap-2 mb-2">
                <Target className="w-4 h-4" style={{ color: '#3b82f6' }} />
-               <h3 className="text-sm font-bold text-white">North Star Base Objectives</h3>
+               <h3 className="text-sm font-bold text-white">⚙️ INPUT MANUALI (North Star Base)</h3>
             </div>
             <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                <p className="text-[11px] text-blue-200/80 leading-relaxed italic">
-                 <strong className="text-blue-400">Nota Strategica:</strong> Questi parametri rappresentano la Baseline minima accettabile. L'obiettivo primario di tutti gli agenti (Hermes e Andromeda) è sfruttare il Continuous Learning e l'autoapprendimento per <strong>battere questi obiettivi</strong> il prima possibile (es. abbattere il CAC, alzare i tassi di conversione).
+                 <strong className="text-blue-400">Nota Strategica:</strong> Qui inserisci gli obiettivi e le tue proiezioni base. Gli agenti utilizzeranno questo setup come "Baseline".
                </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -339,11 +339,11 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
               <FieldInput label="CPL Stimato (€)" value={baseCpl} onChange={setBaseCpl} />
             </div>
             <div className="mt-4 pt-4 border-t border-white/5">
-               <h4 className="text-[10px] uppercase text-gray-500 mb-3 font-semibold">Tassi di Conversione (%)</h4>
+               <h4 className="text-[10px] uppercase text-gray-400 mb-3 font-bold">I Tuoi Tassi di Conversione (%)</h4>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <FieldInput label="Lead ➔ Appuntamento Preso" value={baseLeadToAppt} onChange={setBaseLeadToAppt} />
-                 <FieldInput label="Appuntamento ➔ Show-Up" value={baseApptToShowup} onChange={setBaseApptToShowup} />
-                 <FieldInput label="Show-Up ➔ Vendita Chiusa" value={baseShowupToSale} onChange={setBaseShowupToSale} />
+                 <FieldInput label="Lead ➔ Appuntamento" value={baseLeadToAppt} onChange={setBaseLeadToAppt} />
+                 <FieldInput label="Appt ➔ Show-Up" value={baseApptToShowup} onChange={setBaseApptToShowup} />
+                 <FieldInput label="Show-Up ➔ Vendita" value={baseShowupToSale} onChange={setBaseShowupToSale} />
                </div>
             </div>
           </div>
@@ -352,24 +352,32 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
                <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
-               <h3 className="text-sm font-bold text-white">Financial Targets (Auto-Generated)</h3>
+               <h3 className="text-sm font-bold text-white">🧮 PROIEZIONI AUTOMATICHE (Calcolate)</h3>
             </div>
+            {expectedCac > baseCacTarget && (
+              <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
+                 <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                 <p className="text-[11px] text-amber-400/90 leading-relaxed">
+                   <strong>Attenzione:</strong> Con questi tassi e questo CPL, la proiezione rivela un CAC reale di €{expectedCac}, superiore al tuo target di €{baseCacTarget}. Lo sciame cercherà di abbattere questo costo tramite l'auto-learning.
+                 </p>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4 mb-4">
                <ReadOnlyField label="Budget Mensile" value={`€ ${budgetMensile.toLocaleString('it-IT')}`} />
                <ReadOnlyField label="Budget Settimanale" value={`€ ${weeklyBudget.toLocaleString('it-IT')}`} />
-               <ReadOnlyField label="Cac Reale (Stimato)" value={`€ ${expectedCac.toLocaleString('it-IT')}`} />
+               <ReadOnlyField label="Cac Reale (Proiezione)" value={`€ ${expectedCac.toLocaleString('it-IT')}`} color={expectedCac > baseCacTarget ? '#f59e0b' : 'white'} />
                <ReadOnlyField label="ROAS Stimato" value={`${targetRoas}x`} />
             </div>
             
             <div className="flex items-center gap-2 mb-4 pt-4 border-t border-white/5">
               <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
-              <h3 className="text-sm font-bold text-white">Volume Targets (Weekly)</h3>
+              <h3 className="text-sm font-bold text-white">Volume Targets (Obiettivi Settimanali)</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
-               <ReadOnlyField label="Lead da Generare" value={weeklyLeads.toLocaleString('it-IT')} />
-               <ReadOnlyField label="Appuntamenti Fissati" value={weeklyAppts.toLocaleString('it-IT')} />
-               <ReadOnlyField label="Appuntamenti (Show-up)" value={weeklyShowups.toLocaleString('it-IT')} />
-               <ReadOnlyField label="Vendite Chiuse" value={weeklySales.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Lead da Generare (A set.)" value={weeklyLeads.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Appuntamenti Fissati (A Set.)" value={weeklyAppts.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Apt (Show-up) (A Set.)" value={weeklyShowups.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Vendite Chiuse (A Set.)" value={weeklySales.toLocaleString('it-IT')} />
             </div>
           </div>
 
@@ -487,16 +495,17 @@ function FieldInput({ label, value, onChange, step }: {
   )
 }
 
-function ReadOnlyField({ label, value }: { label: string; value: string | number }) {
+function ReadOnlyField({ label, value, color }: { label: string; value: string | number; color?: string }) {
   return (
     <div>
       <label className="text-[10px] uppercase tracking-wider font-semibold block mb-1.5" style={{ color: 'var(--color-surface-500)' }}>
         {label}
       </label>
-      <div className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-white outline-none"
+      <div className="w-full px-3 py-2.5 rounded-lg text-sm font-bold outline-none"
         style={{
           background: 'var(--color-surface-100)',
           border: '1px solid var(--color-surface-300)',
+          color: color || 'white',
         }}>
         {value}
       </div>
