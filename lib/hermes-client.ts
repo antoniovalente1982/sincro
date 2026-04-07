@@ -10,6 +10,7 @@ export interface HermesPayload {
   context?: Record<string, any>;
   session_id?: string;
   agent_role?: 'orchestrator' | 'media-buyer' | 'crm-triage' | 'copywriter';
+  model?: string; // LLM model ID from OpenRouter (e.g. 'xiaomi/mimo-v2-pro')
 }
 
 export class HermesClient {
@@ -38,7 +39,7 @@ export class HermesClient {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: "hermes-agent",
+          model: payload.model || "hermes-agent",
           messages: [
             { 
               role: "system", 

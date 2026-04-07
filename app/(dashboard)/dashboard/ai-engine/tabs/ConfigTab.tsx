@@ -16,20 +16,37 @@ interface Props {
 export default function ConfigTab({ data, orgId, onSaved }: Props) {
   const { objectives, execution_mode, autopilot_active, llm_model } = data
 
-  // Form state
-  const [mode, setMode] = useState(execution_mode || 'dry_run')
-  const [selectedModel, setSelectedModel] = useState(llm_model || 'xiaomi/mimo-v2-pro')
-  const [autopilot, setAutopilot] = useState(autopilot_active || false)
-  const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget || 500)
-  const [targetCac, setTargetCac] = useState(objectives?.target_cac || 500)
-  const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl || 20)
-  const [targetRoas, setTargetRoas] = useState(objectives?.target_roas || 3)
-  const [weeklyLeads, setWeeklyLeads] = useState(objectives?.weekly_leads_target || 20)
-  const [weeklyAppts, setWeeklyAppts] = useState(objectives?.weekly_appts_target || 8)
-  const [weeklyShowups, setWeeklyShowups] = useState(objectives?.weekly_showups_target || 5)
-  const [weeklySales, setWeeklySales] = useState(objectives?.weekly_sales_target || 2)
+  // Form state — use ?? to preserve falsy values (false, 0) from server
+  const [mode, setMode] = useState(execution_mode ?? 'dry_run')
+  const [selectedModel, setSelectedModel] = useState(llm_model ?? 'xiaomi/mimo-v2-pro')
+  const [autopilot, setAutopilot] = useState(autopilot_active ?? false)
+  const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget ?? 500)
+  const [targetCac, setTargetCac] = useState(objectives?.target_cac ?? 500)
+  const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl ?? 20)
+  const [targetRoas, setTargetRoas] = useState(objectives?.target_roas ?? 3)
+  const [weeklyLeads, setWeeklyLeads] = useState(objectives?.weekly_leads_target ?? 20)
+  const [weeklyAppts, setWeeklyAppts] = useState(objectives?.weekly_appointments_target ?? objectives?.weekly_appts_target ?? 8)
+  const [weeklyShowups, setWeeklyShowups] = useState(objectives?.weekly_showup_target ?? objectives?.weekly_showups_target ?? 5)
+  const [weeklySales, setWeeklySales] = useState(objectives?.weekly_sales_target ?? 2)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [cronRunning, setCronRunning] = useState<string | null>(null)
+
+  // Sync form state when server data changes (e.g. after save + re-fetch)
+  useEffect(() => {
+    setMode(execution_mode ?? 'dry_run')
+    setSelectedModel(llm_model ?? 'xiaomi/mimo-v2-pro')
+    setAutopilot(autopilot_active ?? false)
+    setWeeklyBudget(objectives?.weekly_spend_budget ?? 500)
+    setTargetCac(objectives?.target_cac ?? 500)
+    setTargetCpl(objectives?.target_cpl ?? 20)
+    setTargetRoas(objectives?.target_roas ?? 3)
+    setWeeklyLeads(objectives?.weekly_leads_target ?? 20)
+    setWeeklyAppts(objectives?.weekly_appointments_target ?? objectives?.weekly_appts_target ?? 8)
+    setWeeklyShowups(objectives?.weekly_showup_target ?? objectives?.weekly_showups_target ?? 5)
+    setWeeklySales(objectives?.weekly_sales_target ?? 2)
+  }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Hermes Connection Status & Logs
   const [hermesStatus, setHermesStatus] = useState<'checking' | 'online' | 'offline'>('checking')
@@ -74,8 +91,10 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
 
   const handleSave = async () => {
     setSaving(true)
+    setSaveError(null)
+    setSaved(false)
     try {
-      await fetch('/api/mission-control', {
+      const res = await fetch('/api/mission-control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -90,26 +109,42 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
             target_cpl: targetCpl,
             target_roas: targetRoas,
             weekly_leads_target: weeklyLeads,
-            weekly_appts_target: weeklyAppts,
-            weekly_showups_target: weeklyShowups,
+            weekly_appointments_target: weeklyAppts,
+            weekly_showup_target: weeklyShowups,
             weekly_sales_target: weeklySales,
           },
         }),
       })
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: 'Errore sconosciuto' }))
+        throw new Error(errData.error || `HTTP ${res.status}`)
+      }
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
       onSaved()
-    } catch { }
+    } catch (err: any) {
+      console.error('Save failed:', err)
+      setSaveError(err.message || 'Errore nel salvataggio')
+      setTimeout(() => setSaveError(null), 5000)
+    }
     setSaving(false)
   }
 
   const handleForceCron = async (cron: string) => {
     setCronRunning(cron)
     try {
-      await fetch('/api/mission-control', {
+      const res = await fetch('/api/mission-control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orgId, force_cron: cron }),
+        body: JSON.stringify({ action: 'force_cron', org_id: orgId, cron_name: cron }),
       })
-    } catch { }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        console.error(`Cron ${cron} failed:`, errData)
+      }
+    } catch (err) {
+      console.error(`Cron ${cron} error:`, err)
+    }
     setCronRunning(null)
   }
 
@@ -285,11 +320,11 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <button onClick={handleSave} disabled={saving}
             className="w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60"
             style={{
-              background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-              boxShadow: '0 4px 20px rgba(168,85,247,0.3)',
+              background: saved ? 'linear-gradient(135deg, #22c55e, #16a34a)' : saveError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #a855f7, #6366f1)',
+              boxShadow: saved ? '0 4px 20px rgba(34,197,94,0.3)' : saveError ? '0 4px 20px rgba(239,68,68,0.3)' : '0 4px 20px rgba(168,85,247,0.3)',
             }}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? 'Salvando...' : 'Salva Configurazione'}
+            {saving ? 'Salvando...' : saved ? '✅ Salvato!' : saveError ? `❌ ${saveError}` : '💾 Salva Configurazione'}
           </button>
         </div>
       </div>
@@ -349,16 +384,42 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
 function FieldInput({ label, value, onChange, step }: {
   label: string; value: number; onChange: (v: number) => void; step?: number
 }) {
+  const [displayValue, setDisplayValue] = useState(String(value))
+  
+  // Sync display when external value changes
+  useEffect(() => {
+    setDisplayValue(String(value))
+  }, [value])
+
   return (
     <div>
       <label className="text-[10px] uppercase tracking-wider font-semibold block mb-1.5" style={{ color: 'var(--color-surface-500)' }}>
         {label}
       </label>
       <input
-        type="number"
-        value={value}
-        step={step || 1}
-        onChange={e => onChange(Number(e.target.value))}
+        type="text"
+        inputMode="decimal"
+        value={displayValue}
+        onFocus={e => e.target.select()}
+        onChange={e => {
+          const raw = e.target.value
+          // Allow empty, digits, and decimal point only
+          if (raw === '' || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+            setDisplayValue(raw)
+            const num = parseFloat(raw)
+            if (!isNaN(num)) onChange(num)
+          }
+        }}
+        onBlur={() => {
+          // On blur, ensure we have a valid number displayed
+          const num = parseFloat(displayValue)
+          if (isNaN(num) || displayValue === '') {
+            setDisplayValue('0')
+            onChange(0)
+          } else {
+            setDisplayValue(String(num)) // Remove trailing dots etc.
+          }
+        }}
         className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-white bg-transparent outline-none transition-all focus:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
         style={{
           background: 'var(--color-surface-100)',

@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
             objectives,
             execution_mode: agentConfig.execution_mode || 'dry_run',
             autopilot_active: agentConfig.autopilot_active || false,
-            llm_model: agentConfig.llm_model || 'google/gemini-2.5-flash',
+            llm_model: agentConfig.llm_model || 'xiaomi/mimo-v2-pro',
             weekly_totals: weeklyTotals,
             progress,
             kpi,
@@ -121,18 +121,35 @@ export async function POST(req: NextRequest) {
                 }, { onConflict: 'organization_id' })
             }
 
-            // Update in ai_agent_config
-            if (execution_mode || autopilot_active !== undefined || llm_model) {
-                const updatePayload: any = {}
-                if (execution_mode) updatePayload.execution_mode = execution_mode
+            // Update in ai_agent_config (safe: only update specified fields, don't reset others)
+            if (execution_mode !== undefined || autopilot_active !== undefined || llm_model) {
+                const updatePayload: any = { updated_at: new Date().toISOString() }
+                if (execution_mode !== undefined) updatePayload.execution_mode = execution_mode
                 if (autopilot_active !== undefined) updatePayload.autopilot_active = autopilot_active
                 if (llm_model) updatePayload.llm_model = llm_model
-                
-                await supabase.from('ai_agent_config').upsert({
-                    organization_id: org_id,
-                    ...updatePayload,
-                    updated_at: new Date().toISOString(),
-                }, { onConflict: 'organization_id' })
+
+                // Check if record exists first
+                const { data: existing } = await supabase
+                    .from('ai_agent_config')
+                    .select('organization_id')
+                    .eq('organization_id', org_id)
+                    .single()
+
+                if (existing) {
+                    // UPDATE only the fields we want to change
+                    await supabase.from('ai_agent_config')
+                        .update(updatePayload)
+                        .eq('organization_id', org_id)
+                } else {
+                    // INSERT new record with all fields
+                    await supabase.from('ai_agent_config').insert({
+                        organization_id: org_id,
+                        execution_mode: execution_mode || 'dry_run',
+                        autopilot_active: autopilot_active ?? false,
+                        llm_model: llm_model || 'xiaomi/mimo-v2-pro',
+                        updated_at: new Date().toISOString(),
+                    })
+                }
             }
 
             return NextResponse.json({ ok: true, message: 'Obiettivi e Modalità aggiornati' })
@@ -219,11 +236,15 @@ Scrivi un brief strategico settimanale in italiano (max 200 parole) che:
 3. Suggerisca come distribuire il budget tra gli angoli
 Usa un tono diretto e pratico, non generico.`
 
+            // Use org's configured LLM model
+            const { data: agentConf } = await supabase.from('ai_agent_config').select('llm_model').eq('organization_id', org_id).single()
+            const llmModel = agentConf?.llm_model || 'xiaomi/mimo-v2-pro'
+
             const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
                 body: JSON.stringify({
-                    model: 'google/gemini-2.5-flash',
+                    model: llmModel,
                     messages: [{ role: 'user', content: prompt }],
                     temperature: 0.4,
                 }),

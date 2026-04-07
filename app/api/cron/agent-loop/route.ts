@@ -12,7 +12,7 @@ import { hermesClient } from '@/lib/hermes-client'
 // 🧠 AGENT LOOP UNIFICATO v2 — Runs every 4h via Vercel Cron
 //
 // 5-Phase Architecture:
-//  1. OBSERVE    — Real Meta tri-window + CRM + NorthStar Δ
+//  1. OBSERVE    — Real Meta quad-window (today, 3d, 7d, lifetime) + CRM + NorthStar Δ
 //  2. REASON     — Deterministic scoring + LLM hypothesis
 //  3. EXECUTE    — Kill underperformers + Scale winners
 //  4. MEASURE    — Evaluate pending experiments with real data
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
             const orgId = config.organization_id
             const isLive = config.execution_mode === 'live'
             const objectives = config.objectives || {}
-            const llmModel = config.llm_model || 'google/gemini-2.5-flash'
+            const llmModel = config.llm_model || 'xiaomi/mimo-v2-pro'
             const targetCPL: number = objectives.target_cpl || 20
             const targetCAC: number = objectives.target_cac || 500
             const killMultiplier: number = objectives.kill_multiplier || 3.0
@@ -151,7 +151,8 @@ export async function GET(req: NextRequest) {
                 return `${base}&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`
             }
 
-            const [res3d, res7d, resLt, adsRes] = await Promise.all([
+            const [resToday, res3d, res7d, resLt, adsRes] = await Promise.all([
+                fetch(buildUrl(today, today)),
                 fetch(buildUrl(threeDaysAgo, today)),
                 fetch(buildUrl(sevenDaysAgo, today)),
                 fetch(buildUrl('', '', 'maximum')),
@@ -163,7 +164,8 @@ export async function GET(req: NextRequest) {
                 continue
             }
 
-            const [data3d, data7d, dataLt, adsData] = await Promise.all([
+            const [dataToday, data3d, data7d, dataLt, adsData] = await Promise.all([
+                resToday.ok ? resToday.json() : { data: [] },
                 res3d.ok ? res3d.json() : { data: [] },
                 res7d.json(),
                 resLt.ok ? resLt.json() : { data: [] },
@@ -172,6 +174,18 @@ export async function GET(req: NextRequest) {
 
             const activeAdIds = new Set<string>(
                 (adsData.data || []).filter((a: any) => a.effective_status === 'ACTIVE').map((a: any) => a.id)
+            )
+
+            // Build campaign → active ads count mapping
+            // A campaign with 0 active ads is effectively INACTIVE even if Meta says it's "ACTIVE"
+            const activeAdsByCampaign: Record<string, number> = {}
+            for (const ad of (adsData.data || [])) {
+                if (ad.effective_status === 'ACTIVE' && ad.campaign_id) {
+                    activeAdsByCampaign[ad.campaign_id] = (activeAdsByCampaign[ad.campaign_id] || 0) + 1
+                }
+            }
+            const effectivelyActiveCampaigns = new Set<string>(
+                Object.entries(activeAdsByCampaign).filter(([_, count]) => count > 0).map(([cId]) => cId)
             )
 
             // Parse insights
@@ -183,13 +197,15 @@ export async function GET(req: NextRequest) {
                     adset_name: i.adset_name || '', campaign_id: i.campaign_id,
                     campaign_name: i.campaign_name || '',
                     status: activeAdIds.has(i.ad_id) ? 'ACTIVE' : 'INACTIVE',
+                    campaign_effectively_active: effectivelyActiveCampaigns.has(i.campaign_id),
                     spend: parseFloat(i.spend || '0'), impressions: parseInt(i.impressions || '0'),
                     clicks: parseInt(i.clicks || '0'), ctr: parseFloat(i.ctr || '0'),
                     frequency: parseFloat(i.frequency || '0'), leads_count: leads, cpl,
-                    angle: detectAngle(i.ad_name || '', i.adset_name || ''),
+                    angle: detectAngle(i.ad_name || ''),
                 }
             }).filter((a: any) => a.status === 'ACTIVE' || a.spend > 0)
 
+            const adsToday = parseAds(dataToday.data || [])
             const ads3d = parseAds(data3d.data || [])
             const ads7d = parseAds(data7d.data || [])
             const adsLt = parseAds(dataLt.data || [])
@@ -202,11 +218,13 @@ export async function GET(req: NextRequest) {
             // Build lookup maps
             const ads3dMap: Record<string, any> = {}
             for (const a of ads3d) ads3dMap[a.ad_id] = a
+            const adsTodayMap: Record<string, any> = {}
+            for (const a of adsToday) adsTodayMap[a.ad_id] = a
             const adsLtMap: Record<string, any> = {}
             for (const a of adsLt) adsLtMap[a.ad_id] = a
 
-            // Campaign budgets
-            const campaignIds = [...new Set(ads7d.map(a => a.campaign_id))]
+            // Campaign budgets — only fetch for effectively active campaigns
+            const campaignIds = [...new Set(ads7d.map(a => a.campaign_id))].filter(cId => effectivelyActiveCampaigns.has(cId))
             const campaignBudgets: Record<string, number> = {}
             await Promise.all(campaignIds.map(async (cId) => {
                 try {
@@ -243,7 +261,9 @@ export async function GET(req: NextRequest) {
 
             const mission = missionObj || { target_cpl: targetCPL, target_cac: targetCAC, target_lead_to_appt_rate: 0.40, optimize_for: 'cac' }
 
-            log.push(`[OBSERVE] ${ads7d.length} ads, €${weeklyTotals.spend.toFixed(2)} spend, ${weeklyTotals.leads} leads, ${weeklyTotals.sales} sales`)
+            const activeAdsCount = ads7d.filter(a => a.status === 'ACTIVE').length
+            log.push(`[OBSERVE] ${ads7d.length} ads (${activeAdsCount} active), ${effectivelyActiveCampaigns.size} active campaigns, €${weeklyTotals.spend.toFixed(2)} spend (7d), ${weeklyTotals.leads} leads, ${weeklyTotals.sales} sales`)
+            log.push(`[OBSERVE] Today: ${adsToday.length} ads with data, 3d: ${ads3d.length}, Lifetime: ${adsLt.length}`)
             if (nsDelta) log.push(`[OBSERVE] NorthStar: ${nsDelta.summary}`)
 
             // ══════════════════════════════════════════════════════════
@@ -302,10 +322,13 @@ export async function GET(req: NextRequest) {
                 if (killResults.length >= MAX_KILLS_PER_RUN) break
 
                 const ad3d = ads3dMap[ad7d.ad_id]
+                const adToday = adsTodayMap[ad7d.ad_id]
                 const killThreshold = targetCPL * killMultiplier
                 // Kill trigger: spent > threshold AND 0 leads in 7d
                 if (ad7d.spend <= killThreshold || ad7d.leads_count > 0) continue
 
+                // Protection: has leads TODAY — don't kill active performers
+                if ((adToday?.leads_count || 0) >= 1) continue
                 // Protection: recent signal (3d leads)
                 if ((ad3d?.leads_count || 0) >= 1) continue
                 // Protection: CPL in range
@@ -425,8 +448,8 @@ export async function GET(req: NextRequest) {
 // HELPER FUNCTIONS (migrated from ai-engine v3)
 // ═══════════════════════════════════════════════════════════════
 
-function detectAngle(adName: string, adsetName?: string): string {
-    const text = `${adName} ${adsetName || ''}`.toLowerCase()
+function detectAngle(adName: string): string {
+    const text = adName.toLowerCase()
     
     // Lista completa delle trigger keywords ufficiali (dal database Funnel Routing Engine)
     const validAngles = [
@@ -482,11 +505,11 @@ async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30)
             const rawCampaign = (lead.utm_campaign || '').toLowerCase()
             
             // Il routing angle reale è tracciato principalmente in utm_content (ad.name) o utm_term (adset.name)
-            let angle = detectAngle(rawContent, rawTerm)
+            let angle = detectAngle(rawContent)
             
             // Fallback sulla campagna se non trova nulla di meglio
             if (angle === 'generic') {
-                angle = detectAngle(rawCampaign, '') || 'generic'
+                angle = detectAngle(rawCampaign) || 'generic'
             }
 
             if (!byAngle[angle]) byAngle[angle] = { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
@@ -581,7 +604,8 @@ async function generateHypothesis(scores: Record<string, any>, metrics: Record<s
                 targetCAC,
                 report
             },
-            agent_role: "orchestrator" as const
+            agent_role: "orchestrator" as const,
+            model: model,
         }
 
         const res = await hermesClient.dispatchTask(payload)

@@ -77,19 +77,19 @@ app.post('/v1/chat/completions', async (req, res) => {
     // In our shell script we created promts/ in root, but here we can just use the provided system messages
     
     try {
-        console.log(`[System] Routing reasoning to OpenRouter (google/gemini-2.5-pro)...`);
+        const targetModel = model || 'xiaomi/mimo-v2-pro';
+        console.log(`[System] Routing reasoning to OpenRouter (${targetModel})...`);
         
-        // We use gemini-2.5-pro as the "MiMo-V2-Pro" backend
         const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://adpilotik.com', // Optional
-                'X-Title': 'Sincro Hermes VPS' // Optional
+                'HTTP-Referer': 'https://adpilotik.com',
+                'X-Title': 'Sincro Hermes VPS'
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.5-pro',
+                model: targetModel,
                 messages: messages,
             })
         });
