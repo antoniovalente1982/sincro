@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = 8642;
+const PORT = 8643;
 const AUTH_KEY = process.env.HERMES_API_KEY || 'AdPilotikHermesSecure2026!';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
