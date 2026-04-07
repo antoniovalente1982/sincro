@@ -13,6 +13,7 @@ import ActivityTab from './tabs/ActivityTab'
 import CreativesTab from './tabs/CreativesTab'
 import ConfigTab from './tabs/ConfigTab'
 import KnowledgeTab from './tabs/KnowledgeTab'
+import SwarmTab from './tabs/SwarmTab'
 
 interface MissionData {
   objectives: any
@@ -41,6 +42,7 @@ const TABS = [
   { id: 'activity', label: 'Activity Log', icon: Activity, shortLabel: 'Activity' },
   { id: 'creatives', label: 'Creativi', icon: Palette, shortLabel: 'Creativi' },
   { id: 'knowledge', label: 'Knowledge', icon: Brain, shortLabel: 'Knowledge' },
+  { id: 'swarm', label: 'Team Swarm', icon: Users, shortLabel: 'Swarm' },
   { id: 'config', label: 'Configurazione', icon: Settings2, shortLabel: 'Config' },
 ] as const
 
@@ -182,6 +184,7 @@ export default function CommandCenter() {
         {activeTab === 'activity' && <ActivityTab orgId={orgId!} />}
         {activeTab === 'creatives' && <CreativesTab orgId={orgId!} />}
         {activeTab === 'knowledge' && <KnowledgeTab orgId={orgId!} />}
+        {activeTab === 'swarm' && <SwarmTab orgId={orgId!} />}
         {activeTab === 'config' && <ConfigTab data={data} orgId={orgId!} onSaved={fetchData} />}
       </div>
     </div>
