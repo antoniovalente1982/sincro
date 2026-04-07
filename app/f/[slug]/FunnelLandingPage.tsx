@@ -67,25 +67,26 @@ export default function FunnelLandingPage({ funnel }: Props) {
 
     const [dynamicHeadline, setDynamicHeadline] = useState<string | null>(null)
 
-    // Phase 3.4: Dynamic Funnel Headlines
+    // Phase 2: Data-Driven Funnel Headlines (CRO Optimizer)
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search)
             const angle = params.get('utm_term') || params.get('utm_content')
-            if (angle) {
+            const routingRules = funnel.settings?.dynamic_routing_rules || [];
+            
+            if (angle && routingRules.length > 0) {
                 const lowerAngle = angle.toLowerCase()
-                if (lowerAngle.includes('status')) {
-                    setDynamicHeadline('Dominare in Campo: Il Sistema per Riconquistare il Posto da Titolare')
-                } else if (lowerAngle.includes('emotional') || lowerAngle.includes('emotivo')) {
-                    setDynamicHeadline('Aiuta Tuo Figlio a Ritrovare il Sorriso e la Serenità Pre-Gara')
-                } else if (lowerAngle.includes('efficiency') || lowerAngle.includes('tempo')) {
-                    setDynamicHeadline('Smetti di Inseguire i Sintomi: Risolvi il Problema alla Radice nel Minor Tempo Possibile')
-                } else if (lowerAngle.includes('metodo') || lowerAngle.includes('system')) {
-                    setDynamicHeadline('Scopri l\'Unico Protocollo Scientifico per la Gestione dell\'Ansia nel Calcio Giovanile')
+                // Find matching rule
+                const matchedRule = routingRules.find((rule: any) => 
+                    lowerAngle.includes(rule.keyword.toLowerCase())
+                );
+                
+                if (matchedRule) {
+                    setDynamicHeadline(matchedRule.headline)
                 }
             }
         }
-    }, [])
+    }, [funnel.settings])
 
     const orgName = funnel.organizations?.name || 'ADPILOTIK'
     const settings = funnel.settings || {}

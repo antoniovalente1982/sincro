@@ -4,7 +4,8 @@ export type AgentActionType =
   | "reduce_budget" 
   | "kill_ad" 
   | "launch_creative" 
-  | "reallocate_budget";
+  | "reallocate_budget"
+  | "update_funnel_routing";
 
 export interface AgentDecision {
   action_type: AgentActionType;
@@ -24,11 +25,11 @@ export function getAgentActionSchema() {
       action_type: {
         type: "string",
         description: "L'azione operativa da compiere su Meta Ads o sul Sistema.",
-        enum: ["hold", "scale_budget", "reduce_budget", "kill_ad", "launch_creative", "reallocate_budget"]
+        enum: ["hold", "scale_budget", "reduce_budget", "kill_ad", "launch_creative", "reallocate_budget", "update_funnel_routing"]
       },
       action_details: {
         type: "object",
-        description: "I parametri specifici dell'azione. Esempio: { 'target_adset_id': '12345', 'increase_percentage': 15 } oppure { 'ad_id': '9876' }."
+        description: "I parametri specifici dell'azione. Esempio: { 'target_adset_id': '12345', 'increase_percentage': 15 } oppure { 'funnel_id': '123', 'dynamic_routing_rules': [{ 'keyword': 'emotional', 'headline': 'Nuovo Titolo Magico' }] }."
       },
       hypothesis: {
         type: "string",
@@ -71,6 +72,9 @@ HAI ACCESSO ALLE SEGUENTI CAPACITÀ OPERATIVE (action_type):
 
 6. "reallocate_budget": 
    Sposta fondi da una campagna perdente a una vincente mantenendo inalterata la spesa complessiva giornaliera.
+
+7. "update_funnel_routing":
+   Migliora la Landing Page per A/B testare un nuovo angolo o cambiare l'headline dinamicamente in base alle keyword UTM (Skill del CRO Optimizer). Usa action_details: { 'funnel_id', 'dynamic_routing_rules': [{ 'keyword', 'headline' }] }.
 
 IMPORTANTE SUI KNOWLEDGE IDs:
 Quando scegli un'azione, DEVI indicare \`related_knowledge_ids\`. Ad esempio, se spegni un'ad perché "L'angolo Status performa male nei feriali", e trovi questa regola nell'elenco Knowledge fornito (con ID: 123-abc-456), DEVI inserire "123-abc-456" nell'array \`related_knowledge_ids\`. Questo ci permette di auto-verificare le nostre stesse regole.
