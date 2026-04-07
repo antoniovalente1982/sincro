@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes - North Star Objectives</title>
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-surface: #f4f4f5;
+            --bg-input: #ffffff;
+            --text-main: #18181b;
+            --text-muted: #71717a;
+            --border-color: #e4e4e7;
+            --green: #22c55e;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --accent: #3b82f6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: transparent;
+                --bg-surface: #18181b;
+                --bg-input: #27272a;
+                --text-main: #f4f4f5;
+                --text-muted: #a1a1aa;
+                --border-color: #3f3f46;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .card-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .c-green { color: var(--green); }
+        .c-orange { color: var(--orange); }
+        .c-red { color: var(--red); }
+
+        .bg-green { background: rgba(34, 197, 94, 0.2); color: var(--green); }
+        .bg-orange { background: rgba(245, 158, 11, 0.2); color: var(--orange); }
+        .bg-red { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+        .bar-container {
+            background: var(--border-color);
+            border-radius: 4px;
+            height: 24px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: var(--accent);
+            height: 100%;
+            transform-origin: left;
+            transition: width 0.3s ease;
+        }
+
+        .bar-label {
+            position: absolute;
+            top: 0;
+            left: 8px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .bar-val {
+            position: absolute;
+            top: 0;
+            right: 8px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hermes - North Star Objectives Calculator</h1>
+    
+    <!-- Blocco 1: Input -->
+    <div class="section grid-2">
+        <div class="card">
+            <h2>Obiettivo Mensile Base</h2>
+            
+            <label>Fatturato Obiettivo (€)</label>
+            <input type="number" id="inpFatturato" value="50000" oninput="calculate()">
+
+            <label>Prezzo Medio Servizio (€)</label>
+            <input type="number" id="inpPrezzo" value="2250" oninput="calculate()">
+
+            <div class="flex-between"><label>Tasso Chiusura Sales (%)</label><span id="valChiusura">20%</span></div>
+            <input type="range" id="inpChiusura" min="5" max="80" value="20" oninput="updateRangeVals()">
+
+            <div class="flex-between"><label>Conv. Setter &rarr; Appuntamento (%)</label><span id="valSetter">15%</span></div>
+            <input type="range" id="inpSetter" min="2" max="40" value="15" oninput="updateRangeVals()">
+
+            <div class="flex-between"><label>Conv. Lead &rarr; Chiamata Setter (%)</label><span id="valLead">40%</span></div>
+            <input type="range" id="inpLead" min="5" max="80" value="40" oninput="updateRangeVals()">
+
+            <div class="flex-between"><label>Giorni Lavorativi Mese</label><span id="valGiorni">22</span></div>
+            <input type="range" id="inpGiorni" min="15" max="26" value="22" oninput="updateRangeVals()">
+
+            <div class="flex-between"><label>Durata Percorso Cliente (Mesi)</label><span id="valMesi">3</span></div>
+            <input type="range" id="inpMesi" min="1" max="12" value="3" oninput="updateRangeVals()">
+        </div>
+
+        <div class="card">
+            <h2>ADS & Costi Target</h2>
+            <label>CAC Obiettivo (Budget allocato per 1 cliente, €)</label>
+            <input type="number" id="inpCacTarget" value="300" oninput="calculate()">
+
+            <label>CPL Medio Stimato (Costo per Lead, €)</label>
+            <input type="number" id="inpCpl" value="15" oninput="calculate()">
+
+            <!-- Blocco 7: Alert CAC -->
+            <div id="cacAlertBox" class="card" style="margin-top: 24px; border-left: 4px solid var(--green);">
+                <h3 id="cacAlertTitle" style="margin-bottom: 4px;">Stato Marginalità</h3>
+                <p id="cacAlertMsg" style="margin:0; font-size: 0.875rem;" class="text-muted">Rispetto ok.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocco 2: KPI Mensili -->
+    <div class="section grid-4">
+        <div class="card card-metric">
+            <span class="metric-title">Lead Necessari</span>
+            <span class="metric-value" id="kpiLead">0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">Chiamate Setter</span>
+            <span class="metric-value" id="kpiChiamate">0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">Appuntamenti</span>
+            <span class="metric-value" id="kpiAppt">0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">Clienti Chiusi</span>
+            <span class="metric-value" id="kpiClienti">0</span>
+        </div>
+    </div>
+
+    <!-- Blocco 3: Budget e CAC -->
+    <div class="section grid-4">
+        <div class="card card-metric">
+            <span class="metric-title">Budget Mensile ADS</span>
+            <span class="metric-value" id="kpiBudgetMensile">€0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">Budget Settimanale</span>
+            <span class="metric-value" id="kpiBudgetSet">€0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">CAC Reale (Stimato)</span>
+            <span class="metric-value" id="kpiCacReale">€0</span>
+        </div>
+        <div class="card card-metric">
+            <span class="metric-title">ROAS Stimato</span>
+            <span class="metric-value" id="kpiRoas">0x</span>
+        </div>
+    </div>
+
+    <!-- Blocco 4: Team -->
+    <h2>Capacità Team Necessaria</h2>
+    <div class="section grid-3">
+        <div class="card card-metric">
+            <div class="flex-between">
+                <span class="metric-title">Setter</span>
+                <span id="badgeSetter" class="badge">Ok</span>
+            </div>
+            <span class="metric-value" id="teamSetter">0</span>
+            <span style="font-size:0.75rem; color:var(--text-muted)">Carico: <span id="loadSetter">0</span>%</span>
+        </div>
+        <div class="card card-metric">
+            <div class="flex-between">
+                <span class="metric-title">Sales</span>
+                <span id="badgeSales" class="badge">Ok</span>
+            </div>
+            <span class="metric-value" id="teamSales">0</span>
+            <span style="font-size:0.75rem; color:var(--text-muted)">Carico: <span id="loadSales">0</span>%</span>
+        </div>
+        <div class="card card-metric">
+            <div class="flex-between">
+                <span class="metric-title">Coach (Ass. Attiva)</span>
+                <span id="badgeCoach" class="badge">Ok</span>
+            </div>
+            <span class="metric-value" id="teamCoach">0</span>
+            <span style="font-size:0.75rem; color:var(--text-muted)">Carico: <span id="loadCoach">0</span>%</span>
+        </div>
+    </div>
+
+    <!-- Blocco 6: Funnel Visivo -->
+    <h2>Visualizzazione Funnel Mensile</h2>
+    <div class="section card">
+        <div class="bar-container"><div id="barLead" class="bar-fill"></div><div class="bar-label">Lead da generare</div><div id="barValLead" class="bar-val">0</div></div>
+        <div class="bar-container"><div id="barChiamate" class="bar-fill"></div><div class="bar-label">Chiamate Setter</div><div id="barValChiamate" class="bar-val">0</div></div>
+        <div class="bar-container"><div id="barAppt" class="bar-fill"></div><div class="bar-label">Appuntamenti Sales</div><div id="barValArrt" class="bar-val">0</div></div>
+        <div class="bar-container"><div id="barClienti" class="bar-fill"></div><div class="bar-label">Contratti Chiusi</div><div id="barValClienti" class="bar-val">0</div></div>
+        <div class="bar-container"><div id="barCoach" class="bar-fill"></div><div class="bar-label">Clienti in Coaching Attivo</div><div id="barValCoach" class="bar-val">0</div></div>
+    </div>
+
+    <!-- Blocco 5: Tabella Scomposizione Settimanale -->
+    <h2>Piano Operativo Settimanale (Distribuzione Direttive CEO)</h2>
+    <div class="section card" style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sett.</th>
+                    <th>Target €</th>
+                    <th>Cumulato €</th>
+                    <th>Clienti</th>
+                    <th>App.ti</th>
+                    <th>Chiamate</th>
+                    <th>Lead</th>
+                    <th>Budget ADS</th>
+                    <th>Stato</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Generato da JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const fmt = (num) => new Intl.NumberFormat('it-IT').format(num);
+    const fmtEur = (num) => '€ ' + new Intl.NumberFormat('it-IT', { maximumFractionDigits: 0 }).format(num);
+
+    function updateRangeVals() {
+        document.getElementById("valChiusura").innerText = document.getElementById("inpChiusura").value + "%";
+        document.getElementById("valSetter").innerText = document.getElementById("inpSetter").value + "%";
+        document.getElementById("valLead").innerText = document.getElementById("inpLead").value + "%";
+        document.getElementById("valGiorni").innerText = document.getElementById("inpGiorni").value;
+        document.getElementById("valMesi").innerText = document.getElementById("inpMesi").value;
+        calculate();
+    }
+
+    function calculate() {
+        const fatturatoTarget = parseFloat(document.getElementById("inpFatturato").value) || 0;
+        const prezzo = parseFloat(document.getElementById("inpPrezzo").value) || 0;
+        const chiusura = (parseFloat(document.getElementById("inpChiusura").value) || 0) / 100;
+        const setterConv = (parseFloat(document.getElementById("inpSetter").value) || 0) / 100;
+        const leadConv = (parseFloat(document.getElementById("inpLead").value) || 0) / 100;
+        const giorniLav = parseFloat(document.getElementById("inpGiorni").value) || 0;
+        const mesiDurata = parseFloat(document.getElementById("inpMesi").value) || 0;
+        const cacTarget = parseFloat(document.getElementById("inpCacTarget").value) || 0;
+        const cpl = parseFloat(document.getElementById("inpCpl").value) || 0;
+
+        // Funnel
+        const clienti = prezzo > 0 ? Math.ceil(fatturatoTarget / prezzo) : 0;
+        const appt = chiusura > 0 ? Math.ceil(clienti / chiusura) : 0;
+        const chiamate = setterConv > 0 ? Math.ceil(appt / setterConv) : 0;
+        const leads = leadConv > 0 ? Math.ceil(chiamate / leadConv) : 0;
+        const attiviCoaching = clienti * mesiDurata;
+
+        // Budget & CAC
+        const budgetMensile = cacTarget * clienti;
+        const budgetSet = budgetMensile / 4;
+        const cacReale = clienti > 0 ? (cpl * leads) / clienti : 0;
+        const spesaEffettiva = cpl * leads;
+        const roas = spesaEffettiva > 0 ? fatturatoTarget / spesaEffettiva : 0;
+
+        // UI KPI
+        document.getElementById("kpiLead").innerText = fmt(leads);
+        document.getElementById("kpiChiamate").innerText = fmt(chiamate);
+        document.getElementById("kpiAppt").innerText = fmt(appt);
+        document.getElementById("kpiClienti").innerText = fmt(clienti);
+
+        document.getElementById("kpiBudgetMensile").innerText = fmtEur(budgetMensile);
+        document.getElementById("kpiBudgetSet").innerText = fmtEur(budgetSet);
+        document.getElementById("kpiCacReale").innerText = fmtEur(cacReale);
+        document.getElementById("kpiRoas").innerText = roas.toFixed(2) + "x";
+
+        // Team
+        const capChiamateMese = 50 * giorniLav;
+        const setterNec = capChiamateMese > 0 ? Math.ceil(chiamate / capChiamateMese) : 0;
+        const loadSetter = setterNec > 0 ? (chiamate / (setterNec * capChiamateMese)) * 100 : 0;
+
+        const capApptMese = 5 * giorniLav;
+        const salesNec = capApptMese > 0 ? Math.ceil(appt / capApptMese) : 0;
+        const loadSales = salesNec > 0 ? (appt / (salesNec * capApptMese)) * 100 : 0;
+
+        const coachNec = attiviCoaching > 0 ? Math.ceil(attiviCoaching / 30) : 0;
+        const loadCoach = coachNec > 0 ? (attiviCoaching / (coachNec * 30)) * 100 : 0;
+
+        document.getElementById("teamSetter").innerText = setterNec;
+        document.getElementById("loadSetter").innerText = loadSetter.toFixed(0);
+        document.getElementById("teamSales").innerText = salesNec;
+        document.getElementById("loadSales").innerText = loadSales.toFixed(0);
+        document.getElementById("teamCoach").innerText = coachNec;
+        document.getElementById("loadCoach").innerText = loadCoach.toFixed(0);
+
+        const applyBadge = (elemId, load) => {
+            const el = document.getElementById(elemId);
+            el.className = "badge";
+            if(load < 80) { el.classList.add("bg-green"); el.innerText = "Capacità ok"; }
+            else if(load <= 95) { el.classList.add("bg-orange"); el.innerText = "Monitorare"; }
+            else { el.classList.add("bg-red"); el.innerText = "Assumere subito"; }
+        };
+        applyBadge("badgeSetter", loadSetter);
+        applyBadge("badgeSales", loadSales);
+        applyBadge("badgeCoach", loadCoach);
+
+        // Alert CAC
+        const alertBox = document.getElementById("cacAlertBox");
+        const alertTitle = document.getElementById("cacAlertTitle");
+        const alertMsg = document.getElementById("cacAlertMsg");
+        
+        let color = "var(--green)";
+        let t = "Margine Sicuro";
+        let m = "Il CAC reale stimato rientra nel target.";
+
+        if(cacReale > cacTarget) {
+            if(cacReale < prezzo * 0.3) {
+                color = "var(--orange)";
+                t = "CAC Sopra Target";
+                m = "Il CAC è > dell'obiettivo, ma la marginalità lorda è ancora sotto il 30% del prezzo.";
+            } else {
+                color = "var(--red)";
+                t = "Margine a Rischio";
+                m = "CAC eccessivo (>30% del prezzo aziendale). Levare budget o ottimizzare il funnel!";
+            }
+        }
+        alertBox.style.borderLeftColor = color;
+        alertTitle.style.color = color;
+        alertTitle.innerText = t;
+        alertMsg.innerText = m;
+
+        // Funnel Visivo
+        const maxBar = Math.max(leads, attiviCoaching, 1);
+        document.getElementById("barLead").style.width = (leads/maxBar*100) + "%";
+        document.getElementById("barValLead").innerText = fmt(leads);
+        
+        document.getElementById("barChiamate").style.width = (chiamate/maxBar*100) + "%";
+        document.getElementById("barValChiamate").innerText = fmt(chiamate);
+        
+        document.getElementById("barAppt").style.width = (appt/maxBar*100) + "%";
+        document.getElementById("barValArrt").innerText = fmt(appt);
+        
+        document.getElementById("barClienti").style.width = (clienti/maxBar*100) + "%";
+        document.getElementById("barValClienti").innerText = fmt(clienti);
+
+        document.getElementById("barCoach").style.width = (attiviCoaching/maxBar*100) + "%";
+        document.getElementById("barValCoach").innerText = fmt(attiviCoaching);
+
+        // Tabella Settimanale
+        let html = "";
+        for(let w=1; w<=4; w++) {
+            html += `<tr>
+                <td>W${w}</td>
+                <td>${fmtEur(fatturatoTarget/4)}</td>
+                <td>${fmtEur((fatturatoTarget/4)*w)}</td>
+                <td>${fmt(Math.ceil(clienti/4))}</td>
+                <td>${fmt(Math.ceil(appt/4))}</td>
+                <td>${fmt(Math.ceil(chiamate/4))}</td>
+                <td>${fmt(Math.ceil(leads/4))}</td>
+                <td>${fmtEur(budgetSet)}</td>
+                <td><span class="badge bg-green">Target</span></td>
+            </tr>`;
+        }
+        document.getElementById("tableBody").innerHTML = html;
+    }
+
+    // Init
+    updateRangeVals();
+</script>
+
+</body>
+</html>
