@@ -11,6 +11,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
   const [objective, setObjective] = useState('')
   const [targetAgent, setTargetAgent] = useState('CEO')
   const [sending, setSending] = useState(false)
+  const [pulsing, setPulsing] = useState(false)
   
   useEffect(() => {
     if (!orgId) return
@@ -71,6 +72,17 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
       setObjective('')
     }
     setSending(false)
+  }
+
+  const simulatePulse = async () => {
+    setPulsing(true)
+    try {
+      await fetch('/api/ai-engine/pulse')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setPulsing(false)
+    }
   }
 
   return (
@@ -158,9 +170,20 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
                 <Terminal className="w-4 h-4 text-emerald-400" />
                 Live Swarm Terminal
               </h3>
-              <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                POLLING ACTIVE
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={simulatePulse}
+                  disabled={pulsing}
+                  className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] rounded border border-zinc-700 flex items-center gap-1 disabled:opacity-50"
+                  title="Innesca manualmente il checkup su Meta e Obiettivi"
+                >
+                  <Zap className="w-3 h-3 text-amber-400" />
+                  Simula Pulse
+                </button>
+                <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono">
+                  <span className={`w-2 h-2 rounded-full ${pulsing ? 'bg-amber-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`}></span>
+                  POLLING ACTIVE
+                </div>
               </div>
             </div>
             
