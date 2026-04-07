@@ -38,9 +38,14 @@ export async function GET(req: NextRequest) {
             .eq('organization_id', orgId)
             .eq('status', 'ACTIVE')
 
-        const delta = calcNorthStarDelta(northStar, activeCampaigns || [])
+        const weeklyTotals = {
+            spend: activeCampaigns?.reduce((acc: number, c: any) => acc + (Number(c.spend) || 0), 0) || 0,
+            leads: activeCampaigns?.reduce((acc: number, c: any) => acc + (Number(c.leads) || 0), 0) || 0,
+            appointments: activeCampaigns?.reduce((acc: number, c: any) => acc + (Number(c.appointments) || 0), 0) || 0,
+            sales: activeCampaigns?.reduce((acc: number, c: any) => acc + (Number(c.sales) || 0), 0) || 0,
+        }
 
-        // 4. Construct Sensory Input Payload for Hermes
+        const delta = calcNorthStarDelta(northStar, weeklyTotals)
         const sensoryPayload = {
             timestamp: new Date().toISOString(),
             north_star_goals: {
