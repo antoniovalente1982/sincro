@@ -74,10 +74,18 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
     setSending(false)
   }
 
-  const simulatePulse = async () => {
+  const triggerHermes = async (action: 'pulse' | 'agent-loop') => {
     setPulsing(true)
     try {
-      await fetch('/api/ai-engine/pulse')
+      const res = await fetch('/api/hermes/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        console.error(`Hermes ${action} failed:`, data)
+      }
     } catch (e) {
       console.error(e)
     } finally {
@@ -172,13 +180,22 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
               </h3>
               <div className="flex items-center gap-3">
                 <button 
-                  onClick={simulatePulse}
+                  onClick={() => triggerHermes('agent-loop')}
+                  disabled={pulsing}
+                  className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] rounded border border-zinc-700 flex items-center gap-1 disabled:opacity-50"
+                  title="Esegui il ciclo completo: analisi, kill, scale, report Telegram"
+                >
+                  <Bot className="w-3 h-3 text-indigo-400" />
+                  Agent Loop
+                </button>
+                <button 
+                  onClick={() => triggerHermes('pulse')}
                   disabled={pulsing}
                   className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] rounded border border-zinc-700 flex items-center gap-1 disabled:opacity-50"
                   title="Innesca manualmente il checkup su Meta e Obiettivi"
                 >
                   <Zap className="w-3 h-3 text-amber-400" />
-                  Simula Pulse
+                  Pulse
                 </button>
                 <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono">
                   <span className={`w-2 h-2 rounded-full ${pulsing ? 'bg-amber-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`}></span>
