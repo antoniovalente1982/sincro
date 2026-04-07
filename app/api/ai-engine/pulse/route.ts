@@ -63,13 +63,13 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // 5. Wake up Hermes (Boss Agent) via the VPS server
-        const hermesEndpoint = process.env.HERMES_VPS_URL || 'http://localhost:8643'
-        const hermesKey = process.env.HERMES_API_KEY || 'AdPilotikHermesSecure2026!'
+        // 5. Wake up Hermes via OpenRouter DIRECT (no VPS middleware)
+        const openRouterKey = process.env.OPENROUTER_API_KEY || ''
 
-        // Read base_* objectives from ai_agent_config.objectives JSONB (the source of truth)
-        const { data: agentCfg } = await supabase.from('ai_agent_config').select('objectives').eq('organization_id', orgId).single()
+        // Read base_* objectives AND llm_model from ai_agent_config (the source of truth)
+        const { data: agentCfg } = await supabase.from('ai_agent_config').select('objectives, llm_model').eq('organization_id', orgId).single()
         const mission = agentCfg?.objectives || {}
+        const llmModel = agentCfg?.llm_model || 'google/gemini-2.0-flash-001'
 
         const bF = mission?.base_fatturato || 50000;
         const bP = mission?.base_prezzo || 2250;
@@ -110,31 +110,49 @@ Se siamo ON_TRACK, rispondi con un check rassicurante. Fai una sintesi tattica m
 Nota vitale: I target forniti (es. CAC target) sono la BASELINE (minimo vitale). Il tuo obiettivo assoluto e quello dei tuoi agenti è usare il continuous learning per battere questi record e scalare a costi inferiori.
 ${pacingBlock}`
 
-        const response = await fetch(`${hermesEndpoint}/v1/chat/completions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${hermesKey}`
-            },
-            body: JSON.stringify({
-                model: "xiaomi/mimo-v2-pro", // Fallback to free/cheap model for triaging
-                messages: [
-                    { role: "system", content: systemMessage },
-                    { role: "user", content: "Elabora subito il piano." }
-                ]
-            })
-        })
+        // Try primary model, then fallbacks on rate-limit
+        const modelsToTry = [llmModel, 'google/gemini-2.0-flash-001', 'meta-llama/llama-4-maverick'].filter((m, i, arr) => arr.indexOf(m) === i)
+        let response: Response | null = null
+        let usedModel = llmModel
 
-        if (!response.ok) {
-            console.error("Failed to reach Hermes VPS:", await response.text())
-            // Log to Realtime
+        for (const model of modelsToTry) {
+            const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${openRouterKey}`,
+                    'HTTP-Referer': 'https://adpilotik.com',
+                    'X-Title': 'Sincro Hermes Pulse'
+                },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        { role: "system", content: systemMessage },
+                        { role: "user", content: "Elabora subito il piano." }
+                    ]
+                })
+            })
+
+            if (r.status === 429) {
+                console.warn(`[Pulse] Rate limited on ${model}, trying next...`)
+                continue
+            }
+
+            response = r
+            usedModel = model
+            break
+        }
+
+        if (!response || !response.ok) {
+            const errorText = response ? await response.text() : 'All models exhausted'
+            console.error("Pulse failed:", errorText)
             await supabase.from('ai_realtime_logs').insert({
                 organization_id: orgId,
                 action: 'Pulse Failure',
-                details: { status: response.status },
+                details: { error: errorText.slice(0, 500), models_tried: modelsToTry },
                 tokens_used: 0
             })
-            throw new Error("Hermes VPS Unreachable")
+            throw new Error("Hermes Pulse: all models failed")
         }
 
         const completion = await response.json()

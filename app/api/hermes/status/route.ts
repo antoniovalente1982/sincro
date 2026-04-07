@@ -6,9 +6,9 @@ export async function GET() {
     const isOnline = await hermesClient.checkHealth();
     
     if (isOnline) {
-      return NextResponse.json({ status: 'online', message: 'Hermes Agent Ecosystem is fully operational' });
+      return NextResponse.json({ status: 'online', message: 'Hermes Engine is fully operational (Direct OpenRouter mode)' });
     } else {
-      return NextResponse.json({ status: 'offline', message: 'Hermes VPS is unreachable. Connection failed.' }, { status: 503 });
+      return NextResponse.json({ status: 'offline', message: 'OpenRouter API is unreachable. Check OPENROUTER_API_KEY.' }, { status: 503 });
     }
   } catch (error) {
     console.error("Health check error:", error);
