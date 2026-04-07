@@ -12,7 +12,7 @@ import {
     History, Palette,
     type LucideIcon
 } from 'lucide-react'
-import DanteChat from './dashboard/DanteChat'
+import HermesChat from './dashboard/HermesChat'
 
 interface NavItem {
     label: string
@@ -247,8 +247,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </main>
 
-            {/* Dante AI Chat Widget */}
-            <DanteChat />
+            {/* Hermes AI Chat Widget */}
+            <HermesChat />
         </div>
     )
 }

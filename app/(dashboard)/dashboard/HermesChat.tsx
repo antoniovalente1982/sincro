@@ -10,11 +10,11 @@ interface Message {
     extractedKnowledge?: string
 }
 
-export default function DanteChat() {
+export default function HermesChat() {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<Message[]>([{
         role: 'assistant',
-        content: 'Ciao Anto! 🧠 Sono **Dante**, il tuo AI Engine. Ho accesso a tutti i dati: campagne ADS, KPI aziendali, lead e appuntamenti.\n\nChiedimi quello che vuoi — analisi, consigli, strategie. Sono qui per te!',
+        content: 'Ciao Anto! 🧠 Sono **Hermes**, il tuo AI Engine. Ho accesso a tutti i dati: campagne ADS, KPI aziendali, lead e appuntamenti.\n\nChiedimi quello che vuoi — analisi, consigli, strategie. Sono qui per te!',
         timestamp: new Date(),
     }])
     const [input, setInput] = useState('')
@@ -116,7 +116,7 @@ export default function DanteChat() {
                     </div>
                     <div>
                         <div className="text-sm font-bold text-white flex items-center gap-2">
-                            Dante
+                            Hermes
                             <span className="w-2 h-2 rounded-full bg-green-500" />
                         </div>
                         <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
@@ -149,7 +149,7 @@ export default function DanteChat() {
                             {msg.role === 'assistant' && (
                                 <div className="flex items-center gap-1.5 mb-1.5">
                                     <Sparkles className="w-3 h-3" style={{ color: '#a855f7' }} />
-                                    <span className="text-[10px] font-bold" style={{ color: '#a855f7' }}>Dante</span>
+                                    <span className="text-[10px] font-bold" style={{ color: '#a855f7' }}>Hermes</span>
                                 </div>
                             )}
                             <div
@@ -193,7 +193,7 @@ export default function DanteChat() {
                             <div className="flex items-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#a855f7' }} />
                                 <span className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
-                                    Dante sta analizzando...
+                                    Hermes sta analizzando...
                                 </span>
                             </div>
                         </div>
@@ -234,7 +234,7 @@ export default function DanteChat() {
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                        placeholder="Scrivi a Dante..."
+                        placeholder="Scrivi a Hermes..."
                         className="flex-1 bg-transparent outline-none text-sm text-white placeholder-[var(--color-surface-500)]"
                         disabled={loading}
                     />
