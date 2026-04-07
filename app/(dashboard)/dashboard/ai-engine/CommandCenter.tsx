@@ -12,6 +12,7 @@ import ChatTab from './tabs/ChatTab'
 import ActivityTab from './tabs/ActivityTab'
 import CreativesTab from './tabs/CreativesTab'
 import ConfigTab from './tabs/ConfigTab'
+import KnowledgeTab from './tabs/KnowledgeTab'
 
 interface MissionData {
   objectives: any
@@ -19,11 +20,18 @@ interface MissionData {
   autopilot_active: boolean
   llm_model: string
   weekly_totals: any
+  crm_stats: {
+    today: { leads: number; appointments: number; showups: number; sales: number; lost: number; revenue: number }
+    d7: { leads: number; appointments: number; showups: number; sales: number; lost: number; revenue: number }
+    d30: { leads: number; appointments: number; showups: number; sales: number; lost: number; revenue: number }
+    lifetime: { leads: number; appointments: number; showups: number; sales: number; lost: number; revenue: number }
+  }
   progress: any
   kpi: any
   angle_scores: any[]
   strategy_log: any[]
   sparklines: any
+  knowledge_count: number
   week_label: string
 }
 
@@ -32,6 +40,7 @@ const TABS = [
   { id: 'chat', label: 'Chat AI', icon: MessageSquare, shortLabel: 'Chat' },
   { id: 'activity', label: 'Activity Log', icon: Activity, shortLabel: 'Activity' },
   { id: 'creatives', label: 'Creativi', icon: Palette, shortLabel: 'Creativi' },
+  { id: 'knowledge', label: 'Knowledge', icon: Brain, shortLabel: 'Knowledge' },
   { id: 'config', label: 'Configurazione', icon: Settings2, shortLabel: 'Config' },
 ] as const
 
@@ -132,12 +141,12 @@ export default function CommandCenter() {
             </div>
           </div>
 
-          {/* Right: quick KPIs */}
+          {/* Right: quick KPIs — 7d snapshot */}
           <div className="flex items-center gap-6">
-            <QuickKPI icon={DollarSign} label="Budget" value={`€${weekly_totals.spend?.toFixed(0) || '0'}`} sub={`/ €${data.objectives?.weekly_spend_budget || '—'}`} color="#818cf8" />
+            <QuickKPI icon={DollarSign} label="Spesa" value={`€${weekly_totals.spend?.toFixed(0) || '0'}`} sub="7 giorni" color="#818cf8" />
             <QuickKPI icon={Target} label="CAC" value={`€${kpi.cac?.toFixed(0) || '—'}`} sub={`target €${data.objectives?.target_cac || '—'}`} color={(kpi.cac || 999) <= (data.objectives?.target_cac || 500) ? '#22c55e' : '#ef4444'} />
-            <QuickKPI icon={Users} label="Lead" value={String(weekly_totals.leads || 0)} sub="questa settimana" color="#3b82f6" />
-            <QuickKPI icon={Zap} label="Sales" value={String(weekly_totals.sales || 0)} sub="questa settimana" color="#22c55e" />
+            <QuickKPI icon={Users} label="Lead" value={String(data.crm_stats?.d7?.leads ?? weekly_totals.leads ?? 0)} sub="7 giorni" color="#3b82f6" />
+            <QuickKPI icon={Zap} label="Sales" value={String(data.crm_stats?.d7?.sales ?? weekly_totals.sales ?? 0)} sub="7 giorni" color="#22c55e" />
           </div>
         </div>
       </div>
@@ -172,6 +181,7 @@ export default function CommandCenter() {
         {activeTab === 'chat' && <ChatTab llmModel={llm_model} />}
         {activeTab === 'activity' && <ActivityTab orgId={orgId!} />}
         {activeTab === 'creatives' && <CreativesTab orgId={orgId!} />}
+        {activeTab === 'knowledge' && <KnowledgeTab orgId={orgId!} />}
         {activeTab === 'config' && <ConfigTab data={data} orgId={orgId!} onSaved={fetchData} />}
       </div>
     </div>

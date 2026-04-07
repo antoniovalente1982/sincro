@@ -30,12 +30,13 @@ export async function GET(req: NextRequest) {
     const supabase = getSupabaseAdmin()
 
     try {
-        const [objectivesRes, scoresRes, logRes, snapshotRes, configRes] = await Promise.all([
+        const [objectivesRes, scoresRes, logRes, snapshotRes, configRes, knowledgeCount] = await Promise.all([
             supabase.from('ai_mission_objectives').select('*').eq('organization_id', orgId).single(),
             supabase.from('ai_angle_scores').select('*').eq('organization_id', orgId).order('score', { ascending: false }),
             supabase.from('ai_strategy_log').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(20),
             supabase.from('ai_funnel_snapshots').select('*').eq('organization_id', orgId).order('snapshot_date', { ascending: false }).limit(30),
             supabase.from('ai_agent_config').select('execution_mode, autopilot_active, objectives, llm_model').eq('organization_id', orgId).single(),
+            supabase.from('agent_knowledge').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('still_valid', true),
         ])
 
         // Compute weekly progress from latest snapshot
@@ -54,6 +55,43 @@ export async function GET(req: NextRequest) {
 
         const objectives = objectivesRes.data || getDefaultObjectives(orgId)
         const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean; llm_model?: string }
+
+        // ── Real-time CRM stats (multi-window) ────────────────────
+        const now = new Date()
+        const todayStart = now.toISOString().slice(0, 10) + 'T00:00:00.000Z'
+        const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString()
+
+        // Query CRM for each window — by acquisition date
+        const [crmToday, crm7d, crm30d, crmLifetime] = await Promise.all([
+            supabase.from('leads').select('id, value, pipeline_stages!leads_stage_id_fkey(slug, is_won, is_lost)').eq('organization_id', orgId).gte('created_at', todayStart),
+            supabase.from('leads').select('id, value, pipeline_stages!leads_stage_id_fkey(slug, is_won, is_lost)').eq('organization_id', orgId).gte('created_at', sevenDaysAgo),
+            supabase.from('leads').select('id, value, pipeline_stages!leads_stage_id_fkey(slug, is_won, is_lost)').eq('organization_id', orgId).gte('created_at', thirtyDaysAgo),
+            supabase.from('leads').select('id, value, pipeline_stages!leads_stage_id_fkey(slug, is_won, is_lost)').eq('organization_id', orgId),
+        ])
+
+        const summarizeCrm = (leads: any[]) => {
+            const total = leads?.length || 0
+            let appointments = 0, showups = 0, sales = 0, lost = 0, revenue = 0
+            for (const l of (leads || [])) {
+                const slug = (l.pipeline_stages as any)?.slug || ''
+                const isWon = (l.pipeline_stages as any)?.is_won || false
+                const isLost = (l.pipeline_stages as any)?.is_lost || false
+                if (['appuntamento', 'show-up'].includes(slug) || isWon) appointments++
+                if (slug === 'show-up' || isWon) showups++
+                if (isWon) { sales++; revenue += Number(l.value) || 0 }
+                if (isLost) lost++
+            }
+            return { leads: total, appointments, showups, sales, lost, revenue }
+        }
+
+        const crm_stats = {
+            today: summarizeCrm(crmToday.data || []),
+            d7: summarizeCrm(crm7d.data || []),
+            d30: summarizeCrm(crm30d.data || []),
+            lifetime: summarizeCrm(crmLifetime.data || []),
+            date_field: 'created_at',
+        }
 
         // Progress percentages
         const progress = {
@@ -82,15 +120,17 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             objectives,
-            execution_mode: agentConfig.execution_mode || 'dry_run',
-            autopilot_active: agentConfig.autopilot_active || false,
-            llm_model: agentConfig.llm_model || 'xiaomi/mimo-v2-pro',
+            execution_mode: agentConfig.execution_mode ?? 'dry_run',
+            autopilot_active: agentConfig.autopilot_active ?? false,
+            llm_model: agentConfig.llm_model ?? 'xiaomi/mimo-v2-pro',
             weekly_totals: weeklyTotals,
+            crm_stats,
             progress,
             kpi,
             sparklines,
             angle_scores: scoresRes.data || [],
             strategy_log: logRes.data || [],
+            knowledge_count: knowledgeCount.count || 0,
             week_label: getCurrentWeekLabel(),
         })
     } catch (err: any) {

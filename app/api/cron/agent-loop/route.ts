@@ -138,10 +138,11 @@ export async function GET(req: NextRequest) {
             const { access_token, ad_account_id } = conn.credentials
             const adAccount = `act_${ad_account_id}`
 
-            // Fetch tri-window Meta data
+            // Fetch 5-window Meta data: today, 3d, 7d, 30d, lifetime
             const today = new Date().toISOString().slice(0, 10)
             const threeDaysAgo = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10)
             const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
 
             const insightsFields = 'ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,spend,impressions,clicks,ctr,frequency,actions,cost_per_action_type'
 
@@ -151,10 +152,11 @@ export async function GET(req: NextRequest) {
                 return `${base}&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`
             }
 
-            const [resToday, res3d, res7d, resLt, adsRes] = await Promise.all([
+            const [resToday, res3d, res7d, res30d, resLt, adsRes] = await Promise.all([
                 fetch(buildUrl(today, today)),
                 fetch(buildUrl(threeDaysAgo, today)),
                 fetch(buildUrl(sevenDaysAgo, today)),
+                fetch(buildUrl(thirtyDaysAgo, today)),
                 fetch(buildUrl('', '', 'maximum')),
                 fetch(`https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=id,status,effective_status,campaign_id&limit=500&access_token=${access_token}`),
             ])
@@ -164,10 +166,11 @@ export async function GET(req: NextRequest) {
                 continue
             }
 
-            const [dataToday, data3d, data7d, dataLt, adsData] = await Promise.all([
+            const [dataToday, data3d, data7d, data30d, dataLt, adsData] = await Promise.all([
                 resToday.ok ? resToday.json() : { data: [] },
                 res3d.ok ? res3d.json() : { data: [] },
                 res7d.json(),
+                res30d.ok ? res30d.json() : { data: [] },
                 resLt.ok ? resLt.json() : { data: [] },
                 adsRes.ok ? adsRes.json() : { data: [] },
             ])
@@ -208,6 +211,7 @@ export async function GET(req: NextRequest) {
             const adsToday = parseAds(dataToday.data || [])
             const ads3d = parseAds(data3d.data || [])
             const ads7d = parseAds(data7d.data || [])
+            const ads30d = parseAds(data30d.data || [])
             const adsLt = parseAds(dataLt.data || [])
 
             if (ads7d.length === 0) {
@@ -220,6 +224,8 @@ export async function GET(req: NextRequest) {
             for (const a of ads3d) ads3dMap[a.ad_id] = a
             const adsTodayMap: Record<string, any> = {}
             for (const a of adsToday) adsTodayMap[a.ad_id] = a
+            const ads30dMap: Record<string, any> = {}
+            for (const a of ads30d) ads30dMap[a.ad_id] = a
             const adsLtMap: Record<string, any> = {}
             for (const a of adsLt) adsLtMap[a.ad_id] = a
 
@@ -236,8 +242,14 @@ export async function GET(req: NextRequest) {
                 } catch { }
             }))
 
-            // CRM funnel by angle
-            const funnelByAngle = await getFunnelByAngle(supabase, orgId, 30)
+            // CRM funnel analysis - multi-window with dual-date
+            // created_at = new leads acquired | updated_at = leads with pipeline movement
+            const [crmByAcquisition, crmByMovement] = await Promise.all([
+                getCrmMultiWindow(supabase, orgId, 'created_at'),
+                getCrmMultiWindow(supabase, orgId, 'updated_at'),
+            ])
+            // Primary funnel view for scoring: 30d acquisitions (backward compatible)
+            const funnelByAngle = crmByAcquisition.d30 || {}
 
             // NorthStar Δ
             const northStar = await getCurrentNorthStar(orgId)
@@ -262,8 +274,11 @@ export async function GET(req: NextRequest) {
             const mission = missionObj || { target_cpl: targetCPL, target_cac: targetCAC, target_lead_to_appt_rate: 0.40, optimize_for: 'cac' }
 
             const activeAdsCount = ads7d.filter(a => a.status === 'ACTIVE').length
-            log.push(`[OBSERVE] ${ads7d.length} ads (${activeAdsCount} active), ${effectivelyActiveCampaigns.size} active campaigns, €${weeklyTotals.spend.toFixed(2)} spend (7d), ${weeklyTotals.leads} leads, ${weeklyTotals.sales} sales`)
-            log.push(`[OBSERVE] Today: ${adsToday.length} ads with data, 3d: ${ads3d.length}, Lifetime: ${adsLt.length}`)
+            log.push(`[OBSERVE] ${ads7d.length} ads (${activeAdsCount} active), ${effectivelyActiveCampaigns.size} active campaigns`)
+            log.push(`[OBSERVE] Meta Windows: today=${adsToday.length} | 3d=${ads3d.length} | 7d=${ads7d.length} | 30d=${ads30d.length} | lt=${adsLt.length}`)
+            log.push(`[OBSERVE] 7d: €${weeklyTotals.spend.toFixed(2)} spend, ${weeklyTotals.leads} leads, ${weeklyTotals.sales} sales`)
+            log.push(`[OBSERVE] CRM by acquisition (30d): ${Object.keys(crmByAcquisition.d30 || {}).length} angles`)
+            log.push(`[OBSERVE] CRM by movement (7d): ${Object.keys(crmByMovement.d7 || {}).length} angles with activity`)
             if (nsDelta) log.push(`[OBSERVE] NorthStar: ${nsDelta.summary}`)
 
             // ══════════════════════════════════════════════════════════
@@ -487,49 +502,68 @@ function detectAngle(adName: string): string {
     return 'generic'
 }
 
-async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30) {
-    try {
-        const since = new Date(Date.now() - days * 86400000).toISOString()
-        const { data: leads } = await supabase
-            .from('leads')
-            .select(`id, utm_campaign, meta_data, value, created_at, pipeline_stages!leads_stage_id_fkey (id, slug, name, is_won, is_lost)`)
-            .eq('organization_id', orgId)
-            .gte('created_at', since)
+async function getCrmMultiWindow(supabase: any, orgId: string, dateField: 'created_at' | 'updated_at' = 'created_at') {
+    const windows = [
+        { key: 'today', days: 0 },
+        { key: 'd3', days: 3 },
+        { key: 'd7', days: 7 },
+        { key: 'd30', days: 30 },
+        { key: 'lifetime', days: null },
+    ]
 
-        if (!leads?.length) return {}
-        const byAngle: Record<string, any> = {}
+    const result: Record<string, Record<string, any>> = {}
 
-        for (const lead of leads) {
-            const rawTerm = (lead.meta_data?.utm_term || '').toLowerCase()
-            const rawContent = (lead.meta_data?.utm_content || '').toLowerCase()
-            const rawCampaign = (lead.utm_campaign || '').toLowerCase()
-            
-            // Il routing angle reale è tracciato principalmente in utm_content (ad.name) o utm_term (adset.name)
-            let angle = detectAngle(rawContent)
-            
-            // Fallback sulla campagna se non trova nulla di meglio
-            if (angle === 'generic') {
-                angle = detectAngle(rawCampaign) || 'generic'
+    for (const w of windows) {
+        try {
+            let query = supabase
+                .from('leads')
+                .select(`id, utm_campaign, meta_data, value, created_at, updated_at, pipeline_stages!leads_stage_id_fkey (id, slug, name, is_won, is_lost)`)
+                .eq('organization_id', orgId)
+
+            if (w.days !== null) {
+                const since = w.days === 0
+                    ? new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z'
+                    : new Date(Date.now() - w.days * 86400000).toISOString()
+                query = query.gte(dateField, since)
             }
 
-            if (!byAngle[angle]) byAngle[angle] = { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
-            byAngle[angle].leads++
+            const { data: leads } = await query
+            if (!leads?.length) { result[w.key] = {}; continue }
 
-            const stageSlug = (lead.pipeline_stages as any)?.slug || ''
-            const stageIsWon = (lead.pipeline_stages as any)?.is_won || false
-            const stageIsLost = (lead.pipeline_stages as any)?.is_lost || false
+            const byAngle: Record<string, any> = {}
+            for (const lead of leads) {
+                const rawContent = (lead.meta_data?.utm_content || '').toLowerCase()
+                const rawCampaign = (lead.utm_campaign || '').toLowerCase()
+                let angle = detectAngle(rawContent)
+                if (angle === 'generic') angle = detectAngle(rawCampaign) || 'generic'
 
-            if (stageSlug === 'qualificato') byAngle[angle].qualified++
-            if (['appuntamento', 'show-up'].includes(stageSlug) || stageIsWon) byAngle[angle].appointments++
-            if (stageSlug === 'show-up' || stageIsWon) byAngle[angle].showups++
-            if (stageIsWon) { byAngle[angle].sales++; byAngle[angle].revenue += Number(lead.value) || 0 }
-            if (stageIsLost) byAngle[angle].lost++
+                if (!byAngle[angle]) byAngle[angle] = { leads: 0, qualified: 0, appointments: 0, showups: 0, sales: 0, lost: 0, revenue: 0 }
+                byAngle[angle].leads++
+
+                const stageSlug = (lead.pipeline_stages as any)?.slug || ''
+                const stageIsWon = (lead.pipeline_stages as any)?.is_won || false
+                const stageIsLost = (lead.pipeline_stages as any)?.is_lost || false
+
+                if (stageSlug === 'qualificato') byAngle[angle].qualified++
+                if (['appuntamento', 'show-up'].includes(stageSlug) || stageIsWon) byAngle[angle].appointments++
+                if (stageSlug === 'show-up' || stageIsWon) byAngle[angle].showups++
+                if (stageIsWon) { byAngle[angle].sales++; byAngle[angle].revenue += Number(lead.value) || 0 }
+                if (stageIsLost) byAngle[angle].lost++
+            }
+            result[w.key] = byAngle
+        } catch {
+            result[w.key] = {}
         }
-        return byAngle
-    } catch (err) {
-        console.error('[CRM getFunnelByAngle] Error:', err)
-        return {}
     }
+    return result
+}
+
+// Legacy wrapper for backward compatibility
+async function getFunnelByAngle(supabase: any, orgId: string, days: number = 30) {
+    const multiWindow = await getCrmMultiWindow(supabase, orgId, 'created_at')
+    if (days <= 7) return multiWindow.d7 || {}
+    if (days <= 30) return multiWindow.d30 || {}
+    return multiWindow.lifetime || {}
 }
 
 function aggregateByAngle(ads: any[], funnelByAngle: Record<string, any>) {
