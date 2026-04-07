@@ -17,7 +17,7 @@ interface Props {
 export default function ChatTab({ llmModel }: Props) {
   const [messages, setMessages] = useState<Message[]>([{
     role: 'assistant',
-    content: 'Comandante. 🧠 Sono **Dante**, il tuo AI Engine.\n\nChiedimi analisi, status del budget, logica di escalazione, o qualsiasi cosa sulle campagne. Sono in ascolto.',
+    content: 'Comandante. 🧠 Sono **Hermes**, il tuo AI Engine.\n\nChiedimi analisi, status del budget, logica di escalazione, o qualsiasi cosa sulle campagne. Sono in ascolto.',
     timestamp: new Date(),
   }])
   const [input, setInput] = useState('')
@@ -91,7 +91,7 @@ export default function ChatTab({ llmModel }: Props) {
             <Brain className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-sm font-bold text-white">Dante AI Terminal</span>
+            <span className="text-sm font-bold text-white">Hermes AI Terminal</span>
             <div className="flex items-center gap-1.5 text-[10px] font-mono" style={{ color: 'var(--color-surface-500)' }}>
               <Cpu className="w-3 h-3" />
               {modelShort}
@@ -121,7 +121,7 @@ export default function ChatTab({ llmModel }: Props) {
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-1.5 mb-2 pb-1.5" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
                   <Sparkles className="w-3.5 h-3.5" style={{ color: '#a855f7' }} />
-                  <span className="text-[10px] font-mono font-bold tracking-widest" style={{ color: '#a855f7' }}>DANTE</span>
+                  <span className="text-[10px] font-mono font-bold tracking-widest" style={{ color: '#a855f7' }}>HERMES</span>
                 </div>
               )}
               <div
@@ -183,7 +183,7 @@ export default function ChatTab({ llmModel }: Props) {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage()}
-            placeholder="Chiedi a Dante..."
+            placeholder="Chiedi a Hermes..."
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-500"
             disabled={loading}
           />

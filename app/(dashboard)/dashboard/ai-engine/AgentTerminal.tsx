@@ -13,7 +13,7 @@ interface Message {
 export default function AgentTerminal() {
   const [messages, setMessages] = useState<Message[]>([{
     role: 'assistant',
-    content: 'Comandante. 🧠 Sono **Dante**, il tuo AI Engine.\n\nQui siamo nel centro operativo. Chiedimi analisi, status del budget, logica di escalazione o di testare i webhook Telegram. Sono in ascolto.',
+    content: 'Comandante. 🧠 Sono **Hermes**, il tuo AI Engine.\n\nQui siamo nel centro operativo. Chiedimi analisi, status del budget, logica di escalazione o di testare i webhook Telegram. Sono in ascolto.',
     timestamp: new Date(),
   }])
   const [input, setInput] = useState('')
@@ -92,7 +92,7 @@ export default function AgentTerminal() {
             <Brain className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white tracking-wide">DANTE TERMINAL</h2>
+            <h2 className="text-xl font-bold text-white tracking-wide">HERMES TERMINAL</h2>
             <div className="flex items-center gap-2 text-xs text-[#a855f7] font-mono tracking-wider">
               <span className="w-2 h-2 rounded-full animate-pulse bg-[#10b981]" style={{ boxShadow: '0 0 10px #10b981' }} />
               SYSTEM ONLINE
@@ -120,7 +120,7 @@ export default function AgentTerminal() {
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-2 mb-3 border-b border-[#a855f7] border-opacity-20 pb-2">
                   <Sparkles className="w-4 h-4 text-[#a855f7]" />
-                  <span className="text-xs font-mono font-bold tracking-widest text-[#a855f7] uppercase">Dante</span>
+                  <span className="text-xs font-mono font-bold tracking-widest text-[#a855f7] uppercase">Hermes</span>
                 </div>
               )}
               
@@ -187,7 +187,7 @@ export default function AgentTerminal() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage()}
-            placeholder="Inserisci un comando o fai una domanda a Dante..."
+            placeholder="Inserisci un comando o fai una domanda a Hermes..."
             className="flex-1 bg-transparent outline-none text-[15px] font-light text-white placeholder-indigo-300/30"
             disabled={loading}
           />
