@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
             const isLive = config.execution_mode === 'live'
             const objectives = config.objectives || {}
             const llmModel = config.llm_model || 'xiaomi/mimo-v2-pro'
-            const targetCPL: number = objectives.target_cpl || 20
-            const targetCAC: number = objectives.target_cac || 500
+            const targetCPL: number = objectives.base_cpl || objectives.target_cpl || 20
+            const targetCAC: number = objectives.base_cac_target || objectives.target_cac || 500
             const killMultiplier: number = objectives.kill_multiplier || 3.0
 
             const log: string[] = []
@@ -272,6 +272,15 @@ export async function GET(req: NextRequest) {
                 .single()
 
             const mission = missionObj || { target_cpl: targetCPL, target_cac: targetCAC, target_lead_to_appt_rate: 0.40, optimize_for: 'cac' }
+
+            // Merge base_* fields from ai_agent_config.objectives into mission
+            // (base_* are stored in the JSONB column, not in ai_mission_objectives table columns)
+            const baseFieldKeys = ['base_fatturato', 'base_prezzo', 'base_lead_to_appt', 'base_appt_to_showup', 'base_showup_to_sale', 'base_cac_target', 'base_cpl']
+            for (const key of baseFieldKeys) {
+                if (objectives[key] !== undefined) {
+                    mission[key] = objectives[key]
+                }
+            }
 
             const activeAdsCount = ads7d.filter(a => a.status === 'ACTIVE').length
             log.push(`[OBSERVE] ${ads7d.length} ads (${activeAdsCount} active), ${effectivelyActiveCampaigns.size} active campaigns`)

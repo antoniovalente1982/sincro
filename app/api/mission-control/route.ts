@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
             supabase.from('ai_strategy_log').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(20),
             supabase.from('ai_funnel_snapshots').select('*').eq('organization_id', orgId).order('snapshot_date', { ascending: false }).limit(30),
             supabase.from('ai_agent_config').select('execution_mode, autopilot_active, objectives, llm_model').eq('organization_id', orgId).single(),
+
             supabase.from('agent_knowledge').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('still_valid', true),
         ])
 
@@ -55,7 +56,17 @@ export async function GET(req: NextRequest) {
         }
 
         const objectives = objectivesRes.data || getDefaultObjectives(orgId)
-        const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean; llm_model?: string }
+        const agentConfig = (configRes.data || {}) as { execution_mode?: string; autopilot_active?: boolean; llm_model?: string; objectives?: Record<string, any> }
+
+        // Merge base_* fields from ai_agent_config.objectives JSONB into the response
+        // These are the North Star manual inputs that the user sets in the UI
+        const configObjectives = agentConfig.objectives || {}
+        const baseFields = ['base_fatturato', 'base_prezzo', 'base_lead_to_appt', 'base_appt_to_showup', 'base_showup_to_sale', 'base_cac_target', 'base_cpl']
+        for (const key of baseFields) {
+            if (configObjectives[key] !== undefined) {
+                (objectives as any)[key] = configObjectives[key]
+            }
+        }
 
         // ── Real-time CRM stats (multi-window) ────────────────────
         const now = new Date()
@@ -153,17 +164,33 @@ export async function POST(req: NextRequest) {
         if (action === 'set_mission_params') {
             const { objectives, execution_mode, autopilot_active, llm_model } = body
             
-            // Upsert in ai_mission_objectives
-            if (objectives && Object.keys(objectives).length > 0) {
+            // Separate base_* fields (stored in ai_agent_config.objectives JSONB)
+            // from typed fields (stored in ai_mission_objectives table columns)
+            const baseFieldKeys = ['base_fatturato', 'base_prezzo', 'base_lead_to_appt', 'base_appt_to_showup', 'base_showup_to_sale', 'base_cac_target', 'base_cpl']
+            const baseFields: Record<string, any> = {}
+            const tableFields: Record<string, any> = {}
+            
+            if (objectives) {
+                for (const [key, value] of Object.entries(objectives)) {
+                    if (baseFieldKeys.includes(key)) {
+                        baseFields[key] = value
+                    } else {
+                        tableFields[key] = value
+                    }
+                }
+            }
+            
+            // Upsert typed fields into ai_mission_objectives (only real columns)
+            if (Object.keys(tableFields).length > 0) {
                 await supabase.from('ai_mission_objectives').upsert({
                     organization_id: org_id,
-                    ...objectives,
+                    ...tableFields,
                     updated_at: new Date().toISOString(),
                 }, { onConflict: 'organization_id' })
             }
 
-            // Update in ai_agent_config (safe: only update specified fields, don't reset others)
-            if (execution_mode !== undefined || autopilot_active !== undefined || llm_model) {
+            // Update ai_agent_config — always run this to persist base_* fields in JSONB
+            {
                 const updatePayload: any = { updated_at: new Date().toISOString() }
                 if (execution_mode !== undefined) updatePayload.execution_mode = execution_mode
                 if (autopilot_active !== undefined) updatePayload.autopilot_active = autopilot_active
@@ -172,24 +199,31 @@ export async function POST(req: NextRequest) {
                 // Check if record exists first
                 const { data: existing } = await supabase
                     .from('ai_agent_config')
-                    .select('organization_id')
+                    .select('organization_id, objectives')
                     .eq('organization_id', org_id)
                     .single()
 
                 if (existing) {
-                    // UPDATE only the fields we want to change
+                    // Merge base_* fields into the existing JSONB objectives
+                    if (Object.keys(baseFields).length > 0) {
+                        updatePayload.objectives = {
+                            ...(existing.objectives || {}),
+                            ...baseFields,
+                        }
+                    }
                     await supabase.from('ai_agent_config')
                         .update(updatePayload)
                         .eq('organization_id', org_id)
                 } else {
-                    // INSERT new record with all fields
-                    await supabase.from('ai_agent_config').insert({
-                        organization_id: org_id,
-                        execution_mode: execution_mode || 'dry_run',
-                        autopilot_active: autopilot_active ?? false,
-                        llm_model: llm_model || 'xiaomi/mimo-v2-pro',
-                        updated_at: new Date().toISOString(),
-                    })
+                    // INSERT new record
+                    updatePayload.organization_id = org_id
+                    updatePayload.execution_mode = execution_mode || 'dry_run'
+                    updatePayload.autopilot_active = autopilot_active ?? false
+                    updatePayload.llm_model = llm_model || 'xiaomi/mimo-v2-pro'
+                    if (Object.keys(baseFields).length > 0) {
+                        updatePayload.objectives = baseFields
+                    }
+                    await supabase.from('ai_agent_config').insert(updatePayload)
                 }
             }
 

@@ -67,20 +67,23 @@ export async function GET(req: NextRequest) {
         const hermesEndpoint = process.env.HERMES_VPS_URL || 'http://localhost:8643'
         const hermesKey = process.env.HERMES_API_KEY || 'AdPilotikHermesSecure2026!'
 
-        const { data: mc } = await supabase.from('mission_control').select('objectives').eq('organization_id', orgId).single()
-        const mission = mc?.objectives || {}
+        // Read base_* objectives from ai_agent_config.objectives JSONB (the source of truth)
+        const { data: agentCfg } = await supabase.from('ai_agent_config').select('objectives').eq('organization_id', orgId).single()
+        const mission = agentCfg?.objectives || {}
 
         const bF = mission?.base_fatturato || 50000;
         const bP = mission?.base_prezzo || 2250;
         const bL2A = mission?.base_lead_to_appt || 40;
         const bA2S = mission?.base_appt_to_showup || 60;
         const bS2S = mission?.base_showup_to_sale || 20;
+        const bCacTarget = mission?.base_cac_target || 300;
+        const bCpl = mission?.base_cpl || 15;
 
         const clientiMensili = bP > 0 ? Math.ceil(bF / bP) : 0;
         const showupsMensili = bS2S > 0 ? Math.ceil(clientiMensili / (bS2S / 100)) : 0;
         const apptMensili = bA2S > 0 ? Math.ceil(showupsMensili / (bA2S / 100)) : 0;
         const leadMensili = bL2A > 0 ? Math.ceil(apptMensili / (bL2A / 100)) : 0;
-        const budgetMensile = (mission?.target_cac || 300) * clientiMensili;
+        const budgetMensile = bCacTarget * clientiMensili;
 
         const now = new Date();
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
