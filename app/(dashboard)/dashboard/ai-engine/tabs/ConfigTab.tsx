@@ -16,37 +16,55 @@ interface Props {
 export default function ConfigTab({ data, orgId, onSaved }: Props) {
   const { objectives, execution_mode, autopilot_active, llm_model } = data
 
-  // Form state — use ?? to preserve falsy values (false, 0) from server
+  // Form state — use ?? to preserve falsy values
   const [mode, setMode] = useState(execution_mode ?? 'dry_run')
   const [selectedModel, setSelectedModel] = useState(llm_model ?? 'xiaomi/mimo-v2-pro')
   const [autopilot, setAutopilot] = useState(autopilot_active ?? false)
-  const [weeklyBudget, setWeeklyBudget] = useState(objectives?.weekly_spend_budget ?? 500)
-  const [targetCac, setTargetCac] = useState(objectives?.target_cac ?? 500)
-  const [targetCpl, setTargetCpl] = useState(objectives?.target_cpl ?? 20)
-  const [targetRoas, setTargetRoas] = useState(objectives?.target_roas ?? 3)
-  const [weeklyLeads, setWeeklyLeads] = useState(objectives?.weekly_leads_target ?? 20)
-  const [weeklyAppts, setWeeklyAppts] = useState(objectives?.weekly_appointments_target ?? objectives?.weekly_appts_target ?? 8)
-  const [weeklyShowups, setWeeklyShowups] = useState(objectives?.weekly_showup_target ?? objectives?.weekly_showups_target ?? 5)
-  const [weeklySales, setWeeklySales] = useState(objectives?.weekly_sales_target ?? 2)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [cronRunning, setCronRunning] = useState<string | null>(null)
 
-  // Sync form state when server data changes (e.g. after save + re-fetch)
+  // North Star Base Inputs
+  const [baseFatturato, setBaseFatturato] = useState(objectives?.base_fatturato ?? 50000)
+  const [basePrezzo, setBasePrezzo] = useState(objectives?.base_prezzo ?? 2250)
+  const [baseLeadToAppt, setBaseLeadToAppt] = useState(objectives?.base_lead_to_appt ?? 40)
+  const [baseApptToShowup, setBaseApptToShowup] = useState(objectives?.base_appt_to_showup ?? 60)
+  const [baseShowupToSale, setBaseShowupToSale] = useState(objectives?.base_showup_to_sale ?? 20)
+  const [baseCacTarget, setBaseCacTarget] = useState(objectives?.base_cac_target ?? 300)
+  const [baseCpl, setBaseCpl] = useState(objectives?.base_cpl ?? 15)
+
+  // Sync basic state
   useEffect(() => {
     setMode(execution_mode ?? 'dry_run')
     setSelectedModel(llm_model ?? 'xiaomi/mimo-v2-pro')
     setAutopilot(autopilot_active ?? false)
-    setWeeklyBudget(objectives?.weekly_spend_budget ?? 500)
-    setTargetCac(objectives?.target_cac ?? 500)
-    setTargetCpl(objectives?.target_cpl ?? 20)
-    setTargetRoas(objectives?.target_roas ?? 3)
-    setWeeklyLeads(objectives?.weekly_leads_target ?? 20)
-    setWeeklyAppts(objectives?.weekly_appointments_target ?? objectives?.weekly_appts_target ?? 8)
-    setWeeklyShowups(objectives?.weekly_showup_target ?? objectives?.weekly_showups_target ?? 5)
-    setWeeklySales(objectives?.weekly_sales_target ?? 2)
+
+    setBaseFatturato(objectives?.base_fatturato ?? 50000)
+    setBasePrezzo(objectives?.base_prezzo ?? 2250)
+    setBaseLeadToAppt(objectives?.base_lead_to_appt ?? 40)
+    setBaseApptToShowup(objectives?.base_appt_to_showup ?? 60)
+    setBaseShowupToSale(objectives?.base_showup_to_sale ?? 20)
+    setBaseCacTarget(objectives?.base_cac_target ?? 300)
+    setBaseCpl(objectives?.base_cpl ?? 15)
   }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Derive all variables dynamically (Flow: Lead -> Appt -> ShowUp -> Vendita)
+  const clientiMensili = basePrezzo > 0 ? Math.ceil(baseFatturato / basePrezzo) : 0
+  const showupsMensili = baseShowupToSale > 0 ? Math.ceil(clientiMensili / (baseShowupToSale / 100)) : 0
+  const apptMensili = baseApptToShowup > 0 ? Math.ceil(showupsMensili / (baseApptToShowup / 100)) : 0
+  const leadMensili = baseLeadToAppt > 0 ? Math.ceil(apptMensili / (baseLeadToAppt / 100)) : 0
+
+  const weeklySales = Math.ceil(clientiMensili / 4)
+  const weeklyShowups = Math.ceil(showupsMensili / 4)
+  const weeklyAppts = Math.ceil(apptMensili / 4)
+  const weeklyLeads = Math.ceil(leadMensili / 4)
+
+  const budgetMensile = baseCacTarget * clientiMensili
+  const weeklyBudget = budgetMensile / 4
+  const expectedCac = clientiMensili > 0 ? Math.round((baseCpl * leadMensili) / clientiMensili) : 0
+  const spesaEffettiva = baseCpl * leadMensili
+  const targetRoas = spesaEffettiva > 0 ? +(baseFatturato / spesaEffettiva).toFixed(2) : 0
 
   // Hermes Connection Status & Logs
   const [hermesStatus, setHermesStatus] = useState<'checking' | 'online' | 'offline'>('checking')
@@ -104,9 +122,16 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           autopilot_active: autopilot,
           llm_model: selectedModel,
           objectives: {
+            base_fatturato: baseFatturato,
+            base_prezzo: basePrezzo,
+            base_lead_to_appt: baseLeadToAppt,
+            base_appt_to_showup: baseApptToShowup,
+            base_showup_to_sale: baseShowupToSale,
+            base_cac_target: baseCacTarget,
+            base_cpl: baseCpl,
             weekly_spend_budget: weeklyBudget,
-            target_cac: targetCac,
-            target_cpl: targetCpl,
+            target_cac: baseCacTarget,
+            target_cpl: baseCpl,
             target_roas: targetRoas,
             weekly_leads_target: weeklyLeads,
             weekly_appointments_target: weeklyAppts,
@@ -290,29 +315,50 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
 
         {/* RIGHT COLUMN — Objectives */}
         <div className="space-y-5">
-          <div className="glass-card p-5">
+          {/* North Star Bases */}
+          <div className="glass-card p-5 border-[1px] border-blue-500/20">
             <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
-              <h3 className="text-sm font-bold text-white">Financial Targets</h3>
+               <Target className="w-4 h-4" style={{ color: '#3b82f6' }} />
+               <h3 className="text-sm font-bold text-white">North Star Base Objectives</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FieldInput label="Budget Settimanale (€)" value={weeklyBudget} onChange={setWeeklyBudget} />
-              <FieldInput label="Target CAC (€)" value={targetCac} onChange={setTargetCac} />
-              <FieldInput label="Target CPL (€)" value={targetCpl} onChange={setTargetCpl} />
-              <FieldInput label="Target ROAS (x)" value={targetRoas} onChange={setTargetRoas} step={0.1} />
+              <FieldInput label="Fatturato Mensile (€)" value={baseFatturato} onChange={setBaseFatturato} />
+              <FieldInput label="Ticket Medio (€)" value={basePrezzo} onChange={setBasePrezzo} />
+              <FieldInput label="Target CAC (€)" value={baseCacTarget} onChange={setBaseCacTarget} />
+              <FieldInput label="CPL Stimato (€)" value={baseCpl} onChange={setBaseCpl} />
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/5">
+               <h4 className="text-[10px] uppercase text-gray-500 mb-3 font-semibold">Tassi di Conversione (%)</h4>
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <FieldInput label="Lead ➔ Appuntamento Preso" value={baseLeadToAppt} onChange={setBaseLeadToAppt} />
+                 <FieldInput label="Appuntamento ➔ Show-Up" value={baseApptToShowup} onChange={setBaseApptToShowup} />
+                 <FieldInput label="Show-Up ➔ Vendita Chiusa" value={baseShowupToSale} onChange={setBaseShowupToSale} />
+               </div>
             </div>
           </div>
 
+          {/* Derived Targets (Read-only) */}
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4" style={{ color: '#3b82f6' }} />
-              <h3 className="text-sm font-bold text-white">Volume Targets</h3>
+               <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
+               <h3 className="text-sm font-bold text-white">Financial Targets (Auto-Generated)</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+               <ReadOnlyField label="Budget Mensile" value={`€ ${budgetMensile.toLocaleString('it-IT')}`} />
+               <ReadOnlyField label="Budget Settimanale" value={`€ ${weeklyBudget.toLocaleString('it-IT')}`} />
+               <ReadOnlyField label="Cac Reale (Stimato)" value={`€ ${expectedCac.toLocaleString('it-IT')}`} />
+               <ReadOnlyField label="ROAS Stimato" value={`${targetRoas}x`} />
+            </div>
+            
+            <div className="flex items-center gap-2 mb-4 pt-4 border-t border-white/5">
+              <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
+              <h3 className="text-sm font-bold text-white">Volume Targets (Weekly)</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FieldInput label="Lead / Settimana" value={weeklyLeads} onChange={setWeeklyLeads} />
-              <FieldInput label="Appuntamenti / Settimana" value={weeklyAppts} onChange={setWeeklyAppts} />
-              <FieldInput label="Show-up / Settimana" value={weeklyShowups} onChange={setWeeklyShowups} />
-              <FieldInput label="Vendite / Settimana" value={weeklySales} onChange={setWeeklySales} />
+               <ReadOnlyField label="Lead da Generare" value={weeklyLeads.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Appuntamenti Fissati" value={weeklyAppts.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Appuntamenti (Show-up)" value={weeklyShowups.toLocaleString('it-IT')} />
+               <ReadOnlyField label="Vendite Chiuse" value={weeklySales.toLocaleString('it-IT')} />
             </div>
           </div>
 
@@ -426,6 +472,23 @@ function FieldInput({ label, value, onChange, step }: {
           border: '1px solid var(--color-surface-300)',
         }}
       />
+    </div>
+  )
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <label className="text-[10px] uppercase tracking-wider font-semibold block mb-1.5" style={{ color: 'var(--color-surface-500)' }}>
+        {label}
+      </label>
+      <div className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-white outline-none"
+        style={{
+          background: 'var(--color-surface-100)',
+          border: '1px solid var(--color-surface-300)',
+        }}>
+        {value}
+      </div>
     </div>
   )
 }
