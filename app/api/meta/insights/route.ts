@@ -72,8 +72,8 @@ export async function GET(req: NextRequest) {
         const { access_token, ad_account_id } = conn.credentials
         const adAccount = `act_${ad_account_id}`
 
-        // 1. Get all campaigns (for name, status, objective)
-        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget&limit=500&access_token=${access_token}`
+        // 1. Get all campaigns (for name, status, objective) and their ads to compute true effective status
+        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads{effective_status}&limit=500&access_token=${access_token}`
         const campaignsRes = await fetch(campaignsUrl, { cache: 'no-store' })
 
         if (!campaignsRes.ok) {
@@ -84,17 +84,6 @@ export async function GET(req: NextRequest) {
 
         const campaignsData = await campaignsRes.json()
         const allCampaigns = campaignsData.data || []
-
-        // Build campaign info map
-        const campaignMap: Record<string, any> = {}
-        for (const c of allCampaigns) {
-            campaignMap[c.id] = {
-                campaign_name: c.name,
-                status: c.status,
-                objective: c.objective,
-                daily_budget: c.daily_budget ? parseFloat(c.daily_budget) / 100 : null,
-            }
-        }
 
         // 2. Get insights for the specific date range
         // IMPORTANT: Include ALL campaign delivery statuses to capture spend from
@@ -240,10 +229,18 @@ export async function GET(req: NextRequest) {
             const linkClicks = insight.outbound_clicks?.find((a: any) => a.action_type === 'outbound_click')?.value || 0
             const linkClickCtr = parseFloat(insight.inline_link_click_ctr || '0')
 
+            let effectiveStatus = c.status
+            if (effectiveStatus === 'ACTIVE' && c.ads && c.ads.data) {
+                const hasActiveAds = c.ads.data.some((ad: any) => ad.effective_status === 'ACTIVE')
+                if (!hasActiveAds) {
+                    effectiveStatus = 'PAUSED'
+                }
+            }
+
             return {
                 id: c.id,
                 campaign_name: c.name,
-                status: c.status,
+                status: effectiveStatus,
                 objective: c.objective,
                 daily_budget: c.daily_budget ? parseFloat(c.daily_budget) / 100 : null,
                 spend: spendNum,
