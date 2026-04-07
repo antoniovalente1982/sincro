@@ -227,6 +227,25 @@ export async function POST(req: NextRequest) {
                 }
             }
 
+            // Auto-sync ai_north_star (used by pulse + NorthStar delta calculations)
+            if (Object.keys(baseFields).length > 0) {
+                const bF = baseFields.base_fatturato || 50000
+                const bP = baseFields.base_prezzo || 2250
+                const bCAC = baseFields.base_cac_target || 300
+                const clientiMensili = bP > 0 ? Math.ceil(bF / bP) : 0
+                const budgetMensile = bCAC * clientiMensili
+
+                await supabase.from('ai_north_star').upsert({
+                    organization_id: org_id,
+                    aov: bP,
+                    cac_target: bCAC,
+                    sales_target_monthly: clientiMensili,
+                    budget_weekly: Math.round(budgetMensile / 4),
+                    budget_cap_monthly: budgetMensile,
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: 'organization_id' })
+            }
+
             return NextResponse.json({ ok: true, message: 'Obiettivi e Modalità aggiornati' })
         }
 
