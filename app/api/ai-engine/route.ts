@@ -369,46 +369,85 @@ export async function POST(req: NextRequest) {
 
     if (action === 'get_performance_trend') {
         const days = body.period === '30d' ? 30 : body.period === '14d' ? 14 : 7
-        const since = new Date()
-        since.setDate(since.getDate() - days)
+        const msInDay = 24 * 60 * 60 * 1000
+        const untilDate = new Date()
+        const sinceDate = new Date(untilDate.getTime() - (days - 1) * msInDay)
 
+        const sinceStr = sinceDate.toISOString().slice(0, 10)
+        const untilStr = untilDate.toISOString().slice(0, 10)
+
+        // 1. Get AI Executions for the period
         const { data: executions } = await supabase.from('ad_rule_executions')
-            .select('rule_name, action_taken, metrics_snapshot, executed_at, result')
+            .select('action_taken, executed_at')
             .eq('organization_id', member.organization_id)
-            .gte('executed_at', since.toISOString())
+            .gte('executed_at', sinceStr + 'T00:00:00.000Z')
             .order('executed_at', { ascending: true })
 
-        // Group by date
-        const byDate: Record<string, { spend: number; leads: number; cpl: number; ctr: number; rules: number; kills: number; winners: number; scale_ups: number; count: number }> = {}
+        // Initialize byDate array with all dates in the range
+        const byDate: Record<string, { spend: number; leads: number; cpl: number; ctr: number; rules: number; kills: number; winners: number; scale_ups: number }> = {}
+        for (let i = 0; i < days; i++) {
+            const dStr = new Date(sinceDate.getTime() + (i * msInDay)).toISOString().slice(0, 10)
+            byDate[dStr] = { spend: 0, leads: 0, cpl: 0, ctr: 0, rules: 0, kills: 0, winners: 0, scale_ups: 0 }
+        }
 
+        // Fill AI Exectutions
         ;(executions || []).forEach(e => {
             const dateStr = new Date(e.executed_at).toISOString().slice(0, 10)
-            if (!byDate[dateStr]) byDate[dateStr] = { spend: 0, leads: 0, cpl: 0, ctr: 0, rules: 0, kills: 0, winners: 0, scale_ups: 0, count: 0 }
-            const d = byDate[dateStr]
-            d.rules++
-            d.count++
-
-            const m = e.metrics_snapshot || {}
-            d.spend = Math.max(d.spend, Number(m.spend) || 0)
-            d.leads = Math.max(d.leads, Number(m.leads) || 0)
-            d.cpl = Number(m.cpl) || d.cpl
-            d.ctr = Number(m.ctr) || d.ctr
-
-            if (e.action_taken === 'pause_ad') d.kills++
-            if (e.action_taken === 'flag_winner') d.winners++
-            if (e.action_taken === 'increase_budget') d.scale_ups++
+            if (byDate[dateStr]) {
+                const d = byDate[dateStr]
+                d.rules++
+                if (e.action_taken === 'pause_ad') d.kills++
+                if (e.action_taken === 'flag_winner') d.winners++
+                if (e.action_taken === 'increase_budget') d.scale_ups++
+            }
         })
+
+        // 2. Fetch True Account Metrics from Meta API
+        try {
+            const { data: conn } = await supabase
+                .from('connections')
+                .select('credentials')
+                .eq('organization_id', member.organization_id)
+                .eq('provider', 'meta_ads')
+                .eq('status', 'active')
+                .single()
+
+            if (conn?.credentials?.access_token) {
+                const { access_token, ad_account_id } = conn.credentials
+                const adAccount = `act_${ad_account_id}`
+                const timeRange = JSON.stringify({ since: sinceStr, until: untilStr })
+                
+                const insightsUrl = `https://graph.facebook.com/v21.0/${adAccount}/insights?fields=spend,impressions,clicks,ctr,actions&level=account&time_range=${encodeURIComponent(timeRange)}&time_increment=1&limit=500&access_token=${access_token}`
+                const insightsRes = await fetch(insightsUrl, { cache: 'no-store' })
+
+                if (insightsRes.ok) {
+                    const insightsData = await insightsRes.json()
+                    const allInsights = insightsData.data || []
+                    
+                    for (const row of allInsights) {
+                        const rowDate = row.date_start // Because of time_increment=1
+                        if (byDate[rowDate]) {
+                            const d = byDate[rowDate]
+                            const spendNum = parseFloat(row.spend || '0')
+                            const metaLeadsCount = parseInt(row.actions?.find((a: any) => a.action_type === 'lead')?.value || '0')
+                            
+                            d.spend = spendNum
+                            d.leads = metaLeadsCount
+                            d.cpl = metaLeadsCount > 0 ? spendNum / metaLeadsCount : 0
+                            d.ctr = parseFloat(row.ctr || '0')
+                        }
+                    }
+                } else {
+                    console.error('Meta Insights API trend error:', await insightsRes.text())
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch Meta Insights for trend:', err)
+        }
 
         const trend = Object.entries(byDate).map(([date, d]) => ({
             date,
-            spend: d.spend,
-            leads: d.leads,
-            cpl: d.cpl,
-            ctr: d.ctr,
-            rules_triggered: d.rules,
-            kills: d.kills,
-            winners: d.winners,
-            scale_ups: d.scale_ups,
+            ...d
         })).sort((a, b) => a.date.localeCompare(b.date))
 
         return NextResponse.json({ trend })
