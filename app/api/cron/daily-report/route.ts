@@ -77,7 +77,7 @@ function buildDailyReport(s: any, ctx: any): string {
     })
 
     let report = `📊 <b>Report Giornaliero — ${dateStr}</b>\n\n`
-    report += `Ciao! Sono Dante, ecco il riepilogo della giornata:\n\n`
+    report += `Ciao! Sono Hermes, ecco il riepilogo della giornata:\n\n`
     report += `👥 <b>Lead oggi:</b> ${s.leads_today}\n`
     report += `📅 <b>Lead questa settimana:</b> ${s.leads_this_week}\n`
     report += `👥 <b>Lead totali:</b> ${s.total_leads}\n\n`
@@ -101,7 +101,7 @@ function buildDailyReport(s: any, ctx: any): string {
         report += '\n\n'
     }
 
-    report += `<i>🤖 Report automatico di Dante — ore 20:00</i>`
+    report += `<i>🤖 Report automatico di Hermes — ore 20:00</i>`
 
     return report
 }

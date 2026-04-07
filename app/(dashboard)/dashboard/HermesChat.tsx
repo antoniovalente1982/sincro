@@ -12,17 +12,37 @@ interface Message {
 
 export default function HermesChat() {
     const [isOpen, setIsOpen] = useState(false)
-    const [messages, setMessages] = useState<Message[]>([{
-        role: 'assistant',
-        content: 'Ciao Anto! 🧠 Sono **Hermes**, il tuo AI Engine. Ho accesso a tutti i dati: campagne ADS, KPI aziendali, lead e appuntamenti.\n\nChiedimi quello che vuoi — analisi, consigli, strategie. Sono qui per te!',
-        timestamp: new Date(),
-    }])
+    const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
 
+    // Load history from localStorage on mount
     useEffect(() => {
+        const saved = localStorage.getItem('hermes_chat_history')
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved)
+                // convert string dates back to Date objects
+                setMessages(parsed.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })))
+            } catch (e) {
+                console.error("Failed to parse chat history", e)
+            }
+        } else {
+            setMessages([{
+                role: 'assistant',
+                content: 'Ciao Anto! 🧠 Sono **Hermes**, il tuo AI Engine. Ho accesso a tutti i dati: campagne ADS, KPI aziendali, lead e appuntamenti.\n\nChiedimi quello che vuoi — analisi, consigli, strategie. Sono qui per te!',
+                timestamp: new Date(),
+            }])
+        }
+    }, [])
+
+    // Save history to localStorage on change
+    useEffect(() => {
+        if (messages.length > 0) {
+            localStorage.setItem('hermes_chat_history', JSON.stringify(messages))
+        }
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
@@ -30,11 +50,13 @@ export default function HermesChat() {
         if (isOpen) inputRef.current?.focus()
     }, [isOpen])
 
-    const sendMessage = async () => {
-        if (!input.trim() || loading) return
-        const userMsg: Message = { role: 'user', content: input.trim(), timestamp: new Date() }
+    const sendMessage = async (overrideInput?: string | React.MouseEvent | React.KeyboardEvent) => {
+        const msgText = typeof overrideInput === 'string' ? overrideInput : input.trim()
+        if (!msgText || loading) return
+        
+        const userMsg: Message = { role: 'user', content: msgText, timestamp: new Date() }
         setMessages(prev => [...prev, userMsg])
-        setInput('')
+        if (typeof overrideInput !== 'string') setInput('')
         setLoading(true)
 
         try {
@@ -206,10 +228,14 @@ export default function HermesChat() {
             {/* Quick Actions */}
             {messages.length <= 2 && (
                 <div className="px-4 pb-2 flex gap-2 flex-wrap">
-                    {['Come vanno le ADS?', 'Analisi KPI', 'Stato lead oggi'].map(q => (
+                    {['Come vanno le ADS?', 'Le tue regole 📜', 'Stato lead oggi'].map(q => (
                         <button
                             key={q}
-                            onClick={() => { setInput(q); }}
+                            onClick={() => {
+                                const val = q === 'Le tue regole 📜' ? '/export' : q;
+                                setInput(val);
+                                setTimeout(() => sendMessage(val), 10);
+                            }}
                             className="text-[10px] px-3 py-1.5 rounded-full transition-colors hover:bg-white/5"
                             style={{
                                 background: 'rgba(168, 85, 247, 0.08)',
@@ -233,13 +259,13 @@ export default function HermesChat() {
                         ref={inputRef}
                         value={input}
                         onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                        onKeyDown={e => e.key === 'Enter' && sendMessage(e)}
                         placeholder="Scrivi a Hermes..."
                         className="flex-1 bg-transparent outline-none text-sm text-white placeholder-[var(--color-surface-500)]"
                         disabled={loading}
                     />
                     <button
-                        onClick={sendMessage}
+                        onClick={e => sendMessage(e)}
                         disabled={!input.trim() || loading}
                         className="w-8 h-8 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
                         style={{

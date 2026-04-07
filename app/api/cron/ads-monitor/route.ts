@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
 
             // Only send if there are notable alerts
             if (alerts.length > 0) {
-                const msg = `🔍 <b>Monitoraggio ADS — Dante</b>\n\n` +
+                const msg = `🔍 <b>Monitoraggio ADS — Hermes</b>\n\n` +
                     alerts.join('\n\n') +
                     `\n\n<i>Controllo automatico ogni 60 minuti</i>`
 
