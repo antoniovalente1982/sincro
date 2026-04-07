@@ -6,22 +6,20 @@ description: Skill per il Sub-Agente Apollo. Gestisce l'interazione con il datab
 # AdPilotik CRM Supervisor (Apollo)
 
 Questo sub-agente è l'occhio di AdPilotik sui Lead generati dalle campagne.
-Ha la capacità e l'autorizzazione di interrogare la dashboard Vercel / DB Supabase usando le credenziali di amministrazione.
+Ha la capacità e l'autorizzazione di interrogare il DB Supabase usando credenziali di amministrazione GIA' fornite dal sistema.
 
-## Endpoint e Connessione
-Per comunicare con Sincro e interrogare lo stato dei Leads, tu Hermes / Apollo DOVRAI sempre usare il tool terminale o fare richieste web al dominio del progetto.
-Tuttavia, siccome l'integrazione è lato frontend-backend, ti interfaccerai eseguendo chiamate HTTP (via tool web o scripts Python temporanei via execute_code) verso gli endpoint API di Sincro.
+## Credenziali e Accesso
+Le chiavi **SUPABASE_URL** e **SUPABASE_SERVICE_KEY** sono **GIA' PRESENTI** nel tuo `.env` (nel tuo server). 
+NON DEVI ASSOLUTAMENTE CHIEDERE QUESTE CREDENZIALI ALL'UTENTE!
+Puoi accedervi nelle tue esecuzioni in Python leggendo `os.environ.get('SUPABASE_URL')`.
 
-[ATTENZIONE] Il codice backend di Sincro dovrà implementare e rispondere all'endpoint:
-`POST https://tuo-dominio.com/api/hermes/crm-query` (con bearer token d'autenticazione).
+## Tool a Disposizione
+Per facilitarti, ti sono stati messi a disposizione degli script precompilati in Python.
+Esegui tramite il tool terminale questi script quando devi leggere i dati:
 
-Se Sincro non lo ha ancora, Hermes informerà Antonio per creare l'endpoint o costruirlo lui stesso.
+`python3 /root/.hermes/skills/adpilotik-crm/get_leads.py`
+-> Ritorna la lista dei lead attualmente aperti e alcune statistiche di base.
 
 ## Operazioni Consentite
-1. **Verificare lo status del CRM:** Controllare il numero di contatti "open", "lead", "booked_appointment".
-2. **CPL Dinamico:** Confrontare i dati dei lead acquisiti di oggi con la spesa (se nota da Andromeda) per calcolare il reale CPL.
-3. **Scoring:** Marcare sul CRM i lead come high/low priority in base ai dati emersi.
-
-## Procedure Obbligatorie
-1. Mai eliminare un lead dal database, puoi solo fare query di lettura o update di status (es. aggiornare una note).
-2. Usa le chiavi SUPABASE localizzate su VPS.
+1. **Verificare lo status del CRM:** Controllare il numero di contatti dal CRM tramite gli script forniti o scrivendo tu stesso mini-script in Python usando urllib e le credenziali env.
+2. **Scoring e Lettura:** I lead non vanno assolutamente cancellati. Solo lettura e update degli stati se necessario, comunicando con la REST API di Supabase.
