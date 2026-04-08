@@ -277,7 +277,7 @@ async function run() {
                                 operator: 'and',
                                 filters: [{ field: 'event', operator: 'eq', value: 'PageView' }]
                             },
-                            aggregation: { type: 'time_spent', method: 'PERCENTILE', operator: 'IN_RANGE', from: 75, to: 100 }
+                            aggregation: { type: 'time_spent', method: 'percentile', operator: 'in_range', value: { from: 0, to: 25 } }
                         }]
                     }
                 }
