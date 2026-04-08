@@ -209,7 +209,11 @@ export async function POST(req: NextRequest) {
                                 if (sourceLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
                                 if (sourceLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
                                 
+                                // Regole esistenti di base da nome funnel
                                 const funnelLower = String(funnel.name).toLowerCase();
+                                if (funnelLower.includes('email') || funnelLower.includes('newsletter')) {
+                                    return 'Fonte: Email Marketing';
+                                }
                                 if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
                                 if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
                                 if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
