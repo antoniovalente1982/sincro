@@ -63,11 +63,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const [customHeadline, setCustomHeadline] = useState<string | null>(null)
     const checkoutFiredRef = useRef(false)
 
-    const handleFirstFieldFocus = useCallback(() => {
-        if (checkoutFiredRef.current) return
-        checkoutFiredRef.current = true
-        fireInitiateCheckout(funnel.name)
-    }, [funnel.name])
+
 
     // Easter egg / Dev tool per visualizzare la TKP
     useEffect(() => {
@@ -128,6 +124,18 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
         pixelId: funnel.meta_pixel_id,
         abVariant: funnel.settings?.ab_variant,
     })
+
+    // Fire InitiateCheckout on first form field focus (with CAPI context)
+    const handleFirstFieldFocus = useCallback(() => {
+        if (checkoutFiredRef.current) return
+        checkoutFiredRef.current = true
+        fireInitiateCheckout(funnel.name, {
+            orgId,
+            visitorId: getVisitorId(),
+            fbc: getFbIds().fbc,
+            fbp: getFbIds().fbp,
+        })
+    }, [funnel.name, orgId, getVisitorId, getFbIds])
 
     // Detect ad angle / adset angle from global UTM string matching against the database
     useEffect(() => {

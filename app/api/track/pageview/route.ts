@@ -12,6 +12,28 @@ function getSupabaseAdmin() {
     )
 }
 
+// Bot detection — these should NOT fire CAPI events (they inflate Pixel numbers)
+const BOT_PATTERNS = [
+    /bot/i, /crawler/i, /spider/i, /crawling/i,
+    /facebookexternalhit/i,     // Meta's link preview crawler
+    /WhatsApp/i,                // WhatsApp link preview
+    /Googlebot/i, /Bingbot/i, /YandexBot/i, /Baiduspider/i,
+    /Slurp/i, /DuckDuckBot/i, /Sogou/i,
+    /ia_archiver/i,             // Alexa crawler
+    /Mediapartners-Google/i,    // Google AdSense
+    /AdsBot-Google/i,           // Google Ads crawler
+    /Lighthouse/i,              // Google Lighthouse
+    /headless/i,                // Headless Chrome
+    /PhantomJS/i, /Selenium/i, /puppeteer/i,
+    /prerender/i, /Prerender/i,
+    /Twitterbot/i, /LinkedInBot/i, /Slackbot/i, /TelegramBot/i,
+]
+
+function isBot(userAgent: string): boolean {
+    if (!userAgent || userAgent.length < 10) return true
+    return BOT_PATTERNS.some(pattern => pattern.test(userAgent))
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
@@ -30,6 +52,9 @@ export async function POST(req: NextRequest) {
         const isMobile = /mobile|android|iphone|ipad/i.test(userAgent)
         const isTablet = /tablet|ipad/i.test(userAgent)
         const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop'
+
+        // Detect if this is a bot (still save pageview for analytics, but skip CAPI)
+        const isBotVisit = isBot(userAgent)
 
         const { error } = await getSupabaseAdmin().from('page_views').insert({
             organization_id,
@@ -54,10 +79,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // Fire CAPI PageView event — MUST be awaited before response
-        // (Vercel kills pending promises after response is sent)
-        if (funnel_id && event_id) {
-            // Fix #2: For returning visitors, look up their email/phone from previous submissions
+        // Fire CAPI PageView event — ONLY for real users, skip bots
+        if (funnel_id && event_id && !isBotVisit) {
+            // For returning visitors, look up their email/phone from previous submissions
             let returningEmail: string | undefined
             let returningPhone: string | undefined
             let returningName: string | undefined

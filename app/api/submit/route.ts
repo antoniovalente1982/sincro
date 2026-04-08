@@ -297,7 +297,10 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
 
         if (!conn?.credentials?.access_token) return
 
-        const eventId = userData.event_id || `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        const eventId = userData.event_id || (() => {
+            console.warn('[CAPI] event_id missing from client — generating server-side fallback. Deduplication may fail.')
+            return `evt_srv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        })()
 
         const payload = {
             data: [{

@@ -121,7 +121,7 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
 
         // ── ViewContent after 3s of active visit ──────────────────────────────
         // Signals to Meta that the user actually read the page (not a bounce).
-        // Fires client-side immediately + CAPI after 2s delay.
+        // Fires client-side Pixel immediately + CAPI via /api/track/event after 2s.
         const vcEventId = `vc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
         let vcFired = false
         const fireViewContent = () => {
@@ -130,25 +130,22 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
             if (typeof window !== 'undefined' && (window as any).fbq) {
                 ;(window as any).fbq('track', 'ViewContent', { content_name: 'landing' }, { eventID: vcEventId })
             }
-            // CAPI ViewContent
+            // CAPI ViewContent — uses generic /api/track/event endpoint
+            // IMPORTANT: This MUST send event_name='ViewContent', NOT 'PageView'
             setTimeout(() => {
                 const vc = parseCookies()
-                fetch('/api/track/pageview', {
+                fetch('/api/track/event', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         organization_id: orgId,
-                        funnel_id: funnelId,
-                        page_path: window.location.pathname + '?vc=1',
-                        page_variant: abVariant || 'A',
-                        visitor_id: vid,
-                        utm_source: utms.utm_source, utm_medium: utms.utm_medium,
-                        utm_campaign: utms.utm_campaign, utm_content: utms.utm_content,
-                        utm_term: utms.utm_term,
+                        event_name: 'ViewContent',
                         event_id: vcEventId,
+                        visitor_id: vid,
                         fbc: vc._fbc || initialFbc,
                         fbp: vc._fbp || initialFbp,
                         page_url: window.location.href,
+                        extra_data: { content_name: 'landing' },
                     }),
                 }).catch(() => {})
             }, 2000)
@@ -208,15 +205,50 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
  * Fire InitiateCheckout — call on first form field focus.
  * Signals Meta that the user started filling the lead form.
  * This is the #1 retargeting signal for "Hot" audiences.
+ *
+ * Now fires BOTH Pixel + CAPI for proper deduplication and attribution.
  */
-export function fireInitiateCheckout(funnelName?: string) {
+export function fireInitiateCheckout(
+    funnelName?: string,
+    trackingContext?: { orgId?: string; visitorId?: string; fbc?: string; fbp?: string }
+) {
     if (typeof window === 'undefined' || !(window as any).fbq) return
     const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+    // 1. Pixel (client-side)
     ;(window as any).fbq('track', 'InitiateCheckout', {
         content_name: funnelName || 'lead_form',
         currency: 'EUR',
         value: 0,
     }, { eventID: eventId })
+
+    // 2. CAPI (server-side) — for deduplication and attribution
+    if (trackingContext?.orgId) {
+        const cookies = document.cookie.split(';').reduce((acc: Record<string, string>, c) => {
+            const sep = c.indexOf('=')
+            if (sep > -1) acc[c.substring(0, sep).trim()] = c.substring(sep + 1).trim()
+            return acc
+        }, {})
+
+        fetch('/api/track/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                organization_id: trackingContext.orgId,
+                event_name: 'InitiateCheckout',
+                event_id: eventId,
+                visitor_id: trackingContext.visitorId,
+                fbc: cookies._fbc || trackingContext.fbc,
+                fbp: cookies._fbp || trackingContext.fbp,
+                page_url: window.location.href,
+                extra_data: {
+                    content_name: funnelName || 'lead_form',
+                    currency: 'EUR',
+                    value: 0,
+                },
+            }),
+        }).catch(() => {})
+    }
 }
 
 /**
