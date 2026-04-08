@@ -193,16 +193,28 @@ export async function POST(req: NextRequest) {
                             utm_source: utm_source || null,
                             utm_campaign: utm_campaign || null,
                             product: (() => {
-                                if (utm_source) {
-                                    const lower = String(utm_source).toLowerCase();
-                                    if (lower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
-                                    if (lower.includes('metodosincro')) return 'Fonte: metodosincro.it';
-                                    if (lower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                const sourceLower = String(utm_source || '').toLowerCase();
+                                const mediumLower = String(body.utm_medium || '').toLowerCase();
+                                
+                                // Regole esplicite UTM
+                                if (sourceLower.includes('email') || sourceLower.includes('activecampaign') || sourceLower.includes('newsletter') || mediumLower.includes('email')) {
+                                    return 'Fonte: Email Marketing';
                                 }
+                                if (sourceLower.includes('facebook') || sourceLower.includes('ig') || sourceLower.includes('meta') || sourceLower.includes('instagram')) {
+                                    return 'Fonte: Ads - Meta';
+                                }
+                                
+                                // Regole esistenti di base
+                                if (sourceLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
+                                if (sourceLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
+                                if (sourceLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                
                                 const funnelLower = String(funnel.name).toLowerCase();
                                 if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
                                 if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
                                 if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                
+                                // Fallback predefinito se UTM mancante e funnel non matchato
                                 return 'Fonte: Ads - Meta';
                             })(),
                             meta_data: {
