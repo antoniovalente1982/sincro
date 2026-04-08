@@ -9,7 +9,7 @@ const supabase = createClient(
 async function clean() {
   console.log("Cleaning bogus angles...")
   // The angles to remove
-  const badAngles = ['IL', 'LA', 'DI', 'DA', 'NON', 'DECINE', 'PERCH', 'LO', 'UNISCITI']
+  const badAngles = ['IL', 'LA', 'DI', 'DA', 'NON', 'DECINE', 'PERCH', 'LO', 'UNISCITI', 'STESSO', 'MENTALIT', 'E', 'TI', 'OTTENIAMO', 'PERCHÈ', 'PERCHE', 'PERCHÉ']
   
   const { data, error } = await supabase
     .from('ai_angle_scores')
