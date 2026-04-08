@@ -9,6 +9,7 @@ export default async function TeamPage() {
         .from('organization_members')
         .select('organization_id, role')
         .eq('user_id', user?.id || '')
+        .is('deactivated_at', null)
         .single()
 
     return <TeamPanel orgId={member?.organization_id || ''} userRole={member?.role || 'viewer'} />

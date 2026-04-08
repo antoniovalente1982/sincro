@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -9,10 +9,11 @@ import {
     LayoutDashboard, Target, Users, BarChart3, Plug, UserCircle,
     LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
-    History, Palette,
+    History, Palette, CalendarDays,
     type LucideIcon
 } from 'lucide-react'
 import HermesChat from './dashboard/HermesChat'
+import { filterNavItems, type Role, type Department } from '@/lib/permissions'
 
 interface NavItem {
     label: string
@@ -20,9 +21,10 @@ interface NavItem {
     icon: LucideIcon
 }
 
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
+    { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
     { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
     { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
@@ -38,6 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [collapsed, setCollapsed] = useState(false)
     const [user, setUser] = useState<any>(null)
     const [orgName, setOrgName] = useState('')
+    const [userRole, setUserRole] = useState<Role>('owner')
+    const [userDepartment, setUserDepartment] = useState<Department>(null)
     const [notifications, setNotifications] = useState<any[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
     const [showNotifs, setShowNotifs] = useState(false)
@@ -57,6 +61,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         } catch {}
     }
 
+    // Filtered nav items based on role + department
+    const navItems = useMemo(() => 
+        filterNavItems(allNavItems, userRole, userDepartment)
+    , [userRole, userDepartment])
+
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
@@ -64,11 +73,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 setUser(user)
                 const { data: member } = await supabase
                     .from('organization_members')
-                    .select('organizations(name)')
+                    .select('organization_id, role, department, organizations(name)')
                     .eq('user_id', user.id)
+                    .is('deactivated_at', null)
                     .single()
                 if (member?.organizations) {
                     setOrgName((member.organizations as any).name)
+                }
+                if (member?.role) {
+                    setUserRole(member.role as Role)
+                }
+                if (member?.department !== undefined) {
+                    setUserDepartment((member.department as Department) || null)
                 }
             }
         }

@@ -7,11 +7,13 @@ export default async function CRMPage() {
 
     const { data: member } = await supabase
         .from('organization_members')
-        .select('organization_id, role')
+        .select('organization_id, role, department')
         .eq('user_id', user?.id || '')
+        .is('deactivated_at', null)
         .single()
 
     const orgId = member?.organization_id || ''
+    const userId = user?.id || ''
 
     const [pipelinesRes, stagesRes, leadsRes, membersRes, funnelsRes, sourcesRes, tagsRes] = await Promise.all([
         supabase
@@ -31,8 +33,9 @@ export default async function CRMPage() {
             .order('created_at', { ascending: false }),
         supabase
             .from('organization_members')
-            .select('user_id, role, profiles:user_id (full_name, email)')
-            .eq('organization_id', orgId),
+            .select('user_id, role, department, deactivated_at, profiles:user_id (full_name, email)')
+            .eq('organization_id', orgId)
+            .is('deactivated_at', null),
         supabase
             .from('funnels')
             .select('id, name, objective')
@@ -68,6 +71,8 @@ export default async function CRMPage() {
             initialLeads={leadsRes.data || []}
             members={members}
             userRole={member?.role || 'viewer'}
+            userDepartment={member?.department || null}
+            userId={userId}
             objectives={objectives}
             activeCampaigns={activeCampaigns as string[]}
             trafficSources={sourcesRes?.data || []}

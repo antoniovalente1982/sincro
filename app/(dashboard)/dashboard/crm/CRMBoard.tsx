@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
+import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, type Role, type Department } from '@/lib/permissions'
 
 interface Stage {
     id: string
@@ -70,6 +71,8 @@ interface Props {
     initialLeads: Lead[]
     members: Member[]
     userRole: string
+    userDepartment?: string | null
+    userId?: string
     objectives: string[]
     activeCampaigns: string[]
     trafficSources: TrafficSource[]
@@ -108,7 +111,11 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, userDepartment, userId, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
+    const role = (userRole || 'viewer') as Role
+    const department = (userDepartment || null) as Department
+    const readOnly = isCrmReadOnly(role, department)
+    const filterOwn = shouldFilterOwnLeads(role)
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
@@ -225,8 +232,10 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         })()
         const matchSource = sourceFilter === 'all' || l.product === sourceFilter
         const matchTag = tagFilter === 'all' || (l.lead_tags || []).some(lt => lt.crm_tags?.id === tagFilter)
+        // Role-based filter: setter/closer see only their assigned leads
+        const matchOwnership = !filterOwn || l.assigned_to === userId || !l.assigned_to
         
-        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag
+        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchOwnership
     })
 
     // Sort leads by arrival time (most recent first) considering re-submissions
@@ -256,11 +265,28 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const handleDragLeave = () => setDragOverStage(null)
 
     const handleDrop = async (stageId: string) => {
-        if (!dragLead) return
+        if (!dragLead || readOnly) return
         setDragOverStage(null)
 
         const lead = leads.find(l => l.id === dragLead)
         if (!lead || lead.stage_id === stageId) {
+            setDragLead(null)
+            return
+        }
+
+        // Permission check: can this role move from current stage to target?
+        const fromStage = stages.find(s => s.id === lead.stage_id)
+        const toStage = stages.find(s => s.id === stageId)
+        const fromSlug = fromStage?.slug || ''
+        const toSlug = toStage?.slug || ''
+        
+        if (!canMoveLead(role, department, fromSlug, toSlug, fromStage?.is_won, toStage?.is_won, fromStage?.is_lost, toStage?.is_lost)) {
+            const zoneMsg = role === 'setter' 
+                ? 'Come Setter puoi spostare lead solo fino ad "Appuntamento".' 
+                : role === 'closer' 
+                    ? 'Come Closer puoi spostare lead solo da "Appuntamento" in poi.'
+                    : 'Non hai i permessi per spostare lead.'
+            alert(`⛔ ${zoneMsg}`)
             setDragLead(null)
             return
         }
@@ -644,9 +670,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                     return (
                                     <div
                                         key={lead.id}
-                                        draggable
-                                        onDragStart={() => handleDragStart(lead.id)}
-                                        className="group p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all duration-200 hover:scale-[1.02]"
+                                        draggable={!readOnly}
+                                        onDragStart={() => !readOnly && handleDragStart(lead.id)}
+                                        className={`group p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] ${readOnly ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
                                         style={{
                                             background: 'rgba(15, 15, 19, 0.8)',
                                             border: `1px solid ${(aiScore.label === 'Hot' || isReturnedToday) ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255,255,255,0.06)'}`,
