@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { createClickUpTask } from '@/lib/clickup'
 
 async function getOrgId(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -110,9 +111,42 @@ export async function PUT(req: NextRequest) {
         // Fire Meta CAPI event if the new stage has fire_capi_event configured
         const { data: newStage } = await supabase
             .from('pipeline_stages')
-            .select('name, fire_capi_event')
+            .select('name, fire_capi_event, is_won')
             .eq('id', updates.stage_id)
             .single()
+
+        if (newStage) {
+            // Se lo stage è "Vinto", creiamo il task in ClickUp per il Delivery Team
+            if (newStage.is_won) {
+                // Fetch basic lead details if not fully available in updates
+                const leadFetch = await supabase
+                    .from('leads')
+                    .select('name, email, phone, notes, value, product')
+                    .eq('id', id)
+                    .single()
+                const leadData = leadFetch.data
+
+                if (leadData) {
+                    await createClickUpTask({
+                        name: `🛫 ONBOARDING: ${leadData.name}`,
+                        description: `
+Un nuovo cliente ha chiuso con successo!
+---
+👤 Nome: ${leadData.name}
+📧 Email: ${leadData.email || 'N/A'}
+📱 Telefono: ${leadData.phone || 'N/A'}
+💸 Valore: €${leadData.value || 0}
+📦 Prodotto: ${leadData.product || 'N/A'}
+
+📝 Note Venditore:
+${leadData.notes || 'Nessuna nota fornita.'}
+                        `.trim(),
+                        priority: 2, // High priority
+                        // dueDate: Date.now() + 2 * 24 * 60 * 60 * 1000 // Between 48 hours maybe?
+                    });
+                }
+            }
+        }
 
         if (newStage?.fire_capi_event) {
             // Fire CAPI event asynchronously

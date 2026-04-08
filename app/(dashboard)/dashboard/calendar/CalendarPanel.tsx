@@ -53,9 +53,10 @@ interface AvailabilitySchedule {
 interface Props {
     userRole: string
     userId: string
+    prefillLead?: { id: string; name: string; email?: string; phone?: string } | null
 }
 
-export default function CalendarPanel({ userRole, userId }: Props) {
+export default function CalendarPanel({ userRole, userId, prefillLead }: Props) {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [events, setEvents] = useState<CalendarEvent[]>([])
     const [closers, setClosers] = useState<Closer[]>([])
@@ -137,6 +138,23 @@ export default function CalendarPanel({ userRole, userId }: Props) {
     useEffect(() => { fetchClosers() }, [fetchClosers])
     useEffect(() => { fetchEvents() }, [fetchEvents])
 
+    // CRM Fast Booking auto-open
+    useEffect(() => {
+        if (prefillLead && !showBooking && canBook) {
+            setBookLeadName(prefillLead.name || '')
+            setBookPhone(prefillLead.phone || '')
+            setBookEmail(prefillLead.email || '')
+            setShowBooking(true)
+            
+            // Clean up the URL visually without refreshing the page
+            if (typeof window !== 'undefined') {
+                const url = new URL(window.location.href)
+                url.searchParams.delete('book_lead_id')
+                window.history.replaceState({}, '', url.toString())
+            }
+        }
+    }, [prefillLead, canBook])
+
     // Fetch available slots for booking
     const fetchSlots = async (closerId: string) => {
         setSlotsLoading(true)
@@ -176,6 +194,7 @@ export default function CalendarPanel({ userRole, userId }: Props) {
                     lead_phone: bookPhone,
                     lead_email: bookEmail,
                     description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : `Lead: ${bookLeadName}`,
+                    lead_id: prefillLead?.id, // Associa il lead esistente
                 }),
             })
             const data = await res.json()

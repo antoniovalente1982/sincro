@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
+import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, type Role, type Department } from '@/lib/permissions'
 
 interface Stage {
@@ -1132,18 +1133,28 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                     )}
                 </div>
 
-                {/* Contact */}
-                <div className="space-y-2 mb-5">
-                    {lead.email && (
-                        <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
-                            <Mail className="w-4 h-4" /> {lead.email}
+                {/* Contact & Actions */}
+                <div className="mb-5 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-2">
+                            {lead.email && (
+                                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
+                                    <Mail className="w-4 h-4" /> {lead.email}
+                                </div>
+                            )}
+                            {lead.phone && (
+                                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
+                                    <Phone className="w-4 h-4" /> {lead.phone}
+                                </div>
+                            )}
                         </div>
-                    )}
-                    {lead.phone && (
-                        <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
-                            <Phone className="w-4 h-4" /> {lead.phone}
-                        </div>
-                    )}
+                        <Link href={`/dashboard/calendar?book_lead_id=${lead.id}`}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:scale-105 shadow-lg"
+                            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                            <Calendar className="w-4 h-4" />
+                            Prenota Appuntamento
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Marketing Attribution */}
