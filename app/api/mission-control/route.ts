@@ -182,11 +182,24 @@ export async function POST(req: NextRequest) {
             
             // Upsert typed fields into ai_mission_objectives (only real columns)
             if (Object.keys(tableFields).length > 0) {
-                await supabase.from('ai_mission_objectives').upsert({
-                    organization_id: org_id,
-                    ...tableFields,
-                    updated_at: new Date().toISOString(),
-                }, { onConflict: 'organization_id' })
+                // Filter out columns that don't belong to ai_mission_objectives to avoid schema errors
+                const allowedMissionObjectveCols = ['weekly_leads_target', 'weekly_appointments_target', 'weekly_showup_target', 'weekly_sales_target', 'weekly_spend_budget', 'monthly_leads_target'];
+                const filteredTableFields: Record<string, any> = {};
+                for (const key of Object.keys(tableFields)) {
+                    if (allowedMissionObjectveCols.includes(key)) {
+                        filteredTableFields[key] = tableFields[key];
+                    }
+                }
+                
+                if (Object.keys(filteredTableFields).length > 0) {
+                    const { error: objErr } = await supabase.from('ai_mission_objectives').upsert({
+                        organization_id: org_id,
+                        ...filteredTableFields,
+                        updated_at: new Date().toISOString(),
+                    }, { onConflict: 'organization_id' })
+                    
+                    if (objErr) throw new Error("MissionObj: " + objErr.message);
+                }
             }
 
             // Update ai_agent_config — always run this to persist base_* fields in JSONB
@@ -211,9 +224,10 @@ export async function POST(req: NextRequest) {
                             ...baseFields,
                         }
                     }
-                    await supabase.from('ai_agent_config')
+                    const { error: updErr } = await supabase.from('ai_agent_config')
                         .update(updatePayload)
                         .eq('organization_id', org_id)
+                    if (updErr) throw new Error("AgentCfgUpd: " + updErr.message);
                 } else {
                     // INSERT new record
                     updatePayload.organization_id = org_id
@@ -223,7 +237,8 @@ export async function POST(req: NextRequest) {
                     if (Object.keys(baseFields).length > 0) {
                         updatePayload.objectives = baseFields
                     }
-                    await supabase.from('ai_agent_config').insert(updatePayload)
+                    const { error: insErr } = await supabase.from('ai_agent_config').insert(updatePayload)
+                    if (insErr) throw new Error("AgentCfgIns: " + insErr.message);
                 }
             }
 
@@ -235,7 +250,7 @@ export async function POST(req: NextRequest) {
                 const clientiMensili = bP > 0 ? Math.ceil(bF / bP) : 0
                 const budgetMensile = bCAC * clientiMensili
 
-                await supabase.from('ai_north_star').upsert({
+                const { error: nsErr } = await supabase.from('ai_north_star').upsert({
                     organization_id: org_id,
                     aov: bP,
                     cac_target: bCAC,
@@ -244,6 +259,7 @@ export async function POST(req: NextRequest) {
                     budget_cap_monthly: budgetMensile,
                     updated_at: new Date().toISOString(),
                 }, { onConflict: 'organization_id' })
+                if (nsErr) throw new Error("NorthStar: " + nsErr.message);
             }
 
             return NextResponse.json({ ok: true, message: 'Obiettivi e Modalità aggiornati' })
@@ -258,9 +274,7 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: `Cron ${cron_name} non autorizzato` }, { status: 400 })
             }
 
-            const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('supabase')
-                ? process.env.NEXTAUTH_URL || 'http://localhost:3000'
-                : 'http://localhost:3000'
+            const baseUrl = req.nextUrl.origin
 
             const cronRes = await fetch(`${baseUrl}/api/cron/${cron_name}`, {
                 headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` },
