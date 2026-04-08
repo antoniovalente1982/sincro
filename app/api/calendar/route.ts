@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendBookingConfirmation, sendBookingNotificationToCloser } from '@/lib/email'
 
 async function getContext(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -300,6 +301,57 @@ export async function POST(req: NextRequest) {
                     } catch { /* best effort */ }
                 }
             }
+        }
+
+        // Send email notifications (best effort, non-blocking)
+        const startDt = new Date(start_time)
+        const endDt = new Date(end_time)
+        const dateFormatted = startDt.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        const timeFormatted = `${startDt.getHours().toString().padStart(2,'0')}:${startDt.getMinutes().toString().padStart(2,'0')} — ${endDt.getHours().toString().padStart(2,'0')}:${endDt.getMinutes().toString().padStart(2,'0')}`
+
+        // Get closer info for email
+        const { data: closerMember } = await supabase
+            .from('organization_members')
+            .select('profiles:user_id(full_name, email)')
+            .eq('user_id', closer_id)
+            .single()
+        const closerName = (closerMember?.profiles as any)?.full_name || 'Il tuo consulente'
+        const closerEmail = (closerMember?.profiles as any)?.email
+
+        // Get setter name
+        const { data: setterMember } = await supabase
+            .from('organization_members')
+            .select('profiles:user_id(full_name)')
+            .eq('user_id', ctx.auth_user_id)
+            .single()
+        const setterName = (setterMember?.profiles as any)?.full_name || null
+
+        const leadDisplayName = description?.replace('Lead: ', '').split('\n')[0] || title || 'Cliente'
+
+        // Email to lead (if email provided)
+        if (lead_email) {
+            sendBookingConfirmation({
+                to: lead_email,
+                leadName: leadDisplayName,
+                closerName,
+                date: dateFormatted,
+                time: timeFormatted,
+                phone: lead_phone,
+            }).catch(() => {})
+        }
+
+        // Email to closer
+        if (closerEmail) {
+            sendBookingNotificationToCloser({
+                to: closerEmail,
+                closerName,
+                leadName: leadDisplayName,
+                leadPhone: lead_phone,
+                leadEmail: lead_email,
+                date: dateFormatted,
+                time: timeFormatted,
+                setterName,
+            }).catch(() => {})
         }
 
         return NextResponse.json({ event, message: 'Appuntamento creato con successo' })
