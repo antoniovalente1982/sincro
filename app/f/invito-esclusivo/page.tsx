@@ -190,7 +190,7 @@ function PageContent() {
             <span className="text-[12px] font-extrabold text-indigo-500 tracking-[1.5px] uppercase animate-pulse">⚡ ACCESSO PRIORITARIO</span>
           </div>
           <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
-            Iscriviti per la Chiamata
+            Compila per la Chiamata
           </h3>
           <p className="text-[13px] text-zinc-500 mb-4">Compila il form ultraveloce e mettiti in priorità</p>
 
