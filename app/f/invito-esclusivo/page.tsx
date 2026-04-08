@@ -3,7 +3,7 @@
 import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Loader2, CheckCircle2, ArrowRight, Lock, Clock, Star, User, Phone, Mail } from 'lucide-react'
+import { Loader2, CheckCircle2, ArrowRight, Lock, Clock, Star, User, Phone, Mail, Users } from 'lucide-react'
 
 // Metodo Sincro organization id e funnel id master
 const MS_ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
@@ -13,8 +13,8 @@ function PageContent() {
   const searchParams = useSearchParams()
 
   const config = {
-    logoTitle: 'ACCESSO',
-    logoAccent: 'RISERVATO',
+    logoTitle: 'METODO',
+    logoAccent: 'SINCRO®',
     headline: 'Il tuo percorso privilegiato inizia qui.',
     subheadline: 'Hai ricevuto questo link perché sei iscritto alla nostra lista. Compila il modulo veloce per accedere alla tua prima sessione.',
     buttonText: 'Prenota la consulenza gratuita',
@@ -35,6 +35,7 @@ function PageContent() {
   const [emailError, setEmailError] = useState('')
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [childAge, setChildAge] = useState('')
   const [submitAttempted, setSubmitAttempted] = useState(false)
 
   // Validation helpers
@@ -129,6 +130,7 @@ function PageContent() {
           utm_campaign: utmCampaign,
           utm_content:  utmContent,
           utm_term:     utmTerm,
+          extra_data:   { child_age: childAge },
           landing_url:  typeof window !== 'undefined' ? window.location.hostname : 'landing.metodosincro.com',
         })
       })
@@ -233,6 +235,21 @@ function PageContent() {
                     />
                 </div>
                 {((submitAttempted && !isEmailValid) || emailError) && <span className="block mt-1.5 text-[12px] font-medium text-red-500 px-1 text-left">{emailError}</span>}
+             </div>
+
+             <div className="mb-0 text-left">
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${childAge ? 'border-green-500 bg-green-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-indigo-500/20'}`}>
+                    <Users className="w-5 h-5 text-zinc-500 shrink-0" />
+                    <select value={childAge} onChange={e => setChildAge(e.target.value)}
+                            className="w-full bg-transparent border-none outline-none text-zinc-900 text-[15px] appearance-none" style={{ backgroundImage: 'none' }}>
+                        <option value="" disabled className="text-zinc-400">Età di tuo figlio/a (opzionale)</option>
+                        <option value="8-10">8-10 anni</option>
+                        <option value="11-13">11-13 anni</option>
+                        <option value="14-16">14-16 anni</option>
+                        <option value="17-20">17-20 anni</option>
+                        <option value="20+">Oltre 20 anni</option>
+                    </select>
+                </div>
              </div>
 
              {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200 mt-2">{error}</div>}
