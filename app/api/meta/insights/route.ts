@@ -72,13 +72,11 @@ export async function GET(req: NextRequest) {
         const { access_token, ad_account_id } = conn.credentials
         const adAccount = `act_${ad_account_id}`
 
-        // 1. Get all campaigns (for name, status) and ads (for creative thumbnails)
-        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads{effective_status}&limit=500&access_token=${access_token}`
-        const adsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=name,creative{thumbnail_url,image_url}&limit=1000&access_token=${access_token}`
+        // 1. Get campaigns and nested ads (for statuses and creative thumbnails) to optimize speed
+        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads.limit(300){effective_status,name,creative{thumbnail_url,image_url}}&limit=500&access_token=${access_token}`
         
-        const [campaignsRes, adsRes, dbCreativesRes] = await Promise.all([
+        const [campaignsRes, dbCreativesRes] = await Promise.all([
             fetch(campaignsUrl, { cache: 'no-store' }),
-            fetch(adsUrl, { cache: 'no-store' }),
             getSupabaseAdmin().from('ad_creatives').select('name, image_url').eq('organization_id', orgId)
         ])
 
@@ -98,10 +96,9 @@ export async function GET(req: NextRequest) {
                 adThumbnails[ad.name.trim()] = ad.image_url
             }
         }
-        // Fallback to Meta API thumbnails
-        if (adsRes.ok) {
-            const adsData = await adsRes.json()
-            for (const ad of (adsData.data || [])) {
+        // Fallback to Meta API thumbnails (from the nested campaign response)
+        for (const camp of allCampaigns) {
+            for (const ad of (camp.ads?.data || [])) {
                 if (ad.name) {
                     const name = ad.name.trim()
                     if (!adThumbnails[name]) {
