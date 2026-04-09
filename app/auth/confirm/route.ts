@@ -12,11 +12,15 @@ export async function GET(req: NextRequest) {
         const { error } = await supabase.auth.verifyOtp({ token_hash, type })
 
         if (!error) {
-            // Token verificato con successo — redirect alla pagina richiesta
+            // Per inviti: redirect a "imposta password" (l'utente non ne ha ancora una)
+            if (type === 'invite') {
+                return NextResponse.redirect(new URL('/set-password', req.url))
+            }
             return NextResponse.redirect(new URL(next, req.url))
         }
+        
+        console.error('[AUTH CONFIRM] OTP verify error:', error.message)
     }
 
-    // Se fallisce, redirect alla login con errore
     return NextResponse.redirect(new URL('/login?error=invite_expired', req.url))
 }
