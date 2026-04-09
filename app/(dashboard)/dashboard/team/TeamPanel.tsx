@@ -56,8 +56,15 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 setShowInvite(false)
                 setInviteEmail('')
                 loadMembers()
+            } else {
+                const data = await res.json()
+                console.error("Invite error:", data.error)
+                alert("Errore durante l'invito: " + (data.error || "Riprova"))
             }
-        } catch (err) { console.error(err) }
+        } catch (err) { 
+            console.error(err)
+            alert("Errore di rete, riprova.")
+        }
         setInviting(false)
     }
 
@@ -356,7 +363,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
 
             {/* Invite Modal */}
             {showInvite && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowInvite(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
                     <div className="w-full max-w-md glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-bold text-white">Invita Membro</h2>

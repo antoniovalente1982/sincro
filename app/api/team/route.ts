@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 async function getOrgAndRole(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
             .from('organization_members')
             .insert({
                 organization_id: ctx.organization_id,
-                user_id: ctx.user_id, // placeholder, will be replaced on accept
+                user_id: null, // placeholder must be null so it doesn't violate FK/Unique constraints
                 role,
                 department: department || null,
                 invited_email: email,
