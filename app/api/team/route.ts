@@ -100,7 +100,10 @@ export async function POST(req: NextRequest) {
         const supabaseAdmin = getSupabaseAdmin()
         
         // 2. This creates the user in auth.users and sends them an invitation email
-        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email)
+        // Passiamo esplicitamente il dominio in "redirectTo" (deve anche essere abilitato nei Redirect URL di Supabase)
+        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+            redirectTo: 'https://landing.metodosincro.com/dashboard/team'
+        })
         
         if (inviteError) {
             // Se l'utente magari esiste già in auth ma non in profiles... 
