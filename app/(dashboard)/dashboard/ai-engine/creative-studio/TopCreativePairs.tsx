@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Target, Megaphone, Loader2, RefreshCw, Info, ChevronDown, DollarSign } from 'lucide-react'
+import { Target, Megaphone, Loader2, RefreshCw, ChevronDown, DollarSign } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import DateRangeFilter, { useDateRange } from '@/components/DateRangeFilter'
 
@@ -10,6 +10,8 @@ interface TopPair {
     headline: string
     leads: number
     thumbnail_url?: string
+    landing_headline?: string
+    spend?: number
 }
 
 // Format date as YYYY-MM-DD in LOCAL timezone (CET/CEST safe)
@@ -103,12 +105,12 @@ export default function TopCreativePairs() {
                     <div>
                         <h2 className="text-base font-bold text-white">Top Creative & Headline per Lead</h2>
                         <p className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
-                            Combinazioni creative + headline ordinate per lead generati
+                            Headline Ad · Headline Landing · Creative — con CPL reale per inserzione
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                    {/* CPL Badge */}
+                    {/* Global CPL Badge */}
                     {avgCPL > 0 && !loading && (
                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
                             <DollarSign className="w-3.5 h-3.5" style={{ color: '#f59e0b' }} />
@@ -164,60 +166,83 @@ export default function TopCreativePairs() {
                 ) : (
                     <>
                         <div className="p-4 space-y-3">
-                            {visiblePairs.map((pair, idx) => (
-                                <div
-                                    key={idx}
-                                    className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors"
-                                    style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}
-                                >
-                                    {/* Rank badge */}
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
-                                        style={{
-                                            background: idx === 0 ? 'rgba(245,158,11,0.15)' : idx === 1 ? 'rgba(156,163,175,0.12)' : idx === 2 ? 'rgba(180,83,9,0.12)' : 'rgba(255,255,255,0.04)',
-                                            color: idx === 0 ? '#f59e0b' : idx === 1 ? '#9ca3af' : idx === 2 ? '#b45309' : 'var(--color-surface-500)',
-                                            border: `1px solid ${idx === 0 ? 'rgba(245,158,11,0.3)' : idx === 1 ? 'rgba(156,163,175,0.2)' : idx === 2 ? 'rgba(180,83,9,0.2)' : 'rgba(255,255,255,0.05)'}`,
-                                        }}>
-                                        {idx + 1}
-                                    </div>
+                            {visiblePairs.map((pair, idx) => {
+                                const pairCPL = pair.spend && pair.leads > 0 ? pair.spend / pair.leads : null
+                                return (
+                                    <div
+                                        key={idx}
+                                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors"
+                                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}
+                                    >
+                                        {/* Rank badge */}
+                                        <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
+                                            style={{
+                                                background: idx === 0 ? 'rgba(245,158,11,0.15)' : idx === 1 ? 'rgba(156,163,175,0.12)' : idx === 2 ? 'rgba(180,83,9,0.12)' : 'rgba(255,255,255,0.04)',
+                                                color: idx === 0 ? '#f59e0b' : idx === 1 ? '#9ca3af' : idx === 2 ? '#b45309' : 'var(--color-surface-500)',
+                                                border: `1px solid ${idx === 0 ? 'rgba(245,158,11,0.3)' : idx === 1 ? 'rgba(156,163,175,0.2)' : idx === 2 ? 'rgba(180,83,9,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                                            }}>
+                                            {idx + 1}
+                                        </div>
 
-                                    {/* Thumbnail */}
-                                    {pair.thumbnail_url ? (
-                                        <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <img src={pair.thumbnail_url} alt="Ad Creative" className="w-full h-full object-cover" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <Megaphone className="w-5 h-5 opacity-20" />
-                                        </div>
-                                    )}
+                                        {/* Thumbnail */}
+                                        {pair.thumbnail_url ? (
+                                            <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <img src={pair.thumbnail_url} alt="Ad Creative" className="w-full h-full object-cover" />
+                                            </div>
+                                        ) : (
+                                            <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <Megaphone className="w-5 h-5 opacity-20" />
+                                            </div>
+                                        )}
 
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-semibold text-white mb-1 flex items-start gap-2">
-                                            <span style={{ color: 'var(--color-surface-500)', marginTop: '2px' }} className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0">Headline</span>
-                                            <span className="leading-tight">{pair.headline}</span>
+                                        {/* Info — 3 righe */}
+                                        <div className="flex-1 min-w-0 space-y-1">
+                                            {/* Headline Ad */}
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5 w-[72px]" style={{ color: '#ec4899' }}>Headline Ad</span>
+                                                <span className="text-sm font-semibold text-white leading-tight">{pair.headline}</span>
+                                            </div>
+                                            {/* Headline Landing */}
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5 w-[72px]" style={{ color: '#a855f7' }}>H. Landing</span>
+                                                {pair.landing_headline ? (
+                                                    <span className="text-[11px] leading-tight" style={{ color: 'var(--color-surface-600)' }}>{pair.landing_headline}</span>
+                                                ) : (
+                                                    <span className="text-[11px] italic leading-tight" style={{ color: 'var(--color-surface-500)' }}>Nessun match routing</span>
+                                                )}
+                                            </div>
+                                            {/* Creative */}
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5 w-[72px]" style={{ color: 'var(--color-surface-500)' }}>Creative</span>
+                                                <span className="text-[11px] leading-tight" style={{ color: 'var(--color-surface-400)' }}>{pair.creative}</span>
+                                            </div>
                                         </div>
-                                        <div className="text-[11px] flex items-start gap-2" style={{ color: 'var(--color-surface-400)' }}>
-                                            <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5">Creative</span>
-                                            <span className="leading-tight">{pair.creative}</span>
-                                        </div>
-                                    </div>
 
-                                    {/* CPL per pair */}
-                                    {avgCPL > 0 && (
+                                        {/* CPL reale per ad */}
                                         <div className="flex-shrink-0 text-right hidden sm:block">
-                                            <div className="text-xs font-bold" style={{ color: '#f59e0b' }}>€{avgCPL.toFixed(2)}</div>
-                                            <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>CPL</div>
+                                            {pairCPL !== null ? (
+                                                <>
+                                                    <div className="text-xs font-bold" style={{ color: pairCPL < 30 ? '#22c55e' : pairCPL < 60 ? '#f59e0b' : '#ef4444' }}>
+                                                        €{pairCPL.toFixed(2)}
+                                                    </div>
+                                                    <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>CPL</div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>—</div>
+                                                    <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>CPL</div>
+                                                </>
+                                            )}
                                         </div>
-                                    )}
 
-                                    {/* Lead count */}
-                                    <div className="flex items-center gap-3 flex-shrink-0 px-2">
-                                        <div className="text-xl font-bold" style={{ color: '#3b82f6' }}>{pair.leads}</div>
-                                        <div className="text-[10px] uppercase font-semibold tracking-wider" style={{ color: 'var(--color-surface-500)' }}>Lead</div>
+                                        {/* Lead count */}
+                                        <div className="flex items-center gap-3 flex-shrink-0 px-2">
+                                            <div className="text-xl font-bold" style={{ color: '#3b82f6' }}>{pair.leads}</div>
+                                            <div className="text-[10px] uppercase font-semibold tracking-wider" style={{ color: 'var(--color-surface-500)' }}>Lead</div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
 
                         {/* Show More Button */}
@@ -250,7 +275,7 @@ export default function TopCreativePairs() {
                 {/* Footer */}
                 {lastSync && pairs.length > 0 && (
                     <div className="px-4 pb-3 text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                        📊 Dati live da Meta · Aggiornato: {lastSync}
+                        📊 Dati live da Meta · CPL calcolato per singola inserzione · Aggiornato: {lastSync}
                     </div>
                 )}
             </div>

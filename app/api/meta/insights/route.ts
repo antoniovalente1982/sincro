@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
         let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
         const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
         const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
-        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string, fbadid?: string, campaign_key?: string }> = {}
+        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string, fbadid?: string, campaign_key?: string, landing_headline?: string, spend?: number }> = {}
 
         for (const lead of (crmData || [])) {
             const campKey = (lead.utm_campaign || '').toLowerCase().trim()
@@ -353,7 +353,50 @@ export async function GET(req: NextRequest) {
 
         const topPairs = Object.values(topPairsMap).sort((a, b) => b.leads - a.leads).slice(0, 30)
 
-        // Compute total spend & leads for CPL
+        // 4. Fetch per-ad spend from Meta for accurate CPL
+        const adIdsForSpend = [...new Set(topPairs.filter(p => p.fbadid).map(p => p.fbadid!))] 
+        if (adIdsForSpend.length > 0) {
+            const batchSize = 50
+            for (let i = 0; i < adIdsForSpend.length; i += batchSize) {
+                const batch = adIdsForSpend.slice(i, i + batchSize)
+                const batchIds = batch.join(',')
+                try {
+                    const spendUrl = `https://graph.facebook.com/${META_API_VERSION}/?ids=${batchIds}&fields=insights.time_range({"since":"${since}","until":"${until}"}){spend}&access_token=${access_token}`
+                    const spendRes = await fetch(spendUrl, { cache: 'no-store' })
+                    if (spendRes.ok) {
+                        const spendData = await spendRes.json()
+                        for (const pair of topPairs) {
+                            if (!pair.fbadid) continue
+                            const adSpendData = spendData[pair.fbadid]
+                            if (adSpendData?.insights?.data?.[0]?.spend) {
+                                pair.spend = parseFloat(adSpendData.insights.data[0].spend)
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching per-ad spend:', err)
+                }
+            }
+        }
+
+        // 5. Match landing page headlines from Funnel Routing Engine
+        const { data: routingAngles } = await getSupabaseAdmin()
+            .from('funnel_routing_engine')
+            .select('trigger_keyword, headline_white, headline_gold')
+        
+        if (routingAngles && routingAngles.length > 0) {
+            for (const pair of topPairs) {
+                const creativeLower = (pair.creative || '').toLowerCase()
+                for (const angle of routingAngles) {
+                    if (creativeLower.includes(angle.trigger_keyword.toLowerCase())) {
+                        pair.landing_headline = `${angle.headline_white} ${angle.headline_gold}`.trim()
+                        break
+                    }
+                }
+            }
+        }
+
+        // Compute total spend & leads for global stats
         const totalMetaSpend = campaigns.reduce((s: number, c: any) => s + (Number(c.spend) || 0), 0)
         const totalCrmLeads = campaigns.reduce((s: number, c: any) => s + (Number(c.leads_count) || 0), 0)
 
