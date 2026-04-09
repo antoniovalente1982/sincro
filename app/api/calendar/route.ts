@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendBookingConfirmation, sendBookingNotificationToCloser } from '@/lib/email'
+import { getGoogleCalendarFreeBusy, createGoogleCalendarEvent } from '@/lib/google-calendar'
 
 async function getContext(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -110,6 +111,35 @@ export async function GET(req: NextRequest) {
             end: new Date(e.end_time).getTime(),
         }))
 
+        // 2.5 Get Google Calendar Free/Busy if connected
+        const { data: memberData } = await supabase
+            .from('organization_members')
+            .select('google_access_token, google_refresh_token, google_token_expiry')
+            .eq('user_id', closerId)
+            .single()
+
+        let googleBusySlots: { start: number, end: number }[] = []
+        if (memberData?.google_access_token) {
+            try {
+                const gEvents = await getGoogleCalendarFreeBusy(
+                    closerId,
+                    memberData.google_access_token,
+                    memberData.google_refresh_token,
+                    memberData.google_token_expiry,
+                    startDate.toISOString(),
+                    endDate.toISOString()
+                )
+                googleBusySlots = gEvents.map((e: any) => ({
+                    start: new Date(e.start).getTime(),
+                    end: new Date(e.end).getTime()
+                }))
+            } catch (err) {
+                console.error('[Calendar API] Error fetching google free/busy:', err)
+            }
+        }
+
+        const allBusySlots = [...busySlots, ...googleBusySlots]
+
         // 3. Generate available slots
         const slots: { date: string; start: string; end: string; available: boolean }[] = []
         const cursor = new Date(startDate)
@@ -135,7 +165,7 @@ export async function GET(req: NextRequest) {
                     const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000)
 
                     // Check if slot conflicts with existing events
-                    const isOccupied = busySlots.some(busy =>
+                    const isOccupied = allBusySlots.some(busy =>
                         slotStart.getTime() < busy.end && slotEnd.getTime() > busy.start
                     )
 
@@ -240,7 +270,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Slot non più disponibile. Seleziona un altro orario.' }, { status: 409 })
         }
 
-        // Create event
         const { data: event, error } = await supabase
             .from('calendar_events')
             .insert({
@@ -260,6 +289,34 @@ export async function POST(req: NextRequest) {
             .single()
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+        // Create Google Calendar event if the closer is connected
+        const { data: closerTokenData } = await supabase
+            .from('organization_members')
+            .select('google_access_token, google_refresh_token, google_token_expiry')
+            .eq('user_id', closer_id)
+            .single()
+
+        if (closerTokenData?.google_access_token) {
+            try {
+                const attendees = lead_email ? [{ email: lead_email }] : []
+                await createGoogleCalendarEvent(
+                    closer_id,
+                    closerTokenData.google_access_token,
+                    closerTokenData.google_refresh_token,
+                    closerTokenData.google_token_expiry,
+                    {
+                        summary: title || 'Appuntamento via Sincro',
+                        description: description || '',
+                        start: start_time,
+                        end: end_time,
+                        attendees
+                    }
+                )
+            } catch (err) {
+                console.error('[Calendar API] Failed to push to Google Calendar', err)
+            }
+        }
 
         // If lead_id provided, update lead stage to "Appuntamento"
         if (lead_id) {
