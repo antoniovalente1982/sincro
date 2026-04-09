@@ -377,7 +377,12 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-bold text-white">{stat.funnel.name}</h3>
-                                        <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{getDisplayUrl(stat.funnel)}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{getDisplayUrl(stat.funnel)}</p>
+                                            <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--color-surface-500)' }}>
+                                                📅 {new Date(stat.funnel.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -614,6 +619,9 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                                         </div>
 
                                         <h3 className="text-sm font-bold text-white mb-1">{funnel.name}</h3>
+                                        <p className="text-[9px] mb-1" style={{ color: 'var(--color-surface-500)' }}>
+                                            📅 Creato il {new Date(funnel.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                        </p>
                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                                             {funnel.objective && (
                                                 <span className="badge inline-flex" style={{
