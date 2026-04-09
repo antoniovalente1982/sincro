@@ -66,9 +66,20 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 body: JSON.stringify({ email: inviteEmail, role: inviteRole, department: inviteDepartment }),
             })
             if (res.ok) {
+                const result = await res.json()
                 setShowInvite(false)
                 setInviteEmail('')
                 loadMembers()
+                
+                // Se c'è un link di invito, mostralo per copiarlo
+                if (result.invite_url) {
+                    const copied = await navigator.clipboard.writeText(result.invite_url).then(() => true).catch(() => false)
+                    alert(
+                        `✅ Membro invitato con successo!\n\n` +
+                        `${copied ? '📋 Link copiato negli appunti!' : '📋 Copia questo link e invialo al membro:'}\n\n` +
+                        result.invite_url
+                    )
+                }
             } else {
                 const data = await res.json()
                 console.error("Invite error:", data.error)

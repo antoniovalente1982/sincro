@@ -106,12 +106,11 @@ export async function POST(req: NextRequest) {
         .single()
 
     let newUserId = profile?.id
+    let confirmUrl: string | null = null
 
     if (!newUserId) {
         const supabaseAdmin = getSupabaseAdmin()
         
-        // 1. Genera il link di invito SENZA inviare l'email di Supabase
-        //    generateLink crea l'utente in auth.users e ci restituisce il token
         const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
             type: 'invite',
             email: email,
@@ -126,54 +125,9 @@ export async function POST(req: NextRequest) {
         }
         
         newUserId = linkData.user.id
+        confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
         
-        // 2. Costruiamo il link corretto con il VERO dominio di produzione
-        //    Il token_hash e type vengono dal link generato da Supabase
-        const confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
-        
-        // 3. Inviamo l'email tramite Resend (dominio verificato, email brandizzata)
-        try {
-            const { Resend } = await import('resend')
-            const resend = new Resend(process.env.RESEND_API_KEY)
-            
-            await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL || 'Metodo Sincro <email@metodosincro.com>',
-                to: email,
-                subject: 'Sei stato invitato in Metodo Sincro',
-                html: `
-                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #0f0f23; color: #e2e8f0; padding: 40px; border-radius: 16px;">
-                        <div style="text-align: center; margin-bottom: 32px;">
-                            <h1 style="color: #a78bfa; font-size: 28px; margin: 0;">Metodo Sincro</h1>
-                            <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">Il tuo spazio di lavoro ti aspetta</p>
-                        </div>
-                        <div style="background: #1e1e3a; padding: 32px; border-radius: 12px; border: 1px solid #2d2d5e;">
-                            <h2 style="color: #e2e8f0; font-size: 20px; margin-top: 0;">Sei stato invitato nel team!</h2>
-                            <p style="color: #94a3b8; line-height: 1.6;">
-                                Un amministratore ti ha invitato a far parte dello spazio di lavoro su Metodo Sincro 
-                                con il ruolo di <strong style="color: #a78bfa;">${role}</strong>${department ? ` nel reparto <strong style="color: #a78bfa;">${department}</strong>` : ''}.
-                            </p>
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${confirmUrl}" 
-                                   style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
-                                    Accetta Invito
-                                </a>
-                            </div>
-                            <p style="color: #64748b; font-size: 12px; text-align: center;">
-                                Se il bottone non funziona, copia e incolla questo link nel browser:<br>
-                                <a href="${confirmUrl}" style="color: #7c3aed; word-break: break-all;">${confirmUrl}</a>
-                            </p>
-                        </div>
-                        <p style="color: #475569; font-size: 11px; text-align: center; margin-top: 24px;">
-                            © ${new Date().getFullYear()} Metodo Sincro — Questa email è stata inviata automaticamente.
-                        </p>
-                    </div>
-                `
-            })
-        } catch (emailErr: any) {
-            console.error('[TEAM POST] EMAIL SEND ERROR:', emailErr.message)
-        }
-        
-        // 4. Crea profilo (softly, ignora errore se esiste già trigger automatico)
+        // Crea profilo
         await supabaseAdmin.from('profiles').insert({
             id: newUserId,
             email: email,
@@ -181,8 +135,6 @@ export async function POST(req: NextRequest) {
         }).select().single()
     }
 
-    // Now insert directly into organization_members with the REAL user ID
-    // either from profile (if existing) or from the freshly invited user
     const { data, error } = await supabase
         .from('organization_members')
         .insert({
@@ -201,7 +153,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Errore DB: " + error.message }, { status: 500 })
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json({ ...data, invite_url: confirmUrl })
 }
 
 // PATCH: Deactivate, Reactivate, Update Role
