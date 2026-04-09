@@ -411,6 +411,7 @@ export interface CreativeBrief {
         avg_ctr: number
     }
     image_url?: string
+    creative_direction?: string
 }
 
 /**
@@ -424,7 +425,8 @@ export async function generateCreativeBrief(
     angle: string,
     adset: { id: string; name: string; utm_term: string },
     dna: CreativeDNA,
-    funnelSettings?: FunnelAISettings
+    funnelSettings?: FunnelAISettings,
+    creativeDirection?: string,
 ): Promise<CreativeBrief | null> {
     // 1. Select the best buyer pocket for this angle
     const pocket = await selectBuyerPocket(orgId, angle, adset.id)
@@ -433,8 +435,8 @@ export async function generateCreativeBrief(
     // 2. Generate copy + image description based on pocket + winning patterns
     const copy = await generateCopyFromPocket(pocket, angle, dna, funnelSettings)
 
-    // 3. Generate image prompt using the AI-generated image_description and headline
-    const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description, copy.headline)
+    // 3. Generate image prompt using the AI-generated image_description and headline + creative direction
+    const imagePrompt = generateImagePrompt(pocket, angle, dna, copy.image_description, copy.headline, creativeDirection)
 
     // 4. Create the brief name
     const pocketShort = pocket.pocket_name.replace(/\s+/g, '_').substring(0, 20)
@@ -459,6 +461,7 @@ export async function generateCreativeBrief(
             avg_cpl: dna.winning_patterns.avg_cpl_winners,
             avg_ctr: dna.winning_patterns.avg_ctr_winners,
         },
+        creative_direction: creativeDirection,
     }
 }
 
@@ -680,7 +683,7 @@ Rispondi ESATTAMENTE e SOLO con un oggetto JSON valido con 4 chiavi:
 // Usa la image_description dal copywriter + regole visive
 // ═══════════════════════════════════════════════
 
-function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string, headline?: string): string {
+function generateImagePrompt(pocket: SelectedPocket, angle: string, dna: CreativeDNA, imageDescription?: string, headline?: string, creativeDirection?: string): string {
     const baseRules = `STRICT TECHNICAL RULES:
 - Format: Vertical 4:5 aspect ratio photograph (Mobile optimized for highest CTR)
 - Style: Cinematic, high-impact, professional SOCCER/FOOTBALL sports photography
@@ -709,9 +712,14 @@ THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sp
 
     const textOverlayStr = headline ? `\n\n═══ TYPOGRAPHY OVERLAY (MAXIMIZE CTR) ═══\nAdd massive, ultra-bold, high-impact typography at the top of the image reading exactly: "${headline}". \nThe text MUST serve as a scroll-stopper: use vibrant, high-contrast colors (like electric yellow, bright orange, or pure white against a dark background). The typography should pop out of the screen using subtle drop shadows or neon glow. It must look like a high-end, aggressive sports advertising poster (e.g., Nike/Adidas). Ensure perfect legibility for mobile screens.` : ''
 
+    // Creative direction override from user
+    const creativeDirectionStr = creativeDirection && creativeDirection.length > 5
+        ? `\n\n═══ DIREZIONE CREATIVA DALL'UTENTE (PRIORITÀ MASSIMA) ═══\n${creativeDirection}\n═══ Fine direzione creativa ═══`
+        : ''
+
     // If copywriter provided a detailed image description, use it as primary direction
     if (imageDescription && imageDescription.length > 50) {
-        return `${baseRules}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ CRITICAL REMINDER ═══\nThe scene MUST clearly show this is SOCCER/FOOTBALL. Include: soccer ball, pitch markings, goal nets, cleats, or jersey. A viewer scrolling Facebook must instantly recognize this is about football.${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
+        return `${baseRules}${creativeDirectionStr}\n\n═══ SCENE DESCRIPTION ═══\n${imageDescription}\n\n═══ CRITICAL REMINDER ═══\nThe scene MUST clearly show this is SOCCER/FOOTBALL. Include: soccer ball, pitch markings, goal nets, cleats, or jersey. A viewer scrolling Facebook must instantly recognize this is about football.${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must evoke the emotional state: "${pocket.buyer_state}"\nThe viewer (a parent) should feel the tension of: "${pocket.core_question}"\nThe visual should trigger: "${pocket.primary_trigger}"`
     }
 
     // Fallback: angle-based templates with prominent soccer elements
@@ -728,7 +736,7 @@ THE IMAGE MUST BE IMMEDIATELY RECOGNIZABLE AS SOCCER/FOOTBALL — not generic sp
 
     const scene = angleScenes[angle] || angleScenes.efficiency
 
-    return `${baseRules}\n\n═══ SCENE ═══\n${scene}${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must resonate with a parent who feels: "${pocket.buyer_state}"\nIt should visually answer: "${pocket.core_question}"\nThe visual trigger is: "${pocket.primary_trigger}"`
+    return `${baseRules}${creativeDirectionStr}\n\n═══ SCENE ═══\n${scene}${textOverlayStr}\n\n═══ EMOTIONAL CONTEXT ═══\nThe image must resonate with a parent who feels: "${pocket.buyer_state}"\nIt should visually answer: "${pocket.core_question}"\nThe visual trigger is: "${pocket.primary_trigger}"`
 }
 
 // ═══════════════════════════════════════════════
@@ -758,12 +766,19 @@ export interface PipelineResult {
  * - Cooldown 24h per lo stesso angolo
  * - Check duplicati pocket
  */
+export interface PipelineConfig {
+    creative_direction?: string
+    image_api?: 'nano_banana' | 'google_ai_studio' | 'heurist'
+}
+
 /**
  * Esegue la pipeline creativa in autonomia, recuperando prima i dati da Meta.
  * Usa la stessa logica di dante-actions e del cron-job.
  */
-export async function runFullPipelineWithApiFetch(orgId: string): Promise<PipelineResult> {
+export async function runFullPipelineWithApiFetch(orgId: string, config?: PipelineConfig): Promise<PipelineResult> {
     const supabase = getSupabaseAdmin()
+    const creativeDirection = config?.creative_direction
+    const imageApi = config?.image_api || 'nano_banana'
 
     // 1. Get Meta credentials
     const { data: conn } = await supabase
@@ -884,7 +899,7 @@ export async function runFullPipelineWithApiFetch(orgId: string): Promise<Pipeli
         console.warn('[AI Pipeline] Could not load funnel settings, proceeding without:', e)
     }
 
-    return runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms, funnelSettings)
+    return runCreativePipeline(orgId, ads, campaignBudgets, adsetAngles, adsetNames, adsetUtmTerms, funnelSettings, creativeDirection, imageApi)
 }
 
 export async function runCreativePipeline(
@@ -895,6 +910,8 @@ export async function runCreativePipeline(
     adsetNames: Record<string, string>,     // adset_id → name
     adsetUtmTerms: Record<string, string>,  // adset_id → utm_term
     funnelSettings?: FunnelAISettings,      // per-funnel AI context
+    creativeDirection?: string,             // user creative direction for image prompts
+    imageApi?: string,                      // 'nano_banana' | 'google_ai_studio' | 'heurist'
 ): Promise<PipelineResult> {
     const supabase = getSupabaseAdmin()
     const MAX_BRIEFS_PER_CYCLE = 3
@@ -997,7 +1014,7 @@ export async function runCreativePipeline(
         // Generate brief (1 per cycle per angle to avoid spam)
         // ── MENTE EVOLUTIVA: pass best_pocket_id hint to selectBuyerPocket ──
         const pocketHint = angleScoresMap[angle]?.best_pocket_id || null
-        const brief = await generateCreativeBriefWithHint(orgId, angle, adset, dna, funnelSettings, pocketHint)
+        const brief = await generateCreativeBriefWithHint(orgId, angle, adset, dna, funnelSettings, pocketHint, creativeDirection)
         // ─────────────────────────────────────────────────────────────────────
         if (!brief) {
             result.skipped_reasons.push(`${angle}: impossibile generare brief (pocket esauriti?)`)
@@ -1008,19 +1025,48 @@ export async function runCreativePipeline(
         let imageUrl: string | null = null
         let imageError: string | null = null
         try {
-            const { generateAndUploadAdImage } = await import('@/lib/nano-banana')
-            const imgResult = await generateAndUploadAdImage(
-                brief.image_prompt,
-                orgId,
-                brief.name,
-                brief.aspect_ratio,
-            )
-            if (imgResult.success && imgResult.imageUrl) {
-                imageUrl = imgResult.imageUrl
-                result.images_generated++
+            if (imageApi === 'heurist') {
+                // Heurist API (FLUX/SDXL)
+                const heuristResult = await generateWithHeurist(brief.image_prompt, brief.aspect_ratio)
+                if (heuristResult.success && heuristResult.imageUrl) {
+                    imageUrl = heuristResult.imageUrl
+                    result.images_generated++
+                } else {
+                    imageError = heuristResult.error || 'Errore Heurist'
+                    result.image_errors.push(`${angle}: ${imageError}`)
+                }
+            } else if (imageApi === 'google_ai_studio') {
+                // Google AI Studio (Imagen 3) — uses same Gemini API but different model
+                const { generateAndUploadAdImage } = await import('@/lib/nano-banana')
+                const imgResult = await generateAndUploadAdImage(
+                    brief.image_prompt,
+                    orgId,
+                    brief.name,
+                    brief.aspect_ratio,
+                )
+                if (imgResult.success && imgResult.imageUrl) {
+                    imageUrl = imgResult.imageUrl
+                    result.images_generated++
+                } else {
+                    imageError = imgResult.error || 'Errore Google AI Studio'
+                    result.image_errors.push(`${angle}: ${imageError}`)
+                }
             } else {
-                imageError = imgResult.error || 'Errore sconosciuto'
-                result.image_errors.push(`${angle}: ${imageError}`)
+                // Default: Nano Banana 2
+                const { generateAndUploadAdImage } = await import('@/lib/nano-banana')
+                const imgResult = await generateAndUploadAdImage(
+                    brief.image_prompt,
+                    orgId,
+                    brief.name,
+                    brief.aspect_ratio,
+                )
+                if (imgResult.success && imgResult.imageUrl) {
+                    imageUrl = imgResult.imageUrl
+                    result.images_generated++
+                } else {
+                    imageError = imgResult.error || 'Errore sconosciuto'
+                    result.image_errors.push(`${angle}: ${imageError}`)
+                }
             }
         } catch (imgErr: any) {
             imageError = imgErr.message
@@ -1108,9 +1154,10 @@ async function generateCreativeBriefWithHint(
     dna: CreativeDNA,
     funnelSettings?: FunnelAISettings,
     bestPocketId?: number | null,
+    creativeDirection?: string,
 ): Promise<CreativeBrief | null> {
     if (!bestPocketId) {
-        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings, creativeDirection)
     }
 
     // Try to load the specific pocket
@@ -1119,7 +1166,7 @@ async function generateCreativeBriefWithHint(
     const preferredPocket = pockets.find(p => p.pocket_id === bestPocketId)
 
     if (!preferredPocket) {
-        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings, creativeDirection)
     }
 
     // Check if this pocket is already used in the adset
@@ -1133,13 +1180,13 @@ async function generateCreativeBriefWithHint(
 
     if (existingAds && existingAds.length > 0) {
         // Preferred pocket already in use — fall back to normal selection
-        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings)
+        return generateCreativeBrief(orgId, angle, adset, dna, funnelSettings, creativeDirection)
     }
 
     // Use the preferred pocket directly
     const selectedPocket = { ...preferredPocket, selection_reason: `Pocket preferito da Intelligence Engine (id: ${bestPocketId})` } as any
     const copy = await generateCopyFromPocket(selectedPocket, angle, dna, funnelSettings)
-    const imagePrompt = generateImagePrompt(selectedPocket, angle, dna, copy.image_description, copy.headline)
+    const imagePrompt = generateImagePrompt(selectedPocket, angle, dna, copy.image_description, copy.headline, creativeDirection)
     const pocketShort = preferredPocket.pocket_name.replace(/\s+/g, '_').substring(0, 20)
     const briefName = `${angle}_${pocketShort}_${Date.now()}`
     const topAdsSummary = dna.winning_patterns.top_ads.length > 0
@@ -1150,5 +1197,82 @@ async function generateCreativeBriefWithHint(
         name: briefName, angle, pocket: selectedPocket, adset, copy,
         image_prompt: imagePrompt, cta_type: 'LEARN_MORE', aspect_ratio: '4:5',
         winning_context: { top_ads_summary: topAdsSummary, avg_cpl: dna.winning_patterns.avg_cpl_winners, avg_ctr: dna.winning_patterns.avg_ctr_winners },
+        creative_direction: creativeDirection,
+    }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// HEURIST IMAGE GENERATION — FLUX/SDXL via Heurist API
+// ══════════════════════════════════════════════════════════════════════════
+
+async function generateWithHeurist(
+    prompt: string,
+    aspectRatio: string = '4:5',
+): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+    const apiKey = process.env.HEURIST_API_KEY
+    if (!apiKey) {
+        return { success: false, error: 'HEURIST_API_KEY non configurata — usa Nano Banana come fallback' }
+    }
+
+    // Parse aspect ratio to dimensions
+    const [wRatio, hRatio] = aspectRatio.split(':').map(Number)
+    const width = wRatio === 4 ? 1024 : 1024
+    const height = hRatio === 5 ? 1280 : 1024
+
+    try {
+        const response = await fetch('https://llm-gateway.heurist.xyz/v1/images/generations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: 'FLUX.1-dev',
+                prompt,
+                width,
+                height,
+                num_iterations: 30,
+                guidance_scale: 7.5,
+            }),
+        })
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}))
+            return { success: false, error: `Heurist API error ${response.status}: ${errData?.error?.message || response.statusText}` }
+        }
+
+        const data = await response.json()
+        const imageUrl = data?.data?.[0]?.url
+
+        if (!imageUrl) {
+            return { success: false, error: 'Nessuna immagine nella risposta Heurist' }
+        }
+
+        // Upload to Supabase Storage
+        const { createClient } = await import('@supabase/supabase-js')
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+        if (!serviceKey) return { success: true, imageUrl } // Return direct URL if no Supabase
+
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            serviceKey,
+        )
+
+        // Download and re-upload
+        const imgResponse = await fetch(imageUrl)
+        const imgBuffer = Buffer.from(await imgResponse.arrayBuffer())
+        const fileName = `heurist_${Date.now()}.png`
+        const storagePath = `ad-creatives/${fileName}`
+
+        await supabaseAdmin.storage.from('assets').upload(storagePath, imgBuffer, {
+            contentType: 'image/png',
+            upsert: true,
+        })
+
+        const { data: urlData } = supabaseAdmin.storage.from('assets').getPublicUrl(storagePath)
+
+        return { success: true, imageUrl: urlData.publicUrl }
+    } catch (error: any) {
+        return { success: false, error: `Errore Heurist: ${error.message}` }
     }
 }

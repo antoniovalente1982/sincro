@@ -462,7 +462,10 @@ export async function POST(req: NextRequest) {
             const { runFullPipelineWithApiFetch } = await import('@/lib/creative-pipeline')
             const { sendTelegramMessage } = await import('@/lib/telegram')
 
-            const pipelineResult = await runFullPipelineWithApiFetch(member.organization_id)
+            const creative_direction = body.creative_direction || undefined
+            const image_api = body.image_api || 'nano_banana'
+
+            const pipelineResult = await runFullPipelineWithApiFetch(member.organization_id, { creative_direction, image_api })
 
             // Send Telegram notification for each generated brief
             if (pipelineResult.briefs_generated.length > 0) {

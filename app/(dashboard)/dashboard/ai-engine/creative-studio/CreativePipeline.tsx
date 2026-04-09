@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import {
     Zap, Loader2, CheckCircle, XCircle, Rocket, RefreshCw, Brain,
     Target, ArrowRight, Clock, Trash2, Eye, ChevronDown, Filter, Play, X,
-    MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, Send
+    MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, Send, Palette, Cpu, Settings2
 } from 'lucide-react'
 
 interface AdCreative {
@@ -86,8 +86,17 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
     const [bulkDeleting, setBulkDeleting] = useState(false)
     const [showAllCreatives, setShowAllCreatives] = useState(false)
+    const [showPipelineConfig, setShowPipelineConfig] = useState(false)
+    const [creativeDirection, setCreativeDirection] = useState('')
+    const [selectedImageApi, setSelectedImageApi] = useState<'nano_banana' | 'google_ai_studio' | 'heurist'>('nano_banana')
 
     const INITIAL_VISIBLE = 5
+
+    const IMAGE_APIS = [
+        { id: 'nano_banana' as const, name: 'Nano Banana 2', desc: 'Gemini 3.1 Flash — veloce, alta qualità', icon: '🍌', color: '#f59e0b' },
+        { id: 'google_ai_studio' as const, name: 'Google AI Studio', desc: 'Imagen 3 — fotorealismo extreme', icon: '🎨', color: '#4285f4' },
+        { id: 'heurist' as const, name: 'Heurist', desc: 'FLUX / SDXL — stile creativo, artistico', icon: '🌀', color: '#a855f7' },
+    ]
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -244,6 +253,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     ]
 
     const handleRunPipeline = async () => {
+        setShowPipelineConfig(false)
         setRunningPipeline(true)
         setPipelineResult(null)
         setPipelineStep(1)
@@ -266,11 +276,15 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                 body: JSON.stringify({ action: 'sync_creative_performance' }),
             })
 
-            // STEP 2: Run pipeline
+            // STEP 2: Run pipeline with config
             const res = await fetch('/api/ai-engine', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'run_creative_pipeline' }),
+                body: JSON.stringify({
+                    action: 'run_creative_pipeline',
+                    creative_direction: creativeDirection.trim() || undefined,
+                    image_api: selectedImageApi,
+                }),
             })
             const data = await res.json()
             stepTimers.forEach(t => clearTimeout(t))
@@ -324,13 +338,131 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                             Pulisci ({cleanableCount})
                         </button>
                     )}
-                    <button onClick={handleRunPipeline} disabled={runningPipeline}
+                    <button onClick={() => setShowPipelineConfig(true)} disabled={runningPipeline}
                         className="btn-primary text-xs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {runningPipeline ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />}
                         Run Pipeline
                     </button>
                 </div>
             </div>
+
+            {/* Pipeline Configuration Modal */}
+            {showPipelineConfig && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+                    onClick={() => setShowPipelineConfig(false)}>
+                    <div className="glass-card p-6 w-full max-w-lg mx-4 animate-fade-in" onClick={e => e.stopPropagation()}
+                        style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                        
+                        {/* Header */}
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                                <Settings2 className="w-5 h-5" style={{ color: '#f59e0b' }} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold text-white">Configura Pipeline Creativo</h3>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
+                                    Personalizza la generazione prima di avviare
+                                </p>
+                            </div>
+                            <button onClick={() => setShowPipelineConfig(false)} className="ml-auto text-[var(--color-surface-500)] hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Creative Direction */}
+                        <div className="mb-5">
+                            <label className="text-xs font-semibold mb-2 block flex items-center gap-1.5" style={{ color: 'var(--color-surface-400)' }}>
+                                <Palette className="w-3.5 h-3.5" style={{ color: '#ec4899' }} />
+                                Direzione Creativa (opzionale)
+                            </label>
+                            <textarea
+                                value={creativeDirection}
+                                onChange={e => setCreativeDirection(e.target.value)}
+                                placeholder="Es: Voglio un calciatore che tira un calcio potente con un titolo in 3D sopra la testa, colori neon, stile Nike... Oppure: voglio alternative diverse, più emotive, con scene in spogliatoio..."
+                                className="w-full p-3 rounded-xl text-sm text-white resize-none focus:outline-none focus:ring-2"
+                                style={{
+                                    background: 'var(--color-surface-100)',
+                                    border: '1px solid var(--color-surface-200)',
+                                    minHeight: '90px',
+                                }}
+                            />
+                            <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>
+                                💡 Queste indicazioni verranno iniettate nel prompt di generazione immagine AI
+                            </div>
+                        </div>
+
+                        {/* Image API Selector */}
+                        <div className="mb-5">
+                            <label className="text-xs font-semibold mb-2 block flex items-center gap-1.5" style={{ color: 'var(--color-surface-400)' }}>
+                                <Cpu className="w-3.5 h-3.5" style={{ color: '#6366f1' }} />
+                                Motore AI per Immagini
+                            </label>
+                            <div className="space-y-2">
+                                {IMAGE_APIS.map(api => (
+                                    <button
+                                        key={api.id}
+                                        onClick={() => setSelectedImageApi(api.id)}
+                                        className="w-full p-3 rounded-xl text-left transition-all hover:scale-[1.01]"
+                                        style={{
+                                            background: selectedImageApi === api.id ? `${api.color}12` : 'var(--color-surface-100)',
+                                            border: `1.5px solid ${selectedImageApi === api.id ? api.color : 'var(--color-surface-200)'}`,
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xl">{api.icon}</span>
+                                            <div className="flex-1">
+                                                <div className="text-sm font-semibold" style={{ color: selectedImageApi === api.id ? api.color : 'white' }}>
+                                                    {api.name}
+                                                </div>
+                                                <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
+                                                    {api.desc}
+                                                </div>
+                                            </div>
+                                            {selectedImageApi === api.id && (
+                                                <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: api.color }} />
+                                            )}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 justify-end">
+                            <button onClick={() => setShowPipelineConfig(false)}
+                                className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                                style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-200)' }}>
+                                Annulla
+                            </button>
+                            <button onClick={handleRunPipeline}
+                                className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105 flex items-center gap-2"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(99,102,241,0.2))',
+                                    color: '#f59e0b',
+                                    border: '1px solid rgba(245,158,11,0.3)',
+                                }}>
+                                <Rocket className="w-4 h-4" />
+                                Avvia Pipeline
+                            </button>
+                        </div>
+
+                        {/* Info */}
+                        <div className="mt-4 p-3 rounded-xl" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                            <div className="flex items-center gap-2 text-[10px]" style={{ color: '#6366f1' }}>
+                                <Brain className="w-3 h-3" />
+                                <span className="font-semibold">Come funziona</span>
+                            </div>
+                            <div className="text-[10px] mt-1 space-y-1" style={{ color: 'var(--color-surface-500)' }}>
+                                <div>1️⃣ L'AI analizza le top ads e i pattern vincenti</div>
+                                <div>2️⃣ La tua direzione creativa viene iniettata nel prompt visivo</div>
+                                <div>3️⃣ Il motore selezionato genera le immagini</div>
+                                <div>4️⃣ Le ads vengono salvate come "Pronte" per la tua approvazione</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Pipeline Progress Tracker */}
             {runningPipeline && pipelineStep > 0 && (
