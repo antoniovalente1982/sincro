@@ -198,14 +198,15 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
         const dateFormatted = startDt.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
         const timeFormatted = `${startDt.getHours().toString().padStart(2,'0')}:${startDt.getMinutes().toString().padStart(2,'0')} — ${endDt.getHours().toString().padStart(2,'0')}:${endDt.getMinutes().toString().padStart(2,'0')}`
 
-        sendBookingConfirmation({
-            to: email,
-            leadName: name,
-            closerName,
-            date: dateFormatted,
-            time: timeFormatted,
-            phone,
-        }).catch(() => {})
+        // Sospeso temporaneamente per delega a GoHighLevel
+        // sendBookingConfirmation({
+        //     to: email,
+        //     leadName: name,
+        //     closerName,
+        //     date: dateFormatted,
+        //     time: timeFormatted,
+        //     phone,
+        // }).catch(() => {})
 
         if (closerEmail) {
             sendBookingNotificationToCloser({
