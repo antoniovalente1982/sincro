@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
         let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
         const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
         const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
-        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string, fbadid?: string }> = {}
+        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string, fbadid?: string, campaign_key?: string }> = {}
 
         for (const lead of (crmData || [])) {
             const campKey = (lead.utm_campaign || '').toLowerCase().trim()
@@ -200,8 +200,9 @@ export async function GET(req: NextRequest) {
 
                 if (utmContent !== 'Sconosciuta') {
                     const pairKey = `${utmContent}:::${dynamicHeadline}`
+                    const campKey = (lead.utm_campaign || '').toLowerCase().trim()
                     if (!topPairsMap[pairKey]) {
-                        topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0, thumbnail_url: thumbnailUrl, fbadid: fbadid }
+                        topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0, thumbnail_url: thumbnailUrl, fbadid: fbadid, campaign_key: campKey }
                     } else {
                         if (thumbnailUrl && !topPairsMap[pairKey].thumbnail_url) topPairsMap[pairKey].thumbnail_url = thumbnailUrl
                         if (fbadid && !topPairsMap[pairKey].fbadid) topPairsMap[pairKey].fbadid = fbadid
@@ -224,24 +225,39 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // 3.5. Fallback fetch missing thumbnails directly by exact Ad ID from Meta
-        const missingThumbPairs = Object.values(topPairsMap).filter(p => !p.thumbnail_url && p.fbadid)
-        if (missingThumbPairs.length > 0) {
-            const missingIds = missingThumbPairs.map(p => p.fbadid).join(',')
-            try {
-                const manualAdsUrl = `https://graph.facebook.com/${META_API_VERSION}/?ids=${missingIds}&fields=name,creative{thumbnail_url,image_url}&access_token=${access_token}`
-                const manualAdsRes = await fetch(manualAdsUrl, { cache: 'no-store' })
-                if (manualAdsRes.ok) {
-                    const manualAdsData = await manualAdsRes.json()
-                    for (const pair of missingThumbPairs) {
-                        const adData = manualAdsData[pair.fbadid!]
-                        if (adData && adData.creative) {
-                            pair.thumbnail_url = adData.creative.thumbnail_url || adData.creative.image_url
+        // 3.5. Fallback fetch: missing thumbnails + real headline for "Predefinita" entries
+        const needsFetch = Object.values(topPairsMap).filter(p => p.fbadid && (!p.thumbnail_url || p.headline === 'Predefinita'))
+        if (needsFetch.length > 0) {
+            // Batch in groups of 50 to avoid URL-too-long errors
+            const batchSize = 50
+            for (let i = 0; i < needsFetch.length; i += batchSize) {
+                const batch = needsFetch.slice(i, i + batchSize)
+                const batchIds = batch.map(p => p.fbadid).join(',')
+                try {
+                    const manualAdsUrl = `https://graph.facebook.com/${META_API_VERSION}/?ids=${batchIds}&fields=name,creative{thumbnail_url,image_url,object_story_spec{link_data{name}}}&access_token=${access_token}`
+                    const manualAdsRes = await fetch(manualAdsUrl, { cache: 'no-store' })
+                    if (manualAdsRes.ok) {
+                        const manualAdsData = await manualAdsRes.json()
+                        for (const pair of batch) {
+                            const adData = manualAdsData[pair.fbadid!]
+                            if (!adData) continue
+                            if (adData.creative) {
+                                if (!pair.thumbnail_url) {
+                                    pair.thumbnail_url = adData.creative.thumbnail_url || adData.creative.image_url
+                                }
+                                // Extract real headline from Meta ad creative for "Predefinita" entries
+                                if (pair.headline === 'Predefinita') {
+                                    const metaHeadline = adData.creative?.object_story_spec?.link_data?.name
+                                    if (metaHeadline) {
+                                        pair.headline = metaHeadline
+                                    }
+                                }
+                            }
                         }
                     }
+                } catch (err) {
+                    console.error('Error fetching fallback ad data:', err)
                 }
-            } catch (err) {
-                console.error('Error fetching fallback ad thumbnails:', err)
             }
         }
 
@@ -335,12 +351,18 @@ export async function GET(req: NextRequest) {
             }
         })
 
-        const topPairs = Object.values(topPairsMap).sort((a, b) => b.leads - a.leads).slice(0, 15)
+        const topPairs = Object.values(topPairsMap).sort((a, b) => b.leads - a.leads).slice(0, 30)
+
+        // Compute total spend & leads for CPL
+        const totalMetaSpend = campaigns.reduce((s: number, c: any) => s + (Number(c.spend) || 0), 0)
+        const totalCrmLeads = campaigns.reduce((s: number, c: any) => s + (Number(c.leads_count) || 0), 0)
 
         return NextResponse.json({
             success: true,
             campaigns,
             topPairs,
+            totalSpend: totalMetaSpend,
+            totalLeads: totalCrmLeads,
             period: { since, until },
             fetched_at: new Date().toISOString(),
         }, {

@@ -51,13 +51,19 @@ export default async function CreativeStudioPage() {
 
     return (
         <div className="space-y-10">
-            {/* Top Creative & Headline — Performance reale da Meta */}
+            {/* 1. Funnel Routing Engine — Titoli dinamici landing page */}
+            <AngleManager />
+
+            {/* Divider */}
+            <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
+
+            {/* 2. Top Creative & Headline — Performance reale da Meta */}
             <TopCreativePairs />
 
             {/* Divider */}
             <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
 
-            {/* Creative Pipeline — Circuito Chiuso */}
+            {/* 3. Creative Pipeline — Circuito Chiuso */}
             <CreativePipeline
                 creatives={creativesRes.data || []}
                 summary={{ by_status: byStatus, by_angle: byAngle, total: allCreatives.length }}
@@ -66,17 +72,11 @@ export default async function CreativeStudioPage() {
             {/* Divider */}
             <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
 
-            {/* Original Creative Studio — Brief Generator */}
+            {/* 4. Creative Studio — Brief Generator */}
             <CreativeStudio
                 briefs={briefsRes.data || []}
                 campaigns={campaignsRes.data || []}
             />
-
-            {/* Divider */}
-            <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
-
-            {/* Angle Manager — Funnel Routing Engine */}
-            <AngleManager />
         </div>
     )
 }

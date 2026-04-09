@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, Edit2, Trash2, Loader2, Save, X, Info } from 'lucide-react'
+import { Link2, Plus, Edit2, Trash2, Loader2, Save, X, Info, ChevronDown } from 'lucide-react'
 
 interface RoutingAngle {
   id: string
@@ -20,6 +20,9 @@ export default function AngleManager() {
   const [formData, setFormData] = useState<Partial<RoutingAngle>>({})
   const [isCreating, setIsCreating] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [showAll, setShowAll] = useState(false)
+
+  const INITIAL_VISIBLE = 6
 
   const supabase = createClient()
 
@@ -194,7 +197,7 @@ export default function AngleManager() {
         <div className="flex justify-center p-10"><Loader2 className="animate-spin text-[#a855f7]" /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {angles.map(angle => (
+          {(showAll ? angles : angles.slice(0, INITIAL_VISIBLE)).map(angle => (
             <div key={angle.id} className="glass-card p-5 hover:border-[rgba(168,85,247,0.3)] transition-all flex flex-col h-full">
               <div className="flex items-center justify-between mb-3 border-b border-[var(--color-surface-200)] pb-3">
                 <span className="px-2 py-1 bg-[rgba(168,85,247,0.15)] text-[#c084fc] rounded text-xs font-bold font-mono border border-[rgba(168,85,247,0.3)]">
@@ -220,6 +223,25 @@ export default function AngleManager() {
             </div>
           ))}
         </div>
+        {angles.length > INITIAL_VISIBLE && !showAll && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+          >
+            <ChevronDown className="w-3.5 h-3.5" />
+            Mostra altri {angles.length - INITIAL_VISIBLE} angoli
+          </button>
+        )}
+        {showAll && angles.length > INITIAL_VISIBLE && (
+          <button
+            onClick={() => setShowAll(false)}
+            className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+          >
+            Comprimi lista
+          </button>
+        )}
       )}
     </div>
   )

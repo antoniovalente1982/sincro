@@ -51,6 +51,9 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
     const [selectedBrief, setSelectedBrief] = useState<Brief | null>(null)
     const [generating, setGenerating] = useState(false)
     const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+    const [showAllBriefs, setShowAllBriefs] = useState(false)
+
+    const INITIAL_VISIBLE = 5
 
     // Brief form state
     const [product, setProduct] = useState('')
@@ -110,7 +113,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             Creative Studio
                         </h1>
                         <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
-                            Genera copy e brief per le tue ads con l'AI — headline, body e CTA pronti all'uso
+                            Genera copy e brief per le tue ads con l'AI — headline, body e CTA pronti all'uso per i brief
                         </p>
                     </div>
                     <button onClick={() => setView('create')} className="btn-primary">
@@ -140,8 +143,9 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
 
                 {/* Briefs List */}
                 {briefs.length > 0 ? (
+                    <>
                     <div className="space-y-3">
-                        {briefs.map(brief => (
+                        {(showAllBriefs ? briefs : briefs.slice(0, INITIAL_VISIBLE)).map(brief => (
                             <div key={brief.id} className="glass-card p-5 cursor-pointer transition-all hover:scale-[1.005] hover:bg-white/[0.02]"
                                 onClick={() => { setSelectedBrief(brief); setView('detail') }}>
                                 <div className="flex items-center gap-4">
@@ -188,6 +192,26 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             </div>
                         ))}
                     </div>
+                    {briefs.length > INITIAL_VISIBLE && !showAllBriefs && (
+                        <button
+                            onClick={() => setShowAllBriefs(true)}
+                            className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+                        >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                            Mostra altri {briefs.length - INITIAL_VISIBLE} brief
+                        </button>
+                    )}
+                    {showAllBriefs && briefs.length > INITIAL_VISIBLE && (
+                        <button
+                            onClick={() => setShowAllBriefs(false)}
+                            className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+                        >
+                            Comprimi lista
+                        </button>
+                    )}
+                    </>
                 ) : (
                     <div className="glass-card p-12 text-center">
                         <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{

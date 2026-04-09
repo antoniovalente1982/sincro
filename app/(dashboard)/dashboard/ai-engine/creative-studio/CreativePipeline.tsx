@@ -85,6 +85,9 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | 'suggestion'>('suggestion')
     const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
     const [bulkDeleting, setBulkDeleting] = useState(false)
+    const [showAllCreatives, setShowAllCreatives] = useState(false)
+
+    const INITIAL_VISIBLE = 5
 
     const refresh = useCallback(async () => {
         const res = await fetch('/api/ai-engine', {
@@ -505,8 +508,9 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
 
             {/* Creative Cards */}
             {filtered.length > 0 ? (
+                <>
                 <div className="space-y-3">
-                    {filtered.map(creative => {
+                    {(showAllCreatives ? filtered : filtered.slice(0, INITIAL_VISIBLE)).map(creative => {
                         const statusCfg = STATUS_CONFIG[creative.status] || { label: creative.status, color: '#666', bg: '#66615', icon: Clock }
                         const StatusIcon = statusCfg.icon
                         const isExpanded = expandedId === creative.id
@@ -760,6 +764,26 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                         )
                     })}
                 </div>
+                {filtered.length > INITIAL_VISIBLE && !showAllCreatives && (
+                    <button
+                        onClick={() => setShowAllCreatives(true)}
+                        className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+                    >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                        Mostra altre {filtered.length - INITIAL_VISIBLE} creative
+                    </button>
+                )}
+                {showAllCreatives && filtered.length > INITIAL_VISIBLE && (
+                    <button
+                        onClick={() => setShowAllCreatives(false)}
+                        className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}
+                    >
+                        Comprimi lista
+                    </button>
+                )}
+                </>
             ) : (
                 <div className="glass-card p-12 text-center">
                     <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{
