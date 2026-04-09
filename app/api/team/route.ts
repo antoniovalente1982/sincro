@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
-import * as fs from 'fs'
 
 async function getOrgAndRole(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -27,7 +26,7 @@ export async function GET() {
         .order('joined_at', { ascending: true })
 
     if (error) {
-        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] SELECT ERROR: ${error.message}\n`)
+        console.error('[TEAM GET] SELECT ERROR:', error.message)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
@@ -37,7 +36,7 @@ export async function GET() {
             .select('assigned_to')
             .eq('organization_id', ctx.organization_id)
             
-        if (leadErr) fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] LEADS ERROR: ${leadErr.message}\n`)
+        if (leadErr) console.error('[TEAM GET] LEADS ERROR:', leadErr.message)
 
         const { data: wonLeads, error: wonErr } = await supabase
             .from('leads')
@@ -45,7 +44,7 @@ export async function GET() {
             .eq('organization_id', ctx.organization_id)
             .eq('pipeline_stages.is_won', true)
 
-        if (wonErr) fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] WON LEADS ERROR: ${wonErr.message}\n`)
+        if (wonErr) console.error('[TEAM GET] WON LEADS ERROR:', wonErr.message)
 
         const assignedCounts: Record<string, number> = {}
         const wonCounts: Record<string, { count: number; revenue: number }> = {}
@@ -68,10 +67,9 @@ export async function GET() {
             won_revenue: wonCounts[m.user_id]?.revenue || 0,
         }))
 
-        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] SUCCESS. Extracted ${enriched?.length} members.\n`)
         return NextResponse.json(enriched)
     } catch (err: any) {
-        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] CATCH ERROR: ${err.message}\n`)
+        console.error('[TEAM GET] CATCH ERROR:', err.message)
         return NextResponse.json({ error: err.message }, { status: 500 })
     }
 }
@@ -158,8 +156,7 @@ export async function POST(req: NextRequest) {
                 `
             })
         } catch (emailErr: any) {
-            // L'utente è stato creato in auth, logghiamo l'errore email ma continuiamo
-            fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] EMAIL SEND ERROR: ${emailErr.message}\n`)
+            console.error('[TEAM POST] EMAIL SEND ERROR:', emailErr.message)
         }
         
         // 4. Crea profilo (softly, ignora errore se esiste già trigger automatico)
