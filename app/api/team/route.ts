@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
             .from('organization_members')
             .insert({
                 organization_id: ctx.organization_id,
-                user_id: null, // placeholder must be null so it doesn't violate FK/Unique constraints
+                user_id: crypto.randomUUID(), // placeholder unique id to avoid constraint violations
                 role,
                 department: department || null,
                 invited_email: email,
