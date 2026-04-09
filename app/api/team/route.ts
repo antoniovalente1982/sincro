@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
+import * as fs from 'fs'
 
 async function getOrgAndRole(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,42 +26,54 @@ export async function GET() {
         .eq('organization_id', ctx.organization_id)
         .order('joined_at', { ascending: true })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] SELECT ERROR: ${error.message}\n`)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-    // Get lead counts per member
-    const { data: leads } = await supabase
-        .from('leads')
-        .select('assigned_to')
-        .eq('organization_id', ctx.organization_id)
+    try {
+        const { data: leads, error: leadErr } = await supabase
+            .from('leads')
+            .select('assigned_to')
+            .eq('organization_id', ctx.organization_id)
+            
+        if (leadErr) fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] LEADS ERROR: ${leadErr.message}\n`)
 
-    const { data: wonLeads } = await supabase
-        .from('leads')
-        .select('assigned_to, value, pipeline_stages!inner(is_won)')
-        .eq('organization_id', ctx.organization_id)
-        .eq('pipeline_stages.is_won', true)
+        const { data: wonLeads, error: wonErr } = await supabase
+            .from('leads')
+            .select('assigned_to, value, pipeline_stages!inner(is_won)')
+            .eq('organization_id', ctx.organization_id)
+            .eq('pipeline_stages.is_won', true)
 
-    const assignedCounts: Record<string, number> = {}
-    const wonCounts: Record<string, { count: number; revenue: number }> = {}
+        if (wonErr) fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] WON LEADS ERROR: ${wonErr.message}\n`)
 
-    leads?.forEach((l: any) => {
-        if (l.assigned_to) assignedCounts[l.assigned_to] = (assignedCounts[l.assigned_to] || 0) + 1
-    })
-    wonLeads?.forEach((l: any) => {
-        if (l.assigned_to) {
-            if (!wonCounts[l.assigned_to]) wonCounts[l.assigned_to] = { count: 0, revenue: 0 }
-            wonCounts[l.assigned_to].count++
-            wonCounts[l.assigned_to].revenue += Number(l.value) || 0
-        }
-    })
+        const assignedCounts: Record<string, number> = {}
+        const wonCounts: Record<string, { count: number; revenue: number }> = {}
 
-    const enriched = data?.map((m: any) => ({
-        ...m,
-        leads_assigned: assignedCounts[m.user_id] || 0,
-        won_count: wonCounts[m.user_id]?.count || 0,
-        won_revenue: wonCounts[m.user_id]?.revenue || 0,
-    }))
+        leads?.forEach((l: any) => {
+            if (l.assigned_to) assignedCounts[l.assigned_to] = (assignedCounts[l.assigned_to] || 0) + 1
+        })
+        wonLeads?.forEach((l: any) => {
+            if (l.assigned_to) {
+                if (!wonCounts[l.assigned_to]) wonCounts[l.assigned_to] = { count: 0, revenue: 0 }
+                wonCounts[l.assigned_to].count++
+                wonCounts[l.assigned_to].revenue += Number(l.value) || 0
+            }
+        })
 
-    return NextResponse.json(enriched)
+        const enriched = data?.map((m: any) => ({
+            ...m,
+            leads_assigned: assignedCounts[m.user_id] || 0,
+            won_count: wonCounts[m.user_id]?.count || 0,
+            won_revenue: wonCounts[m.user_id]?.revenue || 0,
+        }))
+
+        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] SUCCESS. Extracted ${enriched?.length} members.\n`)
+        return NextResponse.json(enriched)
+    } catch (err: any) {
+        fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] CATCH ERROR: ${err.message}\n`)
+        return NextResponse.json({ error: err.message }, { status: 500 })
+    }
 }
 
 export async function POST(req: NextRequest) {

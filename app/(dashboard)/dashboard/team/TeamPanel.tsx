@@ -31,15 +31,28 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
     const [deptFilter, setDeptFilter] = useState<string>('all')
     const [showDeactivateModal, setShowDeactivateModal] = useState<TeamMember | null>(null)
     const [reassignTo, setReassignTo] = useState<string>('')
+    const [loadError, setLoadError] = useState<string | null>(null)
     const supabase = createClient()
 
     useEffect(() => { loadMembers() }, [])
 
     const loadMembers = async () => {
         setLoading(true)
-        const res = await fetch('/api/team')
-        const data = await res.json()
-        setMembers(Array.isArray(data) ? data : [])
+        setLoadError(null)
+        try {
+            const res = await fetch('/api/team')
+            const data = await res.json()
+            console.log("Team members loaded:", data) // <--- DEBUG LOG
+            if (!res.ok || !Array.isArray(data)) {
+                setLoadError(data.error || JSON.stringify(data))
+                setMembers([])
+            } else {
+                setMembers(data)
+            }
+        } catch (e: any) {
+            setLoadError(e.message)
+            setMembers([])
+        }
         setLoading(false)
     }
 
@@ -146,6 +159,11 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                             <span style={{ color: 'var(--color-surface-500)' }}> • {deactivatedMembers.length} disattivat{deactivatedMembers.length !== 1 ? 'i' : 'o'}</span>
                         )}
                     </p>
+                    {loadError && (
+                        <p className="text-red-500 text-xs mt-2 bg-red-500/10 p-2 rounded border border-red-500/20">
+                            Errore Caricamento: {loadError}
+                        </p>
+                    )}
                 </div>
                 <div className="flex items-center gap-2">
                     {canManage && (
