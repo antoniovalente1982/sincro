@@ -135,6 +135,7 @@ export async function GET(req: NextRequest) {
                 created_at,
                 utm_campaign, 
                 value, 
+                meta_data,
                 pipeline_stages (slug, is_won, is_lost)
             `)
             .eq('organization_id', orgId)
@@ -152,6 +153,7 @@ export async function GET(req: NextRequest) {
         let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
         const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
         const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
+        const topPairsMap: Record<string, { creative: string, headline: string, leads: number }> = {}
 
         for (const lead of (crmData || [])) {
             const campKey = (lead.utm_campaign || '').toLowerCase().trim()
@@ -161,6 +163,16 @@ export async function GET(req: NextRequest) {
             const createdTs = new Date(lead.created_at).getTime()
             if (dateMode === 'created' || (createdTs >= sinceMs && createdTs <= untilMs)) {
                 metrics.leads++
+
+                // Extract creative and headline for insights
+                const mData = lead.meta_data || {}
+                const utmContent = mData.utm_content || mData.adset_angle || 'Sconosciuta'
+                const utmTerm = mData.utm_term || lead.utm_campaign || 'Sconosciuta'
+                if (utmContent !== 'Sconosciuta' || utmTerm !== 'Sconosciuta') {
+                    const pairKey = `${utmContent}:::${utmTerm}`
+                    if (!topPairsMap[pairKey]) topPairsMap[pairKey] = { creative: utmContent, headline: utmTerm, leads: 0 }
+                    topPairsMap[pairKey].leads++
+                }
             }
 
             const stage = Array.isArray(lead.pipeline_stages) ? lead.pipeline_stages[0] : lead.pipeline_stages
@@ -267,9 +279,12 @@ export async function GET(req: NextRequest) {
             }
         })
 
+        const topPairs = Object.values(topPairsMap).sort((a, b) => b.leads - a.leads).slice(0, 15)
+
         return NextResponse.json({
             success: true,
             campaigns,
+            topPairs,
             period: { since, until },
             fetched_at: new Date().toISOString(),
         }, {
