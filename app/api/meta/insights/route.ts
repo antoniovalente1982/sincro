@@ -72,8 +72,8 @@ export async function GET(req: NextRequest) {
         const { access_token, ad_account_id } = conn.credentials
         const adAccount = `act_${ad_account_id}`
 
-        // 1. Get campaigns and nested ads (for statuses and creative thumbnails) to optimize speed
-        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads.limit(300){effective_status,name,creative{thumbnail_url,image_url}}&limit=500&access_token=${access_token}`
+        // 1. Get all campaigns (for name, status, objective, and ad status)
+        const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads{effective_status}&limit=500&access_token=${access_token}`
         
         const [campaignsRes, dbCreativesRes] = await Promise.all([
             fetch(campaignsUrl, { cache: 'no-store' }),
@@ -94,18 +94,6 @@ export async function GET(req: NextRequest) {
         for (const ad of (dbCreativesRes?.data || [])) {
             if (ad.name && ad.image_url) {
                 adThumbnails[ad.name.trim()] = ad.image_url
-            }
-        }
-        // Fallback to Meta API thumbnails (from the nested campaign response)
-        for (const camp of allCampaigns) {
-            for (const ad of (camp.ads?.data || [])) {
-                if (ad.name) {
-                    const name = ad.name.trim()
-                    if (!adThumbnails[name]) {
-                        if (ad.creative?.thumbnail_url) adThumbnails[name] = ad.creative.thumbnail_url
-                        else if (ad.creative?.image_url) adThumbnails[name] = ad.creative.image_url
-                    }
-                }
             }
         }
 
@@ -177,7 +165,7 @@ export async function GET(req: NextRequest) {
         let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
         const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
         const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
-        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string }> = {}
+        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string, fbadid?: string }> = {}
 
         for (const lead of (crmData || [])) {
             const campKey = (lead.utm_campaign || '').toLowerCase().trim()
@@ -193,6 +181,9 @@ export async function GET(req: NextRequest) {
                 const fullCreativeName = (mData.utm_content || '').trim()
                 let utmContent = fullCreativeName || 'Sconosciuta'
                 let dynamicHeadline = 'Predefinita'
+                
+                let fbadidMatch = mData.event_source_url ? mData.event_source_url.match(/[?&]fbadid=(\d+)/) : null
+                let fbadid = fbadidMatch ? fbadidMatch[1] : undefined
 
                 if (utmContent.includes(' - T: ')) {
                     const parts = utmContent.split(' - T: ')
@@ -210,9 +201,10 @@ export async function GET(req: NextRequest) {
                 if (utmContent !== 'Sconosciuta') {
                     const pairKey = `${utmContent}:::${dynamicHeadline}`
                     if (!topPairsMap[pairKey]) {
-                        topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0, thumbnail_url: thumbnailUrl }
-                    } else if (thumbnailUrl && !topPairsMap[pairKey].thumbnail_url) {
-                        topPairsMap[pairKey].thumbnail_url = thumbnailUrl
+                        topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0, thumbnail_url: thumbnailUrl, fbadid: fbadid }
+                    } else {
+                        if (thumbnailUrl && !topPairsMap[pairKey].thumbnail_url) topPairsMap[pairKey].thumbnail_url = thumbnailUrl
+                        if (fbadid && !topPairsMap[pairKey].fbadid) topPairsMap[pairKey].fbadid = fbadid
                     }
                     topPairsMap[pairKey].leads++
                 }
@@ -229,6 +221,27 @@ export async function GET(req: NextRequest) {
             if (isWon) {
                 metrics.sales++
                 metrics.revenue += (Number(lead.value) || 0)
+            }
+        }
+
+        // 3.5. Fallback fetch missing thumbnails directly by exact Ad ID from Meta
+        const missingThumbPairs = Object.values(topPairsMap).filter(p => !p.thumbnail_url && p.fbadid)
+        if (missingThumbPairs.length > 0) {
+            const missingIds = missingThumbPairs.map(p => p.fbadid).join(',')
+            try {
+                const manualAdsUrl = `https://graph.facebook.com/${META_API_VERSION}/?ids=${missingIds}&fields=name,creative{thumbnail_url,image_url}&access_token=${access_token}`
+                const manualAdsRes = await fetch(manualAdsUrl, { cache: 'no-store' })
+                if (manualAdsRes.ok) {
+                    const manualAdsData = await manualAdsRes.json()
+                    for (const pair of missingThumbPairs) {
+                        const adData = manualAdsData[pair.fbadid!]
+                        if (adData && adData.creative) {
+                            pair.thumbnail_url = adData.creative.thumbnail_url || adData.creative.image_url
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching fallback ad thumbnails:', err)
             }
         }
 
