@@ -72,9 +72,14 @@ export async function GET(req: NextRequest) {
         const { access_token, ad_account_id } = conn.credentials
         const adAccount = `act_${ad_account_id}`
 
-        // 1. Get all campaigns (for name, status, objective) and their ads to compute true effective status
+        // 1. Get all campaigns (for name, status) and ads (for creative thumbnails)
         const campaignsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/campaigns?fields=id,name,status,objective,daily_budget,ads{effective_status}&limit=500&access_token=${access_token}`
-        const campaignsRes = await fetch(campaignsUrl, { cache: 'no-store' })
+        const adsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/ads?fields=name,creative{thumbnail_url,image_url}&limit=1000&access_token=${access_token}`
+        
+        const [campaignsRes, adsRes] = await Promise.all([
+            fetch(campaignsUrl, { cache: 'no-store' }),
+            fetch(adsUrl, { cache: 'no-store' })
+        ])
 
         if (!campaignsRes.ok) {
             const errText = await campaignsRes.text()
@@ -84,6 +89,18 @@ export async function GET(req: NextRequest) {
 
         const campaignsData = await campaignsRes.json()
         const allCampaigns = campaignsData.data || []
+        
+        let adThumbnails: Record<string, string> = {}
+        if (adsRes.ok) {
+            const adsData = await adsRes.json()
+            for (const ad of (adsData.data || [])) {
+                if (ad.name && ad.creative?.thumbnail_url) {
+                    adThumbnails[ad.name.trim()] = ad.creative.thumbnail_url
+                } else if (ad.name && ad.creative?.image_url) {
+                    adThumbnails[ad.name.trim()] = ad.creative.image_url
+                }
+            }
+        }
 
         // 2. Get insights for the specific date range
         // IMPORTANT: Include ALL campaign delivery statuses to capture spend from
@@ -153,7 +170,7 @@ export async function GET(req: NextRequest) {
         let unattributed = { leads: 0, appts: 0, showups: 0, sales: 0, revenue: 0 }
         const sinceMs = new Date(since + 'T00:00:00+02:00').getTime()
         const untilMs = new Date(until + 'T23:59:59+02:00').getTime()
-        const topPairsMap: Record<string, { creative: string, headline: string, leads: number }> = {}
+        const topPairsMap: Record<string, { creative: string, headline: string, leads: number, thumbnail_url?: string }> = {}
 
         for (const lead of (crmData || [])) {
             const campKey = (lead.utm_campaign || '').toLowerCase().trim()
@@ -166,8 +183,10 @@ export async function GET(req: NextRequest) {
 
                 // Extract creative and dynamic headline from utm_content (format: "Ad Name - T: Dynamic Headline")
                 const mData = lead.meta_data || {}
-                let utmContent = mData.utm_content || 'Sconosciuta'
+                const fullCreativeName = (mData.utm_content || '').trim()
+                let utmContent = fullCreativeName || 'Sconosciuta'
                 let dynamicHeadline = 'Predefinita'
+                let thumbnailUrl = fullCreativeName ? adThumbnails[fullCreativeName] : undefined
 
                 if (utmContent.includes(' - T: ')) {
                     const parts = utmContent.split(' - T: ')
@@ -181,7 +200,11 @@ export async function GET(req: NextRequest) {
 
                 if (utmContent !== 'Sconosciuta') {
                     const pairKey = `${utmContent}:::${dynamicHeadline}`
-                    if (!topPairsMap[pairKey]) topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0 }
+                    if (!topPairsMap[pairKey]) {
+                        topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0, thumbnail_url: thumbnailUrl }
+                    } else if (thumbnailUrl && !topPairsMap[pairKey].thumbnail_url) {
+                        topPairsMap[pairKey].thumbnail_url = thumbnailUrl
+                    }
                     topPairsMap[pairKey].leads++
                 }
             }
