@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 async function getOrgAndRole(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -80,40 +80,57 @@ export async function POST(req: NextRequest) {
         .eq('email', email)
         .single()
 
-    if (!profile) {
-        // Create an invite placeholder
-        const { data, error } = await supabase
-            .from('organization_members')
-            .insert({
-                organization_id: ctx.organization_id,
-                user_id: crypto.randomUUID(), // placeholder unique id to avoid constraint violations
-                role,
-                department: department || null,
-                invited_email: email,
-                invited_at: new Date().toISOString(),
-            })
-            .select()
-            .single()
+    let newUserId = profile?.id
 
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-        return NextResponse.json({ ...data, pending: true })
+    if (!newUserId) {
+        // 1. User doesn't exist, we must use admin to send a real invite
+        const supabaseAdmin = getSupabaseAdmin()
+        
+        // 2. This creates the user in auth.users and sends them an invitation email
+        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email)
+        
+        if (inviteError) {
+            // Se l'utente magari esiste già in auth ma non in profiles... 
+            // supabase ritorna error di unicità, in tal caso lo peschiamo? 
+            // Mettiamo un catch e un error
+            return NextResponse.json({ error: "Impossibile invitare tramite email: " + inviteError.message }, { status: 500 })
+        }
+        
+        if (!inviteData?.user?.id) {
+            return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
+        }
+        
+        newUserId = inviteData.user.id
+        
+        // Try creating profile just in case there is no automatic trigger
+        // Most projects have a trigger, so we'll do this softly (ignore error if it fails e.g. due to constraint)
+        await supabaseAdmin.from('profiles').insert({
+            id: newUserId,
+            email: email,
+            full_name: email.split('@')[0]
+        }).select().single()
     }
 
-    // User exists — add directly
+    // Now insert directly into organization_members with the REAL user ID
+    // either from profile (if existing) or from the freshly invited user
     const { data, error } = await supabase
         .from('organization_members')
         .insert({
             organization_id: ctx.organization_id,
-            user_id: profile.id,
+            user_id: newUserId,
             role,
             department: department || null,
             invited_email: email,
-            joined_at: new Date().toISOString(),
+            invited_at: !profile ? new Date().toISOString() : null,
+            joined_at: profile ? new Date().toISOString() : null,
         })
         .select()
         .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+        return NextResponse.json({ error: "Errore DB: " + error.message }, { status: 500 })
+    }
+
     return NextResponse.json(data)
 }
 
