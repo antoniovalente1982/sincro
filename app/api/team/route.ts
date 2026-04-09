@@ -19,9 +19,10 @@ export async function GET() {
     const ctx = await getOrgAndRole(supabase)
     if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data, error } = await supabase
+    // 1. Fetch members (senza join a profiles — non esiste FK)
+    const { data: members, error } = await supabase
         .from('organization_members')
-        .select('*, profiles:user_id (full_name, email, avatar_url)')
+        .select('*')
         .eq('organization_id', ctx.organization_id)
         .order('joined_at', { ascending: true })
 
@@ -30,21 +31,32 @@ export async function GET() {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    if (!members || members.length === 0) {
+        return NextResponse.json([])
+    }
+
     try {
-        const { data: leads, error: leadErr } = await supabase
+        // 2. Fetch profiles separatamente per user_id
+        const userIds = members.map((m: any) => m.user_id).filter(Boolean)
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, avatar_url')
+            .in('id', userIds)
+
+        const profileMap: Record<string, any> = {}
+        profiles?.forEach((p: any) => { profileMap[p.id] = p })
+
+        // 3. Lead counts
+        const { data: leads } = await supabase
             .from('leads')
             .select('assigned_to')
             .eq('organization_id', ctx.organization_id)
-            
-        if (leadErr) console.error('[TEAM GET] LEADS ERROR:', leadErr.message)
 
-        const { data: wonLeads, error: wonErr } = await supabase
+        const { data: wonLeads } = await supabase
             .from('leads')
             .select('assigned_to, value, pipeline_stages!inner(is_won)')
             .eq('organization_id', ctx.organization_id)
             .eq('pipeline_stages.is_won', true)
-
-        if (wonErr) console.error('[TEAM GET] WON LEADS ERROR:', wonErr.message)
 
         const assignedCounts: Record<string, number> = {}
         const wonCounts: Record<string, { count: number; revenue: number }> = {}
@@ -60,8 +72,10 @@ export async function GET() {
             }
         })
 
-        const enriched = data?.map((m: any) => ({
+        // 4. Merge tutto
+        const enriched = members.map((m: any) => ({
             ...m,
+            profiles: profileMap[m.user_id] || null,
             leads_assigned: assignedCounts[m.user_id] || 0,
             won_count: wonCounts[m.user_id]?.count || 0,
             won_revenue: wonCounts[m.user_id]?.revenue || 0,
