@@ -134,7 +134,6 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     useEffect(() => {
         if (activeKey === 'all') {
             setLiveCampaigns(null) // Use cached data for "Tutto"
-            setTopPairs([])
             setLiveError(null)
             return
         }
