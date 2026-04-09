@@ -209,6 +209,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
     const cpAppt = totalAppts > 0 ? spend / totalAppts : 0
     const cpShowup = totalShowups > 0 ? spend / totalShowups : 0
     const cac = totalSales > 0 ? spend / totalSales : 0
+    const aov = totalSales > 0 ? totalRevenue / totalSales : 0
     const roas = spend > 0 ? totalRevenue / spend : 0
 
     const metaKpis = [
@@ -218,6 +219,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
         { label: 'Costo ShowUp', value: formatCurrency(cpShowup), icon: Eye, color: '#8b5cf6' },
         { label: 'CAC Medio', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 500 ? '#22c55e' : '#f43f5e' },
         { label: `Vendite (${totalSales})`, value: formatCurrency(totalRevenue), icon: DollarSign, color: '#22c55e' },
+        { label: 'AOV', value: formatCurrency(aov), icon: ArrowUpRight, color: '#10b981' },
         { label: 'ROAS', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 3 ? '#22c55e' : '#f59e0b' },
     ]
 
@@ -260,7 +262,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 {loadingMeta && <Loader2 className="w-4 h-4 animate-spin text-[#818cf8]" />}
             </div>
             
-            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 transition-opacity duration-300 ${loadingMeta ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
+            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 transition-opacity duration-300 ${loadingMeta ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
                 {metaKpis.map(kpi => (
                     <div key={kpi.label} className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-default" style={{ border: `1px solid ${kpi.color}15`, background: 'rgba(255,255,255,0.02)' }}>
                         <div className="flex items-center gap-2 mb-2">
