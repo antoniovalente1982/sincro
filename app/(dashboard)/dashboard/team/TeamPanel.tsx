@@ -32,6 +32,8 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
     const [showDeactivateModal, setShowDeactivateModal] = useState<TeamMember | null>(null)
     const [reassignTo, setReassignTo] = useState<string>('')
     const [loadError, setLoadError] = useState<string | null>(null)
+    const [inviteLink, setInviteLink] = useState<string | null>(null)
+    const [linkCopied, setLinkCopied] = useState(false)
     const supabase = createClient()
 
     useEffect(() => { loadMembers() }, [])
@@ -71,14 +73,9 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 setInviteEmail('')
                 loadMembers()
                 
-                // Se c'è un link di invito, mostralo per copiarlo
                 if (result.invite_url) {
-                    const copied = await navigator.clipboard.writeText(result.invite_url).then(() => true).catch(() => false)
-                    alert(
-                        `✅ Membro invitato con successo!\n\n` +
-                        `${copied ? '📋 Link copiato negli appunti!' : '📋 Copia questo link e invialo al membro:'}\n\n` +
-                        result.invite_url
-                    )
+                    setInviteLink(result.invite_url)
+                    setLinkCopied(false)
                 }
             } else {
                 const data = await res.json()
@@ -484,6 +481,54 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                 style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}
                             >
                                 <Trash2 className="w-4 h-4" /> Conferma Disattivazione
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Link Invito */}
+            {inviteLink && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
+                    <div className="glass-card p-6 w-full max-w-lg mx-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(34, 197, 94, 0.15)' }}>
+                                <span className="text-lg">✅</span>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-white">Membro invitato!</h3>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-400)' }}>Invia questo link al membro per farlo accedere</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                readOnly
+                                value={inviteLink}
+                                className="input flex-1 text-xs font-mono"
+                                style={{ cursor: 'text', userSelect: 'all' }}
+                                onClick={(e) => (e.target as HTMLInputElement).select()}
+                            />
+                            <button
+                                onClick={async () => {
+                                    await navigator.clipboard.writeText(inviteLink)
+                                    setLinkCopied(true)
+                                    setTimeout(() => setLinkCopied(false), 3000)
+                                }}
+                                className="btn-primary whitespace-nowrap"
+                                style={{ minWidth: '120px' }}
+                            >
+                                {linkCopied ? '✓ Copiato!' : '📋 Copia Link'}
+                            </button>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button 
+                                onClick={() => setInviteLink(null)} 
+                                className="btn-secondary"
+                            >
+                                Chiudi
                             </button>
                         </div>
                     </div>
