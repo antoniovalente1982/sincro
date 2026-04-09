@@ -386,9 +386,15 @@ export async function GET(req: NextRequest) {
         
         if (routingAngles && routingAngles.length > 0) {
             for (const pair of topPairs) {
-                const creativeLower = (pair.creative || '').toLowerCase()
+                // Search in: creative name, campaign key (utm_campaign), headline
+                const searchText = [
+                    pair.creative || '',
+                    pair.campaign_key || '',
+                    pair.headline || '',
+                ].join(' ').toLowerCase()
+                
                 for (const angle of routingAngles) {
-                    if (creativeLower.includes(angle.trigger_keyword.toLowerCase())) {
+                    if (searchText.includes(angle.trigger_keyword.toLowerCase())) {
                         pair.landing_headline = `${angle.headline_white} ${angle.headline_gold}`.trim()
                         break
                     }
