@@ -96,30 +96,73 @@ export async function POST(req: NextRequest) {
     let newUserId = profile?.id
 
     if (!newUserId) {
-        // 1. User doesn't exist, we must use admin to send a real invite
         const supabaseAdmin = getSupabaseAdmin()
         
-        // 2. This creates the user in auth.users and sends them an invitation email
-        // Passiamo esplicitamente il dominio in "redirectTo" (deve anche essere abilitato nei Redirect URL di Supabase)
-        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-            redirectTo: 'https://landing.metodosincro.com/dashboard/team'
+        // 1. Genera il link di invito SENZA inviare l'email di Supabase
+        //    generateLink crea l'utente in auth.users e ci restituisce il token
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            type: 'invite',
+            email: email,
         })
         
-        if (inviteError) {
-            // Se l'utente magari esiste già in auth ma non in profiles... 
-            // supabase ritorna error di unicità, in tal caso lo peschiamo? 
-            // Mettiamo un catch e un error
-            return NextResponse.json({ error: "Impossibile invitare tramite email: " + inviteError.message }, { status: 500 })
+        if (linkError) {
+            return NextResponse.json({ error: "Impossibile generare invito: " + linkError.message }, { status: 500 })
         }
         
-        if (!inviteData?.user?.id) {
+        if (!linkData?.user?.id) {
             return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
         }
         
-        newUserId = inviteData.user.id
+        newUserId = linkData.user.id
         
-        // Try creating profile just in case there is no automatic trigger
-        // Most projects have a trigger, so we'll do this softly (ignore error if it fails e.g. due to constraint)
+        // 2. Costruiamo il link corretto con il VERO dominio di produzione
+        //    Il token_hash e type vengono dal link generato da Supabase
+        const confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
+        
+        // 3. Inviamo l'email tramite Resend (dominio verificato, email brandizzata)
+        try {
+            const { Resend } = await import('resend')
+            const resend = new Resend(process.env.RESEND_API_KEY)
+            
+            await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL || 'Metodo Sincro <email@metodosincro.com>',
+                to: email,
+                subject: 'Sei stato invitato in Metodo Sincro',
+                html: `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #0f0f23; color: #e2e8f0; padding: 40px; border-radius: 16px;">
+                        <div style="text-align: center; margin-bottom: 32px;">
+                            <h1 style="color: #a78bfa; font-size: 28px; margin: 0;">Metodo Sincro</h1>
+                            <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">Il tuo spazio di lavoro ti aspetta</p>
+                        </div>
+                        <div style="background: #1e1e3a; padding: 32px; border-radius: 12px; border: 1px solid #2d2d5e;">
+                            <h2 style="color: #e2e8f0; font-size: 20px; margin-top: 0;">Sei stato invitato nel team!</h2>
+                            <p style="color: #94a3b8; line-height: 1.6;">
+                                Un amministratore ti ha invitato a far parte dello spazio di lavoro su Metodo Sincro 
+                                con il ruolo di <strong style="color: #a78bfa;">${role}</strong>${department ? ` nel reparto <strong style="color: #a78bfa;">${department}</strong>` : ''}.
+                            </p>
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="${confirmUrl}" 
+                                   style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                                    Accetta Invito
+                                </a>
+                            </div>
+                            <p style="color: #64748b; font-size: 12px; text-align: center;">
+                                Se il bottone non funziona, copia e incolla questo link nel browser:<br>
+                                <a href="${confirmUrl}" style="color: #7c3aed; word-break: break-all;">${confirmUrl}</a>
+                            </p>
+                        </div>
+                        <p style="color: #475569; font-size: 11px; text-align: center; margin-top: 24px;">
+                            © ${new Date().getFullYear()} Metodo Sincro — Questa email è stata inviata automaticamente.
+                        </p>
+                    </div>
+                `
+            })
+        } catch (emailErr: any) {
+            // L'utente è stato creato in auth, logghiamo l'errore email ma continuiamo
+            fs.appendFileSync('debug_team.log', `[${new Date().toISOString()}] EMAIL SEND ERROR: ${emailErr.message}\n`)
+        }
+        
+        // 4. Crea profilo (softly, ignora errore se esiste già trigger automatico)
         await supabaseAdmin.from('profiles').insert({
             id: newUserId,
             email: email,
