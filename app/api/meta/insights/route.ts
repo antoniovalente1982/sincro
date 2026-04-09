@@ -164,13 +164,24 @@ export async function GET(req: NextRequest) {
             if (dateMode === 'created' || (createdTs >= sinceMs && createdTs <= untilMs)) {
                 metrics.leads++
 
-                // Extract creative and headline for insights
+                // Extract creative and dynamic headline from utm_content (format: "Ad Name - T: Dynamic Headline")
                 const mData = lead.meta_data || {}
-                const utmContent = mData.utm_content || mData.adset_angle || 'Sconosciuta'
-                const utmTerm = mData.utm_term || lead.utm_campaign || 'Sconosciuta'
-                if (utmContent !== 'Sconosciuta' || utmTerm !== 'Sconosciuta') {
-                    const pairKey = `${utmContent}:::${utmTerm}`
-                    if (!topPairsMap[pairKey]) topPairsMap[pairKey] = { creative: utmContent, headline: utmTerm, leads: 0 }
+                let utmContent = mData.utm_content || 'Sconosciuta'
+                let dynamicHeadline = 'Predefinita'
+
+                if (utmContent.includes(' - T: ')) {
+                    const parts = utmContent.split(' - T: ')
+                    utmContent = parts[0].trim()
+                    dynamicHeadline = parts[1].trim()
+                } else if (utmContent.includes('- T: ')) {
+                    const parts = utmContent.split('- T: ')
+                    utmContent = parts[0].trim()
+                    dynamicHeadline = parts[1].trim()
+                }
+
+                if (utmContent !== 'Sconosciuta') {
+                    const pairKey = `${utmContent}:::${dynamicHeadline}`
+                    if (!topPairsMap[pairKey]) topPairsMap[pairKey] = { creative: utmContent, headline: dynamicHeadline, leads: 0 }
                     topPairsMap[pairKey].leads++
                 }
             }
