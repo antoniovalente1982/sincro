@@ -30,9 +30,10 @@ interface Props {
     profile: any
     userRole: string
     userEmail: string
+    isGoogleConnected?: boolean
 }
 
-export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userEmail }: Props) {
+export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userEmail, isGoogleConnected }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
@@ -823,18 +824,33 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 </svg>
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-white">Google Calendar</div>
+                                <div className="text-sm font-bold text-white flex items-center gap-2">
+                                    Google Calendar
+                                    {isGoogleConnected && (
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-semibold">
+                                            Connesso
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
                                     Sincronizza appuntamenti e disponibilità
                                 </div>
                             </div>
                         </div>
-                        <a 
-                            href="/api/auth/google"
-                            className="text-xs font-semibold px-4 py-2 rounded-lg bg-white text-black hover:bg-gray-100 transition-colors"
-                        >
-                            Connetti
-                        </a>
+                        {isGoogleConnected ? (
+                            <button
+                                className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                            >
+                                Disconnetti
+                            </button>
+                        ) : (
+                            <a 
+                                href="/api/auth/google"
+                                className="text-xs font-semibold px-4 py-2 rounded-lg bg-white text-black hover:bg-gray-100 transition-colors"
+                            >
+                                Connetti
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>

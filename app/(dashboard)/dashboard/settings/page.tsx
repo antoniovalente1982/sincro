@@ -7,7 +7,7 @@ export default async function SettingsPage() {
 
     const { data: member } = await supabase
         .from('organization_members')
-        .select('organization_id, role')
+        .select('organization_id, role, google_access_token')
         .eq('user_id', user?.id || '')
         .single()
 
@@ -32,6 +32,7 @@ export default async function SettingsPage() {
             profile={profileRes.data}
             userRole={member?.role || 'viewer'}
             userEmail={user?.email || ''}
+            isGoogleConnected={!!member?.google_access_token}
         />
     )
 }
