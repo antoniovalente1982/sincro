@@ -196,6 +196,7 @@ export default function AngleManager() {
       {loading && !angles.length ? (
         <div className="flex justify-center p-10"><Loader2 className="animate-spin text-[#a855f7]" /></div>
       ) : (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {(showAll ? angles : angles.slice(0, INITIAL_VISIBLE)).map(angle => (
             <div key={angle.id} className="glass-card p-5 hover:border-[rgba(168,85,247,0.3)] transition-all flex flex-col h-full">
@@ -242,6 +243,7 @@ export default function AngleManager() {
             Comprimi lista
           </button>
         )}
+        </>
       )}
     </div>
   )
