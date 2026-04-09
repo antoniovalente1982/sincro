@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createGoogleCalendarEvent, getGoogleCalendarFreeBusy } from '@/lib/google-calendar'
 import { sendBookingConfirmation, sendBookingNotificationToCloser } from '@/lib/email'
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params
     const slug = params.slug
     const body = await req.json()
     const { start_time, name, email, phone, notes } = body
@@ -221,7 +222,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
 
         return NextResponse.json({ 
             success: true, 
-            redirect_url: calendar.redirect_url 
+            redirect_url: calendar.redirect_url || '/grazie' 
         })
 
     } catch (err) {

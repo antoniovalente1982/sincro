@@ -2,9 +2,10 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { getGoogleCalendarFreeBusy } from '@/lib/google-calendar'
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
     const { searchParams } = new URL(req.url)
     const fromStr = searchParams.get('from')
+    const params = await props.params
     const slug = params.slug
 
     if (!slug || !fromStr) {
