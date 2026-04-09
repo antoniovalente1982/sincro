@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket } from 'lucide-react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -89,7 +89,6 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const [pageSize, setPageSize] = useState<number>(50)
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
-    const [topPairs, setTopPairs] = useState<{ creative: string, headline: string, leads: number, thumbnail_url?: string }[]>([])
     const [liveError, setLiveError] = useState<string | null>(null)
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
 
@@ -109,12 +108,10 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             const data = await res.json()
             if (data.success && data.campaigns) {
                 setLiveCampaigns(data.campaigns)
-                if (data.topPairs) setTopPairs(data.topPairs)
                 setLastSync(new Date().toLocaleTimeString('it-IT'))
             } else {
                 setLiveError(data.error || 'Errore nel caricamento')
                 setLiveCampaigns(null)
-                setTopPairs([])
             }
         } catch (e: any) {
             setLiveError(e.message || 'Errore di connessione')
@@ -375,52 +372,6 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 ))}
             </div>
 
-            {/* Top Creative & Headline Pairs */}
-            {activeKey !== 'all' && topPairs.length > 0 && (
-                <div className="glass-card overflow-hidden mt-6 mb-6">
-                    <div className="p-4 flex items-center gap-2" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                        <Target className="w-5 h-5" style={{ color: '#ec4899' }} />
-                        <h3 className="text-sm font-bold text-white">Top Creative &amp; Headline per Lead Generati</h3>
-                    </div>
-                    <div className="p-4">
-                        <div className="space-y-3">
-                            {topPairs.map((pair, idx) => (
-                                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                                    {pair.thumbnail_url ? (
-                                        <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <img src={pair.thumbnail_url} alt="Ad Creative" className="w-full h-full object-cover" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <Megaphone className="w-5 h-5 opacity-20" />
-                                        </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-semibold text-white mb-1 flex items-start gap-2">
-                                            <span style={{ color: 'var(--color-surface-500)', marginTop: '2px' }} className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0">Headline</span> 
-                                            <span className="leading-tight">{pair.headline}</span>
-                                        </div>
-                                        <div className="text-[11px] flex items-start gap-2" style={{ color: 'var(--color-surface-400)' }}>
-                                            <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5">Creative</span> 
-                                            <span className="leading-tight">{pair.creative}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3 flex-shrink-0 px-2">
-                                        <div className="text-xl font-bold" style={{ color: '#3b82f6' }}>{pair.leads}</div>
-                                        <div className="text-[10px] uppercase font-semibold tracking-wider" style={{ color: 'var(--color-surface-500)' }}>Lead</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-            
-            {activeKey === 'all' && (
-                 <div className="glass-card mt-6 mb-6 p-4 text-center">
-                    <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>⏳ Seleziona un intervallo di tempo (es. 7 giorni) dal menu in alto per visualizzare le Top Creative &amp; Headline.</p>
-                 </div>
-            )}
 
             {/* Error notice */}
             {liveError && (

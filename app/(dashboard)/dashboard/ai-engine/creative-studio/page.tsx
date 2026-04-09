@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import CreativeStudio from './CreativeStudio'
 import CreativePipeline from './CreativePipeline'
 import AngleManager from './AngleManager'
+import TopCreativePairs from './TopCreativePairs'
 
 export default async function CreativeStudioPage() {
     const supabase = await createClient()
@@ -50,6 +51,12 @@ export default async function CreativeStudioPage() {
 
     return (
         <div className="space-y-10">
+            {/* Top Creative & Headline — Performance reale da Meta */}
+            <TopCreativePairs />
+
+            {/* Divider */}
+            <div className="border-t" style={{ borderColor: 'var(--color-surface-200)' }} />
+
             {/* Creative Pipeline — Circuito Chiuso */}
             <CreativePipeline
                 creatives={creativesRes.data || []}
