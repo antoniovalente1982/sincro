@@ -316,6 +316,28 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         }
     }
 
+    const handleAssignLead = async (leadId: string, assignedTo: string) => {
+        const newValue = assignedTo || undefined;
+        const lead = leads.find(l => l.id === leadId);
+        const oldValue = lead?.assigned_to;
+        
+        // Optimistic update
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_to: newValue } : l));
+        
+        // Actually for the API we need to send value. If undefined, JSON.stringify emits nothing or drops it. 
+        // We probably want to send null for the Database to clear it, but the optimistic state needs undefined.
+        try {
+            await fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: leadId, assigned_to: assignedTo || null }),
+            });
+        } catch {
+            // rollback
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_to: oldValue } : l));
+        }
+    }
+
     const handleSaveLead = async (formData: any) => {
         setSaving(true)
         try {
@@ -623,7 +645,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
             {/* Multi View Render */}
             {viewMode === 'grid' ? (
-                <CRMGrid leads={filteredLeads} stages={stages} onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} />
+                <CRMGrid leads={filteredLeads} stages={stages} members={members} onAssignLead={handleAssignLead} onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} />
             ) : (
             <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
                 {activeStages.map(stage => {
@@ -797,15 +819,26 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     <span style={{ color: '#71717a' }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
                                                 )}
                                             </div>
-                                            {lead.assigned_to && (
-                                                <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
-                                                    background: 'rgba(59, 130, 246, 0.1)',
-                                                    color: '#3b82f6',
-                                                    border: '1px solid rgba(59, 130, 246, 0.15)',
-                                                }}>
-                                                    {getMemberName(lead.assigned_to)}
-                                                </span>
-                                            )}
+                                            <div className="flex items-center" onClick={e => e.stopPropagation()}>
+                                                <select
+                                                    className="text-[10px] px-2 py-0.5 rounded-full font-semibold outline-none cursor-pointer appearance-none text-center transition-colors hover:opacity-80"
+                                                    style={{
+                                                        background: lead.assigned_to ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                        color: lead.assigned_to ? '#3b82f6' : 'var(--color-surface-400)',
+                                                        border: lead.assigned_to ? '1px solid rgba(59, 130, 246, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)',
+                                                        maxWidth: '120px'
+                                                    }}
+                                                    value={lead.assigned_to || ''}
+                                                    onChange={e => handleAssignLead(lead.id, e.target.value)}
+                                                >
+                                                    <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna</option>
+                                                    {members.filter(m => ['setter', 'closer', 'admin', 'owner', 'manager'].includes(m.role)).map(m => (
+                                                        <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                            {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     )

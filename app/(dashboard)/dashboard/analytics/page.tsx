@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [pipelinesRes, stagesRes, leadsRes, activitiesRes, attributionsRes, predictionsRes, globalIntelRes, leaksRes, reallocsRes, clustersRes, funnelsRes] = await Promise.all([
+    const [pipelinesRes, stagesRes, leadsRes, activitiesRes, attributionsRes, predictionsRes, globalIntelRes, leaksRes, reallocsRes, clustersRes, funnelsRes, membersRes] = await Promise.all([
         supabase.from('pipelines').select('id, name, is_default').eq('organization_id', orgId).order('is_default', { ascending: false }),
         supabase.from('pipeline_stages').select('*, pipelines!inner(id, name)').eq('organization_id', orgId).order('sort_order'),
         supabase.from('leads').select('*, pipeline_stages(name, slug, color, is_won, is_lost, pipeline_id), funnels!leads_funnel_id_fkey(id, name, objective)').eq('organization_id', orgId),
@@ -25,6 +25,7 @@ export default async function AnalyticsPage() {
         supabase.from('budget_reallocations').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(10),
         supabase.from('audience_dna_clusters').select('*').eq('organization_id', orgId).order('cluster_rank').limit(5),
         supabase.from('funnels').select('id, name, objective').eq('organization_id', orgId).eq('status', 'active').order('name'),
+        supabase.from('organization_members').select('user_id, role, department, deactivated_at, profiles:user_id (full_name, email)').eq('organization_id', orgId).is('deactivated_at', null),
     ])
 
     const objectives = [...new Set((funnelsRes.data || []).map((f: any) => f.objective).filter(Boolean))]
@@ -43,6 +44,7 @@ export default async function AnalyticsPage() {
             dnaClusters={clustersRes.data || []}
             objectives={objectives}
             funnels={funnelsRes.data || []}
+            members={(membersRes.data || []).map((m: any) => ({ ...m, profiles: Array.isArray(m.profiles) ? m.profiles[0] : m.profiles }))}
         />
     )
 }

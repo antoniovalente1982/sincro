@@ -109,9 +109,10 @@ export async function PUT(req: NextRequest) {
         })
 
         // Fire Meta CAPI event if the new stage has fire_capi_event configured
+        // Also fetch slug to stamp setter_id if entering Appuntamento
         const { data: newStage } = await supabase
             .from('pipeline_stages')
-            .select('name, fire_capi_event, is_won')
+            .select('name, fire_capi_event, is_won, slug')
             .eq('id', updates.stage_id)
             .single()
 
@@ -144,6 +145,15 @@ ${leadData.notes || 'Nessuna nota fornita.'}
                         priority: 2, // High priority
                         // dueDate: Date.now() + 2 * 24 * 60 * 60 * 1000 // Between 48 hours maybe?
                     });
+                }
+            }
+
+            // STAMP SETTER_ID: Se il lead entra per la prima volta in "appuntamento", timbriamo il setter!
+            if (newStage.slug === 'appuntamento') {
+                const { data: currLead } = await supabase.from('leads').select('setter_id, assigned_to').eq('id', id).single()
+                if (currLead && !currLead.setter_id) {
+                    // Impostiamo come setter l'ultimo assegnatario (il setter), o in fallback l'utente loggato
+                    updates.setter_id = currLead.assigned_to || user?.id || null
                 }
             }
         }

@@ -6,6 +6,7 @@ import HowItWorks from '@/components/HowItWorks'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from 'recharts'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
+import SetterPerformance from './SetterPerformance'
 
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean; pipeline_id?: string
@@ -30,9 +31,10 @@ interface Props {
     dnaClusters: any[]
     objectives: string[]
     funnels?: { id: string; name: string }[]
+    members?: any[]
 }
 
-export default function AnalyticsDashboard({ pipelines, stages: allStages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives, funnels = [] }: Props) {
+export default function AnalyticsDashboard({ pipelines, stages: allStages, leads: allLeads, activities, attributions, predictions, globalIntel, leaks, reallocations, dnaClusters, objectives, funnels = [], members = [] }: Props) {
     const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
     const [funnelFilter, setFunnelFilter] = useState<string>('all')
     const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0]
@@ -351,6 +353,9 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                     </div>
                 )}
             </div>
+
+            {/* PERFORMANCE SETTER */}
+            <SetterPerformance leads={leads} members={members} rangeFilterName={activeKey} />
 
             {/* Recent Activity */}
             <div className="glass-card p-5">
