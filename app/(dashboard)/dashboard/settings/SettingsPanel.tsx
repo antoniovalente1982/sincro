@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag, Camera } from 'lucide-react'
 import Link from 'next/link'
 
 interface Stage {
@@ -63,6 +63,35 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [settersList, setSettersList] = useState<any[]>([])
     const [assignStats, setAssignStats] = useState<Record<string, { total: number; won: number }>>({})
     const [savingAssign, setSavingAssign] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const img = new Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                const SIZE = 200
+                canvas.width = SIZE
+                canvas.height = SIZE
+                const ctx = canvas.getContext('2d')
+                if (!ctx) return
+                
+                const minDim = Math.min(img.width, img.height)
+                const sx = (img.width - minDim) / 2
+                const sy = (img.height - minDim) / 2
+                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, SIZE, SIZE)
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8)
+                setAvatarUrl(dataUrl)
+            }
+            img.src = event.target?.result as string
+        }
+        reader.readAsDataURL(file)
+    }
 
     useEffect(() => {
         const loadAssignment = async () => {
@@ -795,12 +824,42 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         <input className="input max-w-md" value={userEmail} disabled />
                     </div>
                     <div>
-                        <label className="label">Nome completo</label>
-                        <input className="input max-w-md" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Il tuo nome e cognome" />
+                        <label className="label">Foto Profilo</label>
+                        <div className="mt-2 flex items-center gap-6">
+                            <div 
+                                className="relative w-24 h-24 rounded-full overflow-hidden border-2 flex-shrink-0 cursor-pointer group bg-black/40"
+                                style={{ borderColor: 'var(--color-surface-400)' }}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <User className="w-10 h-10" style={{ color: 'var(--color-surface-500)' }} />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Camera className="w-6 h-6 text-white mb-1" />
+                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Cambia</span>
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs mb-3" style={{ color: 'var(--color-surface-500)' }}>
+                                    Clicca sull'immagine per caricare una nuova foto. Verrà automaticamente ridimensionata e ritagliata.
+                                </p>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef}
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <label className="label">Foto Profilo (URL)</label>
-                        <input className="input max-w-md" value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} placeholder="https://... (URL immagine)" />
+                        <label className="label">Nome completo</label>
+                        <input className="input max-w-md" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Il tuo nome e cognome" />
                     </div>
                     <div>
                         <label className="label">Numero di Telefono</label>
