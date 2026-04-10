@@ -32,9 +32,10 @@ export async function PUT(req: NextRequest) {
 
         // Save phone to user_metadata
         if (phone !== undefined) {
-             await supabaseAdmin.auth.admin.updateUserById(ctx.user_id, {
+             const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(ctx.user_id, {
                  user_metadata: { phone }
              })
+             if (authErr) return NextResponse.json({ error: 'Auth Error: ' + authErr.message }, { status: 500 })
         }
 
         const { data, error } = await supabaseAdmin

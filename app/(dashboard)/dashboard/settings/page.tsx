@@ -11,6 +11,11 @@ export default async function SettingsPage() {
         .eq('user_id', user?.id || '')
         .single()
 
+    const { createClient: createAdminClient } = await import('@supabase/supabase-js')
+    const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    const { data: freshUser } = await supabaseAdmin.auth.admin.getUserById(user?.id || '')
+    const freshUserMetadata = freshUser?.user?.user_metadata || {}
+
     const orgId = member?.organization_id || ''
 
     const [orgRes, stagesRes, profileRes, pipelinesRes, sourcesRes, tagsRes] = await Promise.all([
@@ -29,7 +34,7 @@ export default async function SettingsPage() {
             pipelines={pipelinesRes.data || []}
             trafficSources={sourcesRes.data || []}
             crmTags={tagsRes.data || []}
-            profile={{ ...(profileRes.data || {}), phone: user?.user_metadata?.phone || profileRes.data?.phone || '' }}
+            profile={{ ...(profileRes.data || {}), phone: freshUserMetadata?.phone || profileRes.data?.phone || '' }}
             userRole={member?.role || 'viewer'}
             userEmail={user?.email || ''}
             isGoogleConnected={!!member?.google_access_token}
