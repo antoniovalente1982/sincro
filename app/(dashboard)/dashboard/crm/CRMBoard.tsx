@@ -1210,7 +1210,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                         <label className="label">Assegnato a</label>
                         <select className="input" value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })}>
                             <option value="">Non assegnato</option>
-                            {members.filter(m => m.role === 'setter' || m.role === 'closer' || m.role === 'admin' || m.role === 'owner').map(m => (
+                            {members.filter(m => m.role !== 'viewer').map(m => (
                                 <option key={m.user_id} value={m.user_id}>
                                     {(m.profiles as any)?.full_name || (m.profiles as any)?.email} ({m.role})
                                 </option>
