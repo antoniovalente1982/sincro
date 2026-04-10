@@ -1,17 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
+import { getOrgContext } from '@/lib/org-context'
 
 async function getOrgAndRole(supabase: any) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return null
-    const { data: member } = await supabase
-        .from('organization_members')
-        .select('organization_id, role')
-        .eq('user_id', user.id)
-        .is('deactivated_at', null)
-        .single()
-    return member ? { ...member, user_id: user.id } : null
+    return getOrgContext(supabase)
 }
 
 export async function GET() {

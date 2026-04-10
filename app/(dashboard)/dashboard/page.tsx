@@ -6,12 +6,18 @@ export default async function DashboardPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Get org
-    const { data: member } = await supabase
+    // Get org — handle potential duplicate memberships from auto-provisioning trigger
+    const { data: members } = await supabase
         .from('organization_members')
         .select('organization_id, role, organizations(name)')
         .eq('user_id', user?.id || '')
-        .single()
+        .is('deactivated_at', null)
+        .order('joined_at', { ascending: true, nullsFirst: false })
+
+    // Prefer invited membership (non-owner) over auto-created owner
+    const member = members && members.length > 1
+        ? members.find(m => m.role !== 'owner') || members[0]
+        : members?.[0] || null
 
     const orgId = member?.organization_id || ''
     const orgName = (member?.organizations as any)?.name || ''

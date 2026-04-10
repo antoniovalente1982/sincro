@@ -38,6 +38,13 @@ export default function SetPasswordPage() {
             setError(error.message)
             setLoading(false)
         } else {
+            // Mark the team invite as accepted (updates joined_at, cleans up auto-created orgs)
+            try {
+                await fetch('/api/team/join', { method: 'POST' })
+            } catch (e) {
+                console.warn('Team join call failed (non-blocking):', e)
+            }
+
             setSuccess(true)
             setTimeout(() => {
                 router.push('/dashboard')

@@ -71,12 +71,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
                 setUser(user)
-                const { data: member } = await supabase
+
+                // Fetch ALL active memberships (user may have duplicates from auto-provisioning trigger)
+                const { data: members } = await supabase
                     .from('organization_members')
-                    .select('organization_id, role, department, organizations(name)')
+                    .select('organization_id, role, department, joined_at, organizations(name)')
                     .eq('user_id', user.id)
                     .is('deactivated_at', null)
-                    .single()
+                    .order('joined_at', { ascending: true, nullsFirst: false })
+
+                let member = members?.[0] || null
+
+                if (members && members.length > 1) {
+                    // Multiple memberships found — prefer the one where user is NOT owner
+                    // (the invited one), or the one with joined_at set
+                    const invited = members.find(m => m.role !== 'owner' || m.joined_at)
+                    if (invited) member = invited
+
+                    // Auto-cleanup: call /api/team/join to resolve duplicates
+                    try {
+                        await fetch('/api/team/join', { method: 'POST' })
+                    } catch {}
+                } else if (members && members.length === 1 && !members[0].joined_at) {
+                    // Single membership with no joined_at — auto-join
+                    try {
+                        await fetch('/api/team/join', { method: 'POST' })
+                    } catch {}
+                }
+
                 if (member?.organizations) {
                     setOrgName((member.organizations as any).name)
                 }
