@@ -128,6 +128,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [showModal, setShowModal] = useState(false)
     const [editingLead, setEditingLead] = useState<Lead | null>(null)
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+    const [selectedLeads, setSelectedLeads] = useState<string[]>([])
     const [activities, setActivities] = useState<any[]>([])
     const [loadingActivities, setLoadingActivities] = useState(false)
     const [saving, setSaving] = useState(false)
@@ -336,6 +337,39 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             // rollback
             setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_to: oldValue } : l));
         }
+    }
+
+    const handleToggleLeadSelect = (leadId: string) => {
+        setSelectedLeads(prev => prev.includes(leadId) ? prev.filter(id => id !== leadId) : [...prev, leadId])
+    }
+
+    const handleToggleAllSelect = () => {
+        if (selectedLeads.length === filteredLeads.length && filteredLeads.length > 0) {
+            setSelectedLeads([])
+        } else {
+            setSelectedLeads(filteredLeads.map(l => l.id))
+        }
+    }
+
+    const handleBulkAssign = async (assignedTo: string) => {
+        if (selectedLeads.length === 0) return;
+        
+        const newValue = assignedTo === 'none' ? undefined : assignedTo;
+        const oldAssignments = new Map(leads.filter(l => selectedLeads.includes(l.id)).map(l => [l.id, l.assigned_to]));
+        
+        // Optimistic
+        setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, assigned_to: newValue } : l));
+        
+        try {
+            await Promise.all(selectedLeads.map(id => fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, assigned_to: assignedTo === 'none' ? null : assignedTo }),
+            })));
+        } catch {
+            setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, assigned_to: oldAssignments.get(l.id) } : l));
+        }
+        setSelectedLeads([]);
     }
 
     const handleSaveLead = async (formData: any) => {
@@ -643,9 +677,42 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </div>
             )}
 
+            {/* Bulk Assign Tooltray */}
+            {selectedLeads.length > 0 && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 py-3 px-6 rounded-2xl shadow-2xl border border-indigo-500/30 animate-fade-in" style={{ background: 'rgba(15, 15, 20, 0.95)', backdropFilter: 'blur(8px)' }}>
+                    <div className="font-bold text-white"><span className="text-indigo-400">{selectedLeads.length}</span> lead selezionati</div>
+                    <div className="h-6 w-px bg-white/10" />
+                    <select
+                        className="bg-black/40 border border-white/10 text-sm font-semibold text-gray-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer"
+                        onChange={e => handleBulkAssign(e.target.value)}
+                        value=""
+                    >
+                        <option value="" disabled>Assegna in blocco a...</option>
+                        <option value="none">Nessuno</option>
+                        {members.map(m => (
+                            <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                            </option>
+                        ))}
+                    </select>
+                    <button className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors" onClick={() => setSelectedLeads([])}>
+                        ✕
+                    </button>
+                </div>
+            )}
+
             {/* Multi View Render */}
             {viewMode === 'grid' ? (
-                <CRMGrid leads={filteredLeads} stages={stages} members={members} onAssignLead={handleAssignLead} onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} />
+                <CRMGrid 
+                    leads={filteredLeads} 
+                    stages={stages} 
+                    members={members} 
+                    selectedLeads={selectedLeads}
+                    onToggleLeadSelect={handleToggleLeadSelect}
+                    onToggleAllSelect={handleToggleAllSelect}
+                    onAssignLead={handleAssignLead} 
+                    onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
+                />
             ) : (
             <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
                 {activeStages.map(stage => {
@@ -832,7 +899,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     onChange={e => handleAssignLead(lead.id, e.target.value)}
                                                 >
                                                     <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna</option>
-                                                    {members.filter(m => ['setter', 'closer', 'admin', 'owner', 'manager'].includes(m.role)).map(m => (
+                                                    {members.map(m => (
                                                         <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
                                                             {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
                                                         </option>
