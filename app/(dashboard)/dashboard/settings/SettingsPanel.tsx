@@ -166,10 +166,14 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 body: JSON.stringify({ action, ...body }),
             })
             const data = await res.json()
-            if (!res.ok) throw new Error(data.error)
+            if (!res.ok) throw new Error(data.error || 'Unknown error occurred')
+            
+            // Show success alert only for profile updates
+            if (action === 'update_profile') alert('Profilo salvato con successo!')
             return data
-        } catch (err) {
+        } catch (err: any) {
             console.error(err)
+            alert('Errore: ' + (err.message || 'Salvataggio fallito. Riprova.'))
             return null
         } finally {
             setSaving(null)

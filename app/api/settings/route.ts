@@ -21,7 +21,6 @@ export async function PUT(req: NextRequest) {
 
     const body = await req.json()
 
-    // Profile can be updated by anyone for themselves
     if (body.action === 'update_profile') {
         const { full_name, avatar_url, phone } = body
         const payload: any = { updated_at: new Date().toISOString() }
@@ -29,7 +28,9 @@ export async function PUT(req: NextRequest) {
         if (avatar_url !== undefined) payload.avatar_url = avatar_url
         if (phone !== undefined) payload.phone = phone
 
-        const { data, error } = await supabase
+        const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+
+        const { data, error } = await supabaseAdmin
             .from('profiles')
             .update(payload)
             .eq('id', ctx.user_id)
