@@ -70,7 +70,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     const supabase = await createClient()
     const ctx = await getOrgAndRole(supabase)
-    if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin'))
+    if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin' && ctx.role !== 'manager'))
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const body = await req.json()

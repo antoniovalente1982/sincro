@@ -57,6 +57,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [newTagInput, setNewTagInput] = useState({ name: '', color: '#10b981' })
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
+    const canAssignLeads = canEdit || userRole === 'manager'
 
     // Assignment state
     const [assignConfig, setAssignConfig] = useState<any>({ assignment_mode: 'manual', auto_assign_enabled: false, fallback_mode: 'manual' })
@@ -702,7 +703,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             </div>
 
             {/* Lead Assignment */}
-            {canEdit && (
+            {canAssignLeads && (
                 <div className="glass-card p-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">

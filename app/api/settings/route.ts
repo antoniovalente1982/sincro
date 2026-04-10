@@ -17,24 +17,11 @@ async function getOrgAndRole(supabase: any) {
 export async function PUT(req: NextRequest) {
     const supabase = await createClient()
     const ctx = await getOrgAndRole(supabase)
-    if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
 
-    if (body.action === 'update_org') {
-        const { name } = body
-        const { data, error } = await supabase
-            .from('organizations')
-            .update({ name, updated_at: new Date().toISOString() })
-            .eq('id', ctx.organization_id)
-            .select()
-            .single()
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-        return NextResponse.json(data)
-    }
-
+    // Profile can be updated by anyone for themselves
     if (body.action === 'update_profile') {
         const { full_name, avatar_url, phone } = body
         const payload: any = { updated_at: new Date().toISOString() }
@@ -46,6 +33,23 @@ export async function PUT(req: NextRequest) {
             .from('profiles')
             .update(payload)
             .eq('id', ctx.user_id)
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
+    // All other settings require owner or admin
+    if (ctx.role !== 'owner' && ctx.role !== 'admin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    if (body.action === 'update_org') {
+        const { name } = body
+        const { data, error } = await supabase
+            .from('organizations')
+            .update({ name, updated_at: new Date().toISOString() })
+            .eq('id', ctx.organization_id)
             .select()
             .single()
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -32,16 +32,16 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
     analytics:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     team:           ['owner', 'admin'],
     connections:    ['owner', 'admin'],
-    settings:       ['owner', 'admin'],
+    settings:       ['owner', 'admin', 'manager', 'setter', 'closer', 'coach', 'viewer'],
 }
 
 // Manager access is further restricted by department
 const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
-    marketing: ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics'],
-    setting:   ['dashboard', 'crm', 'calendar', 'analytics'],
-    sales:     ['dashboard', 'crm', 'calendar', 'analytics'],
-    coaching:  ['dashboard', 'crm', 'calendar', 'analytics'],
-    admin:     ['dashboard', 'analytics'],
+    marketing: ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'settings'],
+    setting:   ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
+    sales:     ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
+    coaching:  ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
+    admin:     ['dashboard', 'analytics', 'settings'],
     it:        ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
