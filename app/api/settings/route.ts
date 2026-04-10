@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest) {
         const payload: any = { updated_at: new Date().toISOString() }
         if (full_name !== undefined) payload.full_name = full_name
         if (avatar_url !== undefined) payload.avatar_url = avatar_url
-        if (phone !== undefined) payload.phone = phone
+        // NOTA: rimosso l'aggiornamento di 'phone' in quanto la colonna non esiste nella tabella profiles
 
         const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
