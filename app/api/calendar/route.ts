@@ -386,6 +386,8 @@ export async function POST(req: NextRequest) {
         const leadDisplayName = description?.replace('Lead: ', '').split('\n')[0] || title || 'Cliente'
 
         // Email to lead (if email provided)
+        // Disabilitata su richiesta per la fase test: demandata a GoHighLevel per non creare duplicati
+        /*
         if (lead_email) {
             sendBookingConfirmation({
                 to: lead_email,
@@ -396,6 +398,7 @@ export async function POST(req: NextRequest) {
                 phone: lead_phone,
             }).catch(() => {})
         }
+        */
 
         // Email to closer
         if (closerEmail) {
