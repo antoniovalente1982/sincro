@@ -25,10 +25,23 @@ export default async function AnalyticsPage() {
         supabase.from('budget_reallocations').select('*').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(10),
         supabase.from('audience_dna_clusters').select('*').eq('organization_id', orgId).order('cluster_rank').limit(5),
         supabase.from('funnels').select('id, name, objective').eq('organization_id', orgId).eq('status', 'active').order('name'),
-        supabase.from('organization_members').select('user_id, role, department, deactivated_at, profiles:user_id (full_name, email)').eq('organization_id', orgId).is('deactivated_at', null),
+        supabase.from('organization_members').select('user_id, role, department, deactivated_at').eq('organization_id', orgId).is('deactivated_at', null),
     ])
 
     const objectives = [...new Set((funnelsRes.data || []).map((f: any) => f.objective).filter(Boolean))]
+
+    // Fetch profiles manually to bypass missing FK
+    const membersData = membersRes.data || []
+    let profilesData: any[] = []
+    if (membersData.length > 0) {
+        const { data } = await supabase.from('profiles').select('id, full_name, email').in('id', membersData.map((m: any) => m.user_id).filter(Boolean))
+        profilesData = data || []
+    }
+    const profilesMap = new Map(profilesData.map(p => [p.id, p]))
+    const members = membersData.map((m: any) => ({
+        ...m,
+        profiles: profilesMap.get(m.user_id) || null,
+    }))
 
     return (
         <AnalyticsDashboard
@@ -44,7 +57,7 @@ export default async function AnalyticsPage() {
             dnaClusters={clustersRes.data || []}
             objectives={objectives}
             funnels={funnelsRes.data || []}
-            members={(membersRes.data || []).map((m: any) => ({ ...m, profiles: Array.isArray(m.profiles) ? m.profiles[0] : m.profiles }))}
+            members={members}
         />
     )
 }

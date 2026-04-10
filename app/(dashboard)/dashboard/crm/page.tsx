@@ -33,7 +33,7 @@ export default async function CRMPage() {
             .order('created_at', { ascending: false }),
         supabase
             .from('organization_members')
-            .select('user_id, role, department, deactivated_at, profiles:user_id (full_name, email)')
+            .select('user_id, role, department, deactivated_at')
             .eq('organization_id', orgId)
             .is('deactivated_at', null),
         supabase
@@ -52,10 +52,19 @@ export default async function CRMPage() {
             .order('name'),
     ])
 
-    // Flatten profiles from array to single object
-    const members = (membersRes.data || []).map((m: any) => ({
+    const membersData = membersRes.data || []
+    
+    // Fetch profiles manually to bypass missing FK
+    let profilesData: any[] = []
+    if (membersData.length > 0) {
+        const { data } = await supabase.from('profiles').select('id, full_name, email').in('id', membersData.map((m: any) => m.user_id).filter(Boolean))
+        profilesData = data || []
+    }
+    const profilesMap = new Map(profilesData.map(p => [p.id, p]))
+
+    const members = membersData.map((m: any) => ({
         ...m,
-        profiles: Array.isArray(m.profiles) ? m.profiles[0] || null : m.profiles,
+        profiles: profilesMap.get(m.user_id) || null,
     }))
 
     // Extract unique objectives from funnels
