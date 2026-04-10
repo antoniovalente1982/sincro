@@ -48,7 +48,7 @@ BEGIN
     INSERT INTO public.organizations (id, name, slug, created_at, updated_at)
     VALUES (
       _new_org_id,
-      'La mia organizzazione',
+      COALESCE(NEW.raw_user_meta_data->>'organization_name', 'La mia organizzazione'),
       NEW.id::text,
       now(),
       now()
@@ -56,6 +56,15 @@ BEGIN
     
     INSERT INTO public.organization_members (organization_id, user_id, role, joined_at)
     VALUES (_new_org_id, NEW.id, 'owner', now());
+
+    -- Default pipeline stages with is_won/is_lost
+    INSERT INTO public.pipeline_stages (organization_id, name, slug, color, sort_order, fire_capi_event, is_won, is_lost) VALUES
+      (_new_org_id, 'Lead', 'lead', '#3b82f6', 0, 'Lead', false, false),
+      (_new_org_id, 'Qualificato', 'qualificato', '#8b5cf6', 1, 'QualifiedLead', false, false),
+      (_new_org_id, 'Appuntamento', 'appuntamento', '#f59e0b', 2, 'Schedule', false, false),
+      (_new_org_id, 'Show-up', 'show-up', '#10b981', 3, 'ShowUp', false, false),
+      (_new_org_id, 'Vendita', 'vendita', '#22c55e', 4, 'Purchase', true, false),
+      (_new_org_id, 'Perso', 'perso', '#ef4444', 5, NULL, false, true);
   END IF;
 
   RETURN NEW;
