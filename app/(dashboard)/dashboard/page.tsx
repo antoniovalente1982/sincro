@@ -21,7 +21,10 @@ export default async function DashboardPage() {
 
     const orgId = member?.organization_id || ''
     const orgName = (member?.organizations as any)?.name || ''
-    const userName = user?.user_metadata?.full_name || user?.email || ''
+
+    // Fetch the user's profile to get the full name
+    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user?.id || '').single()
+    const userName = profile?.full_name || user?.user_metadata?.full_name || user?.email || ''
 
     // Get default pipeline
     const { data: defaultPipeline } = await supabase

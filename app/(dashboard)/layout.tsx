@@ -39,6 +39,7 @@ const allNavItems: NavItem[] = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false)
     const [user, setUser] = useState<any>(null)
+    const [profileName, setProfileName] = useState<string>('')
     const [orgName, setOrgName] = useState('')
     const [userRole, setUserRole] = useState<Role>('owner')
     const [userDepartment, setUserDepartment] = useState<Department>(null)
@@ -71,6 +72,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
                 setUser(user)
+
+                // Fetch profile for accurate full_name
+                const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+                if (profile?.full_name) setProfileName(profile.full_name)
 
                 // Fetch ALL active memberships (user may have duplicates from auto-provisioning trigger)
                 const { data: members } = await supabase
@@ -198,7 +203,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {!collapsed && user && (
                         <div className="px-3 py-2 mb-2">
                             <div className="text-xs font-semibold text-white truncate">
-                                {user.user_metadata?.full_name || user.email}
+                                {profileName || user.user_metadata?.full_name || user.email}
                             </div>
                             <div className="text-[11px] truncate" style={{ color: 'var(--color-surface-500)' }}>
                                 {user.email}
