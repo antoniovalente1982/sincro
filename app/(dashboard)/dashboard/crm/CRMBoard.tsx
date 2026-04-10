@@ -114,6 +114,13 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
 }
 
 export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, userDepartment, userId, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
+    const getDisplayName = (m: any) => {
+        if (m.profiles?.full_name) return m.profiles.full_name;
+        if (!m.profiles?.email) return 'Utente Sincro';
+        return m.profiles.email.split('@')[0].split('.').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    }
+    const assignableMembers = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+
     const role = (userRole || 'viewer') as Role
     const department = (userDepartment || null) as Department
     const readOnly = isCrmReadOnly(role, department)
@@ -689,9 +696,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     >
                         <option value="" disabled>Assegna in blocco a...</option>
                         <option value="none">Nessuno</option>
-                        {members.map(m => (
+                        {assignableMembers.map((m: any) => (
                             <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
-                                {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                                {getDisplayName(m)}
                             </option>
                         ))}
                     </select>
@@ -899,9 +906,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     onChange={e => handleAssignLead(lead.id, e.target.value)}
                                                 >
                                                     <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna</option>
-                                                    {members.map(m => (
+                                                    {assignableMembers.map((m: any) => (
                                                         <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
-                                                            {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                                                            {getDisplayName(m)}
                                                         </option>
                                                     ))}
                                                 </select>
