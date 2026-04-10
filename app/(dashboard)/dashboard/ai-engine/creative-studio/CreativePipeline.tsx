@@ -88,14 +88,14 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
     const [showAllCreatives, setShowAllCreatives] = useState(false)
     const [showPipelineConfig, setShowPipelineConfig] = useState(false)
     const [creativeDirection, setCreativeDirection] = useState('')
-    const [selectedImageApi, setSelectedImageApi] = useState<'nano_banana' | 'google_ai_studio' | 'heurist'>('nano_banana')
+    const [selectedImageApi, setSelectedImageApi] = useState<'nano_banana' | 'google_ai_studio' | 'higgsfield'>('nano_banana')
 
     const INITIAL_VISIBLE = 5
 
     const IMAGE_APIS = [
         { id: 'nano_banana' as const, name: 'Nano Banana 2', desc: 'Gemini 3.1 Flash — veloce, alta qualità', icon: '🍌', color: '#f59e0b' },
         { id: 'google_ai_studio' as const, name: 'Google AI Studio', desc: 'Imagen 3 — fotorealismo extreme', icon: '🎨', color: '#4285f4' },
-        { id: 'heurist' as const, name: 'Heurist', desc: 'FLUX / SDXL — stile creativo, artistico', icon: '🌀', color: '#a855f7' },
+        { id: 'higgsfield' as const, name: 'Higgsfield', desc: 'Video AI cinematico da immagine statica', icon: '🎬', color: '#a855f7' },
     ]
 
     const refresh = useCallback(async () => {
@@ -302,6 +302,50 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
         setTimeout(() => setPipelineResult(null), 20000)
     }
 
+    // Quick run: skip modal, default settings (no creative direction, Nano Banana)
+    const handleQuickRun = async () => {
+        setCreativeDirection('')
+        setSelectedImageApi('nano_banana')
+        setRunningPipeline(true)
+        setPipelineResult(null)
+        setPipelineStep(1)
+
+        const stepTimers: NodeJS.Timeout[] = []
+        let elapsed = 0
+        PIPELINE_STEPS.forEach((step, i) => {
+            elapsed += step.duration
+            if (i > 0) {
+                stepTimers.push(setTimeout(() => setPipelineStep(i + 1), elapsed - step.duration))
+            }
+        })
+
+        try {
+            await fetch('/api/meta/create-campaign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'sync_creative_performance' }),
+            })
+            const res = await fetch('/api/ai-engine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'run_creative_pipeline' }),
+            })
+            const data = await res.json()
+            stepTimers.forEach(t => clearTimeout(t))
+            setPipelineStep(PIPELINE_STEPS.length)
+            setPipelineResult(data)
+            await refresh()
+        } catch (err: any) {
+            stepTimers.forEach(t => clearTimeout(t))
+            setPipelineResult({ error: err.message })
+        }
+        setTimeout(() => {
+            setRunningPipeline(false)
+            setPipelineStep(0)
+        }, 1500)
+        setTimeout(() => setPipelineResult(null), 20000)
+    }
+
     const filtered = creatives.filter(c => {
         if (filterStatus && c.status !== filterStatus) return false
         if (filterAngle && c.angle !== filterAngle) return false
@@ -338,10 +382,21 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                             Pulisci ({cleanableCount})
                         </button>
                     )}
-                    <button onClick={() => setShowPipelineConfig(true)} disabled={runningPipeline}
+                    <button onClick={handleQuickRun} disabled={runningPipeline}
                         className="btn-primary text-xs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {runningPipeline ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />}
                         Run Pipeline
+                    </button>
+                    <button onClick={() => setShowPipelineConfig(true)} disabled={runningPipeline}
+                        className="text-xs font-semibold px-2.5 py-2 rounded-xl transition-all hover:scale-105"
+                        title="Configura manualmente prima di avviare"
+                        style={{
+                            background: 'rgba(168, 85, 247, 0.08)',
+                            border: '1px solid rgba(168, 85, 247, 0.25)',
+                            color: '#a855f7',
+                            opacity: runningPipeline ? 0.5 : 1,
+                        }}>
+                        <Settings2 className="w-3.5 h-3.5" />
                     </button>
                 </div>
             </div>

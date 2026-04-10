@@ -768,7 +768,7 @@ export interface PipelineResult {
  */
 export interface PipelineConfig {
     creative_direction?: string
-    image_api?: 'nano_banana' | 'google_ai_studio' | 'heurist'
+    image_api?: 'nano_banana' | 'google_ai_studio' | 'higgsfield'
 }
 
 /**
@@ -1025,14 +1025,32 @@ export async function runCreativePipeline(
         let imageUrl: string | null = null
         let imageError: string | null = null
         try {
-            if (imageApi === 'heurist') {
-                // Heurist API (FLUX/SDXL)
-                const heuristResult = await generateWithHeurist(brief.image_prompt, brief.aspect_ratio)
-                if (heuristResult.success && heuristResult.imageUrl) {
-                    imageUrl = heuristResult.imageUrl
+            if (imageApi === 'higgsfield') {
+                // Higgsfield: first generate image with Nano Banana, then generate video from it
+                const { generateAndUploadAdImage } = await import('@/lib/nano-banana')
+                const imgResult = await generateAndUploadAdImage(
+                    brief.image_prompt,
+                    orgId,
+                    brief.name,
+                    brief.aspect_ratio,
+                )
+                if (imgResult.success && imgResult.imageUrl) {
+                    imageUrl = imgResult.imageUrl
                     result.images_generated++
+                    // Also generate video from the static image
+                    try {
+                        const { generateVideoCreative } = await import('@/lib/higgsfield-api')
+                        await generateVideoCreative(orgId, {
+                            prompt: brief.image_prompt.substring(0, 500),
+                            image_url: imgResult.imageUrl,
+                            duration: 5,
+                            aspect_ratio: '9:16',
+                        })
+                    } catch (videoErr: any) {
+                        console.warn(`[Pipeline] Video Higgsfield fallito (non blocking): ${videoErr.message}`)
+                    }
                 } else {
-                    imageError = heuristResult.error || 'Errore Heurist'
+                    imageError = imgResult.error || 'Errore immagine base per Higgsfield'
                     result.image_errors.push(`${angle}: ${imageError}`)
                 }
             } else if (imageApi === 'google_ai_studio') {
