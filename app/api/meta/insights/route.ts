@@ -225,6 +225,68 @@ export async function GET(req: NextRequest) {
             }
         }
 
+        // 3.4. Fetch Ad-level Insights from Meta to ensure accuracy of leads/spend per creative
+        const adInsightsUrl = `https://graph.facebook.com/${META_API_VERSION}/${adAccount}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,spend,actions&level=ad&time_range=${encodeURIComponent(timeRange)}&use_account_attribution_setting=true&limit=500&access_token=${access_token}`
+        const adInsightsRes = await fetch(adInsightsUrl, { cache: 'no-store' })
+        if (adInsightsRes.ok) {
+            const adInsightsData = await adInsightsRes.json()
+            const allAdInsights = adInsightsData.data || []
+            let nextAdPageUrl = adInsightsData.paging?.next
+            while (nextAdPageUrl) {
+                const pageRes = await fetch(nextAdPageUrl, { cache: 'no-store' })
+                if (pageRes.ok) {
+                    const pageData = await pageRes.json()
+                    allAdInsights.push(...(pageData.data || []))
+                    nextAdPageUrl = pageData.paging?.next
+                } else {
+                    break
+                }
+            }
+
+            for (const adInsight of allAdInsights) {
+                const adName = adInsight.ad_name || 'Sconosciuta'
+                let utmContent = adName
+                let dynamicHeadline = 'Predefinita'
+
+                if (utmContent.includes(' - T: ')) {
+                    const parts = utmContent.split(' - T: ')
+                    utmContent = parts[0].trim()
+                    dynamicHeadline = parts[1].trim()
+                } else if (utmContent.includes('- T: ')) {
+                    const parts = utmContent.split('- T: ')
+                    utmContent = parts[0].trim()
+                    dynamicHeadline = parts[1].trim()
+                }
+
+                const pairKey = `${utmContent}:::${dynamicHeadline}`
+                const metaLeadsCount = parseInt(adInsight.actions?.find((a: any) => a.action_type === 'lead')?.value || '0')
+                const metaSpend = parseFloat(adInsight.spend || '0')
+                
+                let baseName = utmContent.replace(/\s*-\s*Copia\s*\d+$/, '').trim()
+                let thumbnailUrl = adThumbnails[baseName] || adThumbnails[utmContent] || adThumbnails[adName] || undefined
+                const campKey = (adInsight.campaign_name || '').toLowerCase().trim()
+
+                if (!topPairsMap[pairKey]) {
+                    topPairsMap[pairKey] = {
+                        creative: utmContent,
+                        headline: dynamicHeadline,
+                        leads: metaLeadsCount,
+                        thumbnail_url: thumbnailUrl,
+                        fbadid: adInsight.ad_id,
+                        campaign_key: campKey,
+                        spend: metaSpend
+                    }
+                } else {
+                    if (thumbnailUrl && !topPairsMap[pairKey].thumbnail_url) topPairsMap[pairKey].thumbnail_url = thumbnailUrl
+                    if (!topPairsMap[pairKey].fbadid) topPairsMap[pairKey].fbadid = adInsight.ad_id
+                    topPairsMap[pairKey].spend = (topPairsMap[pairKey].spend || 0) + metaSpend
+                    if (metaLeadsCount > topPairsMap[pairKey].leads) {
+                        topPairsMap[pairKey].leads = metaLeadsCount
+                    }
+                }
+            }
+        }
+
         // 3.5. Fallback fetch: missing thumbnails + real headline for "Predefinita" entries
         const needsFetch = Object.values(topPairsMap).filter(p => p.fbadid && (!p.thumbnail_url || p.headline === 'Predefinita'))
         if (needsFetch.length > 0) {
@@ -352,32 +414,6 @@ export async function GET(req: NextRequest) {
         })
 
         const topPairs = Object.values(topPairsMap).sort((a, b) => b.leads - a.leads).slice(0, 30)
-
-        // 4. Fetch per-ad spend from Meta for accurate CPL
-        const adIdsForSpend = [...new Set(topPairs.filter(p => p.fbadid).map(p => p.fbadid!))] 
-        if (adIdsForSpend.length > 0) {
-            const batchSize = 50
-            for (let i = 0; i < adIdsForSpend.length; i += batchSize) {
-                const batch = adIdsForSpend.slice(i, i + batchSize)
-                const batchIds = batch.join(',')
-                try {
-                    const spendUrl = `https://graph.facebook.com/${META_API_VERSION}/?ids=${batchIds}&fields=insights.time_range({"since":"${since}","until":"${until}"}){spend}&access_token=${access_token}`
-                    const spendRes = await fetch(spendUrl, { cache: 'no-store' })
-                    if (spendRes.ok) {
-                        const spendData = await spendRes.json()
-                        for (const pair of topPairs) {
-                            if (!pair.fbadid) continue
-                            const adSpendData = spendData[pair.fbadid]
-                            if (adSpendData?.insights?.data?.[0]?.spend) {
-                                pair.spend = parseFloat(adSpendData.insights.data[0].spend)
-                            }
-                        }
-                    }
-                } catch (err) {
-                    console.error('Error fetching per-ad spend:', err)
-                }
-            }
-        }
 
         // 5. Match landing page headlines from Funnel Routing Engine
         const { data: routingAngles } = await getSupabaseAdmin()
