@@ -399,23 +399,44 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         }
     }
 
-    const handleBulkAssign = async (assignedTo: string) => {
+    const handleBulkAssignSetter = async (setterId: string) => {
         if (selectedLeads.length === 0) return;
         
-        const newValue = assignedTo === 'none' ? undefined : assignedTo;
-        const oldAssignments = new Map(leads.filter(l => selectedLeads.includes(l.id)).map(l => [l.id, l.assigned_to]));
+        const newValue = setterId === 'none' ? undefined : setterId;
+        const oldAssignments = new Map(leads.filter(l => selectedLeads.includes(l.id)).map(l => [l.id, l.setter_id]));
         
         // Optimistic
-        setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, assigned_to: newValue } : l));
+        setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, setter_id: newValue } : l));
         
         try {
             await Promise.all(selectedLeads.map(id => fetch('/api/leads', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, assigned_to: assignedTo === 'none' ? null : assignedTo }),
+                body: JSON.stringify({ id, setter_id: setterId === 'none' ? null : setterId }),
             })));
         } catch {
-            setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, assigned_to: oldAssignments.get(l.id) } : l));
+            setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, setter_id: oldAssignments.get(l.id) } : l));
+        }
+        setSelectedLeads([]);
+    }
+
+    const handleBulkAssignCloser = async (closerId: string) => {
+        if (selectedLeads.length === 0) return;
+        
+        const newValue = closerId === 'none' ? undefined : closerId;
+        const oldAssignments = new Map(leads.filter(l => selectedLeads.includes(l.id)).map(l => [l.id, l.closer_id]));
+        
+        // Optimistic
+        setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, closer_id: newValue } : l));
+        
+        try {
+            await Promise.all(selectedLeads.map(id => fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, closer_id: closerId === 'none' ? null : closerId }),
+            })));
+        } catch {
+            setLeads(prev => prev.map(l => selectedLeads.includes(l.id) ? { ...l, closer_id: oldAssignments.get(l.id) } : l));
         }
         setSelectedLeads([]);
     }
@@ -755,13 +776,27 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     <div className="font-bold text-white"><span className="text-indigo-400">{selectedLeads.length}</span> lead selezionati</div>
                     <div className="h-6 w-px bg-white/10" />
                     <select
-                        className="bg-black/40 border border-white/10 text-sm font-semibold text-gray-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer"
-                        onChange={e => handleBulkAssign(e.target.value)}
+                        className="bg-black/40 border border-white/10 text-sm font-semibold text-indigo-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer w-32"
+                        onChange={e => handleBulkAssignSetter(e.target.value)}
                         value=""
                     >
-                        <option value="" disabled>Assegna in blocco a...</option>
+                        <option value="" disabled>Setter...</option>
                         <option value="none">Nessuno</option>
-                        {assignableMembers.map((m: any) => (
+                        {assignableSetters.map((m: any) => (
+                            <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                {getDisplayName(m)}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        className="bg-black/40 border border-white/10 text-sm font-semibold text-emerald-300 rounded-lg px-3 py-2 outline-none hover:border-emerald-500/50 cursor-pointer w-36"
+                        onChange={e => handleBulkAssignCloser(e.target.value)}
+                        value=""
+                    >
+                        <option value="" disabled>Venditore...</option>
+                        <option value="none">Nessuno</option>
+                        {assignableClosers.map((m: any) => (
                             <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
                                 {getDisplayName(m)}
                             </option>
