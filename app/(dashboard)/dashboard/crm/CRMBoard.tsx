@@ -124,7 +124,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         return m.profiles.email.split('@')[0].split('.').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
     }
     const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
-    const assignableClosers = members.filter((m: any) => m.role === 'closer' || m.role === 'manager' || m.role === 'owner' || m.role === 'admin')
+    const assignableClosers = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
 
     const role = (userRole || 'viewer') as Role
     const department = (userDepartment || null) as Department

@@ -29,7 +29,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
     }
 
     const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
-    const assignableClosers = members.filter((m: any) => m.role === 'closer' || m.role === 'manager' || m.role === 'owner' || m.role === 'admin')
+    const assignableClosers = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
 
     return (
         <div className="w-full overflow-x-auto rounded-xl border border-white/10 bg-black/20" style={{ maxHeight: 'calc(100vh - 280px)' }}>
