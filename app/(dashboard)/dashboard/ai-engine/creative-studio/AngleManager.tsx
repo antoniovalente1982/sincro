@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Link2, Plus, Edit2, Trash2, Loader2, Save, X, Info, ChevronDown } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 
 interface RoutingAngle {
   id: string
@@ -19,7 +20,6 @@ export default function AngleManager() {
   
   const [formData, setFormData] = useState<Partial<RoutingAngle>>({})
   const [isCreating, setIsCreating] = useState(false)
-  const [showInfo, setShowInfo] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
   const INITIAL_VISIBLE = 6
@@ -79,12 +79,12 @@ export default function AngleManager() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button 
-            onClick={() => setShowInfo(!showInfo)}
-            className="flex items-center gap-2 px-3 py-2 bg-[rgba(59,130,246,0.1)] text-[#3b82f6] border border-[rgba(59,130,246,0.3)] rounded-xl text-sm font-bold hover:bg-[rgba(59,130,246,0.2)] transition-all"
-          >
-            <Info size={16} /> Come Funziona
-          </button>
+          <HowItWorks steps={[
+            { emoji: '🔑', title: 'Scegli una Trigger Keyword', description: 'Scegli o crea una parola chiave qui sotto (es. "emotional", "efficiency"). Questa keyword attiva il routing dinamico.' },
+            { emoji: '📋', title: 'Nominala su Meta Ads', description: 'Inserisci la keyword nel NOME dell\'inserzione su Facebook. Es: "T: Emotional Video XYZ". Il sistema la riconosce automaticamente.' },
+            { emoji: '⚡', title: 'Setup Automatico', description: 'Finché il link dell\'ad usa i parametri UTM standard (utm_content={{ad.name}}), il sistema fa match con la keyword e mostra il titolo corretto sulla landing page.' },
+            { emoji: '🎯', title: 'Conversione Massima', description: 'L\'utente vede un titolo coerente con l\'ad che ha cliccato — headline ad e headline landing allineati = più conversioni.' },
+          ]} footer="Ogni angolo ha un titolo White (prima parte) e un titolo Gold (seconda parte in giallo). Il sottotitolo si adatta automaticamente all'angolo." />
           <button 
             onClick={() => { setIsCreating(true); setEditingId('new'); setFormData({}) }}
             className="flex items-center gap-2 px-4 py-2 bg-[#a855f7] text-white rounded-xl text-sm font-bold hover:bg-[#9333ea] transition-all"
@@ -94,43 +94,6 @@ export default function AngleManager() {
         </div>
       </div>
 
-      {showInfo && (
-        <div className="glass-card p-5 animate-fade-in" style={{ border: '1px solid rgba(59,130,246,0.3)' }}>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[rgba(59,130,246,0.1)] flex items-center justify-center flex-shrink-0">
-              <Info className="text-[#3b82f6]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white mb-2 text-lg">Come Funziona il Funnel Routing Dinamico</h3>
-              <p className="text-sm text-[var(--color-surface-400)] mb-4">
-                Questo sistema cambia in tempo reale il titolo e il sottotitolo della landing page in base all'annuncio che l'utente ha cliccato su Facebook. Questo aumenta drasticamente i tassi di conversione.
-              </p>
-              
-              <h4 className="font-bold text-white mb-2 text-sm">Cosa devi fare quando crei le Ads:</h4>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#3b82f6] mt-0.5">•</span>
-                  <div>
-                    <strong className="text-white">1. Scegli una Trigger Keyword:</strong> Scegli o crea una parola chiave qui sotto (es. <code className="text-[#a855f7] bg-[rgba(168,85,247,0.1)] px-1 rounded">emotional</code>).
-                  </div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#3b82f6] mt-0.5">•</span>
-                  <div>
-                    <strong className="text-white">2. Nominala su Meta Ads:</strong> Inserisci quella keyword nel NOME dell'inserzione su Facebook. Ad esempio: <em>"T: Emotional Video XYZ"</em>.
-                  </div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#3b82f6] mt-0.5">•</span>
-                  <div>
-                    <strong className="text-white">3. Setup Automatico:</strong> Finché il link dell'ad usa i parametri UTM standard previsti dal nostro Preflight (<code>utm_content=&#123;&#123;ad.name&#125;&#125;</code>), il sistema farà "match" con la tua keyword in automatico e mostrerà il titolo corretto.
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
 
       {(isCreating || editingId) && (
         <div className="glass-card p-6" style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)' }}>

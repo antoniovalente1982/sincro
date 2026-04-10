@@ -7,6 +7,7 @@ import {
     ChevronRight, Brain, Zap, Target, MessageSquare, RefreshCw, FileText,
     ChevronDown, Plus, Trash2, Eye, Play
 } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 import Link from 'next/link'
 
 
@@ -116,9 +117,18 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             Genera copy e brief per le tue ads con l'AI — headline, body e CTA pronti all'uso per i brief
                         </p>
                     </div>
-                    <button onClick={() => setView('create')} className="btn-primary">
-                        <Plus className="w-4 h-4" /> Nuovo Brief
-                    </button>
+                    <div className="flex gap-2">
+                        <HowItWorks compact steps={[
+                            { emoji: '✍️', title: 'Crea un Brief', description: 'Descrivi il prodotto, il target e il tono. L\'AI genera headline, body text e CTA ottimizzati per le ads.' },
+                            { emoji: '🤖', title: 'Generazione AI', description: 'L\'intelligenza artificiale produce multiple variazioni di copy, ognuna con angolo comunicativo diverso.' },
+                            { emoji: '📋', title: 'Review & Export', description: 'Rivedi i copy generati, seleziona i migliori e copiali con un click per usarli nelle tue campagne ads.' },
+                            { emoji: '🎨', title: 'Creative Pipeline', description: 'Il pipeline automatico genera immagini AI (Nano Banana / Higgsfield) basate sui brief creativi approvati.' },
+                            { emoji: '📊', title: 'Top Creative & Headline', description: 'Analizza le performance reali delle creative: quale headline e quale immagine generano più lead al minor costo.' },
+                        ]} footer="Gli step si trovano nella sezione Creative Studio: Funnel Routing Engine → Top Creative → Creative Pipeline → Brief Studio." />
+                        <button onClick={() => setView('create')} className="btn-primary">
+                            <Plus className="w-4 h-4" /> Nuovo Brief
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { UserCircle, Plus, Trophy, TrendingUp, DollarSign, Users, Mail, Shield, Trash2, X, Crown, Phone, Eye, EyeOff, RotateCcw, Filter } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 import { createClient } from '@/lib/supabase/client'
 import { ROLE_CONFIG, DEPARTMENT_CONFIG, INVITABLE_ROLES, ALL_DEPARTMENTS, type Role, type Department } from '@/lib/permissions'
 
@@ -174,6 +175,13 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                     )}
                 </div>
                 <div className="flex items-center gap-2">
+                    <HowItWorks compact steps={[
+                        { emoji: '👑', title: 'Ruoli e Permessi', description: 'Owner ha controllo totale. Admin gestisce team e lead. Setter gestisce i lead fino ad Appuntamento. Closer da Appuntamento in poi.' },
+                        { emoji: '📧', title: 'Invita Membro', description: 'Invita via email con ruolo e reparto. Il membro riceve un link di accesso diretto — nessuna password da configurare.' },
+                        { emoji: '🏆', title: 'Leaderboard', description: 'Classifica automatica per Setter (lead assegnati) e Closer (vendite e revenue). Alimentata dai dati CRM.' },
+                        { emoji: '🔄', title: 'Disattivazione', description: 'Disattiva un membro per revocare l\'accesso. I dati storici restano. Puoi riassegnare i suoi lead a un altro membro.' },
+                        { emoji: '🏬', title: 'Reparti', description: 'Ogni membro appartiene a un reparto (Setting, Closing, Marketing, ecc). Filtra per reparto per vedere le performance.' },
+                    ]} footer="Solo Owner e Admin possono invitare, disattivare e gestire i ruoli dei membri." />
                     {canManage && (
                         <button onClick={() => setShowInvite(true)} className="btn-primary">
                             <Plus className="w-4 h-4" /> Invita Membro

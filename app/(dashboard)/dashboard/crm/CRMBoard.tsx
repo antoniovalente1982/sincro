@@ -6,6 +6,7 @@ import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/D
 import CRMGrid from './CRMGrid'
 import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, type Role, type Department } from '@/lib/permissions'
+import HowItWorks from '@/components/HowItWorks'
 
 interface Stage {
     id: string
@@ -441,6 +442,14 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
+                    <HowItWorks compact steps={[
+                        { emoji: '📋', title: 'Pipeline Kanban', description: 'Trascina i lead tra gli stage per aggiornare il loro stato. Ogni spostamento viene tracciato e invia eventi a Meta (CAPI) per l\'ottimizzazione ads.' },
+                        { emoji: '🔥', title: 'Lead Scoring AI', description: 'Ogni lead riceve un punteggio automatico (Hot/Warm/Cold) basato su completezza dati, recenza, fonte e valore assegnato.' },
+                        { emoji: '🔄', title: 'Auto-Refresh', description: 'I nuovi lead vengono rilevati automaticamente ogni 60 secondi con notifica in tempo reale. Nessun refresh manuale necessario.' },
+                        { emoji: '💰', title: 'Tracciamento Vendite', description: 'Quando sposti un lead in "Vendita", devi prima assegnare un valore (€). Questo permette a Meta di calcolare il ROAS reale delle tue campagne.' },
+                        { emoji: '🏷️', title: 'Filtri Avanzati', description: 'Filtra per obiettivo, tag, fonte traffico, data acquisizione o ultimo movimento. Puoi anche cercare per nome, email o telefono.' },
+                        { emoji: '👥', title: 'Ruoli e Permessi', description: 'Setter possono spostare lead fino ad Appuntamento. Closer da Appuntamento in poi. Admin/Owner hanno accesso completo.' },
+                    ]} footer="Ogni pipeline può avere stage personalizzati con eventi CAPI. Puoi creare multiple pipeline per fonti diverse (Meta, Google, Organico)." />
                     {/* Move Filters out of here */}
                     <div className="relative">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-surface-500)' }} />

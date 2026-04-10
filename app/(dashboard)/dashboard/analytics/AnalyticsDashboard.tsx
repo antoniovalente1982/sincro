@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUp, ArrowDown, Minus, Zap, Globe, Brain, CircleDollarSign, AlertTriangle, ArrowRightLeft, Dna, Shield, Clock, Search, Filter, Loader2 } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from 'recharts'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -204,6 +205,13 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                     </p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
+                    <HowItWorks compact steps={[
+                        { emoji: '📊', title: 'KPI in Tempo Reale', description: 'Lead totali, valore pipeline, conversion rate, time-to-close. Tutti i dati si aggiornano dal CRM in tempo reale.' },
+                        { emoji: '📉', title: 'Conversione per Stage', description: 'Vedi quanti lead ci sono in ogni stage del pipeline e il tasso di conversione tra gli stage.' },
+                        { emoji: '💵', title: 'Revenue Tracking', description: 'Il valore totale delle vendite chiuse viene calcolato automaticamente dagli stage "won" nel pipeline.' },
+                        { emoji: '🎯', title: 'Filtri per Obiettivo', description: 'Filtra le analytics per obiettivo campagna (Cliente, Partner, Reclutamento) per analizzare ogni verticale separatamente.' },
+                        { emoji: '🔄', title: 'Confronto Periodi', description: 'Usa il filtro data per confrontare le performance tra periodi diversi. I grafici si aggiornano in tempo reale.' },
+                    ]} footer="Le analytics combinano dati CRM (lead, vendite) con dati Meta Ads (spesa, impressioni) per un quadro completo." />
                     {pipelines.length > 1 && (
                         <select
                             className="input !w-[220px] text-xs"

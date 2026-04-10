@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
@@ -310,6 +311,13 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <HowItWorks compact steps={[
+                        { emoji: '📡', title: 'Sync Meta Ads', description: 'Il dashboard si sincronizza con Meta Graph API per mostrare campagne, spesa, impressioni, click e lead in tempo reale.' },
+                        { emoji: '💰', title: 'CPL Reale (CRM)', description: 'Il CPL viene calcolato usando i lead reali dal CRM, non quelli riportati da Meta. Spesa Meta ÷ Lead CRM = CPL vero.' },
+                        { emoji: '📈', title: 'ROAS Tracking', description: 'Quando un lead diventa vendita nel CRM, il valore viene usato per calcolare il ROAS reale. Meta riceve gli eventi Purchase via CAPI.' },
+                        { emoji: '⚙️', title: 'Regole Automatiche', description: 'Imposta regole per scalare o pausare campagne in automatico. Es: se CPL > X€ per 3 giorni, pausa la campagna.' },
+                        { emoji: '🔄', title: 'Date Mode', description: '"Data Acquisizione" filtra per quando il lead è entrato. "Ultimo Movimento" per quando è stato spostato nel CRM.' },
+                    ]} footer="Filtra per periodo e modalità data. I dati si aggiornano ogni volta che clicchi Sync Now o cambi filtro." />
                     <button onClick={handleSync} disabled={syncing}
                         className="badge badge-info flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
                         style={{ padding: '6px 14px', fontSize: '12px' }}>

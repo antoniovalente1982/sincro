@@ -7,6 +7,7 @@ import {
     Send, RefreshCw, Webhook
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import HowItWorks from '@/components/HowItWorks'
 
 interface ConnectionField {
     key: string
@@ -288,6 +289,7 @@ export default function ConnectionsPage() {
 
     return (
         <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
                 <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                     <Plug className="w-6 h-6" style={{ color: 'var(--color-sincro-400)' }} />
@@ -297,6 +299,14 @@ export default function ConnectionsPage() {
                     Collega i tuoi canali pubblicitari, tracciamento e strumenti. Architettura multi-canale pronta.
                 </p>
             </div>
+            <HowItWorks compact steps={[
+                { emoji: '🔌', title: 'Collega i Canali', description: 'Inserisci le credenziali API per connettere Meta CAPI, Meta Ads, Telegram, Google Sheets e altri canali.' },
+                { emoji: '⚡', title: 'Priorità: CAPI → Ads', description: 'Prima collega Meta CAPI (tracciamento server-side), poi Meta Ads (gestione campagne). Gli altri canali sono opzionali.' },
+                { emoji: '📲', title: 'Telegram Bot', description: 'Configura il bot Telegram per ricevere notifiche lead in tempo reale e interagire con l\'AI via chat.' },
+                { emoji: '📊', title: 'Google Sheets', description: 'Sincronizza automaticamente i lead con un foglio Google per backup esterno o report personalizzati.' },
+                { emoji: '🔒', title: 'Sicurezza', description: 'Le credenziali vengono crittografate e salvate in modo sicuro. Solo Owner e Admin possono gestire le connessioni.' },
+            ]} footer="Ogni connessione viene testata automaticamente. Lo stato verde indica che è attiva e funzionante." />
+        </div>
 
             {/* Priority */}
             <div className="glass-card p-5 animate-pulse-glow">

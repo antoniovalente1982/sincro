@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
 const DAYS_FULL = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']
@@ -327,6 +328,13 @@ export default function CalendarPanel({ userRole, userId, prefillLead }: Props) 
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    <HowItWorks compact steps={[
+                        { emoji: '📅', title: 'Calendario Round Robin', description: 'Il sistema assegna gli appuntamenti ai venditori disponibili usando la logica Round Robin per bilanciare il carico.' },
+                        { emoji: '⏰', title: 'Slot Automatici', description: 'Gli slot si generano automaticamente dalle disponibilità configurate. Google Calendar viene controllato in tempo reale per evitare sovrapposizioni.' },
+                        { emoji: '📲', title: 'Prenotazione CRM', description: 'Puoi prenotare direttamente dal CRM cliccando "Prenota" su un lead. Il sistema pre-compila nome, telefono e email.' },
+                        { emoji: '✅', title: 'Gestione Esiti', description: 'Dopo l\'appuntamento, il closer segna l\'esito: Completato, No Show o Annullato. Questi dati alimentano le analytics.' },
+                        { emoji: '⚙️', title: 'Configura Disponibilità', description: 'Ogni venditore configura i suoi giorni/orari lavorativi, durata slot e pausa tra appuntamenti.' },
+                    ]} footer="I setter possono solo prenotare. I closer gestiscono gli esiti. Admin/Owner possono configurare le disponibilità di tutti." />
                     {canManageAvailability && (
                         <button
                             onClick={() => openAvailabilitySettings(userId)}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar } from 'lucide-react'
+import HowItWorks from '@/components/HowItWorks'
 
 interface Pipeline {
     id: string; name: string; is_default?: boolean
@@ -255,6 +256,13 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                     </p>
                 </div>
                 <div className="flex gap-2">
+                    <HowItWorks compact steps={[
+                        { emoji: '🎯', title: 'Crea il Funnel', description: 'Crea una landing page con nome, slug e obiettivo. Ogni funnel ha un URL pubblico unico (/f/slug).' },
+                        { emoji: '🚀', title: 'Attiva e Condividi', description: 'Attiva il funnel e copia il link. Usalo nelle ads Meta/Google con i parametri UTM standard.' },
+                        { emoji: '📊', title: 'Analytics in Tempo Reale', description: 'Monitora utenti unici, page views, conversioni e conversion rate. Filtri per data e per campagna.' },
+                        { emoji: '🧪', title: 'A/B Testing', description: 'Attiva lo split test per dividere il traffico 50/50 tra Variante A e B. Dichiara il vincitore quando hai almeno 30 visitatori per variante.' },
+                        { emoji: '⚡', title: 'CRM + Meta CAPI', description: 'Ogni lead viene creato nel CRM e l\'evento Lead viene inviato a Meta CAPI per ottimizzare le campagne automaticamente.' },
+                    ]} footer="Puoi anche impostare un URL personalizzato (custom domain) per ogni funnel nelle impostazioni." />
                     <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary">
                         <Plus className="w-4 h-4" /> Nuovo Funnel
                     </button>
@@ -579,22 +587,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
 
             {activeTab === 'funnels' && (
                 <>
-                    {/* How it works */}
-                    <div className="glass-card p-5">
-                        <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-                                <Sparkles className="w-4 h-4" style={{ color: '#8b5cf6' }} />
-                            </div>
-                            <div className="text-xs leading-relaxed" style={{ color: 'var(--color-surface-500)' }}>
-                                <strong className="text-white">Come funziona:</strong> Crea un funnel → Attivalo → Copia il link pubblico → Usalo nelle ads di Meta/Google.
-                                Quando un utente compila il form, il lead viene creato automaticamente nel CRM, nella prima fase del pipeline,
-                                e l&apos;evento viene inviato a Meta CAPI per ottimizzare le campagne.
-                                <br /><br />
-                                <strong className="text-white">A/B Testing:</strong> Attiva lo split test dalla tab Analytics per dividere il traffico 50/50 tra due varianti.
-                                Imposta la variante B nelle impostazioni del funnel (campo &quot;Variante A/B&quot;). Confronta i risultati e dichiara il vincitore.
-                            </div>
-                        </div>
-                    </div>
+
 
                     {/* Funnel Cards */}
                     {funnels.length > 0 ? (
