@@ -4,11 +4,11 @@ interface CRMGridProps {
     leads: any[]
     stages: any[]
     members: any[]
-    members: any[]
     selectedLeads: string[]
     onToggleLeadSelect: (leadId: string) => void
     onToggleAllSelect: () => void
     onLeadClick: (lead: any) => void
+    onAssignLead: (leadId: string, assignedTo: string) => void
 }
 
 function formatCurrency(v: number) {
