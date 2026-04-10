@@ -29,7 +29,7 @@ export default async function SettingsPage() {
             pipelines={pipelinesRes.data || []}
             trafficSources={sourcesRes.data || []}
             crmTags={tagsRes.data || []}
-            profile={profileRes.data}
+            profile={{ ...(profileRes.data || {}), phone: user?.user_metadata?.phone || profileRes.data?.phone || '' }}
             userRole={member?.role || 'viewer'}
             userEmail={user?.email || ''}
             isGoogleConnected={!!member?.google_access_token}

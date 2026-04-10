@@ -30,6 +30,13 @@ export async function PUT(req: NextRequest) {
 
         const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
+        // Save phone to user_metadata
+        if (phone !== undefined) {
+             await supabaseAdmin.auth.admin.updateUserById(ctx.user_id, {
+                 user_metadata: { phone }
+             })
+        }
+
         const { data, error } = await supabaseAdmin
             .from('profiles')
             .update(payload)
