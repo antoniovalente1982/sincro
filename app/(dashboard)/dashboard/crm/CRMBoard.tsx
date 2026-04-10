@@ -1126,6 +1126,8 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         value: lead?.value?.toString() || '',
         stage_id: lead?.stage_id || pipelineStages[0]?.id || '',
         assigned_to: lead?.assigned_to || '',
+        setter_id: lead?.setter_id || '',
+        closer_id: lead?.closer_id || '',
         notes: lead?.notes || '',
         utm_source: lead?.utm_source || '',
         utm_campaign: lead?.utm_campaign || '',
@@ -1133,6 +1135,9 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         utm_content: lead?.meta_data?.utm_content || '',
         tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[]
     })
+
+    const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+    const assignableClosers = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
     // Tags configuration happens globally (in SettingsPanel), here we only select
 
 
@@ -1149,6 +1154,8 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
             ...form,
             value: form.value ? parseFloat(form.value) : null,
             assigned_to: form.assigned_to || null,
+            setter_id: form.setter_id || null,
+            closer_id: form.closer_id || null,
         })
     }
 
@@ -1206,16 +1213,29 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                         </div>
                     </div>
 
-                    <div>
-                        <label className="label">Assegnato a</label>
-                        <select className="input" value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })}>
-                            <option value="">Non assegnato</option>
-                            {members.filter(m => m.role !== 'viewer').map(m => (
-                                <option key={m.user_id} value={m.user_id}>
-                                    {(m.profiles as any)?.full_name || (m.profiles as any)?.email} ({m.role})
-                                </option>
-                            ))}
-                        </select>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="label">Setter</label>
+                            <select className="input" value={form.setter_id} onChange={e => setForm({ ...form, setter_id: e.target.value })}>
+                                <option value="">Nessun Setter</option>
+                                {assignableSetters.map((m: any) => (
+                                    <option key={m.user_id} value={m.user_id}>
+                                        {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="label">Venditore</label>
+                            <select className="input" value={form.closer_id} onChange={e => setForm({ ...form, closer_id: e.target.value })}>
+                                <option value="">Nessun Venditore</option>
+                                {assignableClosers.map((m: any) => (
+                                    <option key={m.user_id} value={m.user_id}>
+                                        {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     {/* Tag Manager (Multi-Select) */}
