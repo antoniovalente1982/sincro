@@ -36,6 +36,8 @@ interface Props {
 export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userEmail, isGoogleConnected }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
+    const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
+    const [phone, setPhone] = useState(profile?.phone || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
     const [pipelineList, setPipelineList] = useState<Pipeline[]>(pipelines || [])
     const [saving, setSaving] = useState<string | null>(null)
@@ -145,7 +147,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     }
 
     const handleSaveOrg = () => saveAction('update_org', { name: orgName })
-    const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName })
+    const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone })
 
     const handleCreateStage = async () => {
         if (!newStage.name || !addToPipelineId) return
@@ -794,7 +796,15 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     </div>
                     <div>
                         <label className="label">Nome completo</label>
-                        <input className="input max-w-md" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Il tuo nome" />
+                        <input className="input max-w-md" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Il tuo nome e cognome" />
+                    </div>
+                    <div>
+                        <label className="label">Foto Profilo (URL)</label>
+                        <input className="input max-w-md" value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} placeholder="https://... (URL immagine)" />
+                    </div>
+                    <div>
+                        <label className="label">Numero di Telefono</label>
+                        <input className="input max-w-md" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+39 ..." />
                     </div>
                     <button onClick={handleSaveProfile} className="btn-primary" disabled={saving === 'update_profile'}>
                         {saving === 'update_profile' ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-4 h-4" /> Salva Profilo</>}

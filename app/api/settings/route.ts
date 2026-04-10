@@ -36,10 +36,15 @@ export async function PUT(req: NextRequest) {
     }
 
     if (body.action === 'update_profile') {
-        const { full_name } = body
+        const { full_name, avatar_url, phone } = body
+        const payload: any = { updated_at: new Date().toISOString() }
+        if (full_name !== undefined) payload.full_name = full_name
+        if (avatar_url !== undefined) payload.avatar_url = avatar_url
+        if (phone !== undefined) payload.phone = phone
+
         const { data, error } = await supabase
             .from('profiles')
-            .update({ full_name, updated_at: new Date().toISOString() })
+            .update(payload)
             .eq('id', ctx.user_id)
             .select()
             .single()
