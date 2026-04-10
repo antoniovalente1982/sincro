@@ -44,13 +44,13 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                 onChange={onToggleAllSelect}
                             />
                         </th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Data Ins.</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Contatto</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Fase / Stage</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Valore</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs">Sorgente / Note</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs w-[180px]">Setter</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs w-[180px]">Venditore</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[120px]">Data Ins.</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[220px]">Contatto</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[140px]">Fase / Stage</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[100px]">Valore</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Sorgente / Note</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Setter</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Venditore</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -98,7 +98,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                     ) : null}
                                     {lead.utm_campaign || lead.funnels?.name || ''}
                                 </td>
-                                <td className="px-5 py-4 w-48" onClick={e => e.stopPropagation()}>
+                                <td className="px-5 py-4 min-w-[240px]" onClick={e => e.stopPropagation()}>
                                     <div className="flex items-center gap-2">
                                         {lead.setter_profile?.avatar_url ? (
                                             <img src={lead.setter_profile.avatar_url} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
@@ -120,7 +120,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         </select>
                                     </div>
                                 </td>
-                                <td className="px-5 py-4 w-48" onClick={e => e.stopPropagation()}>
+                                <td className="px-5 py-4 min-w-[240px]" onClick={e => e.stopPropagation()}>
                                     <div className="flex items-center gap-2">
                                         {lead.closer_profile?.avatar_url ? (
                                             <img src={lead.closer_profile.avatar_url} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
