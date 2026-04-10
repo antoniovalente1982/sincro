@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import { createClient } from '@/lib/supabase/client'
 import SetterPerformance from './SetterPerformance'
+import TeamMatchupMatrix from './TeamMatchupMatrix'
 
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number; is_won?: boolean; is_lost?: boolean; pipeline_id?: string
@@ -356,6 +357,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
 
             {/* PERFORMANCE SETTER */}
             <SetterPerformance leads={leads} members={members} rangeFilterName={activeKey} />
+            <TeamMatchupMatrix leads={leads} members={members} rangeFilterName={activeKey} />
 
             {/* Recent Activity */}
             <div className="glass-card p-5">

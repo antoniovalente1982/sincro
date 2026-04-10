@@ -45,6 +45,10 @@ interface Lead {
     value?: number
     stage_id?: string
     assigned_to?: string
+    setter_id?: string
+    closer_id?: string
+    setter_profile?: { id: string, full_name: string, email: string, avatar_url?: string }
+    closer_profile?: { id: string, full_name: string, email: string, avatar_url?: string }
     notes?: string
     utm_source?: string
     utm_campaign?: string
@@ -119,7 +123,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         if (!m.profiles?.email) return 'Utente Sincro';
         return m.profiles.email.split('@')[0].split('.').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
     }
-    const assignableMembers = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+    const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+    const assignableClosers = members.filter((m: any) => m.role === 'closer' || m.role === 'manager' || m.role === 'owner' || m.role === 'admin')
 
     const role = (userRole || 'viewer') as Role
     const department = (userDepartment || null) as Department
@@ -142,6 +147,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [newLeadAlert, setNewLeadAlert] = useState<string | null>(null)
     const [tagFilter, setTagFilter] = useState<string>('all')
     const [sourceFilter, setSourceFilter] = useState<string>('all')
+    const [setterFilter, setSetterFilter] = useState<string>('all')
+    const [closerFilter, setCloserFilter] = useState<string>('all')
     const [tags, setTags] = useState<Tag[]>(globalTags)
     
     // Auto-refresh: poll /api/leads every 60s for new leads
@@ -242,10 +249,12 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         })()
         const matchSource = sourceFilter === 'all' || l.product === sourceFilter
         const matchTag = tagFilter === 'all' || (l.lead_tags || []).some(lt => lt.crm_tags?.id === tagFilter)
+        const matchSetter = setterFilter === 'all' || l.setter_id === setterFilter
+        const matchCloser = closerFilter === 'all' || l.closer_id === closerFilter
         // Role-based filter: setter/closer see only their assigned leads
-        const matchOwnership = !filterOwn || l.assigned_to === userId || !l.assigned_to
+        const matchOwnership = !filterOwn || l.setter_id === userId || l.closer_id === userId || l.assigned_to === userId || (!l.setter_id && !l.closer_id && !l.assigned_to)
         
-        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchOwnership
+        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchOwnership
     })
 
     // Sort leads by arrival time (most recent first) considering re-submissions
@@ -329,11 +338,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const lead = leads.find(l => l.id === leadId);
         const oldValue = lead?.assigned_to;
         
-        // Optimistic update
         setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_to: newValue } : l));
         
-        // Actually for the API we need to send value. If undefined, JSON.stringify emits nothing or drops it. 
-        // We probably want to send null for the Database to clear it, but the optimistic state needs undefined.
         try {
             await fetch('/api/leads', {
                 method: 'PUT',
@@ -341,8 +347,43 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 body: JSON.stringify({ id: leadId, assigned_to: assignedTo || null }),
             });
         } catch {
-            // rollback
             setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_to: oldValue } : l));
+        }
+    }
+
+    const handleAssignSetter = async (leadId: string, setterId: string) => {
+        const newValue = setterId || undefined;
+        const lead = leads.find(l => l.id === leadId);
+        const oldValue = lead?.setter_id;
+        
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: newValue } : l));
+        
+        try {
+            await fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: leadId, setter_id: setterId || null }),
+            });
+        } catch {
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: oldValue } : l));
+        }
+    }
+
+    const handleAssignCloser = async (leadId: string, closerId: string) => {
+        const newValue = closerId || undefined;
+        const lead = leads.find(l => l.id === leadId);
+        const oldValue = lead?.closer_id;
+        
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: newValue } : l));
+        
+        try {
+            await fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: leadId, closer_id: closerId || null }),
+            });
+        } catch {
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: oldValue } : l));
         }
     }
 
@@ -592,6 +633,30 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     </select>
                 )}
 
+                <select
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-indigo-300"
+                    value={setterFilter}
+                    onChange={e => setSetterFilter(e.target.value)}
+                >
+                    <option value="all">👤 Tutti i Setter</option>
+                    <option value="">Non Assegnato</option>
+                    {assignableSetters.map((m: any) => (
+                        <option key={m.user_id} value={m.user_id}>{getDisplayName(m)}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-emerald-300"
+                    value={closerFilter}
+                    onChange={e => setCloserFilter(e.target.value)}
+                >
+                    <option value="all">🎯 Tutti i Venditori</option>
+                    <option value="">Non Assegnato</option>
+                    {assignableClosers.map((m: any) => (
+                        <option key={m.user_id} value={m.user_id}>{getDisplayName(m)}</option>
+                    ))}
+                </select>
+
                 <div className="ml-auto flex items-center gap-3">
                     <div className="flex bg-black/40 rounded-lg p-0.5" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                         <button 
@@ -718,6 +783,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onToggleLeadSelect={handleToggleLeadSelect}
                     onToggleAllSelect={handleToggleAllSelect}
                     onAssignLead={handleAssignLead} 
+                    onAssignSetter={handleAssignSetter}
+                    onAssignCloser={handleAssignCloser}
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
                 />
             ) : (
@@ -893,25 +960,50 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     <span style={{ color: '#71717a' }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
                                                 )}
                                             </div>
-                                            <div className="flex items-center" onClick={e => e.stopPropagation()}>
-                                                <select
-                                                    className="text-[10px] px-2 py-0.5 rounded-full font-semibold outline-none cursor-pointer appearance-none text-center transition-colors hover:opacity-80"
-                                                    style={{
-                                                        background: lead.assigned_to ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                                                        color: lead.assigned_to ? '#3b82f6' : 'var(--color-surface-400)',
-                                                        border: lead.assigned_to ? '1px solid rgba(59, 130, 246, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)',
-                                                        maxWidth: '120px'
-                                                    }}
-                                                    value={lead.assigned_to || ''}
-                                                    onChange={e => handleAssignLead(lead.id, e.target.value)}
-                                                >
-                                                    <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna</option>
-                                                    {assignableMembers.map((m: any) => (
-                                                        <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
-                                                            {getDisplayName(m)}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                            <div className="flex flex-col gap-1.5 mt-3" onClick={e => e.stopPropagation()}>
+                                                <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-indigo-500/30 transition-colors">
+                                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                        {lead.setter_profile?.avatar_url ? (
+                                                            <img src={lead.setter_profile.avatar_url} alt="S" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                                        ) : (
+                                                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
+                                                        )}
+                                                        <select
+                                                            className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-indigo-300"
+                                                            value={lead.setter_id || ''}
+                                                            onChange={e => handleAssignSetter(lead.id, e.target.value)}
+                                                        >
+                                                            <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Setter</option>
+                                                            {assignableSetters.map((m: any) => (
+                                                                <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                    {getDisplayName(m)}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-emerald-500/30 transition-colors">
+                                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                        {lead.closer_profile?.avatar_url ? (
+                                                            <img src={lead.closer_profile.avatar_url} alt="C" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                                        ) : (
+                                                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#10b981' }}>V</div>
+                                                        )}
+                                                        <select
+                                                            className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-emerald-300"
+                                                            value={lead.closer_id || ''}
+                                                            onChange={e => handleAssignCloser(lead.id, e.target.value)}
+                                                        >
+                                                            <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Venditore</option>
+                                                            {assignableClosers.map((m: any) => (
+                                                                <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                    {getDisplayName(m)}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
