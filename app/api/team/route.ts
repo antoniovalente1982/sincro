@@ -90,9 +90,10 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { email, role, department } = body
+    const supabaseAdmin = getSupabaseAdmin()
 
-    // Check if user exists
-    const { data: profile } = await supabase
+    // Check if user exists — use admin client to bypass RLS
+    const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('id')
         .eq('email', email)
@@ -100,35 +101,89 @@ export async function POST(req: NextRequest) {
 
     let newUserId = profile?.id
     let confirmUrl: string | null = null
+    let isNewUser = !newUserId
 
     if (!newUserId) {
-        const supabaseAdmin = getSupabaseAdmin()
-        
-        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-            type: 'invite',
-            email: email,
-        })
-        
-        if (linkError) {
-            return NextResponse.json({ error: "Impossibile generare invito: " + linkError.message }, { status: 500 })
+        // Check if user already exists in auth (e.g. from a previous invite attempt)
+        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+        const existingUser = existingUsers?.users?.find(
+            (u: any) => u.email?.toLowerCase() === email.toLowerCase()
+        )
+
+        if (existingUser) {
+            // User exists in auth but profile check failed — reuse their ID
+            newUserId = existingUser.id
+            isNewUser = false
+
+            // Ensure profile exists
+            await supabaseAdmin.from('profiles').upsert({
+                id: newUserId,
+                email: email,
+                full_name: email.split('@')[0]
+            }, { onConflict: 'id' })
+        } else {
+            // Truly new user — create via invite link
+            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+                type: 'invite',
+                email: email,
+            })
+            
+            if (linkError) {
+                return NextResponse.json({ error: "Impossibile generare invito: " + linkError.message }, { status: 500 })
+            }
+            
+            if (!linkData?.user?.id) {
+                return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
+            }
+            
+            newUserId = linkData.user.id
+            confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
+
+            // Profile is created by the handle_new_user trigger,
+            // but upsert as safety net
+            await supabaseAdmin.from('profiles').upsert({
+                id: newUserId,
+                email: email,
+                full_name: email.split('@')[0]
+            }, { onConflict: 'id' })
         }
-        
-        if (!linkData?.user?.id) {
-            return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
-        }
-        
-        newUserId = linkData.user.id
-        confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
-        
-        // Crea profilo
-        await supabaseAdmin.from('profiles').insert({
-            id: newUserId,
-            email: email,
-            full_name: email.split('@')[0]
-        }).select().single()
     }
 
-    const { data, error } = await supabase
+    // Check if already a member of this org
+    const { data: existingMember } = await supabaseAdmin
+        .from('organization_members')
+        .select('id, deactivated_at')
+        .eq('organization_id', ctx.organization_id)
+        .eq('user_id', newUserId)
+        .single()
+
+    if (existingMember && !existingMember.deactivated_at) {
+        return NextResponse.json({ error: 'Questo utente è già membro del team' }, { status: 409 })
+    }
+
+    // Reactivate if previously deactivated
+    if (existingMember?.deactivated_at) {
+        const { data, error } = await supabaseAdmin
+            .from('organization_members')
+            .update({
+                role,
+                department: department || null,
+                deactivated_at: null,
+                deactivated_by: null,
+                joined_at: new Date().toISOString(),
+            })
+            .eq('id', existingMember.id)
+            .select()
+            .single()
+
+        if (error) {
+            return NextResponse.json({ error: "Errore DB: " + error.message }, { status: 500 })
+        }
+        return NextResponse.json({ ...data, reactivated: true })
+    }
+
+    // Insert new membership
+    const { data, error } = await supabaseAdmin
         .from('organization_members')
         .insert({
             organization_id: ctx.organization_id,
@@ -136,8 +191,8 @@ export async function POST(req: NextRequest) {
             role,
             department: department || null,
             invited_email: email,
-            invited_at: !profile ? new Date().toISOString() : null,
-            joined_at: profile ? new Date().toISOString() : null,
+            invited_at: isNewUser ? new Date().toISOString() : null,
+            joined_at: !isNewUser ? new Date().toISOString() : null,
         })
         .select()
         .single()
