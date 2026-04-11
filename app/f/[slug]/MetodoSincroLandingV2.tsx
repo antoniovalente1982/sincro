@@ -598,7 +598,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         {FAMOUS_PLAYERS.map(p => (
                             <div key={p.name} className="lp-player">
                                 <div className="lp-player-img">
-                                    <Image src={p.img} alt={p.name} width={64} height={64} loading="lazy" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                                    <Image src={p.img} alt={p.name} width={160} height={160} loading="lazy" style={{ objectFit: 'cover', borderRadius: '50%' }} />
                                 </div>
                                 <strong>{p.name}</strong>
                                 <span>{p.team}</span>
