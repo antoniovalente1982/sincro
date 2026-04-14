@@ -29,7 +29,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
         fetch('/api/calendar?action=closers')
             .then(res => res.json())
             .then(data => {
-                const arr = (data.closers || []).filter((c: any) => c.has_availability === true)
+                const arr = data.closers || []
                 setClosers(arr)
             })
             .catch(console.error)
