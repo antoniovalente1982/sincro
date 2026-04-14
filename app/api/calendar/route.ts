@@ -140,14 +140,23 @@ export async function GET(req: NextRequest) {
 
         const allBusySlots = [...busySlots, ...googleBusySlots]
 
-        // 3. Generate available slots
+        // Se non hanno impostato orari su Sincro, creiamo un array 24/7 fittizio.
+        // Google Calendar rimuoverà poi le ore "Occupate".
+        const effectiveAvailability = availability.length > 0 ? availability : [0, 1, 2, 3, 4, 5, 6].map(day => ({
+            day_of_week: day,
+            start_time: '00:00',
+            end_time: '23:59',
+            slot_duration_minutes: 45,
+            break_between_slots: 0
+        }))
+
         const slots: { date: string; start: string; end: string; available: boolean }[] = []
         const cursor = new Date(startDate)
         cursor.setHours(0, 0, 0, 0)
 
         while (cursor < endDate) {
             const dayOfWeek = cursor.getDay()
-            const dayAvail = availability.find((a: any) => a.day_of_week === dayOfWeek)
+            const dayAvail = effectiveAvailability.find((a: any) => a.day_of_week === dayOfWeek)
 
             if (dayAvail) {
                 const [startH, startM] = dayAvail.start_time.split(':').map(Number)
@@ -240,7 +249,7 @@ export async function GET(req: NextRequest) {
                     name: profile?.full_name || profile?.email || 'N/A',
                     color: c.display_color || '#3b82f6',
                     available_days: availMap[c.user_id] || [],
-                    has_availability: (availMap[c.user_id] || []).length > 0,
+                    has_availability: true, // Forzato true: usiamo fallback 24/7 se vuoto, la dipendenza netta è GCal
                     google_connected: googleConnectedSet.has(c.user_id),
                     in_round_robin: c.in_round_robin !== false, // Defaults to true
                 }
