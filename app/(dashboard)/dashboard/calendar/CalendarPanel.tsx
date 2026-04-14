@@ -43,6 +43,7 @@ interface Closer {
     available_days: number[]
     has_availability: boolean
     google_connected: boolean
+    in_round_robin?: boolean
 }
 
 interface Slot {
