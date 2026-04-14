@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendBookingConfirmation, sendBookingNotificationToCloser } from '@/lib/email'
-import { getGoogleCalendarFreeBusy, createGoogleCalendarEvent } from '@/lib/google-calendar'
+import { getGoogleCalendarFreeBusy, getGoogleCalendarEvents, createGoogleCalendarEvent } from '@/lib/google-calendar'
 
 async function getContext(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -210,6 +210,18 @@ export async function GET(req: NextRequest) {
             availMap[a.user_id].push(a.day_of_week)
         })
 
+        // Get Google Calendar connection status
+        const { data: googleTokens } = await supabase
+            .from('organization_members')
+            .select('user_id, google_access_token')
+            .eq('organization_id', ctx.organization_id)
+            .in('role', ['closer', 'owner', 'admin', 'manager', 'coach'])
+            .is('deactivated_at', null)
+
+        const googleConnectedSet = new Set(
+            (googleTokens || []).filter((t: any) => t.google_access_token).map((t: any) => t.user_id)
+        )
+
         const result = (closers || [])
             .filter((c: any) => c.role === 'closer' || c.role === 'owner')
             .map((c: any) => ({
@@ -218,6 +230,7 @@ export async function GET(req: NextRequest) {
                 color: c.display_color || '#3b82f6',
                 available_days: availMap[c.user_id] || [],
                 has_availability: (availMap[c.user_id] || []).length > 0,
+                google_connected: googleConnectedSet.has(c.user_id),
             }))
 
         return NextResponse.json({ closers: result })
@@ -235,6 +248,44 @@ export async function GET(req: NextRequest) {
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ availability: data })
+    }
+
+    if (action === 'google_events') {
+        // Get actual Google Calendar events for display (bidirectional sync)
+        const userIds = searchParams.get('user_ids')?.split(',') || []
+        if (userIds.length === 0 || !from || !to) {
+            return NextResponse.json({ google_events: {} })
+        }
+
+        const { data: tokens } = await supabase
+            .from('organization_members')
+            .select('user_id, google_access_token, google_refresh_token, google_token_expiry')
+            .eq('organization_id', ctx.organization_id)
+            .in('user_id', userIds)
+
+        const result: Record<string, any[]> = {}
+
+        for (const uid of userIds) {
+            result[uid] = []
+            const token = tokens?.find((t: any) => t.user_id === uid)
+            if (!token?.google_access_token) continue
+
+            try {
+                const events = await getGoogleCalendarEvents(
+                    uid,
+                    token.google_access_token,
+                    token.google_refresh_token,
+                    token.google_token_expiry,
+                    from,
+                    to
+                )
+                result[uid] = events
+            } catch (err) {
+                console.error(`[Calendar API] Failed to get google events for ${uid}`, err)
+            }
+        }
+
+        return NextResponse.json({ google_events: result })
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
@@ -415,6 +466,262 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ event, message: 'Appuntamento creato con successo' })
+    }
+
+    if (action === 'auto_book') {
+        // Auto-assign closer based on round-robin, performance, or availability
+        const { start_time, end_time, title, description, lead_phone, lead_email, lead_id, lead_name, assignment_mode } = body
+
+        if (!start_time || !end_time) {
+            return NextResponse.json({ error: 'start_time e end_time richiesti' }, { status: 400 })
+        }
+
+        // Only setters, admin, owner, manager can auto-book
+        if (!['setter', 'admin', 'owner', 'manager'].includes(ctx.role)) {
+            return NextResponse.json({ error: 'Permesso negato' }, { status: 403 })
+        }
+
+        // Get all active closers with availability for this day
+        const bookDay = new Date(start_time).getDay()
+        const { data: availClosers } = await supabase
+            .from('calendar_availability')
+            .select('user_id')
+            .eq('organization_id', ctx.organization_id)
+            .eq('day_of_week', bookDay)
+            .eq('is_active', true)
+
+        if (!availClosers || availClosers.length === 0) {
+            return NextResponse.json({ error: 'Nessun venditore disponibile per questo giorno' }, { status: 400 })
+        }
+
+        const closerUserIds = [...new Set(availClosers.map((a: any) => a.user_id))]
+
+        // Check DB conflicts
+        const { data: dbConflicts } = await supabase
+            .from('calendar_events')
+            .select('closer_id')
+            .in('closer_id', closerUserIds)
+            .eq('organization_id', ctx.organization_id)
+            .neq('status', 'cancelled')
+            .lt('start_time', end_time)
+            .gt('end_time', start_time)
+
+        const busyDbUsers = new Set((dbConflicts || []).map((e: any) => e.closer_id))
+        let candidates = closerUserIds.filter(uid => !busyDbUsers.has(uid))
+
+        // Check Google Calendar conflicts
+        const { data: tokens } = await supabase
+            .from('organization_members')
+            .select('user_id, google_access_token, google_refresh_token, google_token_expiry')
+            .in('user_id', candidates)
+
+        const fullyAvailable: string[] = []
+        for (const uid of candidates) {
+            const token = tokens?.find((t: any) => t.user_id === uid)
+            if (token?.google_access_token) {
+                try {
+                    const gBusy = await getGoogleCalendarFreeBusy(
+                        uid, token.google_access_token, token.google_refresh_token,
+                        token.google_token_expiry, start_time, end_time
+                    )
+                    const isBusy = gBusy.some((b: any) => {
+                        const bs = new Date(b.start).getTime()
+                        const be = new Date(b.end).getTime()
+                        return bs < new Date(end_time).getTime() && be > new Date(start_time).getTime()
+                    })
+                    if (!isBusy) fullyAvailable.push(uid)
+                } catch {
+                    fullyAvailable.push(uid) // If Google check fails, assume available
+                }
+            } else {
+                fullyAvailable.push(uid) // No Google connected = trust DB only
+            }
+        }
+
+        if (fullyAvailable.length === 0) {
+            return NextResponse.json({ error: 'Nessun venditore disponibile per questo slot' }, { status: 409 })
+        }
+
+        // Select based on assignment mode
+        let selectedCloserId: string
+        const mode = assignment_mode || 'round_robin'
+
+        if (mode === 'round_robin') {
+            // Get current round-robin index from organization config
+            const { data: orgConfig } = await supabase
+                .from('organization_config')
+                .select('round_robin_calendar_index')
+                .eq('organization_id', ctx.organization_id)
+                .single()
+
+            const currentIndex = orgConfig?.round_robin_calendar_index || 0
+            const selectedIndex = currentIndex % fullyAvailable.length
+            selectedCloserId = fullyAvailable[selectedIndex]
+
+            // Update round-robin index
+            await supabase
+                .from('organization_config')
+                .upsert({
+                    organization_id: ctx.organization_id,
+                    round_robin_calendar_index: currentIndex + 1,
+                }, { onConflict: 'organization_id' })
+
+        } else if (mode === 'performance') {
+            // Best performer = most completions
+            let perfQuery = supabase
+                .from('calendar_events')
+                .select('closer_id')
+                .eq('organization_id', ctx.organization_id)
+                .eq('status', 'completed')
+            
+            // Filter to only available closers
+            for (const uid of fullyAvailable) {
+                // We'll fetch all and filter in JS to avoid .in() type issues
+            }
+            const { data: stats } = await perfQuery
+
+            const countMap: Record<string, number> = {}
+            ;(stats || []).forEach((s: any) => {
+                if (fullyAvailable.includes(s.closer_id)) {
+                    countMap[s.closer_id] = (countMap[s.closer_id] || 0) + 1
+                }
+            })
+
+            // Sort by completed events (highest first), then select highest performer
+            fullyAvailable.sort((a, b) => (countMap[b] || 0) - (countMap[a] || 0))
+            selectedCloserId = fullyAvailable[0]
+
+        } else {
+            // 'availability' mode — least loaded this week
+            const weekStart = new Date(start_time)
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
+            weekStart.setHours(0, 0, 0, 0)
+            const weekEnd = new Date(weekStart)
+            weekEnd.setDate(weekEnd.getDate() + 7)
+
+            const { data: weekEvents } = await supabase
+                .from('calendar_events')
+                .select('closer_id')
+                .eq('organization_id', ctx.organization_id)
+                .neq('status', 'cancelled')
+                .gte('start_time', weekStart.toISOString())
+                .lte('start_time', weekEnd.toISOString())
+
+            const loadMap: Record<string, number> = {}
+            ;(weekEvents || []).forEach((e: any) => {
+                if (fullyAvailable.includes(e.closer_id)) {
+                    loadMap[e.closer_id] = (loadMap[e.closer_id] || 0) + 1
+                }
+            })
+
+            // Sort by least loaded
+            fullyAvailable.sort((a, b) => (loadMap[a] || 0) - (loadMap[b] || 0))
+            selectedCloserId = fullyAvailable[0]
+        }
+
+        // Create the event
+        const { data: event, error: eventError } = await supabase
+            .from('calendar_events')
+            .insert({
+                organization_id: ctx.organization_id,
+                closer_id: selectedCloserId,
+                setter_id: ctx.auth_user_id,
+                lead_id: lead_id || null,
+                title: title || 'Appuntamento',
+                description: description || (lead_name ? `Lead: ${lead_name}` : ''),
+                lead_phone,
+                lead_email,
+                start_time,
+                end_time,
+                status: 'confirmed',
+                source: 'internal',
+            })
+            .select()
+            .single()
+
+        if (eventError) return NextResponse.json({ error: eventError.message }, { status: 500 })
+
+        // Push to Google Calendar
+        const closerToken = tokens?.find((t: any) => t.user_id === selectedCloserId)
+        if (closerToken?.google_access_token) {
+            try {
+                const attendees = lead_email ? [{ email: lead_email }] : []
+                await createGoogleCalendarEvent(
+                    selectedCloserId,
+                    closerToken.google_access_token,
+                    closerToken.google_refresh_token,
+                    closerToken.google_token_expiry,
+                    {
+                        summary: title || 'Appuntamento via Sincro',
+                        description: description || '',
+                        start: start_time,
+                        end: end_time,
+                        attendees
+                    }
+                )
+            } catch (err) {
+                console.error('[Calendar API] Failed to push auto_book to Google Calendar', err)
+            }
+        }
+
+        // Update lead stage if applicable
+        if (lead_id) {
+            const { data: stages } = await supabase
+                .from('pipeline_stages')
+                .select('id, slug, fire_capi_event')
+                .eq('organization_id', ctx.organization_id)
+                .ilike('slug', '%appuntamento%')
+                .limit(1)
+
+            if (stages && stages.length > 0) {
+                await supabase
+                    .from('leads')
+                    .update({ stage_id: stages[0].id, updated_at: new Date().toISOString() })
+                    .eq('id', lead_id)
+            }
+        }
+
+        // Get closer name for response
+        const { data: closerInfo } = await supabase
+            .from('organization_members')
+            .select('profiles:user_id(full_name, email)')
+            .eq('user_id', selectedCloserId)
+            .single()
+
+        const closerName = (closerInfo?.profiles as any)?.full_name || 'N/A'
+        const closerEmail = (closerInfo?.profiles as any)?.email
+
+        // Email notification to closer
+        if (closerEmail) {
+            const startDt = new Date(start_time)
+            const endDt = new Date(end_time)
+            const dateFormatted = startDt.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+            const timeFormatted = `${startDt.getHours().toString().padStart(2,'0')}:${startDt.getMinutes().toString().padStart(2,'0')} — ${endDt.getHours().toString().padStart(2,'0')}:${endDt.getMinutes().toString().padStart(2,'0')}`
+
+            const { data: setterInfo } = await supabase
+                .from('organization_members')
+                .select('profiles:user_id(full_name)')
+                .eq('user_id', ctx.auth_user_id)
+                .single()
+
+            sendBookingNotificationToCloser({
+                to: closerEmail,
+                closerName,
+                leadName: lead_name || title || 'Cliente',
+                leadPhone: lead_phone,
+                leadEmail: lead_email,
+                date: dateFormatted,
+                time: timeFormatted,
+                setterName: (setterInfo?.profiles as any)?.full_name || null,
+            }).catch(() => {})
+        }
+
+        return NextResponse.json({
+            event,
+            assigned_to: closerName,
+            assignment_mode: mode,
+            message: `Appuntamento assegnato a ${closerName} (${mode})`
+        })
     }
 
     if (action === 'set_availability') {

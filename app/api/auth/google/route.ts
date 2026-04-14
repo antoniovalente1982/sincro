@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID)
     authUrl.searchParams.set('redirect_uri', redirectUri)
     authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.events')
+    authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly')
     authUrl.searchParams.set('access_type', 'offline')
     authUrl.searchParams.set('prompt', 'consent') // Forza il prompt per ottenere sempre il refresh token
 

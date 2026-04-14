@@ -115,6 +115,79 @@ export async function getGoogleCalendarFreeBusy(
     return data.calendars?.primary?.busy || []
 }
 
+export async function getGoogleCalendarEvents(
+    userId: string,
+    accessToken: string,
+    refreshToken: string | null,
+    expiry: string | null,
+    timeMin: string,
+    timeMax: string
+): Promise<{ id: string; summary: string; start: string; end: string; status: string; htmlLink?: string }[]> {
+    let currentToken = accessToken
+
+    // Check if token needs refresh
+    if (!currentToken || (expiry && new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000)) {
+        if (refreshToken) {
+            currentToken = await refreshGoogleToken(userId, refreshToken)
+        } else {
+            console.warn(`[Google API] Token expired for user ${userId} and no refresh token available`)
+            return []
+        }
+    }
+
+    const params = new URLSearchParams({
+        timeMin,
+        timeMax,
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '250',
+    })
+
+    const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
+        headers: {
+            'Authorization': `Bearer ${currentToken}`,
+        },
+    })
+
+    if (!response.ok) {
+        if (response.status === 401 && refreshToken) {
+            currentToken = await refreshGoogleToken(userId, refreshToken)
+            const retryResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` },
+            })
+            if (!retryResponse.ok) {
+                console.error('[Google API] Failed to get events after retry:', await retryResponse.text())
+                return []
+            }
+            const retryData = await retryResponse.json()
+            return (retryData.items || [])
+                .filter((e: any) => e.start?.dateTime && e.status !== 'cancelled')
+                .map((e: any) => ({
+                    id: e.id,
+                    summary: e.summary || '(Senza titolo)',
+                    start: e.start.dateTime || e.start.date,
+                    end: e.end.dateTime || e.end.date,
+                    status: e.status,
+                    htmlLink: e.htmlLink,
+                }))
+        }
+        console.error('[Google API] Failed to get events:', await response.text())
+        return []
+    }
+
+    const data = await response.json()
+    return (data.items || [])
+        .filter((e: any) => e.start?.dateTime && e.status !== 'cancelled')
+        .map((e: any) => ({
+            id: e.id,
+            summary: e.summary || '(Senza titolo)',
+            start: e.start.dateTime || e.start.date,
+            end: e.end.dateTime || e.end.date,
+            status: e.status,
+            htmlLink: e.htmlLink,
+        }))
+}
+
 export async function createGoogleCalendarEvent(
     userId: string,
     accessToken: string,

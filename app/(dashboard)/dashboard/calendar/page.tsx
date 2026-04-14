@@ -11,7 +11,7 @@ export default async function CalendarPage({
 
     const { data: member } = await supabase
         .from('organization_members')
-        .select('organization_id, role, department')
+        .select('organization_id, role, department, google_access_token')
         .eq('user_id', user?.id || '')
         .is('deactivated_at', null)
         .single()
@@ -26,11 +26,14 @@ export default async function CalendarPage({
         prefillLead = data
     }
 
+    const isGoogleConnected = !!member?.google_access_token
+
     return (
         <CalendarPanel
             userRole={member?.role || 'viewer'}
             userId={user?.id || ''}
             prefillLead={prefillLead}
+            isGoogleConnected={isGoogleConnected}
         />
     )
 }
