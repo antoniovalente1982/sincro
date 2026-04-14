@@ -7,6 +7,7 @@ import CRMGrid from './CRMGrid'
 import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, type Role, type Department } from '@/lib/permissions'
 import HowItWorks from '@/components/HowItWorks'
+import FastBookModal from './FastBookModal'
 
 interface Stage {
     id: string
@@ -1364,6 +1365,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
     formatCurrency: (v: number) => string
 }) {
     const stage = stages.find(s => s.id === lead.stage_id)
+    const [showBookingModal, setShowBookingModal] = useState(false)
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
@@ -1432,12 +1434,12 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                                 </div>
                             )}
                         </div>
-                        <Link href={`/dashboard/calendar?book_lead_id=${lead.id}`}
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:scale-105 shadow-lg"
+                        <button onClick={() => setShowBookingModal(true)}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:scale-105 shadow-lg w-full sm:w-auto"
                             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
                             <Calendar className="w-4 h-4" />
                             Prenota Appuntamento
-                        </Link>
+                        </button>
                     </div>
                 </div>
 
@@ -1523,6 +1525,16 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                     )}
                 </div>
             </div>
+            {showBookingModal && (
+                <FastBookModal 
+                    lead={lead} 
+                    onClose={() => setShowBookingModal(false)} 
+                    onSuccess={() => {
+                        setShowBookingModal(false)
+                        onClose()
+                    }} 
+                />
+            )}
         </div>
     )
 }

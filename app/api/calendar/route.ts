@@ -193,10 +193,20 @@ export async function GET(req: NextRequest) {
         // Get all closers with their availability status
         const { data: closers } = await supabase
             .from('organization_members')
-            .select('user_id, role, display_color, profiles:user_id(full_name, email)')
+            .select('user_id, role, display_color')
             .eq('organization_id', ctx.organization_id)
             .in('role', ['closer', 'owner', 'admin', 'manager'])
             .is('deactivated_at', null)
+
+        // Fetch profiles separately (no direct FK config mapping to profiles usually available)
+        const userIds = (closers || []).map((c: any) => c.user_id).filter(Boolean)
+        const { data: profiles } = userIds.length > 0 ? await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .in('id', userIds) : { data: [] }
+            
+        const profileMap: Record<string, any> = {}
+        profiles?.forEach((p: any) => { profileMap[p.id] = p })
 
         const { data: availabilities } = await supabase
             .from('calendar_availability')
@@ -224,14 +234,17 @@ export async function GET(req: NextRequest) {
 
         const result = (closers || [])
             .filter((c: any) => ['closer', 'owner', 'admin', 'manager'].includes(c.role))
-            .map((c: any) => ({
-                user_id: c.user_id,
-                name: c.profiles?.full_name || c.profiles?.email || 'N/A',
-                color: c.display_color || '#3b82f6',
-                available_days: availMap[c.user_id] || [],
-                has_availability: (availMap[c.user_id] || []).length > 0,
-                google_connected: googleConnectedSet.has(c.user_id),
-            }))
+            .map((c: any) => {
+                const profile = profileMap[c.user_id]
+                return {
+                    user_id: c.user_id,
+                    name: profile?.full_name || profile?.email || 'N/A',
+                    color: c.display_color || '#3b82f6',
+                    available_days: availMap[c.user_id] || [],
+                    has_availability: (availMap[c.user_id] || []).length > 0,
+                    google_connected: googleConnectedSet.has(c.user_id),
+                }
+            })
 
         return NextResponse.json({ closers: result })
     }
