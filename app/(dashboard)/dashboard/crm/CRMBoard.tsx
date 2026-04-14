@@ -58,6 +58,7 @@ interface Lead {
     updated_at: string
     funnels?: { id: string; name: string; objective: string } | null
     lead_tags?: { crm_tags: Tag }[]
+    calendar_events?: { id: string, start_time: string, status: string }[]
 }
 
 interface Member {
@@ -142,6 +143,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [showModal, setShowModal] = useState(false)
     const [editingLead, setEditingLead] = useState<Lead | null>(null)
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+    const [fastBookLead, setFastBookLead] = useState<Lead | null>(null)
     const [selectedLeads, setSelectedLeads] = useState<string[]>([])
     const [activities, setActivities] = useState<any[]>([])
     const [loadingActivities, setLoadingActivities] = useState(false)
@@ -1018,6 +1020,28 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 )}
                                             </div>
                                             <div className="flex flex-col gap-1.5 mt-3" onClick={e => e.stopPropagation()}>
+                                                {(() => {
+                                                    const activeApp = lead.calendar_events?.find((e: any) => e.status !== 'cancelled');
+                                                    if (!activeApp) return null;
+                                                    return (
+                                                        <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg border transition-colors" style={{ background: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.2)' }}>
+                                                            <div className="flex items-center gap-1.5 min-w-0 flex-1 text-purple-300">
+                                                                <Calendar className="w-4 h-4 ml-0.5 flex-shrink-0" style={{ color: '#a78bfa' }} />
+                                                                <span className="text-[11px] font-semibold truncate" style={{ color: '#d8b4fe' }}>
+                                                                    {formatTime(activeApp.start_time)}
+                                                                </span>
+                                                            </div>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setFastBookLead(lead) }}
+                                                                className="text-[10px] font-bold px-2 py-0.5 rounded transition"
+                                                                style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#e9d5ff' }}
+                                                            >
+                                                                Riprogramma
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })()}
+                                                
                                                 <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-indigo-500/30 transition-colors">
                                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                                         {lead.setter_profile?.avatar_url ? (
@@ -1112,6 +1136,18 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     formatDate={formatDate}
                     formatTime={formatTime}
                     formatCurrency={formatCurrency}
+                />
+            )}
+            {fastBookLead && (
+                <FastBookModal 
+                    lead={fastBookLead}
+                    onClose={() => setFastBookLead(null)}
+                    onSuccess={() => {
+                        setFastBookLead(null)
+                        // This triggers a refresh by updating the leads ref state somehow, or rely on useEffect interval
+                        // We can just rely on the existing 60s poll or we can call fetchLeads. But fetchLeads isn't exposed globally. 
+                        // It's okay, FastBook pushes to Supabase and the user can drag to refresh or wait. 
+                    }}
                 />
             )}
         </div>

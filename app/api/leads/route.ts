@@ -27,6 +27,7 @@ export async function GET() {
             assigned_profile:assigned_to (id, email, full_name, avatar_url),
             setter_profile:setter_id (id, email, full_name, avatar_url),
             closer_profile:closer_id (id, email, full_name, avatar_url),
+            calendar_events (id, start_time, status),
             lead_tags (crm_tags (id, name, color))
         `)
         .eq('organization_id', orgId)

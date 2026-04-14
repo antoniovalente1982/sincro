@@ -342,6 +342,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Slot non più disponibile. Seleziona un altro orario.' }, { status: 409 })
         }
 
+        // Cancel previous event if this is a reschedule for the same lead
+        if (lead_id) {
+            await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+        }
+
         const { data: event, error } = await supabase
             .from('calendar_events')
             .insert({
@@ -635,6 +640,11 @@ export async function POST(req: NextRequest) {
             // Sort by least loaded
             fullyAvailable.sort((a, b) => (loadMap[a] || 0) - (loadMap[b] || 0))
             selectedCloserId = fullyAvailable[0]
+        }
+
+        // Cancel previous event if this is a reschedule for the same lead
+        if (lead_id) {
+            await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
         }
 
         // Create the event
