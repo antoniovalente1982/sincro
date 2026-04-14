@@ -195,8 +195,8 @@ export async function GET(req: NextRequest) {
             .from('organization_members')
             .select('user_id, role, display_color, in_round_robin')
             .eq('organization_id', ctx.organization_id)
-            .in('role', ['closer', 'manager'])
             .is('deactivated_at', null)
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
 
         // Fetch profiles separately (no direct FK config mapping to profiles usually available)
         const userIds = (closers || []).map((c: any) => c.user_id).filter(Boolean)
