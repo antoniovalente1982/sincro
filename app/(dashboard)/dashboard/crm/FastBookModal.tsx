@@ -29,7 +29,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
         fetch('/api/calendar?action=closers')
             .then(res => res.json())
             .then(data => {
-                const arr = data.closers || []
+                const arr = (data.closers || []).filter((c: any) => c.has_availability === true)
                 setClosers(arr)
             })
             .catch(console.error)
@@ -45,9 +45,26 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             const nextWeek = new Date(today)
             nextWeek.setDate(nextWeek.getDate() + 7)
             
-            const res = await fetch(`/api/calendar?action=auto_slots&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
-            const data = await res.json()
-            setAutoSlots(data.auto_slots || [])
+            const allSlots: any[] = []
+            
+            // Fetch for all available closers
+            for (const closer of closers) {
+                if (!closer.has_availability) continue;
+                
+                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
+                const data = await res.json()
+                const slots = (data.slots || []).filter((s: any) => s.available === true)
+                
+                slots.forEach((s: any) => {
+                    // Evita duplicati di orario
+                    if (!allSlots.some(existing => existing.start === s.start)) {
+                        allSlots.push({ ...s, closer_id: closer.user_id })
+                    }
+                })
+            }
+            
+            allSlots.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+            setAutoSlots(allSlots)
         } catch (e) {
             console.error(e)
         }
@@ -66,7 +83,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             
             const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
             const data = await res.json()
-            setAvailableSlots(data.slots || [])
+            const filtered = (data.slots || []).filter((s: any) => s.available === true)
+            setAvailableSlots(filtered.map((s:any) => ({ ...s, closer_id: closerId })))
         } catch (e) {
             console.error(e)
         }
@@ -74,29 +92,41 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
     }
 
     useEffect(() => {
-        if (bookingMode === 'auto') {
+        if (bookingMode === 'auto' && closers.length > 0) {
             fetchAutoSlots()
         } else if (bookingMode === 'manual' && selectedCloserId) {
             fetchManualSlots(selectedCloserId)
         }
-    }, [bookingMode, selectedCloserId])
+    }, [bookingMode, selectedCloserId, closers])
 
     const handleBook = async () => {
         if (!selectedSlot) return
         setBookingState('loading')
         try {
-            const res = await fetch('/api/calendar', {
+            let apiUrl = '/api/calendar'
+            let bodyData: any = {
+                action: bookingMode === 'auto' ? 'auto_book' : 'book',
+                lead_id: lead.id,
+                title: `Appuntamento - ${lead.name}`,
+                notes: `App. creato dal Fast Booking nel CRM.`,
+                lead_phone: lead.phone,
+                lead_email: lead.email,
+                lead_name: lead.name
+            }
+            
+            if (bookingMode === 'auto') {
+                bodyData.start_time = selectedSlot.start
+                bodyData.end_time = selectedSlot.end || new Date(new Date(selectedSlot.start).getTime() + 45*60000).toISOString()
+            } else {
+                bodyData.closer_id = selectedSlot.closer_id
+                bodyData.start_time = selectedSlot.start
+                bodyData.end_time = selectedSlot.end || new Date(new Date(selectedSlot.start).getTime() + 45*60000).toISOString()
+            }
+
+            const res = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'book',
-                    lead_id: lead.id,
-                    closer_id: selectedSlot.closer_id,
-                    start_time: selectedSlot.time,
-                    end_time: selectedSlot.end_time || new Date(new Date(selectedSlot.time).getTime() + 45*60000).toISOString(),
-                    title: `Appuntamento - ${lead.name}`,
-                    notes: `App. creato dal Fast Booking nel CRM.`
-                })
+                body: JSON.stringify(bodyData)
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Errore prenotazione')
@@ -204,10 +234,10 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                                 >
                                     <div className="text-xs font-bold text-white flex items-center gap-1.5">
                                         <Clock className="w-3.5 h-3.5" style={{ color: selectedSlot === slot ? '#a5b4fc' : '#9ca3af' }} />
-                                        {new Date(slot.time).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(slot.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                     <div className="text-[10px] uppercase font-semibold tracking-wider text-white/60">
-                                        {new Date(slot.time).toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' })}
+                                        {new Date(slot.start).toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' })}
                                     </div>
                                     {bookingMode === 'auto' && (
                                         <div className="text-[9px] font-medium text-indigo-400 truncate w-full mt-0.5">
