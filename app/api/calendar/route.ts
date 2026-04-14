@@ -92,9 +92,6 @@ export async function GET(req: NextRequest) {
             .eq('organization_id', ctx.organization_id)
             .eq('is_active', true)
 
-        if (!availability || availability.length === 0) {
-            return NextResponse.json({ slots: [], message: 'Nessuna disponibilità configurata per questo venditore' })
-        }
 
         // 2. Get existing events for this closer in the date range
         const { data: existingEvents } = await supabase
