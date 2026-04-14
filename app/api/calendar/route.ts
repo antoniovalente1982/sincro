@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
 
         // Se non hanno impostato orari su Sincro, creiamo un array 24/7 fittizio.
         // Google Calendar rimuoverà poi le ore "Occupate".
-        const effectiveAvailability = availability.length > 0 ? availability : [0, 1, 2, 3, 4, 5, 6].map(day => ({
+        const effectiveAvailability = (availability && availability.length > 0) ? (availability || []) : [0, 1, 2, 3, 4, 5, 6].map(day => ({
             day_of_week: day,
             start_time: '00:00',
             end_time: '23:59',
