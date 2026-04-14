@@ -49,7 +49,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             
             // Fetch for all available closers
             for (const closer of closers) {
-                if (!closer.has_availability) continue;
+                // Must be in round robin and must have availability explicitly set on Sincro
+                if (!closer.in_round_robin || !closer.has_availability) continue;
                 
                 const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
                 const data = await res.json()

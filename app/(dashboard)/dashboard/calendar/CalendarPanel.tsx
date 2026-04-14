@@ -113,6 +113,22 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const canBook = ['setter', 'admin', 'owner', 'manager'].includes(userRole)
     const canManageAvailability = ['closer', 'admin', 'owner', 'manager'].includes(userRole)
 
+    const toggleRoundRobin = async (userId: string, targetValue: boolean) => {
+        try {
+            setClosers(prev => prev.map(c => c.user_id === userId ? { ...c, in_round_robin: targetValue } : c))
+            const res = await fetch('/api/calendar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'toggle_rr', target_user_id: userId, in_round_robin: targetValue })
+            })
+            if (!res.ok) throw new Error('Failed to toggle round robin')
+        } catch (e) {
+            console.error(e)
+            // Revert on error
+            setClosers(prev => prev.map(c => c.user_id === userId ? { ...c, in_round_robin: !targetValue } : c))
+        }
+    }
+
     // Week boundaries
     const weekStart = useMemo(() => {
         const d = new Date(currentDate)
@@ -230,7 +246,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
             // Fetch slots from ALL closers and merge available ones
             const allSlots: Slot[] = []
-            const closersWithAvail = closers.filter(c => c.has_availability)
+            const closersWithAvail = closers.filter(c => c.has_availability && c.in_round_robin !== false)
 
             for (const closer of closersWithAvail) {
                 const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${from}&to=${to}`)
@@ -516,7 +532,25 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             >
                                 {visibleCalendars.has(c.user_id) && <Check className="w-2.5 h-2.5 text-white" />}
                             </div>
-                            <span className="text-xs font-medium text-white truncate flex-1">{c.name}</span>
+                            <div className="flex flex-col flex-1 min-w-0 pr-2">
+                                <span className="text-xs font-medium text-white truncate w-full">{c.name}</span>
+                                {(userRole === 'owner' || userRole === 'admin') && (
+                                    <label className="flex items-center gap-1.5 mt-1 cursor-pointer w-fit group/rr" onClick={e => e.stopPropagation()}>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={c.in_round_robin !== false} 
+                                            onChange={(e) => { 
+                                                e.stopPropagation(); 
+                                                toggleRoundRobin(c.user_id, !c.in_round_robin);
+                                            }}
+                                            className="w-2.5 h-2.5 rounded bg-white/10 border-white/20 text-indigo-500 focus:ring-0 cursor-pointer"
+                                        />
+                                        <span className={`text-[9px] uppercase tracking-wider font-bold transition-colors ${c.in_round_robin !== false ? 'text-indigo-400' : 'text-white/30'}`}>
+                                            Auto-Ass.
+                                        </span>
+                                    </label>
+                                )}
+                            </div>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {c.google_connected && (
                                     <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(34,197,94,0.3)' }} title="Google Calendar connesso">

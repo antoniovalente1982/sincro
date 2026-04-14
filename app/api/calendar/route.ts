@@ -193,9 +193,9 @@ export async function GET(req: NextRequest) {
         // Get all closers with their availability status
         const { data: closers } = await supabase
             .from('organization_members')
-            .select('user_id, role, display_color')
+            .select('user_id, role, display_color, in_round_robin')
             .eq('organization_id', ctx.organization_id)
-            .in('role', ['closer', 'owner', 'admin', 'manager'])
+            .in('role', ['closer', 'manager'])
             .is('deactivated_at', null)
 
         // Fetch profiles separately (no direct FK config mapping to profiles usually available)
@@ -233,7 +233,6 @@ export async function GET(req: NextRequest) {
         )
 
         const result = (closers || [])
-            .filter((c: any) => ['closer', 'owner', 'admin', 'manager'].includes(c.role))
             .map((c: any) => {
                 const profile = profileMap[c.user_id]
                 return {
@@ -243,11 +242,14 @@ export async function GET(req: NextRequest) {
                     available_days: availMap[c.user_id] || [],
                     has_availability: (availMap[c.user_id] || []).length > 0,
                     google_connected: googleConnectedSet.has(c.user_id),
+                    in_round_robin: c.in_round_robin !== false, // Defaults to true
                 }
             })
 
         return NextResponse.json({ closers: result })
     }
+
+
 
     if (action === 'availability') {
         // Get availability config for a user
@@ -773,6 +775,31 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, message: 'Disponibilità aggiornata' })
+    }
+    if (action === 'toggle_rr') {
+        const { target_user_id, in_round_robin } = body
+        if (!target_user_id) return NextResponse.json({ error: 'Missing target_user_id' }, { status: 400 })
+
+        // Only allow admins/owners/managers to change this
+        const { data: caller } = await supabase
+            .from('organization_members')
+            .select('role')
+            .eq('user_id', ctx.auth_user_id)
+            .eq('organization_id', ctx.organization_id)
+            .single()
+
+        if (!['admin', 'owner', 'manager'].includes(caller?.role)) {
+            return NextResponse.json({ error: 'Unauthorized to change RR rules' }, { status: 403 })
+        }
+
+        const { error: updErr } = await supabase
+            .from('organization_members')
+            .update({ in_round_robin })
+            .eq('user_id', target_user_id)
+            .eq('organization_id', ctx.organization_id)
+
+        if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
+        return NextResponse.json({ success: true, in_round_robin })
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
