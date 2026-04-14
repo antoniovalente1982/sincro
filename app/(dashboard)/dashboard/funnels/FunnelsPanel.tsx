@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar } from 'lucide-react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar, Loader2 } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
 interface Pipeline {
@@ -45,7 +45,26 @@ function countUniqueVisitors(views: PageView[]): number {
     return seen.size
 }
 
-export default function FunnelsPanel({ initialFunnels, pageViews = [], submissions = [], pipelines = [] }: {
+// Helper: compute date range from timeRange key
+function getDateRange(timeRange: string, customFrom: string, customTo: string) {
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterdayStart = new Date(todayStart.getTime() - 86400000)
+    const ranges: Record<string, { from: Date; to: Date }> = {
+        today: { from: todayStart, to: now },
+        yesterday: { from: yesterdayStart, to: todayStart },
+        '7d': { from: new Date(now.getTime() - 7 * 86400000), to: now },
+        '30d': { from: new Date(now.getTime() - 30 * 86400000), to: now },
+        all: { from: new Date(0), to: now },
+        custom: {
+            from: customFrom ? new Date(customFrom + 'T00:00:00') : todayStart,
+            to: customTo ? new Date(customTo + 'T23:59:59') : now,
+        },
+    }
+    return ranges[timeRange] || ranges.today
+}
+
+export default function FunnelsPanel({ initialFunnels, pageViews: initialPageViews = [], submissions: initialSubmissions = [], pipelines = [] }: {
     initialFunnels: Funnel[]; pageViews?: PageView[]; submissions?: Submission[]; pipelines?: Pipeline[]
 }) {
     const [funnels, setFunnels] = useState<Funnel[]>(initialFunnels)
@@ -57,29 +76,41 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
     const [timeRange, setTimeRange] = useState<'today' | 'yesterday' | '7d' | '30d' | 'all' | 'custom'>('today')
     const [customFrom, setCustomFrom] = useState('')
     const [customTo, setCustomTo] = useState('')
+    
+    // Dynamic analytics data — loaded from API per date range
+    const [dynamicPageViews, setDynamicPageViews] = useState<PageView[]>(initialPageViews)
+    const [dynamicSubmissions, setDynamicSubmissions] = useState<Submission[]>(initialSubmissions)
+    const [analyticsLoading, setAnalyticsLoading] = useState(false)
+
+    // Fetch analytics data from server when time range changes
+    const fetchAnalytics = useCallback(async (range: string, cFrom: string, cTo: string) => {
+        setAnalyticsLoading(true)
+        try {
+            const { from: since, to: until } = getDateRange(range, cFrom, cTo)
+            const res = await fetch(`/api/funnel-analytics?since=${since.toISOString()}&until=${until.toISOString()}`)
+            if (res.ok) {
+                const data = await res.json()
+                setDynamicPageViews(data.pageViews || [])
+                setDynamicSubmissions(data.submissions || [])
+            }
+        } catch (err) {
+            console.error('Failed to fetch analytics:', err)
+        }
+        setAnalyticsLoading(false)
+    }, [])
+
+    // Refetch when time range or custom dates change
+    useEffect(() => {
+        fetchAnalytics(timeRange, customFrom, customTo)
+    }, [timeRange, customFrom, customTo, fetchAnalytics])
 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
-    // --- Analytics calculations ---
+    // --- Analytics calculations (using server-filtered data) ---
     const analytics = useMemo(() => {
-        const now = new Date()
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-        const yesterdayStart = new Date(todayStart.getTime() - 86400000)
-        const ranges: Record<string, { from: Date; to: Date }> = {
-            today: { from: todayStart, to: now },
-            yesterday: { from: yesterdayStart, to: todayStart },
-            '7d': { from: new Date(now.getTime() - 7 * 86400000), to: now },
-            '30d': { from: new Date(now.getTime() - 30 * 86400000), to: now },
-            all: { from: new Date(0), to: now },
-            custom: {
-                from: customFrom ? new Date(customFrom + 'T00:00:00') : todayStart,
-                to: customTo ? new Date(customTo + 'T23:59:59') : now,
-            },
-        }
-        const { from: since, to: until } = ranges[timeRange]
-
-        const filteredViews = pageViews.filter(v => { const d = new Date(v.created_at); return d >= since && d <= until })
-        const filteredSubs = submissions.filter(s => { const d = new Date(s.created_at); return d >= since && d <= until })
+        // Data is already server-filtered by date range, no need to re-filter
+        const filteredViews = dynamicPageViews
+        const filteredSubs = dynamicSubmissions
 
         // Per-funnel stats
         const funnelStats = funnels.map(f => {
@@ -152,7 +183,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
         funnelStats.sort((a, b) => a.funnel.name.localeCompare(b.funnel.name, undefined, { numeric: true }))
 
         return { funnelStats, totalViews, totalUniqueVisitors, totalConv, totalRate }
-    }, [funnels, pageViews, submissions, timeRange, customFrom, customTo])
+    }, [funnels, dynamicPageViews, dynamicSubmissions])
 
     const handleSave = async (formData: any) => {
         setSaving(true)
@@ -340,6 +371,12 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                     )}
 
                     {/* Summary KPIs */}
+                    <div className="relative">
+                    {analyticsLoading && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl" style={{ background: 'rgba(10, 10, 14, 0.6)', backdropFilter: 'blur(2px)' }}>
+                            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#8b5cf6' }} />
+                        </div>
+                    )}
                     <div className="grid grid-cols-4 gap-4">
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-2">
@@ -582,6 +619,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews = [], submissio
                             <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Crea un funnel e le visite appariranno qui</p>
                         </div>
                     )}
+                    </div>{/* close relative wrapper */}
                 </div>
             )}
 

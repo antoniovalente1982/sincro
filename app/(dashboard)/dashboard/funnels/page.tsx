@@ -13,24 +13,12 @@ export default async function FunnelsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [funnelsRes, pageViewsRes, submissionsRes, pipelinesRes] = await Promise.all([
+    const [funnelsRes, pipelinesRes] = await Promise.all([
         supabase
             .from('funnels')
             .select('*')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false }),
-        supabase
-            .from('page_views')
-            .select('id, funnel_id, page_path, page_variant, visitor_id, ip_hash, utm_source, utm_campaign, utm_content, device_type, created_at')
-            .eq('organization_id', orgId)
-            .order('created_at', { ascending: false })
-            .limit(2000),
-        supabase
-            .from('funnel_submissions')
-            .select('id, funnel_id, page_variant, created_at, utm_source, utm_campaign')
-            .eq('organization_id', orgId)
-            .order('created_at', { ascending: false })
-            .limit(1000),
         supabase
             .from('pipelines')
             .select('id, name, is_default')
@@ -41,9 +29,8 @@ export default async function FunnelsPage() {
     return (
         <FunnelsPanel
             initialFunnels={funnelsRes.data || []}
-            pageViews={pageViewsRes.data || []}
-            submissions={submissionsRes.data || []}
             pipelines={pipelinesRes.data || []}
         />
     )
 }
+
