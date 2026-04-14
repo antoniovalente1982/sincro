@@ -48,6 +48,23 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json(data)
     }
 
+    if (body.action === 'disconnect_google') {
+        const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+        const { error } = await supabaseAdmin
+            .from('organization_members')
+            .update({
+                google_access_token: null,
+                google_refresh_token: null,
+                google_token_expiry: null,
+                google_calendar_sync_token: null
+            })
+            .eq('user_id', ctx.user_id)
+            .eq('organization_id', ctx.organization_id)
+            
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
+    }
+
     // All other settings require owner or admin
     if (ctx.role !== 'owner' && ctx.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

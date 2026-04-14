@@ -913,9 +913,15 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         </div>
                         {isGoogleConnected ? (
                             <button
-                                className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                                onClick={() => {
+                                    if(confirm('Sei sicuro di voler disconnettere il calendario? I tuoi appuntamenti smetteranno di sincronizzarsi.')) {
+                                        saveAction('disconnect_google', {}).then(() => window.location.reload())
+                                    }
+                                }}
+                                disabled={saving === 'disconnect_google'}
+                                className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                             >
-                                Disconnetti
+                                {saving === 'disconnect_google' ? 'Disconnessione...' : 'Disconnetti'}
                             </button>
                         ) : (
                             <a 
