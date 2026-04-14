@@ -390,9 +390,14 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // If lead_id provided, update lead stage to "Appuntamento"
+        // Update lead stage and assignments
         if (lead_id) {
-            // Find the appointment stage
+            const updatePayload: any = {
+                closer_id: closer_id,
+                setter_id: ctx.auth_user_id,
+                updated_at: new Date().toISOString()
+            }
+
             const { data: stages } = await supabase
                 .from('pipeline_stages')
                 .select('id, slug, fire_capi_event')
@@ -400,35 +405,27 @@ export async function POST(req: NextRequest) {
                 .ilike('slug', '%appuntamento%')
                 .limit(1)
 
+            let leadObj: any = null;
             if (stages && stages.length > 0) {
-                const { data: lead } = await supabase
-                    .from('leads')
-                    .select('stage_id')
-                    .eq('id', lead_id)
-                    .single()
+                const { data: lead } = await supabase.from('leads').select('stage_id').eq('id', lead_id).single()
+                leadObj = lead;
+                updatePayload.stage_id = stages[0].id;
+            }
 
-                await supabase
-                    .from('leads')
-                    .update({
-                        stage_id: stages[0].id,
-                        updated_at: new Date().toISOString(),
+            await supabase.from('leads').update(updatePayload).eq('id', lead_id)
+
+            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj) {
+                try {
+                    await fetch(new URL('/api/leads', req.url).toString(), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: lead_id,
+                            stage_id: stages[0].id,
+                            _old_stage_id: leadObj.stage_id,
+                        }),
                     })
-                    .eq('id', lead_id)
-
-                // Fire CAPI event if configured (via existing API)
-                if (stages[0].fire_capi_event && lead) {
-                    try {
-                        await fetch(new URL('/api/leads', req.url).toString(), {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                id: lead_id,
-                                stage_id: stages[0].id,
-                                _old_stage_id: lead.stage_id,
-                            }),
-                        })
-                    } catch { /* best effort */ }
-                }
+                } catch { /* best effort */ }
             }
         }
 
@@ -685,8 +682,14 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Update lead stage if applicable
+        // Update lead stage and assignments
         if (lead_id) {
+            const updatePayload: any = {
+                closer_id: selectedCloserId,
+                setter_id: ctx.auth_user_id,
+                updated_at: new Date().toISOString()
+            }
+
             const { data: stages } = await supabase
                 .from('pipeline_stages')
                 .select('id, slug, fire_capi_event')
@@ -695,11 +698,10 @@ export async function POST(req: NextRequest) {
                 .limit(1)
 
             if (stages && stages.length > 0) {
-                await supabase
-                    .from('leads')
-                    .update({ stage_id: stages[0].id, updated_at: new Date().toISOString() })
-                    .eq('id', lead_id)
+                updatePayload.stage_id = stages[0].id;
             }
+
+            await supabase.from('leads').update(updatePayload).eq('id', lead_id)
         }
 
         // Get closer name for response
