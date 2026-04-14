@@ -223,7 +223,7 @@ export async function GET(req: NextRequest) {
         )
 
         const result = (closers || [])
-            .filter((c: any) => c.role === 'closer' || c.role === 'owner')
+            .filter((c: any) => ['closer', 'owner', 'admin', 'manager'].includes(c.role))
             .map((c: any) => ({
                 user_id: c.user_id,
                 name: c.profiles?.full_name || c.profiles?.email || 'N/A',
