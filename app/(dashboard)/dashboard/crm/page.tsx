@@ -28,7 +28,7 @@ export default async function CRMPage() {
             .order('sort_order'),
         supabase
             .from('leads')
-            .select('*, funnels!leads_funnel_id_fkey(id, name, objective), lead_tags(crm_tags(id, name, color))')
+            .select('*, funnels!leads_funnel_id_fkey(id, name, objective), setter_profile:setter_id(id, email, full_name, avatar_url), closer_profile:closer_id(id, email, full_name, avatar_url), lead_tags(crm_tags(id, name, color))')
             .eq('organization_id', orgId)
             .order('created_at', { ascending: false }),
         supabase
@@ -57,7 +57,7 @@ export default async function CRMPage() {
     // Fetch profiles manually to bypass missing FK
     let profilesData: any[] = []
     if (membersData.length > 0) {
-        const { data } = await supabase.from('profiles').select('id, full_name, email').in('id', membersData.map((m: any) => m.user_id).filter(Boolean))
+        const { data } = await supabase.from('profiles').select('id, full_name, email, avatar_url').in('id', membersData.map((m: any) => m.user_id).filter(Boolean))
         profilesData = data || []
     }
     const profilesMap = new Map(profilesData.map(p => [p.id, p]))

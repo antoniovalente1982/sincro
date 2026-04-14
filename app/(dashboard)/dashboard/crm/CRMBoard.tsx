@@ -62,7 +62,8 @@ interface Lead {
 interface Member {
     user_id: string
     role: string
-    profiles: { full_name?: string; email?: string } | null
+    department?: string
+    profiles: { full_name?: string; email?: string; avatar_url?: string } | null
 }
 
 interface TrafficSource {
@@ -355,8 +356,18 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const newValue = setterId || undefined;
         const lead = leads.find(l => l.id === leadId);
         const oldValue = lead?.setter_id;
+        const oldProfile = lead?.setter_profile;
         
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: newValue } : l));
+        // Build setter profile for optimistic update
+        const setterMember = members.find(m => m.user_id === setterId)
+        const newProfile = setterId && setterMember ? {
+            id: setterId,
+            full_name: setterMember.profiles?.full_name || '',
+            email: setterMember.profiles?.email || '',
+            avatar_url: setterMember.profiles?.avatar_url,
+        } : undefined
+        
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: newValue, setter_profile: newProfile as any } : l));
         
         try {
             await fetch('/api/leads', {
@@ -365,7 +376,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 body: JSON.stringify({ id: leadId, setter_id: setterId || null }),
             });
         } catch {
-            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: oldValue } : l));
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, setter_id: oldValue, setter_profile: oldProfile } : l));
         }
     }
 
@@ -373,8 +384,18 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const newValue = closerId || undefined;
         const lead = leads.find(l => l.id === leadId);
         const oldValue = lead?.closer_id;
+        const oldProfile = lead?.closer_profile;
         
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: newValue } : l));
+        // Build closer profile for optimistic update
+        const closerMember = members.find(m => m.user_id === closerId)
+        const newProfile = closerId && closerMember ? {
+            id: closerId,
+            full_name: closerMember.profiles?.full_name || '',
+            email: closerMember.profiles?.email || '',
+            avatar_url: closerMember.profiles?.avatar_url,
+        } : undefined
+        
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: newValue, closer_profile: newProfile as any } : l));
         
         try {
             await fetch('/api/leads', {
@@ -383,7 +404,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 body: JSON.stringify({ id: leadId, closer_id: closerId || null }),
             });
         } catch {
-            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: oldValue } : l));
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: oldValue, closer_profile: oldProfile } : l));
         }
     }
 
