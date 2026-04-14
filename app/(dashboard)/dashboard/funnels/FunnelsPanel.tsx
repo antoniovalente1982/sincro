@@ -25,7 +25,7 @@ interface PageView {
 }
 
 interface Submission {
-    id: string; funnel_id?: string; page_variant?: string; created_at: string; utm_source?: string; utm_campaign?: string
+    id: string; funnel_id?: string; page_variant?: string; created_at: string; utm_source?: string; utm_campaign?: string; email?: string; ip_address?: string
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -41,6 +41,16 @@ function countUniqueVisitors(views: PageView[]): number {
     views.forEach(v => {
         const key = v.visitor_id || v.ip_hash || v.id
         seen.add(key)
+    })
+    return seen.size
+}
+
+// Helper: count unique conversions (leads) by email (fallback to ip_address)
+function countUniqueSubmissions(subs: Submission[]): number {
+    const seen = new Set<string>()
+    subs.forEach(s => {
+        const key = s.email || s.ip_address || s.id
+        seen.add(key.toLowerCase())
     })
     return seen.size
 }
@@ -117,7 +127,8 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
             const views = filteredViews.filter(v => v.funnel_id === f.id)
             const subs = filteredSubs.filter(s => s.funnel_id === f.id)
             const uniqueVisitors = countUniqueVisitors(views)
-            const convRate = uniqueVisitors > 0 ? (subs.length / uniqueVisitors * 100) : 0
+            const uniqueConversions = countUniqueSubmissions(subs)
+            const convRate = uniqueVisitors > 0 ? (uniqueConversions / uniqueVisitors * 100) : 0
 
             // A/B test settings
             const abActive = f.settings?.ab_test_active === true
@@ -128,8 +139,9 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                 const vViews = views.filter(pv => (pv.page_variant || 'A') === v)
                 const vSubs = subs.filter(s => (s.page_variant || 'A') === v)
                 const vUniqueVisitors = countUniqueVisitors(vViews)
-                const vRate = vUniqueVisitors > 0 ? (vSubs.length / vUniqueVisitors * 100) : 0
-                return { variant: v, views: vViews.length, uniqueVisitors: vUniqueVisitors, conversions: vSubs.length, rate: vRate }
+                const vUniqueConversions = countUniqueSubmissions(vSubs)
+                const vRate = vUniqueVisitors > 0 ? (vUniqueConversions / vUniqueVisitors * 100) : 0
+                return { variant: v, views: vViews.length, uniqueVisitors: vUniqueVisitors, conversions: vUniqueConversions, rate: vRate }
             }).filter(v => v.views > 0 || abActive)
 
             // Determine winner (only if both variants have data)
@@ -163,20 +175,34 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                 if (!campaignMap[camp]) campaignMap[camp] = { views: 0, conversions: 0 }
                 campaignMap[camp].views++
             })
-            subs.forEach(s => {
-                let camp = s.utm_campaign || 'Diretto'
-                if (camp.startsWith('http')) camp = 'Diretto'
+            // Here we want unique submissions per campaign
+            const getUniqueSubsByCampaign = () => {
+                const map: Record<string, number> = {}
+                const seen = new Set<string>()
+                subs.forEach(s => {
+                    let camp = s.utm_campaign || 'Diretto'
+                    if (camp.startsWith('http')) camp = 'Diretto'
+                    const key = (s.email || s.ip_address || s.id).toLowerCase()
+                    if (!seen.has(key)) {
+                        seen.add(key)
+                        map[camp] = (map[camp] || 0) + 1
+                    }
+                })
+                return map
+            }
+            const uniqueCampSubs = getUniqueSubsByCampaign()
+            Object.entries(uniqueCampSubs).forEach(([camp, count]) => {
                 if (!campaignMap[camp]) campaignMap[camp] = { views: 0, conversions: 0 }
-                campaignMap[camp].conversions++
+                campaignMap[camp].conversions += count
             })
 
-            return { funnel: f, views: views.length, uniqueVisitors, conversions: subs.length, convRate, variantStats, winner, abActive, devices, campaigns: campaignMap }
+            return { funnel: f, views: views.length, uniqueVisitors, conversions: uniqueConversions, convRate, variantStats, winner, abActive, devices, campaigns: campaignMap }
         })
 
         // Totals
         const totalViews = filteredViews.length
         const totalUniqueVisitors = countUniqueVisitors(filteredViews)
-        const totalConv = filteredSubs.length
+        const totalConv = countUniqueSubmissions(filteredSubs)
         const totalRate = totalUniqueVisitors > 0 ? (totalConv / totalUniqueVisitors * 100) : 0
 
         // Sort alphabetically/numerically
