@@ -251,11 +251,17 @@ export async function POST(req: NextRequest) {
 
                 // ── 4. CAPI + Telegram + Google Sheets in parallel ──
                 if (lead) {
+                    // Predictive Lead Value: avg sale (€2250) × conversion rate (~5%) = €112
+                    // This fixes Meta diagnostic "missing price parameters" and improves Quality Score
+                    const PREDICTIVE_LEAD_VALUE = 112
+
                     const capiPromise = funnel.meta_pixel_id
                         ? fireCapiEvent(funnel.organization_id, 'Lead', {
                             name: name || undefined, email: email || undefined, phone: phone || undefined,
                             fbc: body.fbc || undefined, fbp: body.fbp || undefined,
                             content_category: funnel.objective || 'cliente',
+                            content_name: funnel.name || undefined,
+                            value: PREDICTIVE_LEAD_VALUE,
                             client_ip: clientIp, client_user_agent: clientUserAgent,
                             event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
                             event_id: event_id || undefined, external_id: body.visitor_id || undefined,
@@ -339,8 +345,9 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 },
                 custom_data: {
                     content_category: userData.content_category || undefined,
+                    content_name: userData.content_name || undefined,
                     currency: 'EUR',
-                    value: userData.value || 0,
+                    value: userData.value || undefined,  // Never send 0 — Meta treats it as missing
                 },
             }],
         }

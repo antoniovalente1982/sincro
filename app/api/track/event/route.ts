@@ -141,7 +141,15 @@ export async function POST(req: NextRequest) {
                     ln: enrichedName?.includes(' ') ? [await hashSHA256(enrichedName.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
                     country: (enrichedEmail || enrichedPhone) ? [await hashSHA256('it')] : undefined,
                 },
-                custom_data: extra_data || undefined,
+                // Strip value: 0 from custom_data — Meta flags it as "missing price parameters"
+                custom_data: extra_data ? (() => {
+                    const cd = { ...extra_data }
+                    if (cd.value !== undefined && (!cd.value || Number(cd.value) <= 0)) {
+                        delete cd.value
+                        delete cd.currency  // currency without value is meaningless
+                    }
+                    return Object.keys(cd).length > 0 ? cd : undefined
+                })() : undefined,
             }],
         }
 

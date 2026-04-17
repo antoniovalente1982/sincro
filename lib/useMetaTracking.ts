@@ -219,7 +219,7 @@ export function fireInitiateCheckout(
     ;(window as any).fbq('track', 'InitiateCheckout', {
         content_name: funnelName || 'lead_form',
         currency: 'EUR',
-        value: 0,
+        value: 112,  // Predictive lead value (avg sale × conversion rate)
     }, { eventID: eventId })
 
     // 2. CAPI (server-side) — for deduplication and attribution
@@ -244,7 +244,7 @@ export function fireInitiateCheckout(
                 extra_data: {
                     content_name: funnelName || 'lead_form',
                     currency: 'EUR',
-                    value: 0,
+                    value: 112,  // Predictive lead value
                 },
             }),
         }).catch(() => {})

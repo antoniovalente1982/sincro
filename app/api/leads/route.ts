@@ -166,11 +166,12 @@ ${leadData.notes || 'Nessuna nota fornita.'}
             // Fetch funnel objective for content_category + meta_data for tracking params
             const leadForCapi = await supabase
                 .from('leads')
-                .select('name, email, phone, value, funnel_id, meta_data, funnels!leads_funnel_id_fkey(objective)')
+                .select('name, email, phone, value, funnel_id, meta_data, funnels!leads_funnel_id_fkey(objective, name)')
                 .eq('id', id)
                 .single()
 
             const funnelObjective = (leadForCapi.data as any)?.funnels?.objective || 'cliente'
+            const funnelName = (leadForCapi.data as any)?.funnels?.name || undefined
             const meta = leadForCapi.data?.meta_data || {} as any
             
             // Merge incoming updates to ensure we send the most fresh data (e.g. if user just added 'value')
@@ -202,12 +203,30 @@ ${leadData.notes || 'Nessuna nota fornita.'}
                 if (recentEvent) {
                     console.warn(`[CAPI] Skipped duplicate ${newStage.fire_capi_event} for lead ${id} (sent within last hour)`)
                 } else {
+                    // Predictive values by stage — Meta needs value > 0 for quality score
+                    // Purchase uses real value, others use predicted value based on avg sale × conversion probability
+                    const PREDICTIVE_VALUES: Record<string, number> = {
+                        Lead: 112,       // €2250 × 5% lead-to-sale
+                        QualifiedLead: 168, // €2250 × 7.5%
+                        Schedule: 225,    // €2250 × 10% qualified appointment
+                        ShowUp: 450,      // €2250 × 20% showed up
+                        Contact: 112,
+                        CompleteRegistration: 112,
+                    }
+
+                    const capiValue = isPurchase
+                        ? finalValue  // Real value for Purchase
+                        : (finalValue && Number(finalValue) > 0)
+                            ? finalValue  // Use real value if lead already has one
+                            : PREDICTIVE_VALUES[newStage.fire_capi_event] || 112  // Predictive fallback
+
                     fireCapiEvent(orgId, newStage.fire_capi_event, {
                         name: finalName,
                         email: finalEmail,
                         phone: finalPhone,
-                        value: finalValue,
+                        value: capiValue,
                         content_category: funnelObjective,
+                        content_name: funnelName || newStage.name,
                         // Replay original tracking data for better Meta matching
                         fbc: meta.fbc || undefined,
                         fbp: meta.fbp || undefined,
@@ -215,7 +234,7 @@ ${leadData.notes || 'Nessuna nota fornita.'}
                         client_ip: meta.client_ip || undefined,
                         client_user_agent: meta.client_user_agent || undefined,
                         event_source_url: meta.event_source_url || undefined,
-                    }, id).catch(err => console.error('CAPI error:', err))
+                    }, id).catch(err => console.error(`[CAPI] ${newStage.fire_capi_event} error for lead ${id}:`, err))
                 }
 
                 // Log CAPI activity
@@ -332,8 +351,9 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, le
             },
             custom_data: {
                 content_category: userData.content_category || undefined,
+                content_name: userData.content_name || undefined,
                 currency: 'EUR',
-                value: userData.value || 0,
+                value: userData.value && Number(userData.value) > 0 ? Number(userData.value) : undefined,  // Never send 0 — Meta flags it as error
             },
         }],
     }
