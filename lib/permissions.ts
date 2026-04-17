@@ -180,8 +180,9 @@ export function isCrmReadOnly(role: Role, department: Department): boolean {
 }
 
 // Should CRM filter to show only user's assigned leads?
+// Disabled: everyone sees all leads, use setter/closer filters to narrow down
 export function shouldFilterOwnLeads(role: Role): boolean {
-    return role === 'setter' || role === 'closer'
+    return false
 }
 
 
