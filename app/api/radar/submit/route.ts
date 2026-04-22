@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
             }
         })
 
-        return NextResponse.json({ success: true })
+        return NextResponse.json({ success: true, id: submission?.id || null })
     } catch (err: any) {
         console.error('Radar endpoint error:', err)
         return NextResponse.json({ error: 'Internal error' }, { status: 500 })

@@ -58,6 +58,9 @@ export default function RadarQuiz() {
     const [answers, setAnswers] = useState<Record<number, number>>({})
     const [partnerId, setPartnerId] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
+    const [radarSubmissionId, setRadarSubmissionId] = useState<string | null>(null)
+    const [consultaRequested, setConsultaRequested] = useState(false)
+    const [consultaSubmitting, setConsultaSubmitting] = useState(false)
 
     // Grab partner ID from URL
     useEffect(() => {
@@ -124,7 +127,7 @@ export default function RadarQuiz() {
             overall: calcOverall(),
         }
         try {
-            await fetch('/api/radar/submit', {
+            const res = await fetch('/api/radar/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -133,6 +136,8 @@ export default function RadarQuiz() {
                     partner_id: partnerId, answers, scores,
                 }),
             })
+            const data = await res.json().catch(() => ({}))
+            if (data.id) setRadarSubmissionId(data.id)
         } catch (e) { console.error('Radar submit error:', e) }
         setSubmitting(false)
         setPhase('loading')
@@ -538,35 +543,82 @@ export default function RadarQuiz() {
                 )}
 
                 {/* CTA */}
-                <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
-                    background: 'rgba(34, 197, 94, 0.04)',
-                    border: '1px solid rgba(34, 197, 94, 0.15)',
-                    boxShadow: '0 0 60px rgba(34, 197, 94, 0.05)',
-                }}>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-4" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-                        ✅ GRATUITA · Senza impegno
+                {consultaRequested ? (
+                    <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
+                        background: 'rgba(34, 197, 94, 0.06)',
+                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                        boxShadow: '0 0 60px rgba(34, 197, 94, 0.08)',
+                    }}>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(34, 197, 94, 0.12)', border: '2px solid rgba(34, 197, 94, 0.3)' }}>
+                            <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: '#22c55e' }} />
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black text-white mb-2">
+                            Richiesta inviata! ✨
+                        </h3>
+                        <p className="text-xs sm:text-sm leading-relaxed px-2" style={{ color: '#a1a1aa' }}>
+                            Ti contatteremo al più presto per fissare la consulenza gratuita per {childName}.
+                            <br />Controlla la tua email — riceverai una conferma a <strong className="text-white">{parentEmail}</strong>.
+                        </p>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">
-                        Vuoi capire esattamente cosa sta succedendo?
-                    </h3>
-                    <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 px-2" style={{ color: '#a1a1aa' }}>
-                        Prenota una <strong className="text-white">consulenza gratuita</strong> con un nostro professionista.
-                        In 20 minuti analizziamo insieme il profilo di {childName} e capiamo se e come possiamo aiutarlo.
-                        <br /><span style={{ color: '#71717a' }}>Nessun costo, nessun impegno — solo chiarezza.</span>
-                    </p>
-                    <a
-                        href="https://metodosincro.it/consulenza"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98]"
-                        style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)' }}
-                    >
-                        Prenota la Consulenza Gratuita <ArrowRight className="w-5 h-5" />
-                    </a>
-                    <p className="text-[10px] sm:text-xs mt-3 sm:mt-4" style={{ color: '#52525b' }}>
-                        20 minuti · 1 a 1 con il professionista · 100% gratuita
-                    </p>
-                </div>
+                ) : (
+                    <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
+                        background: 'rgba(34, 197, 94, 0.04)',
+                        border: '1px solid rgba(34, 197, 94, 0.15)',
+                        boxShadow: '0 0 60px rgba(34, 197, 94, 0.05)',
+                    }}>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-4" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                            ✅ GRATUITA · Senza impegno
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">
+                            Vuoi capire se e come possiamo aiutare {childName}?
+                        </h3>
+                        <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 px-2" style={{ color: '#a1a1aa' }}>
+                            Richiedi una <strong className="text-white">consulenza gratuita</strong> con un nostro professionista.
+                            Analizziamo insieme il profilo di {childName} e capiamo se il Metodo Sincro può fare la differenza.
+                            <br /><span style={{ color: '#71717a' }}>Nessun costo, nessun impegno — solo chiarezza.</span>
+                        </p>
+                        <button
+                            onClick={async () => {
+                                setConsultaSubmitting(true)
+                                try {
+                                    await fetch('/api/radar/consulenza', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            parent_name: parentName,
+                                            parent_email: parentEmail,
+                                            parent_phone: parentPhone,
+                                            child_name: childName,
+                                            child_sport: childSport,
+                                            partner_id: partnerId,
+                                            scores: {
+                                                fiducia: calcAreaScore('fiducia'),
+                                                pressione: calcAreaScore('pressione'),
+                                                motivazione: calcAreaScore('motivazione'),
+                                                blocchi: calcAreaScore('blocchi'),
+                                                overall: calcOverall(),
+                                            },
+                                            radar_submission_id: radarSubmissionId,
+                                        }),
+                                    })
+                                    setConsultaRequested(true)
+                                } catch (e) { console.error(e) }
+                                setConsultaSubmitting(false)
+                            }}
+                            disabled={consultaSubmitting}
+                            className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98] cursor-pointer"
+                            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)', opacity: consultaSubmitting ? 0.6 : 1 }}
+                        >
+                            {consultaSubmitting
+                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <><ArrowRight className="w-5 h-5" /> Richiedi la Consulenza Gratuita</>
+                            }
+                        </button>
+                        <p className="text-[10px] sm:text-xs mt-3 sm:mt-4" style={{ color: '#52525b' }}>
+                            100% gratuita · Senza impegno
+                        </p>
+                    </div>
+                )}
 
                 {/* Footer */}
                 <div className="text-center mt-8 sm:mt-10">
