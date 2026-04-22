@@ -103,6 +103,50 @@ export default function RadarDashboard() {
                 </button>
             </div>
 
+            {/* Quiz Link Banner */}
+            <div className="rounded-2xl p-5 flex items-center justify-between flex-wrap gap-4" style={{
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.05))',
+                border: '1px solid rgba(99, 102, 241, 0.15)',
+            }}>
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.15)', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                        <Brain className="w-6 h-6" style={{ color: '#818cf8' }} />
+                    </div>
+                    <div>
+                        <div className="text-sm font-bold text-white">Il tuo Quiz "Il Freno Invisibile"</div>
+                        <div className="text-xs font-mono mt-0.5" style={{ color: '#71717a' }}>
+                            {typeof window !== 'undefined' ? `${window.location.origin}/radar` : '/radar'}
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => copyLink()}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                        style={{
+                            background: copiedId === 'base' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+                            color: copiedId === 'base' ? '#22c55e' : '#818cf8',
+                            border: `1px solid ${copiedId === 'base' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
+                        }}
+                    >
+                        {copiedId === 'base' ? <><Check className="w-3.5 h-3.5" /> Copiato!</> : <><Copy className="w-3.5 h-3.5" /> Copia Link</>}
+                    </button>
+                    <a
+                        href="/radar"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 hover:translate-y-[-2px]"
+                        style={{
+                            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            color: 'white',
+                            boxShadow: '0 0 20px rgba(99, 102, 241, 0.2)',
+                        }}
+                    >
+                        <ExternalLink className="w-3.5 h-3.5" /> Apri Quiz
+                    </a>
+                </div>
+            </div>
+
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
