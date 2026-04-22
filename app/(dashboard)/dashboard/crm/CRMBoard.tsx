@@ -241,9 +241,12 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const activeStageIds = new Set(activeStages.map(s => s.id))
 
     const filteredLeads = leads.filter(l => {
-        const matchSearch = l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (l.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (l.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
+        const query = searchQuery.toLowerCase()
+        const matchSearch = l.name.toLowerCase().includes(query) ||
+            (l.email || '').toLowerCase().includes(query) ||
+            (l.phone || '').toLowerCase().includes(query) ||
+            (l.product || '').toLowerCase().includes(query) ||
+            (l.utm_source || '').toLowerCase().includes(query)
         const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
