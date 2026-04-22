@@ -539,28 +539,32 @@ export default function RadarQuiz() {
 
                 {/* CTA */}
                 <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
-                    background: 'rgba(99, 102, 241, 0.06)',
-                    border: '1px solid rgba(99, 102, 241, 0.15)',
-                    boxShadow: '0 0 60px rgba(99, 102, 241, 0.05)',
+                    background: 'rgba(34, 197, 94, 0.04)',
+                    border: '1px solid rgba(34, 197, 94, 0.15)',
+                    boxShadow: '0 0 60px rgba(34, 197, 94, 0.05)',
                 }}>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-4" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                        ✅ GRATUITA · Senza impegno
+                    </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">
                         Vuoi capire esattamente cosa sta succedendo?
                     </h3>
                     <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 px-2" style={{ color: '#a1a1aa' }}>
-                        Una <strong className="text-white">Sessione di Valutazione</strong> di 45 minuti, uno a uno con {childName},
-                        ci permette di identificare il blocco specifico e dirti se e come possiamo aiutarlo.
+                        Prenota una <strong className="text-white">consulenza gratuita</strong> con un nostro professionista.
+                        In 20 minuti analizziamo insieme il profilo di {childName} e capiamo se e come possiamo aiutarlo.
+                        <br /><span style={{ color: '#71717a' }}>Nessun costo, nessun impegno — solo chiarezza.</span>
                     </p>
                     <a
                         href="https://metodosincro.it/consulenza"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98]"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 50px rgba(99, 102, 241, 0.35)' }}
+                        style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)' }}
                     >
-                        Prenota la Sessione di Valutazione <ArrowRight className="w-5 h-5" />
+                        Prenota la Consulenza Gratuita <ArrowRight className="w-5 h-5" />
                     </a>
                     <p className="text-[10px] sm:text-xs mt-3 sm:mt-4" style={{ color: '#52525b' }}>
-                        45 minuti · 1 a 1 con il professionista · €150
+                        20 minuti · 1 a 1 con il professionista · 100% gratuita
                     </p>
                 </div>
 
