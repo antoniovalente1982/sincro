@@ -383,7 +383,7 @@ export default function RadarQuiz() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Telefono <span className="font-normal" style={{ color: '#52525b' }}>(opzionale)</span></label>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Telefono *</label>
                             <input
                                 type="tel" value={parentPhone} onChange={e => setParentPhone(e.target.value)}
                                 placeholder="+39 xxx xxx xxxx"
@@ -394,12 +394,12 @@ export default function RadarQuiz() {
 
                         <button
                             onClick={handleUnlockSubmit}
-                            disabled={!childName || !parentName || !parentEmail || submitting}
+                            disabled={!childName || !parentName || !parentEmail || !parentPhone || submitting}
                             className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
                             style={{
                                 background: `linear-gradient(135deg, ${scoreColor}, ${scoreColor}dd)`,
                                 boxShadow: `0 0 30px ${scoreColor}30`,
-                                opacity: (!childName || !parentName || !parentEmail || submitting) ? 0.5 : 1,
+                                opacity: (!childName || !parentName || !parentEmail || !parentPhone || submitting) ? 0.5 : 1,
                             }}
                         >
                             {submitting
