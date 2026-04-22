@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, ArrowLeft, Brain, Shield, Target, Flame, Zap, CheckCircle, AlertTriangle, XCircle, ChevronRight, Activity, Lock } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Brain, Shield, Target, Flame, Zap, CheckCircle, AlertTriangle, XCircle, ChevronRight, Activity } from 'lucide-react'
 
 /* ─────────────── QUIZ DATA ─────────────── */
 
@@ -45,22 +45,24 @@ const ANSWER_OPTIONS = [
 
 /* ─────────────── COMPONENT ─────────────── */
 
-// FLOW: intro → quiz → unlock (dati) → loading → report
+// FLOW: intro → quiz → loading → report (GRATIS)
+// Dati raccolti SOLO quando richiedono la consulenza gratuita
 
 export default function RadarQuiz() {
-    const [phase, setPhase] = useState<'intro' | 'quiz' | 'unlock' | 'loading' | 'report'>('intro')
-    const [childName, setChildName] = useState('')
-    const [childSport, setChildSport] = useState('')
-    const [parentName, setParentName] = useState('')
-    const [parentEmail, setParentEmail] = useState('')
-    const [parentPhone, setParentPhone] = useState('')
+    const [phase, setPhase] = useState<'intro' | 'quiz' | 'loading' | 'report'>('intro')
     const [currentQ, setCurrentQ] = useState(0)
     const [answers, setAnswers] = useState<Record<number, number>>({})
     const [partnerId, setPartnerId] = useState<string | null>(null)
-    const [submitting, setSubmitting] = useState(false)
-    const [radarSubmissionId, setRadarSubmissionId] = useState<string | null>(null)
-    const [consultaRequested, setConsultaRequested] = useState(false)
+
+    // Consultation form state (shown in report CTA)
+    const [showConsultaForm, setShowConsultaForm] = useState(false)
+    const [parentName, setParentName] = useState('')
+    const [parentEmail, setParentEmail] = useState('')
+    const [parentPhone, setParentPhone] = useState('')
+    const [childName, setChildName] = useState('')
+    const [childSport, setChildSport] = useState('')
     const [consultaSubmitting, setConsultaSubmitting] = useState(false)
+    const [consultaRequested, setConsultaRequested] = useState(false)
 
     // Grab partner ID from URL
     useEffect(() => {
@@ -115,10 +117,10 @@ export default function RadarQuiz() {
             .sort((a, b) => a.score - b.score)
     }
 
-    /* ── Submission (after unlock form) ── */
-    async function handleUnlockSubmit() {
-        if (!childName || !parentName || !parentEmail) return
-        setSubmitting(true)
+    /* ── Consultation request (from report CTA form) ── */
+    async function handleConsultaSubmit() {
+        if (!parentName || !parentEmail || !parentPhone) return
+        setConsultaSubmitting(true)
         const scores = {
             fiducia: calcAreaScore('fiducia'),
             pressione: calcAreaScore('pressione'),
@@ -127,21 +129,40 @@ export default function RadarQuiz() {
             overall: calcOverall(),
         }
         try {
-            const res = await fetch('/api/radar/submit', {
+            // 1. Save radar submission (quiz data + contact)
+            const radarRes = await fetch('/api/radar/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    child_name: childName, child_sport: childSport,
-                    parent_name: parentName, parent_email: parentEmail, parent_phone: parentPhone,
-                    partner_id: partnerId, answers, scores,
+                    child_name: childName || 'Non specificato',
+                    child_sport: childSport,
+                    parent_name: parentName,
+                    parent_email: parentEmail,
+                    parent_phone: parentPhone,
+                    partner_id: partnerId,
+                    answers, scores,
                 }),
             })
-            const data = await res.json().catch(() => ({}))
-            if (data.id) setRadarSubmissionId(data.id)
-        } catch (e) { console.error('Radar submit error:', e) }
-        setSubmitting(false)
-        setPhase('loading')
-        setTimeout(() => setPhase('report'), 2500)
+            const radarData = await radarRes.json().catch(() => ({}))
+
+            // 2. Create lead in CRM
+            await fetch('/api/radar/consulenza', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    parent_name: parentName,
+                    parent_email: parentEmail,
+                    parent_phone: parentPhone,
+                    child_name: childName,
+                    child_sport: childSport,
+                    partner_id: partnerId,
+                    scores,
+                    radar_submission_id: radarData.id || null,
+                }),
+            })
+            setConsultaRequested(true)
+        } catch (e) { console.error('Consulenza submit error:', e) }
+        setConsultaSubmitting(false)
     }
 
     /* ── Answer a question and auto-advance ── */
@@ -152,8 +173,11 @@ export default function RadarQuiz() {
         if (currentQ < QUESTIONS.length - 1) {
             setTimeout(() => setCurrentQ(prev => prev + 1), 300)
         } else {
-            // Last question → go to unlock phase
-            setTimeout(() => setPhase('unlock'), 400)
+            // Last question → show report directly (no data gate)
+            setTimeout(() => {
+                setPhase('loading')
+                setTimeout(() => setPhase('report'), 2500)
+            }, 400)
         }
     }
 
@@ -311,113 +335,6 @@ export default function RadarQuiz() {
         )
     }
 
-    // ── UNLOCK (collect info to see report) ──
-    if (phase === 'unlock') {
-        const overall = calcOverall()
-        const scoreColor = overall >= 75 ? '#22c55e' : overall >= 50 ? '#f59e0b' : '#ef4444'
-
-        return (
-            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
-                <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${scoreColor}10, transparent 60%)` }} />
-
-                <div className="relative w-full max-w-md" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    {/* Teaser */}
-                    <div className="text-center mb-6 sm:mb-8">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 sm:mb-5 flex items-center justify-center" style={{ background: `${scoreColor}12`, border: `2px solid ${scoreColor}30` }}>
-                            <Lock className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: scoreColor }} />
-                        </div>
-                        <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Il report è pronto!</h2>
-                        <p className="text-xs sm:text-sm leading-relaxed px-2" style={{ color: '#71717a' }}>
-                            Inserisci i dati per sbloccare il <strong className="text-white">profilo mentale sportivo</strong> del tuo ragazzo.
-                        </p>
-
-                        {/* Preview score teaser */}
-                        <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full" style={{ background: `${scoreColor}10`, border: `1px solid ${scoreColor}25` }}>
-                            <Brain className="w-4 h-4" style={{ color: scoreColor }} />
-                            <span className="text-xs sm:text-sm font-bold" style={{ color: scoreColor }}>
-                                {overall >= 75 ? 'Risultato positivo' : overall >= 50 ? 'Alcune aree da monitorare' : 'Aree critiche rilevate'}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Form */}
-                    <div className="rounded-2xl p-6 sm:p-8 space-y-4" style={{
-                        background: 'rgba(15, 15, 19, 0.8)',
-                        backdropFilter: 'blur(20px)',
-                        border: `1px solid ${scoreColor}15`,
-                    }}>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Nome del ragazzo/a *</label>
-                            <input
-                                type="text" value={childName} onChange={e => setChildName(e.target.value)}
-                                placeholder="Es. Marco" required autoFocus
-                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Sport praticato</label>
-                            <input
-                                type="text" value={childSport} onChange={e => setChildSport(e.target.value)}
-                                placeholder="Es. Calcio, Nuoto, Tennis..."
-                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Il tuo nome *</label>
-                            <input
-                                type="text" value={parentName} onChange={e => setParentName(e.target.value)}
-                                placeholder="Es. Anna Rossi"
-                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>La tua email *</label>
-                            <input
-                                type="email" value={parentEmail} onChange={e => setParentEmail(e.target.value)}
-                                placeholder="Per ricevere il report completo"
-                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Telefono *</label>
-                            <input
-                                type="tel" value={parentPhone} onChange={e => setParentPhone(e.target.value)}
-                                placeholder="+39 xxx xxx xxxx"
-                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-
-                        <button
-                            onClick={handleUnlockSubmit}
-                            disabled={!childName || !parentName || !parentEmail || !parentPhone || submitting}
-                            className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                            style={{
-                                background: `linear-gradient(135deg, ${scoreColor}, ${scoreColor}dd)`,
-                                boxShadow: `0 0 30px ${scoreColor}30`,
-                                opacity: (!childName || !parentName || !parentEmail || !parentPhone || submitting) ? 0.5 : 1,
-                            }}
-                        >
-                            {submitting
-                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                : <><Lock className="w-4 h-4" /> Sblocca il Risultato</>
-                            }
-                        </button>
-
-                        <p className="text-center text-[10px] sm:text-xs" style={{ color: '#3f3f46' }}>
-                            🔒 I tuoi dati sono al sicuro e non saranno mai condivisi.
-                        </p>
-                    </div>
-                </div>
-
-                <style>{GLOBAL_STYLES}</style>
-            </div>
-        )
-    }
 
     // ── LOADING ──
     if (phase === 'loading') {
@@ -428,7 +345,7 @@ export default function RadarQuiz() {
                         <div className="w-8 h-8 sm:w-10 sm:h-10 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(99, 102, 241, 0.3)', borderTopColor: '#6366f1' }} />
                     </div>
                     <h2 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Stiamo analizzando le risposte</h2>
-                    <p className="text-xs sm:text-sm" style={{ color: '#71717a' }}>Generazione del profilo mentale sportivo di {childName}...</p>
+                    <p className="text-xs sm:text-sm" style={{ color: '#71717a' }}>Generazione del profilo mentale sportivo...</p>
                 </div>
                 <style>{GLOBAL_STYLES}</style>
             </div>
@@ -454,7 +371,7 @@ export default function RadarQuiz() {
                         Profilo Mentale Sportivo
                     </h1>
                     <p className="text-base sm:text-lg" style={{ color: '#71717a' }}>
-                        {childName}{childSport ? ` · ${childSport}` : ''}
+                        Profilo del tuo giovane atleta
                     </p>
                 </div>
 
@@ -537,7 +454,7 @@ export default function RadarQuiz() {
                         </div>
                         <p className="text-xs sm:text-sm mt-3 sm:mt-4 leading-relaxed" style={{ color: '#a1a1aa' }}>
                             Questi segnali indicano la presenza di un <strong className="text-white">freno invisibile</strong> che
-                            sta impedendo a {childName} di esprimere il suo potenziale. Più tempo passa, più il freno si radica.
+                            sta impedendo al tuo ragazzo di esprimere il suo potenziale. Più tempo passa, più il freno si radica.
                         </p>
                     </div>
                 )}
@@ -556,11 +473,89 @@ export default function RadarQuiz() {
                             Richiesta inviata! ✨
                         </h3>
                         <p className="text-xs sm:text-sm leading-relaxed px-2" style={{ color: '#a1a1aa' }}>
-                            Ti contatteremo al più presto per fissare la consulenza gratuita per {childName}.
-                            <br />Controlla la tua email — riceverai una conferma a <strong className="text-white">{parentEmail}</strong>.
+                            Ti contatteremo al più presto per fissare la consulenza gratuita.
+                            <br />Riceverai una conferma a <strong className="text-white">{parentEmail}</strong>.
                         </p>
                     </div>
+                ) : showConsultaForm ? (
+                    /* ── FORM CONTATTO (come i funnel) ── */
+                    <div className="rounded-2xl p-5 sm:p-8" style={{
+                        background: 'rgba(34, 197, 94, 0.04)',
+                        border: '1px solid rgba(34, 197, 94, 0.15)',
+                        boxShadow: '0 0 60px rgba(34, 197, 94, 0.05)',
+                    }}>
+                        <div className="text-center mb-5 sm:mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                                ✅ GRATUITA · Senza impegno
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-black text-white mb-1">
+                                Richiedi la Consulenza Gratuita
+                            </h3>
+                            <p className="text-xs" style={{ color: '#71717a' }}>Compila il form — ti contatteremo noi.</p>
+                        </div>
+
+                        <div className="space-y-3 sm:space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold mb-1" style={{ color: '#a1a1aa' }}>Il tuo nome *</label>
+                                <input type="text" value={parentName} onChange={e => setParentName(e.target.value)}
+                                    placeholder="Es. Anna Rossi" autoFocus
+                                    className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                                    style={{ background: '#18181b', border: '1px solid #27272a' }} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold mb-1" style={{ color: '#a1a1aa' }}>Email *</label>
+                                <input type="email" value={parentEmail} onChange={e => setParentEmail(e.target.value)}
+                                    placeholder="Per conferma e comunicazioni"
+                                    className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                                    style={{ background: '#18181b', border: '1px solid #27272a' }} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold mb-1" style={{ color: '#a1a1aa' }}>Telefono *</label>
+                                <input type="tel" value={parentPhone} onChange={e => setParentPhone(e.target.value)}
+                                    placeholder="+39 xxx xxx xxxx"
+                                    className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                                    style={{ background: '#18181b', border: '1px solid #27272a' }} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-semibold mb-1" style={{ color: '#a1a1aa' }}>Nome ragazzo/a</label>
+                                    <input type="text" value={childName} onChange={e => setChildName(e.target.value)}
+                                        placeholder="Es. Marco"
+                                        className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                                        style={{ background: '#18181b', border: '1px solid #27272a' }} />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold mb-1" style={{ color: '#a1a1aa' }}>Sport</label>
+                                    <input type="text" value={childSport} onChange={e => setChildSport(e.target.value)}
+                                        placeholder="Es. Calcio"
+                                        className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                                        style={{ background: '#18181b', border: '1px solid #27272a' }} />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleConsultaSubmit}
+                                disabled={!parentName || !parentEmail || !parentPhone || consultaSubmitting}
+                                className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                style={{
+                                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                                    boxShadow: '0 0 30px rgba(34, 197, 94, 0.3)',
+                                    opacity: (!parentName || !parentEmail || !parentPhone || consultaSubmitting) ? 0.5 : 1,
+                                }}
+                            >
+                                {consultaSubmitting
+                                    ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    : <><ArrowRight className="w-4 h-4" /> Invia Richiesta</>
+                                }
+                            </button>
+
+                            <p className="text-center text-[10px]" style={{ color: '#3f3f46' }}>
+                                🔒 I tuoi dati sono al sicuro e non saranno mai condivisi.
+                            </p>
+                        </div>
+                    </div>
                 ) : (
+                    /* ── CTA BUTTON ── */
                     <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
                         background: 'rgba(34, 197, 94, 0.04)',
                         border: '1px solid rgba(34, 197, 94, 0.15)',
@@ -570,49 +565,19 @@ export default function RadarQuiz() {
                             ✅ GRATUITA · Senza impegno
                         </div>
                         <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">
-                            Vuoi capire se e come possiamo aiutare {childName}?
+                            Vuoi capire se e come possiamo aiutarlo?
                         </h3>
                         <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 px-2" style={{ color: '#a1a1aa' }}>
                             Richiedi una <strong className="text-white">consulenza gratuita</strong> con un nostro professionista.
-                            Analizziamo insieme il profilo di {childName} e capiamo se il Metodo Sincro può fare la differenza.
+                            Analizziamo insieme la situazione e capiamo se il Metodo Sincro può fare la differenza.
                             <br /><span style={{ color: '#71717a' }}>Nessun costo, nessun impegno — solo chiarezza.</span>
                         </p>
                         <button
-                            onClick={async () => {
-                                setConsultaSubmitting(true)
-                                try {
-                                    await fetch('/api/radar/consulenza', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            parent_name: parentName,
-                                            parent_email: parentEmail,
-                                            parent_phone: parentPhone,
-                                            child_name: childName,
-                                            child_sport: childSport,
-                                            partner_id: partnerId,
-                                            scores: {
-                                                fiducia: calcAreaScore('fiducia'),
-                                                pressione: calcAreaScore('pressione'),
-                                                motivazione: calcAreaScore('motivazione'),
-                                                blocchi: calcAreaScore('blocchi'),
-                                                overall: calcOverall(),
-                                            },
-                                            radar_submission_id: radarSubmissionId,
-                                        }),
-                                    })
-                                    setConsultaRequested(true)
-                                } catch (e) { console.error(e) }
-                                setConsultaSubmitting(false)
-                            }}
-                            disabled={consultaSubmitting}
+                            onClick={() => setShowConsultaForm(true)}
                             className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98] cursor-pointer"
-                            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)', opacity: consultaSubmitting ? 0.6 : 1 }}
+                            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)' }}
                         >
-                            {consultaSubmitting
-                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                : <><ArrowRight className="w-5 h-5" /> Richiedi la Consulenza Gratuita</>
-                            }
+                            <ArrowRight className="w-5 h-5" /> Richiedi la Consulenza Gratuita
                         </button>
                         <p className="text-[10px] sm:text-xs mt-3 sm:mt-4" style={{ color: '#52525b' }}>
                             100% gratuita · Senza impegno
