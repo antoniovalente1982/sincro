@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Handshake, Plus, Copy, Check, Users, TrendingUp, Activity, Brain, ExternalLink, Trash2, Mail, Phone, Edit3, X, Save } from 'lucide-react'
+import { Handshake, Plus, Copy, Check, Users, TrendingUp, Activity, Brain, ExternalLink, Trash2, Mail, Phone, Edit3, X, Save, Send } from 'lucide-react'
 
 interface Partner {
     id: string
@@ -95,10 +95,11 @@ export default function PartnerDashboard() {
         await loadPartners()
     }
 
-    function copyLink(slug: string) {
-        const link = `${window.location.origin}/radar?p=${slug}`
+    function copyLink(slug: string, type: 'radar' | 'segnala' = 'radar') {
+        const path = type === 'segnala' ? '/segnala' : '/radar'
+        const link = `${window.location.origin}${path}?p=${slug}`
         navigator.clipboard.writeText(link)
-        setCopiedSlug(slug)
+        setCopiedSlug(`${type}-${slug}`)
         setTimeout(() => setCopiedSlug(null), 2000)
     }
 
@@ -223,22 +224,44 @@ export default function PartnerDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Link */}
-                                <div className="flex items-center gap-2">
-                                    <div className="flex-1 px-3 py-2 rounded-lg text-xs font-mono truncate" style={{ background: '#18181b', color: '#71717a', border: '1px solid #27272a' }}>
-                                        /radar?p={partner.slug}
+                                {/* Links */}
+                                <div className="space-y-2">
+                                    {/* Quiz Link */}
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 flex-1 px-3 py-2 rounded-lg text-xs font-mono truncate" style={{ background: '#18181b', color: '#71717a', border: '1px solid #27272a' }}>
+                                            <Brain className="w-3 h-3 flex-shrink-0" style={{ color: '#818cf8' }} />
+                                            /radar?p={partner.slug}
+                                        </div>
+                                        <button
+                                            onClick={() => copyLink(partner.slug, 'radar')}
+                                            className="px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
+                                            style={{
+                                                background: copiedSlug === `radar-${partner.slug}` ? 'rgba(34, 197, 94, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+                                                color: copiedSlug === `radar-${partner.slug}` ? '#22c55e' : '#818cf8',
+                                                border: `1px solid ${copiedSlug === `radar-${partner.slug}` ? 'rgba(34, 197, 94, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
+                                            }}
+                                        >
+                                            {copiedSlug === `radar-${partner.slug}` ? <><Check className="w-3 h-3 inline mr-1" />Copiato</> : <><Copy className="w-3 h-3 inline mr-1" />Quiz</>}
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => copyLink(partner.slug)}
-                                        className="px-3 py-2 rounded-lg text-xs font-bold transition-all"
-                                        style={{
-                                            background: copiedSlug === partner.slug ? 'rgba(34, 197, 94, 0.15)' : 'rgba(99, 102, 241, 0.1)',
-                                            color: copiedSlug === partner.slug ? '#22c55e' : '#818cf8',
-                                            border: `1px solid ${copiedSlug === partner.slug ? 'rgba(34, 197, 94, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
-                                        }}
-                                    >
-                                        {copiedSlug === partner.slug ? <><Check className="w-3 h-3 inline mr-1" />Copiato</> : <><Copy className="w-3 h-3 inline mr-1" />Copia Link</>}
-                                    </button>
+                                    {/* Segnala Link */}
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 flex-1 px-3 py-2 rounded-lg text-xs font-mono truncate" style={{ background: '#18181b', color: '#71717a', border: '1px solid #27272a' }}>
+                                            <Send className="w-3 h-3 flex-shrink-0" style={{ color: '#22c55e' }} />
+                                            /segnala?p={partner.slug}
+                                        </div>
+                                        <button
+                                            onClick={() => copyLink(partner.slug, 'segnala')}
+                                            className="px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
+                                            style={{
+                                                background: copiedSlug === `segnala-${partner.slug}` ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)',
+                                                color: copiedSlug === `segnala-${partner.slug}` ? '#22c55e' : '#22c55e',
+                                                border: `1px solid ${copiedSlug === `segnala-${partner.slug}` ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.2)'}`,
+                                            }}
+                                        >
+                                            {copiedSlug === `segnala-${partner.slug}` ? <><Check className="w-3 h-3 inline mr-1" />Copiato</> : <><Copy className="w-3 h-3 inline mr-1" />Segnala</>}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {partner.notes && (
