@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { ArrowRight, ArrowLeft, Brain, Shield, Target, Flame, Zap, CheckCircle, AlertTriangle, XCircle, ChevronRight, Activity } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, ArrowLeft, Brain, Shield, Target, Flame, Zap, CheckCircle, AlertTriangle, XCircle, ChevronRight, Activity, Lock } from 'lucide-react'
 
 /* ─────────────── QUIZ DATA ─────────────── */
 
@@ -45,8 +45,10 @@ const ANSWER_OPTIONS = [
 
 /* ─────────────── COMPONENT ─────────────── */
 
+// FLOW: intro → quiz → unlock (dati) → loading → report
+
 export default function RadarQuiz() {
-    const [phase, setPhase] = useState<'intro' | 'info' | 'quiz' | 'loading' | 'report'>('intro')
+    const [phase, setPhase] = useState<'intro' | 'quiz' | 'unlock' | 'loading' | 'report'>('intro')
     const [childName, setChildName] = useState('')
     const [childSport, setChildSport] = useState('')
     const [parentName, setParentName] = useState('')
@@ -66,27 +68,26 @@ export default function RadarQuiz() {
     }, [])
 
     /* ── Scoring ── */
-    function getAreaScore(area: string) {
+    function calcAreaScore(area: string, ans: Record<number, number> = answers) {
         const areaQuestions = QUESTIONS.filter(q => q.area === area)
-        const total = areaQuestions.reduce((sum, q) => sum + (answers[q.id] ?? 0), 0)
+        const total = areaQuestions.reduce((sum, q) => sum + (ans[q.id] ?? 0), 0)
         const max = areaQuestions.length * 2
-        // Invert: 0 answers = 100% (good), all "spesso" = 0% (bad)
         return Math.round(((max - total) / max) * 100)
     }
 
-    function getOverallScore() {
-        const areas = Object.keys(AREA_META) as (keyof typeof AREA_META)[]
-        return Math.round(areas.reduce((sum, a) => sum + getAreaScore(a), 0) / areas.length)
+    function calcOverall(ans: Record<number, number> = answers) {
+        const areas = Object.keys(AREA_META)
+        return Math.round(areas.reduce((sum, a) => sum + calcAreaScore(a, ans), 0) / areas.length)
     }
 
-    function getScoreLevel(score: number): { label: string; color: string; icon: typeof CheckCircle; description: string } {
+    function getScoreLevel(score: number) {
         if (score >= 75) return { label: 'Buono', color: '#22c55e', icon: CheckCircle, description: 'Nessun segnale critico in quest\'area.' }
         if (score >= 50) return { label: 'Attenzione', color: '#f59e0b', icon: AlertTriangle, description: 'Ci sono segnali che meritano attenzione.' }
         return { label: 'Critico', color: '#ef4444', icon: XCircle, description: 'Area critica — un intervento mirato potrebbe fare la differenza.' }
     }
 
     function getOverallVerdict() {
-        const score = getOverallScore()
+        const score = calcOverall()
         if (score >= 75) return {
             title: `${childName || 'Tuo figlio'} sembra in buona forma mentale`,
             text: 'Non emergono segnali critici dal test. Se noti comunque qualcosa che ti preoccupa, una sessione di valutazione può darti conferme.',
@@ -106,75 +107,21 @@ export default function RadarQuiz() {
 
     function getCriticalAreas() {
         return (Object.keys(AREA_META) as (keyof typeof AREA_META)[])
-            .map(area => ({ area, score: getAreaScore(area), meta: AREA_META[area] }))
+            .map(area => ({ area, score: calcAreaScore(area), meta: AREA_META[area] }))
             .filter(a => a.score < 50)
             .sort((a, b) => a.score - b.score)
     }
 
-    /* ── Submission ── */
-    async function handleSubmitQuiz() {
+    /* ── Submission (after unlock form) ── */
+    async function handleUnlockSubmit() {
+        if (!childName || !parentName || !parentEmail) return
         setSubmitting(true)
-        try {
-            await fetch('/api/radar/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    child_name: childName,
-                    child_sport: childSport,
-                    parent_name: parentName,
-                    parent_email: parentEmail,
-                    parent_phone: parentPhone,
-                    partner_id: partnerId,
-                    answers,
-                    scores: {
-                        fiducia: getAreaScore('fiducia'),
-                        pressione: getAreaScore('pressione'),
-                        motivazione: getAreaScore('motivazione'),
-                        blocchi: getAreaScore('blocchi'),
-                        overall: getOverallScore(),
-                    },
-                }),
-            })
-        } catch (e) {
-            console.error('Radar submit error:', e)
-        }
-        setSubmitting(false)
-        setPhase('loading')
-        setTimeout(() => setPhase('report'), 2500)
-    }
-
-    /* ── Answer a question and auto-advance ── */
-    function answerQuestion(value: number) {
-        const qId = QUESTIONS[currentQ].id
-        setAnswers(prev => ({ ...prev, [qId]: value }))
-        if (currentQ < QUESTIONS.length - 1) {
-            setTimeout(() => setCurrentQ(prev => prev + 1), 300)
-        } else {
-            // Last question — submit
-            setTimeout(() => {
-                // We need to set the answer first, then submit
-                const updatedAnswers = { ...answers, [qId]: value }
-                // Use a ref pattern instead — but for simplicity just call submit
-                handleSubmitWithAnswers(updatedAnswers)
-            }, 400)
-        }
-    }
-
-    async function handleSubmitWithAnswers(finalAnswers: Record<number, number>) {
-        setSubmitting(true)
-        // Calculate scores with final answers
-        function calcArea(area: string) {
-            const areaQuestions = QUESTIONS.filter(q => q.area === area)
-            const total = areaQuestions.reduce((sum, q) => sum + (finalAnswers[q.id] ?? 0), 0)
-            const max = areaQuestions.length * 2
-            return Math.round(((max - total) / max) * 100)
-        }
         const scores = {
-            fiducia: calcArea('fiducia'),
-            pressione: calcArea('pressione'),
-            motivazione: calcArea('motivazione'),
-            blocchi: calcArea('blocchi'),
-            overall: Math.round((calcArea('fiducia') + calcArea('pressione') + calcArea('motivazione') + calcArea('blocchi')) / 4),
+            fiducia: calcAreaScore('fiducia'),
+            pressione: calcAreaScore('pressione'),
+            motivazione: calcAreaScore('motivazione'),
+            blocchi: calcAreaScore('blocchi'),
+            overall: calcOverall(),
         }
         try {
             await fetch('/api/radar/submit', {
@@ -183,7 +130,7 @@ export default function RadarQuiz() {
                 body: JSON.stringify({
                     child_name: childName, child_sport: childSport,
                     parent_name: parentName, parent_email: parentEmail, parent_phone: parentPhone,
-                    partner_id: partnerId, answers: finalAnswers, scores,
+                    partner_id: partnerId, answers, scores,
                 }),
             })
         } catch (e) { console.error('Radar submit error:', e) }
@@ -192,31 +139,49 @@ export default function RadarQuiz() {
         setTimeout(() => setPhase('report'), 2500)
     }
 
+    /* ── Answer a question and auto-advance ── */
+    function answerQuestion(value: number) {
+        const qId = QUESTIONS[currentQ].id
+        const updatedAnswers = { ...answers, [qId]: value }
+        setAnswers(updatedAnswers)
+        if (currentQ < QUESTIONS.length - 1) {
+            setTimeout(() => setCurrentQ(prev => prev + 1), 300)
+        } else {
+            // Last question → go to unlock phase
+            setTimeout(() => setPhase('unlock'), 400)
+        }
+    }
+
     /* ─────────────── RENDERS ─────────────── */
+
+    const GLOBAL_STYLES = `
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input:focus, textarea:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+    `
 
     // ── INTRO ──
     if (phase === 'intro') {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#09090b' }}>
+            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-10" style={{ background: '#09090b' }}>
                 <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.12), transparent 60%)' }} />
-                <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-10 blur-[160px]" style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }} />
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full opacity-10 blur-[120px]" style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }} />
 
-                <div className="relative w-full max-w-2xl text-center" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
+                <div className="relative w-full max-w-xl text-center" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
                     {/* Logo */}
-                    <div className="inline-flex items-center gap-3 mb-10">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 40px rgba(99, 102, 241, 0.3)' }}>
-                            <Brain className="w-6 h-6 text-white" />
+                    <div className="inline-flex items-center gap-2.5 mb-8">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 40px rgba(99, 102, 241, 0.3)' }}>
+                            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
-                        <span className="text-xl font-black text-white tracking-tight">RADAR SINCRO</span>
+                        <span className="text-lg sm:text-xl font-black text-white tracking-tight">RADAR SINCRO</span>
                     </div>
 
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-8" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-6 sm:mb-8" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
                         ✅ Test gratuito · 3 minuti · 12 domande
                     </div>
 
                     {/* Main message */}
-                    <h1 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
+                    <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-5 sm:mb-6">
                         Tuo figlio ha un{' '}
                         <span style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             freno invisibile
@@ -224,135 +189,37 @@ export default function RadarQuiz() {
                         ?
                     </h1>
 
-                    <p className="text-lg md:text-xl leading-relaxed max-w-xl mx-auto mb-4" style={{ color: '#a1a1aa' }}>
+                    <p className="text-base sm:text-lg md:text-xl leading-relaxed max-w-lg mx-auto mb-3 sm:mb-4 px-2" style={{ color: '#a1a1aa' }}>
                         Scopri in 3 minuti se il tuo giovane atleta ha un blocco mentale
                         che gli impedisce di tirare fuori il suo <strong className="text-white">vero potenziale</strong>.
                     </p>
 
-                    <p className="text-sm leading-relaxed max-w-lg mx-auto mb-10" style={{ color: '#71717a' }}>
+                    <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto mb-8 sm:mb-10 px-2" style={{ color: '#71717a' }}>
                         12 domande rapide. Risultato immediato con il profilo mentale sportivo
                         del tuo ragazzo. Nessun impegno.
                     </p>
 
                     {/* CTA */}
                     <button
-                        onClick={() => setPhase('info')}
-                        className="inline-flex items-center gap-3 text-lg font-bold px-10 py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer"
+                        onClick={() => setPhase('quiz')}
+                        className="inline-flex items-center gap-2.5 text-base sm:text-lg font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.35)' }}
                     >
                         Inizia il Test Gratuito <ArrowRight className="w-5 h-5" />
                     </button>
 
                     {/* Trust */}
-                    <div className="flex items-center justify-center gap-6 mt-8 flex-wrap">
-                        <div className="flex items-center gap-2 text-sm" style={{ color: '#52525b' }}>
-                            <Shield className="w-4 h-4" style={{ color: '#22c55e' }} /> Anonimo e gratuito
+                    <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 flex-wrap">
+                        <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
+                            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#22c55e' }} /> Anonimo e gratuito
                         </div>
-                        <div className="flex items-center gap-2 text-sm" style={{ color: '#52525b' }}>
-                            <Activity className="w-4 h-4" style={{ color: '#818cf8' }} /> Basato su casi reali
+                        <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
+                            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#818cf8' }} /> Basato su casi reali
                         </div>
                     </div>
                 </div>
 
-                <style>{`
-                    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-                `}</style>
-            </div>
-        )
-    }
-
-    // ── INFO COLLECTION ──
-    if (phase === 'info') {
-        return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#09090b' }}>
-                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08), transparent 60%)' }} />
-
-                <div className="relative w-full max-w-md" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 mb-4">
-                            <Brain className="w-5 h-5" style={{ color: '#818cf8' }} />
-                            <span className="text-sm font-bold" style={{ color: '#818cf8' }}>RADAR SINCRO</span>
-                        </div>
-                        <h2 className="text-2xl font-black text-white mb-2">Prima di iniziare</h2>
-                        <p className="text-sm" style={{ color: '#71717a' }}>Ci servono alcune informazioni per personalizzare il report</p>
-                    </div>
-
-                    {/* Form */}
-                    <div className="rounded-2xl p-8 space-y-5" style={{
-                        background: 'rgba(15, 15, 19, 0.8)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(99, 102, 241, 0.12)',
-                    }}>
-                        <div>
-                            <label className="block text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Nome del ragazzo/a *</label>
-                            <input
-                                type="text" value={childName} onChange={e => setChildName(e.target.value)}
-                                placeholder="Es. Marco" required
-                                className="w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Sport praticato *</label>
-                            <input
-                                type="text" value={childSport} onChange={e => setChildSport(e.target.value)}
-                                placeholder="Es. Calcio, Nuoto, Tennis..."
-                                className="w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Il tuo nome *</label>
-                            <input
-                                type="text" value={parentName} onChange={e => setParentName(e.target.value)}
-                                placeholder="Es. Anna Rossi"
-                                className="w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>La tua email *</label>
-                            <input
-                                type="email" value={parentEmail} onChange={e => setParentEmail(e.target.value)}
-                                placeholder="Per ricevere il report completo"
-                                className="w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Telefono <span className="font-normal" style={{ color: '#52525b' }}>(opzionale)</span></label>
-                            <input
-                                type="tel" value={parentPhone} onChange={e => setParentPhone(e.target.value)}
-                                placeholder="+39 xxx xxx xxxx"
-                                className="w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none transition-all"
-                                style={{ background: '#18181b', border: '1px solid #27272a' }}
-                            />
-                        </div>
-
-                        <button
-                            onClick={() => { if (childName && parentName && parentEmail) setPhase('quiz') }}
-                            disabled={!childName || !parentName || !parentEmail}
-                            className="w-full py-4 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all cursor-pointer"
-                            style={{
-                                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                                boxShadow: '0 0 30px rgba(99, 102, 241, 0.3)',
-                                opacity: (!childName || !parentName || !parentEmail) ? 0.5 : 1,
-                            }}
-                        >
-                            Inizia le 12 Domande <ArrowRight className="w-5 h-5" />
-                        </button>
-
-                        <p className="text-center text-xs" style={{ color: '#3f3f46' }}>
-                            🔒 I tuoi dati sono al sicuro e non saranno mai condivisi.
-                        </p>
-                    </div>
-                </div>
-
-                <style>{`
-                    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                    input:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-                `}</style>
+                <style>{GLOBAL_STYLES}</style>
             </div>
         )
     }
@@ -365,12 +232,12 @@ export default function RadarQuiz() {
         const progress = ((currentQ + 1) / QUESTIONS.length) * 100
 
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#09090b' }}>
+            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
                 <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${areaMeta.color}12, transparent 60%)` }} />
 
                 <div className="relative w-full max-w-lg" key={currentQ} style={{ animation: 'fadeInUp 0.4s ease-out' }}>
                     {/* Progress */}
-                    <div className="mb-8">
+                    <div className="mb-6 sm:mb-8">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <Brain className="w-4 h-4" style={{ color: '#818cf8' }} />
@@ -384,37 +251,37 @@ export default function RadarQuiz() {
                     </div>
 
                     {/* Area badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6" style={{ background: `${areaMeta.color}12`, color: areaMeta.color, border: `1px solid ${areaMeta.color}25` }}>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-4 sm:mb-6" style={{ background: `${areaMeta.color}12`, color: areaMeta.color, border: `1px solid ${areaMeta.color}25` }}>
                         <AreaIcon className="w-3.5 h-3.5" />
                         {areaMeta.label}
                     </div>
 
                     {/* Question */}
-                    <h2 className="text-2xl md:text-3xl font-black text-white leading-tight mb-3">
-                        {q.text.replace('Tuo figlio', childName || 'Tuo figlio')}
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight mb-2 sm:mb-3">
+                        {q.text}
                     </h2>
-                    <p className="text-sm mb-10" style={{ color: '#52525b' }}>
+                    <p className="text-xs sm:text-sm mb-6 sm:mb-10" style={{ color: '#52525b' }}>
                         Rispondi pensando agli ultimi 2-3 mesi
                     </p>
 
                     {/* Answer buttons */}
-                    <div className="space-y-3">
+                    <div className="space-y-2.5 sm:space-y-3">
                         {ANSWER_OPTIONS.map(opt => {
                             const isSelected = answers[q.id] === opt.value
                             return (
                                 <button
                                     key={opt.value}
                                     onClick={() => answerQuestion(opt.value)}
-                                    className="w-full p-5 rounded-2xl text-left flex items-center gap-4 transition-all cursor-pointer group"
+                                    className="w-full p-4 sm:p-5 rounded-xl sm:rounded-2xl text-left flex items-center gap-3 sm:gap-4 transition-all cursor-pointer group active:scale-[0.98]"
                                     style={{
                                         background: isSelected ? `${areaMeta.color}15` : 'rgba(15, 15, 19, 0.6)',
                                         border: `1px solid ${isSelected ? `${areaMeta.color}40` : 'rgba(99, 102, 241, 0.08)'}`,
                                         backdropFilter: 'blur(10px)',
                                     }}
                                 >
-                                    <span className="text-2xl">{opt.emoji}</span>
-                                    <span className="text-base font-bold text-white flex-1">{opt.label}</span>
-                                    <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: areaMeta.color }} />
+                                    <span className="text-xl sm:text-2xl">{opt.emoji}</span>
+                                    <span className="text-sm sm:text-base font-bold text-white flex-1">{opt.label}</span>
+                                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: areaMeta.color }} />
                                 </button>
                             )
                         })}
@@ -424,7 +291,7 @@ export default function RadarQuiz() {
                     {currentQ > 0 && (
                         <button
                             onClick={() => setCurrentQ(prev => prev - 1)}
-                            className="mt-6 flex items-center gap-2 text-sm font-medium transition-all cursor-pointer"
+                            className="mt-5 sm:mt-6 flex items-center gap-2 text-xs sm:text-sm font-medium transition-all cursor-pointer"
                             style={{ color: '#52525b' }}
                         >
                             <ArrowLeft className="w-4 h-4" /> Domanda precedente
@@ -432,10 +299,117 @@ export default function RadarQuiz() {
                     )}
                 </div>
 
-                <style>{`
-                    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                    button:hover { transform: translateY(-2px); }
-                `}</style>
+                <style>{GLOBAL_STYLES}
+                    {`button:hover { transform: translateY(-2px); }`}
+                </style>
+            </div>
+        )
+    }
+
+    // ── UNLOCK (collect info to see report) ──
+    if (phase === 'unlock') {
+        const overall = calcOverall()
+        const scoreColor = overall >= 75 ? '#22c55e' : overall >= 50 ? '#f59e0b' : '#ef4444'
+
+        return (
+            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
+                <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${scoreColor}10, transparent 60%)` }} />
+
+                <div className="relative w-full max-w-md" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+                    {/* Teaser */}
+                    <div className="text-center mb-6 sm:mb-8">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 sm:mb-5 flex items-center justify-center" style={{ background: `${scoreColor}12`, border: `2px solid ${scoreColor}30` }}>
+                            <Lock className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: scoreColor }} />
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Il report è pronto!</h2>
+                        <p className="text-xs sm:text-sm leading-relaxed px-2" style={{ color: '#71717a' }}>
+                            Inserisci i dati per sbloccare il <strong className="text-white">profilo mentale sportivo</strong> del tuo ragazzo.
+                        </p>
+
+                        {/* Preview score teaser */}
+                        <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full" style={{ background: `${scoreColor}10`, border: `1px solid ${scoreColor}25` }}>
+                            <Brain className="w-4 h-4" style={{ color: scoreColor }} />
+                            <span className="text-xs sm:text-sm font-bold" style={{ color: scoreColor }}>
+                                {overall >= 75 ? 'Risultato positivo' : overall >= 50 ? 'Alcune aree da monitorare' : 'Aree critiche rilevate'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Form */}
+                    <div className="rounded-2xl p-6 sm:p-8 space-y-4" style={{
+                        background: 'rgba(15, 15, 19, 0.8)',
+                        backdropFilter: 'blur(20px)',
+                        border: `1px solid ${scoreColor}15`,
+                    }}>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Nome del ragazzo/a *</label>
+                            <input
+                                type="text" value={childName} onChange={e => setChildName(e.target.value)}
+                                placeholder="Es. Marco" required autoFocus
+                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
+                                style={{ background: '#18181b', border: '1px solid #27272a' }}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Sport praticato</label>
+                            <input
+                                type="text" value={childSport} onChange={e => setChildSport(e.target.value)}
+                                placeholder="Es. Calcio, Nuoto, Tennis..."
+                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
+                                style={{ background: '#18181b', border: '1px solid #27272a' }}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Il tuo nome *</label>
+                            <input
+                                type="text" value={parentName} onChange={e => setParentName(e.target.value)}
+                                placeholder="Es. Anna Rossi"
+                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
+                                style={{ background: '#18181b', border: '1px solid #27272a' }}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>La tua email *</label>
+                            <input
+                                type="email" value={parentEmail} onChange={e => setParentEmail(e.target.value)}
+                                placeholder="Per ricevere il report completo"
+                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
+                                style={{ background: '#18181b', border: '1px solid #27272a' }}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: '#a1a1aa' }}>Telefono <span className="font-normal" style={{ color: '#52525b' }}>(opzionale)</span></label>
+                            <input
+                                type="tel" value={parentPhone} onChange={e => setParentPhone(e.target.value)}
+                                placeholder="+39 xxx xxx xxxx"
+                                className="w-full px-4 py-3 sm:py-3.5 rounded-xl text-white text-sm outline-none transition-all"
+                                style={{ background: '#18181b', border: '1px solid #27272a' }}
+                            />
+                        </div>
+
+                        <button
+                            onClick={handleUnlockSubmit}
+                            disabled={!childName || !parentName || !parentEmail || submitting}
+                            className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                            style={{
+                                background: `linear-gradient(135deg, ${scoreColor}, ${scoreColor}dd)`,
+                                boxShadow: `0 0 30px ${scoreColor}30`,
+                                opacity: (!childName || !parentName || !parentEmail || submitting) ? 0.5 : 1,
+                            }}
+                        >
+                            {submitting
+                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <><Lock className="w-4 h-4" /> Sblocca il Risultato</>
+                            }
+                        </button>
+
+                        <p className="text-center text-[10px] sm:text-xs" style={{ color: '#3f3f46' }}>
+                            🔒 I tuoi dati sono al sicuro e non saranno mai condivisi.
+                        </p>
+                    </div>
+                </div>
+
+                <style>{GLOBAL_STYLES}</style>
             </div>
         )
     }
@@ -443,15 +417,15 @@ export default function RadarQuiz() {
     // ── LOADING ──
     if (phase === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#09090b' }}>
+            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
                 <div className="text-center" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    <div className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                        <div className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" style={{ borderWidth: '3px' }} />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 sm:mb-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(99, 102, 241, 0.3)', borderTopColor: '#6366f1' }} />
                     </div>
-                    <h2 className="text-2xl font-black text-white mb-3">Stiamo analizzando le risposte</h2>
-                    <p className="text-sm" style={{ color: '#71717a' }}>Generazione del profilo mentale sportivo di {childName}...</p>
+                    <h2 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Stiamo analizzando le risposte</h2>
+                    <p className="text-xs sm:text-sm" style={{ color: '#71717a' }}>Generazione del profilo mentale sportivo di {childName}...</p>
                 </div>
-                <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+                <style>{GLOBAL_STYLES}</style>
             </div>
         )
     }
@@ -461,52 +435,52 @@ export default function RadarQuiz() {
     const criticalAreas = getCriticalAreas()
 
     return (
-        <div className="min-h-screen p-4 md:p-8" style={{ background: '#09090b' }}>
+        <div className="min-h-[100dvh] px-4 py-8 sm:px-6 sm:py-10 md:p-8" style={{ background: '#09090b' }}>
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${verdict.color}08, transparent 60%)` }} />
 
             <div className="relative max-w-2xl mx-auto" style={{ animation: 'fadeInUp 0.6s ease-out' }}>
                 {/* Header */}
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center gap-2 mb-4">
-                        <Brain className="w-5 h-5" style={{ color: '#818cf8' }} />
-                        <span className="text-sm font-bold" style={{ color: '#818cf8' }}>RADAR SINCRO</span>
+                <div className="text-center mb-8 sm:mb-10">
+                    <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
+                        <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#818cf8' }} />
+                        <span className="text-xs sm:text-sm font-bold" style={{ color: '#818cf8' }}>RADAR SINCRO</span>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 sm:mb-2">
                         Profilo Mentale Sportivo
                     </h1>
-                    <p className="text-lg" style={{ color: '#71717a' }}>
-                        {childName} · {childSport}
+                    <p className="text-base sm:text-lg" style={{ color: '#71717a' }}>
+                        {childName}{childSport ? ` · ${childSport}` : ''}
                     </p>
                 </div>
 
                 {/* Overall Score Card */}
-                <div className="rounded-2xl p-8 mb-8" style={{
+                <div className="rounded-2xl p-5 sm:p-8 mb-5 sm:mb-8" style={{
                     background: 'rgba(15, 15, 19, 0.8)',
                     backdropFilter: 'blur(20px)',
                     border: `1px solid ${verdict.color}30`,
                     boxShadow: `0 0 60px ${verdict.color}08`,
                 }}>
-                    <div className="flex items-start gap-6">
-                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: `${verdict.color}12`, border: `1px solid ${verdict.color}30` }}>
-                            <span className="text-3xl font-black" style={{ color: verdict.color }}>{getOverallScore()}%</span>
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: `${verdict.color}12`, border: `1px solid ${verdict.color}30` }}>
+                            <span className="text-2xl sm:text-3xl font-black" style={{ color: verdict.color }}>{calcOverall()}%</span>
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-white mb-2">{verdict.title}</h2>
-                            <p className="text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>{verdict.text}</p>
+                            <h2 className="text-lg sm:text-xl font-black text-white mb-1 sm:mb-2">{verdict.title}</h2>
+                            <p className="text-xs sm:text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>{verdict.text}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Area Scores */}
-                <div className="rounded-2xl p-8 mb-8" style={{
+                <div className="rounded-2xl p-5 sm:p-8 mb-5 sm:mb-8" style={{
                     background: 'rgba(15, 15, 19, 0.6)',
                     backdropFilter: 'blur(20px)',
                     border: '1px solid rgba(99, 102, 241, 0.08)',
                 }}>
-                    <h3 className="text-lg font-bold text-white mb-6">Dettaglio per Area</h3>
-                    <div className="space-y-6">
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-5 sm:mb-6">Dettaglio per Area</h3>
+                    <div className="space-y-5 sm:space-y-6">
                         {(Object.keys(AREA_META) as (keyof typeof AREA_META)[]).map(area => {
-                            const score = getAreaScore(area)
+                            const score = calcAreaScore(area)
                             const level = getScoreLevel(score)
                             const meta = AREA_META[area]
                             const Icon = meta.icon
@@ -515,23 +489,20 @@ export default function RadarQuiz() {
                                 <div key={area}>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <Icon className="w-4 h-4" style={{ color: meta.color }} />
-                                            <span className="text-sm font-bold text-white">{meta.label}</span>
+                                            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: meta.color }} />
+                                            <span className="text-xs sm:text-sm font-bold text-white">{meta.label}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${level.color}15`, color: level.color, border: `1px solid ${level.color}30` }}>
+                                            <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${level.color}15`, color: level.color, border: `1px solid ${level.color}30` }}>
                                                 {level.label}
                                             </span>
-                                            <span className="text-sm font-black" style={{ color: level.color }}>{score}%</span>
+                                            <span className="text-xs sm:text-sm font-black" style={{ color: level.color }}>{score}%</span>
                                         </div>
                                     </div>
-                                    <div className="h-3 rounded-full overflow-hidden" style={{ background: '#1f1f23' }}>
-                                        <div
-                                            className="h-full rounded-full transition-all duration-1000"
-                                            style={{ width: `${score}%`, background: meta.gradient }}
-                                        />
+                                    <div className="h-2.5 sm:h-3 rounded-full overflow-hidden" style={{ background: '#1f1f23' }}>
+                                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${score}%`, background: meta.gradient }} />
                                     </div>
-                                    <p className="text-xs mt-1.5" style={{ color: '#52525b' }}>{level.description}</p>
+                                    <p className="text-[10px] sm:text-xs mt-1.5" style={{ color: '#52525b' }}>{level.description}</p>
                                 </div>
                             )
                         })}
@@ -540,26 +511,26 @@ export default function RadarQuiz() {
 
                 {/* Critical Areas Callout */}
                 {criticalAreas.length > 0 && (
-                    <div className="rounded-2xl p-8 mb-8" style={{
+                    <div className="rounded-2xl p-5 sm:p-8 mb-5 sm:mb-8" style={{
                         background: 'rgba(239, 68, 68, 0.05)',
                         border: '1px solid rgba(239, 68, 68, 0.15)',
                     }}>
-                        <div className="flex items-center gap-2 mb-4">
-                            <AlertTriangle className="w-5 h-5" style={{ color: '#ef4444' }} />
-                            <h3 className="text-lg font-bold" style={{ color: '#ef4444' }}>
+                        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#ef4444' }} />
+                            <h3 className="text-base sm:text-lg font-bold" style={{ color: '#ef4444' }}>
                                 {criticalAreas.length === 1 ? 'Area critica identificata' : 'Aree critiche identificate'}
                             </h3>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2 sm:space-y-3">
                             {criticalAreas.map(({ area, score, meta }) => (
-                                <div key={area} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(239, 68, 68, 0.08)' }}>
+                                <div key={area} className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl" style={{ background: 'rgba(239, 68, 68, 0.08)' }}>
                                     <meta.icon className="w-4 h-4" style={{ color: meta.color }} />
-                                    <span className="text-sm font-bold text-white flex-1">{meta.label}</span>
-                                    <span className="text-sm font-black" style={{ color: '#ef4444' }}>{score}%</span>
+                                    <span className="text-xs sm:text-sm font-bold text-white flex-1">{meta.label}</span>
+                                    <span className="text-xs sm:text-sm font-black" style={{ color: '#ef4444' }}>{score}%</span>
                                 </div>
                             ))}
                         </div>
-                        <p className="text-sm mt-4 leading-relaxed" style={{ color: '#a1a1aa' }}>
+                        <p className="text-xs sm:text-sm mt-3 sm:mt-4 leading-relaxed" style={{ color: '#a1a1aa' }}>
                             Questi segnali indicano la presenza di un <strong className="text-white">freno invisibile</strong> che
                             sta impedendo a {childName} di esprimere il suo potenziale. Più tempo passa, più il freno si radica.
                         </p>
@@ -567,15 +538,15 @@ export default function RadarQuiz() {
                 )}
 
                 {/* CTA */}
-                <div className="rounded-2xl p-8 text-center" style={{
+                <div className="rounded-2xl p-6 sm:p-8 text-center" style={{
                     background: 'rgba(99, 102, 241, 0.06)',
                     border: '1px solid rgba(99, 102, 241, 0.15)',
                     boxShadow: '0 0 60px rgba(99, 102, 241, 0.05)',
                 }}>
-                    <h3 className="text-2xl font-black text-white mb-3">
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">
                         Vuoi capire esattamente cosa sta succedendo?
                     </h3>
-                    <p className="text-sm leading-relaxed mb-6" style={{ color: '#a1a1aa' }}>
+                    <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 px-2" style={{ color: '#a1a1aa' }}>
                         Una <strong className="text-white">Sessione di Valutazione</strong> di 45 minuti, uno a uno con {childName},
                         ci permette di identificare il blocco specifico e dirti se e come possiamo aiutarlo.
                     </p>
@@ -583,31 +554,29 @@ export default function RadarQuiz() {
                         href="https://metodosincro.it/consulenza"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 text-lg font-bold px-10 py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px]"
+                        className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 50px rgba(99, 102, 241, 0.35)' }}
                     >
                         Prenota la Sessione di Valutazione <ArrowRight className="w-5 h-5" />
                     </a>
-                    <p className="text-xs mt-4" style={{ color: '#52525b' }}>
+                    <p className="text-[10px] sm:text-xs mt-3 sm:mt-4" style={{ color: '#52525b' }}>
                         45 minuti · 1 a 1 con il professionista · €150
                     </p>
                 </div>
 
                 {/* Footer */}
-                <div className="text-center mt-10">
+                <div className="text-center mt-8 sm:mt-10">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <Brain className="w-4 h-4" style={{ color: '#818cf8' }} />
-                        <span className="text-sm font-bold" style={{ color: '#52525b' }}>Metodo Sincro</span>
+                        <span className="text-xs sm:text-sm font-bold" style={{ color: '#52525b' }}>Metodo Sincro</span>
                     </div>
-                    <p className="text-xs" style={{ color: '#3f3f46' }}>
+                    <p className="text-[10px] sm:text-xs" style={{ color: '#3f3f46' }}>
                         Il freno invisibile si toglie. Non con le parole — con un metodo.
                     </p>
                 </div>
             </div>
 
-            <style>{`
-                @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-            `}</style>
+            <style>{GLOBAL_STYLES}</style>
         </div>
     )
 }
