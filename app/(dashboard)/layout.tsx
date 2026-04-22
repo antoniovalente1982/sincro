@@ -9,7 +9,7 @@ import {
     LayoutDashboard, Target, Users, BarChart3, Plug, UserCircle,
     LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
-    History, Palette, CalendarDays,
+    History, Palette, CalendarDays, Activity, Handshake,
     type LucideIcon
 } from 'lucide-react'
 import HermesChat from './dashboard/HermesChat'
@@ -25,6 +25,8 @@ const allNavItems: NavItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
     { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
+    { label: 'Radar Sincro', href: '/dashboard/radar', icon: Activity },
+    { label: 'Partner', href: '/dashboard/partner', icon: Handshake },
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
     { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
     { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
