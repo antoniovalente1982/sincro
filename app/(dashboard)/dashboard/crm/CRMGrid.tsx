@@ -12,6 +12,7 @@ interface CRMGridProps {
     onAssignSetter?: (leadId: string, setterId: string) => void
     onAssignCloser?: (leadId: string, closerId: string) => void
     onUpdateSetterField?: (leadId: string, field: 'setter_step' | 'try_anthon' | 'esito', value: string) => void
+    onFastBook?: (lead: any) => void
     canEditSetterSteps?: boolean
 }
 
@@ -23,7 +24,7 @@ function formatDate(dStr: string) {
     return new Date(dStr).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser, onUpdateSetterField, canEditSetterSteps }: CRMGridProps) {
+export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser, onUpdateSetterField, onFastBook, canEditSetterSteps }: CRMGridProps) {
     const getDisplayName = (m: any) => {
         if (m.profiles?.full_name) return m.profiles.full_name;
         if (!m.profiles?.email) return 'Utente Sincro';
@@ -56,6 +57,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Step</th>
                         <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[100px]">Try A.</th>
                         <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Esito</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs text-right min-w-[120px]">Azioni</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -212,12 +214,24 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         <span className="text-xs font-semibold">{lead.esito}</span>
                                     ) : <span className="text-gray-600">—</span>}
                                 </td>
+                                <td className="px-5 py-4 text-right" onClick={e => e.stopPropagation()}>
+                                    {onFastBook && (
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); onFastBook(lead) }}
+                                            className="text-[10px] font-bold px-3 py-1.5 rounded transition flex items-center justify-center gap-1.5 ml-auto whitespace-nowrap"
+                                            style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#e9d5ff' }}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                            Prenota
+                                        </button>
+                                    )}
+                                </td>
                             </tr>
                         )
                     })}
                     {leads.length === 0 && (
                         <tr>
-                            <td colSpan={11} className="px-5 py-16 text-center text-gray-500">
+                            <td colSpan={12} className="px-5 py-16 text-center text-gray-500">
                                 Nessun lead trovato con questi filtri.
                             </td>
                         </tr>

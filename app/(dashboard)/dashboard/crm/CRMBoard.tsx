@@ -921,6 +921,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onAssignSetter={handleAssignSetter}
                     onAssignCloser={handleAssignCloser}
                     onUpdateSetterField={handleUpdateSetterField}
+                    onFastBook={setFastBookLead}
                     canEditSetterSteps={canEditSetterSteps}
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
                 />
