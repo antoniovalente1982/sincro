@@ -108,15 +108,15 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         {!hiddenCols['fonte'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Fonte di Traffico</th>}
                         {!hiddenCols['setter'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Setter</th>}
                         {!hiddenCols['venditore'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Venditore</th>}
-                        {!hiddenCols['step'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Step</th>}
-                        {!hiddenCols['trya'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[100px]">Try A.</th>}
-                        {!hiddenCols['esito'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Esito Setter</th>}
+                        {!hiddenCols['step'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px] bg-yellow-500/5">Step</th>}
+                        {!hiddenCols['trya'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[100px] bg-yellow-500/5">Try A.</th>}
+                        {!hiddenCols['esito'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px] bg-yellow-500/5 border-r border-white/5">Esito Setter</th>}
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs text-right min-w-[120px]">Azioni</th>
-                        {!hiddenCols['c_apptdate'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Data Appuntamento</th>}
-                        {!hiddenCols['c_appt'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[160px]">Stato App.</th>}
-                        {!hiddenCols['c_trial'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Prova</th>}
-                        {!hiddenCols['c_outcome'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Esito Trattativa</th>}
-                        {!hiddenCols['c_downsell'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[200px]">Note / Downsell</th>}
+                        {!hiddenCols['c_apptdate'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px] bg-emerald-500/5 border-l border-white/5">Data Appuntamento</th>}
+                        {!hiddenCols['c_appt'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[160px] bg-emerald-500/5">Stato App.</th>}
+                        {!hiddenCols['c_trial'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px] bg-emerald-500/5">Prova</th>}
+                        {!hiddenCols['c_outcome'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px] bg-emerald-500/5">Esito Trattativa</th>}
+                        {!hiddenCols['c_downsell'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[200px] bg-emerald-500/5">Note / Downsell</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">

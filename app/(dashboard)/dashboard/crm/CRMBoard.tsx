@@ -1103,7 +1103,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         )}
 
                                         {/* SETTER WORKFLOW — Step, Try Anthon, Esito */}
-                                        <div className="mt-2 flex flex-wrap gap-1" onClick={e => e.stopPropagation()}>
+                                        <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditSetterSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
+                                            <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                                                <span>🛠 Setter</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1">
                                             {/* Step (Chiamato) */}
                                             {canEditSetterSteps ? (
                                                 <select
@@ -1183,11 +1187,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     }}>{cfg.label}</span>
                                                 ) : null
                                             })() : null}
+                                            </div>
                                         </div>
 
                                         {/* CLOSER WORKFLOW (Visible only if user has permissions or if fields are populated) */}
-                                        {(canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome) && (
-                                        <div className="mt-2 flex flex-wrap gap-1" onClick={e => e.stopPropagation()}>
+                                        {(canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome || (lead.calendar_events && lead.calendar_events.length > 0)) && (
+                                        <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditCloserSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
+                                            <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                                                <span>🤝 Venditore</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1">
                                             
                                             {/* Data Appuntamento Badge */}
                                             {(() => {
@@ -1284,6 +1293,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 const cfg = getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)
                                                 return cfg ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35` }}>{cfg.label}</span> : null
                                             })() : null}
+                                            </div>
                                         </div>
                                         )}
 
