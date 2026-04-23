@@ -167,7 +167,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [dragLead, setDragLead] = useState<string | null>(null)
     const [dragOverStage, setDragOverStage] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
-    const [objectiveFilter, setObjectiveFilter] = useState<string>('all')
+
     const [showModal, setShowModal] = useState(false)
     const [editingLead, setEditingLead] = useState<Lead | null>(null)
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
@@ -277,7 +277,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             (l.phone || '').toLowerCase().includes(query) ||
             (l.product || '').toLowerCase().includes(query) ||
             (l.utm_source || '').toLowerCase().includes(query)
-        const matchObjective = objectiveFilter === 'all' || (l.funnels?.objective || '') === objectiveFilter
+        const matchObjective = true
         const matchPipeline = l.stage_id ? activeStageIds.has(l.stage_id) : true
         const matchDate = range.key === 'all' || (() => {
             const dStr = dateFilterMode === 'created' ? (l.meta_data?.last_submission_at || l.created_at) : (l.updated_at || l.created_at)
@@ -693,20 +693,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     <span className="text-xs font-semibold text-gray-300">Filtri:</span>
                 </div>
                 
-                {objectives.length > 0 && (
-                    <select
-                        className="input !w-[160px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
-                        value={objectiveFilter}
-                        onChange={e => setObjectiveFilter(e.target.value)}
-                    >
-                        <option value="all">🎯 Tutti gli obiettivi</option>
-                        {objectives.map(obj => (
-                            <option key={obj} value={obj}>
-                                {obj === 'cliente' ? '👤 Clienti' : obj === 'partner' ? '🤝 Partner' : obj === 'reclutamento' ? '👥 Reclutamento' : obj === 'brand' ? '📢 Brand' : obj === 'evento' ? '🎟️ Evento' : `🎯 ${obj}`}
-                            </option>
-                        ))}
-                    </select>
-                )}
+
                 {tags.length > 0 && (
                     <select
                         className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
