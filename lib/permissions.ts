@@ -10,6 +10,8 @@ export type Section =
     | 'dashboard'
     | 'crm'
     | 'calendar'
+    | 'radar'
+    | 'partner'
     | 'funnels'
     | 'ads'
     | 'ai_engine'
@@ -24,6 +26,8 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
     dashboard:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     crm:            ['owner', 'admin', 'manager', 'setter', 'closer', 'coach', 'viewer'],
     calendar:       ['owner', 'admin', 'manager', 'setter', 'closer', 'coach'],
+    radar:          ['owner', 'admin'],
+    partner:        ['owner', 'admin'],
     funnels:        ['owner', 'admin', 'manager'],
     ads:            ['owner', 'admin', 'manager'],
     ai_engine:      ['owner', 'admin', 'manager'],
@@ -50,6 +54,8 @@ const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard':                     'dashboard',
     '/dashboard/crm':                 'crm',
     '/dashboard/calendar':            'calendar',
+    '/dashboard/radar':               'radar',
+    '/dashboard/partner':             'partner',
     '/dashboard/funnels':             'funnels',
     '/dashboard/ads':                 'ads',
     '/dashboard/ai-engine':           'ai_engine',
@@ -89,7 +95,7 @@ export function filterNavItems(
 ): typeof navItems {
     return navItems.filter(item => {
         const section = hrefToSection(item.href)
-        if (!section) return true // unknown sections: show to owner/admin only
+        if (!section) return role === 'owner' || role === 'admin'
         return canAccessSection(role, department, section)
     })
 }
