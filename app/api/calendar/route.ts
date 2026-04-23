@@ -507,20 +507,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Permesso negato' }, { status: 403 })
         }
 
-        // Get all active closers with availability for this day
         const bookDay = new Date(start_time).getDay()
-        const { data: availClosers } = await supabase
-            .from('calendar_availability')
+        const { data: memberClosers } = await supabase
+            .from('organization_members')
             .select('user_id')
             .eq('organization_id', ctx.organization_id)
-            .eq('day_of_week', bookDay)
-            .eq('is_active', true)
+            .is('deactivated_at', null)
+            .eq('in_round_robin', true)
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
 
-        if (!availClosers || availClosers.length === 0) {
-            return NextResponse.json({ error: 'Nessun venditore disponibile per questo giorno' }, { status: 400 })
+        if (!memberClosers || memberClosers.length === 0) {
+            return NextResponse.json({ error: 'Nessun venditore round-robin disponibile' }, { status: 400 })
         }
 
-        const closerUserIds = [...new Set(availClosers.map((a: any) => a.user_id))]
+        const closerUserIds = [...new Set(memberClosers.map((c: any) => c.user_id))]
 
         // Check DB conflicts
         const { data: dbConflicts } = await supabase
