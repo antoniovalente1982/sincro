@@ -50,7 +50,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[220px]">Contatto</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[140px]">Fase / Stage</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[100px]">Valore</th>
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Sorgente / Note</th>
+                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Fonte di Traffico</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Setter</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Venditore</th>
                         <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Step</th>

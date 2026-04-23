@@ -1653,7 +1653,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         <div className="space-y-3">
                             {lead.utm_source && (
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Sorgente</span>
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Fonte di Traffico</span>
                                     <span className="text-sm font-medium text-white/90 capitalize">{lead.utm_source} {lead.meta_data?.utm_medium ? `/ ${lead.meta_data.utm_medium}` : ''}</span>
                                 </div>
                             )}
