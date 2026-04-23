@@ -284,7 +284,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             const d = new Date(dStr)
             return d >= range.from && d < range.to
         })()
-        const matchSource = sourceFilter === 'all' || l.product === sourceFilter
+        const matchSource = sourceFilter === 'all' || 
+            (l.product || '').toLowerCase().includes(sourceFilter.toLowerCase()) || 
+            (l.utm_source || '').toLowerCase().includes(sourceFilter.toLowerCase())
         const matchTag = tagFilter === 'all' || (l.lead_tags || []).some(lt => lt.crm_tags?.id === tagFilter)
         const matchSetter = setterFilter === 'all' || l.setter_id === setterFilter
         const matchCloser = closerFilter === 'all' || l.closer_id === closerFilter
