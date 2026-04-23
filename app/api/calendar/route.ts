@@ -86,12 +86,35 @@ export async function GET(req: NextRequest) {
         const endDate = to ? new Date(to) : new Date(startDate.getTime() + 7 * 86400000)
 
         // 1. Get closer's availability schedule
-        const { data: availability } = await supabase
+        let { data: availability } = await supabase
             .from('calendar_availability')
             .select('*')
             .eq('user_id', closerId)
             .eq('organization_id', ctx.organization_id)
             .eq('is_active', true)
+            
+        // Fallback to Owner's availability if closer has none
+        if (!availability || availability.length === 0) {
+            const { data: orgOwner } = await supabase
+                .from('organization_members')
+                .select('user_id')
+                .eq('organization_id', ctx.organization_id)
+                .eq('role', 'owner')
+                .limit(1)
+
+            if (orgOwner && orgOwner.length > 0) {
+                const { data: ownerAvailability } = await supabase
+                    .from('calendar_availability')
+                    .select('*')
+                    .eq('user_id', orgOwner[0].user_id)
+                    .eq('organization_id', ctx.organization_id)
+                    .eq('is_active', true)
+                
+                if (ownerAvailability && ownerAvailability.length > 0) {
+                    availability = ownerAvailability
+                }
+            }
+        }
 
 
         // 2. Get existing events for this closer in the date range
