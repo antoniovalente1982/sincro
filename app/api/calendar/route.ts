@@ -322,7 +322,7 @@ export async function POST(req: NextRequest) {
     const { action } = body
 
     if (action === 'book') {
-        const { closer_id, lead_id, start_time, end_time, title, description, lead_phone, lead_email } = body
+        const { closer_id, lead_id, start_time, end_time, title, description, lead_phone, lead_email, lead_name } = body
 
         if (!closer_id || !start_time || !end_time) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -367,6 +367,14 @@ export async function POST(req: NextRequest) {
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+        const google_description = `${description || body.notes || 'Appuntamento Sincro'}
+
+— Dettagli Cliente —
+Nome: ${lead_name || 'Non specificato'}
+Email: ${lead_email || 'Non specificato'}
+Telefono: ${lead_phone || 'Non specificato'}
+`.trim()
+
         // Create Google Calendar event if the closer is connected
         const { data: closerTokenData } = await supabase
             .from('organization_members')
@@ -384,7 +392,7 @@ export async function POST(req: NextRequest) {
                     closerTokenData.google_token_expiry,
                     {
                         summary: title || 'Appuntamento via Sincro',
-                        description: description || '',
+                        description: google_description,
                         start: start_time,
                         end: end_time,
                         attendees
@@ -668,6 +676,14 @@ export async function POST(req: NextRequest) {
 
         if (eventError) return NextResponse.json({ error: eventError.message }, { status: 500 })
 
+        const google_description = `${description || body.notes || 'Appuntamento Sincro'}
+
+— Dettagli Cliente —
+Nome: ${lead_name || 'Non specificato'}
+Email: ${lead_email || 'Non specificato'}
+Telefono: ${lead_phone || 'Non specificato'}
+`.trim()
+
         // Push to Google Calendar
         const closerToken = tokens?.find((t: any) => t.user_id === selectedCloserId)
         if (closerToken?.google_access_token) {
@@ -680,7 +696,7 @@ export async function POST(req: NextRequest) {
                     closerToken.google_token_expiry,
                     {
                         summary: title || 'Appuntamento via Sincro',
-                        description: description || '',
+                        description: google_description,
                         start: start_time,
                         end: end_time,
                         attendees
