@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendBookingConfirmation, sendBookingNotificationToCloser } from '@/lib/email'
-import { getGoogleCalendarFreeBusy, getGoogleCalendarEvents, createGoogleCalendarEvent } from '@/lib/google-calendar'
+import { getGoogleCalendarFreeBusy, getGoogleCalendarEvents, createGoogleCalendarEvent, deleteGoogleCalendarEvent } from '@/lib/google-calendar'
 
 async function getContext(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
@@ -383,13 +383,47 @@ export async function POST(req: NextRequest) {
         if (lead_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
-                .select('id')
+                .select('id, closer_id, start_time')
                 .eq('lead_id', lead_id)
                 .eq('status', 'confirmed')
 
             if (previousEvents && previousEvents.length > 0) {
                 isReschedule = true
-                await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+                for (const oldEv of previousEvents) {
+                    await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('id', oldEv.id)
+                    
+                    const { data: closerTokenData } = await supabase
+                        .from('organization_members')
+                        .select('google_access_token, google_refresh_token, google_token_expiry')
+                        .eq('user_id', oldEv.closer_id)
+                        .single()
+
+                    if (closerTokenData?.google_access_token) {
+                        try {
+                            const dStart = new Date(oldEv.start_time)
+                            dStart.setHours(0,0,0,0)
+                            const dEnd = new Date(oldEv.start_time)
+                            dEnd.setHours(23,59,59,999)
+                            
+                            const gEvents = await getGoogleCalendarEvents(
+                                oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                dStart.toISOString(), dEnd.toISOString()
+                            )
+                            const match = gEvents.find((g:any) => 
+                                g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
+                                (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
+                            )
+                            if (match) {
+                                await deleteGoogleCalendarEvent(
+                                    oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                    match.id
+                                )
+                            }
+                        } catch (e) {
+                            console.error('[Calendar API] Failed to delete old google event', e)
+                        }
+                    }
+                }
             }
         }
 
@@ -704,13 +738,47 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (lead_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
-                .select('id')
+                .select('id, closer_id, start_time')
                 .eq('lead_id', lead_id)
                 .eq('status', 'confirmed')
 
             if (previousEvents && previousEvents.length > 0) {
                 isReschedule = true
-                await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+                for (const oldEv of previousEvents) {
+                    await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('id', oldEv.id)
+
+                    const { data: closerTokenData } = await supabase
+                        .from('organization_members')
+                        .select('google_access_token, google_refresh_token, google_token_expiry')
+                        .eq('user_id', oldEv.closer_id)
+                        .single()
+
+                    if (closerTokenData?.google_access_token) {
+                        try {
+                            const dStart = new Date(oldEv.start_time)
+                            dStart.setHours(0,0,0,0)
+                            const dEnd = new Date(oldEv.start_time)
+                            dEnd.setHours(23,59,59,999)
+                            
+                            const gEvents = await getGoogleCalendarEvents(
+                                oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                dStart.toISOString(), dEnd.toISOString()
+                            )
+                            const match = gEvents.find((g:any) => 
+                                g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
+                                (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
+                            )
+                            if (match) {
+                                await deleteGoogleCalendarEvent(
+                                    oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                    match.id
+                                )
+                            }
+                        } catch (e) {
+                            console.error('[Calendar API] Failed to delete old google event', e)
+                        }
+                    }
+                }
             }
         }
 
