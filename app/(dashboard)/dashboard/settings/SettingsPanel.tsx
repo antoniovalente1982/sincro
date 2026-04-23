@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag, Camera } from 'lucide-react'
+import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag, Camera, CalendarDays } from 'lucide-react'
 import Link from 'next/link'
 
 interface Stage {
@@ -61,6 +61,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
 
     // Assignment state
     const [assignConfig, setAssignConfig] = useState<any>({ assignment_mode: 'manual', auto_assign_enabled: false, fallback_mode: 'manual' })
+    const [calendarAssignMode, setCalendarAssignMode] = useState<string>('round_robin')
     const [settersList, setSettersList] = useState<any[]>([])
     const [assignStats, setAssignStats] = useState<Record<string, { total: number; won: number }>>({})
     const [savingAssign, setSavingAssign] = useState(false)
@@ -101,6 +102,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 if (res.ok) {
                     const data = await res.json()
                     if (data.config) setAssignConfig(data.config)
+                    if (data.calendarConfig?.calendar_assignment_mode) setCalendarAssignMode(data.calendarConfig.calendar_assignment_mode)
                     // Merge setter availability with member list
                     const merged = (data.members || []).map((m: any) => {
                         const sa = (data.setters || []).find((s: any) => s.user_id === m.user_id)
@@ -136,6 +138,22 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 }),
             })
             if (mode) setAssignConfig((p: any) => ({ ...p, assignment_mode: mode }))
+        } catch {}
+        setSavingAssign(false)
+    }
+
+    const saveCalendarAssignConfig = async (mode: string) => {
+        setSavingAssign(true)
+        try {
+            await fetch('/api/assignment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'update_calendar_config',
+                    calendar_assignment_mode: mode,
+                }),
+            })
+            setCalendarAssignMode(mode)
         } catch {}
         setSavingAssign(false)
     }
@@ -753,6 +771,37 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{mode.desc}</div>
                             </button>
                         ))}
+                    </div>
+
+                    {/* Calendar Assignment Mode */}
+                    <div className="mt-8 mb-5 pt-6 border-t border-white/5">
+                        <div className="flex items-center gap-2 mb-4">
+                            <CalendarDays className="w-4 h-4 text-indigo-400" />
+                            <h3 className="text-sm font-bold text-white">Appuntamenti / Calendario</h3>
+                        </div>
+                        <p className="text-xs text-white/50 mb-3">Scegli come Sincro decide chi è il venditore da assegnare all'appuntamento (Fast Booking Auto-Assegna).</p>
+
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                            {[
+                                { value: 'round_robin', label: 'Round Robin', icon: Shuffle, desc: 'Esatta distribuzione equilibrata e matematica.', color: '#3b82f6' },
+                                { value: 'availability', label: 'Miglior Disponibilità (Load Balancing)', icon: Shield, desc: 'Chi ha meno appuntamenti totali questa settimana.', color: '#22c55e' },
+                                { value: 'performance', label: 'Miglior Venditore (Performance)', icon: TrendingUp, desc: 'Chi ha completato positivamente più appuntamenti in passato.', color: '#f59e0b' }
+                            ].map(mode => (
+                                <button
+                                    key={`cal_${mode.value}`}
+                                    onClick={() => saveCalendarAssignConfig(mode.value)}
+                                    className="p-3 rounded-xl text-left transition-all"
+                                    style={{
+                                        background: calendarAssignMode === mode.value ? `${mode.color}15` : 'var(--color-surface-100)',
+                                        border: `1px solid ${calendarAssignMode === mode.value ? `${mode.color}40` : 'var(--color-surface-200)'}`,
+                                    }}
+                                >
+                                    <mode.icon className="w-4 h-4 mb-1" style={{ color: calendarAssignMode === mode.value ? mode.color : 'var(--color-surface-500)' }} />
+                                    <div className="text-xs font-bold" style={{ color: calendarAssignMode === mode.value ? mode.color : 'var(--color-surface-400)' }}>{mode.label}</div>
+                                    <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{mode.desc}</div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Setter list */}

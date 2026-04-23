@@ -565,18 +565,18 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Nessun venditore disponibile per questo slot' }, { status: 409 })
         }
 
+        // Get current system setting for calendar assignment
+        const { data: orgConfig } = await supabase
+            .from('organization_config')
+            .select('round_robin_calendar_index, calendar_assignment_mode')
+            .eq('organization_id', ctx.organization_id)
+            .single()
+
         // Select based on assignment mode
         let selectedCloserId: string
-        const mode = assignment_mode || 'round_robin'
+        const mode = orgConfig?.calendar_assignment_mode || assignment_mode || 'round_robin'
 
         if (mode === 'round_robin') {
-            // Get current round-robin index from organization config
-            const { data: orgConfig } = await supabase
-                .from('organization_config')
-                .select('round_robin_calendar_index')
-                .eq('organization_id', ctx.organization_id)
-                .single()
-
             const currentIndex = orgConfig?.round_robin_calendar_index || 0
             const selectedIndex = currentIndex % fullyAvailable.length
             selectedCloserId = fullyAvailable[selectedIndex]
@@ -597,10 +597,6 @@ export async function POST(req: NextRequest) {
                 .eq('organization_id', ctx.organization_id)
                 .eq('status', 'completed')
             
-            // Filter to only available closers
-            for (const uid of fullyAvailable) {
-                // We'll fetch all and filter in JS to avoid .in() type issues
-            }
             const { data: stats } = await perfQuery
 
             const countMap: Record<string, number> = {}
@@ -610,12 +606,12 @@ export async function POST(req: NextRequest) {
                 }
             })
 
-            // Sort by completed events (highest first), then select highest performer
+            // Sort by completed events (highest first)
             fullyAvailable.sort((a, b) => (countMap[b] || 0) - (countMap[a] || 0))
             selectedCloserId = fullyAvailable[0]
 
         } else {
-            // 'availability' mode — least loaded this week
+            // 'availability' mode (load balancing) — least loaded this week
             const weekStart = new Date(start_time)
             weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
             weekStart.setHours(0, 0, 0, 0)

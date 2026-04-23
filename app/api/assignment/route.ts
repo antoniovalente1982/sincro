@@ -24,6 +24,13 @@ export async function GET() {
         .eq('organization_id', ctx.organization_id)
         .single()
 
+    // Get organization calendar config
+    const { data: orgConfig } = await supabase
+        .from('organization_config')
+        .select('calendar_assignment_mode')
+        .eq('organization_id', ctx.organization_id)
+        .single()
+
     // Get setter availability with profiles
     const { data: setters } = await supabase
         .from('setter_availability')
@@ -61,6 +68,7 @@ export async function GET() {
 
     return NextResponse.json({
         config: config || { assignment_mode: 'manual', auto_assign_enabled: false },
+        calendarConfig: orgConfig || { calendar_assignment_mode: 'round_robin' },
         setters: setters || [],
         members: members || [],
         stats,
@@ -84,6 +92,21 @@ export async function POST(req: NextRequest) {
                 assignment_mode,
                 auto_assign_enabled,
                 fallback_mode,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'organization_id' })
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
+    if (body.action === 'update_calendar_config') {
+        const { calendar_assignment_mode } = body
+        const { data, error } = await supabase
+            .from('organization_config')
+            .upsert({
+                organization_id: ctx.organization_id,
+                calendar_assignment_mode,
                 updated_at: new Date().toISOString(),
             }, { onConflict: 'organization_id' })
             .select()
