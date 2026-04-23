@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { CalendarDays, X, User, Users, Clock, Loader2, Sparkles, AlertCircle } from 'lucide-react'
 
 interface FastBookModalProps {
@@ -150,7 +150,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
     const slotsToRender = bookingMode === 'auto' ? autoSlots : availableSlots
 
     // Group slots by local date (YYYY-MM-DD)
-    const groupedSlots = React.useMemo(() => {
+    const groupedSlots = useMemo(() => {
         const groups: Record<string, any[]> = {}
         slotsToRender.forEach(slot => {
             // Otteniamo la data locale nel formato YYYY-MM-DD per raggruppamento coerente
