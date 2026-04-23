@@ -153,6 +153,26 @@ const ESITO_OPTIONS: { value: string; label: string; color: string }[] = [
     { value: 'DA RISENTIRE', label: 'Da Risentire', color: '#eab308' },
 ]
 
+// ── Closer Workflow Constants ──
+const CLOSER_APPT_STATUS_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'FATTO', label: 'Fatto', color: '#22c55e' },
+    { value: 'NO SHOW', label: 'No Show', color: '#ef4444' },
+    { value: 'CANCELLATO', label: 'Cancellato', color: '#ef4444' },
+    { value: 'RIPROGRAMMATO', label: 'Riprogrammato', color: '#3b82f6' },
+]
+
+const CLOSER_TRIAL_STATUS_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'FATTA', label: 'Fatta', color: '#22c55e' },
+    { value: 'DA FARE', label: 'Da Fare', color: '#eab308' },
+    { value: 'ANNULLATA', label: 'Annullata', color: '#ef4444' },
+    { value: 'RIPROGRAMMATA', label: 'Riprogrammata', color: '#3b82f6' },
+]
+
+const CLOSER_OUTCOME_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'VINTA', label: 'Vinta', color: '#22c55e' },
+    { value: 'PERSA', label: 'Persa', color: '#ef4444' },
+    { value: 'ANNULLATA', label: 'Annullata', color: '#ef4444' },
+]
 
 function getOptionConfig(value: string | undefined, options: { value: string; label: string; color: string }[]): { label: string; color: string } | null {
     if (!value) return null
@@ -1164,6 +1184,108 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 ) : null
                                             })() : null}
                                         </div>
+
+                                        {/* CLOSER WORKFLOW (Visible only if user has permissions or if fields are populated) */}
+                                        {(canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome) && (
+                                        <div className="mt-2 flex flex-wrap gap-1" onClick={e => e.stopPropagation()}>
+                                            
+                                            {/* Data Appuntamento Badge */}
+                                            {(() => {
+                                                const activeEvents = (lead.calendar_events || []).filter((e: any) => e.status !== 'cancelled').sort((a: any, b: any) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+                                                const nextEvent = activeEvents.find((e: any) => new Date(e.start_time).getTime() >= Date.now() - 3600000) || activeEvents[activeEvents.length - 1];
+                                                if (!nextEvent) return null;
+
+                                                const d = new Date(nextEvent.start_time);
+                                                const now = new Date();
+                                                const diffHours = (d.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+                                                let colorObj = { bg: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: 'rgba(255,255,255,0.1)' };
+                                                if (lead.closer_appt_status === 'FATTO') {
+                                                    colorObj = { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', border: 'rgba(34, 197, 94, 0.3)' };
+                                                } else if (diffHours < 0) { // Past
+                                                    colorObj = { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: 'rgba(239, 68, 68, 0.3)' };
+                                                } else if (diffHours <= 24) { // Next 24h
+                                                    colorObj = { bg: 'rgba(234, 179, 8, 0.15)', color: '#eab308', border: 'rgba(234, 179, 8, 0.3)' };
+                                                }
+
+                                                return (
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1" style={{ background: colorObj.bg, color: colorObj.color, border: `1px solid ${colorObj.border}` }}>
+                                                        <Calendar className="w-2.5 h-2.5" />
+                                                        {d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}  {d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                );
+                                            })()}
+
+                                            {/* Appuntamento Status */}
+                                            {canEditCloserSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.closer_appt_status ? `${getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.closer_appt_status ? getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.closer_appt_status ? (getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '120px',
+                                                    }}
+                                                    value={lead.closer_appt_status || ''}
+                                                    onChange={e => handleUpdateCloserField(lead.id, 'closer_appt_status', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Stato App...</option>
+                                                    {CLOSER_APPT_STATUS_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.closer_appt_status ? (() => {
+                                                const cfg = getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)
+                                                return cfg ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35` }}>{cfg.label}</span> : null
+                                            })() : null}
+
+                                            {/* Trial Status */}
+                                            {canEditCloserSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.closer_trial_status ? `${getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.closer_trial_status ? getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.closer_trial_status ? (getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '90px',
+                                                    }}
+                                                    value={lead.closer_trial_status || ''}
+                                                    onChange={e => handleUpdateCloserField(lead.id, 'closer_trial_status', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Prova...</option>
+                                                    {CLOSER_TRIAL_STATUS_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.closer_trial_status ? (() => {
+                                                const cfg = getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)
+                                                return cfg ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35` }}>{cfg.label}</span> : null
+                                            })() : null}
+
+                                            {/* Outcome Status */}
+                                            {canEditCloserSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.closer_outcome ? `${getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.closer_outcome ? getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.closer_outcome ? (getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '100px',
+                                                    }}
+                                                    value={lead.closer_outcome || ''}
+                                                    onChange={e => handleUpdateCloserField(lead.id, 'closer_outcome', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Esito...</option>
+                                                    {CLOSER_OUTCOME_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.closer_outcome ? (() => {
+                                                const cfg = getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)
+                                                return cfg ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35` }}>{cfg.label}</span> : null
+                                            })() : null}
+                                        </div>
+                                        )}
 
                                         <div className="mt-2 space-y-1">
                                             {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
