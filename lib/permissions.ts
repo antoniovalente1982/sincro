@@ -187,6 +187,18 @@ export function shouldFilterOwnLeads(role: Role): boolean {
 
 
 // ============================================================
+// Setter Workflow Fields (setter_step, try_anthon, esito)
+// ============================================================
+
+// Can this user edit setter workflow fields on a lead?
+export function canEditSetterFields(role: Role, department: Department): boolean {
+    if (role === 'owner' || role === 'admin') return true
+    if (role === 'manager' && department === 'setting') return true
+    if (role === 'setter') return true
+    return false
+}
+
+// ============================================================
 // Role configuration for UI
 // ============================================================
 

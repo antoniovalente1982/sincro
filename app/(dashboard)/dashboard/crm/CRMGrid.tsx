@@ -11,6 +11,8 @@ interface CRMGridProps {
     onAssignLead: (leadId: string, assignedTo: string) => void
     onAssignSetter?: (leadId: string, setterId: string) => void
     onAssignCloser?: (leadId: string, closerId: string) => void
+    onUpdateSetterField?: (leadId: string, field: 'setter_step' | 'try_anthon' | 'esito', value: string) => void
+    canEditSetterSteps?: boolean
 }
 
 function formatCurrency(v: number) {
@@ -21,7 +23,7 @@ function formatDate(dStr: string) {
     return new Date(dStr).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser }: CRMGridProps) {
+export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser, onUpdateSetterField, canEditSetterSteps }: CRMGridProps) {
     const getDisplayName = (m: any) => {
         if (m.profiles?.full_name) return m.profiles.full_name;
         if (!m.profiles?.email) return 'Utente Sincro';
@@ -51,6 +53,9 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Sorgente / Note</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Setter</th>
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Venditore</th>
+                        <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Step</th>
+                        <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[100px]">Try A.</th>
+                        <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Esito</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -142,12 +147,77 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         </select>
                                     </div>
                                 </td>
+                                {/* Setter Step */}
+                                <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                    {canEditSetterSteps && onUpdateSetterField ? (
+                                        <select
+                                            className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                            style={{
+                                                color: lead.setter_step ? (() => { const STEPS = [{v:'Chiamato',c:'#22c55e'},{v:'1° chiamata fatta',c:'#eab308'},{v:'2°chiamata fatta',c:'#f97316'},{v:'3° chiamata fatta',c:'#ef4444'},{v:'Messaggio inviato',c:'#3b82f6'},{v:'Non risponde',c:'#a1a1aa'},{v:'Email inviata (ULTIMO STEP)',c:'#8b5cf6'},{v:'Follow up',c:'#06b6d4'},{v:'Contatto POST EMAIL',c:'#ec4899'}]; return STEPS.find(s=>s.v===lead.setter_step)?.c || '#a1a1aa' })() : '#71717a',
+                                            }}
+                                            value={lead.setter_step || ''}
+                                            onChange={e => onUpdateSetterField(lead.id, 'setter_step', e.target.value)}
+                                        >
+                                            <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                            <option value="Chiamato" className="bg-[#0a0a0e]">Chiamato</option>
+                                            <option value="1° chiamata fatta" className="bg-[#0a0a0e]">1° chiamata</option>
+                                            <option value="2°chiamata fatta" className="bg-[#0a0a0e]">2° chiamata</option>
+                                            <option value="3° chiamata fatta" className="bg-[#0a0a0e]">3° chiamata</option>
+                                            <option value="Messaggio inviato" className="bg-[#0a0a0e]">Msg inviato</option>
+                                            <option value="Non risponde" className="bg-[#0a0a0e]">Non risponde</option>
+                                            <option value="Email inviata (ULTIMO STEP)" className="bg-[#0a0a0e]">Email (ultimo)</option>
+                                            <option value="Follow up" className="bg-[#0a0a0e]">Follow up</option>
+                                            <option value="Contatto POST EMAIL" className="bg-[#0a0a0e]">POST EMAIL</option>
+                                        </select>
+                                    ) : lead.setter_step ? (
+                                        <span className="text-xs font-semibold">{lead.setter_step}</span>
+                                    ) : <span className="text-gray-600">—</span>}
+                                </td>
+                                {/* Try Anthon */}
+                                <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                    {canEditSetterSteps && onUpdateSetterField ? (
+                                        <select
+                                            className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                            style={{ color: lead.try_anthon === 'Inviato' ? '#22c55e' : lead.try_anthon === 'Non inviato' ? '#ef4444' : '#71717a' }}
+                                            value={lead.try_anthon || ''}
+                                            onChange={e => onUpdateSetterField(lead.id, 'try_anthon', e.target.value)}
+                                        >
+                                            <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                            <option value="Inviato" className="bg-[#0a0a0e]">Inviato</option>
+                                            <option value="Non inviato" className="bg-[#0a0a0e]">Non inviato</option>
+                                        </select>
+                                    ) : lead.try_anthon ? (
+                                        <span className="text-xs font-semibold" style={{ color: lead.try_anthon === 'Inviato' ? '#22c55e' : '#ef4444' }}>{lead.try_anthon}</span>
+                                    ) : <span className="text-gray-600">—</span>}
+                                </td>
+                                {/* Esito */}
+                                <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                    {canEditSetterSteps && onUpdateSetterField ? (
+                                        <select
+                                            className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                            style={{
+                                                color: lead.esito ? (() => { const E = [{v:'Appuntamento Preso',c:'#22c55e'},{v:'NO APPUNTAMENTO',c:'#ef4444'},{v:'FUORI TARGET',c:'#71717a'},{v:'NUMERO INESISTENTE',c:'#a1a1aa'},{v:'DA RISENTIRE',c:'#eab308'}]; return E.find(s=>s.v===lead.esito)?.c || '#a1a1aa' })() : '#71717a',
+                                            }}
+                                            value={lead.esito || ''}
+                                            onChange={e => onUpdateSetterField(lead.id, 'esito', e.target.value)}
+                                        >
+                                            <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                            <option value="Appuntamento Preso" className="bg-[#0a0a0e]">App. Preso</option>
+                                            <option value="NO APPUNTAMENTO" className="bg-[#0a0a0e]">No App.</option>
+                                            <option value="FUORI TARGET" className="bg-[#0a0a0e]">Fuori Target</option>
+                                            <option value="NUMERO INESISTENTE" className="bg-[#0a0a0e]">Nr Inesistente</option>
+                                            <option value="DA RISENTIRE" className="bg-[#0a0a0e]">Da Risentire</option>
+                                        </select>
+                                    ) : lead.esito ? (
+                                        <span className="text-xs font-semibold">{lead.esito}</span>
+                                    ) : <span className="text-gray-600">—</span>}
+                                </td>
                             </tr>
                         )
                     })}
                     {leads.length === 0 && (
                         <tr>
-                            <td colSpan={8} className="px-5 py-16 text-center text-gray-500">
+                            <td colSpan={11} className="px-5 py-16 text-center text-gray-500">
                                 Nessun lead trovato con questi filtri.
                             </td>
                         </tr>

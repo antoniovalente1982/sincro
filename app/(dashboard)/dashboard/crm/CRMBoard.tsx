@@ -5,7 +5,7 @@ import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, 
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
 import Link from 'next/link'
-import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, type Role, type Department } from '@/lib/permissions'
+import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, canEditSetterFields, type Role, type Department } from '@/lib/permissions'
 import HowItWorks from '@/components/HowItWorks'
 import FastBookModal from './FastBookModal'
 
@@ -59,6 +59,9 @@ interface Lead {
     funnels?: { id: string; name: string; objective: string } | null
     lead_tags?: { crm_tags: Tag }[]
     calendar_events?: { id: string, start_time: string, status: string }[]
+    setter_step?: string
+    try_anthon?: string
+    esito?: string
 }
 
 interface Member {
@@ -120,6 +123,37 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
+// ── Setter Workflow Constants (exact values from Google Sheet "Leads (social)") ──
+const SETTER_STEPS: { value: string; label: string; color: string }[] = [
+    { value: 'Chiamato', label: 'Chiamato', color: '#22c55e' },
+    { value: '1° chiamata fatta', label: '1° chiamata fatta', color: '#eab308' },
+    { value: '2°chiamata fatta', label: '2° chiamata fatta', color: '#f97316' },
+    { value: '3° chiamata fatta', label: '3° chiamata fatta', color: '#ef4444' },
+    { value: 'Messaggio inviato', label: 'Messaggio inviato', color: '#3b82f6' },
+    { value: 'Non risponde', label: 'Non risponde', color: '#a1a1aa' },
+    { value: 'Email inviata (ULTIMO STEP)', label: 'Email inviata (ULTIMO STEP)', color: '#8b5cf6' },
+    { value: 'Follow up', label: 'Follow up', color: '#06b6d4' },
+    { value: 'Contatto POST EMAIL', label: 'Contatto POST EMAIL', color: '#ec4899' },
+]
+
+const TRY_ANTHON_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'Inviato', label: 'Inviato', color: '#22c55e' },
+    { value: 'Non inviato', label: 'Non inviato', color: '#ef4444' },
+]
+
+const ESITO_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'Appuntamento Preso', label: 'Appuntamento Preso', color: '#22c55e' },
+    { value: 'NO APPUNTAMENTO', label: 'No Appuntamento', color: '#ef4444' },
+    { value: 'FUORI TARGET', label: 'Fuori Target', color: '#71717a' },
+    { value: 'NUMERO INESISTENTE', label: 'Numero Inesistente', color: '#a1a1aa' },
+    { value: 'DA RISENTIRE', label: 'Da Risentire', color: '#eab308' },
+]
+
+function getOptionConfig(value: string | undefined, options: { value: string; label: string; color: string }[]): { label: string; color: string } | null {
+    if (!value) return null
+    return options.find(o => o.value === value) || { label: value, color: '#a1a1aa' }
+}
+
 export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, userDepartment, userId, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
     const getDisplayName = (m: any) => {
         if (m.profiles?.full_name) return m.profiles.full_name;
@@ -132,6 +166,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const role = (userRole || 'viewer') as Role
     const department = (userDepartment || null) as Department
     const readOnly = isCrmReadOnly(role, department)
+    const canEditSetterSteps = canEditSetterFields(role, department)
     const filterOwn = shouldFilterOwnLeads(role)
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
@@ -153,6 +188,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [sourceFilter, setSourceFilter] = useState<string>('all')
     const [setterFilter, setSetterFilter] = useState<string>('all')
     const [closerFilter, setCloserFilter] = useState<string>('all')
+    const [stepFilter, setStepFilter] = useState<string>('all')
+    const [esitoFilter, setEsitoFilter] = useState<string>('all')
     const [tags, setTags] = useState<Tag[]>(globalTags)
     
     // Auto-refresh: poll /api/leads every 60s for new leads
@@ -258,10 +295,12 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchTag = tagFilter === 'all' || (l.lead_tags || []).some(lt => lt.crm_tags?.id === tagFilter)
         const matchSetter = setterFilter === 'all' || l.setter_id === setterFilter
         const matchCloser = closerFilter === 'all' || l.closer_id === closerFilter
+        const matchStep = stepFilter === 'all' || l.setter_step === stepFilter
+        const matchEsito = esitoFilter === 'all' || l.esito === esitoFilter
         // Role-based filter: setter/closer see only their assigned leads
         const matchOwnership = !filterOwn || l.setter_id === userId || l.closer_id === userId || l.assigned_to === userId || (!l.setter_id && !l.closer_id && !l.assigned_to)
         
-        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchOwnership
+        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchStep && matchEsito && matchOwnership
     })
 
     // Sort leads by arrival time (most recent first) considering re-submissions
@@ -411,6 +450,25 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             });
         } catch {
             setLeads(prev => prev.map(l => l.id === leadId ? { ...l, closer_id: oldValue, closer_profile: oldProfile } : l));
+        }
+    }
+
+    const handleUpdateSetterField = async (leadId: string, field: 'setter_step' | 'try_anthon' | 'esito', value: string) => {
+        const lead = leads.find(l => l.id === leadId)
+        const oldValue = lead?.[field]
+        const newValue = value || undefined
+        
+        // Optimistic update
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: newValue } : l))
+        
+        try {
+            await fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: leadId, [field]: value || null }),
+            })
+        } catch {
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: oldValue } : l))
         }
     }
 
@@ -705,6 +763,28 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     ))}
                 </select>
 
+                <select
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-yellow-300"
+                    value={stepFilter}
+                    onChange={e => setStepFilter(e.target.value)}
+                >
+                    <option value="all">📞 Tutti gli Step</option>
+                    {SETTER_STEPS.map(s => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="input !w-[150px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-orange-300"
+                    value={esitoFilter}
+                    onChange={e => setEsitoFilter(e.target.value)}
+                >
+                    <option value="all">📋 Tutti gli Esiti</option>
+                    {ESITO_OPTIONS.map(e => (
+                        <option key={e.value} value={e.value}>{e.label}</option>
+                    ))}
+                </select>
+
                 <div className="ml-auto flex items-center gap-3">
                     <div className="flex bg-black/40 rounded-lg p-0.5" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                         <button 
@@ -847,6 +927,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onAssignLead={handleAssignLead} 
                     onAssignSetter={handleAssignSetter}
                     onAssignCloser={handleAssignCloser}
+                    onUpdateSetterField={handleUpdateSetterField}
+                    canEditSetterSteps={canEditSetterSteps}
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
                 />
             ) : (
@@ -983,6 +1065,89 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 })}
                                             </div>
                                         )}
+
+                                        {/* SETTER WORKFLOW — Step, Try Anthon, Esito */}
+                                        <div className="mt-2 flex flex-wrap gap-1" onClick={e => e.stopPropagation()}>
+                                            {/* Step (Chiamato) */}
+                                            {canEditSetterSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.setter_step ? `${getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.setter_step ? getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.setter_step ? (getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '130px',
+                                                    }}
+                                                    value={lead.setter_step || ''}
+                                                    onChange={e => handleUpdateSetterField(lead.id, 'setter_step', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">📞 Step...</option>
+                                                    {SETTER_STEPS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.setter_step ? (() => {
+                                                const cfg = getOptionConfig(lead.setter_step, SETTER_STEPS)
+                                                return cfg ? (
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{
+                                                        background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35`
+                                                    }}>{cfg.label}</span>
+                                                ) : null
+                                            })() : null}
+
+                                            {/* Try Anthon */}
+                                            {canEditSetterSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.try_anthon ? `${getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.try_anthon ? getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.try_anthon ? (getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                    }}
+                                                    value={lead.try_anthon || ''}
+                                                    onChange={e => handleUpdateSetterField(lead.id, 'try_anthon', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Try A.</option>
+                                                    {TRY_ANTHON_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.try_anthon ? (() => {
+                                                const cfg = getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)
+                                                return cfg ? (
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{
+                                                        background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35`
+                                                    }}>{cfg.label}</span>
+                                                ) : null
+                                            })() : null}
+
+                                            {/* Esito */}
+                                            {canEditSetterSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.esito ? `${getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.esito ? getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.esito ? (getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '140px',
+                                                    }}
+                                                    value={lead.esito || ''}
+                                                    onChange={e => handleUpdateSetterField(lead.id, 'esito', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">📋 Esito...</option>
+                                                    {ESITO_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.esito ? (() => {
+                                                const cfg = getOptionConfig(lead.esito, ESITO_OPTIONS)
+                                                return cfg ? (
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{
+                                                        background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35`
+                                                    }}>{cfg.label}</span>
+                                                ) : null
+                                            })() : null}
+                                        </div>
 
                                         <div className="mt-2 space-y-1">
                                             {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
@@ -1194,7 +1359,10 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         utm_campaign: lead?.utm_campaign || '',
         utm_term: lead?.meta_data?.utm_term || '',
         utm_content: lead?.meta_data?.utm_content || '',
-        tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[]
+        tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[],
+        setter_step: lead?.setter_step || '',
+        try_anthon: lead?.try_anthon || '',
+        esito: lead?.esito || '',
     })
 
     const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
@@ -1296,6 +1464,40 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    </div>
+
+                    {/* Setter Workflow Fields */}
+                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <h3 className="text-sm font-semibold text-white mb-3">📞 Workflow Setter</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <label className="label">Step (Chiamato)</label>
+                                <select className="input" value={form.setter_step} onChange={e => setForm({ ...form, setter_step: e.target.value })}>
+                                    <option value="">— Nessuno —</option>
+                                    {SETTER_STEPS.map(s => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="label">Try Anthon</label>
+                                <select className="input" value={form.try_anthon} onChange={e => setForm({ ...form, try_anthon: e.target.value })}>
+                                    <option value="">— Nessuno —</option>
+                                    {TRY_ANTHON_OPTIONS.map(s => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="label">Esito</label>
+                                <select className="input" value={form.esito} onChange={e => setForm({ ...form, esito: e.target.value })}>
+                                    <option value="">— Nessuno —</option>
+                                    {ESITO_OPTIONS.map(s => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -1457,6 +1659,39 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         </div>
                     )}
                 </div>
+
+                {/* Setter Workflow Status */}
+                {(lead.setter_step || lead.try_anthon || lead.esito) && (
+                    <div className="flex flex-wrap gap-2 mb-5">
+                        {lead.setter_step && (() => {
+                            const cfg = getOptionConfig(lead.setter_step, SETTER_STEPS)
+                            return cfg ? (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: `${cfg.color}10`, border: `1px solid ${cfg.color}20` }}>
+                                    <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Step</div>
+                                    <div className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</div>
+                                </div>
+                            ) : null
+                        })()}
+                        {lead.try_anthon && (() => {
+                            const cfg = getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)
+                            return cfg ? (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: `${cfg.color}10`, border: `1px solid ${cfg.color}20` }}>
+                                    <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Try A.</div>
+                                    <div className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</div>
+                                </div>
+                            ) : null
+                        })()}
+                        {lead.esito && (() => {
+                            const cfg = getOptionConfig(lead.esito, ESITO_OPTIONS)
+                            return cfg ? (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: `${cfg.color}10`, border: `1px solid ${cfg.color}20` }}>
+                                    <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Esito</div>
+                                    <div className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</div>
+                                </div>
+                            ) : null
+                        })()}
+                    </div>
+                )}
 
                 {/* Contact & Actions */}
                 <div className="mb-5 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
