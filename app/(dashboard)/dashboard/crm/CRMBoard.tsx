@@ -760,22 +760,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </button>
                     </div>
 
-                    {viewMode === 'kanban' && (
-                        <details className="relative group/col-sel ml-2">
-                            <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 h-[42px] bg-black/40 border border-white/10 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
-                                <Eye className="w-4 h-4" /> 
-                                Campi Card
-                            </summary>
-                            <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                                {CARD_FIELD_OPTIONS.map(c => (
-                                    <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-white/5 cursor-pointer hover:text-white transition-colors">
-                                        <input type="checkbox" className="rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
-                                        {c.label}
-                                    </label>
-                                ))}
-                            </div>
-                        </details>
-                    )}
+
 
                     <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary ml-2 py-2">
                         <Plus className="w-4 h-4" /> Nuovo Lead
@@ -1013,7 +998,24 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
                 />
             ) : (
-            <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
+            <div className="w-full flex flex-col gap-3">
+                <div className="flex justify-end pr-1">
+                    <details className="relative group/col-sel">
+                        <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
+                            <Eye className="w-4 h-4" /> 
+                            Campi Card
+                        </summary>
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                            {CARD_FIELD_OPTIONS.map(c => (
+                                <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-white/5 cursor-pointer hover:text-white transition-colors">
+                                    <input type="checkbox" className="rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
+                                    {c.label}
+                                </label>
+                            ))}
+                        </div>
+                    </details>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
                 {activeStages.map(stage => {
                     const stageLeads = getLeadsForStage(stage.id)
                     const isOver = dragOverStage === stage.id
@@ -1471,6 +1473,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </div>
                     )
                 })}
+            </div>
             </div>
             )}
 
