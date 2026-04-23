@@ -3,6 +3,8 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClickUpTask } from '@/lib/clickup'
 
+export const dynamic = 'force-dynamic';
+
 async function getOrgId(supabase: any) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null

@@ -199,7 +199,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     leadsRef.current = leads
     const fetchFreshLeads = async () => {
         try {
-            const res = await fetch('/api/leads')
+            const res = await fetch('/api/leads?t=' + Date.now())
             if (!res.ok) return
             const freshLeads = await res.json()
             if (!Array.isArray(freshLeads)) return
