@@ -793,69 +793,121 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                         background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
                                                     }}
                                                 >
-                                                    {/* Sincro events (solid) */}
-                                                    {cellEvents.map(evt => {
-                                                        const startMin = new Date(evt.start_time).getMinutes()
-                                                        const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
-                                                        const statusColors: Record<string, string> = {
-                                                            confirmed: evt.closer_color,
-                                                            completed: '#22c55e',
-                                                            cancelled: '#ef4444',
-                                                            no_show: '#f59e0b',
-                                                        }
-                                                        const bgColor = statusColors[evt.status] || evt.closer_color
-
-                                                        return (
-                                                            <div
-                                                                key={evt.id}
-                                                                onClick={() => setSelectedEvent(evt)}
-                                                                className="absolute left-1 right-1 rounded-lg px-2 py-1 cursor-pointer transition-all hover:scale-[1.02] hover:z-10"
-                                                                style={{
-                                                                    top: `${(startMin / 60) * 100}%`,
-                                                                    height: `${Math.max((duration / 60) * 60, 30)}px`,
-                                                                    background: `${bgColor}20`,
-                                                                    borderLeft: `3px solid ${bgColor}`,
-                                                                    zIndex: 5,
-                                                                }}
-                                                            >
-                                                                <div className="text-[11px] font-bold text-white truncate">
-                                                                    {evt.leads?.name || evt.title}
+                                                    {/* Unified Event Rendering engine (Deduplication & Collision) */}
+                                                    {(() => {
+                                                        const merged: any[] = [];
+                                                        
+                                                        // 1. Process Sincro Events
+                                                        cellEvents.forEach(evt => {
+                                                            const startMin = new Date(evt.start_time).getMinutes()
+                                                            const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
+                                                            const statusColors: Record<string, string> = {
+                                                                confirmed: evt.closer_color,
+                                                                completed: '#22c55e',
+                                                                cancelled: '#ef4444',
+                                                                no_show: '#f59e0b',
+                                                            }
+                                                            const bgColor = statusColors[evt.status] || evt.closer_color || '#6366f1'
+                                                            merged.push({
+                                                                type: 'sincro',
+                                                                id: evt.id,
+                                                                startMin,
+                                                                duration,
+                                                                bgColor,
+                                                                title: evt.leads?.name || evt.title,
+                                                                start_time: evt.start_time,
+                                                                end_time: evt.end_time,
+                                                                subtitle: `${fmt(evt.start_time)} — ${fmt(evt.end_time)} · ${evt.closer_name}`,
+                                                                raw: evt
+                                                            })
+                                                        });
+                                                        
+                                                        // 2. Process Google Events (with deduplication)
+                                                        cellGoogleEvents.forEach(({ event: ge, color }) => {
+                                                            // Deduplication heuristic: If start time is identical AND (it's marked with Sincro tag OR title says Appuntamento)
+                                                            const isShadow = merged.some(m => 
+                                                                new Date(m.start_time).getTime() === new Date(ge.start).getTime() && 
+                                                                (ge.summary.includes('Appuntamento') || (ge as any).extendedProperties?.private?.sincro_event_id)
+                                                            );
+                                                            if (isShadow) return; // Skip completely!
+                                                            
+                                                            const startMin = new Date(ge.start).getMinutes()
+                                                            const duration = (new Date(ge.end).getTime() - new Date(ge.start).getTime()) / 60000
+                                                            merged.push({
+                                                                type: 'google',
+                                                                id: `g-${ge.id}`,
+                                                                startMin,
+                                                                duration,
+                                                                bgColor: color,
+                                                                title: ge.summary || 'Impegno',
+                                                                start_time: ge.start,
+                                                                end_time: ge.end,
+                                                                subtitle: `${fmt(ge.start)} — ${fmt(ge.end)}`,
+                                                                raw: ge
+                                                            })
+                                                        });
+                                                        
+                                                        // 3. Collision Engine (grouping overlapping events)
+                                                        merged.sort((a,b) => a.startMin - b.startMin);
+                                                        const columns: any[][] = [];
+                                                        merged.forEach(ev => {
+                                                            let placed = false;
+                                                            for (let i = 0; i < columns.length; i++) {
+                                                                const colEvents = columns[i];
+                                                                const last = colEvents[colEvents.length - 1];
+                                                                if (ev.startMin >= last.startMin + Math.max(last.duration, 15)) {
+                                                                    columns[i].push(ev);
+                                                                    ev.colIndex = i;
+                                                                    placed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                            if (!placed) {
+                                                                columns.push([ev]);
+                                                                ev.colIndex = columns.length - 1;
+                                                            }
+                                                        });
+                                                        
+                                                        const maxCols = columns.length || 1;
+                                                        
+                                                        // 4. Render Layout
+                                                        return merged.map(evt => {
+                                                            const colWidth = 100 / maxCols;
+                                                            const leftPos = evt.colIndex * colWidth;
+                                                            const isGoogle = evt.type === 'google';
+                                                            const height = Math.max((evt.duration / 60) * 60, 24);
+                                                            
+                                                            return (
+                                                                <div
+                                                                    key={evt.id}
+                                                                    onClick={() => isGoogle ? null : setSelectedEvent(evt.raw)}
+                                                                    className={`absolute rounded-lg px-1.5 py-1 transition-all ${!isGoogle ? 'cursor-pointer hover:scale-[1.02] hover:z-10' : ''}`}
+                                                                    style={{
+                                                                        top: `${(evt.startMin / 60) * 100}%`,
+                                                                        height: `${height}px`,
+                                                                        left: `${leftPos}%`,
+                                                                        width: `calc(${colWidth}% - 2px)`,
+                                                                        background: isGoogle 
+                                                                            ? `repeating-linear-gradient(45deg, ${evt.bgColor}08, ${evt.bgColor}08 4px, ${evt.bgColor}15 4px, ${evt.bgColor}15 8px)`
+                                                                            : `${evt.bgColor}20`,
+                                                                        borderLeft: isGoogle ? `3px dashed ${evt.bgColor}60` : `3px solid ${evt.bgColor}`,
+                                                                        zIndex: isGoogle ? 3 : 5,
+                                                                        opacity: isGoogle ? 0.7 : 1,
+                                                                    }}
+                                                                    title={isGoogle ? `Google: ${evt.title}` : undefined}
+                                                                >
+                                                                    <div className={`text-[10px] font-bold truncate leading-tight ${isGoogle ? '' : 'text-white'}`} style={{ color: isGoogle ? `${evt.bgColor}cc` : undefined }}>
+                                                                        {evt.title}
+                                                                    </div>
+                                                                    {height >= 35 && ( // Only show subtitle if we have vertical space (duration >= 35 mins)
+                                                                        <div className="text-[9px] font-medium leading-tight truncate mt-[1px]" style={{ color: isGoogle ? `${evt.bgColor}88` : evt.bgColor }}>
+                                                                            {evt.subtitle}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <div className="text-[9px] font-medium" style={{ color: bgColor }}>
-                                                                    {fmt(evt.start_time)} — {fmt(evt.end_time)} · {evt.closer_name}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
-
-                                                    {/* Google Calendar events (hatched/semi-transparent) */}
-                                                    {cellGoogleEvents.map(({ event: ge, color }) => {
-                                                        const startMin = new Date(ge.start).getMinutes()
-                                                        const duration = (new Date(ge.end).getTime() - new Date(ge.start).getTime()) / 60000
-
-                                                        return (
-                                                            <div
-                                                                key={`g-${ge.id}`}
-                                                                className="absolute left-1 right-1 rounded-lg px-2 py-1"
-                                                                style={{
-                                                                    top: `${(startMin / 60) * 100}%`,
-                                                                    height: `${Math.max((duration / 60) * 60, 24)}px`,
-                                                                    background: `repeating-linear-gradient(45deg, ${color}08, ${color}08 4px, ${color}15 4px, ${color}15 8px)`,
-                                                                    borderLeft: `3px dashed ${color}60`,
-                                                                    zIndex: 3,
-                                                                    opacity: 0.7,
-                                                                }}
-                                                                title={`Google: ${ge.summary}`}
-                                                            >
-                                                                <div className="text-[10px] font-medium truncate" style={{ color: `${color}cc` }}>
-                                                                    {ge.summary}
-                                                                </div>
-                                                                <div className="text-[9px]" style={{ color: `${color}88` }}>
-                                                                    {fmt(ge.start)} — {fmt(ge.end)}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
+                                                            )
+                                                        });
+                                                    })()}
                                                 </div>
                                             )
                                         })}
