@@ -803,7 +803,6 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                             const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
                                                             
                                                             const bgColor = evt.closer_color || '#6366f1' // Calendar OWNER's color ALWAYS
-                                                            // Calculate status prefix if needed
                                                             const statusIcon = evt.status === 'completed' ? '✅ ' : evt.status === 'no_show' ? '❌ ' : ''
                                                             
                                                             merged.push({
@@ -822,7 +821,6 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                         
                                                         // 2. Process Google Events (with deduplication)
                                                         cellGoogleEvents.forEach(({ event: ge, color }) => {
-                                                            // Deduplication heuristic
                                                             const isShadow = merged.some(m => 
                                                                 new Date(m.start_time).getTime() === new Date(ge.start).getTime() && 
                                                                 (ge.summary.includes('Appuntamento') || (ge as any).extendedProperties?.private?.sincro_event_id)
@@ -836,7 +834,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                                 id: `g-${ge.id}`,
                                                                 startMin,
                                                                 duration,
-                                                                bgColor: color, // The Closer's color!
+                                                                bgColor: color, 
                                                                 title: ge.summary || 'Impegno',
                                                                 start_time: ge.start,
                                                                 end_time: ge.end,
@@ -885,27 +883,20 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                                         height: `${height}px`,
                                                                         left: `${leftPos}%`,
                                                                         width: `calc(${colWidth}% - 2px)`,
-                                                                        background: isGoogle 
-                                                                            ? `repeating-linear-gradient(45deg, #ffffff, #ffffff 4px, #fafafa 4px, #fafafa 8px)`
-                                                                            : `#ffffff`,
-                                                                        borderLeft: isGoogle ? `3px dashed ${evt.bgColor}` : `4px solid ${evt.bgColor}`,
-                                                                        borderTop: '1px solid #f3f4f6',
-                                                                        borderRight: '1px solid #f3f4f6',
-                                                                        borderBottom: '1px solid #f3f4f6',
+                                                                        background: evt.bgColor,
+                                                                        border: isGoogle ? `1px dashed rgba(255,255,255,0.4)` : `none`,
                                                                         zIndex: isGoogle ? 3 : 5,
                                                                         opacity: isGoogle ? 0.8 : 1,
                                                                     }}
                                                                     title={isGoogle ? `Google: ${evt.title}` : undefined}
                                                                 >
                                                                     <div className="flex items-center gap-1.5 overflow-hidden">
-                                                                        {/* Explicit color dot inside the white card next to the title */}
-                                                                        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: evt.bgColor }} />
-                                                                        <div className="text-[10px] font-bold truncate leading-tight text-gray-900">
+                                                                        <div className="text-[10px] font-bold truncate leading-tight text-white drop-shadow-md">
                                                                             {evt.title}
                                                                         </div>
                                                                     </div>
                                                                     {height >= 35 && ( 
-                                                                        <div className="text-[9px] font-medium leading-tight truncate mt-[2px] ml-3 text-gray-500">
+                                                                        <div className="text-[9px] font-medium leading-tight truncate mt-[2px] text-white/90 drop-shadow-md">
                                                                             {evt.subtitle}
                                                                         </div>
                                                                     )}
