@@ -219,6 +219,34 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     const [tags, setTags] = useState<Tag[]>(globalTags)
     
+    // --- Kanban Card Field Visibility ---
+    const [hiddenCardFields, setHiddenCardFields] = useState<Record<string, boolean>>({})
+
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('sincro_kanban_hidden_fields')
+            if (saved) setHiddenCardFields(JSON.parse(saved))
+        } catch (e) {}
+    }, [])
+
+    const toggleCardField = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        const next = { ...hiddenCardFields, [id]: !hiddenCardFields[id] }
+        setHiddenCardFields(next)
+        localStorage.setItem('sincro_kanban_hidden_fields', JSON.stringify(next))
+    }
+
+    const CARD_FIELD_OPTIONS = [     
+        { id: 'tags', label: 'Tags & Metriche' },
+        { id: 'contatti', label: 'Info & Contatti' },
+        { id: 'date', label: 'Date Log' },
+        { id: 'appuntamenti', label: 'Appuntamenti' },
+        { id: 'assegnazioni', label: 'Assegnazioni Team' },
+        { id: 'step_setter', label: 'Step Setter' },
+        { id: 'step_venditore', label: 'Step Venditore' },
+    ]
+    // -------------------------------------
+    
     // Auto-refresh: poll /api/leads every 60s for new leads
     const leadsRef = useRef(leads)
     leadsRef.current = leads
@@ -732,6 +760,23 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </button>
                     </div>
 
+                    {viewMode === 'kanban' && (
+                        <details className="relative group/col-sel ml-2">
+                            <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 h-[42px] bg-black/40 border border-white/10 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
+                                <Eye className="w-4 h-4" /> 
+                                Campi Card
+                            </summary>
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                                {CARD_FIELD_OPTIONS.map(c => (
+                                    <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-white/5 cursor-pointer hover:text-white transition-colors">
+                                        <input type="checkbox" className="rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
+                                        {c.label}
+                                    </label>
+                                ))}
+                            </div>
+                        </details>
+                    )}
+
                     <button onClick={() => { setEditingLead(null); setShowModal(true) }} className="btn-primary ml-2 py-2">
                         <Plus className="w-4 h-4" /> Nuovo Lead
                     </button>
@@ -1084,7 +1129,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         })()}
 
                                         {/* RENDER TAGS DELLA CARD */}
-                                        {lead.lead_tags && lead.lead_tags.length > 0 && (
+                                        {!hiddenCardFields['tags'] && lead.lead_tags && lead.lead_tags.length > 0 && (
                                             <div className="mt-2 flex flex-wrap gap-1">
                                                 {lead.lead_tags.map(lt => {
                                                     const tag = lt.crm_tags;
@@ -1103,6 +1148,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         )}
 
                                         {/* SETTER WORKFLOW — Step, Try Anthon, Esito */}
+                                        {!hiddenCardFields['step_setter'] && (canEditSetterSteps || lead.setter_step || lead.try_anthon || lead.esito) ? (
                                         <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditSetterSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
                                             <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
                                                 <span>🛠 Setter</span>
@@ -1189,9 +1235,10 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                             })() : null}
                                             </div>
                                         </div>
+                                        ) : null}
 
                                         {/* CLOSER WORKFLOW (Visible only if user has permissions or if fields are populated) */}
-                                        {(canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome || (lead.calendar_events && lead.calendar_events.length > 0)) && (
+                                        {!hiddenCardFields['step_venditore'] && (canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome || (lead.calendar_events && lead.calendar_events.length > 0)) && (
                                         <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditCloserSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
                                             <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
                                                 <span>🤝 Venditore</span>
@@ -1297,50 +1344,54 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </div>
                                         )}
 
-                                        <div className="mt-2 space-y-1">
-                                            {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
-                                                <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#f97316' }}>
-                                                    🔄 Ritorno Storico{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
-                                                </div>
-                                            )}
-                                            {lead.email && (
-                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
-                                                    <Mail className="w-3 h-3" /> {lead.email}
-                                                </div>
-                                            )}
-                                            {lead.phone && (
-                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
-                                                    <Phone className="w-3 h-3" /> {lead.phone}
-                                                </div>
-                                            )}
-                                            {lead.meta_data?.child_age && (
-                                                <div className="flex items-center gap-1.5 text-[11px]" style={{ color: '#f59e0b' }}>
-                                                    <User className="w-3 h-3" /> Figlio: {lead.meta_data.child_age} anni
-                                                </div>
-                                            )}
-                                            {(lead.value ?? 0) > 0 && (
-                                                <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-success)' }}>
-                                                    <DollarSign className="w-3 h-3" /> {formatCurrency(lead.value!)}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: '#a1a1aa' /* grigio molto più chiaro var(--color-surface-400) */ }}>
-                                                <span title="Data del primissimo contatto">Entrato: {formatDate(lead.created_at)}</span>
-                                                {lead.meta_data?.last_submission_at && (
-                                                    <span style={{ color: '#fca5a5' /* rosso/arancio chiaro molto più leggibile su scuro */ }} title="Ha compilato un modulo una seconda volta">Ri-registrato: {formatDate(lead.meta_data.last_submission_at)}</span>
+                                        {!hiddenCardFields['contatti'] && (
+                                            <div className="mt-2 space-y-1">
+                                                {(lead.meta_data?.resubmit_count ?? 0) > 0 && !isReturnedToday && (
+                                                    <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#f97316' }}>
+                                                        🔄 Ritorno Storico{(lead.meta_data?.resubmit_count ?? 0) > 1 ? ` (×${lead.meta_data?.resubmit_count})` : ''}
+                                                    </div>
                                                 )}
-                                                {(lead.updated_at > lead.created_at) && !lead.meta_data?.last_submission_at && (
-                                                    <span style={{ color: '#71717a' }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
+                                                {lead.email && (
+                                                    <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
+                                                        <Mail className="w-3 h-3" /> {lead.email}
+                                                    </div>
+                                                )}
+                                                {lead.phone && (
+                                                    <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
+                                                        <Phone className="w-3 h-3" /> {lead.phone}
+                                                    </div>
+                                                )}
+                                                {lead.meta_data?.child_age && (
+                                                    <div className="flex items-center gap-1.5 text-[11px]" style={{ color: '#f59e0b' }}>
+                                                        <User className="w-3 h-3" /> Figlio: {lead.meta_data.child_age} anni
+                                                    </div>
+                                                )}
+                                                {(lead.value ?? 0) > 0 && (
+                                                    <div className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-success)' }}>
+                                                        <DollarSign className="w-3 h-3" /> {formatCurrency(lead.value!)}
+                                                    </div>
                                                 )}
                                             </div>
+                                        )}
+
+                                        <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                                            {!hiddenCardFields['date'] && (
+                                                <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: '#a1a1aa' /* grigio molto più chiaro var(--color-surface-400) */ }}>
+                                                    <span title="Data del primissimo contatto">Entrato: {formatDate(lead.created_at)}</span>
+                                                    {lead.meta_data?.last_submission_at && (
+                                                        <span style={{ color: '#fca5a5' /* rosso/arancio chiaro molto più leggibile su scuro */ }} title="Ha compilato un modulo una seconda volta">Ri-registrato: {formatDate(lead.meta_data.last_submission_at)}</span>
+                                                    )}
+                                                    {(lead.updated_at > lead.created_at) && !lead.meta_data?.last_submission_at && (
+                                                        <span style={{ color: '#71717a' }} title="Data in cui il lead è stato spostato o modificato l'ultima volta">Spostato: {formatDate(lead.updated_at)}</span>
+                                                    )}
+                                                </div>
+                                            )}
                                             <div className="flex flex-col gap-1.5 mt-3" onClick={e => e.stopPropagation()}>
-                                                {(() => {
+                                                {!hiddenCardFields['appuntamenti'] && (() => {
                                                     const activeApp = lead.calendar_events?.find((e: any) => e.status !== 'cancelled');
                                                     if (!activeApp) return null;
                                                     return (
-                                                        <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg border transition-colors" style={{ background: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.2)' }}>
+                                                        <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg border transition-colors mb-1.5" style={{ background: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.2)' }}>
                                                             <div className="flex items-center gap-1.5 min-w-0 flex-1 text-purple-300">
                                                                 <Calendar className="w-4 h-4 ml-0.5 flex-shrink-0" style={{ color: '#a78bfa' }} />
                                                                 <span className="text-[11px] font-semibold truncate" style={{ color: '#d8b4fe' }}>
@@ -1358,49 +1409,53 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     )
                                                 })()}
                                                 
-                                                <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-indigo-500/30 transition-colors">
-                                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                                        {lead.setter_profile?.avatar_url ? (
-                                                            <img src={lead.setter_profile.avatar_url} alt="S" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                                                        ) : (
-                                                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
-                                                        )}
-                                                        <select
-                                                            className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-indigo-300"
-                                                            value={lead.setter_id || ''}
-                                                            onChange={e => handleAssignSetter(lead.id, e.target.value)}
-                                                        >
-                                                            <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Setter</option>
-                                                            {assignableSetters.map((m: any) => (
-                                                                <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
-                                                                    {getDisplayName(m)}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                {!hiddenCardFields['assegnazioni'] && (
+                                                  <>
+                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-indigo-500/30 transition-colors">
+                                                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                            {lead.setter_profile?.avatar_url ? (
+                                                                <img src={lead.setter_profile.avatar_url} alt="S" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                                            ) : (
+                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
+                                                            )}
+                                                            <select
+                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-indigo-300"
+                                                                value={lead.setter_id || ''}
+                                                                onChange={e => handleAssignSetter(lead.id, e.target.value)}
+                                                            >
+                                                                <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Setter</option>
+                                                                {assignableSetters.map((m: any) => (
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                        {getDisplayName(m)}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-emerald-500/30 transition-colors">
-                                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                                        {lead.closer_profile?.avatar_url ? (
-                                                            <img src={lead.closer_profile.avatar_url} alt="C" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                                                        ) : (
-                                                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#10b981' }}>V</div>
-                                                        )}
-                                                        <select
-                                                            className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-emerald-300"
-                                                            value={lead.closer_id || ''}
-                                                            onChange={e => handleAssignCloser(lead.id, e.target.value)}
-                                                        >
-                                                            <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Venditore</option>
-                                                            {assignableClosers.map((m: any) => (
-                                                                <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
-                                                                    {getDisplayName(m)}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-emerald-500/30 transition-colors mt-1.5">
+                                                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                            {lead.closer_profile?.avatar_url ? (
+                                                                <img src={lead.closer_profile.avatar_url} alt="C" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                                            ) : (
+                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#10b981' }}>V</div>
+                                                            )}
+                                                            <select
+                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-emerald-300"
+                                                                value={lead.closer_id || ''}
+                                                                onChange={e => handleAssignCloser(lead.id, e.target.value)}
+                                                            >
+                                                                <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Venditore</option>
+                                                                {assignableClosers.map((m: any) => (
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                        {getDisplayName(m)}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                  </>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
