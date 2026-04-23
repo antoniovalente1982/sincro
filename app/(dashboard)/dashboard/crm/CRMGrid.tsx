@@ -93,7 +93,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                 <table className="w-full text-left text-sm text-gray-300 whitespace-nowrap">
                 <thead className="sticky top-0 bg-[#0a0a0e] shadow-[0_1px_0_0_rgba(255,255,255,0.05)] z-10">
                     <tr>
-                        <th className="px-5 py-4 w-12" onClick={e => e.stopPropagation()}>
+                        <th className="sticky left-0 z-20 bg-[#0a0a0e] px-5 py-4 w-12 border-r border-white/5" onClick={e => e.stopPropagation()}>
                             <input 
                                 type="checkbox" 
                                 className="w-4 h-4 rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer"
@@ -101,8 +101,8 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                 onChange={onToggleAllSelect}
                             />
                         </th>
+                        <th className="sticky left-[48px] z-20 bg-[#0a0a0e] px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[220px] border-r border-white/5 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">Contatto</th>
                         {!hiddenCols['data'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[120px]">Data Ins.</th>}
-                        <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[220px]">Contatto</th>
                         {!hiddenCols['fase'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[140px]">Fase / Stage</th>}
                         {!hiddenCols['valore'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[100px]">Valore</th>}
                         {!hiddenCols['fonte'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[180px]">Fonte di Traffico</th>}
@@ -126,9 +126,9 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                             <tr 
                                 key={lead.id} 
                                 onClick={() => onLeadClick(lead)}
-                                className={`hover:bg-white/[0.04] cursor-pointer transition-colors ${selectedLeads.includes(lead.id) ? 'bg-indigo-500/10' : ''}`}
+                                className={`group hover:bg-white/[0.04] cursor-pointer transition-colors ${selectedLeads.includes(lead.id) ? 'bg-indigo-500/10' : ''}`}
                             >
-                                <td className="px-5 py-4 w-12" onClick={e => e.stopPropagation()}>
+                                <td className="sticky left-0 z-10 bg-[#0a0a0e] group-hover:bg-[#15151a] px-5 py-4 w-12 border-r border-white/5 transition-colors" onClick={e => e.stopPropagation()}>
                                     <input 
                                         type="checkbox"
                                         className="w-4 h-4 rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer"
@@ -136,15 +136,15 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         onChange={() => onToggleLeadSelect(lead.id)}
                                     />
                                 </td>
+                                <td className="sticky left-[48px] z-10 bg-[#0a0a0e] group-hover:bg-[#15151a] px-5 py-4 max-w-[280px] truncate border-r border-white/5 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors">
+                                    <div className="font-semibold text-white">{lead.name}</div>
+                                    <div className="text-xs text-gray-400 mt-0.5">{lead.email || ''} {lead.email && lead.phone ? '•' : ''} {lead.phone || ''}</div>
+                                </td>
                                 {!hiddenCols['data'] && (
                                     <td className="px-5 py-4 text-xs font-semibold text-gray-400 whitespace-nowrap">
                                         {formatDate(lead.meta_data?.last_submission_at || lead.created_at)}
                                     </td>
                                 )}
-                                <td className="px-5 py-4 max-w-[280px] truncate">
-                                    <div className="font-semibold text-white">{lead.name}</div>
-                                    <div className="text-xs text-gray-400 mt-0.5">{lead.email || ''} {lead.email && lead.phone ? '•' : ''} {lead.phone || ''}</div>
-                                </td>
                                 {!hiddenCols['fase'] && (
                                     <td className="px-5 py-4">
                                         {stage ? (
