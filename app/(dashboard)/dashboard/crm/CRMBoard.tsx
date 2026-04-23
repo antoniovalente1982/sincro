@@ -62,6 +62,10 @@ interface Lead {
     setter_step?: string
     try_anthon?: string
     esito?: string
+    closer_appt_status?: string
+    closer_trial_status?: string
+    closer_outcome?: string
+    closer_downsell?: string
 }
 
 interface Member {
@@ -168,6 +172,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const department = (userDepartment || null) as Department
     const readOnly = isCrmReadOnly(role, department)
     const canEditSetterSteps = canEditSetterFields(role, department)
+    const canEditCloserSteps = role === 'owner' || role === 'admin' || role === 'closer' || (role === 'manager' && department === 'sales')
     const filterOwn = shouldFilterOwnLeads(role)
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
@@ -461,6 +466,24 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const newValue = value || undefined
         
         // Optimistic update
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: newValue } : l))
+        
+        try {
+            await fetch('/api/leads', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: leadId, [field]: value || null }),
+            })
+        } catch {
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: oldValue } : l))
+        }
+    }
+
+    const handleUpdateCloserField = async (leadId: string, field: 'closer_appt_status' | 'closer_trial_status' | 'closer_outcome' | 'closer_downsell', value: string) => {
+        const lead = leads.find(l => l.id === leadId)
+        const oldValue = lead?.[field]
+        const newValue = value || undefined
+        
         setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: newValue } : l))
         
         try {
@@ -918,8 +941,10 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onAssignSetter={handleAssignSetter}
                     onAssignCloser={handleAssignCloser}
                     onUpdateSetterField={handleUpdateSetterField}
+                    onUpdateCloserField={handleUpdateCloserField}
                     onFastBook={setFastBookLead}
                     canEditSetterSteps={canEditSetterSteps}
+                    canEditCloserSteps={canEditCloserSteps}
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
                 />
             ) : (
@@ -1296,6 +1321,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     formatTime={formatTime}
                     formatCurrency={formatCurrency}
                     onRefresh={fetchFreshLeads}
+                    handleUpdateCloserField={handleUpdateCloserField}
                 />
             )}
             {fastBookLead && (
@@ -1595,6 +1621,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
     formatTime: (d: string) => string
     formatCurrency: (v: number) => string
     onRefresh?: () => void
+    handleUpdateCloserField: (leadId: string, field: 'closer_appt_status' | 'closer_trial_status' | 'closer_outcome' | 'closer_downsell', value: string) => Promise<void>
 }) {
     const stage = stages.find(s => s.id === lead.stage_id)
     const [showBookingModal, setShowBookingModal] = useState(false)

@@ -12,8 +12,10 @@ interface CRMGridProps {
     onAssignSetter?: (leadId: string, setterId: string) => void
     onAssignCloser?: (leadId: string, closerId: string) => void
     onUpdateSetterField?: (leadId: string, field: 'setter_step' | 'try_anthon' | 'esito', value: string) => void
+    onUpdateCloserField?: (leadId: string, field: 'closer_appt_status' | 'closer_trial_status' | 'closer_outcome' | 'closer_downsell', value: string) => void
     onFastBook?: (lead: any) => void
     canEditSetterSteps?: boolean
+    canEditCloserSteps?: boolean
 }
 
 function formatCurrency(v: number) {
@@ -24,7 +26,7 @@ function formatDate(dStr: string) {
     return new Date(dStr).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser, onUpdateSetterField, onFastBook, canEditSetterSteps }: CRMGridProps) {
+export default function CRMGrid({ leads, stages, members, selectedLeads, onToggleLeadSelect, onToggleAllSelect, onLeadClick, onAssignLead, onAssignSetter, onAssignCloser, onUpdateSetterField, onUpdateCloserField, onFastBook, canEditSetterSteps, canEditCloserSteps }: CRMGridProps) {
     const getDisplayName = (m: any) => {
         if (m.profiles?.full_name) return m.profiles.full_name;
         if (!m.profiles?.email) return 'Utente Sincro';
@@ -61,7 +63,12 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
         { id: 'venditore', label: 'Venditore' },
         { id: 'step', label: 'Step' },
         { id: 'trya', label: 'Try A.' },
-        { id: 'esito', label: 'Esito' }
+        { id: 'esito', label: 'Esito Setter' },
+        { id: 'c_apptdate', label: 'Data Appuntamento' },
+        { id: 'c_appt', label: 'Stato Appuntamento' },
+        { id: 'c_trial', label: 'Prova' },
+        { id: 'c_outcome', label: 'Esito Trattativa' },
+        { id: 'c_downsell', label: 'Note / Downsell' }
     ]
 
     return (
@@ -103,8 +110,13 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         {!hiddenCols['venditore'] && <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[240px]">Venditore</th>}
                         {!hiddenCols['step'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Step</th>}
                         {!hiddenCols['trya'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[100px]">Try A.</th>}
-                        {!hiddenCols['esito'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Esito</th>}
+                        {!hiddenCols['esito'] && <th className="px-5 py-4 font-semibold text-yellow-500/60 uppercase tracking-wider text-xs min-w-[130px]">Esito Setter</th>}
                         <th className="px-5 py-4 font-semibold text-gray-400 uppercase tracking-wider text-xs text-right min-w-[120px]">Azioni</th>
+                        {!hiddenCols['c_apptdate'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Data Appuntamento</th>}
+                        {!hiddenCols['c_appt'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[160px]">Stato App.</th>}
+                        {!hiddenCols['c_trial'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Prova</th>}
+                        {!hiddenCols['c_outcome'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[140px]">Esito Trattativa</th>}
+                        {!hiddenCols['c_downsell'] && <th className="px-5 py-4 font-semibold text-emerald-500/60 uppercase tracking-wider text-xs min-w-[200px]">Note / Downsell</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -291,6 +303,116 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         </button>
                                     )}
                                 </td>
+                                {/* CLOSER WORKFLOW */}
+                                {!hiddenCols['c_apptdate'] && (
+                                    <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                        {(() => {
+                                            const activeEvents = (lead.calendar_events || []).filter((e: any) => e.status !== 'cancelled').sort((a: any, b: any) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+                                            const nextEvent = activeEvents.find((e: any) => new Date(e.start_time).getTime() >= Date.now() - 3600000) || activeEvents[activeEvents.length - 1];
+                                            if (!nextEvent) return <span className="text-gray-600">—</span>;
+
+                                            const d = new Date(nextEvent.start_time);
+                                            const now = new Date();
+                                            const diffMs = d.getTime() - now.getTime();
+                                            const diffHours = diffMs / (1000 * 60 * 60);
+
+                                            let colorObj = { bg: 'rgba(255,255,255,0.05)', text: '#9ca3af', border: 'rgba(255,255,255,0.1)' };
+                                            
+                                            if (lead.closer_appt_status === 'FATTO') {
+                                                colorObj = { bg: 'rgba(34, 197, 94, 0.15)', text: '#22c55e', border: 'rgba(34, 197, 94, 0.3)' };
+                                            } else if (diffHours < 0) { // Past
+                                                colorObj = { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.3)' };
+                                            } else if (diffHours <= 24) { // Next 24h
+                                                colorObj = { bg: 'rgba(234, 179, 8, 0.15)', text: '#eab308', border: 'rgba(234, 179, 8, 0.3)' };
+                                            }
+
+                                            return (
+                                                <div className="text-xs font-bold px-2 py-1 rounded-md text-center" style={{ background: colorObj.bg, color: colorObj.text, border: `1px solid ${colorObj.border}` }}>
+                                                    {d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' })}  {d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            );
+                                        })()}
+                                    </td>
+                                )}
+                                {!hiddenCols['c_appt'] && (
+                                    <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                        {canEditCloserSteps && onUpdateCloserField ? (
+                                            <select
+                                                className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                                style={{ color: lead.closer_appt_status ? (() => { const C = [{v:'FATTO',c:'#22c55e'},{v:'NO SHOW',c:'#ef4444'},{v:'CANCELLATO',c:'#ef4444'},{v:'RIPROGRAMMATO',c:'#3b82f6'}]; return C.find(s=>s.v===lead.closer_appt_status)?.c || '#a1a1aa' })() : '#71717a' }}
+                                                value={lead.closer_appt_status || ''}
+                                                onChange={e => onUpdateCloserField(lead.id, 'closer_appt_status', e.target.value)}
+                                            >
+                                                <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                                <option value="FATTO" className="bg-[#0a0a0e]">Fatto</option>
+                                                <option value="NO SHOW" className="bg-[#0a0a0e]">No Show</option>
+                                                <option value="CANCELLATO" className="bg-[#0a0a0e]">Cancellato</option>
+                                                <option value="RIPROGRAMMATO" className="bg-[#0a0a0e]">Riprogrammato</option>
+                                            </select>
+                                        ) : lead.closer_appt_status ? (
+                                            <span className="text-xs font-semibold">{lead.closer_appt_status}</span>
+                                        ) : <span className="text-gray-600">—</span>}
+                                    </td>
+                                )}
+                                {!hiddenCols['c_trial'] && (
+                                    <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                        {canEditCloserSteps && onUpdateCloserField ? (
+                                            <select
+                                                className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                                style={{ color: lead.closer_trial_status ? (() => { const C = [{v:'FATTA',c:'#22c55e'},{v:'DA FARE',c:'#eab308'},{v:'ANNULLATA',c:'#ef4444'},{v:'RIPROGRAMMATA',c:'#3b82f6'}]; return C.find(s=>s.v===lead.closer_trial_status)?.c || '#a1a1aa' })() : '#71717a' }}
+                                                value={lead.closer_trial_status || ''}
+                                                onChange={e => onUpdateCloserField(lead.id, 'closer_trial_status', e.target.value)}
+                                            >
+                                                <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                                <option value="FATTA" className="bg-[#0a0a0e]">Fatta</option>
+                                                <option value="DA FARE" className="bg-[#0a0a0e]">Da Fare</option>
+                                                <option value="ANNULLATA" className="bg-[#0a0a0e]">Annullata</option>
+                                                <option value="RIPROGRAMMATA" className="bg-[#0a0a0e]">Riprogrammata</option>
+                                            </select>
+                                        ) : lead.closer_trial_status ? (
+                                            <span className="text-xs font-semibold">{lead.closer_trial_status}</span>
+                                        ) : <span className="text-gray-600">—</span>}
+                                    </td>
+                                )}
+                                {!hiddenCols['c_outcome'] && (
+                                    <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                        {canEditCloserSteps && onUpdateCloserField ? (
+                                            <select
+                                                className="bg-black/40 border border-white/10 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer appearance-none w-full"
+                                                style={{ color: lead.closer_outcome ? (() => { const C = [{v:'VINTA',c:'#22c55e'},{v:'PERSA',c:'#ef4444'},{v:'ANNULLATA',c:'#ef4444'}]; return C.find(s=>s.v===lead.closer_outcome)?.c || '#a1a1aa' })() : '#71717a' }}
+                                                value={lead.closer_outcome || ''}
+                                                onChange={e => onUpdateCloserField(lead.id, 'closer_outcome', e.target.value)}
+                                            >
+                                                <option value="" className="bg-[#0a0a0e] text-gray-500">—</option>
+                                                <option value="VINTA" className="bg-[#0a0a0e]">Vinta</option>
+                                                <option value="PERSA" className="bg-[#0a0a0e]">Persa</option>
+                                                <option value="ANNULLATA" className="bg-[#0a0a0e]">Annullata</option>
+                                            </select>
+                                        ) : lead.closer_outcome ? (
+                                            <span className="text-xs font-semibold">{lead.closer_outcome}</span>
+                                        ) : <span className="text-gray-600">—</span>}
+                                    </td>
+                                )}
+                                {!hiddenCols['c_downsell'] && (
+                                    <td className="px-5 py-4 min-w-[200px]" onClick={e => e.stopPropagation()}>
+                                        {canEditCloserSteps && onUpdateCloserField ? (
+                                            <input
+                                                type="text"
+                                                className="w-full bg-black/40 border border-white/10 text-xs text-white rounded-lg px-2 py-1.5 focus:border-indigo-500 focus:ring-1 outline-none transition-colors placeholder-gray-600"
+                                                placeholder="Note/Downsell..."
+                                                defaultValue={lead.closer_downsell || ''}
+                                                onBlur={e => onUpdateCloserField(lead.id, 'closer_downsell', e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        (e.target as HTMLInputElement).blur();
+                                                    }
+                                                }}
+                                            />
+                                        ) : lead.closer_downsell ? (
+                                            <span className="text-xs text-gray-300">{lead.closer_downsell}</span>
+                                        ) : <span className="text-gray-600">—</span>}
+                                    </td>
+                                )}
                             </tr>
                         )
                     })}
