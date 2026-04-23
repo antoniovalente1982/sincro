@@ -169,6 +169,7 @@ export async function getGoogleCalendarEvents(
                     end: e.end.dateTime || e.end.date,
                     status: e.status,
                     htmlLink: e.htmlLink,
+                    extendedProperties: e.extendedProperties,
                 }))
         }
         console.error('[Google API] Failed to get events:', await response.text())
@@ -185,6 +186,7 @@ export async function getGoogleCalendarEvents(
             end: e.end.dateTime || e.end.date,
             status: e.status,
             htmlLink: e.htmlLink,
+            extendedProperties: e.extendedProperties,
         }))
 }
 
@@ -198,7 +200,8 @@ export async function createGoogleCalendarEvent(
         description?: string,
         start: string,
         end: string,
-        attendees?: { email: string }[]
+        attendees?: { email: string }[],
+        extendedProperties?: any
     }
 ) {
     let currentToken = accessToken
@@ -227,6 +230,7 @@ export async function createGoogleCalendarEvent(
                 dateTime: eventDetails.end,
             },
             attendees: eventDetails.attendees || [],
+            extendedProperties: eventDetails.extendedProperties,
             reminders: {
                 useDefault: true
             }
@@ -248,6 +252,7 @@ export async function createGoogleCalendarEvent(
                     start: { dateTime: eventDetails.start },
                     end: { dateTime: eventDetails.end },
                     attendees: eventDetails.attendees || [],
+                    extendedProperties: eventDetails.extendedProperties,
                     reminders: { useDefault: true }
                 }),
             })

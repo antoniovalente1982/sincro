@@ -301,6 +301,42 @@ export async function GET(req: NextRequest) {
                     to
                 )
                 result[uid] = events
+
+                // --- CALENDAR RECONCILIATION (JIT SYNC) ---
+                // Sync deletions or reschedules made directly in Google Calendar back to Sincro
+                const { data: dbEvents } = await supabase
+                    .from('calendar_events')
+                    .select('id, start_time, end_time')
+                    .eq('closer_id', uid)
+                    .neq('status', 'cancelled')
+                    .gte('start_time', from)
+                    .lte('start_time', to)
+
+                if (dbEvents && dbEvents.length > 0) {
+                    for (const dbEvent of dbEvents) {
+                        const googleMatch = events.find((g: any) => g.extendedProperties?.private?.sincro_event_id === dbEvent.id)
+                        if (!googleMatch) {
+                            // Event was deleted in Google Calendar. Let's cancel it in Sincro so the slot opens up.
+                            await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('id', dbEvent.id)
+                        } else {
+                            // Verify if it was rescheduled on Google Calendar
+                            const gStart = new Date(googleMatch.start).toISOString()
+                            const gEnd = new Date(googleMatch.end).getTime() > new Date(googleMatch.start).getTime() 
+                                            ? new Date(googleMatch.end).toISOString() 
+                                            : new Date(new Date(googleMatch.start).getTime() + 45*60000).toISOString()
+                            
+                            if (new Date(dbEvent.start_time).getTime() !== new Date(gStart).getTime() || 
+                                new Date(dbEvent.end_time).getTime() !== new Date(gEnd).getTime()) {
+                                await supabase.from('calendar_events').update({ 
+                                    start_time: gStart, 
+                                    end_time: gEnd 
+                                }).eq('id', dbEvent.id)
+                            }
+                        }
+                    }
+                }
+                // --- END RECONCILIATION ---
+
             } catch (err) {
                 console.error(`[Calendar API] Failed to get google events for ${uid}`, err)
             }
@@ -343,9 +379,22 @@ export async function POST(req: NextRequest) {
         }
 
         // Cancel previous event if this is a reschedule for the same lead
+        let isReschedule = false
         if (lead_id) {
-            await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+            const { data: previousEvents } = await supabase
+                .from('calendar_events')
+                .select('id')
+                .eq('lead_id', lead_id)
+                .eq('status', 'confirmed')
+
+            if (previousEvents && previousEvents.length > 0) {
+                isReschedule = true
+                await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+            }
         }
+
+        const baseTitle = title || 'Appuntamento'
+        const finalTitle = isReschedule && !baseTitle.includes('[RIPROGRAMMATO]') ? `[RIPROGRAMMATO] ${baseTitle}` : baseTitle
 
         const { data: event, error } = await supabase
             .from('calendar_events')
@@ -354,7 +403,7 @@ export async function POST(req: NextRequest) {
                 closer_id,
                 setter_id: ctx.auth_user_id,
                 lead_id: lead_id || null,
-                title: title || 'Appuntamento',
+                title: finalTitle,
                 description,
                 lead_phone,
                 lead_email,
@@ -391,11 +440,12 @@ Telefono: ${lead_phone || 'Non specificato'}
                     closerTokenData.google_refresh_token,
                     closerTokenData.google_token_expiry,
                     {
-                        summary: title || 'Appuntamento via Sincro',
+                        summary: finalTitle,
                         description: google_description,
                         start: start_time,
                         end: end_time,
-                        attendees
+                        attendees,
+                        extendedProperties: { private: { sincro_event_id: event.id } }
                     }
                 )
             } catch (err) {
@@ -650,9 +700,22 @@ Telefono: ${lead_phone || 'Non specificato'}
         }
 
         // Cancel previous event if this is a reschedule for the same lead
+        let isReschedule = false
         if (lead_id) {
-            await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+            const { data: previousEvents } = await supabase
+                .from('calendar_events')
+                .select('id')
+                .eq('lead_id', lead_id)
+                .eq('status', 'confirmed')
+
+            if (previousEvents && previousEvents.length > 0) {
+                isReschedule = true
+                await supabase.from('calendar_events').update({ status: 'cancelled' }).eq('lead_id', lead_id).eq('status', 'confirmed')
+            }
         }
+
+        const baseTitle = title || 'Appuntamento'
+        const finalTitle = isReschedule && !baseTitle.includes('[RIPROGRAMMATO]') ? `[RIPROGRAMMATO] ${baseTitle}` : baseTitle
 
         // Create the event
         const { data: event, error: eventError } = await supabase
@@ -662,7 +725,7 @@ Telefono: ${lead_phone || 'Non specificato'}
                 closer_id: selectedCloserId,
                 setter_id: ctx.auth_user_id,
                 lead_id: lead_id || null,
-                title: title || 'Appuntamento',
+                title: finalTitle,
                 description: description || (lead_name ? `Lead: ${lead_name}` : ''),
                 lead_phone,
                 lead_email,
@@ -695,11 +758,12 @@ Telefono: ${lead_phone || 'Non specificato'}
                     closerToken.google_refresh_token,
                     closerToken.google_token_expiry,
                     {
-                        summary: title || 'Appuntamento via Sincro',
+                        summary: finalTitle,
                         description: google_description,
                         start: start_time,
                         end: end_time,
-                        attendees
+                        attendees,
+                        extendedProperties: { private: { sincro_event_id: event.id } }
                     }
                 )
             } catch (err) {
