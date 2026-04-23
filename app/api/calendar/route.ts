@@ -700,7 +700,7 @@ export async function POST(req: NextRequest) {
                 .from('pipeline_stages')
                 .select('id, slug, fire_capi_event')
                 .eq('organization_id', ctx.organization_id)
-                .ilike('slug', '%appuntamento%')
+                .or('slug.ilike.%appunt%,name.ilike.%appunt%')
                 .limit(1)
 
             if (stages && stages.length > 0) {

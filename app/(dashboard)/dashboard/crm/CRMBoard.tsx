@@ -197,30 +197,27 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     // Auto-refresh: poll /api/leads every 60s for new leads
     const leadsRef = useRef(leads)
     leadsRef.current = leads
+    const fetchFreshLeads = async () => {
+        try {
+            const res = await fetch('/api/leads')
+            if (!res.ok) return
+            const freshLeads = await res.json()
+            if (!Array.isArray(freshLeads)) return
+
+            const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
+            const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
+
+            setLeads(freshLeads)
+            if (brandNew.length > 0) {
+                setNewLeadAlert(`🔔 ${brandNew.length === 1 ? 'Nuovo lead' : brandNew.length + ' nuovi lead'}: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
+                setTimeout(() => setNewLeadAlert(null), 8000)
+            }
+        } catch { /* silent */ }
+    }
+
     useEffect(() => {
         let active = true
-        const checkForNewLeads = async () => {
-            if (!active) return
-            try {
-                const res = await fetch('/api/leads')
-                if (!res.ok) return
-                const freshLeads = await res.json()
-                if (!Array.isArray(freshLeads)) return
-
-                const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
-                const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
-
-                if (freshLeads.length !== leadsRef.current.length || brandNew.length > 0) {
-                    setLeads(freshLeads)
-                    if (brandNew.length > 0) {
-                        setNewLeadAlert(`🔔 ${brandNew.length === 1 ? 'Nuovo lead' : brandNew.length + ' nuovi lead'}: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
-                        setTimeout(() => setNewLeadAlert(null), 8000)
-                    }
-                }
-            } catch { /* silent */ }
-        }
-
-        const poll = setInterval(checkForNewLeads, 60000)
+        const poll = setInterval(() => { if (active) fetchFreshLeads() }, 60000)
         return () => { active = false; clearInterval(poll) }
     }, [])
 
@@ -1298,6 +1295,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     formatDate={formatDate}
                     formatTime={formatTime}
                     formatCurrency={formatCurrency}
+                    onRefresh={fetchFreshLeads}
                 />
             )}
             {fastBookLead && (
@@ -1306,9 +1304,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onClose={() => setFastBookLead(null)}
                     onSuccess={() => {
                         setFastBookLead(null)
-                        // This triggers a refresh by updating the leads ref state somehow, or rely on useEffect interval
-                        // We can just rely on the existing 60s poll or we can call fetchLeads. But fetchLeads isn't exposed globally. 
-                        // It's okay, FastBook pushes to Supabase and the user can drag to refresh or wait. 
+                        fetchFreshLeads()
                     }}
                 />
             )}
@@ -1584,7 +1580,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 }
 
 // ── Lead Detail Panel ──
-function LeadDetail({ lead, stages, members, activities, loadingActivities, trafficSources, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency }: {
+function LeadDetail({ lead, stages, members, activities, loadingActivities, trafficSources, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency, onRefresh }: {
     lead: Lead
     stages: Stage[]
     members: Member[]
@@ -1598,6 +1594,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
     formatDate: (d: string) => string
     formatTime: (d: string) => string
     formatCurrency: (v: number) => string
+    onRefresh?: () => void
 }) {
     const stage = stages.find(s => s.id === lead.stage_id)
     const [showBookingModal, setShowBookingModal] = useState(false)
@@ -1790,6 +1787,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                     onClose={() => setShowBookingModal(false)} 
                     onSuccess={() => {
                         setShowBookingModal(false)
+                        if (onRefresh) onRefresh()
                         onClose()
                     }} 
                 />
