@@ -185,11 +185,18 @@ export async function GET(req: NextRequest) {
                 const slotDuration = dayAvail.slot_duration_minutes || 45
                 const breakTime = dayAvail.break_between_slots || 0
 
-                let slotStart = new Date(cursor)
-                slotStart.setHours(startH, startM, 0, 0)
+                // Calculate Italy's offset (+01:00 or +02:00) for the target date to ensure slots are exact
+                const italyFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', timeZoneName: 'shortOffset' })
+                const tzPart = italyFormatter.formatToParts(cursor).find(p => p.type === 'timeZoneName')?.value
+                const offsetStr = tzPart === 'GMT+2' ? '+02:00' : '+01:00'
 
-                const dayEnd = new Date(cursor)
-                dayEnd.setHours(endH, endM, 0, 0)
+                const cursorDateStr = cursor.toISOString().split('T')[0]
+
+                const isoStart = `${cursorDateStr}T${String(startH).padStart(2, '0')}:${String(startM).padStart(2, '0')}:00${offsetStr}`
+                let slotStart = new Date(isoStart)
+
+                const isoEnd = `${cursorDateStr}T${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00${offsetStr}`
+                const dayEnd = new Date(isoEnd)
 
                 while (slotStart.getTime() + slotDuration * 60000 <= dayEnd.getTime()) {
                     const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000)
