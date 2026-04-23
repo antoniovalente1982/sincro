@@ -423,7 +423,10 @@ export async function POST(req: NextRequest) {
                 try {
                     await fetch(new URL('/api/leads', req.url).toString(), {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Cookie': req.headers.get('cookie') || ''
+                        },
                         body: JSON.stringify({
                             id: lead_id,
                             stage_id: stages[0].id,
@@ -703,11 +706,31 @@ export async function POST(req: NextRequest) {
                 .or('slug.ilike.%appunt%,name.ilike.%appunt%')
                 .limit(1)
 
+            let leadObj: any = null;
             if (stages && stages.length > 0) {
+                const { data: lead } = await supabase.from('leads').select('stage_id').eq('id', lead_id).single()
+                leadObj = lead;
                 updatePayload.stage_id = stages[0].id;
             }
 
             await supabase.from('leads').update(updatePayload).eq('id', lead_id)
+
+            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj) {
+                try {
+                    await fetch(new URL('/api/leads', req.url).toString(), {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Cookie': req.headers.get('cookie') || ''
+                        },
+                        body: JSON.stringify({
+                            id: lead_id,
+                            stage_id: stages[0].id,
+                            _old_stage_id: leadObj.stage_id,
+                        }),
+                    })
+                } catch { /* best effort */ }
+            }
         }
 
         // Get closer name for response
