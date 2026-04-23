@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
             .from('calendar_events')
             .select('*, leads:lead_id(name, phone, email)')
             .eq('organization_id', ctx.organization_id)
+            .neq('status', 'cancelled')
             .order('start_time', { ascending: true })
 
         if (from) query = query.gte('start_time', from)
