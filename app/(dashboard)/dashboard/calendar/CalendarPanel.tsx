@@ -110,6 +110,12 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const [availability, setAvailability] = useState<AvailabilitySchedule[]>([])
     const [availSaving, setAvailSaving] = useState(false)
     const [settingsCloserId, setSettingsCloserId] = useState('')
+    const [now, setNow] = useState(new Date())
+
+    useEffect(() => {
+        const interval = setInterval(() => setNow(new Date()), 60000)
+        return () => clearInterval(interval)
+    }, [])
 
     const canBook = ['setter', 'admin', 'owner', 'manager'].includes(userRole)
     const canManageAvailability = ['closer', 'admin', 'owner', 'manager'].includes(userRole)
@@ -793,6 +799,20 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                         background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
                                                     }}
                                                 >
+                                                    {/* Mezz'ora Line (Dashed) */}
+                                                    <div className="absolute top-[30px] left-0 right-0 border-t border-dashed border-white/[0.05] pointer-events-none" />
+
+                                                    {/* Google Calendar Current Time Red Line */}
+                                                    {isToday(day) && hour === now.getHours() && (
+                                                        <div 
+                                                            className="absolute left-0 right-0 flex items-center z-20 pointer-events-none w-[calc(100%+8px)] -ml-2" 
+                                                            style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
+                                                        >
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500 absolute -left-1.5 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+                                                            <div className="w-full border-t-2 border-dashed border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+                                                        </div>
+                                                    )}
+
                                                     {/* Unified Event Rendering engine (Deduplication & Collision) */}
                                                     {(() => {
                                                         const merged: any[] = [];
