@@ -279,6 +279,17 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ success: true, action: 'role_updated' })
     }
 
+    if (action === 'update_color') {
+        const { error } = await supabase
+            .from('organization_members')
+            .update({ display_color: body.display_color })
+            .eq('id', member_id)
+            .eq('organization_id', ctx.organization_id)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true, action: 'color_updated' })
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
 

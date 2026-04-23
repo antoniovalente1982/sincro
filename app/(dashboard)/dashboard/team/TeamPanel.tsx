@@ -18,6 +18,7 @@ interface TeamMember {
     leads_assigned: number
     won_count: number
     won_revenue: number
+    display_color?: string | null
 }
 
 export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole: string }) {
@@ -125,6 +126,15 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
             body: JSON.stringify({ action: 'update_role', member_id: memberId, role, department }),
         })
         loadMembers()
+    }
+
+    const handleUpdateColor = async (memberId: string, color: string) => {
+        setMembers(prev => prev.map(m => m.id === memberId ? { ...m, display_color: color } : m))
+        await fetch('/api/team', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'update_color', member_id: memberId, display_color: color }),
+        })
     }
 
     const canManage = userRole === 'owner' || userRole === 'admin'
@@ -321,6 +331,21 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                         <div className="text-xs truncate" style={{ color: 'var(--color-surface-500)' }}>{(m.profiles as any)?.email || m.invited_email}</div>
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap justify-end">
+                                        {/* Color Picker for Calendar view */}
+                                        {canManage && (
+                                            <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1 rounded-lg mr-2" title="Colore in Calendario">
+                                                <div className="text-[10px] font-semibold text-white/50">Colore</div>
+                                                <input 
+                                                    type="color" 
+                                                    value={m.display_color || '#3b82f6'} 
+                                                    onBlur={(e) => handleUpdateColor(m.id, e.target.value)}
+                                                    onChange={(e) => setMembers(prev => prev.map(p => p.id === m.id ? { ...p, display_color: e.target.value } : p))}
+                                                    className="w-5 h-5 rounded cursor-pointer border-0 p-0 shadow-sm"
+                                                    style={{ backgroundColor: 'transparent' }}
+                                                />
+                                            </div>
+                                        )}
+
                                         {/* Department Badge */}
                                         {deptCfg && (
                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${deptCfg.color}10`, color: deptCfg.color, border: `1px solid ${deptCfg.color}20` }}>
