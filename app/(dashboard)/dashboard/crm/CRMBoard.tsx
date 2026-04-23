@@ -141,6 +141,14 @@ const TRY_ANTHON_OPTIONS: { value: string; label: string; color: string }[] = [
     { value: 'Non inviato', label: 'Non inviato', color: '#ef4444' },
 ]
 
+const ESITO_OPTIONS: { value: string; label: string; color: string }[] = [
+    { value: 'Appuntamento Preso', label: 'Appuntamento Preso', color: '#22c55e' },
+    { value: 'NO APPUNTAMENTO', label: 'No Appuntamento', color: '#ef4444' },
+    { value: 'FUORI TARGET', label: 'Fuori Target', color: '#71717a' },
+    { value: 'NUMERO INESISTENTE', label: 'Numero Inesistente', color: '#a1a1aa' },
+    { value: 'DA RISENTIRE', label: 'Da Risentire', color: '#eab308' },
+]
+
 
 function getOptionConfig(value: string | undefined, options: { value: string; label: string; color: string }[]): { label: string; color: string } | null {
     if (!value) return null
@@ -182,6 +190,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [setterFilter, setSetterFilter] = useState<string>('all')
     const [closerFilter, setCloserFilter] = useState<string>('all')
     const [stepFilter, setStepFilter] = useState<string>('all')
+    const [esitoFilter, setEsitoFilter] = useState<string>('all')
 
     const [tags, setTags] = useState<Tag[]>(globalTags)
     
@@ -291,11 +300,12 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchSetter = setterFilter === 'all' || l.setter_id === setterFilter
         const matchCloser = closerFilter === 'all' || l.closer_id === closerFilter
         const matchStep = stepFilter === 'all' || l.setter_step === stepFilter
+        const matchEsito = esitoFilter === 'all' || l.esito === esitoFilter
 
         // Role-based filter: setter/closer see only their assigned leads
         const matchOwnership = !filterOwn || l.setter_id === userId || l.closer_id === userId || l.assigned_to === userId || (!l.setter_id && !l.closer_id && !l.assigned_to)
         
-        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchStep && matchOwnership
+        return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchStep && matchEsito && matchOwnership
     })
 
     // Sort leads by arrival time (most recent first) considering re-submissions
@@ -448,7 +458,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         }
     }
 
-    const handleUpdateSetterField = async (leadId: string, field: 'setter_step' | 'try_anthon', value: string) => {
+    const handleUpdateSetterField = async (leadId: string, field: 'setter_step' | 'try_anthon' | 'esito', value: string) => {
         const lead = leads.find(l => l.id === leadId)
         const oldValue = lead?.[field]
         const newValue = value || undefined
@@ -752,6 +762,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 >
                     <option value="all">📞 Tutti gli Step</option>
                     {SETTER_STEPS.map(s => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-yellow-300"
+                    value={esitoFilter}
+                    onChange={e => setEsitoFilter(e.target.value)}
+                >
+                    <option value="all">📋 Tutti gli Esiti</option>
+                    {ESITO_OPTIONS.map(s => (
                         <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                 </select>
@@ -1092,6 +1113,33 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     }}>{cfg.label}</span>
                                                 ) : null
                                             })() : null}
+
+                                            {/* Esito */}
+                                            {canEditSetterSteps ? (
+                                                <select
+                                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
+                                                    style={{
+                                                        background: lead.esito ? `${getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        color: lead.esito ? getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa' : '#71717a',
+                                                        border: `1px solid ${lead.esito ? (getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        maxWidth: '120px',
+                                                    }}
+                                                    value={lead.esito || ''}
+                                                    onChange={e => handleUpdateSetterField(lead.id, 'esito', e.target.value)}
+                                                >
+                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">📋 Esito...</option>
+                                                    {ESITO_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : lead.esito ? (() => {
+                                                const cfg = getOptionConfig(lead.esito, ESITO_OPTIONS)
+                                                return cfg ? (
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{
+                                                        background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}35`
+                                                    }}>{cfg.label}</span>
+                                                ) : null
+                                            })() : null}
                                         </div>
 
                                         <div className="mt-2 space-y-1">
@@ -1307,6 +1355,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         tags: (lead?.lead_tags || []).map(lt => lt.crm_tags?.id).filter(Boolean) as string[],
         setter_step: lead?.setter_step || '',
         try_anthon: lead?.try_anthon || '',
+        esito: lead?.esito || '',
     })
 
     const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
@@ -1414,7 +1463,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                     {/* Setter Workflow Fields */}
                     <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <h3 className="text-sm font-semibold text-white mb-3">📞 Workflow Setter</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label className="label">Step (Chiamato)</label>
                                 <select className="input" value={form.setter_step} onChange={e => setForm({ ...form, setter_step: e.target.value })}>
@@ -1429,6 +1478,15 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                                 <select className="input" value={form.try_anthon} onChange={e => setForm({ ...form, try_anthon: e.target.value })}>
                                     <option value="">— Nessuno —</option>
                                     {TRY_ANTHON_OPTIONS.map(s => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="label">Esito</label>
+                                <select className="input" value={form.esito} onChange={e => setForm({ ...form, esito: e.target.value })}>
+                                    <option value="">— Nessuno —</option>
+                                    {ESITO_OPTIONS.map(s => (
                                         <option key={s.value} value={s.value}>{s.label}</option>
                                     ))}
                                 </select>
