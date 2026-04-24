@@ -1119,3 +1119,95 @@ export async function PATCH(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ event: data })
 }
+
+// DELETE: Permanently delete an event
+export async function DELETE(req: NextRequest) {
+    const supabase = await createClient()
+    const ctx = await getContext(supabase)
+    if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // Only owner/admin can permanently delete
+    if (!['owner', 'admin'].includes(ctx.role)) {
+        return NextResponse.json({ error: 'Solo owner/admin possono cancellare definitivamente' }, { status: 403 })
+    }
+
+    const body = await req.json()
+    const { event_id } = body
+
+    if (!event_id) return NextResponse.json({ error: 'event_id required' }, { status: 400 })
+
+    // Fetch the event before deleting to get Google Calendar info
+    const { data: existingEvent } = await supabase
+        .from('calendar_events')
+        .select('id, closer_id, google_event_id, start_time')
+        .eq('id', event_id)
+        .eq('organization_id', ctx.organization_id)
+        .single()
+
+    if (!existingEvent) {
+        return NextResponse.json({ error: 'Evento non trovato' }, { status: 404 })
+    }
+
+    // Delete from Google Calendar first
+    if (existingEvent.closer_id) {
+        try {
+            const { data: closerTokenData } = await supabase
+                .from('organization_members')
+                .select('google_access_token, google_refresh_token, google_token_expiry')
+                .eq('user_id', existingEvent.closer_id)
+                .single()
+
+            if (closerTokenData?.google_access_token) {
+                if (existingEvent.google_event_id) {
+                    await deleteGoogleCalendarEvent(
+                        existingEvent.closer_id,
+                        closerTokenData.google_access_token,
+                        closerTokenData.google_refresh_token,
+                        closerTokenData.google_token_expiry,
+                        existingEvent.google_event_id
+                    )
+                } else {
+                    // Fallback search for pre-fix events
+                    const dStart = new Date(existingEvent.start_time)
+                    dStart.setHours(0, 0, 0, 0)
+                    const dEnd = new Date(existingEvent.start_time)
+                    dEnd.setHours(23, 59, 59, 999)
+
+                    const gEvents = await getGoogleCalendarEvents(
+                        existingEvent.closer_id,
+                        closerTokenData.google_access_token,
+                        closerTokenData.google_refresh_token,
+                        closerTokenData.google_token_expiry,
+                        dStart.toISOString(),
+                        dEnd.toISOString()
+                    )
+                    const match = gEvents.find((g: any) =>
+                        g.extendedProperties?.private?.sincro_event_id === existingEvent.id ||
+                        (new Date(g.start).getTime() === new Date(existingEvent.start_time).getTime() && g.summary?.includes('Appuntamento'))
+                    )
+                    if (match) {
+                        await deleteGoogleCalendarEvent(
+                            existingEvent.closer_id,
+                            closerTokenData.google_access_token,
+                            closerTokenData.google_refresh_token,
+                            closerTokenData.google_token_expiry,
+                            match.id
+                        )
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[Calendar DELETE] Failed to delete Google Calendar event:', err)
+        }
+    }
+
+    // Delete from DB
+    const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .eq('id', event_id)
+        .eq('organization_id', ctx.organization_id)
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true, message: 'Appuntamento cancellato definitivamente' })
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap } from 'lucide-react'
+import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2 } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
@@ -382,6 +382,20 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ event_id: eventId, status }),
+            })
+            setSelectedEvent(null)
+            fetchEvents()
+        } catch { /* silent */ }
+    }
+
+    // Delete event permanently
+    const handleDeleteEvent = async (eventId: string) => {
+        if (!confirm('Sei sicuro di voler cancellare definitivamente questo appuntamento? Questa azione è irreversibile.')) return
+        try {
+            await fetch('/api/calendar', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id: eventId }),
             })
             setSelectedEvent(null)
             fetchEvents()
@@ -1200,6 +1214,15 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     ✗ Annulla
                                 </button>
                             </div>
+                        )}
+
+                        {/* Delete permanently — owner/admin only */}
+                        {(userRole === 'owner' || userRole === 'admin') && (
+                            <button onClick={() => handleDeleteEvent(selectedEvent.id)}
+                                className="w-full py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] mt-1"
+                                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444' }}>
+                                <Trash2 className="w-3.5 h-3.5" /> Cancella Definitivamente
+                            </button>
                         )}
                     </div>
                 </div>
