@@ -1126,11 +1126,6 @@ export async function DELETE(req: NextRequest) {
     const ctx = await getContext(supabase)
     if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Only owner/admin can permanently delete
-    if (!['owner', 'admin'].includes(ctx.role)) {
-        return NextResponse.json({ error: 'Solo owner/admin possono cancellare definitivamente' }, { status: 403 })
-    }
-
     const body = await req.json()
     const { event_id } = body
 
@@ -1146,6 +1141,13 @@ export async function DELETE(req: NextRequest) {
 
     if (!existingEvent) {
         return NextResponse.json({ error: 'Evento non trovato' }, { status: 404 })
+    }
+
+    // Permission: owner/admin can delete any, closer can delete their own
+    const isOwnerAdmin = ['owner', 'admin'].includes(ctx.role)
+    const isOwnEvent = existingEvent.closer_id === ctx.auth_user_id
+    if (!isOwnerAdmin && !isOwnEvent) {
+        return NextResponse.json({ error: 'Non hai i permessi per eliminare questo appuntamento' }, { status: 403 })
     }
 
     // Delete from Google Calendar first
