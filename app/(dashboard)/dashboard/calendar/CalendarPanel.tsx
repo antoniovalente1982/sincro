@@ -1208,21 +1208,12 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}>
                                     ⚠ No Show
                                 </button>
-                                <button onClick={() => handleUpdateEvent(selectedEvent.id, 'cancelled')}
-                                    className="flex-1 py-2 rounded-lg text-xs font-bold"
+                                <button onClick={() => handleDeleteEvent(selectedEvent.id)}
+                                    className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"
                                     style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
-                                    ✗ Annulla
+                                    <Trash2 className="w-3.5 h-3.5" /> Elimina
                                 </button>
                             </div>
-                        )}
-
-                        {/* Delete permanently — owner/admin only */}
-                        {(userRole === 'owner' || userRole === 'admin') && (
-                            <button onClick={() => handleDeleteEvent(selectedEvent.id)}
-                                className="w-full py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] mt-1"
-                                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444' }}>
-                                <Trash2 className="w-3.5 h-3.5" /> Cancella Definitivamente
-                            </button>
                         )}
                     </div>
                 </div>
