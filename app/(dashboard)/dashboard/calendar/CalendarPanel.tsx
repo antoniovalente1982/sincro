@@ -392,14 +392,20 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const handleDeleteEvent = async (eventId: string) => {
         if (!confirm('Sei sicuro di voler cancellare definitivamente questo appuntamento? Questa azione è irreversibile.')) return
         try {
-            await fetch('/api/calendar', {
+            const res = await fetch('/api/calendar', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ event_id: eventId }),
             })
+            if (!res.ok) {
+                const data = await res.json()
+                alert(data.error || 'Errore durante l\'eliminazione')
+                return
+            }
             setSelectedEvent(null)
-            fetchEvents()
-        } catch { /* silent */ }
+            await fetchEvents()
+            fetchGoogleEvents()
+        } catch { alert('Errore di rete') }
     }
 
     const resetBookingForm = () => {
