@@ -147,7 +147,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
         }
 
         // 4. Create DB Event
-        const { error: eventError } = await supabaseAdmin
+        const { data: dbEvent, error: eventError } = await supabaseAdmin
             .from('calendar_events')
             .insert({
                 organization_id: calendar.organization_id,
@@ -162,16 +162,20 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
                 end_time: endDate.toISOString(),
                 status: 'confirmed',
             })
+            .select('id')
+            .single()
 
         if (eventError) {
             console.error('Error creating DB event', eventError)
         }
 
+        const eventId = dbEvent?.id
+
         // 5. Create Google Calendar Event
         const assignedMember = tokens?.find(t => t.user_id === assignedUserId)
         if (assignedMember?.google_access_token) {
             try {
-                await createGoogleCalendarEvent(
+                const gCalResult = await createGoogleCalendarEvent(
                     assignedUserId,
                     assignedMember.google_access_token,
                     assignedMember.google_refresh_token,
@@ -181,9 +185,14 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
                         description: `Telefono: ${phone}\nEmail: ${email}\nNote: ${notes || 'Nessuna'}`,
                         start: startDate.toISOString(),
                         end: endDate.toISOString(),
-                        attendees: [{ email }]
+                        attendees: [{ email }],
+                        extendedProperties: eventId ? { private: { sincro_event_id: eventId } } : undefined,
                     }
                 )
+                // Save google_event_id for reliable deletion later
+                if (gCalResult?.id && eventId) {
+                    await supabaseAdmin.from('calendar_events').update({ google_event_id: gCalResult.id }).eq('id', eventId)
+                }
             } catch (err) {
                 console.error('Failed to create GCal event from public booking', err)
             }

@@ -499,7 +499,7 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (closerTokenData?.google_access_token) {
             try {
                 const attendees = lead_email ? [{ email: lead_email }] : []
-                await createGoogleCalendarEvent(
+                const gCalResult = await createGoogleCalendarEvent(
                     closer_id,
                     closerTokenData.google_access_token,
                     closerTokenData.google_refresh_token,
@@ -513,6 +513,10 @@ Telefono: ${lead_phone || 'Non specificato'}
                         extendedProperties: { private: { sincro_event_id: event.id } }
                     }
                 )
+                // Save the Google event ID for reliable deletion later
+                if (gCalResult?.id) {
+                    await supabase.from('calendar_events').update({ google_event_id: gCalResult.id }).eq('id', event.id)
+                }
             } catch (err) {
                 console.error('[Calendar API] Failed to push to Google Calendar', err)
             }
@@ -851,7 +855,7 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (closerToken?.google_access_token) {
             try {
                 const attendees = lead_email ? [{ email: lead_email }] : []
-                await createGoogleCalendarEvent(
+                const gCalResult = await createGoogleCalendarEvent(
                     selectedCloserId,
                     closerToken.google_access_token,
                     closerToken.google_refresh_token,
@@ -865,6 +869,10 @@ Telefono: ${lead_phone || 'Non specificato'}
                         extendedProperties: { private: { sincro_event_id: event.id } }
                     }
                 )
+                // Save the Google event ID for reliable deletion later
+                if (gCalResult?.id) {
+                    await supabase.from('calendar_events').update({ google_event_id: gCalResult.id }).eq('id', event.id)
+                }
             } catch (err) {
                 console.error('[Calendar API] Failed to push auto_book to Google Calendar', err)
             }
@@ -1034,6 +1042,71 @@ export async function PATCH(req: NextRequest) {
     if (status) updateData.status = status
     if (outcome !== undefined) updateData.outcome = outcome
     if (outcome_value !== undefined) updateData.outcome_value = outcome_value
+
+    // When cancelling, also delete the corresponding Google Calendar event
+    if (status === 'cancelled') {
+        try {
+            // Fetch the event to get google_event_id and closer_id
+            const { data: existingEvent } = await supabase
+                .from('calendar_events')
+                .select('id, closer_id, google_event_id, start_time')
+                .eq('id', event_id)
+                .eq('organization_id', ctx.organization_id)
+                .single()
+
+            if (existingEvent?.closer_id) {
+                const { data: closerTokenData } = await supabase
+                    .from('organization_members')
+                    .select('google_access_token, google_refresh_token, google_token_expiry')
+                    .eq('user_id', existingEvent.closer_id)
+                    .single()
+
+                if (closerTokenData?.google_access_token) {
+                    if (existingEvent.google_event_id) {
+                        // Direct delete using stored Google event ID (reliable)
+                        await deleteGoogleCalendarEvent(
+                            existingEvent.closer_id,
+                            closerTokenData.google_access_token,
+                            closerTokenData.google_refresh_token,
+                            closerTokenData.google_token_expiry,
+                            existingEvent.google_event_id
+                        )
+                    } else {
+                        // Fallback: search by extendedProperties or time match (for pre-fix events)
+                        const dStart = new Date(existingEvent.start_time)
+                        dStart.setHours(0, 0, 0, 0)
+                        const dEnd = new Date(existingEvent.start_time)
+                        dEnd.setHours(23, 59, 59, 999)
+
+                        const gEvents = await getGoogleCalendarEvents(
+                            existingEvent.closer_id,
+                            closerTokenData.google_access_token,
+                            closerTokenData.google_refresh_token,
+                            closerTokenData.google_token_expiry,
+                            dStart.toISOString(),
+                            dEnd.toISOString()
+                        )
+                        const match = gEvents.find((g: any) =>
+                            g.extendedProperties?.private?.sincro_event_id === existingEvent.id ||
+                            (new Date(g.start).getTime() === new Date(existingEvent.start_time).getTime() && g.summary?.includes('Appuntamento'))
+                        )
+                        if (match) {
+                            await deleteGoogleCalendarEvent(
+                                existingEvent.closer_id,
+                                closerTokenData.google_access_token,
+                                closerTokenData.google_refresh_token,
+                                closerTokenData.google_token_expiry,
+                                match.id
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[Calendar PATCH] Failed to delete Google Calendar event on cancel:', err)
+            // Continue with DB update even if Google delete fails
+        }
+    }
 
     const { data, error } = await supabase
         .from('calendar_events')
