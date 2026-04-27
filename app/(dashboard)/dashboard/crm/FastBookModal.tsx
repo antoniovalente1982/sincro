@@ -114,7 +114,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 action: bookingMode === 'auto' ? 'auto_book' : 'book',
                 lead_id: lead.id,
                 title: `Appuntamento - ${lead.name}`,
-                notes: `App. creato dal Fast Booking nel CRM.`,
+                description: `Lead: ${lead.name}`,
                 lead_phone: lead.phone,
                 lead_email: lead.email,
                 lead_name: lead.name

@@ -414,7 +414,7 @@ export async function POST(req: NextRequest) {
         if (lead_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
-                .select('id, closer_id, start_time')
+                .select('id, closer_id, start_time, google_event_id')
                 .eq('lead_id', lead_id)
                 .eq('status', 'confirmed')
 
@@ -431,24 +431,33 @@ export async function POST(req: NextRequest) {
 
                     if (closerTokenData?.google_access_token) {
                         try {
-                            const dStart = new Date(oldEv.start_time)
-                            dStart.setHours(0,0,0,0)
-                            const dEnd = new Date(oldEv.start_time)
-                            dEnd.setHours(23,59,59,999)
-                            
-                            const gEvents = await getGoogleCalendarEvents(
-                                oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
-                                dStart.toISOString(), dEnd.toISOString()
-                            )
-                            const match = gEvents.find((g:any) => 
-                                g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
-                                (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
-                            )
-                            if (match) {
+                            if (oldEv.google_event_id) {
+                                // Primary: use stored Google event ID (reliable)
                                 await deleteGoogleCalendarEvent(
                                     oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
-                                    match.id
+                                    oldEv.google_event_id
                                 )
+                            } else {
+                                // Fallback: search by extendedProperties or time match (pre-fix events)
+                                const dStart = new Date(oldEv.start_time)
+                                dStart.setHours(0,0,0,0)
+                                const dEnd = new Date(oldEv.start_time)
+                                dEnd.setHours(23,59,59,999)
+                                
+                                const gEvents = await getGoogleCalendarEvents(
+                                    oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                    dStart.toISOString(), dEnd.toISOString()
+                                )
+                                const match = gEvents.find((g:any) => 
+                                    g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
+                                    (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
+                                )
+                                if (match) {
+                                    await deleteGoogleCalendarEvent(
+                                        oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                        match.id
+                                    )
+                                }
                             }
                         } catch (e) {
                             console.error('[Calendar API] Failed to delete old google event', e)
@@ -546,7 +555,22 @@ Telefono: ${lead_phone || 'Non specificato'}
 
             await supabase.from('leads').update(updatePayload).eq('id', lead_id)
 
-            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj) {
+            // Log activity for stage change
+            if (stages && stages.length > 0 && leadObj && leadObj.stage_id !== stages[0].id) {
+                try {
+                    await supabase.from('lead_activities').insert({
+                        organization_id: ctx.organization_id,
+                        lead_id: lead_id,
+                        activity_type: 'stage_changed',
+                        from_stage_id: leadObj.stage_id,
+                        to_stage_id: stages[0].id,
+                        notes: `📅 Appuntamento prenotato — spostato automaticamente`,
+                    })
+                } catch { /* best effort */ }
+            }
+
+            // Fire CAPI event directly (don't delegate to PUT /api/leads which requires session auth)
+            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj && leadObj.stage_id !== stages[0].id) {
                 try {
                     await fetch(new URL('/api/leads', req.url).toString(), {
                         method: 'PUT',
@@ -560,7 +584,9 @@ Telefono: ${lead_phone || 'Non specificato'}
                             _old_stage_id: leadObj.stage_id,
                         }),
                     })
-                } catch { /* best effort */ }
+                } catch (err) {
+                    console.error('[Calendar book] CAPI delegation failed:', err)
+                }
             }
         }
 
@@ -773,7 +799,7 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (lead_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
-                .select('id, closer_id, start_time')
+                .select('id, closer_id, start_time, google_event_id')
                 .eq('lead_id', lead_id)
                 .eq('status', 'confirmed')
 
@@ -790,24 +816,33 @@ Telefono: ${lead_phone || 'Non specificato'}
 
                     if (closerTokenData?.google_access_token) {
                         try {
-                            const dStart = new Date(oldEv.start_time)
-                            dStart.setHours(0,0,0,0)
-                            const dEnd = new Date(oldEv.start_time)
-                            dEnd.setHours(23,59,59,999)
-                            
-                            const gEvents = await getGoogleCalendarEvents(
-                                oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
-                                dStart.toISOString(), dEnd.toISOString()
-                            )
-                            const match = gEvents.find((g:any) => 
-                                g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
-                                (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
-                            )
-                            if (match) {
+                            if (oldEv.google_event_id) {
+                                // Primary: use stored Google event ID (reliable)
                                 await deleteGoogleCalendarEvent(
                                     oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
-                                    match.id
+                                    oldEv.google_event_id
                                 )
+                            } else {
+                                // Fallback: search by extendedProperties or time match (pre-fix events)
+                                const dStart = new Date(oldEv.start_time)
+                                dStart.setHours(0,0,0,0)
+                                const dEnd = new Date(oldEv.start_time)
+                                dEnd.setHours(23,59,59,999)
+                                
+                                const gEvents = await getGoogleCalendarEvents(
+                                    oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                    dStart.toISOString(), dEnd.toISOString()
+                                )
+                                const match = gEvents.find((g:any) => 
+                                    g.extendedProperties?.private?.sincro_event_id === oldEv.id || 
+                                    (new Date(g.start).getTime() === new Date(oldEv.start_time).getTime() && g.summary.includes('Appuntamento'))
+                                )
+                                if (match) {
+                                    await deleteGoogleCalendarEvent(
+                                        oldEv.closer_id, closerTokenData.google_access_token, closerTokenData.google_refresh_token, closerTokenData.google_token_expiry,
+                                        match.id
+                                    )
+                                }
                             }
                         } catch (e) {
                             console.error('[Calendar API] Failed to delete old google event', e)
@@ -902,7 +937,22 @@ Telefono: ${lead_phone || 'Non specificato'}
 
             await supabase.from('leads').update(updatePayload).eq('id', lead_id)
 
-            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj) {
+            // Log activity for stage change
+            if (stages && stages.length > 0 && leadObj && leadObj.stage_id !== stages[0].id) {
+                try {
+                    await supabase.from('lead_activities').insert({
+                        organization_id: ctx.organization_id,
+                        lead_id: lead_id,
+                        activity_type: 'stage_changed',
+                        from_stage_id: leadObj.stage_id,
+                        to_stage_id: stages[0].id,
+                        notes: `📅 Appuntamento auto-assegnato — spostato automaticamente`,
+                    })
+                } catch { /* best effort */ }
+            }
+
+            // Fire CAPI event via leads route (keeps CAPI logic centralized)
+            if (stages && stages.length > 0 && stages[0].fire_capi_event && leadObj && leadObj.stage_id !== stages[0].id) {
                 try {
                     await fetch(new URL('/api/leads', req.url).toString(), {
                         method: 'PUT',
@@ -916,7 +966,9 @@ Telefono: ${lead_phone || 'Non specificato'}
                             _old_stage_id: leadObj.stage_id,
                         }),
                     })
-                } catch { /* best effort */ }
+                } catch (err) {
+                    console.error('[Calendar auto_book] CAPI delegation failed:', err)
+                }
             }
         }
 
