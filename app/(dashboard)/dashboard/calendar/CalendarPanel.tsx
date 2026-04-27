@@ -1202,7 +1202,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         </div>
 
                         {/* Actions */}
-                        {selectedEvent.status === 'confirmed' && (userRole === 'closer' || userRole === 'owner' || userRole === 'admin') && (
+                        {selectedEvent.status === 'confirmed' && (userRole === 'closer' || userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
                             <div className="flex gap-2 pt-2">
                                 <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
                                     className="flex-1 py-2 rounded-lg text-xs font-bold text-white"
