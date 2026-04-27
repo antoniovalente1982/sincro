@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table } from 'lucide-react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table, ZoomIn, ZoomOut } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
 import Link from 'next/link'
@@ -280,15 +280,26 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     // View Mode (Kanban vs Grid)
     const [viewMode, setViewMode] = useState<'kanban' | 'grid'>('kanban')
+    const [zoomLevel, setZoomLevel] = useState(100)
 
     useEffect(() => {
         const savedView = localStorage.getItem('crmViewMode')
         if (savedView === 'kanban' || savedView === 'grid') setViewMode(savedView)
+        const savedZoom = localStorage.getItem('crmZoomLevel')
+        if (savedZoom) {
+            const z = parseInt(savedZoom)
+            if ([50, 75, 100, 125, 150].includes(z)) setZoomLevel(z)
+        }
     }, [])
 
     const handleViewSwitch = (mode: 'kanban' | 'grid') => {
         setViewMode(mode)
         localStorage.setItem('crmViewMode', mode)
+    }
+
+    const handleZoomChange = (level: number) => {
+        setZoomLevel(level)
+        localStorage.setItem('crmZoomLevel', String(level))
     }
 
     // Pipeline CRUD state
@@ -999,7 +1010,25 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 />
             ) : (
             <div className="w-full flex flex-col gap-3">
-                <div className="flex justify-end pr-1">
+                <div className="flex items-center justify-end gap-3 pr-1">
+                    {/* Zoom Control */}
+                    <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 rounded-lg px-2 py-1 shadow-sm">
+                        <ZoomOut className="w-3.5 h-3.5 text-gray-500" />
+                        {[50, 75, 100, 125, 150].map(level => (
+                            <button
+                                key={level}
+                                onClick={() => handleZoomChange(level)}
+                                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
+                                    zoomLevel === level
+                                        ? 'bg-indigo-500/20 text-indigo-400 shadow-sm'
+                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                }`}
+                            >
+                                {level}%
+                            </button>
+                        ))}
+                        <ZoomIn className="w-3.5 h-3.5 text-gray-500" />
+                    </div>
                     <details className="relative group/col-sel">
                         <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
                             <Eye className="w-4 h-4" /> 
@@ -1015,7 +1044,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </div>
                     </details>
                 </div>
-                <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
+                <div className="overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 280px)' }}>
+                <div className="flex gap-4" style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top left', width: `${10000 / zoomLevel}%` }}>
                 {activeStages.map(stage => {
                     const stageLeads = getLeadsForStage(stage.id)
                     const isOver = dragOverStage === stage.id
@@ -1473,6 +1503,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         </div>
                     )
                 })}
+            </div>
             </div>
             </div>
             )}
