@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table, ZoomIn, ZoomOut } from 'lucide-react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table, ZoomIn } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
 import Link from 'next/link'
@@ -1013,21 +1013,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 <div className="flex items-center justify-end gap-3 pr-1">
                     {/* Zoom Control */}
                     <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 rounded-lg px-2 py-1 shadow-sm">
-                        <ZoomOut className="w-3.5 h-3.5 text-gray-500" />
-                        {[50, 75, 100, 125, 150].map(level => (
-                            <button
-                                key={level}
-                                onClick={() => handleZoomChange(level)}
-                                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
-                                    zoomLevel === level
-                                        ? 'bg-indigo-500/20 text-indigo-400 shadow-sm'
-                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
-                                }`}
-                            >
-                                {level}%
-                            </button>
-                        ))}
-                        <ZoomIn className="w-3.5 h-3.5 text-gray-500" />
+                        <ZoomIn className="w-3.5 h-3.5 text-gray-400" />
+                        <select
+                            value={zoomLevel}
+                            onChange={e => handleZoomChange(Number(e.target.value))}
+                            className="bg-transparent text-xs font-bold text-indigo-400 border-none outline-none cursor-pointer appearance-none pr-4"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366f1' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2px center' }}
+                        >
+                            {[50, 75, 100, 125, 150].map(level => (
+                                <option key={level} value={level} style={{ background: '#1a1a24', color: '#e5e7eb' }}>{level}%</option>
+                            ))}
+                        </select>
                     </div>
                     <details className="relative group/col-sel">
                         <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
