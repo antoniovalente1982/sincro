@@ -1205,40 +1205,47 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
                         {/* Actions */}
                         {selectedEvent.status === 'confirmed' && (userRole === 'closer' || userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
-                            <div className="flex gap-2 pt-2">
-                                <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
-                                    className="flex-1 py-2 rounded-lg text-xs font-bold text-white"
-                                    style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)' }}>
-                                    ✓ Completato
-                                </button>
-                                <button onClick={() => handleUpdateEvent(selectedEvent.id, 'no_show')}
-                                    className="flex-1 py-2 rounded-lg text-xs font-bold"
-                                    style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}>
-                                    ⚠ No Show
-                                </button>
-                                <button onClick={() => handleDeleteEvent(selectedEvent.id)}
-                                    className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"
-                                    style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
-                                    <Trash2 className="w-3.5 h-3.5" /> Elimina
-                                </button>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    // Pre-fill booking form with this event's lead data for reschedule
-                                    resetBookingForm()
-                                    setBookLeadName(selectedEvent.leads?.name || selectedEvent.title || '')
-                                    setBookPhone(selectedEvent.lead_phone || selectedEvent.leads?.phone || '')
-                                    setBookEmail(selectedEvent.lead_email || selectedEvent.leads?.email || '')
-                                    setBookTitle(`[RIPROGRAMMATO] ${selectedEvent.leads?.name || selectedEvent.title}`)
-                                    setRescheduleLeadId(selectedEvent.lead_id || null)
-                                    setShowBooking(true)
-                                    setSelectedEvent(null)
-                                }}
-                                className="w-full py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 mt-1 transition-all hover:scale-[1.01]"
-                                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }}
-                            >
-                                <ArrowRightLeft className="w-3.5 h-3.5" /> Sposta Appuntamento
-                            </button>
+                            <>
+                                {/* Esito: solo per appuntamenti passati */}
+                                {new Date(selectedEvent.end_time) < new Date() && (
+                                    <div className="flex gap-2 pt-2">
+                                        <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
+                                            className="flex-1 py-2 rounded-lg text-xs font-bold text-white"
+                                            style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)' }}>
+                                            ✓ Completato
+                                        </button>
+                                        <button onClick={() => handleUpdateEvent(selectedEvent.id, 'no_show')}
+                                            className="flex-1 py-2 rounded-lg text-xs font-bold"
+                                            style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}>
+                                            ⚠ No Show
+                                        </button>
+                                    </div>
+                                )}
+                                {/* Gestione: Sposta + Elimina */}
+                                <div className="flex gap-2 pt-2">
+                                    <button
+                                        onClick={() => {
+                                            resetBookingForm()
+                                            setBookLeadName(selectedEvent.leads?.name || selectedEvent.title || '')
+                                            setBookPhone(selectedEvent.lead_phone || selectedEvent.leads?.phone || '')
+                                            setBookEmail(selectedEvent.lead_email || selectedEvent.leads?.email || '')
+                                            setBookTitle(`[RIPROGRAMMATO] ${selectedEvent.leads?.name || selectedEvent.title}`)
+                                            setRescheduleLeadId(selectedEvent.lead_id || null)
+                                            setShowBooking(true)
+                                            setSelectedEvent(null)
+                                        }}
+                                        className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                                        style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }}
+                                    >
+                                        <ArrowRightLeft className="w-3.5 h-3.5" /> Sposta
+                                    </button>
+                                    <button onClick={() => handleDeleteEvent(selectedEvent.id)}
+                                        className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"
+                                        style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
+                                        <Trash2 className="w-3.5 h-3.5" /> Elimina
+                                    </button>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
