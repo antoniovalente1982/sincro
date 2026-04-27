@@ -51,17 +51,27 @@ export async function GET(req: NextRequest) {
         const { data, error } = await query
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-        // Enrich with closer/setter names
+        // Enrich with closer/setter names — fetch members + profiles separately (FK embed is unreliable)
         const { data: members } = await supabase
             .from('organization_members')
-            .select('user_id, role, department, display_color, profiles:user_id(full_name, email)')
+            .select('user_id, role, department, display_color')
             .eq('organization_id', ctx.organization_id)
             .is('deactivated_at', null)
 
+        const memberUserIds = (members || []).map((m: any) => m.user_id).filter(Boolean)
+        const { data: memberProfiles } = memberUserIds.length > 0 ? await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .in('id', memberUserIds) : { data: [] }
+
+        const profileMap: Record<string, any> = {}
+        memberProfiles?.forEach((p: any) => { profileMap[p.id] = p })
+
         const memberMap: Record<string, any> = {}
         members?.forEach((m: any) => {
+            const profile = profileMap[m.user_id]
             memberMap[m.user_id] = {
-                name: m.profiles?.full_name || m.profiles?.email || 'N/A',
+                name: profile?.full_name || profile?.email || 'N/A',
                 color: m.display_color || '#3b82f6',
                 role: m.role,
             }
