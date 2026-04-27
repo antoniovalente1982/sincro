@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2 } from 'lucide-react'
+import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
@@ -105,6 +105,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const [bookNotes, setBookNotes] = useState('')
     const [bookingSaving, setBookingSaving] = useState(false)
     const [bookingResult, setBookingResult] = useState<{ success: boolean; message: string; assigned_to?: string } | null>(null)
+    const [rescheduleLeadId, setRescheduleLeadId] = useState<string | null>(null)
 
     // Availability settings state
     const [availability, setAvailability] = useState<AvailabilitySchedule[]>([])
@@ -307,7 +308,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         lead_email: bookEmail,
                         lead_name: bookLeadName,
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : undefined,
-                        lead_id: prefillLead?.id,
+                        lead_id: rescheduleLeadId || prefillLead?.id,
                         assignment_mode: assignmentMode,
                     }),
                 })
@@ -340,7 +341,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         lead_phone: bookPhone,
                         lead_email: bookEmail,
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : `Lead: ${bookLeadName}`,
-                        lead_id: prefillLead?.id,
+                        lead_id: rescheduleLeadId || prefillLead?.id,
                     }),
                 })
                 const data = await res.json()
@@ -419,6 +420,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         setAvailableSlots([])
         setBookingResult(null)
         setBookingMode('auto')
+        setRescheduleLeadId(null)
     }
 
     // Navigate
@@ -1220,6 +1222,23 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <Trash2 className="w-3.5 h-3.5" /> Elimina
                                 </button>
                             </div>
+                            <button
+                                onClick={() => {
+                                    // Pre-fill booking form with this event's lead data for reschedule
+                                    resetBookingForm()
+                                    setBookLeadName(selectedEvent.leads?.name || selectedEvent.title || '')
+                                    setBookPhone(selectedEvent.lead_phone || selectedEvent.leads?.phone || '')
+                                    setBookEmail(selectedEvent.lead_email || selectedEvent.leads?.email || '')
+                                    setBookTitle(`[RIPROGRAMMATO] ${selectedEvent.leads?.name || selectedEvent.title}`)
+                                    setRescheduleLeadId(selectedEvent.lead_id || null)
+                                    setShowBooking(true)
+                                    setSelectedEvent(null)
+                                }}
+                                className="w-full py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 mt-1 transition-all hover:scale-[1.01]"
+                                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }}
+                            >
+                                <ArrowRightLeft className="w-3.5 h-3.5" /> Sposta Appuntamento
+                            </button>
                         )}
                     </div>
                 </div>
