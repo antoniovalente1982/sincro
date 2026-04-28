@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft, Tag, Palette, Edit3, ToggleLeft, ToggleRight, GripVertical } from 'lucide-react'
+import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft, Tag, Palette, Edit3, ToggleLeft, ToggleRight, GripVertical, Sparkles } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
@@ -286,27 +286,11 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         try {
             const from = new Date().toISOString()
             const to = new Date(Date.now() + 14 * 86400000).toISOString()
-
-            // Fetch slots from ALL closers and merge available ones
-            const allSlots: Slot[] = []
-            const closersWithAvail = closers.filter(c => c.has_availability && c.in_round_robin !== false)
-
-            for (const closer of closersWithAvail) {
-                const stParam = bookServiceTypeId ? `&service_type_id=${bookServiceTypeId}` : ''
-                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${from}&to=${to}${stParam}`)
-                const data = await res.json()
-                const slots = (data.slots || []).filter((s: Slot) => s.available)
-                slots.forEach((s: Slot) => {
-                    // Only add if not already in allSlots (dedup by start time)
-                    if (!allSlots.some(existing => existing.start === s.start)) {
-                        allSlots.push(s)
-                    }
-                })
-            }
-
-            // Sort by date/time
-            allSlots.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-            setAvailableSlots(allSlots)
+            const stParam = bookServiceTypeId ? `&service_type_id=${bookServiceTypeId}` : ''
+            
+            const res = await fetch(`/api/calendar?action=auto_slots&from=${from}&to=${to}${stParam}`)
+            const data = await res.json()
+            setAvailableSlots(data.slots || [])
         } catch { /* silent */ }
         setSlotsLoading(false)
     }
@@ -1128,25 +1112,9 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
                         {/* Auto mode: assignment strategy */}
                         {bookingMode === 'auto' && (
-                            <div>
-                                <label className="text-xs font-semibold text-white/70 block mb-2">Strategia di assegnazione</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {ASSIGNMENT_MODES.map(mode => (
-                                        <button
-                                            key={mode.value}
-                                            onClick={() => setAssignmentMode(mode.value)}
-                                            className="p-2.5 rounded-xl text-center transition-all"
-                                            style={{
-                                                background: assignmentMode === mode.value ? `${mode.color}15` : 'rgba(255,255,255,0.03)',
-                                                border: `1px solid ${assignmentMode === mode.value ? `${mode.color}40` : 'rgba(255,255,255,0.06)'}`,
-                                            }}
-                                        >
-                                            <mode.icon className="w-4 h-4 mx-auto mb-1" style={{ color: assignmentMode === mode.value ? mode.color : 'var(--color-surface-500)' }} />
-                                            <div className="text-[10px] font-bold" style={{ color: assignmentMode === mode.value ? mode.color : 'var(--color-surface-400)' }}>{mode.label}</div>
-                                            <div className="text-[9px]" style={{ color: 'var(--color-surface-600)' }}>{mode.desc}</div>
-                                        </button>
-                                    ))}
-                                </div>
+                            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-medium text-indigo-200">
+                                <Sparkles className="w-3.5 h-3.5 inline mr-1 text-indigo-400" />
+                                Il venditore verrà assegnato automaticamente al momento della conferma, bilanciando il carico e la performance.
                             </div>
                         )}
 

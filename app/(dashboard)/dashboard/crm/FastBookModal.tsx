@@ -53,28 +53,10 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             const nextWeek = new Date(today)
             nextWeek.setDate(nextWeek.getDate() + 7)
             
-            const allSlots: any[] = []
-            
-            // Fetch for all available closers
-            for (const closer of closers) {
-                // Must be in round robin and must have availability explicitly set on Sincro
-                if (!closer.in_round_robin || !closer.has_availability) continue;
-                
-                const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
-                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
-                const data = await res.json()
-                const slots = (data.slots || []).filter((s: any) => s.available === true)
-                
-                slots.forEach((s: any) => {
-                    // Evita duplicati di orario
-                    if (!allSlots.some(existing => existing.start === s.start)) {
-                        allSlots.push({ ...s, closer_id: closer.user_id })
-                    }
-                })
-            }
-            
-            allSlots.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-            setAutoSlots(allSlots)
+            const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
+            const res = await fetch(`/api/calendar?action=auto_slots&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
+            const data = await res.json()
+            setAutoSlots(data.slots || [])
         } catch (e) {
             console.error(e)
         }
@@ -220,7 +202,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 </div>
 
                 {/* Booking mode toggle */}
-                <div className="flex flex-col gap-3 shrink-0">
+                    <div className="flex flex-col gap-3 shrink-0">
                     <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button
                             onClick={() => { setBookingMode('auto'); setSelectedSlot(null); setSelectedDate(null); }}
@@ -235,6 +217,13 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                             <User className="w-4 h-4" /> Scegli Venditore
                         </button>
                     </div>
+
+                    {bookingMode === 'auto' && (
+                        <div className="p-3 mb-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-medium text-indigo-200">
+                            <Sparkles className="w-3.5 h-3.5 inline mr-1 text-indigo-400" />
+                            Il venditore verrà assegnato automaticamente al momento della conferma, bilanciando il carico e la performance.
+                        </div>
+                    )}
 
                     {bookingMode === 'manual' && (
                         <div className="flex flex-col gap-1.5 border-b border-white/5 pb-4">

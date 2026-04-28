@@ -260,6 +260,192 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ slots })
     }
 
+    if (action === 'auto_slots') {
+        if (!from) return NextResponse.json({ error: 'from date required' }, { status: 400 })
+
+        const serviceTypeId = searchParams.get('service_type_id')
+        let serviceTypeDuration: number | null = null
+        if (serviceTypeId) {
+            const { data: st } = await supabase
+                .from('calendar_service_types')
+                .select('duration_minutes')
+                .eq('id', serviceTypeId)
+                .single()
+            if (st) serviceTypeDuration = st.duration_minutes
+        }
+
+        const startDate = new Date(from)
+        const endDate = to ? new Date(to) : new Date(startDate.getTime() + 7 * 86400000)
+
+        // Find all active closers in round robin
+        const { data: closers } = await supabase
+            .from('organization_members')
+            .select('user_id, has_availability, in_round_robin')
+            .eq('organization_id', ctx.organization_id)
+            .is('deactivated_at', null)
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
+            
+        const activeClosers = (closers || []).filter(c => c.in_round_robin && c.has_availability)
+        if (activeClosers.length === 0) return NextResponse.json({ slots: [] })
+        
+        // Parallel fetch for each closer
+        const allSlotsPromises = activeClosers.map(async (closer) => {
+            const closerId = closer.user_id
+            
+            // 1. Get closer's availability schedule
+            let { data: availability } = await supabase
+                .from('calendar_availability')
+                .select('*')
+                .eq('user_id', closerId)
+                .eq('organization_id', ctx.organization_id)
+                .eq('is_active', true)
+                
+            // Fallback to Owner's availability if closer has none
+            if (!availability || availability.length === 0) {
+                const { data: orgOwner } = await supabase
+                    .from('organization_members')
+                    .select('user_id')
+                    .eq('organization_id', ctx.organization_id)
+                    .eq('role', 'owner')
+                    .limit(1)
+
+                if (orgOwner && orgOwner.length > 0) {
+                    const { data: ownerAvailability } = await supabase
+                        .from('calendar_availability')
+                        .select('*')
+                        .eq('user_id', orgOwner[0].user_id)
+                        .eq('organization_id', ctx.organization_id)
+                        .eq('is_active', true)
+                    
+                    if (ownerAvailability && ownerAvailability.length > 0) {
+                        availability = ownerAvailability
+                    }
+                }
+            }
+
+            // 2. Get existing events for this closer in the date range
+            const { data: existingEvents } = await supabase
+                .from('calendar_events')
+                .select('start_time, end_time')
+                .eq('closer_id', closerId)
+                .eq('organization_id', ctx.organization_id)
+                .neq('status', 'cancelled')
+                .gte('start_time', startDate.toISOString())
+                .lte('start_time', endDate.toISOString())
+
+            const busySlots = (existingEvents || []).map((e: any) => ({
+                start: new Date(e.start_time).getTime(),
+                end: new Date(e.end_time).getTime(),
+            }))
+
+            // 2.5 Get Google Calendar Free/Busy if connected
+            const { data: memberData } = await supabase
+                .from('organization_members')
+                .select('google_access_token, google_refresh_token, google_token_expiry')
+                .eq('user_id', closerId)
+                .single()
+
+            let googleBusySlots: { start: number, end: number }[] = []
+            if (memberData?.google_access_token) {
+                try {
+                    const gEvents = await getGoogleCalendarFreeBusy(
+                        closerId,
+                        memberData.google_access_token,
+                        memberData.google_refresh_token,
+                        memberData.google_token_expiry,
+                        startDate.toISOString(),
+                        endDate.toISOString()
+                    )
+                    googleBusySlots = gEvents.map((e: any) => ({
+                        start: new Date(e.start).getTime(),
+                        end: new Date(e.end).getTime()
+                    }))
+                } catch (err) {
+                    console.error('[Calendar API] Error fetching google free/busy:', err)
+                }
+            }
+
+            const allBusySlots = [...busySlots, ...googleBusySlots]
+
+            const effectiveAvailability = (availability && availability.length > 0) ? (availability || []) : [0, 1, 2, 3, 4, 5, 6].map(day => ({
+                day_of_week: day,
+                start_time: '00:00',
+                end_time: '23:59',
+                slot_duration_minutes: 45,
+                break_between_slots: 0
+            }))
+
+            const slots: { date: string; start: string; end: string; available: boolean; closer_id: string }[] = []
+            const cursor = new Date(startDate)
+            cursor.setHours(0, 0, 0, 0)
+
+            while (cursor < endDate) {
+                const dayOfWeek = cursor.getDay()
+                const dayAvail = effectiveAvailability.find((a: any) => a.day_of_week === dayOfWeek)
+
+                if (dayAvail) {
+                    const [startH, startM] = dayAvail.start_time.split(':').map(Number)
+                    const [endH, endM] = dayAvail.end_time.split(':').map(Number)
+                    const slotDuration = serviceTypeDuration || dayAvail.slot_duration_minutes || 45
+                    const breakTime = dayAvail.break_between_slots || 0
+
+                    const italyFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', timeZoneName: 'shortOffset' })
+                    const tzPart = italyFormatter.formatToParts(cursor).find(p => p.type === 'timeZoneName')?.value
+                    const offsetStr = tzPart === 'GMT+2' ? '+02:00' : '+01:00'
+
+                    const cursorDateStr = cursor.toISOString().split('T')[0]
+
+                    const isoStart = `${cursorDateStr}T${String(startH).padStart(2, '0')}:${String(startM).padStart(2, '0')}:00${offsetStr}`
+                    let slotStart = new Date(isoStart)
+
+                    const isoEnd = `${cursorDateStr}T${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00${offsetStr}`
+                    const dayEnd = new Date(isoEnd)
+
+                    while (slotStart.getTime() + slotDuration * 60000 <= dayEnd.getTime()) {
+                        const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000)
+
+                        const isOccupied = allBusySlots.some(busy =>
+                            slotStart.getTime() < busy.end && slotEnd.getTime() > busy.start
+                        )
+
+                        const isPast = slotStart.getTime() < Date.now()
+                        
+                        if (!isOccupied && !isPast) {
+                            slots.push({
+                                date: cursor.toISOString().split('T')[0],
+                                start: slotStart.toISOString(),
+                                end: slotEnd.toISOString(),
+                                available: true,
+                                closer_id: closerId
+                            })
+                        }
+
+                        slotStart = new Date(slotEnd.getTime() + breakTime * 60000)
+                    }
+                }
+                cursor.setDate(cursor.getDate() + 1)
+            }
+            
+            return slots
+        })
+        
+        const closersSlots = await Promise.all(allSlotsPromises)
+        
+        // Merge and dedup by start time
+        const allSlots: any[] = []
+        for (const slots of closersSlots) {
+            for (const s of slots) {
+                if (!allSlots.some(existing => existing.start === s.start)) {
+                    allSlots.push(s)
+                }
+            }
+        }
+        
+        allSlots.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+        
+        return NextResponse.json({ slots: allSlots })
+    }
+
     if (action === 'closers') {
         // Get all closers with their availability status
         const { data: closers } = await supabase
