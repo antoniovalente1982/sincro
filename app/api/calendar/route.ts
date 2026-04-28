@@ -107,13 +107,17 @@ export async function GET(req: NextRequest) {
 
         const serviceTypeId = searchParams.get('service_type_id')
         let serviceTypeDuration: number | null = null
+        let serviceTypeBreak: number | null = null
         if (serviceTypeId) {
             const { data: st } = await supabase
                 .from('calendar_service_types')
-                .select('duration_minutes')
+                .select('duration_minutes, break_minutes')
                 .eq('id', serviceTypeId)
                 .single()
-            if (st) serviceTypeDuration = st.duration_minutes
+            if (st) {
+                serviceTypeDuration = st.duration_minutes
+                serviceTypeBreak = st.break_minutes
+            }
         }
 
         const startDate = new Date(from)
@@ -217,7 +221,7 @@ export async function GET(req: NextRequest) {
                 const [startH, startM] = dayAvail.start_time.split(':').map(Number)
                 const [endH, endM] = dayAvail.end_time.split(':').map(Number)
                 const slotDuration = serviceTypeDuration || dayAvail.slot_duration_minutes || 45
-                const breakTime = dayAvail.break_between_slots || 0
+                const breakTime = serviceTypeBreak !== null ? serviceTypeBreak : (dayAvail.break_between_slots || 0)
 
                 // Calculate Italy's offset (+01:00 or +02:00) for the target date to ensure slots are exact
                 const italyFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', timeZoneName: 'shortOffset' })
@@ -265,13 +269,17 @@ export async function GET(req: NextRequest) {
 
         const serviceTypeId = searchParams.get('service_type_id')
         let serviceTypeDuration: number | null = null
+        let serviceTypeBreak: number | null = null
         if (serviceTypeId) {
             const { data: st } = await supabase
                 .from('calendar_service_types')
-                .select('duration_minutes')
+                .select('duration_minutes, break_minutes')
                 .eq('id', serviceTypeId)
                 .single()
-            if (st) serviceTypeDuration = st.duration_minutes
+            if (st) {
+                serviceTypeDuration = st.duration_minutes
+                serviceTypeBreak = st.break_minutes
+            }
         }
 
         const startDate = new Date(from)
@@ -387,7 +395,7 @@ export async function GET(req: NextRequest) {
                     const [startH, startM] = dayAvail.start_time.split(':').map(Number)
                     const [endH, endM] = dayAvail.end_time.split(':').map(Number)
                     const slotDuration = serviceTypeDuration || dayAvail.slot_duration_minutes || 45
-                    const breakTime = dayAvail.break_between_slots || 0
+                    const breakTime = serviceTypeBreak !== null ? serviceTypeBreak : (dayAvail.break_between_slots || 0)
 
                     const italyFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', timeZoneName: 'shortOffset' })
                     const tzPart = italyFormatter.formatToParts(cursor).find(p => p.type === 'timeZoneName')?.value
@@ -1305,7 +1313,7 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (!['owner', 'admin'].includes(ctx.role)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
         }
-        const { name, duration_minutes, color, description: desc } = body
+        const { name, duration_minutes, break_minutes, color, description: desc } = body
         if (!name || !duration_minutes) {
             return NextResponse.json({ error: 'name e duration_minutes richiesti' }, { status: 400 })
         }
@@ -1323,7 +1331,7 @@ Telefono: ${lead_phone || 'Non specificato'}
             // Reactivate and update existing
             const { data, error } = await supabase
                 .from('calendar_service_types')
-                .update({ name, duration_minutes, color: color || '#6366f1', description: desc || null, is_active: true })
+                .update({ name, duration_minutes, break_minutes: break_minutes || 0, color: color || '#6366f1', description: desc || null, is_active: true })
                 .eq('id', existing.id)
                 .select()
                 .single()
@@ -1338,6 +1346,7 @@ Telefono: ${lead_phone || 'Non specificato'}
                 name,
                 slug,
                 duration_minutes,
+                break_minutes: break_minutes || 0,
                 color: color || '#6366f1',
                 description: desc || null,
                 is_active: true,
@@ -1352,7 +1361,7 @@ Telefono: ${lead_phone || 'Non specificato'}
         if (!['owner', 'admin'].includes(ctx.role)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
         }
-        const { id, name, duration_minutes, color, description: desc, is_active } = body
+        const { id, name, duration_minutes, break_minutes, color, description: desc, is_active } = body
         if (!id) return NextResponse.json({ error: 'id richiesto' }, { status: 400 })
         const updateData: any = {}
         if (name !== undefined) {
@@ -1360,6 +1369,7 @@ Telefono: ${lead_phone || 'Non specificato'}
             updateData.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
         }
         if (duration_minutes !== undefined) updateData.duration_minutes = duration_minutes
+        if (break_minutes !== undefined) updateData.break_minutes = break_minutes
         if (color !== undefined) updateData.color = color
         if (desc !== undefined) updateData.description = desc
         if (is_active !== undefined) updateData.is_active = is_active

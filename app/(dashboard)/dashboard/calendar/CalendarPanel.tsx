@@ -68,6 +68,7 @@ interface ServiceType {
     name: string
     slug: string
     duration_minutes: number
+    break_minutes: number
     color: string
     description?: string
     is_default: boolean
@@ -1401,7 +1402,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                         </div>
 
                                         {isActive && schedule && (
-                                            <div className="grid grid-cols-3 gap-2 mt-3">
+                                            <div className="grid grid-cols-2 gap-2 mt-3">
                                                 <div>
                                                     <label className="text-[9px] font-semibold text-white/50">Inizio</label>
                                                     <input type="time" value={schedule.start_time}
@@ -1415,18 +1416,6 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                         onChange={e => updateDaySchedule(day, 'end_time', e.target.value)}
                                                         className="w-full px-2 py-1 rounded text-xs mt-0.5"
                                                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
-                                                </div>
-                                                <div>
-                                                    <label className="text-[9px] font-semibold text-white/50">Pausa (min)</label>
-                                                    <select value={schedule.break_between_slots}
-                                                        onChange={e => updateDaySchedule(day, 'break_between_slots', Number(e.target.value))}
-                                                        className="w-full px-2 py-1 rounded text-xs mt-0.5"
-                                                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
-                                                        <option value={0}>0</option>
-                                                        <option value={5}>5</option>
-                                                        <option value={10}>10</option>
-                                                        <option value={15}>15</option>
-                                                    </select>
                                                 </div>
                                             </div>
                                         )}
@@ -1502,7 +1491,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {editingServiceType ? (
                             <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
                                 <div className="text-xs font-bold text-white/80">{editingServiceType.id ? 'Modifica Tipo' : 'Nuovo Tipo'}</div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
                                     <div>
                                         <label className="text-[9px] font-semibold text-white/50">Nome *</label>
                                         <input value={editingServiceType.name || ''}
@@ -1523,6 +1512,19 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                             <option value={60}>60 min</option>
                                             <option value={90}>90 min</option>
                                             <option value={120}>120 min</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-semibold text-white/50">Pausa (min)</label>
+                                        <select value={editingServiceType.break_minutes || 0}
+                                            onChange={e => setEditingServiceType(prev => prev ? { ...prev, break_minutes: Number(e.target.value) } : prev)}
+                                            className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
+                                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+                                            <option value={0}>0 min</option>
+                                            <option value={5}>5 min</option>
+                                            <option value={10}>10 min</option>
+                                            <option value={15}>15 min</option>
+                                            <option value={30}>30 min</option>
                                         </select>
                                     </div>
                                 </div>
