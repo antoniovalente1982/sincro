@@ -1320,7 +1320,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 {/* Esito Appuntamento */}
                                 <div className="pt-3">
                                     <label className="text-[10px] font-bold text-white/50 uppercase mb-2 block">Esito Appuntamento</label>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
                                         <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
                                             className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
                                             style={{ 
@@ -1340,16 +1340,6 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                             }}>
                                             <span className="text-base mb-1">{selectedEvent.status === 'no_show' ? '⚠️' : '❌'}</span>
                                             No Show
-                                        </button>
-                                        <button onClick={() => handleUpdateEvent(selectedEvent.id, 'cancelled')}
-                                            className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
-                                            style={{ 
-                                                background: selectedEvent.status === 'cancelled' ? '#ef4444' : 'rgba(239,68,68,0.1)', 
-                                                border: `1px solid ${selectedEvent.status === 'cancelled' ? '#ef4444' : 'rgba(239,68,68,0.3)'}`, 
-                                                color: selectedEvent.status === 'cancelled' ? 'white' : '#ef4444' 
-                                            }}>
-                                            <span className="text-base mb-1">{selectedEvent.status === 'cancelled' ? '🗑️' : '✖️'}</span>
-                                            Annullato
                                         </button>
                                     </div>
                                 </div>
