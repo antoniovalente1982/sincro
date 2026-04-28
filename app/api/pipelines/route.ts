@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient as createAdmin } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!serviceKey) {
         console.error('SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to ANON_KEY, which may cause RLS errors.')
     }
-    return createClient(
+    return createAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
@@ -36,11 +37,16 @@ export async function POST(req: NextRequest) {
 
         // Auto-detect org_id from auth if not provided
         if (!organization_id) {
-            const { data: members } = await getSupabaseAdmin()
-                .from('organization_members')
-                .select('organization_id')
-                .limit(1)
-            organization_id = members?.[0]?.organization_id
+            const supabase = await createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data: member } = await supabase
+                    .from('organization_members')
+                    .select('organization_id')
+                    .eq('user_id', user.id)
+                    .single()
+                organization_id = member?.organization_id
+            }
         }
 
         if (!organization_id || !name) {

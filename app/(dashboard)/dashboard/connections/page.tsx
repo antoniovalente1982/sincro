@@ -27,6 +27,7 @@ interface ConnectionCard {
     testable?: boolean
     hasWebhook?: boolean
     hasSyncButton?: boolean
+    isCustomIncoming?: boolean
 }
 
 const connectionsList: ConnectionCard[] = [
@@ -82,6 +83,15 @@ const connectionsList: ConnectionCard[] = [
     { provider: 'google_ads', name: 'Google Ads', description: 'Campagne Search, Display e YouTube', icon: BarChart3, color: '#4285f4', fields: [], comingSoon: true },
     { provider: 'tiktok_ads', name: 'TikTok Ads', description: 'Raggiungi genitori e giovani su TikTok', icon: Tv, color: '#ee1d52', fields: [], comingSoon: true },
     { provider: 'youtube_ads', name: 'YouTube Ads', description: 'Video ads su YouTube', icon: Video, color: '#ff0000', fields: [], comingSoon: true },
+    {
+        provider: 'incoming_webhook',
+        name: 'Webhook & API (Ingresso)',
+        description: 'Genera URL webhook per Zapier, Make, Gravity Forms o API esterne.',
+        icon: Webhook,
+        color: '#10b981',
+        fields: [],
+        isCustomIncoming: true,
+    },
 ]
 
 export default function ConnectionsPage() {
@@ -94,6 +104,10 @@ export default function ConnectionsPage() {
     const [testResult, setTestResult] = useState<{ provider: string; success: boolean; message: string } | null>(null)
     const [connections, setConnections] = useState<Record<string, { id: string; status: string }>>({})
     const [loading, setLoading] = useState(true)
+    const [pipelines, setPipelines] = useState<{ id: string; name: string }[]>([])
+    const [selectedPipeline, setSelectedPipeline] = useState<string>('')
+    const [webhookType, setWebhookType] = useState<string>('generic')
+    const [orgId, setOrgId] = useState<string>('')
     const supabase = createClient()
 
     // Load existing connections
@@ -109,6 +123,14 @@ export default function ConnectionsPage() {
                 .single()
 
             if (!member) return
+            setOrgId(member.organization_id)
+
+            const { data: pipelinesData } = await supabase
+                .from('pipelines')
+                .select('id, name')
+                .eq('organization_id', member.organization_id)
+                .order('sort_order')
+            if (pipelinesData) setPipelines(pipelinesData)
 
             const { data } = await supabase
                 .from('connections')
@@ -365,10 +387,54 @@ export default function ConnectionsPage() {
                                 </div>
                             </button>
 
-                            {expanded === conn.provider && conn.fields.length > 0 && (
+                            {expanded === conn.provider && (
                                 <div className="px-5 pb-5 pt-2 border-t animate-fade-in" style={{ borderColor: 'var(--color-surface-200)' }}>
-                                    <div className="space-y-4 max-w-lg">
-                                        {conn.fields.map((field) => (
+                                    {conn.isCustomIncoming ? (
+                                        <div className="space-y-4 max-w-lg">
+                                            <div>
+                                                <label className="label">Tipo di Integrazione</label>
+                                                <select className="input" value={webhookType} onChange={e => setWebhookType(e.target.value)}>
+                                                    <option value="generic">API Generica (POST /api/leads)</option>
+                                                    <option value="gravity">Gravity Forms Webhook</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="label">Pipeline di Destinazione</label>
+                                                <select className="input" value={selectedPipeline} onChange={e => setSelectedPipeline(e.target.value)}>
+                                                    <option value="">Pipeline di Default (Consigliata per campagne base)</option>
+                                                    {pipelines.map(p => (
+                                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                                    ))}
+                                                </select>
+                                                <p className="text-[10px] mt-1 text-zinc-500">I lead entreranno nel primo step (stage) di questa pipeline.</p>
+                                            </div>
+                                            <div>
+                                                <label className="label">URL Webhook Generato</label>
+                                                <div className="flex gap-2">
+                                                    <input 
+                                                        readOnly 
+                                                        className="input flex-1 font-mono text-[10px]" 
+                                                        value={typeof window !== 'undefined' ? `${window.location.origin}${webhookType === 'gravity' ? '/api/webhooks/gravity' : '/api/leads'}?org_id=${orgId}${webhookType === 'gravity' ? `&org=${orgId}` : ''}${selectedPipeline ? `&pipeline_id=${selectedPipeline}` : ''}` : ''}
+                                                    />
+                                                    <button 
+                                                        className="btn-secondary" 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(`${window.location.origin}${webhookType === 'gravity' ? '/api/webhooks/gravity' : '/api/leads'}?org_id=${orgId}${webhookType === 'gravity' ? `&org=${orgId}` : ''}${selectedPipeline ? `&pipeline_id=${selectedPipeline}` : ''}`)
+                                                            alert('Copiato!')
+                                                        }}
+                                                    >
+                                                        Copia
+                                                    </button>
+                                                </div>
+                                                <p className="text-[10px] mt-2 text-zinc-400">
+                                                    Usa questo URL in Zapier, Make o nel tuo costruttore di landing page. 
+                                                    {webhookType === 'gravity' ? ' Per Gravity Forms, seleziona "POST" e includi i campi richiesti (email, name).' : ' Passa i campi name, email, phone nel body JSON.'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : conn.fields.length > 0 && (
+                                        <div className="space-y-4 max-w-lg">
+                                            {conn.fields.map((field) => (
                                             <div key={field.key}>
                                                 <label className="label">{field.label}</label>
                                                 {field.key === 'service_account_key' ? (
@@ -494,6 +560,7 @@ export default function ConnectionsPage() {
                                             </div>
                                         )}
                                     </div>
+                                )}
                                 </div>
                             )}
                         </div>

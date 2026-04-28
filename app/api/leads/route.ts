@@ -55,6 +55,42 @@ export async function POST(req: NextRequest) {
         }
     }
 
+    let resolvedStageId = insertData.stage_id
+
+    // Pipeline Routing Logic
+    if (!resolvedStageId) {
+        let targetPipelineId = insertData.pipeline_id || null
+
+        // 1. Fallback to default pipeline if no pipeline_id provided
+        if (!targetPipelineId) {
+            const { data: defaultPipeline } = await supabase
+                .from('pipelines')
+                .select('id')
+                .eq('organization_id', orgId)
+                .eq('is_default', true)
+                .limit(1)
+                .single()
+            targetPipelineId = defaultPipeline?.id || null
+        }
+
+        // 2. Get the first stage of the target pipeline
+        if (targetPipelineId) {
+            const { data: firstStage } = await supabase
+                .from('pipeline_stages')
+                .select('id')
+                .eq('organization_id', orgId)
+                .eq('pipeline_id', targetPipelineId)
+                .order('sort_order', { ascending: true })
+                .limit(1)
+                .single()
+            resolvedStageId = firstStage?.id || null
+        }
+    }
+
+    // Clean up pipeline_id from insertData since it doesn't belong in the leads table
+    delete insertData.pipeline_id
+    insertData.stage_id = resolvedStageId
+
     const { data, error } = await supabase
         .from('leads')
         .insert({ ...insertData, organization_id: orgId })
