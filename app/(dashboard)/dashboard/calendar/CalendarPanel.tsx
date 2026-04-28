@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft, Tag, Palette, Edit3, ToggleLeft, ToggleRight, GripVertical, Sparkles } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
@@ -90,6 +91,7 @@ const ASSIGNMENT_MODES = [
 ]
 
 export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleConnected }: Props) {
+    const supabase = createClient()
     const [currentDate, setCurrentDate] = useState(new Date())
     const [events, setEvents] = useState<CalendarEvent[]>([])
     const [closers, setClosers] = useState<Closer[]>([])
@@ -249,6 +251,27 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     useEffect(() => { fetchEvents() }, [fetchEvents])
     useEffect(() => { fetchGoogleEvents() }, [fetchGoogleEvents])
     useEffect(() => { fetchServiceTypes() }, [fetchServiceTypes])
+
+    // Real-time listener for calendar_events table
+    useEffect(() => {
+        const channel = supabase.channel('calendar_realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'calendar_events' }, () => {
+                // Fetch events again without triggering a loading overlay
+                const from = weekStart.toISOString()
+                const to = weekEnd.toISOString()
+                fetch(`/api/calendar?action=events&from=${from}&to=${to}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.events) setEvents(data.events)
+                    })
+                    .catch(() => {})
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [supabase, weekStart, weekEnd])
 
     // CRM Fast Booking auto-open
     useEffect(() => {
