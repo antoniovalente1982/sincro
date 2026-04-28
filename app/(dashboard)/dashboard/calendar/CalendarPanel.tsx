@@ -232,12 +232,15 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         setGoogleEventsLoading(false)
     }, [weekStart, weekEnd, closers, visibleCalendars, showGoogleEvents])
 
-    // Fetch service types
+    // Fetch service types (all for manager, active-only for booking)
+    const [allServiceTypes, setAllServiceTypes] = useState<ServiceType[]>([])
     const fetchServiceTypes = useCallback(async () => {
         try {
-            const res = await fetch('/api/calendar?action=service_types')
+            const res = await fetch('/api/calendar?action=service_types&include_inactive=true')
             const data = await res.json()
-            setServiceTypes(data.service_types || [])
+            const all = data.service_types || []
+            setAllServiceTypes(all)
+            setServiceTypes(all.filter((st: ServiceType) => st.is_active))
         } catch { /* silent */ }
     }, [])
 
@@ -1503,14 +1506,14 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
                         {/* Existing service types */}
                         <div className="space-y-2">
-                            {serviceTypes.length === 0 && (
+                            {allServiceTypes.length === 0 && (
                                 <div className="text-center py-6 text-sm" style={{ color: 'var(--color-surface-500)' }}>
                                     Nessun tipo configurato. Crea il primo!
                                 </div>
                             )}
-                            {serviceTypes.map(st => (
+                            {allServiceTypes.map(st => (
                                 <div key={st.id} className="rounded-xl p-3 flex items-center gap-3 transition-all group"
-                                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', opacity: st.is_active ? 1 : 0.5 }}>
                                     <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: st.color, boxShadow: `0 0 8px ${st.color}40` }} />
                                     <div className="flex-1 min-w-0">
                                         <div className="text-sm font-semibold text-white truncate">{st.name}</div>

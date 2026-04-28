@@ -28,12 +28,14 @@ export async function GET(req: NextRequest) {
     const closerId = searchParams.get('closer_id')
 
     if (action === 'service_types') {
-        const { data, error } = await supabase
+        const includeInactive = searchParams.get('include_inactive') === 'true'
+        let query = supabase
             .from('calendar_service_types')
             .select('*')
             .eq('organization_id', ctx.organization_id)
-            .eq('is_active', true)
             .order('position', { ascending: true })
+        if (!includeInactive) query = query.eq('is_active', true)
+        const { data, error } = await query
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ service_types: data || [] })
     }
@@ -1122,6 +1124,27 @@ Telefono: ${lead_phone || 'Non specificato'}
             return NextResponse.json({ error: 'name e duration_minutes richiesti' }, { status: 400 })
         }
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        
+        // Check if slug already exists (possibly inactive) and reactivate it
+        const { data: existing } = await supabase
+            .from('calendar_service_types')
+            .select('id')
+            .eq('organization_id', ctx.organization_id)
+            .eq('slug', slug)
+            .single()
+        
+        if (existing) {
+            // Reactivate and update existing
+            const { data, error } = await supabase
+                .from('calendar_service_types')
+                .update({ name, duration_minutes, color: color || '#6366f1', description: desc || null, is_active: true })
+                .eq('id', existing.id)
+                .select()
+                .single()
+            if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+            return NextResponse.json({ service_type: data })
+        }
+        
         const { data, error } = await supabase
             .from('calendar_service_types')
             .insert({
