@@ -402,12 +402,14 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     // Update event status
     const handleUpdateEvent = async (eventId: string, status: string) => {
         try {
+            // Optimistic update
+            setSelectedEvent(prev => prev ? { ...prev, status } : prev)
+            
             await fetch('/api/calendar', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ event_id: eventId, status }),
             })
-            setSelectedEvent(null)
             fetchEvents()
         } catch { /* silent */ }
     }
@@ -1313,25 +1315,47 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         </div>
 
                         {/* Actions */}
-                        {selectedEvent.status === 'confirmed' && (userRole === 'closer' || userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
+                        {(userRole === 'closer' || userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
                             <>
-                                {/* Esito: solo per appuntamenti passati */}
-                                {new Date(selectedEvent.end_time) < new Date() && (
-                                    <div className="flex gap-2 pt-2">
+                                {/* Esito Appuntamento */}
+                                <div className="pt-3">
+                                    <label className="text-[10px] font-bold text-white/50 uppercase mb-2 block">Esito Appuntamento</label>
+                                    <div className="grid grid-cols-3 gap-2">
                                         <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
-                                            className="flex-1 py-2 rounded-lg text-xs font-bold text-white"
-                                            style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)' }}>
-                                            ✓ Completato
+                                            className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
+                                            style={{ 
+                                                background: selectedEvent.status === 'completed' ? '#22c55e' : 'rgba(34,197,94,0.1)', 
+                                                border: `1px solid ${selectedEvent.status === 'completed' ? '#22c55e' : 'rgba(34,197,94,0.3)'}`,
+                                                color: selectedEvent.status === 'completed' ? 'white' : '#22c55e' 
+                                            }}>
+                                            <span className="text-base mb-1">{selectedEvent.status === 'completed' ? '✅' : '✔️'}</span>
+                                            Fatto
                                         </button>
                                         <button onClick={() => handleUpdateEvent(selectedEvent.id, 'no_show')}
-                                            className="flex-1 py-2 rounded-lg text-xs font-bold"
-                                            style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}>
-                                            ⚠ No Show
+                                            className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
+                                            style={{ 
+                                                background: selectedEvent.status === 'no_show' ? '#f59e0b' : 'rgba(245,158,11,0.1)', 
+                                                border: `1px solid ${selectedEvent.status === 'no_show' ? '#f59e0b' : 'rgba(245,158,11,0.3)'}`, 
+                                                color: selectedEvent.status === 'no_show' ? 'white' : '#f59e0b' 
+                                            }}>
+                                            <span className="text-base mb-1">{selectedEvent.status === 'no_show' ? '⚠️' : '❌'}</span>
+                                            No Show
+                                        </button>
+                                        <button onClick={() => handleUpdateEvent(selectedEvent.id, 'cancelled')}
+                                            className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
+                                            style={{ 
+                                                background: selectedEvent.status === 'cancelled' ? '#ef4444' : 'rgba(239,68,68,0.1)', 
+                                                border: `1px solid ${selectedEvent.status === 'cancelled' ? '#ef4444' : 'rgba(239,68,68,0.3)'}`, 
+                                                color: selectedEvent.status === 'cancelled' ? 'white' : '#ef4444' 
+                                            }}>
+                                            <span className="text-base mb-1">{selectedEvent.status === 'cancelled' ? '🗑️' : '✖️'}</span>
+                                            Annullato
                                         </button>
                                     </div>
-                                )}
-                                {/* Gestione: Sposta + Elimina */}
-                                <div className="flex gap-2 pt-2">
+                                </div>
+                                
+                                {/* Gestione: Sposta + Elimina Definitivamente */}
+                                <div className="flex gap-2 pt-3 mt-1 border-t border-white/5">
                                     <button
                                         onClick={() => {
                                             resetBookingForm()
@@ -1350,7 +1374,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     </button>
                                     <button onClick={() => handleDeleteEvent(selectedEvent.id)}
                                         className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"
-                                        style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
+                                        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)' }}>
                                         <Trash2 className="w-3.5 h-3.5" /> Elimina
                                     </button>
                                 </div>
