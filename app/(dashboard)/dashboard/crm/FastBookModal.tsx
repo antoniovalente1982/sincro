@@ -51,7 +51,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             const today = new Date()
             today.setHours(0,0,0,0)
             const nextWeek = new Date(today)
-            nextWeek.setDate(nextWeek.getDate() + 7)
+            nextWeek.setDate(nextWeek.getDate() + 14)
             
             const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
             const res = await fetch(`/api/calendar?action=auto_slots&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
@@ -71,7 +71,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             const today = new Date()
             today.setHours(0,0,0,0)
             const nextWeek = new Date(today)
-            nextWeek.setDate(nextWeek.getDate() + 7)
+            nextWeek.setDate(nextWeek.getDate() + 14)
             
             const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
             const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
@@ -293,8 +293,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                                 <AlertCircle className="w-8 h-8 text-yellow-500/80 mx-auto mb-3" />
                                 <p className="text-sm font-medium text-white/80">
                                     {bookingMode === 'auto' 
-                                        ? 'Nessun venditore ha slot disponibili nei prossimi 7 giorni.' 
-                                        : (!selectedCloserId ? 'Seleziona un venditore per visualizzare il calendario.' : 'Questo venditore non ha slot liberi nei prossimi 7 giorni.')}
+                                        ? 'Nessun venditore ha slot disponibili nei prossimi 14 giorni.' 
+                                        : (!selectedCloserId ? 'Seleziona un venditore per visualizzare il calendario.' : 'Questo venditore non ha slot liberi nei prossimi 14 giorni.')}
                                 </p>
                             </div>
                         </div>
