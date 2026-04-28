@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft } from 'lucide-react'
+import { CalendarDays, Clock, Users, Plus, ChevronLeft, ChevronRight, Phone, Mail, User, X, Check, Settings, AlertCircle, Eye, EyeOff, Shuffle, TrendingUp, Shield, Zap, Trash2, ArrowRightLeft, Tag, Palette, Edit3, ToggleLeft, ToggleRight, GripVertical } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
@@ -25,6 +25,7 @@ interface CalendarEvent {
     outcome?: string
     outcome_value?: number
     leads?: { name: string; phone?: string; email?: string } | null
+    service_type?: { id: string; name: string; duration_minutes: number; color: string } | null
 }
 
 interface GoogleEvent {
@@ -62,6 +63,18 @@ interface AvailabilitySchedule {
     is_active: boolean
 }
 
+interface ServiceType {
+    id: string
+    name: string
+    slug: string
+    duration_minutes: number
+    color: string
+    description?: string
+    is_default: boolean
+    is_active: boolean
+    position: number
+}
+
 interface Props {
     userRole: string
     userId: string
@@ -87,6 +100,13 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const [slotsLoading, setSlotsLoading] = useState(false)
     const [view, setView] = useState<'week' | 'day'>('week')
 
+    // Service types state
+    const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
+    const [bookServiceTypeId, setBookServiceTypeId] = useState<string>('')
+    const [showServiceTypesManager, setShowServiceTypesManager] = useState(false)
+    const [editingServiceType, setEditingServiceType] = useState<Partial<ServiceType> | null>(null)
+    const [stSaving, setStSaving] = useState(false)
+
     // Multi-calendar checkbox state
     const [visibleCalendars, setVisibleCalendars] = useState<Set<string>>(new Set())
     const [showGoogleEvents, setShowGoogleEvents] = useState(true)
@@ -105,6 +125,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const [bookNotes, setBookNotes] = useState('')
     const [bookingSaving, setBookingSaving] = useState(false)
     const [bookingResult, setBookingResult] = useState<{ success: boolean; message: string; assigned_to?: string } | null>(null)
+
     const [rescheduleLeadId, setRescheduleLeadId] = useState<string | null>(null)
 
     // Availability settings state
@@ -211,9 +232,19 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         setGoogleEventsLoading(false)
     }, [weekStart, weekEnd, closers, visibleCalendars, showGoogleEvents])
 
+    // Fetch service types
+    const fetchServiceTypes = useCallback(async () => {
+        try {
+            const res = await fetch('/api/calendar?action=service_types')
+            const data = await res.json()
+            setServiceTypes(data.service_types || [])
+        } catch { /* silent */ }
+    }, [])
+
     useEffect(() => { fetchClosers() }, [fetchClosers])
     useEffect(() => { fetchEvents() }, [fetchEvents])
     useEffect(() => { fetchGoogleEvents() }, [fetchGoogleEvents])
+    useEffect(() => { fetchServiceTypes() }, [fetchServiceTypes])
 
     // CRM Fast Booking auto-open
     useEffect(() => {
@@ -238,7 +269,8 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         try {
             const from = new Date().toISOString()
             const to = new Date(Date.now() + 14 * 86400000).toISOString()
-            const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${from}&to=${to}`)
+            const stParam = bookServiceTypeId ? `&service_type_id=${bookServiceTypeId}` : ''
+            const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${from}&to=${to}${stParam}`)
             const data = await res.json()
             setAvailableSlots(data.slots || [])
         } catch { /* silent */ }
@@ -257,7 +289,8 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
             const closersWithAvail = closers.filter(c => c.has_availability && c.in_round_robin !== false)
 
             for (const closer of closersWithAvail) {
-                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${from}&to=${to}`)
+                const stParam = bookServiceTypeId ? `&service_type_id=${bookServiceTypeId}` : ''
+                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${from}&to=${to}${stParam}`)
                 const data = await res.json()
                 const slots = (data.slots || []).filter((s: Slot) => s.available)
                 slots.forEach((s: Slot) => {
@@ -310,6 +343,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : undefined,
                         lead_id: rescheduleLeadId || prefillLead?.id,
                         assignment_mode: assignmentMode,
+                        service_type_id: bookServiceTypeId || undefined,
                     }),
                 })
                 const data = await res.json()
@@ -342,6 +376,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         lead_email: bookEmail,
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : `Lead: ${bookLeadName}`,
                         lead_id: rescheduleLeadId || prefillLead?.id,
+                        service_type_id: bookServiceTypeId || undefined,
                     }),
                 })
                 const data = await res.json()
@@ -421,6 +456,51 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         setBookingResult(null)
         setBookingMode('auto')
         setRescheduleLeadId(null)
+        setBookServiceTypeId('')
+    }
+
+    // ═══ SERVICE TYPES CRUD ═══
+    const handleCreateServiceType = async (st: Partial<ServiceType>) => {
+        setStSaving(true)
+        try {
+            const res = await fetch('/api/calendar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create_service_type', name: st.name, duration_minutes: st.duration_minutes, color: st.color, description: st.description })
+            })
+            if (!res.ok) { const d = await res.json(); alert(d.error || 'Errore'); return }
+            setEditingServiceType(null)
+            fetchServiceTypes()
+        } catch { alert('Errore di rete') }
+        setStSaving(false)
+    }
+
+    const handleUpdateServiceType = async (st: Partial<ServiceType>) => {
+        setStSaving(true)
+        try {
+            const res = await fetch('/api/calendar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_service_type', id: st.id, name: st.name, duration_minutes: st.duration_minutes, color: st.color, description: st.description, is_active: st.is_active })
+            })
+            if (!res.ok) { const d = await res.json(); alert(d.error || 'Errore'); return }
+            setEditingServiceType(null)
+            fetchServiceTypes()
+        } catch { alert('Errore di rete') }
+        setStSaving(false)
+    }
+
+    const handleDeleteServiceType = async (id: string) => {
+        if (!confirm('Eliminare questo tipo di appuntamento?')) return
+        try {
+            const res = await fetch('/api/calendar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete_service_type', id })
+            })
+            if (!res.ok) { const d = await res.json(); alert(d.error || 'Errore'); return }
+            fetchServiceTypes()
+        } catch { alert('Errore di rete') }
     }
 
     // Navigate
@@ -671,6 +751,15 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             { emoji: '✅', title: 'Gestione Esiti', description: 'Dopo l\'appuntamento, il closer segna l\'esito: Completato, No Show o Annullato.' },
                             { emoji: '⚙️', title: 'Configura Disponibilità', description: 'Ogni venditore configura i suoi giorni/orari, durata slot e pausa tra appuntamenti.' },
                         ]} footer="I setter possono solo prenotare. I closer gestiscono gli esiti. Admin/Owner configurano le disponibilità di tutti." />
+                        {['owner', 'admin'].includes(userRole) && (
+                            <button
+                                onClick={() => setShowServiceTypesManager(true)}
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#f59e0b' }}
+                            >
+                                <Tag className="w-4 h-4" /> Tipi
+                            </button>
+                        )}
                         {canManageAvailability && (
                             <button
                                 onClick={() => openAvailabilitySettings(userId)}
@@ -856,7 +945,9 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                                 title: `${statusIcon}${evt.leads?.name || evt.title}`,
                                                                 start_time: evt.start_time,
                                                                 end_time: evt.end_time,
-                                                                subtitle: `${fmt(evt.start_time)} — ${fmt(evt.end_time)} · ${evt.closer_name}`,
+                                                                subtitle: `${fmt(evt.start_time)} — ${fmt(evt.end_time)}${evt.service_type ? ` · ${evt.service_type.name}` : ''} · ${evt.closer_name}`,
+                                                                serviceTypeName: evt.service_type?.name || null,
+                                                                serviceTypeColor: evt.service_type?.color || null,
                                                                 raw: evt
                                                             })
                                                         });
@@ -932,7 +1023,10 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                                     }}
                                                                     title={isGoogle ? `Google: ${evt.title}` : undefined}
                                                                 >
-                                                                    <div className="flex items-center gap-1.5 overflow-hidden">
+                                                                    <div className="flex items-center gap-1 overflow-hidden">
+                                                                        {!isGoogle && evt.serviceTypeName && (
+                                                                            <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: evt.serviceTypeColor || '#fff', boxShadow: `0 0 4px ${evt.serviceTypeColor || '#fff'}` }} />
+                                                                        )}
                                                                         <div className="text-[10px] font-bold truncate leading-tight text-white drop-shadow-md">
                                                                             {evt.title}
                                                                         </div>
@@ -992,6 +1086,42 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 <User className="w-3.5 h-3.5" /> Scegli Venditore
                             </button>
                         </div>
+
+                        {/* Service type selector */}
+                        {serviceTypes.length > 0 && (
+                            <div>
+                                <label className="text-xs font-semibold text-white/70 block mb-2">Tipo di appuntamento</label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => { setBookServiceTypeId(''); setBookSlot(null); setAvailableSlots([]) }}
+                                        className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
+                                        style={{
+                                            background: !bookServiceTypeId ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                            border: `1px solid ${!bookServiceTypeId ? '#6366f1' : 'rgba(255,255,255,0.08)'}`,
+                                            color: !bookServiceTypeId ? '#a5b4fc' : 'var(--color-surface-500)',
+                                        }}
+                                    >
+                                        Tutti
+                                    </button>
+                                    {serviceTypes.map(st => (
+                                        <button
+                                            key={st.id}
+                                            onClick={() => { setBookServiceTypeId(st.id); setBookSlot(null); setAvailableSlots([]) }}
+                                            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
+                                            style={{
+                                                background: bookServiceTypeId === st.id ? `${st.color}20` : 'rgba(255,255,255,0.03)',
+                                                border: `1px solid ${bookServiceTypeId === st.id ? st.color : 'rgba(255,255,255,0.08)'}`,
+                                                color: bookServiceTypeId === st.id ? st.color : 'var(--color-surface-500)',
+                                            }}
+                                        >
+                                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: st.color }} />
+                                            {st.name}
+                                            <span className="opacity-60">{st.duration_minutes}min</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Auto mode: assignment strategy */}
                         {bookingMode === 'auto' && (
@@ -1172,6 +1302,13 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 <User className="w-4 h-4" style={{ color: selectedEvent.closer_color }} />
                                 <span className="text-white">Venditore: {selectedEvent.closer_name}</span>
                             </div>
+                            {selectedEvent.service_type && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Tag className="w-4 h-4" style={{ color: selectedEvent.service_type.color }} />
+                                    <span className="text-white">{selectedEvent.service_type.name}</span>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold" style={{ background: `${selectedEvent.service_type.color}20`, color: selectedEvent.service_type.color }}>{selectedEvent.service_type.duration_minutes}min</span>
+                                </div>
+                            )}
                             {selectedEvent.setter_name && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
@@ -1344,6 +1481,143 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
                             {availSaving ? 'Salvataggio...' : '✓ Salva Disponibilità'}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ═══ SERVICE TYPES MANAGER MODAL ═══ */}
+            {showServiceTypesManager && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}>
+                    <div className="w-full max-w-lg rounded-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}
+                        style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                <Tag className="w-5 h-5" style={{ color: '#f59e0b' }} /> Tipi di Appuntamento
+                            </h2>
+                            <button onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}><X className="w-5 h-5 text-white/50 hover:text-white" /></button>
+                        </div>
+
+                        <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
+                            Definisci i tipi di appuntamento con durate e colori diversi. Saranno disponibili nella prenotazione.
+                        </p>
+
+                        {/* Existing service types */}
+                        <div className="space-y-2">
+                            {serviceTypes.length === 0 && (
+                                <div className="text-center py-6 text-sm" style={{ color: 'var(--color-surface-500)' }}>
+                                    Nessun tipo configurato. Crea il primo!
+                                </div>
+                            )}
+                            {serviceTypes.map(st => (
+                                <div key={st.id} className="rounded-xl p-3 flex items-center gap-3 transition-all group"
+                                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                    <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: st.color, boxShadow: `0 0 8px ${st.color}40` }} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-semibold text-white truncate">{st.name}</div>
+                                        <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                            {st.duration_minutes} min{st.description ? ` · ${st.description}` : ''}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => setEditingServiceType({ ...st })}
+                                            className="p-1.5 rounded-lg hover:bg-white/10 transition" title="Modifica">
+                                            <Edit3 className="w-3.5 h-3.5" style={{ color: '#a5b4fc' }} />
+                                        </button>
+                                        <button onClick={() => handleUpdateServiceType({ id: st.id, is_active: !st.is_active })}
+                                            className="p-1.5 rounded-lg hover:bg-white/10 transition" title={st.is_active ? 'Disattiva' : 'Attiva'}>
+                                            {st.is_active 
+                                                ? <ToggleRight className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
+                                                : <ToggleLeft className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-600)' }} />
+                                            }
+                                        </button>
+                                        <button onClick={() => handleDeleteServiceType(st.id)}
+                                            className="p-1.5 rounded-lg hover:bg-white/10 transition" title="Elimina">
+                                            <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add / Edit form */}
+                        {editingServiceType ? (
+                            <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                                <div className="text-xs font-bold text-white/80">{editingServiceType.id ? 'Modifica Tipo' : 'Nuovo Tipo'}</div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-[9px] font-semibold text-white/50">Nome *</label>
+                                        <input value={editingServiceType.name || ''}
+                                            onChange={e => setEditingServiceType(prev => prev ? { ...prev, name: e.target.value } : prev)}
+                                            placeholder="Es. Consulenza Iniziale"
+                                            className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
+                                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-semibold text-white/50">Durata (min) *</label>
+                                        <select value={editingServiceType.duration_minutes || 30}
+                                            onChange={e => setEditingServiceType(prev => prev ? { ...prev, duration_minutes: Number(e.target.value) } : prev)}
+                                            className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
+                                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+                                            <option value={15}>15 min</option>
+                                            <option value={30}>30 min</option>
+                                            <option value={45}>45 min</option>
+                                            <option value={60}>60 min</option>
+                                            <option value={90}>90 min</option>
+                                            <option value={120}>120 min</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-[9px] font-semibold text-white/50">Colore</label>
+                                        <div className="flex gap-1.5 mt-1 flex-wrap">
+                                            {['#6366f1', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b'].map(c => (
+                                                <button key={c} onClick={() => setEditingServiceType(prev => prev ? { ...prev, color: c } : prev)}
+                                                    className="w-6 h-6 rounded-full transition-all hover:scale-110"
+                                                    style={{
+                                                        background: c,
+                                                        border: editingServiceType.color === c ? '2px solid white' : '2px solid transparent',
+                                                        boxShadow: editingServiceType.color === c ? `0 0 8px ${c}` : 'none',
+                                                    }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-semibold text-white/50">Descrizione</label>
+                                        <input value={editingServiceType.description || ''}
+                                            onChange={e => setEditingServiceType(prev => prev ? { ...prev, description: e.target.value } : prev)}
+                                            placeholder="Opzionale"
+                                            className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
+                                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            if (!editingServiceType.name || !editingServiceType.duration_minutes) { alert('Nome e durata richiesti'); return }
+                                            if (editingServiceType.id) handleUpdateServiceType(editingServiceType)
+                                            else handleCreateServiceType(editingServiceType)
+                                        }}
+                                        disabled={stSaving}
+                                        className="flex-1 py-2 rounded-lg text-xs font-bold text-white transition-all disabled:opacity-50"
+                                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                                        {stSaving ? 'Salvataggio...' : editingServiceType.id ? '✓ Salva Modifiche' : '✓ Crea Tipo'}
+                                    </button>
+                                    <button onClick={() => setEditingServiceType(null)}
+                                        className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+                                        style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-surface-400)' }}>
+                                        Annulla
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setEditingServiceType({ name: '', duration_minutes: 30, color: '#6366f1', description: '' })}
+                                className="w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.01] flex items-center justify-center gap-2"
+                                style={{ background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.15)' }}>
+                                <Plus className="w-4 h-4" /> Aggiungi Tipo
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

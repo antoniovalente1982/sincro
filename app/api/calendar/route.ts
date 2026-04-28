@@ -27,10 +27,21 @@ export async function GET(req: NextRequest) {
     const to = searchParams.get('to') // ISO date
     const closerId = searchParams.get('closer_id')
 
+    if (action === 'service_types') {
+        const { data, error } = await supabase
+            .from('calendar_service_types')
+            .select('*')
+            .eq('organization_id', ctx.organization_id)
+            .eq('is_active', true)
+            .order('position', { ascending: true })
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ service_types: data || [] })
+    }
+
     if (action === 'events') {
         let query = supabase
             .from('calendar_events')
-            .select('*, leads:lead_id(name, phone, email)')
+            .select('*, leads:lead_id(name, phone, email), service_type:service_type_id(id, name, duration_minutes, color)')
             .eq('organization_id', ctx.organization_id)
             .neq('status', 'cancelled')
             .order('start_time', { ascending: true })
@@ -91,6 +102,17 @@ export async function GET(req: NextRequest) {
         // Get available time slots for a specific closer on a date range
         if (!closerId) return NextResponse.json({ error: 'closer_id required' }, { status: 400 })
         if (!from) return NextResponse.json({ error: 'from date required' }, { status: 400 })
+
+        const serviceTypeId = searchParams.get('service_type_id')
+        let serviceTypeDuration: number | null = null
+        if (serviceTypeId) {
+            const { data: st } = await supabase
+                .from('calendar_service_types')
+                .select('duration_minutes')
+                .eq('id', serviceTypeId)
+                .single()
+            if (st) serviceTypeDuration = st.duration_minutes
+        }
 
         const startDate = new Date(from)
         const endDate = to ? new Date(to) : new Date(startDate.getTime() + 7 * 86400000)
@@ -192,7 +214,7 @@ export async function GET(req: NextRequest) {
             if (dayAvail) {
                 const [startH, startM] = dayAvail.start_time.split(':').map(Number)
                 const [endH, endM] = dayAvail.end_time.split(':').map(Number)
-                const slotDuration = dayAvail.slot_duration_minutes || 45
+                const slotDuration = serviceTypeDuration || dayAvail.slot_duration_minutes || 45
                 const breakTime = dayAvail.break_between_slots || 0
 
                 // Calculate Italy's offset (+01:00 or +02:00) for the target date to ensure slots are exact
@@ -399,7 +421,7 @@ export async function POST(req: NextRequest) {
     const { action } = body
 
     if (action === 'book') {
-        const { closer_id, lead_id, start_time, end_time, title, description, lead_phone, lead_email, lead_name } = body
+        const { closer_id, lead_id, start_time, end_time, title, description, lead_phone, lead_email, lead_name, service_type_id } = body
 
         if (!closer_id || !start_time || !end_time) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -494,6 +516,7 @@ export async function POST(req: NextRequest) {
                 start_time,
                 end_time,
                 status: 'confirmed',
+                service_type_id: service_type_id || null,
             })
             .select()
             .single()
@@ -659,7 +682,7 @@ Telefono: ${lead_phone || 'Non specificato'}
 
     if (action === 'auto_book') {
         // Auto-assign closer based on round-robin, performance, or availability
-        const { start_time, end_time, title, description, lead_phone, lead_email, lead_id, lead_name, assignment_mode } = body
+        const { start_time, end_time, title, description, lead_phone, lead_email, lead_id, lead_name, assignment_mode, service_type_id } = body
 
         if (!start_time || !end_time) {
             return NextResponse.json({ error: 'start_time e end_time richiesti' }, { status: 400 })
@@ -881,6 +904,7 @@ Telefono: ${lead_phone || 'Non specificato'}
                 end_time,
                 status: 'confirmed',
                 source: 'internal',
+                service_type_id: service_type_id || null,
             })
             .select()
             .single()
@@ -1086,6 +1110,74 @@ Telefono: ${lead_phone || 'Non specificato'}
 
         if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
         return NextResponse.json({ success: true, in_round_robin })
+    }
+
+    // ═══ SERVICE TYPES CRUD ═══
+    if (action === 'create_service_type') {
+        if (!['owner', 'admin'].includes(ctx.role)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        const { name, duration_minutes, color, description: desc } = body
+        if (!name || !duration_minutes) {
+            return NextResponse.json({ error: 'name e duration_minutes richiesti' }, { status: 400 })
+        }
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        const { data, error } = await supabase
+            .from('calendar_service_types')
+            .insert({
+                organization_id: ctx.organization_id,
+                name,
+                slug,
+                duration_minutes,
+                color: color || '#6366f1',
+                description: desc || null,
+                is_active: true,
+            })
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ service_type: data })
+    }
+
+    if (action === 'update_service_type') {
+        if (!['owner', 'admin'].includes(ctx.role)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        const { id, name, duration_minutes, color, description: desc, is_active } = body
+        if (!id) return NextResponse.json({ error: 'id richiesto' }, { status: 400 })
+        const updateData: any = {}
+        if (name !== undefined) {
+            updateData.name = name
+            updateData.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        }
+        if (duration_minutes !== undefined) updateData.duration_minutes = duration_minutes
+        if (color !== undefined) updateData.color = color
+        if (desc !== undefined) updateData.description = desc
+        if (is_active !== undefined) updateData.is_active = is_active
+        const { data, error } = await supabase
+            .from('calendar_service_types')
+            .update(updateData)
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ service_type: data })
+    }
+
+    if (action === 'delete_service_type') {
+        if (!['owner', 'admin'].includes(ctx.role)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        const { id } = body
+        if (!id) return NextResponse.json({ error: 'id richiesto' }, { status: 400 })
+        const { error } = await supabase
+            .from('calendar_service_types')
+            .delete()
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true })
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
