@@ -1401,7 +1401,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                         </div>
 
                                         {isActive && schedule && (
-                                            <div className="grid grid-cols-4 gap-2 mt-3">
+                                            <div className="grid grid-cols-3 gap-2 mt-3">
                                                 <div>
                                                     <label className="text-[9px] font-semibold text-white/50">Inizio</label>
                                                     <input type="time" value={schedule.start_time}
@@ -1415,18 +1415,6 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                         onChange={e => updateDaySchedule(day, 'end_time', e.target.value)}
                                                         className="w-full px-2 py-1 rounded text-xs mt-0.5"
                                                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
-                                                </div>
-                                                <div>
-                                                    <label className="text-[9px] font-semibold text-white/50">Durata (min)</label>
-                                                    <select value={schedule.slot_duration_minutes}
-                                                        onChange={e => updateDaySchedule(day, 'slot_duration_minutes', Number(e.target.value))}
-                                                        className="w-full px-2 py-1 rounded text-xs mt-0.5"
-                                                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
-                                                        <option value={30}>30</option>
-                                                        <option value={45}>45</option>
-                                                        <option value={60}>60</option>
-                                                        <option value={90}>90</option>
-                                                    </select>
                                                 </div>
                                                 <div>
                                                     <label className="text-[9px] font-semibold text-white/50">Pausa (min)</label>
