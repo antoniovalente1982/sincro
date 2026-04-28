@@ -280,12 +280,12 @@ export async function GET(req: NextRequest) {
         // Find all active closers in round robin
         const { data: closers } = await supabase
             .from('organization_members')
-            .select('user_id, has_availability, in_round_robin')
+            .select('user_id, in_round_robin')
             .eq('organization_id', ctx.organization_id)
             .is('deactivated_at', null)
             .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
             
-        const activeClosers = (closers || []).filter(c => c.in_round_robin && c.has_availability)
+        const activeClosers = (closers || []).filter(c => c.in_round_robin)
         if (activeClosers.length === 0) return NextResponse.json({ slots: [] })
         
         // Parallel fetch for each closer
