@@ -637,14 +637,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Slot non più disponibile. Seleziona un altro orario.' }, { status: 409 })
         }
 
-        // Cancel previous event if this is a reschedule for the same lead
+        // Cancel previous event if this is a reschedule for the same event or lead
         let isReschedule = false
-        if (lead_id) {
+        if (body.reschedule_event_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
                 .select('id, closer_id, start_time, google_event_id')
-                .eq('lead_id', lead_id)
-                .eq('status', 'confirmed')
+                .eq('id', body.reschedule_event_id)
+                .neq('status', 'cancelled')
 
             if (previousEvents && previousEvents.length > 0) {
                 isReschedule = true
@@ -1023,14 +1023,14 @@ Telefono: ${lead_phone || 'Non specificato'}
             selectedCloserId = fullyAvailable[0]
         }
 
-        // Cancel previous event if this is a reschedule for the same lead
+        // Cancel previous event if this is a reschedule for the same event or lead
         let isReschedule = false
-        if (lead_id) {
+        if (body.reschedule_event_id) {
             const { data: previousEvents } = await supabase
                 .from('calendar_events')
                 .select('id, closer_id, start_time, google_event_id')
-                .eq('lead_id', lead_id)
-                .eq('status', 'confirmed')
+                .eq('id', body.reschedule_event_id)
+                .neq('status', 'cancelled')
 
             if (previousEvents && previousEvents.length > 0) {
                 isReschedule = true

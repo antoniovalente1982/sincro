@@ -130,6 +130,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
     const [bookingResult, setBookingResult] = useState<{ success: boolean; message: string; assigned_to?: string } | null>(null)
 
     const [rescheduleLeadId, setRescheduleLeadId] = useState<string | null>(null)
+    const [rescheduleEventId, setRescheduleEventId] = useState<string | null>(null)
 
     // Availability settings state
     const [availability, setAvailability] = useState<AvailabilitySchedule[]>([])
@@ -353,6 +354,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         lead_name: bookLeadName,
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : undefined,
                         lead_id: rescheduleLeadId || prefillLead?.id,
+                        reschedule_event_id: rescheduleEventId || undefined,
                         assignment_mode: assignmentMode,
                         service_type_id: bookServiceTypeId || undefined,
                     }),
@@ -387,6 +389,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         lead_email: bookEmail,
                         description: bookNotes ? `Lead: ${bookLeadName}\n${bookNotes}` : `Lead: ${bookLeadName}`,
                         lead_id: rescheduleLeadId || prefillLead?.id,
+                        reschedule_event_id: rescheduleEventId || undefined,
                         service_type_id: bookServiceTypeId || undefined,
                     }),
                 })
@@ -469,6 +472,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         setBookingResult(null)
         setBookingMode('auto')
         setRescheduleLeadId(null)
+        setRescheduleEventId(null)
         setBookServiceTypeId('')
     }
 
@@ -1377,6 +1381,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                             setBookEmail(selectedEvent.lead_email || selectedEvent.leads?.email || '')
                                             setBookTitle(`[RIPROGRAMMATO] ${selectedEvent.leads?.name || selectedEvent.title}`)
                                             setRescheduleLeadId(selectedEvent.lead_id || null)
+                                            setRescheduleEventId(selectedEvent.id)
                                             setShowBooking(true)
                                             setSelectedEvent(null)
                                         }}
