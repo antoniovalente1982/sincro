@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react'
-import { CalendarDays, X, User, Users, Clock, Loader2, Sparkles, AlertCircle } from 'lucide-react'
+import { CalendarDays, X, User, Users, Clock, Loader2, Sparkles, AlertCircle, Tag } from 'lucide-react'
 
 interface FastBookModalProps {
     lead: any
@@ -23,8 +23,12 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
     
     const [bookingState, setBookingState] = useState<'idle'|'loading'|'success'|'error'>('idle')
     const [errorMsg, setErrorMsg] = useState('')
+    
+    // Service types
+    const [serviceTypes, setServiceTypes] = useState<any[]>([])
+    const [selectedServiceTypeId, setSelectedServiceTypeId] = useState('')
 
-    // Fetch closers on mount
+    // Fetch closers and service types on mount
     useEffect(() => {
         fetch('/api/calendar?action=closers')
             .then(res => res.json())
@@ -32,6 +36,10 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 const arr = data.closers || []
                 setClosers(arr)
             })
+            .catch(console.error)
+        fetch('/api/calendar?action=service_types')
+            .then(res => res.json())
+            .then(data => setServiceTypes(data.service_types || []))
             .catch(console.error)
     }, [])
 
@@ -52,7 +60,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 // Must be in round robin and must have availability explicitly set on Sincro
                 if (!closer.in_round_robin || !closer.has_availability) continue;
                 
-                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
+                const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
+                const res = await fetch(`/api/calendar?action=slots&closer_id=${closer.user_id}&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
                 const data = await res.json()
                 const slots = (data.slots || []).filter((s: any) => s.available === true)
                 
@@ -82,7 +91,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             const nextWeek = new Date(today)
             nextWeek.setDate(nextWeek.getDate() + 7)
             
-            const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${today.toISOString()}&to=${nextWeek.toISOString()}`)
+            const stParam = selectedServiceTypeId ? `&service_type_id=${selectedServiceTypeId}` : ''
+            const res = await fetch(`/api/calendar?action=slots&closer_id=${closerId}&from=${today.toISOString()}&to=${nextWeek.toISOString()}${stParam}`)
             const data = await res.json()
             const filtered = (data.slots || []).filter((s: any) => s.available === true)
             setAvailableSlots(filtered.map((s:any) => ({ ...s, closer_id: closerId })))
@@ -103,7 +113,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
             // Selezionando manuale ma nessun closer, svuota 
             setAvailableSlots([])
         }
-    }, [bookingMode, selectedCloserId, closers])
+    }, [bookingMode, selectedCloserId, closers, selectedServiceTypeId])
 
     const handleBook = async () => {
         if (!selectedSlot) return
@@ -117,7 +127,8 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 description: `Lead: ${lead.name}`,
                 lead_phone: lead.phone,
                 lead_email: lead.email,
-                lead_name: lead.name
+                lead_name: lead.name,
+                service_type_id: selectedServiceTypeId || undefined,
             }
             
             if (bookingMode === 'auto') {
@@ -243,6 +254,42 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                         </div>
                     )}
                 </div>
+
+                {/* Service Type Selector */}
+                {serviceTypes.length > 0 && (
+                    <div className="shrink-0">
+                        <label className="text-xs font-semibold text-white/60 block mb-2 ml-1">Tipo di appuntamento</label>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => { setSelectedServiceTypeId(''); setSelectedSlot(null); setSelectedDate(null) }}
+                                className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
+                                style={{
+                                    background: !selectedServiceTypeId ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                    border: `1px solid ${!selectedServiceTypeId ? '#6366f1' : 'rgba(255,255,255,0.08)'}`,
+                                    color: !selectedServiceTypeId ? '#a5b4fc' : 'rgba(255,255,255,0.4)',
+                                }}
+                            >
+                                Tutti
+                            </button>
+                            {serviceTypes.map(st => (
+                                <button
+                                    key={st.id}
+                                    onClick={() => { setSelectedServiceTypeId(st.id); setSelectedSlot(null); setSelectedDate(null) }}
+                                    className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
+                                    style={{
+                                        background: selectedServiceTypeId === st.id ? `${st.color}20` : 'rgba(255,255,255,0.03)',
+                                        border: `1px solid ${selectedServiceTypeId === st.id ? st.color : 'rgba(255,255,255,0.08)'}`,
+                                        color: selectedServiceTypeId === st.id ? st.color : 'rgba(255,255,255,0.4)',
+                                    }}
+                                >
+                                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: st.color }} />
+                                    {st.name}
+                                    <span className="opacity-60">{st.duration_minutes}min</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Calendly Style 2-Pane UI */}
                 <div className="flex-1 min-h-[300px] overflow-hidden flex flex-col md:flex-row gap-4">
