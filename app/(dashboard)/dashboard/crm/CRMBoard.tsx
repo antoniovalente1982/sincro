@@ -1853,7 +1853,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         <button onClick={() => onEdit(lead)} className="p-2 rounded-xl hover:bg-white/5">
                             <Edit3 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         </button>
-                        {(userRole === 'owner' || userRole === 'admin') && (
+                        {(userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
                             <button onClick={() => {
                                 if (!confirm(`⚠️ ATTENZIONE: Stai per eliminare DEFINITIVAMENTE il lead "${lead.name}" dal CRM.\n\nQuesto NON elimina solo l'appuntamento, ma cancella il lead e tutti i suoi dati.\n\nSei sicuro?`)) return
                                 onDelete(lead.id)

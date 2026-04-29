@@ -175,7 +175,7 @@ export function canEditLead(role: Role, department: Department): boolean {
 
 // Can this user delete leads?
 export function canDeleteLead(role: Role): boolean {
-    return role === 'owner' || role === 'admin'
+    return role === 'owner' || role === 'admin' || role === 'manager'
 }
 
 // Is this user read-only in CRM?
