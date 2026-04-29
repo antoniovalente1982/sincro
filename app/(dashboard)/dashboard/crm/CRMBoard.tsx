@@ -672,7 +672,6 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     }
 
     const handleDeleteLead = async (id: string) => {
-        if (!confirm('Eliminare questo lead?')) return
         try {
             await fetch(`/api/leads?id=${id}`, { method: 'DELETE' })
             setLeads(prev => prev.filter(l => l.id !== id))
@@ -1530,6 +1529,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     activities={activities}
                     trafficSources={trafficSources}
                     loadingActivities={loadingActivities}
+                    userRole={role}
                     onClose={() => setSelectedLead(null)}
                     onEdit={(lead) => { setSelectedLead(null); setEditingLead(lead); setShowModal(true) }}
                     onDelete={handleDeleteLead}
@@ -1823,13 +1823,14 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 }
 
 // ── Lead Detail Panel ──
-function LeadDetail({ lead, stages, members, activities, loadingActivities, trafficSources, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency, onRefresh }: {
+function LeadDetail({ lead, stages, members, activities, loadingActivities, trafficSources, userRole, onClose, onEdit, onDelete, getMemberName, formatDate, formatTime, formatCurrency, onRefresh }: {
     lead: Lead
     stages: Stage[]
     members: Member[]
     activities: any[]
     loadingActivities: boolean
     trafficSources: TrafficSource[]
+    userRole: string
     onClose: () => void
     onEdit: (lead: Lead) => void
     onDelete: (id: string) => void
@@ -1852,9 +1853,14 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         <button onClick={() => onEdit(lead)} className="p-2 rounded-xl hover:bg-white/5">
                             <Edit3 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         </button>
-                        <button onClick={() => onDelete(lead.id)} className="p-2 rounded-xl hover:bg-white/5">
-                            <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
-                        </button>
+                        {(userRole === 'owner' || userRole === 'admin') && (
+                            <button onClick={() => {
+                                if (!confirm(`⚠️ ATTENZIONE: Stai per eliminare DEFINITIVAMENTE il lead "${lead.name}" dal CRM.\n\nQuesto NON elimina solo l'appuntamento, ma cancella il lead e tutti i suoi dati.\n\nSei sicuro?`)) return
+                                onDelete(lead.id)
+                            }} className="p-2 rounded-xl hover:bg-white/5" title="Elimina Lead (solo Admin)">
+                                <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
+                            </button>
+                        )}
                         <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5">
                             <X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} />
                         </button>
