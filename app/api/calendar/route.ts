@@ -768,17 +768,31 @@ Telefono: ${lead_phone || 'Non specificato'}
                 updated_at: new Date().toISOString()
             }
 
-            const { data: stages } = await supabase
+            // Find the "Appuntamento" stage in the SAME pipeline the lead belongs to
+            // First, get the lead's current stage to know which pipeline they're in
+            const { data: leadData } = await supabase
+                .from('leads')
+                .select('stage_id, pipeline_stages!inner(pipeline_id)')
+                .eq('id', lead_id)
+                .single()
+
+            let leadObj: any = leadData;
+            const leadPipelineId = (leadData as any)?.pipeline_stages?.pipeline_id
+
+            // Find the "Appuntamento" stage within the lead's pipeline (or fallback to default pipeline)
+            let apptStageQuery = supabase
                 .from('pipeline_stages')
-                .select('id, slug, fire_capi_event')
+                .select('id, slug, fire_capi_event, pipeline_id')
                 .eq('organization_id', ctx.organization_id)
                 .ilike('slug', '%appuntamento%')
-                .limit(1)
 
-            let leadObj: any = null;
+            if (leadPipelineId) {
+                apptStageQuery = apptStageQuery.eq('pipeline_id', leadPipelineId)
+            }
+
+            const { data: stages } = await apptStageQuery.limit(1)
+
             if (stages && stages.length > 0) {
-                const { data: lead } = await supabase.from('leads').select('stage_id').eq('id', lead_id).single()
-                leadObj = lead;
                 updatePayload.stage_id = stages[0].id;
             }
 
