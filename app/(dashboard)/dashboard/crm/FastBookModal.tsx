@@ -179,7 +179,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl" onClick={onClose}>
-            <div className="w-full max-w-[700px] rounded-2xl p-6 space-y-5 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}
+            <div className="w-full max-w-[700px] rounded-2xl p-6 space-y-5 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}
                 style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 
                 <div className="flex items-center justify-between shrink-0">
@@ -377,7 +377,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     </div>
                 )}
 
-                <div className="pt-4 mt-2 border-t border-white/10 flex justify-end gap-3 shrink-0">
+                <div className="pt-4 mt-2 border-t border-white/10 flex justify-end gap-3 shrink-0 sticky bottom-0 pb-1" style={{ background: 'var(--color-surface-50)' }}>
                     <button
                         onClick={onClose}
                         className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
