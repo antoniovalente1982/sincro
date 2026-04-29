@@ -440,9 +440,9 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         } catch { /* silent */ }
     }
 
-    // Delete event permanently
+    // Delete event permanently (ONLY the event — the lead stays in the CRM)
     const handleDeleteEvent = async (eventId: string) => {
-        if (!confirm('Sei sicuro di voler cancellare definitivamente questo appuntamento? Questa azione è irreversibile.')) return
+        if (!confirm('Sei sicuro di voler eliminare questo APPUNTAMENTO?\n\n⚠️ Verrà eliminato SOLO l\'appuntamento dal calendario.\nIl lead resterà nel CRM.')) return
         try {
             const res = await fetch('/api/calendar', {
                 method: 'DELETE',
@@ -1392,8 +1392,9 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     </button>
                                     <button onClick={() => handleDeleteEvent(selectedEvent.id)}
                                         className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1"
+                                        title="Elimina solo l'appuntamento — il lead resta nel CRM"
                                         style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)' }}>
-                                        <Trash2 className="w-3.5 h-3.5" /> Elimina
+                                        <Trash2 className="w-3.5 h-3.5" /> Elimina Appuntamento
                                     </button>
                                 </div>
                             </>

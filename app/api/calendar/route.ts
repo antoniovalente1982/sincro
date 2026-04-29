@@ -1493,7 +1493,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ event: data })
 }
 
-// DELETE: Permanently delete an event
+// DELETE: Permanently delete an event (ONLY the event — does NOT touch the lead)
 export async function DELETE(req: NextRequest) {
     const supabase = await createClient()
     const ctx = await getContext(supabase)
@@ -1507,7 +1507,7 @@ export async function DELETE(req: NextRequest) {
     // Fetch the event before deleting to get Google Calendar info
     const { data: existingEvent } = await supabase
         .from('calendar_events')
-        .select('id, closer_id, google_event_id, start_time')
+        .select('id, closer_id, google_event_id, start_time, lead_id, title')
         .eq('id', event_id)
         .eq('organization_id', ctx.organization_id)
         .single()
@@ -1522,6 +1522,8 @@ export async function DELETE(req: NextRequest) {
     if (!isOwnerAdmin && !isOwnEvent) {
         return NextResponse.json({ error: 'Non hai i permessi per eliminare questo appuntamento' }, { status: 403 })
     }
+
+    console.log(`[Calendar DELETE] Deleting event "${existingEvent.title}" (${event_id}). Lead ${existingEvent.lead_id || 'none'} will NOT be affected.`)
 
     // Delete from Google Calendar first
     if (existingEvent.closer_id) {
@@ -1576,7 +1578,7 @@ export async function DELETE(req: NextRequest) {
         }
     }
 
-    // Delete from DB
+    // Delete ONLY the calendar event from DB — NEVER touch the leads table
     const { error } = await supabase
         .from('calendar_events')
         .delete()
@@ -1584,5 +1586,7 @@ export async function DELETE(req: NextRequest) {
         .eq('organization_id', ctx.organization_id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ success: true, message: 'Appuntamento cancellato definitivamente' })
+
+    console.log(`[Calendar DELETE] Event ${event_id} deleted successfully. Lead ${existingEvent.lead_id || 'none'} is safe.`)
+    return NextResponse.json({ success: true, message: 'Appuntamento cancellato definitivamente (il lead rimane nel CRM)' })
 }
