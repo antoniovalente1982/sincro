@@ -1,7 +1,12 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
 import MetodoSincroLanding from './MetodoSincroLandingV2'
+
+// Slugs that redirect to dedicated landing pages
+const SLUG_REDIRECTS: Record<string, string> = {
+    'guida-acquistata': '/consulenza?source=GuidaAcquistata',
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +25,9 @@ interface Props { params: Promise<{ slug: string }> }
 
 export default async function PublicFunnelPage({ params }: Props) {
     const { slug } = await params
+
+    // Redirect slugs with dedicated landing pages
+    if (SLUG_REDIRECTS[slug]) redirect(SLUG_REDIRECTS[slug])
 
     const { data: funnel } = await getSupabaseAdmin()
         .from('funnels')
