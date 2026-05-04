@@ -218,13 +218,13 @@ ${leadData.notes || 'Nessuna nota fornita.'}
             const finalPhone = updates.phone !== undefined ? updates.phone : leadForCapi.data?.phone
             const finalValue = updates.value !== undefined ? updates.value : leadForCapi.data?.value
 
-            // BUG FIX #3: Block Purchase events if value is null/0
-            // A Purchase without a value corrupts Meta's ROAS data
-            const isPurchase = newStage.fire_capi_event === 'Purchase'
+            // BUG FIX #3: Block High-Ticket/Purchase events if value is null/0
+            // A Purchase/Subscribe without a value corrupts Meta's ROAS data
+            const isHighTicketSale = newStage.fire_capi_event === 'Purchase' || newStage.fire_capi_event === 'Subscribe'
             const hasValue = finalValue && Number(finalValue) > 0
 
-            if (isPurchase && !hasValue) {
-                console.warn(`[CAPI] Blocked Purchase event for lead ${id}: no value set`)
+            if (isHighTicketSale && !hasValue) {
+                console.warn(`[CAPI] Blocked ${newStage.fire_capi_event} event for lead ${id}: no value set`)
             } else {
                 // BUG FIX #4: Prevent duplicate CAPI events (same lead+event within 1 hour)
                 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
@@ -252,8 +252,8 @@ ${leadData.notes || 'Nessuna nota fornita.'}
                         CompleteRegistration: 112,
                     }
 
-                    const capiValue = isPurchase
-                        ? finalValue  // Real value for Purchase
+                    const capiValue = isHighTicketSale
+                        ? finalValue  // Real value for Purchase/Subscribe
                         : (finalValue && Number(finalValue) > 0)
                             ? finalValue  // Use real value if lead already has one
                             : PREDICTIVE_VALUES[newStage.fire_capi_event] || 112  // Predictive fallback
