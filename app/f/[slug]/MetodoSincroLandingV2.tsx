@@ -4,7 +4,7 @@ import './landing-v2.css'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
-import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireInitiateCheckout } from '@/lib/useMetaTracking'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -125,11 +125,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
         abVariant: funnel.settings?.ab_variant,
     })
 
-    // Fire InitiateCheckout on first form field focus (with CAPI context)
+    // Fire StartForm on first form field focus (with CAPI context)
     const handleFirstFieldFocus = useCallback(() => {
         if (checkoutFiredRef.current) return
         checkoutFiredRef.current = true
-        fireInitiateCheckout(funnel.name, {
+        fireStartForm(funnel.name, {
             orgId,
             visitorId: getVisitorId(),
             fbc: getFbIds().fbc,

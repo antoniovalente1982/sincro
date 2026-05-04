@@ -202,21 +202,25 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
 }
 
 /**
- * Fire InitiateCheckout — call on first form field focus.
+ * Fire StartForm — call on first form field focus.
  * Signals Meta that the user started filling the lead form.
  * This is the #1 retargeting signal for "Hot" audiences.
  *
+ * IMPORTANT: Uses trackCustom('StartForm') instead of track('InitiateCheckout')
+ * to avoid polluting the e-commerce funnel on WooCommerce (shop.metodosincro.it).
+ * InitiateCheckout is reserved for actual e-commerce checkout actions.
+ *
  * Now fires BOTH Pixel + CAPI for proper deduplication and attribution.
  */
-export function fireInitiateCheckout(
+export function fireStartForm(
     funnelName?: string,
     trackingContext?: { orgId?: string; visitorId?: string; fbc?: string; fbp?: string }
 ) {
     if (typeof window === 'undefined' || !(window as any).fbq) return
-    const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    const eventId = `sf_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
-    // 1. Pixel (client-side)
-    ;(window as any).fbq('track', 'InitiateCheckout', {
+    // 1. Pixel (client-side) — custom event, NOT standard
+    ;(window as any).fbq('trackCustom', 'StartForm', {
         content_name: funnelName || 'lead_form',
         currency: 'EUR',
         value: 112,  // Predictive lead value (avg sale × conversion rate)
@@ -235,7 +239,7 @@ export function fireInitiateCheckout(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 organization_id: trackingContext.orgId,
-                event_name: 'InitiateCheckout',
+                event_name: 'StartForm',
                 event_id: eventId,
                 visitor_id: trackingContext.visitorId,
                 fbc: cookies._fbc || trackingContext.fbc,
@@ -250,6 +254,9 @@ export function fireInitiateCheckout(
         }).catch(() => {})
     }
 }
+
+/** @deprecated Use fireStartForm instead. Kept for backward compatibility. */
+export const fireInitiateCheckout = fireStartForm
 
 /**
  * Fire Advanced Matching on form submit (re-init pixel with user PII).
