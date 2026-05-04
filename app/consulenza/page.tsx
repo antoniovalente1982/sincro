@@ -51,6 +51,17 @@ const CONFIG_MAP: Record<string, PageConfig> = {
     glowFrom: 'bg-emerald-600/20',
     glowTo: 'bg-teal-600/10'
   },
+  'GuidaAcquistata': {
+    logoTitle: 'METODO',
+    logoAccent: 'SINCRO',
+    headline: 'Applica il Metodo alla tua situazione specifica.',
+    subheadline: 'Hai fatto il primo passo con le nostre guide. Prenota ora la tua consulenza gratuita per analizzare la tua situazione in dettaglio.',
+    buttonText: 'Prenota Consulenza Gratuita',
+    themeFrom: 'from-blue-600',
+    themeTo: 'to-indigo-600',
+    glowFrom: 'bg-blue-600/20',
+    glowTo: 'bg-indigo-600/10'
+  },
   'default': {
     logoTitle: 'METODO',
     logoAccent: 'SINCRO',
@@ -73,6 +84,7 @@ const FUNNEL_ID_MAP: Record<string, string> = {
   'metodosincro.it':   '1539adea-4b2e-40ff-8f35-0eb1b89d13eb',
   'valenteantonio.it': '503ee812-5a60-4c9a-8d68-bd5d02a43453',
   'Protocollo27':      '95a2f73a-a8e9-46c5-998b-5d12d5bc5fd0',
+  'GuidaAcquistata':   'd889b411-82e4-4c77-b7b4-64d74c4b357b',
 }
 
 function PageContent() {

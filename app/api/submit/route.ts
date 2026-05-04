@@ -208,6 +208,7 @@ export async function POST(req: NextRequest) {
                                 if (sourceLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
                                 if (sourceLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
                                 if (sourceLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                if (sourceLower.includes('guidaacquistata') || sourceLower.includes('guida_acquistata')) return 'Fonte: Upsell Guide';
                                 
                                 // Regole esistenti di base da nome funnel
                                 const funnelLower = String(funnel.name).toLowerCase();
@@ -217,6 +218,7 @@ export async function POST(req: NextRequest) {
                                 if (funnelLower.includes('valenteantonio')) return 'Fonte: valenteantonio.it';
                                 if (funnelLower.includes('metodosincro')) return 'Fonte: metodosincro.it';
                                 if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
+                                if (funnelLower.includes('guida acquistata')) return 'Fonte: Upsell Guide';
                                 
                                 // Fallback predefinito se UTM mancante e funnel non matchato
                                 return 'Fonte: Ads - Meta';
