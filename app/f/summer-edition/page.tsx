@@ -12,16 +12,16 @@ const SUMMER_FUNNEL_ID = '237ca6c3-2280-4ca5-8591-e795299a1442'
 // Early Bird pricing phases — dynamic based on current date
 function getCurrentPhase(): { phase: number; label: string; urgency: string; color: string } {
   const now = new Date()
-  const month = now.getMonth() // 0-indexed: 5=June, 6=July, 7=August
+  const month = now.getMonth() // 0-indexed: 4=May, 5=June, 6=July, 7=August
   const day = now.getDate()
 
-  if (month < 5) {
-    // Before June — pre-launch
-    return { phase: 0, label: 'Pre-lancio', urgency: 'Le iscrizioni aprono il 1° Giugno!', color: '#a78bfa' }
+  if (month < 4 || (month === 4 && day < 15)) {
+    // Before May 15 — pre-launch
+    return { phase: 0, label: 'Pre-lancio', urgency: 'Le iscrizioni aprono il 15 Maggio!', color: '#a78bfa' }
   }
-  if (month === 5) {
-    // June — best price
-    return { phase: 1, label: 'Miglior Prezzo', urgency: '🔥 Prenota a giugno per il prezzo più basso!', color: '#22c55e' }
+  if ((month === 4 && day >= 15) || month === 5) {
+    // May 15 – June 30 — best price
+    return { phase: 1, label: 'Miglior Prezzo', urgency: '🔥 Prenota ora per il prezzo più basso!', color: '#22c55e' }
   }
   if (month === 6) {
     // July — mid price
@@ -245,7 +245,7 @@ function PageContent() {
         <div className="flex justify-center gap-3 mt-4 mb-6">
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
             <Calendar className="w-3.5 h-3.5" />
-            1 Giugno – 15 Agosto 2026
+            15 Maggio – 15 Agosto 2026
           </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
             <Star className="w-3.5 h-3.5" />
