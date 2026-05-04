@@ -54,13 +54,13 @@ const CONFIG_MAP: Record<string, PageConfig> = {
   'GuidaAcquistata': {
     logoTitle: 'METODO',
     logoAccent: 'SINCRO',
-    headline: 'Applica il Metodo alla tua situazione specifica.',
-    subheadline: 'Hai fatto il primo passo con le nostre guide. Prenota ora la tua consulenza gratuita per analizzare la tua situazione in dettaglio.',
+    headline: 'Hai già la Guida. Ora facciamo sul serio.',
+    subheadline: 'Prenota una consulenza gratuita con un nostro coach per applicare il Metodo Sincro alla situazione specifica di tuo figlio.',
     buttonText: 'Prenota Consulenza Gratuita',
-    themeFrom: 'from-blue-600',
-    themeTo: 'to-indigo-600',
-    glowFrom: 'bg-blue-600/20',
-    glowTo: 'bg-indigo-600/10'
+    themeFrom: 'from-amber-500',
+    themeTo: 'to-orange-600',
+    glowFrom: 'bg-amber-500/20',
+    glowTo: 'bg-orange-600/10'
   },
   'default': {
     logoTitle: 'METODO',
