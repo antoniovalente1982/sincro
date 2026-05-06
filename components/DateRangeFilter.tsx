@@ -176,10 +176,10 @@ export default function DateRangeFilter({
                 <div
                     className="absolute right-0 top-full mt-1.5 z-50 animate-fade-in"
                     style={{
-                        background: 'rgba(15,15,19,0.97)',
-                        border: '1px solid rgba(99,102,241,0.15)',
+                        background: 'var(--select-option-bg)',
+                        border: '1px solid var(--color-surface-200)',
                         borderRadius: 12,
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                        boxShadow: 'var(--card-shadow-hover)',
                         minWidth: 200,
                         padding: '6px',
                     }}

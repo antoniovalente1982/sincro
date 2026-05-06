@@ -187,7 +187,7 @@ export default function RadarDashboard() {
                             onClick={() => setFilter(f.key as any)}
                             className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                             style={{
-                                background: filter === f.key ? 'rgba(99, 102, 241, 0.15)' : 'rgba(15, 15, 19, 0.6)',
+                                background: filter === f.key ? 'rgba(99, 102, 241, 0.15)' : 'var(--color-surface-100)',
                                 color: filter === f.key ? '#818cf8' : '#71717a',
                                 border: `1px solid ${filter === f.key ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.08)'}`,
                             }}
