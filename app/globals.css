@@ -42,6 +42,13 @@
   --pulse-glow-hi: 0 0 40px rgba(99, 102, 241, 0.12);
   --nav-active-bg: rgba(99, 102, 241, 0.08);
   --nav-active-border: rgba(99, 102, 241, 0.15);
+  --kanban-col-bg: #f1f5f9;
+  --kanban-col-border: #e2e8f0;
+  --kanban-col-header-border: #cbd5e1;
+  --filter-indigo: #4f46e5;
+  --filter-emerald: #059669;
+  --filter-amber: #b45309;
+  --filter-text: #334155;
 }
 
 [data-theme="dark"] {
@@ -80,6 +87,13 @@
   --pulse-glow-hi: 0 0 40px rgba(99, 102, 241, 0.25);
   --nav-active-bg: rgba(99, 102, 241, 0.1);
   --nav-active-border: rgba(99, 102, 241, 0.15);
+  --kanban-col-bg: rgba(15, 15, 19, 0.4);
+  --kanban-col-border: rgba(99, 102, 241, 0.06);
+  --kanban-col-header-border: rgba(255, 255, 255, 0.05);
+  --filter-indigo: #a5b4fc;
+  --filter-emerald: #6ee7b7;
+  --filter-amber: #fbbf24;
+  --filter-text: #b8b8c5;
 }
 
 @theme {

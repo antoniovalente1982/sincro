@@ -447,7 +447,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 {showNewStage && (
                     <div className="mt-4 p-3 rounded-xl animate-fade-in" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
                         <div className="text-[10px] font-semibold mb-2" style={{ color: 'var(--color-surface-500)' }}>
-                            Aggiungere a: <span className="text-white">{pipelines.find(p => p.id === addToPipelineId)?.name || 'Pipeline'}</span>
+                            Aggiungere a: <span className="th-heading">{pipelines.find(p => p.id === addToPipelineId)?.name || 'Pipeline'}</span>
                         </div>
                         <div className="flex items-center gap-3">
                             <input

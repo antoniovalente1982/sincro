@@ -687,7 +687,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <span title="Nessuna disponibilità"><AlertCircle className="w-3 h-3" style={{ color: '#f59e0b' }} /></span>
                                 )}
                                 {canManageAvailability && (userRole === 'owner' || userRole === 'admin') && (
-                                    <button onClick={(e) => { e.stopPropagation(); openAvailabilitySettings(c.user_id) }} className="hover:text-white" style={{ color: 'var(--color-surface-500)' }}>
+                                    <button onClick={(e) => { e.stopPropagation(); openAvailabilitySettings(c.user_id) }} className="hover:th-heading" style={{ color: 'var(--color-surface-500)' }}>
                                         <Settings className="w-3 h-3" />
                                     </button>
                                 )}
@@ -1077,7 +1077,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <CalendarDays className="w-5 h-5" style={{ color: '#6366f1' }} /> Prenota Appuntamento
                             </h2>
-                            <button onClick={() => setShowBooking(false)}><X className="w-5 h-5 text-white/50 hover:text-white" /></button>
+                            <button onClick={() => setShowBooking(false)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
                         </div>
 
                         {/* Booking mode toggle */}
@@ -1287,7 +1287,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold th-heading">{selectedEvent.leads?.name || selectedEvent.title}</h2>
-                            <button onClick={() => setSelectedEvent(null)}><X className="w-5 h-5 text-white/50 hover:text-white" /></button>
+                            <button onClick={() => setSelectedEvent(null)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
                         </div>
 
                         <div className="space-y-2">
@@ -1412,7 +1412,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <Clock className="w-5 h-5" style={{ color: '#22c55e' }} /> Configura Disponibilità
                             </h2>
-                            <button onClick={() => setShowSettings(false)}><X className="w-5 h-5 text-white/50 hover:text-white" /></button>
+                            <button onClick={() => setShowSettings(false)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
                         </div>
 
                         <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
@@ -1485,7 +1485,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <Tag className="w-5 h-5" style={{ color: '#f59e0b' }} /> Tipi di Appuntamento
                             </h2>
-                            <button onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}><X className="w-5 h-5 text-white/50 hover:text-white" /></button>
+                            <button onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
                         </div>
 
                         <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>

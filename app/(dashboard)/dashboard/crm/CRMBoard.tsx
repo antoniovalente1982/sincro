@@ -815,7 +815,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 )}
 
                 <select
-                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-indigo-300"
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)]" style={{ color: 'var(--filter-indigo)' }}
                     value={setterFilter}
                     onChange={e => setSetterFilter(e.target.value)}
                 >
@@ -827,7 +827,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-emerald-300"
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)]" style={{ color: 'var(--filter-emerald)' }}
                     value={closerFilter}
                     onChange={e => setCloserFilter(e.target.value)}
                 >
@@ -839,7 +839,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-yellow-300"
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)]" style={{ color: 'var(--filter-amber)' }}
                     value={stepFilter}
                     onChange={e => setStepFilter(e.target.value)}
                 >
@@ -850,7 +850,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-yellow-300"
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)]" style={{ color: 'var(--filter-amber)' }}
                     value={esitoFilter}
                     onChange={e => setEsitoFilter(e.target.value)}
                 >
@@ -966,7 +966,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         <option value="" disabled>Setter...</option>
                         <option value="none">Nessuno</option>
                         {assignableSetters.map((m: any) => (
-                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
+                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
                                 {getDisplayName(m)}
                             </option>
                         ))}
@@ -980,7 +980,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         <option value="" disabled>Venditore...</option>
                         <option value="none">Nessuno</option>
                         {assignableClosers.map((m: any) => (
-                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
+                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
                                 {getDisplayName(m)}
                             </option>
                         ))}
@@ -1023,18 +1023,18 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366f1' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2px center' }}
                         >
                             {[50, 75, 100, 125, 150].map(level => (
-                                <option key={level} value={level} style={{ background: 'var(--color-surface-100)', color: '#e5e7eb' }}>{level}%</option>
+                                <option key={level} value={level} style={{ background: 'var(--select-option-bg)', color: 'var(--color-surface-800)' }}>{level}%</option>
                             ))}
                         </select>
                     </div>
                     <details className="relative group/col-sel">
-                        <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] rounded-lg text-xs font-semibold th-sub hover:text-white th-bg-hover transition-colors shadow-sm">
+                        <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] rounded-lg text-xs font-semibold th-sub th-bg-hover transition-colors shadow-sm">
                             <Eye className="w-4 h-4" /> 
                             Campi Card
                         </summary>
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-[var(--color-surface-200)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                        <div className="absolute right-0 top-full mt-2 w-48 border rounded-xl shadow-xl z-50 overflow-hidden py-1" style={{ background: 'var(--select-option-bg)', borderColor: 'var(--color-surface-200)' }}>
                             {CARD_FIELD_OPTIONS.map(c => (
-                                <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium th-sub th-bg-hover cursor-pointer hover:text-white transition-colors">
+                                <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium th-sub th-bg-hover cursor-pointer transition-colors">
                                     <input type="checkbox" className="rounded border-gray-600 bg-[var(--color-surface-100)] text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
                                     {c.label}
                                 </label>
@@ -1052,15 +1052,15 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             key={stage.id}
                             className="flex-shrink-0 w-[300px] flex flex-col rounded-2xl transition-all duration-200"
                             style={{
-                                background: isOver ? `${stage.color}10` : 'rgba(15, 15, 19, 0.4)',
-                                border: `1px solid ${isOver ? stage.color + '40' : 'rgba(99, 102, 241, 0.06)'}`,
+                                background: isOver ? `${stage.color}10` : 'var(--kanban-col-bg)',
+                                border: `1px solid ${isOver ? stage.color + '40' : 'var(--kanban-col-border)'}`,
                             }}
                             onDragOver={(e) => handleDragOver(e, stage.id)}
                             onDragLeave={handleDragLeave}
                             onDrop={() => handleDrop(stage.id)}
                         >
                             {/* Stage Header */}
-                            <div className="p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                            <div className="p-4 border-b" style={{ borderColor: 'var(--kanban-col-header-border)' }}>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full" style={{ background: stage.color }} />
                                     <span className="text-sm font-bold th-heading">{stage.name}</span>
@@ -1199,7 +1199,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">📞 Step...</option>
                                                     {SETTER_STEPS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.setter_step ? (() => {
@@ -1225,7 +1225,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">Try A.</option>
                                                     {TRY_ANTHON_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.try_anthon ? (() => {
@@ -1252,7 +1252,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">📋 Esito...</option>
                                                     {ESITO_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.esito ? (() => {
@@ -1317,7 +1317,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">Stato App...</option>
                                                     {CLOSER_APPT_STATUS_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_appt_status ? (() => {
@@ -1340,7 +1340,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">Prova...</option>
                                                     {CLOSER_TRIAL_STATUS_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_trial_status ? (() => {
@@ -1363,7 +1363,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 >
                                                     <option value="" className="bg-[var(--select-option-bg)] th-muted">Esito...</option>
                                                     {CLOSER_OUTCOME_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] th-heading">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_outcome ? (() => {
@@ -1455,7 +1455,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                             >
                                                                 <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Setter</option>
                                                                 {assignableSetters.map((m: any) => (
-                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
                                                                         {getDisplayName(m)}
                                                                     </option>
                                                                 ))}
@@ -1477,7 +1477,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                             >
                                                                 <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Venditore</option>
                                                                 {assignableClosers.map((m: any) => (
-                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
                                                                         {getDisplayName(m)}
                                                                     </option>
                                                                 ))}

@@ -144,13 +144,13 @@ export default function ProspectingAgents() {
                 </div>
                 <div className="space-y-2 text-xs" style={{ color: 'var(--color-surface-500)' }}>
                     <div className="p-3 rounded-lg font-mono" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                        <span style={{ color: '#22c55e' }}>POST</span> <span className="text-white">{baseUrl}/api/prospecting/submit</span>
+                        <span style={{ color: '#22c55e' }}>POST</span> <span className="th-heading">{baseUrl}/api/prospecting/submit</span>
                     </div>
                     <pre className="p-3 rounded-lg overflow-x-auto" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-400)' }}>
 {`Headers: { "X-API-Key": "sp_xxx...", "Content-Type": "application/json" }
 Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes": "...", "source": "linkedin" }`}</pre>
                     <div className="p-3 rounded-lg font-mono" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
-                        <span style={{ color: '#3b82f6' }}>GET</span> <span className="text-white">{baseUrl}/api/prospecting/stats</span> <span style={{ color: 'var(--color-surface-600)' }}>← agente vede i propri numeri</span>
+                        <span style={{ color: '#3b82f6' }}>GET</span> <span className="th-heading">{baseUrl}/api/prospecting/stats</span> <span style={{ color: 'var(--color-surface-600)' }}>← agente vede i propri numeri</span>
                     </div>
                 </div>
             </div>

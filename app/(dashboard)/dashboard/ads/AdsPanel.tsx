@@ -252,7 +252,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         const isActive = sortKey === sortField
         return (
             <th
-                className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold cursor-pointer select-none hover:text-white transition-colors group"
+                className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold cursor-pointer select-none hover:th-heading transition-colors group"
                 style={{ color: isActive ? '#f59e0b' : 'var(--color-surface-500)' }}
                 onClick={() => handleSort(sortField)}
             >
@@ -328,13 +328,13 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
                     <div className="flex bg-[var(--hover-bg)] rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:th-heading th-bg-hover'}`}
                             onClick={() => setDateFilterMode('created')}
                         >
                             Data Acquisizione
                         </button>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:th-heading th-bg-hover'}`}
                             onClick={() => setDateFilterMode('updated')}
                         >
                             Ultimo Movimento
