@@ -79,7 +79,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line></svg> 
                         Visualizza Colonne
                     </summary>
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-[var(--color-surface-200)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--color-surface-50)] border border-[var(--color-surface-200)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
                         {isMounted && COLUMNS.map(c => (
                             <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium th-sub th-bg-hover cursor-pointer hover:text-white transition-colors">
                                 <input type="checkbox" className="rounded border-gray-600 bg-[var(--color-surface-100)] text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCols[c.id]} onChange={(e) => toggleCol(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
@@ -126,9 +126,9 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                             <tr 
                                 key={lead.id} 
                                 onClick={() => onLeadClick(lead)}
-                                className={`group hover:bg-white/[0.04] cursor-pointer transition-colors ${selectedLeads.includes(lead.id) ? 'bg-indigo-500/10' : ''}`}
+                                className={`group hover:bg-[var(--color-surface-100)] cursor-pointer transition-colors ${selectedLeads.includes(lead.id) ? 'bg-indigo-500/10' : ''}`}
                             >
-                                <td className="sticky left-0 z-10 bg-[var(--table-header)] group-hover:bg-[#15151a] px-5 py-4 w-12 border-r border-[var(--color-surface-200)] transition-colors" onClick={e => e.stopPropagation()}>
+                                <td className="sticky left-0 z-10 bg-[var(--table-header)] group-hover:bg-[var(--color-surface-100)] px-5 py-4 w-12 border-r border-[var(--color-surface-200)] transition-colors" onClick={e => e.stopPropagation()}>
                                     <input 
                                         type="checkbox"
                                         className="w-4 h-4 rounded border-gray-600 bg-[var(--color-surface-100)] text-indigo-500 focus:ring-indigo-500/30 cursor-pointer"
@@ -136,7 +136,7 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         onChange={() => onToggleLeadSelect(lead.id)}
                                     />
                                 </td>
-                                <td className="sticky left-[48px] z-10 bg-[var(--table-header)] group-hover:bg-[#15151a] px-5 py-4 max-w-[280px] truncate border-r border-[var(--color-surface-200)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors">
+                                <td className="sticky left-[48px] z-10 bg-[var(--table-header)] group-hover:bg-[var(--color-surface-100)] px-5 py-4 max-w-[280px] truncate border-r border-[var(--color-surface-200)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] transition-colors">
                                     <div className="font-semibold th-heading">{lead.name}</div>
                                     <div className="text-xs th-muted mt-0.5">{lead.email || ''} {lead.email && lead.phone ? '•' : ''} {lead.phone || ''}</div>
                                 </td>
@@ -181,10 +181,10 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                                 <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0">S</div>
                                             )}
                                             <select
-                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs text-indigo-300 rounded-lg px-2 py-1.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer appearance-none outline-none"
+                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs rounded-lg px-2 py-1.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer appearance-none outline-none"
                                                 value={lead.setter_id || ''}
                                                 onChange={e => onAssignSetter && onAssignSetter(lead.id, e.target.value)}
-                                                style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .5rem top 50%', backgroundSize: '.65rem auto', paddingRight: '1.5rem' }}
+                                                style={{ color: 'var(--filter-indigo)', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .5rem top 50%', backgroundSize: '.65rem auto', paddingRight: '1.5rem' }}
                                             >
                                                 <option value="" className="th-muted bg-[var(--table-header)]">+ Setter</option>
                                                 {assignableSetters.map((m: any) => (
@@ -205,10 +205,10 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                                 <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0">V</div>
                                             )}
                                             <select
-                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs text-emerald-300 rounded-lg px-2 py-1.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer appearance-none outline-none"
+                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs rounded-lg px-2 py-1.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer appearance-none outline-none"
                                                 value={lead.closer_id || ''}
                                                 onChange={e => onAssignCloser && onAssignCloser(lead.id, e.target.value)}
-                                                style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .5rem top 50%', backgroundSize: '.65rem auto', paddingRight: '1.5rem' }}
+                                                style={{ color: 'var(--filter-emerald)', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .5rem top 50%', backgroundSize: '.65rem auto', paddingRight: '1.5rem' }}
                                             >
                                                 <option value="" className="th-muted bg-[var(--table-header)]">+ Venditore</option>
                                                 {assignableClosers.map((m: any) => (
@@ -398,7 +398,8 @@ export default function CRMGrid({ leads, stages, members, selectedLeads, onToggl
                                         {canEditCloserSteps && onUpdateCloserField ? (
                                             <input
                                                 type="text"
-                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs text-white rounded-lg px-2 py-1.5 focus:border-indigo-500 focus:ring-1 outline-none transition-colors placeholder-gray-600"
+                                                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-xs rounded-lg px-2 py-1.5 focus:border-indigo-500 focus:ring-1 outline-none transition-colors"
+                                                style={{ color: 'var(--color-surface-800)' }}
                                                 placeholder="Note/Downsell..."
                                                 defaultValue={lead.closer_downsell || ''}
                                                 onBlur={e => onUpdateCloserField(lead.id, 'closer_downsell', e.target.value)}
