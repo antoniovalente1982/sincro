@@ -91,7 +91,7 @@ export default function ChatTab({ llmModel }: Props) {
             <Brain className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-sm font-bold text-white">Hermes AI Terminal</span>
+            <span className="text-sm font-bold th-heading">Hermes AI Terminal</span>
             <div className="flex items-center gap-1.5 text-[10px] font-mono" style={{ color: 'var(--color-surface-500)' }}>
               <Cpu className="w-3 h-3" />
               {modelShort}

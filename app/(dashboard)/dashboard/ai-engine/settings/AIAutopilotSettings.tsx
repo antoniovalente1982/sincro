@@ -145,7 +145,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                         <ArrowLeft className="w-3 h-3" /> AI Engine
                     </Link>
                     <div className="flex items-center gap-4">
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                             <Settings className="w-7 h-7" style={{ color: '#a855f7' }} />
                             AI Autopilot Settings
                         </h1>
@@ -188,7 +188,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                             <Rocket className="w-7 h-7" style={{ color: form.autopilot_active ? '#22c55e' : '#ef4444' }} />
                         </div>
                         <div>
-                            <div className="text-lg font-bold text-white flex items-center gap-2">
+                            <div className="text-lg font-bold th-heading flex items-center gap-2">
                                 Autopilot
                                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
                                     background: form.autopilot_active ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.1)',
@@ -203,7 +203,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                         </div>
                     </div>
                     <button onClick={() => setForm(f => ({ ...f, autopilot_active: !f.autopilot_active }))}
-                        className="p-2 rounded-xl transition-all hover:bg-white/5">
+                        className="p-2 rounded-xl transition-all th-bg-hover">
                         {form.autopilot_active
                             ? <ToggleRight className="w-10 h-10" style={{ color: '#22c55e' }} />
                             : <ToggleLeft className="w-10 h-10" style={{ color: 'var(--color-surface-500)' }} />}
@@ -215,7 +215,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <Zap className="w-5 h-5" style={{ color: form.execution_mode === 'live' ? '#ef4444' : '#f59e0b' }} />
-                    <h2 className="text-base font-bold text-white">Modalità Esecuzione</h2>
+                    <h2 className="text-base font-bold th-heading">Modalità Esecuzione</h2>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
                         background: form.execution_mode === 'live' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
                         color: form.execution_mode === 'live' ? '#ef4444' : '#f59e0b',
@@ -232,7 +232,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     >
                         <div className="flex items-center gap-2 mb-1">
                             <Eye className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                            <span className="text-sm font-bold text-white">DRY RUN</span>
+                            <span className="text-sm font-bold th-heading">DRY RUN</span>
                             {form.execution_mode === 'dry_run' && <CheckCircle className="w-4 h-4 ml-auto" style={{ color: '#f59e0b' }} />}
                         </div>
                         <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Le regole vengono valutate e loggate, ma nessuna azione viene eseguita su Meta. Ideale per testare.</p>
@@ -251,7 +251,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     >
                         <div className="flex items-center gap-2 mb-1">
                             <Rocket className="w-4 h-4" style={{ color: '#ef4444' }} />
-                            <span className="text-sm font-bold text-white">LIVE</span>
+                            <span className="text-sm font-bold th-heading">LIVE</span>
                             {form.execution_mode === 'live' && <CheckCircle className="w-4 h-4 ml-auto" style={{ color: '#ef4444' }} />}
                         </div>
                         <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>L'AI esegue azioni reali: pause ads, modifica budget. Max 5 azioni/ora con cooldown 24h.</p>
@@ -268,7 +268,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-5 h-5" style={{ color: '#818cf8' }} />
-                    <h2 className="text-base font-bold text-white">Advantage+ Configurazione</h2>
+                    <h2 className="text-base font-bold th-heading">Advantage+ Configurazione</h2>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
                         background: 'rgba(129, 140, 248, 0.15)', color: '#818cf8',
                     }}>Meta AI</span>
@@ -305,7 +305,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                         }}>
                             <toggle.icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: toggle.color }} />
                             <div className="flex-1 min-w-0">
-                                <div className="text-xs font-semibold text-white">{toggle.label}</div>
+                                <div className="text-xs font-semibold th-heading">{toggle.label}</div>
                                 <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{toggle.desc}</div>
                             </div>
                             <button onClick={() => setForm(f => ({ ...f, [toggle.key]: !(f as any)[toggle.key] }))}
@@ -323,7 +323,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                    <h2 className="text-base font-bold text-white">Budget Limits</h2>
+                    <h2 className="text-base font-bold th-heading">Budget Limits</h2>
                     {form.advantage_plus_budget && (
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
                             background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b',
@@ -393,7 +393,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-2">
                     <Target className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                    <h2 className="text-base font-bold text-white">Target di Performance</h2>
+                    <h2 className="text-base font-bold th-heading">Target di Performance</h2>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
                         background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6',
                     }}>Fonte unica</span>
@@ -412,7 +412,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                         <div key={step.key} className="flex items-center gap-1">
                             <div className="text-center px-3 py-1.5 rounded-lg" style={{ background: `${step.color}10`, border: `1px solid ${step.color}25` }}>
                                 <div className="text-[9px] font-semibold" style={{ color: step.color }}>{step.label}</div>
-                                <div className="text-xs font-bold text-white">€{step.value}</div>
+                                <div className="text-xs font-bold th-heading">€{step.value}</div>
                             </div>
                             {i < 3 && <ChevronDown className="w-3 h-3 -rotate-90 flex-shrink-0" style={{ color: 'var(--color-surface-500)' }} />}
                         </div>
@@ -482,7 +482,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Zap className="w-5 h-5" style={{ color: '#a855f7' }} />
-                        <h2 className="text-sm font-bold text-white">Automazioni</h2>
+                        <h2 className="text-sm font-bold th-heading">Automazioni</h2>
                     </div>
                     <div className="space-y-3">
                         {[
@@ -495,7 +495,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                             }}>
                                 <toggle.icon className="w-4 h-4 flex-shrink-0" style={{ color: toggle.color }} />
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-xs font-semibold text-white">{toggle.label}</div>
+                                    <div className="text-xs font-semibold th-heading">{toggle.label}</div>
                                     <div className="text-[10px]" style={{ color: 'var(--color-surface-600)' }}>{toggle.desc}</div>
                                 </div>
                                 <button onClick={() => setForm(f => ({ ...f, [toggle.key]: !(f as any)[toggle.key] }))}
@@ -515,7 +515,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     <div className="glass-card p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Shield className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                            <h2 className="text-sm font-bold text-white">Risk Tolerance</h2>
+                            <h2 className="text-sm font-bold th-heading">Risk Tolerance</h2>
                         </div>
                         <div className="space-y-2">
                             {RISK_LEVELS.map(r => (
@@ -526,7 +526,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                                     }}>
                                     <r.icon className="w-4 h-4 flex-shrink-0" style={{ color: r.color }} />
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-xs font-semibold text-white">{r.label}</div>
+                                        <div className="text-xs font-semibold th-heading">{r.label}</div>
                                         <div className="text-[10px]" style={{ color: 'var(--color-surface-600)' }}>{r.desc}</div>
                                     </div>
                                     {form.risk_tolerance === r.value && (
@@ -541,7 +541,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     <div className="glass-card p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Clock className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                            <h2 className="text-sm font-bold text-white">Frequenza Analisi</h2>
+                            <h2 className="text-sm font-bold th-heading">Frequenza Analisi</h2>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {INTERVALS.map(i => (
@@ -570,7 +570,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Activity className="w-5 h-5" style={{ color: '#6366f1' }} />
-                            <h2 className="text-sm font-bold text-white">Cron Logs (Sincro)</h2>
+                            <h2 className="text-sm font-bold th-heading">Cron Logs (Sincro)</h2>
                             <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
                                 background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1',
                             }}>
@@ -595,7 +595,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-0.5">
-                                                <span className="text-xs font-semibold text-white">{log.action_type.replace(/_/g, ' ')}</span>
+                                                <span className="text-xs font-semibold th-heading">{log.action_type.replace(/_/g, ' ')}</span>
                                                 <span className="badge" style={{
                                                     fontSize: '9px', background: `${rColor}15`, color: rColor,
                                                     border: `1px solid ${rColor}30`,
@@ -627,7 +627,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            <h2 className="text-sm font-bold text-white">Hermes VPS Console</h2>
+                            <h2 className="text-sm font-bold th-heading">Hermes VPS Console</h2>
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{
                                 background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)'
                             }}>
@@ -651,7 +651,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                             </div>
                         ))}
                         {hermesLogs.length === 0 && hermesStatus === 'online' && (
-                            <div className="text-gray-400 italic mt-2">Nessun log ricevuto di recente.</div>
+                            <div className="th-muted italic mt-2">Nessun log ricevuto di recente.</div>
                         )}
                         {hermesStatus === 'offline' && (
                             <div className="mt-4 text-red-500">
@@ -659,7 +659,7 @@ export default function AIAutopilotSettings({ config: initialConfig, logs, budge
                                 Connection lost: No response from Hermes API. (VPS Offline)
                             </div>
                         )}
-                        <div className="animate-pulse mt-1 text-gray-500">_</div>
+                        <div className="animate-pulse mt-1 th-muted">_</div>
                     </div>
                 </div>
             </div>

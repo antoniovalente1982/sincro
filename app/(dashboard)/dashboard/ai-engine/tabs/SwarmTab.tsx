@@ -97,7 +97,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white mb-2">Team Swarm (CEO & Operativi)</h2>
+          <h2 className="text-xl font-bold th-heading mb-2">Team Swarm (CEO & Operativi)</h2>
           <p className="text-sm" style={{ color: 'var(--color-surface-400)' }}>
             Gestisci la whitelist dei modelli LLM ei tuoi agenti specializzati
           </p>
@@ -111,7 +111,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
 
           {/* CEO Directives */}
           <div className="glass-card p-5" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.05), rgba(99,102,241,0.05))', border: '1px solid rgba(168,85,247,0.2)' }}>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-3">
+            <h3 className="text-sm font-bold th-heading flex items-center gap-2 mb-3">
               🎯 Assegna Direttiva / Nuovo Test
             </h3>
             <div className="flex gap-2">
@@ -134,7 +134,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
           </div>
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
-               <h3 className="text-lg font-bold text-white flex items-center gap-2">
+               <h3 className="text-lg font-bold th-heading flex items-center gap-2">
                  <Users className="w-5 h-5 text-indigo-400" />
                  Elenco Agenti
                </h3>
@@ -152,7 +152,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
                 {agents.map(agent => (
                   <div key={agent.id} className="p-4 rounded-xl" style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)' }}>
                     <div className="flex justify-between items-start mb-2">
-                      <div className="font-bold text-white">{agent.name}</div>
+                      <div className="font-bold th-heading">{agent.name}</div>
                       <div className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8'}}>
                         {agent.role}
                       </div>
@@ -174,7 +174,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
           {/* --- Realtime Log Terminal --- */}
           <div className="glass-card p-5 bg-[#09090b]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold th-heading flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-emerald-400" />
                 Live Swarm Terminal
               </h3>
@@ -240,7 +240,7 @@ export default function SwarmTab({ orgId }: { orgId: string }) {
         {/* --- LLM Router Whitelist --- */}
         <div className="space-y-4">
           <div className="glass-card p-5">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+            <h3 className="text-lg font-bold th-heading flex items-center gap-2 mb-4">
               <Zap className="w-5 h-5 text-amber-400" />
               LLM Router (Whitelist)
             </h3>

@@ -252,7 +252,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     return (
         <div className="space-y-6 animate-fade-in max-w-3xl">
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                     <Settings className="w-6 h-6" style={{ color: 'var(--color-surface-500)' }} />
                     Impostazioni
                 </h1>
@@ -265,7 +265,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <Building2 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                    <h3 className="text-sm font-bold text-white">Organizzazione</h3>
+                    <h3 className="text-sm font-bold th-heading">Organizzazione</h3>
                 </div>
                 <div className="space-y-4">
                     <div>
@@ -285,12 +285,12 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <Layers className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                        <h3 className="text-sm font-bold text-white">Pipeline Stages</h3>
+                        <h3 className="text-sm font-bold th-heading">Pipeline Stages</h3>
                     </div>
                     {canEdit && (
                         <button
                             onClick={() => setShowNewPipeline(true)}
-                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors th-bg-hover"
                             style={{ color: '#6366f1' }}
                         >
                             <Plus className="w-3 h-3" /> Crea Pipeline
@@ -317,7 +317,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 <button onClick={handleCreatePipeline} className="btn-primary !py-2 !px-3" disabled={!newPipeline.name || saving === 'create_pipeline'}>
                                     {saving === 'create_pipeline' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                                 </button>
-                                <button onClick={() => setShowNewPipeline(false)} className="p-2 rounded-lg hover:bg-white/5">
+                                <button onClick={() => setShowNewPipeline(false)} className="p-2 rounded-lg th-bg-hover">
                                     <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                                 </button>
                             </div>
@@ -340,7 +340,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         />
                                         {canEdit ? (
                                             <input
-                                                className="bg-transparent text-sm font-bold border-none outline-none flex-1 min-w-0 px-1 hover:bg-white/5 rounded transition-colors"
+                                                className="bg-transparent text-sm font-bold border-none outline-none flex-1 min-w-0 px-1 th-bg-hover rounded transition-colors"
                                                 style={{ color: pipeline.color }}
                                                 value={pipeline.name}
                                                 onChange={e => setPipelineList(prev => prev.map(p => p.id === pipeline.id ? { ...p, name: e.target.value } : p))}
@@ -362,13 +362,13 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => { setAddToPipelineId(pipeline.id); setShowNewStage(true) }}
-                                                className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/10"
+                                                className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors th-bg-hover"
                                                 style={{ color: pipeline.color }}
                                             >
                                                 <Plus className="w-3 h-3" /> Aggiungi
                                             </button>
                                             {!pipeline.is_default && (
-                                                <button onClick={() => handleDeletePipeline(pipeline.id, pipeline.name)} className="p-1 rounded-lg hover:bg-white/10 ml-1">
+                                                <button onClick={() => handleDeletePipeline(pipeline.id, pipeline.name)} className="p-1 rounded-lg th-bg-hover ml-1">
                                                     <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
                                                 </button>
                                             )}
@@ -385,13 +385,13 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                             <div className="flex-1 min-w-0">
                                                 {canEdit ? (
                                                     <input
-                                                        className="bg-transparent text-sm font-semibold text-white border-none outline-none w-full"
+                                                        className="bg-transparent text-sm font-semibold th-heading border-none outline-none w-full"
                                                         value={stage.name}
                                                         onChange={e => setStages(prev => prev.map(s => s.id === stage.id ? { ...s, name: e.target.value } : s))}
                                                         onBlur={() => handleUpdateStage(stage, { name: stage.name })}
                                                     />
                                                 ) : (
-                                                    <span className="text-sm font-semibold text-white">{stage.name}</span>
+                                                    <span className="text-sm font-semibold th-heading">{stage.name}</span>
                                                 )}
                                             </div>
                                             {/* CAPI badge */}
@@ -427,7 +427,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                                         onChange={e => handleUpdateStage(stage, { color: e.target.value })}
                                                         className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent"
                                                     />
-                                                    <button onClick={() => handleDeleteStage(stage.id)} className="p-1 rounded-lg hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => handleDeleteStage(stage.id)} className="p-1 rounded-lg th-bg-hover opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
                                                     </button>
                                                 </div>
@@ -473,7 +473,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                             <button onClick={handleCreateStage} className="btn-primary !py-2 !px-3" disabled={!newStage.name}>
                                 <Plus className="w-4 h-4" />
                             </button>
-                            <button onClick={() => { setShowNewStage(false); setAddToPipelineId('') }} className="p-2 rounded-lg hover:bg-white/5">
+                            <button onClick={() => { setShowNewStage(false); setAddToPipelineId('') }} className="p-2 rounded-lg th-bg-hover">
                                 <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                             </button>
                         </div>
@@ -486,12 +486,12 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                        <h3 className="text-sm font-bold text-white">Fonti di Traffico (Tag)</h3>
+                        <h3 className="text-sm font-bold th-heading">Fonti di Traffico (Tag)</h3>
                     </div>
                     {canEdit && (
                         <button
                             onClick={() => setShowNewSource(true)}
-                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors th-bg-hover"
                             style={{ color: '#6366f1' }}
                         >
                             <Plus className="w-3 h-3" /> Aggiungi fonte
@@ -510,13 +510,13 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: source.color }} />
                                 {canEdit ? (
                                     <input
-                                        className="bg-transparent text-xs font-semibold text-white border-none outline-none w-full truncate"
+                                        className="bg-transparent text-xs font-semibold th-heading border-none outline-none w-full truncate"
                                         value={source.name}
                                         onChange={e => setSources(prev => prev.map(s => s.id === source.id ? { ...s, name: e.target.value } : s))}
                                         onBlur={() => handleUpdateSource(source, { name: source.name })}
                                     />
                                 ) : (
-                                    <span className="text-xs font-semibold text-white truncate">{source.name}</span>
+                                    <span className="text-xs font-semibold th-heading truncate">{source.name}</span>
                                 )}
                             </div>
                             {canEdit && (
@@ -527,7 +527,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         onChange={e => handleUpdateSource(source, { color: e.target.value })}
                                         className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
                                     />
-                                    <button onClick={() => handleDeleteSource(source.id, source.name)} className="p-1 rounded-lg hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => handleDeleteSource(source.id, source.name)} className="p-1 rounded-lg th-bg-hover opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
                                     </button>
                                 </div>
@@ -553,7 +553,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                             <button onClick={handleCreateSource} className="btn-primary !py-2 !px-3" disabled={!newSource.name}>
                                 <Plus className="w-4 h-4" />
                             </button>
-                            <button onClick={() => setShowNewSource(false)} className="p-2 rounded-lg hover:bg-white/5">
+                            <button onClick={() => setShowNewSource(false)} className="p-2 rounded-lg th-bg-hover">
                                 <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                             </button>
                         </div>
@@ -566,12 +566,12 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                        <h3 className="text-sm font-bold text-white">Tag CRM</h3>
+                        <h3 className="text-sm font-bold th-heading">Tag CRM</h3>
                     </div>
                     {canEdit && (
                         <button
                             onClick={() => setShowNewTag(true)}
-                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-white/5"
+                            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-lg transition-colors th-bg-hover"
                             style={{ color: '#10b981' }}
                         >
                             <Plus className="w-3 h-3" /> Crea Tag
@@ -629,7 +629,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                             <button onClick={handleCreateTag} className="btn-primary !py-2 !px-3" disabled={!newTagInput.name}>
                                 <Plus className="w-4 h-4" />
                             </button>
-                            <button onClick={() => setShowNewTag(false)} className="p-2 rounded-lg hover:bg-white/5">
+                            <button onClick={() => setShowNewTag(false)} className="p-2 rounded-lg th-bg-hover">
                                 <X className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                             </button>
                         </div>
@@ -642,7 +642,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <User className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                    <h3 className="text-sm font-bold text-white">Profilo</h3>
+                    <h3 className="text-sm font-bold th-heading">Profilo</h3>
                 </div>
                 <div className="space-y-4">
                     <div>
@@ -653,7 +653,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         <label className="label">Foto Profilo</label>
                         <div className="mt-2 flex items-center gap-6">
                             <div 
-                                className="relative w-24 h-24 rounded-full overflow-hidden border-2 flex-shrink-0 cursor-pointer group bg-black/40"
+                                className="relative w-24 h-24 rounded-full overflow-hidden border-2 flex-shrink-0 cursor-pointer group bg-[var(--color-surface-100)]"
                                 style={{ borderColor: 'var(--color-surface-400)' }}
                                 onClick={() => fileInputRef.current?.click()}
                             >
@@ -664,9 +664,9 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         <User className="w-10 h-10" style={{ color: 'var(--color-surface-500)' }} />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-0 bg-[var(--overlay-bg)] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Camera className="w-6 h-6 text-white mb-1" />
-                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Cambia</span>
+                                    <span className="text-[9px] font-bold th-heading uppercase tracking-wider">Cambia</span>
                                 </div>
                             </div>
                             <div className="flex-1">
@@ -701,7 +701,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <Zap className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                    <h3 className="text-sm font-bold text-white">Integrazioni</h3>
+                    <h3 className="text-sm font-bold th-heading">Integrazioni</h3>
                 </div>
                 <div className="space-y-4">
                     <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
@@ -719,7 +719,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                 </svg>
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-white flex items-center gap-2">
+                                <div className="text-sm font-bold th-heading flex items-center gap-2">
                                     Google Calendar
                                     {isGoogleConnected && (
                                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-semibold">

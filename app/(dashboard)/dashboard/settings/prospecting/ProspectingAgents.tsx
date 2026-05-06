@@ -123,7 +123,7 @@ export default function ProspectingAgents() {
         <div className="space-y-6 animate-fade-in max-w-4xl">
             <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <Shield className="w-6 h-6" style={{ color: '#a855f7' }} />
                         Agenti Prospecting
                     </h1>
@@ -140,7 +140,7 @@ export default function ProspectingAgents() {
             <div className="glass-card p-5" style={{ borderColor: 'rgba(168, 85, 247, 0.15)' }}>
                 <div className="flex items-center gap-2 mb-3">
                     <Code className="w-4 h-4" style={{ color: '#a855f7' }} />
-                    <h3 className="text-sm font-bold text-white">API per Agenti</h3>
+                    <h3 className="text-sm font-bold th-heading">API per Agenti</h3>
                 </div>
                 <div className="space-y-2 text-xs" style={{ color: 'var(--color-surface-500)' }}>
                     <div className="p-3 rounded-lg font-mono" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
@@ -169,7 +169,7 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
                                 <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
                                 <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--color-surface-600)' }}>{stat.label}</span>
                             </div>
-                            <div className="text-lg font-bold text-white">{stat.value}</div>
+                            <div className="text-lg font-bold th-heading">{stat.value}</div>
                         </div>
                     ))}
                 </div>
@@ -183,7 +183,7 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
             ) : agents.length === 0 ? (
                 <div className="glass-card p-8 text-center">
                     <Shield className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--color-surface-400)' }} />
-                    <div className="text-sm font-semibold text-white mb-1">Nessun agente</div>
+                    <div className="text-sm font-semibold th-heading mb-1">Nessun agente</div>
                     <div className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Crea il primo agente per ricevere lead da prospecting esterno.</div>
                 </div>
             ) : (
@@ -193,7 +193,7 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
                             <div className="flex items-start justify-between gap-4 mb-3">
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-white">{agent.name}</span>
+                                        <span className="text-sm font-bold th-heading">{agent.name}</span>
                                         <span className="badge" style={{
                                             background: agent.status === 'active' ? 'rgba(34, 197, 94, 0.1)' : agent.status === 'paused' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                             color: agent.status === 'active' ? '#22c55e' : agent.status === 'paused' ? '#f59e0b' : '#ef4444',
@@ -206,10 +206,10 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
                                 </div>
                                 {agent.status !== 'revoked' && (
                                     <div className="flex items-center gap-1">
-                                        <button onClick={() => toggleStatus(agent)} className="p-1.5 rounded-lg hover:bg-white/5" title={agent.status === 'active' ? 'Pausa' : 'Attiva'}>
+                                        <button onClick={() => toggleStatus(agent)} className="p-1.5 rounded-lg th-bg-hover" title={agent.status === 'active' ? 'Pausa' : 'Attiva'}>
                                             {agent.status === 'active' ? <ToggleRight className="w-4 h-4" style={{ color: '#22c55e' }} /> : <ToggleLeft className="w-4 h-4" style={{ color: '#f59e0b' }} />}
                                         </button>
-                                        <button onClick={() => deleteAgent(agent.id)} className="p-1.5 rounded-lg hover:bg-white/5" title="Revoca">
+                                        <button onClick={() => deleteAgent(agent.id)} className="p-1.5 rounded-lg th-bg-hover" title="Revoca">
                                             <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
                                         </button>
                                     </div>
@@ -225,10 +225,10 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
                                     const next = new Set(prev)
                                     next.has(agent.id) ? next.delete(agent.id) : next.add(agent.id)
                                     return next
-                                })} className="p-1 rounded hover:bg-white/5">
+                                })} className="p-1 rounded th-bg-hover">
                                     {visibleKeys.has(agent.id) ? <EyeOff className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} /> : <Eye className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} />}
                                 </button>
-                                <button onClick={() => copyToClipboard(agent.api_key, agent.id)} className="p-1 rounded hover:bg-white/5">
+                                <button onClick={() => copyToClipboard(agent.api_key, agent.id)} className="p-1 rounded th-bg-hover">
                                     {copied === agent.id ? <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} /> : <Copy className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} />}
                                 </button>
                             </div>
@@ -260,11 +260,11 @@ Body:    { "name": "Mario Rossi", "email": "m@r.it", "phone": "+39...", "notes":
 
             {/* Create Modal */}
             {showCreate && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in">
                     <div className="w-full max-w-md glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-bold text-white">Nuovo Agente</h2>
-                            <button onClick={() => setShowCreate(false)} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                            <h2 className="text-lg font-bold th-heading">Nuovo Agente</h2>
+                            <button onClick={() => setShowCreate(false)} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                         </div>
                         <form onSubmit={createAgent} className="space-y-4">
                             <div>

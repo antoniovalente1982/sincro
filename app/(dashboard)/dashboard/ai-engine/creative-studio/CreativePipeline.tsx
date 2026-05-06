@@ -360,7 +360,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                    <h2 className="text-xl font-bold th-heading flex items-center gap-3">
                         <Zap className="w-6 h-6" style={{ color: '#f59e0b' }} />
                         Creative Pipeline
                     </h2>
@@ -415,7 +415,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                 <Settings2 className="w-5 h-5" style={{ color: '#f59e0b' }} />
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-white">Configura Pipeline Creativo</h3>
+                                <h3 className="text-base font-bold th-heading">Configura Pipeline Creativo</h3>
                                 <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                                     Personalizza la generazione prima di avviare
                                 </p>
@@ -527,7 +527,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                 }}>
                     <div className="flex items-center gap-2 mb-4">
                         <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#6366f1' }} />
-                        <span className="text-sm font-bold text-white">Pipeline in esecuzione...</span>
+                        <span className="text-sm font-bold th-heading">Pipeline in esecuzione...</span>
                         <span className="text-xs ml-auto" style={{ color: 'var(--color-surface-500)' }}>
                             Step {pipelineStep}/{PIPELINE_STEPS.length}
                         </span>
@@ -587,7 +587,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                         <div className="text-sm" style={{ color: '#ef4444' }}>❌ Errore: {pipelineResult.error}</div>
                     ) : (
                         <div>
-                            <div className="text-sm font-bold text-white flex items-center gap-2">
+                            <div className="text-sm font-bold th-heading flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4" style={{ color: '#22c55e' }} />
                                 Pipeline completato!
                             </div>
@@ -634,7 +634,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     { label: 'Killate', value: summary.by_status?.killed || 0, color: '#ef4444' },
                 ].map(stat => (
                     <div key={stat.label} className="kpi-card">
-                        <div className="text-2xl font-bold text-white">{stat.value}</div>
+                        <div className="text-2xl font-bold th-heading">{stat.value}</div>
                         <div className="text-xs mt-1" style={{ color: stat.color }}>{stat.label}</div>
                     </div>
                 ))}
@@ -716,7 +716,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
 
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-bold text-white truncate">{creative.name}</div>
+                                        <div className="text-sm font-bold th-heading truncate">{creative.name}</div>
                                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                                             <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{
                                                 background: `${angleColor}15`, color: angleColor, border: `1px solid ${angleColor}30`,
@@ -738,7 +738,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                     {(creative.status === 'active' || creative.status === 'launched' || creative.status === 'killed') && creative.spend > 0 && (
                                         <div className="hidden md:flex items-center gap-4 flex-shrink-0">
                                             <div className="text-right">
-                                                <div className="text-xs font-bold text-white">€{creative.spend.toFixed(2)}</div>
+                                                <div className="text-xs font-bold th-heading">€{creative.spend.toFixed(2)}</div>
                                                 <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Spend</div>
                                             </div>
                                             <div className="text-right">
@@ -837,7 +837,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                         {creative.copy_headline && (
                                             <div className="mt-3">
                                                 <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-500)' }}>Copy</div>
-                                                <div className="text-sm font-bold text-white mb-1">{creative.copy_headline}</div>
+                                                <div className="text-sm font-bold th-heading mb-1">{creative.copy_headline}</div>
                                                 <div className="text-xs leading-relaxed" style={{ color: 'var(--color-surface-600)' }}>
                                                     {creative.copy_primary?.substring(0, 300)}
                                                     {(creative.copy_primary?.length || 0) > 300 ? '...' : ''}
@@ -860,15 +860,15 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                                 <div className="flex items-start gap-3 flex-wrap mt-5">
                                                     <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                                                         <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer Pocket</div>
-                                                        <div className="text-xs font-semibold text-white">#{creative.pocket_id} {creative.pocket_name}</div>
+                                                        <div className="text-xs font-semibold th-heading">#{creative.pocket_id} {creative.pocket_name}</div>
                                                     </div>
                                                     <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                                                         <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Buyer State</div>
-                                                        <div className="text-xs font-semibold text-white">{creative.buyer_state}</div>
+                                                        <div className="text-xs font-semibold th-heading">{creative.buyer_state}</div>
                                                     </div>
                                                     <div className="px-3 py-1.5 rounded-lg" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                                                         <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Core Question</div>
-                                                        <div className="text-xs font-semibold text-white">{creative.core_question}</div>
+                                                        <div className="text-xs font-semibold th-heading">{creative.core_question}</div>
                                                     </div>
                                                 </div>
                                             )}
@@ -939,7 +939,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                                     { label: 'CTR', value: creative.ctr ? `${creative.ctr.toFixed(2)}%` : '-' },
                                                 ].map(m => (
                                                     <div key={m.label} className="p-2 rounded-lg text-center" style={{ background: 'var(--color-surface-100)' }}>
-                                                        <div className="text-xs font-bold text-white">{m.value}</div>
+                                                        <div className="text-xs font-bold th-heading">{m.value}</div>
                                                         <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{m.label}</div>
                                                     </div>
                                                 ))}
@@ -978,7 +978,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                     }}>
                         <Zap className="w-8 h-8" style={{ color: '#f59e0b' }} />
                     </div>
-                    <h2 className="text-lg font-bold text-white mb-2">
+                    <h2 className="text-lg font-bold th-heading mb-2">
                         {filterStatus || filterAngle ? 'Nessun risultato per questi filtri' : 'Nessuna ad nel pipeline'}
                     </h2>
                     <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--color-surface-500)' }}>
@@ -1005,7 +1005,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                 <XCircle className="w-5 h-5" style={{ color: '#ef4444' }} />
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-white">Rifiuta Ad Creative</h3>
+                                <h3 className="text-base font-bold th-heading">Rifiuta Ad Creative</h3>
                                 <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                                     Il tuo feedback migliorerà automaticamente le prossime generazioni AI
                                 </p>
@@ -1073,7 +1073,7 @@ export default function CreativePipeline({ creatives: initialCreatives, summary:
                                 <MessageSquare className="w-5 h-5" style={{ color: '#6366f1' }} />
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-white">Feedback per l'AI Engine</h3>
+                                <h3 className="text-base font-bold th-heading">Feedback per l'AI Engine</h3>
                                 <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                                     Il tuo feedback calibra automaticamente le prossime generazioni
                                 </p>

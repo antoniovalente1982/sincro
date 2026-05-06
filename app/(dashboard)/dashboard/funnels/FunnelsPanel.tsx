@@ -304,7 +304,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
         <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <Target className="w-6 h-6" style={{ color: '#8b5cf6' }} />
                         Funnel & Analytics
                     </h1>
@@ -380,7 +380,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                     value={customFrom}
                                     onChange={e => setCustomFrom(e.target.value)}
                                     className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid rgba(255,255,255,0.06)', colorScheme: 'dark' }}
+                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid var(--color-surface-200)', colorScheme: 'dark' }}
                                 />
                             </div>
                             <div className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                     value={customTo}
                                     onChange={e => setCustomTo(e.target.value)}
                                     className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid rgba(255,255,255,0.06)', colorScheme: 'dark' }}
+                                    style={{ background: 'var(--color-surface-100)', color: 'var(--color-surface-400)', border: '1px solid var(--color-surface-200)', colorScheme: 'dark' }}
                                 />
                             </div>
                         </div>
@@ -409,7 +409,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                 <Users className="w-4 h-4" style={{ color: '#8b5cf6' }} />
                                 <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Utenti Unici</span>
                             </div>
-                            <p className="text-2xl font-bold text-white">{analytics.totalUniqueVisitors.toLocaleString()}</p>
+                            <p className="text-2xl font-bold th-heading">{analytics.totalUniqueVisitors.toLocaleString()}</p>
                             <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>{analytics.totalViews.toLocaleString()} page views totali</p>
                         </div>
                         <div className="glass-card p-5">
@@ -417,14 +417,14 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                 <Eye className="w-4 h-4" style={{ color: '#3b82f6' }} />
                                 <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Page Views</span>
                             </div>
-                            <p className="text-2xl font-bold text-white">{analytics.totalViews.toLocaleString()}</p>
+                            <p className="text-2xl font-bold th-heading">{analytics.totalViews.toLocaleString()}</p>
                         </div>
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-2">
                                 <Target className="w-4 h-4" style={{ color: '#22c55e' }} />
                                 <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Conversioni</span>
                             </div>
-                            <p className="text-2xl font-bold text-white">{analytics.totalConv.toLocaleString()}</p>
+                            <p className="text-2xl font-bold th-heading">{analytics.totalConv.toLocaleString()}</p>
                         </div>
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-2">
@@ -447,7 +447,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                         <Globe className="w-4 h-4" style={{ color: '#8b5cf6' }} />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-bold text-white">{stat.funnel.name}</h3>
+                                        <h3 className="text-sm font-bold th-heading">{stat.funnel.name}</h3>
                                         <div className="flex items-center gap-2">
                                             <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{getDisplayUrl(stat.funnel)}</p>
                                             <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--color-surface-500)' }}>
@@ -481,7 +481,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                             <div className="grid grid-cols-5 gap-3">
                                 <div className="px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                     <p className="text-[10px] mb-0.5" style={{ color: 'var(--color-surface-500)' }}>Utenti Unici</p>
-                                    <p className="text-lg font-bold text-white">{stat.uniqueVisitors.toLocaleString()}</p>
+                                    <p className="text-lg font-bold th-heading">{stat.uniqueVisitors.toLocaleString()}</p>
                                     <p className="text-[9px]" style={{ color: 'var(--color-surface-600)' }}>{stat.views} views</p>
                                 </div>
                                 <div className="px-3 py-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
@@ -526,7 +526,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
                                             <FlaskConical className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
-                                            <span className="text-xs font-semibold text-white">Split Test — Confronto Varianti</span>
+                                            <span className="text-xs font-semibold th-heading">Split Test — Confronto Varianti</span>
                                         </div>
                                         {stat.winner && (
                                             <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)', fontSize: '10px' }}>
@@ -563,7 +563,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                     <div className="grid grid-cols-3 gap-2 text-center mb-3">
                                                         <div>
                                                             <p className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Unici</p>
-                                                            <p className="text-sm font-bold text-white">{v.uniqueVisitors}</p>
+                                                            <p className="text-sm font-bold th-heading">{v.uniqueVisitors}</p>
                                                         </div>
                                                         <div>
                                                             <p className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Lead</p>
@@ -575,7 +575,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                         </div>
                                                     </div>
                                                     {/* Conversion bar */}
-                                                    <div className="h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                                                    <div className="h-2 rounded-full" style={{ background: 'var(--color-surface-200)' }}>
                                                         <div className="h-full rounded-full transition-all" style={{
                                                             width: `${Math.min(v.rate * 2, 100)}%`,
                                                             background: isWinner ? '#22c55e' : varColor,
@@ -589,7 +589,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                             style={{ 
                                                                 background: isWinner ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.03)', 
                                                                 color: isWinner ? '#22c55e' : 'var(--color-surface-500)',
-                                                                border: `1px solid ${isWinner ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.06)'}`,
+                                                                border: `1px solid ${isWinner ? 'rgba(34, 197, 94, 0.2)' : 'var(--color-surface-200)'}`,
                                                             }}
                                                         >
                                                             <Trophy className="w-3 h-3 inline mr-1" />
@@ -641,7 +641,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                     {analytics.funnelStats.length === 0 && (
                         <div className="glass-card p-12 text-center">
                             <BarChart3 className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--color-surface-400)', opacity: 0.3 }} />
-                            <p className="text-sm font-semibold text-white mb-2">Nessun dato analytics</p>
+                            <p className="text-sm font-semibold th-heading mb-2">Nessun dato analytics</p>
                             <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Crea un funnel e le visite appariranno qui</p>
                         </div>
                     )}
@@ -666,16 +666,16 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                 <Globe className="w-5 h-5" style={{ color: '#8b5cf6' }} />
                                             </div>
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => { setEditing(funnel); setShowModal(true) }} className="p-1.5 rounded-lg hover:bg-white/5">
+                                                <button onClick={() => { setEditing(funnel); setShowModal(true) }} className="p-1.5 rounded-lg th-bg-hover">
                                                     <Edit3 className="w-3.5 h-3.5" style={{ color: 'var(--color-sincro-400)' }} />
                                                 </button>
-                                                <button onClick={() => handleDelete(funnel.id)} className="p-1.5 rounded-lg hover:bg-white/5">
+                                                <button onClick={() => handleDelete(funnel.id)} className="p-1.5 rounded-lg th-bg-hover">
                                                     <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <h3 className="text-sm font-bold text-white mb-1">{funnel.name}</h3>
+                                        <h3 className="text-sm font-bold th-heading mb-1">{funnel.name}</h3>
                                         <p className="text-[9px] mb-1" style={{ color: 'var(--color-surface-500)' }}>
                                             📅 Creato il {new Date(funnel.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
                                         </p>
@@ -713,7 +713,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                             </div>
                                             <button
                                                 onClick={() => copyUrl(funnel)}
-                                                className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                                                className="p-1.5 rounded-lg th-bg-hover transition-colors"
                                                 title="Copia URL"
                                             >
                                                 {copiedId === funnel.id
@@ -722,7 +722,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                 }
                                             </button>
                                             {funnel.status === 'active' && (
-                                                <a href={getPublicUrl(funnel)} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-white/5">
+                                                <a href={getPublicUrl(funnel)} target="_blank" rel="noopener" className="p-1.5 rounded-lg th-bg-hover">
                                                     <ExternalLink className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
                                                 </a>
                                             )}
@@ -734,12 +734,12 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                             </span>
                                             <div className="flex gap-1">
                                                 {funnel.status !== 'active' && (
-                                                    <button onClick={() => handleStatusChange(funnel, 'active')} className="p-1 rounded-lg hover:bg-white/5" title="Attiva">
+                                                    <button onClick={() => handleStatusChange(funnel, 'active')} className="p-1 rounded-lg th-bg-hover" title="Attiva">
                                                         <Play className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
                                                     </button>
                                                 )}
                                                 {funnel.status === 'active' && (
-                                                    <button onClick={() => handleStatusChange(funnel, 'paused')} className="p-1 rounded-lg hover:bg-white/5" title="Pausa">
+                                                    <button onClick={() => handleStatusChange(funnel, 'paused')} className="p-1 rounded-lg th-bg-hover" title="Pausa">
                                                         <Pause className="w-3.5 h-3.5" style={{ color: '#f59e0b' }} />
                                                     </button>
                                                 )}
@@ -752,7 +752,7 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                     ) : (
                         <div className="glass-card p-12 text-center">
                             <Inbox className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--color-surface-400)', opacity: 0.3 }} />
-                            <p className="text-sm font-semibold text-white mb-2">Nessun funnel</p>
+                            <p className="text-sm font-semibold th-heading mb-2">Nessun funnel</p>
                             <p className="text-xs mb-4" style={{ color: 'var(--color-surface-500)' }}>Crea il tuo primo funnel per iniziare a raccogliere lead</p>
                             <button onClick={() => setShowModal(true)} className="btn-primary">
                                 <Plus className="w-4 h-4" /> Crea Funnel
@@ -828,11 +828,11 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in" onClick={onClose}>
             <div className="w-full max-w-lg glass-card p-6 m-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-white">{funnel ? 'Modifica Funnel' : 'Nuovo Funnel'}</h2>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                    <h2 className="text-lg font-bold th-heading">{funnel ? 'Modifica Funnel' : 'Nuovo Funnel'}</h2>
+                    <button onClick={onClose} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -865,10 +865,10 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {/* Landing Page Settings */}
-                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center gap-2 mb-3">
                             <Sparkles className="w-4 h-4" style={{ color: '#8b5cf6' }} />
-                            <span className="text-xs font-semibold text-white">Personalizza Landing Page</span>
+                            <span className="text-xs font-semibold th-heading">Personalizza Landing Page</span>
                         </div>
                         <div className="space-y-3">
                             <div>
@@ -900,15 +900,15 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {/* A/B Test Settings */}
-                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center gap-2 mb-3">
                             <FlaskConical className="w-4 h-4" style={{ color: '#a855f7' }} />
-                            <span className="text-xs font-semibold text-white">A/B Testing</span>
+                            <span className="text-xs font-semibold th-heading">A/B Testing</span>
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between px-3 py-3 rounded-xl" style={{ background: 'var(--color-surface-100)' }}>
                                 <div>
-                                    <p className="text-xs font-semibold text-white">Split Test Attivo</p>
+                                    <p className="text-xs font-semibold th-heading">Split Test Attivo</p>
                                     <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Divide il traffico 50/50 tra variante A e B</p>
                                 </div>
                                 <button
@@ -936,10 +936,10 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {/* Pipeline CRM */}
-                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center gap-2 mb-3">
                             <Target className="w-4 h-4" style={{ color: '#22c55e' }} />
-                            <span className="text-xs font-semibold text-white">Pipeline CRM</span>
+                            <span className="text-xs font-semibold th-heading">Pipeline CRM</span>
                         </div>
                         <div>
                             <label className="label">Pipeline dei Lead</label>
@@ -954,10 +954,10 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {/* Tracking Pixels */}
-                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center gap-2 mb-3">
                             <Eye className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                            <span className="text-xs font-semibold text-white">Pixel di Tracciamento</span>
+                            <span className="text-xs font-semibold th-heading">Pixel di Tracciamento</span>
                         </div>
                         <div className="space-y-3">
                             <div>
@@ -982,10 +982,10 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {/* AI Engine per funnel */}
-                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center gap-2 mb-3">
                             <Sparkles className="w-4 h-4" style={{ color: '#a855f7' }} />
-                            <span className="text-xs font-semibold text-white">AI Engine — Configurazione Funnel</span>
+                            <span className="text-xs font-semibold th-heading">AI Engine — Configurazione Funnel</span>
                         </div>
                         <div className="space-y-3">
                             <div>

@@ -94,7 +94,7 @@ export default function CreativesTab({ orgId }: Props) {
         <div className="flex items-center gap-3">
           <Palette className="w-5 h-5" style={{ color: '#14b8a6' }} />
           <div>
-            <h2 className="text-lg font-bold text-white">Creativi & Ads</h2>
+            <h2 className="text-lg font-bold th-heading">Creativi & Ads</h2>
             <p className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
               {filtered.length} campagne • €{totalSpend.toFixed(0)} spesi • {totalLeads} lead • CPL medio €{avgCPL.toFixed(1)}
             </p>
@@ -145,7 +145,7 @@ export default function CreativesTab({ orgId }: Props) {
       ) : filtered.length === 0 ? (
         <div className="glass-card text-center py-16">
           <Palette className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--color-surface-400)' }} />
-          <h3 className="font-bold text-white mb-1">Nessuna campagna trovata</h3>
+          <h3 className="font-bold th-heading mb-1">Nessuna campagna trovata</h3>
           <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Cambia i filtri o synca i dati da Meta.</p>
         </div>
       ) : (
@@ -153,7 +153,7 @@ export default function CreativesTab({ orgId }: Props) {
           {filtered.map(ad => {
             const cplColor = ad.cpl > 0 && ad.cpl < 10 ? '#22c55e' : ad.cpl > 0 && ad.cpl < 25 ? '#f59e0b' : ad.cpl > 0 ? '#ef4444' : 'var(--color-surface-500)'
             return (
-              <div key={ad.id} className="glass-card overflow-hidden transition-all hover:scale-[1.01] hover:border-white/10 group">
+              <div key={ad.id} className="glass-card overflow-hidden transition-all hover:scale-[1.01] hover:border-[var(--color-surface-200)] group">
                 {/* Creative preview area */}
                 <div className="h-32 flex items-center justify-center relative" style={{
                   background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.06))',
@@ -181,7 +181,7 @@ export default function CreativesTab({ orgId }: Props) {
 
                 {/* Info */}
                 <div className="p-4">
-                  <h4 className="text-sm font-bold text-white truncate mb-3">{ad.campaign_name}</h4>
+                  <h4 className="text-sm font-bold th-heading truncate mb-3">{ad.campaign_name}</h4>
                   <div className="grid grid-cols-3 gap-3">
                     <MetricCell label="Spesa" value={`€${ad.spend.toFixed(0)}`} icon={DollarSign} color="#818cf8" />
                     <MetricCell label="CPL" value={ad.cpl > 0 ? `€${ad.cpl.toFixed(1)}` : '—'} icon={Target} color={cplColor} />

@@ -208,7 +208,7 @@ export default function DateRangeFilter({
                     {showCustomInputs && (
                         <div
                             className="space-y-2 mt-1 pt-2"
-                            style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                            style={{ borderTop: '1px solid var(--color-surface-200)' }}
                         >
                             <div className="px-1">
                                 <label className="text-[10px] font-semibold block mb-1" style={{ color: 'var(--color-surface-500)' }}>Da</label>

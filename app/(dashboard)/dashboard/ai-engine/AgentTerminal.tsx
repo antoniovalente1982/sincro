@@ -92,7 +92,7 @@ export default function AgentTerminal() {
             <Brain className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white tracking-wide">HERMES TERMINAL</h2>
+            <h2 className="text-xl font-bold th-heading tracking-wide">HERMES TERMINAL</h2>
             <div className="flex items-center gap-2 text-xs text-[#a855f7] font-mono tracking-wider">
               <span className="w-2 h-2 rounded-full animate-pulse bg-[#10b981]" style={{ boxShadow: '0 0 10px #10b981' }} />
               SYSTEM ONLINE
@@ -196,7 +196,7 @@ export default function AgentTerminal() {
             disabled={!input.trim() || loading}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 hover:scale-105 active:scale-95"
             style={{
-              background: input.trim() ? 'linear-gradient(135deg, #a855f7, #6366f1)' : 'rgba(255,255,255,0.05)',
+              background: input.trim() ? 'linear-gradient(135deg, #a855f7, #6366f1)' : 'var(--color-surface-200)',
               boxShadow: input.trim() ? '0 0 20px rgba(168,85,247,0.4)' : 'none'
             }}
           >
@@ -211,7 +211,7 @@ export default function AgentTerminal() {
               <button
                 key={cmd}
                 onClick={() => setInput(cmd)}
-                className="text-[11px] px-4 py-2 font-mono tracking-wider rounded-lg transition-all hover:bg-white/10 hover:scale-105"
+                className="text-[11px] px-4 py-2 font-mono tracking-wider rounded-lg transition-all th-bg-hover hover:scale-105"
                 style={{
                   background: 'rgba(168, 85, 247, 0.1)',
                   border: '1px solid rgba(168, 85, 247, 0.3)',

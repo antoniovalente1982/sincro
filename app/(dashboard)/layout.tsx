@@ -10,10 +10,12 @@ import {
     LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     History, Palette, CalendarDays, Activity, Handshake,
+    Sun, Moon,
     type LucideIcon
 } from 'lucide-react'
 import HermesChat from './dashboard/HermesChat'
 import { filterNavItems, type Role, type Department } from '@/lib/permissions'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface NavItem {
     label: string
@@ -52,6 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname()
     const router = useRouter()
     const supabase = createClient()
+    const { theme, toggleTheme } = useTheme()
 
     const loadNotifications = async () => {
         try {
@@ -177,7 +180,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Image src="/logo.png" alt="ADPILOTIK" width={36} height={36} className="rounded-xl flex-shrink-0" />
                     {!collapsed && (
                         <div className="animate-fade-in">
-                            <div className="text-sm font-bold text-white tracking-tight">ADPILOTIK</div>
+                            <div className="text-sm font-bold tracking-tight" style={{ color: 'var(--color-surface-900)' }}>ADPILOTIK</div>
                             <div className="text-[11px] truncate max-w-[160px]" style={{ color: 'var(--color-surface-500)' }}>
                                 {orgName || 'Caricamento...'}
                             </div>
@@ -204,7 +207,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="p-3 border-t" style={{ borderColor: 'var(--color-surface-200)' }}>
                     {!collapsed && user && (
                         <div className="px-3 py-2 mb-2">
-                            <div className="text-xs font-semibold text-white truncate">
+                            <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-surface-900)' }}>
                                 {profileName || user.user_metadata?.full_name || user.email}
                             </div>
                             <div className="text-[11px] truncate" style={{ color: 'var(--color-surface-500)' }}>
@@ -238,12 +241,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">
-                {/* Top bar with notifications */}
+                {/* Top bar with theme toggle + notifications */}
                 <div className="flex items-center justify-end gap-3 px-6 lg:px-8 pt-4 pb-0">
+                    {/* Theme Toggle */}
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 rounded-xl transition-all duration-200"
+                        style={{
+                            color: 'var(--color-surface-500)',
+                            background: 'transparent',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover-bg)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                        title={theme === 'light' ? 'Passa al tema scuro' : 'Passa al tema chiaro'}
+                    >
+                        {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                    </button>
+
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => { setShowNotifs(!showNotifs); if (!showNotifs) loadNotifications() }}
-                            className="relative p-2 rounded-xl transition-colors hover:bg-white/5"
+                            className="relative p-2 rounded-xl transition-colors"
+                            style={{ background: 'transparent' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover-bg)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                         >
                             <Bell className="w-5 h-5" style={{ color: unreadCount > 0 ? '#a855f7' : 'var(--color-surface-500)' }} />
                             {unreadCount > 0 && (
@@ -255,7 +276,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {showNotifs && (
                             <div className="absolute right-0 top-12 w-96 max-h-[500px] overflow-y-auto glass-card shadow-2xl z-50 animate-fade-in">
                                 <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
-                                    <h3 className="text-sm font-bold text-white">Notifiche</h3>
+                                    <h3 className="text-sm font-bold" style={{ color: 'var(--color-surface-900)' }}>Notifiche</h3>
                                     <div className="flex items-center gap-2">
                                         {unreadCount > 0 && (
                                             <button onClick={markAllRead} className="text-[11px] font-medium px-2 py-0.5 rounded" style={{ color: '#a855f7' }}>Segna tutte lette</button>
@@ -269,10 +290,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     <div className="divide-y" style={{ borderColor: 'var(--color-surface-200)' }}>
                                         {notifications.map((n: any) => (
                                             <Link key={n.id} href={n.link || '#'} onClick={() => setShowNotifs(false)}
-                                                className={`flex items-start gap-3 p-3 transition-colors hover:bg-white/[0.03] ${!n.is_read ? 'bg-white/[0.02]' : ''}`}>
+                                                className="flex items-start gap-3 p-3 transition-colors"
+                                                style={{ background: !n.is_read ? 'var(--hover-bg)' : 'transparent' }}
+                                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--hover-bg)')}
+                                                onMouseLeave={e => (e.currentTarget.style.background = !n.is_read ? 'var(--hover-bg)' : 'transparent')}
+                                            >
                                                 <div className="mt-0.5">{notifIcon(n.type)}</div>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="text-xs font-semibold text-white truncate">{n.title}</div>
+                                                    <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-surface-900)' }}>{n.title}</div>
                                                     {n.message && <div className="text-[11px] mt-0.5 line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{n.message}</div>}
                                                     <div className="text-[10px] mt-1" style={{ color: 'var(--color-surface-600)' }}>
                                                         {new Date(n.created_at).toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}

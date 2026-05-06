@@ -120,7 +120,7 @@ export default function CommandCenter() {
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">AdPilotik Command Center</h1>
+              <h1 className="text-lg font-bold th-heading tracking-tight">AdPilotik Command Center</h1>
               <div className="flex items-center gap-3 text-[11px] font-mono">
                 <span className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">

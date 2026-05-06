@@ -55,27 +55,27 @@ export default function SetterPerformance({ leads, members, rangeFilterName }: S
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <span style={{ fontSize: '1.25rem' }}>🎯</span>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Performance Setter</h3>
+                    <h3 className="text-sm font-bold th-heading uppercase tracking-wider">Performance Setter</h3>
                 </div>
                 <span className="text-xs" style={{ color: 'var(--color-surface-500)' }}>Dati filtrati ({rangeFilterName})</span>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-white/10">
+            <div className="overflow-x-auto rounded-xl border border-[var(--color-surface-200)]">
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-[#0a0a0e] shadow-[0_1px_0_0_rgba(255,255,255,0.05)]">
+                    <thead className="bg-[var(--table-header)] shadow-[0_1px_0_0_var(--color-surface-200)]">
                         <tr>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px]">Setter</th>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px] text-right">Lead Gestiti</th>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px] text-right">Appuntamenti Fissati</th>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px] text-right">Conv. Rate (Lead→App)</th>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px] text-right">Chiusure Generate (dai Closer)</th>
-                            <th className="px-4 py-3 font-semibold text-gray-400 uppercase tracking-wider text-[10px] text-right">Venduto Generato</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px]">Setter</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px] text-right">Lead Gestiti</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px] text-right">Appuntamenti Fissati</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px] text-right">Conv. Rate (Lead→App)</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px] text-right">Chiusure Generate (dai Closer)</th>
+                            <th className="px-4 py-3 font-semibold th-muted uppercase tracking-wider text-[10px] text-right">Venduto Generato</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5 bg-black/20">
+                    <tbody className="divide-y divide-[var(--color-surface-200)] bg-[var(--color-surface-50)]">
                         {statsRow.map(row => (
-                            <tr key={row.id} className="hover:bg-white/[0.02] transition-colors">
-                                <td className="px-4 py-3 font-bold text-white">{row.name}</td>
+                            <tr key={row.id} className="th-bg-hover transition-colors">
+                                <td className="px-4 py-3 font-bold th-heading">{row.name}</td>
                                 <td className="px-4 py-3 text-right font-mono" style={{ color: 'var(--color-surface-400)' }}>{row.lavorati}</td>
                                 <td className="px-4 py-3 text-right font-mono font-bold" style={{ color: '#3b82f6' }}>{row.appuntamenti}</td>
                                 <td className="px-4 py-3 text-right">

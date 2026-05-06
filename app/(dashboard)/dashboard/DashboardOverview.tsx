@@ -228,7 +228,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">
+                    <h1 className="text-2xl font-bold th-heading">
                         {greeting}, {firstName} 👋
                     </h1>
                     <p className="text-sm mt-1" style={{ color: 'var(--color-surface-600)' }}>
@@ -236,15 +236,15 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div className="flex bg-[var(--hover-bg)] rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('created')}
                         >
                             Data Acquisizione
                         </button>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('updated')}
                         >
                             Ultimo Movimento
@@ -281,13 +281,13 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 <div className="glass-card p-6 mt-6 mb-6" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(168,85,247,0.05))', border: '1px solid rgba(168,85,247,0.2)' }}>
                     <div className="flex items-center gap-2 mb-4">
                         <StarIcon className="w-5 h-5 text-fuchsia-500" />
-                        <h2 className="text-base font-bold text-white">AdPilotik North Star — Limiti Operativi</h2>
+                        <h2 className="text-base font-bold th-heading">AdPilotik North Star — Limiti Operativi</h2>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>Guardians Attivi</span>
                     </div>
                     
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Vendite */}
-                        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-surface-200)' }}>
                             <div className="text-xs text-zinc-400 mb-1">Vendite Settimanali</div>
                             <div className="text-xl font-bold text-emerald-400">{totalSales} <span className="text-sm font-normal text-zinc-500">/ {northStar.sales_target_monthly / 4 || 10}</span></div>
                         </div>
@@ -299,9 +299,9 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                            const capUsed = totalAppts;
                            const capAlert = capUsed >= capLimit;
                            return (
-                               <div className="p-4 rounded-xl" style={{ background: capAlert ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: capAlert ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                               <div className="p-4 rounded-xl" style={{ background: capAlert ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: capAlert ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--color-surface-200)' }}>
                                    <div className="text-xs text-zinc-400 mb-1">Capacità Venditori</div>
-                                   <div className="text-xl font-bold text-white flex gap-2 items-center">
+                                   <div className="text-xl font-bold th-heading flex gap-2 items-center">
                                        {capUsed} <span className="text-sm font-normal text-zinc-500">/ {capLimit}</span>
                                        {capAlert && <AlertTriangle className="w-4 h-4 text-red-500" />}
                                    </div>
@@ -310,15 +310,15 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                         })()}
 
                         {/* Budget Settimanale */}
-                        <div className="p-4 rounded-xl" style={{ background: spend >= northStar.budget_weekly ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)', border: spend >= northStar.budget_weekly ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                        <div className="p-4 rounded-xl" style={{ background: spend >= northStar.budget_weekly ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)', border: spend >= northStar.budget_weekly ? '1px solid rgba(245,158,11,0.3)' : '1px solid var(--color-surface-200)' }}>
                             <div className="text-xs text-zinc-400 mb-1">Spesa Settimanale</div>
                             <div className="text-xl font-bold text-blue-400">{formatCurrency(spend)} <span className="text-sm font-normal text-zinc-500">/ {formatCurrency(northStar.budget_weekly || 1500)}</span></div>
                         </div>
 
                         {/* CAC Target */}
-                        <div className="p-4 rounded-xl" style={{ background: cac > northStar.cac_target ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: cac > northStar.cac_target ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.05)' }}>
+                        <div className="p-4 rounded-xl" style={{ background: cac > northStar.cac_target ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)', border: cac > northStar.cac_target ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--color-surface-200)' }}>
                             <div className="text-xs text-zinc-400 mb-1">CAC Reale vs Target</div>
-                            <div className="text-xl font-bold text-white">{formatCurrency(cac)} <span className="text-sm font-normal text-zinc-500">/ {formatCurrency(northStar.cac_target || 500)}</span></div>
+                            <div className="text-xl font-bold th-heading">{formatCurrency(cac)} <span className="text-sm font-normal text-zinc-500">/ {formatCurrency(northStar.cac_target || 500)}</span></div>
                         </div>
                     </div>
                 </div>
@@ -331,7 +331,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
                             <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
                         </div>
-                        <h2 className="text-base font-bold text-white">AI Insights</h2>
+                        <h2 className="text-base font-bold th-heading">AI Insights</h2>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>SMART</span>
                     </div>
                     <div className="space-y-3">
@@ -359,7 +359,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-5">
                         <Zap className="w-5 h-5" style={{ color: 'var(--color-sincro-400)' }} />
-                        <h2 className="text-base font-bold text-white">Pipeline — Conversion Funnel</h2>
+                        <h2 className="text-base font-bold th-heading">Pipeline — Conversion Funnel</h2>
                     </div>
                     <div className="space-y-2">
                         {(() => {
@@ -406,7 +406,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                                                     minWidth: count > 0 ? '40px' : '0',
                                                 }}
                                             >
-                                                <span className="text-xs font-bold text-white whitespace-nowrap">{count}</span>
+                                                <span className="text-xs font-bold th-heading whitespace-nowrap">{count}</span>
                                                 {(dropoffText && pct > 20) && (
                                                     <span className="text-[9px] font-semibold opacity-70 whitespace-nowrap ml-2 hidden sm:inline-block">{dropoffText}</span>
                                                 )}
@@ -426,7 +426,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-sincro-400)' }} />
-                        <h2 className="text-base font-bold text-white">Pipeline CRM → Meta CAPI</h2>
+                        <h2 className="text-base font-bold th-heading">Pipeline CRM → Meta CAPI</h2>
                     </div>
                     <p className="text-xs mb-4" style={{ color: 'var(--color-surface-500)' }}>
                         Ogni cambio di stage invia automaticamente l'evento a Meta per ottimizzare l'algoritmo
@@ -456,7 +456,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Target className="w-5 h-5" style={{ color: '#8b5cf6' }} />
-                            <h2 className="text-base font-bold text-white">Funnel Attivi — ultimi 30 giorni</h2>
+                            <h2 className="text-base font-bold th-heading">Funnel Attivi — ultimi 30 giorni</h2>
                             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>{funnels.length}</span>
                         </div>
                         <Link href="/dashboard/funnels" className="text-xs flex items-center gap-1 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
@@ -468,14 +468,14 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                             const convRate = f.views30d > 0 ? ((f.leads30d / f.views30d) * 100).toFixed(1) : '0'
                             return (
                                 <Link key={f.id} href={`/dashboard/analytics`}>
-                                    <div className="p-4 rounded-xl cursor-pointer hover:bg-white/[0.03] transition-all" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
+                                    <div className="p-4 rounded-xl cursor-pointer th-bg-hover transition-all" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className="text-xs font-bold text-white truncate max-w-[140px]">{f.name}</span>
+                                            <span className="text-xs font-bold th-heading truncate max-w-[140px]">{f.name}</span>
                                             <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>attivo</span>
                                         </div>
                                         <div className="grid grid-cols-3 gap-2 text-center">
                                             <div>
-                                                <div className="text-lg font-bold text-white">{f.views30d}</div>
+                                                <div className="text-lg font-bold th-heading">{f.views30d}</div>
                                                 <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Visite</div>
                                             </div>
                                             <div>
@@ -497,7 +497,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
 
             {/* Quick Actions */}
             <div>
-                <h2 className="text-base font-bold text-white mb-3">Azioni rapide</h2>
+                <h2 className="text-base font-bold th-heading mb-3">Azioni rapide</h2>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {[
                         { label: 'Gestisci Pipeline', desc: 'CRM setter/closer', icon: Users, href: '/dashboard/crm', color: '#3b82f6' },
@@ -510,7 +510,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                                 <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: `${action.color}15`, border: `1px solid ${action.color}30` }}>
                                     <action.icon className="w-4 h-4" style={{ color: action.color }} />
                                 </div>
-                                <div className="text-sm font-semibold text-white mb-0.5">{action.label}</div>
+                                <div className="text-sm font-semibold th-heading mb-0.5">{action.label}</div>
                                 <div className="text-xs" style={{ color: 'var(--color-surface-500)' }}>{action.desc}</div>
                             </div>
                         </Link>
@@ -523,7 +523,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Clock className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                        <h2 className="text-base font-bold text-white">Attività Recenti</h2>
+                        <h2 className="text-base font-bold th-heading">Attività Recenti</h2>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-1" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>LIVE</span>
                     </div>
                     <div className="space-y-3">
@@ -563,7 +563,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                         <Rocket className="w-5 h-5" style={{ color: 'var(--color-sincro-400)' }} />
                     </div>
                     <div>
-                        <div className="text-sm font-bold text-white mb-1">Come funziona ADPILOTIK</div>
+                        <div className="text-sm font-bold th-heading mb-1">Come funziona ADPILOTIK</div>
                         <div className="text-xs leading-relaxed" style={{ color: 'var(--color-surface-500)' }}>
                             1. Crei un <strong>funnel</strong> e condividi il link nelle ads → 2. I lead arrivano automaticamente nel <strong>CRM</strong> → 
                             3. Muovi i lead tra gli stage → 4. Meta riceve gli <strong>eventi CAPI</strong> e ottimizza per persone simili a chi compra

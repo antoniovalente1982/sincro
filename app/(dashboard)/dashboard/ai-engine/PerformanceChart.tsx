@@ -73,7 +73,7 @@ export default function PerformanceChart({ orgId }: Props) {
     return (
         <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm font-bold th-heading flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" style={{ color: '#818cf8' }} />
                     Performance AI Engine
                 </h3>
@@ -120,7 +120,7 @@ export default function PerformanceChart({ orgId }: Props) {
                 </div>
                 <div>
                     <div className="text-[10px] uppercase font-semibold" style={{ color: 'var(--color-surface-600)' }}>Punti dati</div>
-                    <div className="text-lg font-bold text-white">{data.length}</div>
+                    <div className="text-lg font-bold th-heading">{data.length}</div>
                 </div>
             </div>
 
@@ -153,7 +153,7 @@ export default function PerformanceChart({ orgId }: Props) {
                                         <div className="p-2 rounded-lg shadow-xl text-[10px] whitespace-nowrap" style={{
                                             background: 'var(--color-surface-200)', border: '1px solid var(--color-surface-300)',
                                         }}>
-                                            <div className="font-bold text-white">{cfg.format(val)}</div>
+                                            <div className="font-bold th-heading">{cfg.format(val)}</div>
                                             <div style={{ color: 'var(--color-surface-500)' }}>{d.date}</div>
                                             {d.rules_triggered > 0 && metric !== 'rules_triggered' && (
                                                 <div style={{ color: '#a855f7' }}>⚡ {d.rules_triggered} regole</div>
@@ -180,7 +180,7 @@ export default function PerformanceChart({ orgId }: Props) {
                 }}>
                     <div className="flex items-center gap-1.5 mb-1">
                         <Zap className="w-3.5 h-3.5" style={{ color: '#818cf8' }} />
-                        <span className="font-bold text-white">AI Learning Insight</span>
+                        <span className="font-bold th-heading">AI Learning Insight</span>
                     </div>
                     <div style={{ color: 'var(--color-surface-500)' }}>
                         {isGoodTrend

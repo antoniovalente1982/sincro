@@ -159,7 +159,7 @@ export default function PartnerDashboard() {
             ) : partners.length === 0 ? (
                 <div className="text-center py-16 glass-card">
                     <Handshake className="w-12 h-12 mx-auto mb-4" style={{ color: '#3f3f46' }} />
-                    <h3 className="text-lg font-bold text-white mb-2">Nessun partner ancora</h3>
+                    <h3 className="text-lg font-bold th-heading mb-2">Nessun partner ancora</h3>
                     <p className="text-sm mb-6" style={{ color: '#71717a' }}>
                         Aggiungi il primo partner per generare il suo link tracciato al Radar Sincro.
                     </p>
@@ -178,7 +178,7 @@ export default function PartnerDashboard() {
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-lg font-bold text-white">{partner.name}</h3>
+                                            <h3 className="text-lg font-bold th-heading">{partner.name}</h3>
                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{
                                                 background: `${typeColor}15`, color: typeColor, border: `1px solid ${typeColor}30`
                                             }}>
@@ -199,10 +199,10 @@ export default function PartnerDashboard() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => openEdit(partner)} className="p-1.5 rounded-lg hover:bg-white/5" title="Modifica">
+                                        <button onClick={() => openEdit(partner)} className="p-1.5 rounded-lg th-bg-hover" title="Modifica">
                                             <Edit3 className="w-3.5 h-3.5" style={{ color: '#71717a' }} />
                                         </button>
-                                        <button onClick={() => handleDelete(partner.id)} className="p-1.5 rounded-lg hover:bg-white/5" title="Elimina">
+                                        <button onClick={() => handleDelete(partner.id)} className="p-1.5 rounded-lg th-bg-hover" title="Elimina">
                                             <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
                                         </button>
                                     </div>
@@ -276,9 +276,9 @@ export default function PartnerDashboard() {
             {/* Add/Edit Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-                    <div className="w-full max-w-lg glass-card p-8 animate-fade-in" style={{ background: 'rgba(15, 15, 19, 0.95)' }}>
+                    <div className="w-full max-w-lg glass-card p-8 animate-fade-in" style={{ background: 'var(--glass-bg)' }}>
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-white">
+                            <h2 className="text-xl font-bold th-heading">
                                 {editingPartner ? 'Modifica Partner' : 'Nuovo Partner'}
                             </h2>
                             <button onClick={() => { setShowAddModal(false); resetForm() }}>
@@ -318,7 +318,7 @@ export default function PartnerDashboard() {
                                                 border: `1px solid ${formType === opt.value ? `${opt.color}40` : '#27272a'}`,
                                             }}
                                         >
-                                            <div className="text-sm font-bold text-white">{opt.label}</div>
+                                            <div className="text-sm font-bold th-heading">{opt.label}</div>
                                             <div className="text-xs mt-0.5" style={{ color: opt.color }}>{opt.sub}</div>
                                         </button>
                                     ))}

@@ -718,7 +718,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         <div className="space-y-5 animate-fade-in">
             {/* New Lead Alert */}
             {newLeadAlert && (
-                <div className="fixed top-4 right-4 z-50 animate-fade-in px-5 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl"
+                <div className="fixed top-4 right-4 z-50 animate-fade-in px-5 py-3 rounded-2xl text-sm font-semibold th-heading shadow-2xl"
                     style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', border: '1px solid rgba(255,255,255,0.2)' }}
                     onClick={() => setNewLeadAlert(null)}
                 >
@@ -729,7 +729,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <User className="w-6 h-6" style={{ color: '#3b82f6' }} />
                         CRM Pipeline
                     </h1>
@@ -758,16 +758,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         />
                     </div>
 
-                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 h-[42px] ml-2">
+                    <div className="flex items-center gap-1 bg-[var(--hover-bg)] p-1 rounded-xl border border-[var(--color-surface-200)] h-[42px] ml-2">
                         <button 
                             onClick={() => handleViewSwitch('kanban')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'th-muted hover:text-white th-bg-hover'}`}
                         >
                             <LayoutGrid className="w-4 h-4" /> Kanban
                         </button>
                         <button 
                             onClick={() => handleViewSwitch('grid')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'grid' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm ${viewMode === 'grid' ? 'bg-indigo-500/20 text-indigo-400' : 'th-muted hover:text-white th-bg-hover'}`}
                         >
                             <Table className="w-4 h-4" /> Griglia
                         </button>
@@ -782,16 +782,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-2xl shadow-inner relative z-50">
+            <div className="flex flex-wrap items-center gap-3 bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-3 rounded-2xl shadow-inner relative z-50">
                 <div className="flex items-center gap-1.5 mr-2">
                     <Filter className="w-4 h-4 text-indigo-400" />
-                    <span className="text-xs font-semibold text-gray-300">Filtri:</span>
+                    <span className="text-xs font-semibold th-sub">Filtri:</span>
                 </div>
                 
 
                 {tags.length > 0 && (
                     <select
-                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
+                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] th-sub"
                         value={tagFilter}
                         onChange={e => setTagFilter(e.target.value)}
                     >
@@ -803,7 +803,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 )}
                 {trafficSources.length > 0 && (
                     <select
-                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-gray-300"
+                        className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] th-sub"
                         value={sourceFilter}
                         onChange={e => setSourceFilter(e.target.value)}
                     >
@@ -815,7 +815,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 )}
 
                 <select
-                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-indigo-300"
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-indigo-300"
                     value={setterFilter}
                     onChange={e => setSetterFilter(e.target.value)}
                 >
@@ -827,7 +827,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-emerald-300"
+                    className="input !w-[140px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-emerald-300"
                     value={closerFilter}
                     onChange={e => setCloserFilter(e.target.value)}
                 >
@@ -839,7 +839,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-yellow-300"
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-yellow-300"
                     value={stepFilter}
                     onChange={e => setStepFilter(e.target.value)}
                 >
@@ -850,7 +850,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </select>
 
                 <select
-                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-black/40 border-white/10 text-yellow-300"
+                    className="input !w-[155px] text-xs py-1.5 h-auto min-h-0 bg-[var(--color-surface-100)] border-[var(--color-surface-200)] text-yellow-300"
                     value={esitoFilter}
                     onChange={e => setEsitoFilter(e.target.value)}
                 >
@@ -862,15 +862,15 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
 
                 <div className="ml-auto flex items-center gap-3">
-                    <div className="flex bg-black/40 rounded-lg p-0.5" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="flex bg-[var(--color-surface-100)] rounded-lg p-0.5" style={{ border: '1px solid var(--color-surface-200)' }}>
                         <button 
-                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white' : 'text-zinc-500 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('created')}
                         >
                             Data Acquisizione
                         </button>
                         <button 
-                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white' : 'text-zinc-500 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('updated')}
                         >
                             Ultimo Movimento
@@ -913,7 +913,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     )
                 })}
                 <button onClick={() => setShowCreatePipeline(true)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap hover:bg-white/5"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap th-bg-hover"
                     style={{ color: 'var(--color-surface-500)', border: '1px dashed var(--color-surface-300)' }}>
                     <Plus className="w-3 h-3" /> Nuova
                 </button>
@@ -921,11 +921,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
             {/* Create Pipeline Modal */}
             {showCreatePipeline && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowCreatePipeline(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in" onClick={() => setShowCreatePipeline(false)}>
                     <div className="w-full max-w-md glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-5">
-                            <h2 className="text-lg font-bold text-white">Nuova Pipeline</h2>
-                            <button onClick={() => setShowCreatePipeline(false)} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                            <h2 className="text-lg font-bold th-heading">Nuova Pipeline</h2>
+                            <button onClick={() => setShowCreatePipeline(false)} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                         </div>
                         <div className="space-y-4">
                             <div><label className="label">Nome *</label>
@@ -956,36 +956,36 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             {/* Bulk Assign Tooltray */}
             {selectedLeads.length > 0 && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 py-3 px-6 rounded-2xl shadow-2xl border border-indigo-500/30 animate-fade-in" style={{ background: 'rgba(15, 15, 20, 0.95)', backdropFilter: 'blur(8px)' }}>
-                    <div className="font-bold text-white"><span className="text-indigo-400">{selectedLeads.length}</span> lead selezionati</div>
-                    <div className="h-6 w-px bg-white/10" />
+                    <div className="font-bold th-heading"><span className="text-indigo-400">{selectedLeads.length}</span> lead selezionati</div>
+                    <div className="h-6 w-px bg-[var(--hover-bg)]" />
                     <select
-                        className="bg-black/40 border border-white/10 text-sm font-semibold text-indigo-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer w-32"
+                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-indigo-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer w-32"
                         onChange={e => handleBulkAssignSetter(e.target.value)}
                         value=""
                     >
                         <option value="" disabled>Setter...</option>
                         <option value="none">Nessuno</option>
                         {assignableSetters.map((m: any) => (
-                            <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
                                 {getDisplayName(m)}
                             </option>
                         ))}
                     </select>
 
                     <select
-                        className="bg-black/40 border border-white/10 text-sm font-semibold text-emerald-300 rounded-lg px-3 py-2 outline-none hover:border-emerald-500/50 cursor-pointer w-36"
+                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-emerald-300 rounded-lg px-3 py-2 outline-none hover:border-emerald-500/50 cursor-pointer w-36"
                         onChange={e => handleBulkAssignCloser(e.target.value)}
                         value=""
                     >
                         <option value="" disabled>Venditore...</option>
                         <option value="none">Nessuno</option>
                         {assignableClosers.map((m: any) => (
-                            <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                            <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
                                 {getDisplayName(m)}
                             </option>
                         ))}
                     </select>
-                    <button className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors" onClick={() => setSelectedLeads([])}>
+                    <button className="th-muted hover:text-white p-2 rounded-full th-bg-hover transition-colors" onClick={() => setSelectedLeads([])}>
                         ✕
                     </button>
                 </div>
@@ -1014,8 +1014,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             <div className="w-full flex flex-col gap-3">
                 <div className="flex items-center justify-end gap-3 pr-1">
                     {/* Zoom Control */}
-                    <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 rounded-lg px-2 py-1 shadow-sm">
-                        <ZoomIn className="w-3.5 h-3.5 text-gray-400" />
+                    <div className="flex items-center gap-1.5 bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] rounded-lg px-2 py-1 shadow-sm">
+                        <ZoomIn className="w-3.5 h-3.5 th-muted" />
                         <select
                             value={zoomLevel}
                             onChange={e => handleZoomChange(Number(e.target.value))}
@@ -1023,19 +1023,19 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366f1' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2px center' }}
                         >
                             {[50, 75, 100, 125, 150].map(level => (
-                                <option key={level} value={level} style={{ background: '#1a1a24', color: '#e5e7eb' }}>{level}%</option>
+                                <option key={level} value={level} style={{ background: 'var(--color-surface-100)', color: '#e5e7eb' }}>{level}%</option>
                             ))}
                         </select>
                     </div>
                     <details className="relative group/col-sel">
-                        <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-colors shadow-sm">
+                        <summary className="list-none cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] rounded-lg text-xs font-semibold th-sub hover:text-white th-bg-hover transition-colors shadow-sm">
                             <Eye className="w-4 h-4" /> 
                             Campi Card
                         </summary>
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a24] border border-[var(--color-surface-200)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
                             {CARD_FIELD_OPTIONS.map(c => (
-                                <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-white/5 cursor-pointer hover:text-white transition-colors">
-                                    <input type="checkbox" className="rounded border-gray-600 bg-black/40 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
+                                <label key={c.id} className="flex items-center gap-2 px-3 py-2 text-xs font-medium th-sub th-bg-hover cursor-pointer hover:text-white transition-colors">
+                                    <input type="checkbox" className="rounded border-gray-600 bg-[var(--color-surface-100)] text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" checked={!hiddenCardFields[c.id]} onChange={(e) => toggleCardField(c.id, e as unknown as React.MouseEvent)} onClick={e => e.stopPropagation()} />
                                     {c.label}
                                 </label>
                             ))}
@@ -1060,10 +1060,10 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             onDrop={() => handleDrop(stage.id)}
                         >
                             {/* Stage Header */}
-                            <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            <div className="p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full" style={{ background: stage.color }} />
-                                    <span className="text-sm font-bold text-white">{stage.name}</span>
+                                    <span className="text-sm font-bold th-heading">{stage.name}</span>
                                     <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{
                                         background: `${stage.color}20`,
                                         color: stage.color,
@@ -1102,8 +1102,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         onDragStart={() => !readOnly && handleDragStart(lead.id)}
                                         className={`group p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] ${readOnly ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
                                         style={{
-                                            background: 'rgba(15, 15, 19, 0.8)',
-                                            border: `1px solid ${(aiScore.label === 'Hot' || isReturnedToday) ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255,255,255,0.06)'}`,
+                                            background: 'var(--glass-bg)',
+                                            border: `1px solid ${(aiScore.label === 'Hot' || isReturnedToday) ? 'rgba(239, 68, 68, 0.25)' : 'var(--color-surface-200)'}`,
                                             opacity: dragLead === lead.id ? 0.5 : 1,
                                             boxShadow: (aiScore.label === 'Hot' || isReturnedToday) ? '0 0 20px rgba(239, 68, 68, 0.08)' : undefined,
                                         }}
@@ -1112,7 +1112,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                             <div className="flex flex-col flex-1 min-w-0">
                                                 <div className="flex items-start gap-2">
                                                     <GripVertical className="w-3 h-3 flex-shrink-0 opacity-30 mt-1" style={{ color: 'var(--color-surface-500)' }} />
-                                                    <span className="text-[15px] font-bold text-white leading-tight break-words">{lead.name}</span>
+                                                    <span className="text-[15px] font-bold th-heading leading-tight break-words">{lead.name}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 flex-shrink-0">
@@ -1133,7 +1133,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                     <ScoreIcon className="w-2.5 h-2.5" />
                                                     {aiScore.score}
                                                 </span>
-                                                <button onClick={() => openDetail(lead)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-white/5">
+                                                <button onClick={() => openDetail(lead)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg th-bg-hover">
                                                     <Eye className="w-3.5 h-3.5" style={{ color: 'var(--color-surface-500)' }} />
                                                 </button>
                                             </div>
@@ -1179,8 +1179,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
                                         {/* SETTER WORKFLOW — Step, Try Anthon, Esito */}
                                         {!hiddenCardFields['step_setter'] && (canEditSetterSteps || lead.setter_step || lead.try_anthon || lead.esito) ? (
-                                        <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditSetterSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
-                                            <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                                        <div className={`mt-2 p-2 rounded-lg border border-[var(--color-surface-200)] bg-[var(--color-surface-50)] transition-opacity ${!canEditSetterSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
+                                            <div className="text-[9px] font-bold th-muted uppercase tracking-widest mb-1.5 flex items-center justify-between">
                                                 <span>🛠 Setter</span>
                                             </div>
                                             <div className="flex flex-wrap gap-1">
@@ -1189,17 +1189,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.setter_step ? `${getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.setter_step ? `${getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.setter_step ? getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.setter_step ? (getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.setter_step ? (getOptionConfig(lead.setter_step, SETTER_STEPS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                         maxWidth: '130px',
                                                     }}
                                                     value={lead.setter_step || ''}
                                                     onChange={e => handleUpdateSetterField(lead.id, 'setter_step', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">📞 Step...</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">📞 Step...</option>
                                                     {SETTER_STEPS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.setter_step ? (() => {
@@ -1216,16 +1216,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.try_anthon ? `${getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.try_anthon ? `${getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.try_anthon ? getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.try_anthon ? (getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.try_anthon ? (getOptionConfig(lead.try_anthon, TRY_ANTHON_OPTIONS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                     }}
                                                     value={lead.try_anthon || ''}
                                                     onChange={e => handleUpdateSetterField(lead.id, 'try_anthon', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Try A.</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">Try A.</option>
                                                     {TRY_ANTHON_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.try_anthon ? (() => {
@@ -1242,17 +1242,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.esito ? `${getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.esito ? `${getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.esito ? getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.esito ? (getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.esito ? (getOptionConfig(lead.esito, ESITO_OPTIONS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                         maxWidth: '120px',
                                                     }}
                                                     value={lead.esito || ''}
                                                     onChange={e => handleUpdateSetterField(lead.id, 'esito', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">📋 Esito...</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">📋 Esito...</option>
                                                     {ESITO_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.esito ? (() => {
@@ -1269,8 +1269,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
                                         {/* CLOSER WORKFLOW (Visible only if user has permissions or if fields are populated) */}
                                         {!hiddenCardFields['step_venditore'] && (canEditCloserSteps || lead.closer_appt_status || lead.closer_trial_status || lead.closer_outcome || (lead.calendar_events && lead.calendar_events.length > 0)) && (
-                                        <div className={`mt-2 p-2 rounded-lg border border-white/5 bg-black/20 transition-opacity ${!canEditCloserSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
-                                            <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                                        <div className={`mt-2 p-2 rounded-lg border border-[var(--color-surface-200)] bg-[var(--color-surface-50)] transition-opacity ${!canEditCloserSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
+                                            <div className="text-[9px] font-bold th-muted uppercase tracking-widest mb-1.5 flex items-center justify-between">
                                                 <span>🤝 Venditore</span>
                                             </div>
                                             <div className="flex flex-wrap gap-1">
@@ -1285,7 +1285,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 const now = new Date();
                                                 const diffHours = (d.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-                                                let colorObj = { bg: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: 'rgba(255,255,255,0.1)' };
+                                                let colorObj = { bg: 'var(--color-surface-200)', color: '#9ca3af', border: 'rgba(255,255,255,0.1)' };
                                                 if (lead.closer_appt_status === 'FATTO') {
                                                     colorObj = { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', border: 'rgba(34, 197, 94, 0.3)' };
                                                 } else if (diffHours < 0) { // Past
@@ -1307,17 +1307,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.closer_appt_status ? `${getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.closer_appt_status ? `${getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.closer_appt_status ? getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.closer_appt_status ? (getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.closer_appt_status ? (getOptionConfig(lead.closer_appt_status, CLOSER_APPT_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                         maxWidth: '120px',
                                                     }}
                                                     value={lead.closer_appt_status || ''}
                                                     onChange={e => handleUpdateCloserField(lead.id, 'closer_appt_status', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Stato App...</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">Stato App...</option>
                                                     {CLOSER_APPT_STATUS_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_appt_status ? (() => {
@@ -1330,17 +1330,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.closer_trial_status ? `${getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.closer_trial_status ? `${getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.closer_trial_status ? getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.closer_trial_status ? (getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.closer_trial_status ? (getOptionConfig(lead.closer_trial_status, CLOSER_TRIAL_STATUS_OPTIONS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                         maxWidth: '90px',
                                                     }}
                                                     value={lead.closer_trial_status || ''}
                                                     onChange={e => handleUpdateCloserField(lead.id, 'closer_trial_status', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Prova...</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">Prova...</option>
                                                     {CLOSER_TRIAL_STATUS_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_trial_status ? (() => {
@@ -1353,17 +1353,17 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 <select
                                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-md cursor-pointer outline-none appearance-none"
                                                     style={{
-                                                        background: lead.closer_outcome ? `${getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa'}20` : 'rgba(255,255,255,0.05)',
+                                                        background: lead.closer_outcome ? `${getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa'}20` : 'var(--color-surface-200)',
                                                         color: lead.closer_outcome ? getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa' : '#71717a',
-                                                        border: `1px solid ${lead.closer_outcome ? (getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa') + '35' : 'rgba(255,255,255,0.08)'}`,
+                                                        border: `1px solid ${lead.closer_outcome ? (getOptionConfig(lead.closer_outcome, CLOSER_OUTCOME_OPTIONS)?.color || '#a1a1aa') + '35' : 'var(--color-surface-200)'}`,
                                                         maxWidth: '100px',
                                                     }}
                                                     value={lead.closer_outcome || ''}
                                                     onChange={e => handleUpdateCloserField(lead.id, 'closer_outcome', e.target.value)}
                                                 >
-                                                    <option value="" className="bg-[#0a0a0e] text-gray-500">Esito...</option>
+                                                    <option value="" className="bg-[var(--select-option-bg)] th-muted">Esito...</option>
                                                     {CLOSER_OUTCOME_OPTIONS.map(s => (
-                                                        <option key={s.value} value={s.value} className="bg-[#0a0a0e] text-white">{s.label}</option>
+                                                        <option key={s.value} value={s.value} className="bg-[var(--select-option-bg)] text-white">{s.label}</option>
                                                     ))}
                                                 </select>
                                             ) : lead.closer_outcome ? (() => {
@@ -1441,21 +1441,21 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 
                                                 {!hiddenCardFields['assegnazioni'] && (
                                                   <>
-                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-indigo-500/30 transition-colors">
+                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] hover:border-indigo-500/30 transition-colors">
                                                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                                             {lead.setter_profile?.avatar_url ? (
                                                                 <img src={lead.setter_profile.avatar_url} alt="S" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                                                             ) : (
-                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
+                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
                                                             )}
                                                             <select
                                                                 className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-indigo-300"
                                                                 value={lead.setter_id || ''}
                                                                 onChange={e => handleAssignSetter(lead.id, e.target.value)}
                                                             >
-                                                                <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Setter</option>
+                                                                <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Setter</option>
                                                                 {assignableSetters.map((m: any) => (
-                                                                    <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
                                                                         {getDisplayName(m)}
                                                                     </option>
                                                                 ))}
@@ -1463,21 +1463,21 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-black/40 border border-white/5 hover:border-emerald-500/30 transition-colors mt-1.5">
+                                                    <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] hover:border-emerald-500/30 transition-colors mt-1.5">
                                                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                                             {lead.closer_profile?.avatar_url ? (
                                                                 <img src={lead.closer_profile.avatar_url} alt="C" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                                                             ) : (
-                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: '#10b981' }}>V</div>
+                                                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0" style={{ background: '#10b981' }}>V</div>
                                                             )}
                                                             <select
                                                                 className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-emerald-300"
                                                                 value={lead.closer_id || ''}
                                                                 onChange={e => handleAssignCloser(lead.id, e.target.value)}
                                                             >
-                                                                <option value="" className="text-gray-500 bg-[#0a0a0e]">+ Assegna Venditore</option>
+                                                                <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Venditore</option>
                                                                 {assignableClosers.map((m: any) => (
-                                                                    <option key={m.user_id} value={m.user_id} className="bg-[#0a0a0e] text-white">
+                                                                    <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] text-white">
                                                                         {getDisplayName(m)}
                                                                     </option>
                                                                 ))}
@@ -1625,11 +1625,11 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in" onClick={onClose}>
             <div className="w-full max-w-lg glass-card p-6 m-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-white">{lead ? 'Modifica Lead' : 'Nuovo Lead'}</h2>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                    <h2 className="text-lg font-bold th-heading">{lead ? 'Modifica Lead' : 'Nuovo Lead'}</h2>
+                    <button onClick={onClose} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -1704,8 +1704,8 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                     </div>
 
                     {/* Setter Workflow Fields */}
-                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <h3 className="text-sm font-semibold text-white mb-3">📞 Workflow Setter</h3>
+                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <h3 className="text-sm font-semibold th-heading mb-3">📞 Workflow Setter</h3>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label className="label">Step (Chiamato)</label>
@@ -1780,8 +1780,8 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                     </div>
 
                     {/* Marketing Attribution */}
-                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <h3 className="text-sm font-semibold text-white mb-3">Attribuzione Marketing (Opzionale)</h3>
+                    <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <h3 className="text-sm font-semibold th-heading mb-3">Attribuzione Marketing (Opzionale)</h3>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="label">Sorgente (utm_source)</label>
@@ -1848,23 +1848,23 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
     const [showBookingModal, setShowBookingModal] = useState(false)
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in" onClick={onClose}>
             <div className="w-full max-w-lg glass-card p-6 m-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-lg font-bold text-white">{lead.name}</h2>
+                    <h2 className="text-lg font-bold th-heading">{lead.name}</h2>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => onEdit(lead)} className="p-2 rounded-xl hover:bg-white/5">
+                        <button onClick={() => onEdit(lead)} className="p-2 rounded-xl th-bg-hover">
                             <Edit3 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         </button>
                         {(userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
                             <button onClick={() => {
                                 if (!confirm(`⚠️ ATTENZIONE: Stai per eliminare DEFINITIVAMENTE il lead "${lead.name}" dal CRM.\n\nQuesto NON elimina solo l'appuntamento, ma cancella il lead e tutti i suoi dati.\n\nSei sicuro?`)) return
                                 onDelete(lead.id)
-                            }} className="p-2 rounded-xl hover:bg-white/5" title="Elimina Lead (solo Admin)">
+                            }} className="p-2 rounded-xl th-bg-hover" title="Elimina Lead (solo Admin)">
                                 <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
                             </button>
                         )}
-                        <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5">
+                        <button onClick={onClose} className="p-2 rounded-xl th-bg-hover">
                             <X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} />
                         </button>
                     </div>
@@ -1944,7 +1944,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                             )}
                         </div>
                         <button onClick={() => setShowBookingModal(true)}
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:scale-105 shadow-lg w-full sm:w-auto"
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold th-heading transition-all hover:scale-105 shadow-lg w-full sm:w-auto"
                             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
                             <Calendar className="w-4 h-4" />
                             Prenota Appuntamento
@@ -1962,25 +1962,25 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         <div className="space-y-3">
                             {lead.utm_source && (
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Fonte di Traffico</span>
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold th-heading/40 mb-0.5">Fonte di Traffico</span>
                                     <span className="text-sm font-medium text-white/90 capitalize">{lead.utm_source} {lead.meta_data?.utm_medium ? `/ ${lead.meta_data.utm_medium}` : ''}</span>
                                 </div>
                             )}
                             {lead.utm_campaign && (
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Campagna</span>
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold th-heading/40 mb-0.5">Campagna</span>
                                     <span className="text-sm font-medium text-white/90">{lead.utm_campaign}</span>
                                 </div>
                             )}
                             {lead.meta_data?.utm_term && (
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Gruppo / AdSet</span>
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold th-heading/40 mb-0.5">Gruppo / AdSet</span>
                                     <span className="text-sm font-medium text-white/90">{lead.meta_data.utm_term}</span>
                                 </div>
                             )}
                             {lead.meta_data?.utm_content && (
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40 mb-0.5">Inserzione / Ad</span>
+                                    <span className="text-[10px] uppercase tracking-wider font-semibold th-heading/40 mb-0.5">Inserzione / Ad</span>
                                     <span className="text-sm font-medium text-white/90">{lead.meta_data.utm_content}</span>
                                 </div>
                             )}

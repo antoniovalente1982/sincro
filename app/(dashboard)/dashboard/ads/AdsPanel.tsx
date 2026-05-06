@@ -273,7 +273,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         return (
             <div className="space-y-6 animate-fade-in">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <Megaphone className="w-6 h-6" style={{ color: '#f59e0b' }} />
                         Ads
                     </h1>
@@ -286,7 +286,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
                         <Plug className="w-8 h-8" style={{ color: '#f59e0b' }} />
                     </div>
-                    <h2 className="text-lg font-bold text-white mb-2">Connetti Meta Ads</h2>
+                    <h2 className="text-lg font-bold th-heading mb-2">Connetti Meta Ads</h2>
                     <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--color-surface-500)' }}>
                         Per visualizzare le campagne e gestire le regole automatiche, collegare prima Meta Ads e Meta CAPI nella sezione Connessioni.
                     </p>
@@ -302,7 +302,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
         <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <Megaphone className="w-6 h-6" style={{ color: '#f59e0b' }} />
                         Ads
                     </h1>
@@ -326,15 +326,15 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     </button>
                     {lastSync && <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Ultimo: {lastSync}</span>}
                     {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
-                    <div className="flex bg-white/5 rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div className="flex bg-[var(--hover-bg)] rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('created')}
                         >
                             Data Acquisizione
                         </button>
                         <button 
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white shadow-md' : 'text-zinc-400 hover:text-white th-bg-hover'}`}
                             onClick={() => setDateFilterMode('updated')}
                         >
                             Ultimo Movimento
@@ -404,7 +404,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             {/* Campaigns */}
             <div className={`glass-card overflow-hidden transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
                 <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                    <h3 className="text-sm font-bold text-white">Campagne ({sortedCampaigns.length})</h3>
+                    <h3 className="text-sm font-bold th-heading">Campagne ({sortedCampaigns.length})</h3>
                     <div className="flex flex-wrap items-center gap-4">
                         <select
                             className="text-xs rounded-lg px-2 py-1 border-0 outline-none cursor-pointer"
@@ -447,8 +447,8 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                             </thead>
                             <tbody>
                                 {paginatedCampaigns.map(c => (
-                                    <tr key={c.id} className="hover:bg-white/[0.02] transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                                        <td className="px-4 py-3 text-sm font-semibold text-white max-w-[250px] truncate">{c.campaign_name || '—'}</td>
+                                    <tr key={c.id} className="th-bg-hover transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                        <td className="px-4 py-3 text-sm font-semibold th-heading max-w-[250px] truncate">{c.campaign_name || '—'}</td>
                                         <td className="px-4 py-3">
                                             <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
                                                 {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
@@ -502,7 +502,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
             <div className="glass-card p-5">
                 <div className="flex items-center gap-2 mb-4">
                     <Zap className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                    <h3 className="text-sm font-bold text-white">Regole Automatiche ({rules.length})</h3>
+                    <h3 className="text-sm font-bold th-heading">Regole Automatiche ({rules.length})</h3>
                 </div>
                 {rules.length > 0 ? (
                     <div className="space-y-3">
@@ -514,7 +514,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                                     <ToggleLeft className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-surface-500)' }} />
                                 )}
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-semibold text-white">{rule.name}</div>
+                                    <div className="text-sm font-semibold th-heading">{rule.name}</div>
                                     {rule.description && (
                                         <div className="text-xs mt-0.5" style={{ color: 'var(--color-surface-500)' }}>{rule.description}</div>
                                     )}

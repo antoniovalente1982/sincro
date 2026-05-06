@@ -177,8 +177,8 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload?.length) {
             return (
-                <div className="glass-card p-3" style={{ background: 'rgba(15,15,19,0.95)' }}>
-                    <p className="text-xs font-bold text-white">{label}</p>
+                <div className="glass-card p-3" style={{ background: 'var(--glass-bg)' }}>
+                    <p className="text-xs font-bold th-heading">{label}</p>
                     <p className="text-xs mt-1" style={{ color: 'var(--color-sincro-400)' }}>{payload[0].value}</p>
                 </div>
             )
@@ -190,7 +190,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
         <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <BarChart3 className="w-6 h-6" style={{ color: '#10b981' }} />
                         Analytics
                         {objectiveFilter !== 'all' && (
@@ -269,7 +269,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                                 <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
                             </div>
                         </div>
-                        <div className="text-2xl font-bold text-white">{kpi.value}</div>
+                        <div className="text-2xl font-bold th-heading">{kpi.value}</div>
                         <div className="text-xs mt-1" style={{ color: 'var(--color-surface-500)' }}>{kpi.label}</div>
                         <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-600)' }}>{kpi.sub}</div>
                     </div>
@@ -279,7 +279,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Pipeline Funnel */}
                 <div className="glass-card p-5">
-                    <h3 className="text-sm font-bold text-white mb-4">Pipeline Funnel</h3>
+                    <h3 className="text-sm font-bold th-heading mb-4">Pipeline Funnel</h3>
                     {funnelData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={250}>
                             <BarChart data={funnelData} layout="vertical">
@@ -300,7 +300,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
 
                 {/* Weekly Trend */}
                 <div className="glass-card p-5">
-                    <h3 className="text-sm font-bold text-white mb-4">Trend Settimanale Lead</h3>
+                    <h3 className="text-sm font-bold th-heading mb-4">Trend Settimanale Lead</h3>
                     <ResponsiveContainer width="100%" height={250}>
                         <AreaChart data={weeklyData}>
                             <defs>
@@ -321,7 +321,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 {/* Product Split */}
                 {productData.length > 0 && (
                     <div className="glass-card p-5">
-                        <h3 className="text-sm font-bold text-white mb-4">Distribuzione Prodotti</h3>
+                        <h3 className="text-sm font-bold th-heading mb-4">Distribuzione Prodotti</h3>
                         <ResponsiveContainer width="100%" height={250}>
                             <PieChart>
                                 <Pie data={productData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value" label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}>
@@ -338,7 +338,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 {/* Source Breakdown */}
                 {sourceData.length > 0 && (
                     <div className="glass-card p-5">
-                        <h3 className="text-sm font-bold text-white mb-4">Sorgenti Lead</h3>
+                        <h3 className="text-sm font-bold th-heading mb-4">Sorgenti Lead</h3>
                         <ResponsiveContainer width="100%" height={250}>
                             <BarChart data={sourceData}>
                                 <XAxis dataKey="name" tick={{ fill: '#d4d4d8', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -361,11 +361,11 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
 
             {/* Recent Activity */}
             <div className="glass-card p-5">
-                <h3 className="text-sm font-bold text-white mb-4">Attività Recenti</h3>
+                <h3 className="text-sm font-bold th-heading mb-4">Attività Recenti</h3>
                 {activities.length > 0 ? (
                     <div className="space-y-2">
                         {activities.slice(0, 10).map((act: any) => (
-                            <div key={act.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/[0.02]">
+                            <div key={act.id} className="flex items-center gap-3 p-2 rounded-xl th-bg-hover">
                                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: 'var(--color-sincro-500)' }} />
                                 <span className="text-xs flex-1" style={{ color: 'var(--color-surface-700)' }}>
                                     {act.activity_type.replace(/_/g, ' ')}
@@ -414,14 +414,14 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 return (
                     <div className="glass-card p-6 relative">
                         {loadingInsights && (
-                            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl" style={{ background: 'rgba(15, 15, 19, 0.7)', backdropFilter: 'blur(4px)' }}>
+                            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(4px)' }}>
                                 <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-sincro-400)' }} />
                             </div>
                         )}
                         <div className="flex items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-2">
                                 <CircleDollarSign className="w-5 h-5" style={{ color: '#22c55e' }} />
-                                <h3 className="text-sm font-bold text-white">Revenue Attribution</h3>
+                                <h3 className="text-sm font-bold th-heading">Revenue Attribution</h3>
                                 <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '10px' }}>
                                     {activeAttributions.filter((a: any) => a.deal_value > 0).length} deal / source
                                 </span>
@@ -460,7 +460,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                             }].map((card, i) => (
                                 <div key={i} className="p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                                     <div className="text-[10px] uppercase mb-1" style={{ color: card.color }}>{card.label}</div>
-                                    <div className="text-lg font-bold text-white">{card.value}</div>
+                                    <div className="text-lg font-bold th-heading">{card.value}</div>
                                 </div>
                             ))}
                         </div>
@@ -504,7 +504,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                     <div className="glass-card p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <TrendingUp className="w-5 h-5" style={{ color: '#a855f7' }} />
-                            <h3 className="text-sm font-bold text-white">Previsione Revenue</h3>
+                            <h3 className="text-sm font-bold th-heading">Previsione Revenue</h3>
                             <span className="badge" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', fontSize: '10px' }}>
                                 Confidenza {((latest.model_confidence || 0) * 100).toFixed(0)}%
                             </span>
@@ -541,15 +541,15 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
                             <div className="p-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                 <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Pipeline Attiva</div>
-                                <div className="text-sm font-bold text-white">€{Number(latest.active_pipeline_value || 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
+                                <div className="text-sm font-bold th-heading">€{Number(latest.active_pipeline_value || 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
                             </div>
                             <div className="p-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                 <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Pipeline Pesata</div>
-                                <div className="text-sm font-bold text-white">€{Number(latest.weighted_pipeline_value || 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
+                                <div className="text-sm font-bold th-heading">€{Number(latest.weighted_pipeline_value || 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
                             </div>
                             <div className="p-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                 <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Nuovi Lead Stimati</div>
-                                <div className="text-sm font-bold text-white">{latest.projected_new_leads_30d || 0}</div>
+                                <div className="text-sm font-bold th-heading">{latest.projected_new_leads_30d || 0}</div>
                             </div>
                             <div className="p-2 rounded-lg" style={{ background: 'var(--color-surface-100)' }}>
                                 <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>ROI Proiettato</div>
@@ -576,7 +576,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Globe className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                        <h3 className="text-sm font-bold text-white">Intelligenza Cross-Client</h3>
+                        <h3 className="text-sm font-bold th-heading">Intelligenza Cross-Client</h3>
                         <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', fontSize: '10px' }}>
                             Network anonimizzato
                         </span>
@@ -599,7 +599,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                                         {intel.sample_size} org • {(intel.confidence * 100).toFixed(0)}%
                                     </span>
                                 </div>
-                                <div className="text-xs font-semibold text-white mb-0.5">{intel.title}</div>
+                                <div className="text-xs font-semibold th-heading mb-0.5">{intel.title}</div>
                                 <div className="text-[11px] line-clamp-2" style={{ color: 'var(--color-surface-500)' }}>{intel.content}</div>
                             </div>
                         ))}
@@ -612,7 +612,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Search className="w-5 h-5" style={{ color: '#ef4444' }} />
-                        <h3 className="text-sm font-bold text-white">Revenue Leak Detector</h3>
+                        <h3 className="text-sm font-bold th-heading">Revenue Leak Detector</h3>
                         <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '10px' }}>
                             €{leaks.reduce((s: number, l: any) => s + (Number(l.estimated_lost_revenue) || 0), 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })} a rischio
                         </span>
@@ -638,7 +638,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                                         <span className="text-xs font-bold" style={{ color: '#ef4444' }}>-€{Number(leak.estimated_lost_revenue).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</span>
                                     )}
                                 </div>
-                                <div className="text-xs font-semibold text-white mb-0.5">{leak.title}</div>
+                                <div className="text-xs font-semibold th-heading mb-0.5">{leak.title}</div>
                                 <div className="text-[11px] mb-1" style={{ color: 'var(--color-surface-500)' }}>{leak.description}</div>
                                 {leak.recommendation && (
                                     <div className="text-[10px] p-2 rounded-lg mt-1" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>
@@ -656,7 +656,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <ArrowRightLeft className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                        <h3 className="text-sm font-bold text-white">Budget Reallocation</h3>
+                        <h3 className="text-sm font-bold th-heading">Budget Reallocation</h3>
                         <span className="badge" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', fontSize: '10px' }}>
                             {reallocations.length} movimenti
                         </span>
@@ -691,7 +691,7 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Dna className="w-5 h-5" style={{ color: '#a855f7' }} />
-                        <h3 className="text-sm font-bold text-white">Audience DNA</h3>
+                        <h3 className="text-sm font-bold th-heading">Audience DNA</h3>
                     </div>
                     <div className="space-y-3">
                         {dnaClusters.map((cluster: any) => (
@@ -700,17 +700,17 @@ export default function AnalyticsDashboard({ pipelines, stages: allStages, leads
                                 border: `1px solid ${cluster.cluster_rank === 1 ? 'rgba(245, 158, 11, 0.2)' : 'var(--color-surface-200)'}`,
                             }}>
                                 <div className="flex items-center justify-between mb-2">
-                                    <div className="text-sm font-bold text-white">{cluster.cluster_name}</div>
+                                    <div className="text-sm font-bold th-heading">{cluster.cluster_name}</div>
                                     <span className="text-xs font-mono" style={{ color: 'var(--color-surface-500)' }}>{cluster.lead_count} clienti</span>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 mb-2">
                                     <div className="p-2 rounded-lg text-center" style={{ background: 'var(--color-surface-200)' }}>
                                         <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Deal Medio</div>
-                                        <div className="text-sm font-bold text-white">€{Number(cluster.avg_deal_value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
+                                        <div className="text-sm font-bold th-heading">€{Number(cluster.avg_deal_value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}</div>
                                     </div>
                                     <div className="p-2 rounded-lg text-center" style={{ background: 'var(--color-surface-200)' }}>
                                         <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Giorni Close</div>
-                                        <div className="text-sm font-bold text-white">{Number(cluster.avg_days_to_close).toFixed(0)}</div>
+                                        <div className="text-sm font-bold th-heading">{Number(cluster.avg_days_to_close).toFixed(0)}</div>
                                     </div>
                                     <div className="p-2 rounded-lg text-center" style={{ background: 'var(--color-surface-200)' }}>
                                         <div className="text-[9px] uppercase" style={{ color: 'var(--color-surface-500)' }}>Revenue</div>

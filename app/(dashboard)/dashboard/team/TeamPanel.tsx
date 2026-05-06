@@ -258,7 +258,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <UserCircle className="w-6 h-6" style={{ color: '#ec4899' }} />
                         Team
                     </h1>
@@ -351,7 +351,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 {deactivatedMembers.length > 0 && (
                     <button 
                         onClick={() => setShowDeactivated(!showDeactivated)} 
-                        className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-white/5"
+                        className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all th-bg-hover"
                         style={{ color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-200)' }}
                     >
                         {showDeactivated ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -367,7 +367,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-4">
                                 <Trophy className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                                <h3 className="text-sm font-bold text-white">Leaderboard Setter</h3>
+                                <h3 className="text-sm font-bold th-heading">Leaderboard Setter</h3>
                             </div>
                             <div className="space-y-3">
                                 {setters.sort((a, b) => b.leads_assigned - a.leads_assigned).map((m, i) => (
@@ -379,7 +379,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             {((m.profiles as any)?.full_name || (m.profiles as any)?.email || '?')[0].toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-semibold text-white truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email}</div>
+                                            <div className="text-sm font-semibold th-heading truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email}</div>
                                             <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>{m.leads_assigned} lead assegnati</div>
                                         </div>
                                     </div>
@@ -392,7 +392,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-4">
                                 <Trophy className="w-4 h-4" style={{ color: '#22c55e' }} />
-                                <h3 className="text-sm font-bold text-white">Leaderboard Closer</h3>
+                                <h3 className="text-sm font-bold th-heading">Leaderboard Closer</h3>
                             </div>
                             <div className="space-y-3">
                                 {closers.sort((a, b) => b.won_revenue - a.won_revenue).map((m, i) => (
@@ -404,7 +404,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             {((m.profiles as any)?.full_name || (m.profiles as any)?.email || '?')[0].toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-semibold text-white truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email}</div>
+                                            <div className="text-sm font-semibold th-heading truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email}</div>
                                             <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>{m.won_count} vendite • {formatCurrency(m.won_revenue)}</div>
                                         </div>
                                     </div>
@@ -418,7 +418,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
             {/* Active Members List */}
             <div className="glass-card overflow-hidden">
                 <div className="p-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
-                    <h3 className="text-sm font-bold text-white">Membri Attivi</h3>
+                    <h3 className="text-sm font-bold th-heading">Membri Attivi</h3>
                 </div>
                 {loading ? (
                     <div className="p-8 text-center">
@@ -431,19 +431,19 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                             const deptCfg = m.department ? DEPARTMENT_CONFIG[m.department] : null
                             const RoleIcon = getRoleIcon(m.role)
                             return (
-                                <div key={m.id} className="flex items-center gap-4 p-4 hover:bg-white/[0.02] transition-colors">
+                                <div key={m.id} className="flex items-center gap-4 p-4 th-bg-hover transition-colors">
                                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: `${roleCfg.color}15`, color: roleCfg.color, border: `1px solid ${roleCfg.color}30` }}>
                                         {((m.profiles as any)?.full_name || (m.profiles as any)?.email || '?')[0].toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-semibold text-white truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email || m.invited_email}</div>
+                                        <div className="text-sm font-semibold th-heading truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email || m.invited_email}</div>
                                         <div className="text-xs truncate" style={{ color: 'var(--color-surface-500)' }}>{(m.profiles as any)?.email || m.invited_email}</div>
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap justify-end">
                                         {/* Color Picker for Calendar view */}
                                         {canManage && (
-                                            <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1 rounded-lg mr-2" title="Colore in Calendario">
-                                                <div className="text-[10px] font-semibold text-white/50">Colore</div>
+                                            <div className="flex items-center gap-1.5 bg-[var(--hover-bg)] border border-[var(--color-surface-200)] px-2 py-1 rounded-lg mr-2" title="Colore in Calendario">
+                                                <div className="text-[10px] font-semibold th-heading/50">Colore</div>
                                                 <input 
                                                     type="color" 
                                                     value={m.display_color || '#3b82f6'} 
@@ -471,7 +471,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                         {canManage && m.role !== 'owner' && (
                                             <button 
                                                 onClick={() => setShowDeactivateModal(m)} 
-                                                className="p-1.5 rounded-lg hover:bg-white/5" 
+                                                className="p-1.5 rounded-lg th-bg-hover" 
                                                 title="Disattiva"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
@@ -517,7 +517,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             Disattivato
                                         </span>
                                         {canManage && (
-                                            <button onClick={() => handleReactivate(m.id)} className="p-1.5 rounded-lg hover:bg-white/5" title="Riattiva">
+                                            <button onClick={() => handleReactivate(m.id)} className="p-1.5 rounded-lg th-bg-hover" title="Riattiva">
                                                 <RotateCcw className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
                                             </button>
                                         )}
@@ -531,11 +531,11 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
 
             {/* Invite Modal */}
             {showInvite && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in">
                     <div className="w-full max-w-md glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-bold text-white">Invita Membro</h2>
-                            <button onClick={() => setShowInvite(false)} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                            <h2 className="text-lg font-bold th-heading">Invita Membro</h2>
+                            <button onClick={() => setShowInvite(false)} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                         </div>
                         <form onSubmit={handleInvite} className="space-y-4">
                             <div>
@@ -575,11 +575,11 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
 
             {/* Deactivate Confirmation Modal */}
             {showDeactivateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowDeactivateModal(null)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay-bg)] backdrop-blur-sm animate-fade-in" onClick={() => setShowDeactivateModal(null)}>
                     <div className="w-full max-w-lg glass-card p-6 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-white">🚫 Disattiva Membro</h2>
-                            <button onClick={() => setShowDeactivateModal(null)} className="p-2 rounded-xl hover:bg-white/5"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
+                            <h2 className="text-lg font-bold th-heading">🚫 Disattiva Membro</h2>
+                            <button onClick={() => setShowDeactivateModal(null)} className="p-2 rounded-xl th-bg-hover"><X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} /></button>
                         </div>
                         
                         <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)' }}>
@@ -638,7 +638,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                 <span className="text-lg">✅</span>
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">Membro invitato!</h3>
+                                <h3 className="text-lg font-bold th-heading">Membro invitato!</h3>
                                 <p className="text-xs" style={{ color: 'var(--color-surface-400)' }}>Invia questo link al membro per farlo accedere</p>
                             </div>
                         </div>
@@ -685,7 +685,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                                 <Shuffle className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                                <h3 className="text-sm font-bold text-white">Assegnazione Lead</h3>
+                                <h3 className="text-sm font-bold th-heading">Assegnazione Lead</h3>
                             </div>
                             <button
                                 onClick={() => {
@@ -729,10 +729,10 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         </div>
 
                         {/* Calendar Assignment Mode */}
-                        <div className="mt-8 mb-5 pt-6 border-t border-white/5">
+                        <div className="mt-8 mb-5 pt-6 border-t border-[var(--color-surface-200)]">
                             <div className="flex items-center gap-2 mb-4">
                                 <CalendarDays className="w-4 h-4 text-indigo-400" />
-                                <h3 className="text-sm font-bold text-white">Appuntamenti / Calendario</h3>
+                                <h3 className="text-sm font-bold th-heading">Appuntamenti / Calendario</h3>
                             </div>
                             <p className="text-xs text-white/50 mb-3">Scegli come Sincro decide chi è il venditore da assegnare all'appuntamento (Fast Booking Auto-Assegna).</p>
 
@@ -762,7 +762,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         {/* Setter list */}
                         {settersList.length > 0 && (
                             <div>
-                                <div className="text-xs font-semibold text-white mb-2">Team Setter/Closer</div>
+                                <div className="text-xs font-semibold th-heading mb-2">Team Setter/Closer</div>
                                 <div className="space-y-2">
                                     {settersList.map(s => (
                                         <div key={s.user_id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
@@ -776,7 +776,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                                 <div className="w-2 h-2 rounded-full mx-auto mt-[5px]" style={{ background: s.is_available ? '#22c55e' : '#ef4444' }} />
                                             </button>
                                             <div className="flex-1 min-w-0">
-                                                <div className="text-xs font-semibold text-white truncate">{s.full_name}</div>
+                                                <div className="text-xs font-semibold th-heading truncate">{s.full_name}</div>
                                                 <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
                                                     {s.role} • {s.leads_today} lead oggi • {assignStats[s.user_id]?.won || 0}/{assignStats[s.user_id]?.total || 0} vinti
                                                 </div>

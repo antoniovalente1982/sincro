@@ -313,7 +313,7 @@ export default function ConnectionsPage() {
         <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                     <Plug className="w-6 h-6" style={{ color: 'var(--color-sincro-400)' }} />
                     Connessioni
                 </h1>
@@ -335,7 +335,7 @@ export default function ConnectionsPage() {
                 <div className="flex items-start gap-3">
                     <Zap className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-sincro-400)' }} />
                     <div>
-                        <div className="text-sm font-bold text-white">Priorità: Meta CAPI → Meta Ads</div>
+                        <div className="text-sm font-bold th-heading">Priorità: Meta CAPI → Meta Ads</div>
                         <div className="text-xs mt-1" style={{ color: 'var(--color-surface-500)' }}>
                             1. Collega Meta CAPI per tracciamento server-side{'\n'}
                             2. Collega Meta Ads per gestire le campagne{'\n'}
@@ -357,7 +357,7 @@ export default function ConnectionsPage() {
                         >
                             <button
                                 onClick={() => !conn.comingSoon && setExpanded(expanded === conn.provider ? null : conn.provider)}
-                                className="w-full p-5 flex items-center gap-4 text-left transition-colors hover:bg-white/[0.02]"
+                                className="w-full p-5 flex items-center gap-4 text-left transition-colors th-bg-hover"
                                 disabled={conn.comingSoon}
                             >
                                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -366,7 +366,7 @@ export default function ConnectionsPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-white">{conn.name}</span>
+                                        <span className="text-sm font-bold th-heading">{conn.name}</span>
                                         {conn.comingSoon && (
                                             <span className="badge" style={{ background: 'var(--color-surface-200)', color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-300)', fontSize: '10px' }}>
                                                 Prossimamente

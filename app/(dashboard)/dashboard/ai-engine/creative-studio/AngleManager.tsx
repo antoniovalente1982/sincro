@@ -71,7 +71,7 @@ export default function AngleManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold th-heading flex items-center gap-2">
             <Link2 className="text-[#a855f7]" /> Funnel Routing Engine
           </h2>
           <p className="text-sm text-[var(--color-surface-400)] mt-1">
@@ -98,7 +98,7 @@ export default function AngleManager() {
       {(isCreating || editingId) && (
         <div className="glass-card p-6" style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-white">{isCreating ? 'Nuovo Angolo di Routing' : 'Modifica Angolo'}</h3>
+            <h3 className="font-bold th-heading">{isCreating ? 'Nuovo Angolo di Routing' : 'Modifica Angolo'}</h3>
             <button onClick={() => { setIsCreating(false); setEditingId(null) }} className="text-[var(--color-surface-400)] hover:text-white">
               <X size={20} />
             </button>

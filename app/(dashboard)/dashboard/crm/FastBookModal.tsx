@@ -178,22 +178,22 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
     const activeDateGroup = groupedSlots.find(g => g.date === selectedDate)
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl" onClick={onClose}>
+        <div className="fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl" onClick={onClose}>
             <div className="w-full max-w-[700px] rounded-2xl p-6 space-y-5 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}
-                style={{ background: 'var(--color-surface-50)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)' }}>
                 
                 <div className="flex items-center justify-between shrink-0">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                         <CalendarDays className="w-5 h-5" style={{ color: '#6366f1' }} /> Fast Booking
                     </h2>
-                    <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/5 transition-colors">
+                    <button onClick={onClose} className="p-1 rounded-lg th-bg-hover transition-colors">
                         <X className="w-5 h-5 text-white/50 hover:text-white" />
                     </button>
                 </div>
 
                 <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shrink-0 flex items-center justify-between">
                     <div>
-                        <div className="text-sm font-medium text-white/90">Cliente: <span className="font-bold text-white">{lead.name}</span></div>
+                        <div className="text-sm font-medium text-white/90">Cliente: <span className="font-bold th-heading">{lead.name}</span></div>
                         <div className="text-xs text-white/60 flex items-center gap-3 mt-1">
                             {lead.phone && <span>{lead.phone}</span>}
                             {lead.email && <span>{lead.email}</span>}
@@ -206,13 +206,13 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button
                             onClick={() => { setBookingMode('auto'); setSelectedSlot(null); setSelectedDate(null); }}
-                            className={`flex-1 py-2.5 text-sm font-bold transition-all flex justify-center items-center gap-2 ${bookingMode === 'auto' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/5'}`}
+                            className={`flex-1 py-2.5 text-sm font-bold transition-all flex justify-center items-center gap-2 ${bookingMode === 'auto' ? 'bg-[var(--hover-bg)] text-white' : 'text-white/50 hover:text-white/80 th-bg-hover'}`}
                         >
                             <Sparkles className="w-4 h-4" /> Auto-Assegna
                         </button>
                         <button
                             onClick={() => { setBookingMode('manual'); setSelectedSlot(null); setSelectedDate(null); }}
-                            className={`flex-1 py-2.5 text-sm font-bold transition-all flex justify-center items-center gap-2 ${bookingMode === 'manual' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/5'}`}
+                            className={`flex-1 py-2.5 text-sm font-bold transition-all flex justify-center items-center gap-2 ${bookingMode === 'manual' ? 'bg-[var(--hover-bg)] text-white' : 'text-white/50 hover:text-white/80 th-bg-hover'}`}
                         >
                             <User className="w-4 h-4" /> Scegli Venditore
                         </button>
@@ -226,12 +226,12 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     )}
 
                     {bookingMode === 'manual' && (
-                        <div className="flex flex-col gap-1.5 border-b border-white/5 pb-4">
-                            <label className="text-xs font-semibold text-white/60 ml-1">Vedi disponibilità per:</label>
+                        <div className="flex flex-col gap-1.5 border-b border-[var(--color-surface-200)] pb-4">
+                            <label className="text-xs font-semibold th-heading/60 ml-1">Vedi disponibilità per:</label>
                             <select
                                 value={selectedCloserId}
                                 onChange={(e) => setSelectedCloserId(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-indigo-500"
+                                className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl px-3 py-2.5 text-sm font-medium text-white outline-none focus:border-indigo-500"
                             >
                                 <option value="" className="text-black">Seleziona venditore...</option>
                                 {closers.map(c => (
@@ -247,14 +247,14 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                 {/* Service Type Selector */}
                 {serviceTypes.length > 0 && (
                     <div className="shrink-0">
-                        <label className="text-xs font-semibold text-white/60 block mb-2 ml-1">Tipo di appuntamento</label>
+                        <label className="text-xs font-semibold th-heading/60 block mb-2 ml-1">Tipo di appuntamento</label>
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => { setSelectedServiceTypeId(''); setSelectedSlot(null); setSelectedDate(null) }}
                                 className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
                                 style={{
                                     background: !selectedServiceTypeId ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
-                                    border: `1px solid ${!selectedServiceTypeId ? '#6366f1' : 'rgba(255,255,255,0.08)'}`,
+                                    border: `1px solid ${!selectedServiceTypeId ? '#6366f1' : 'var(--color-surface-200)'}`,
                                     color: !selectedServiceTypeId ? '#a5b4fc' : 'rgba(255,255,255,0.4)',
                                 }}
                             >
@@ -267,7 +267,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                                     className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5"
                                     style={{
                                         background: selectedServiceTypeId === st.id ? `${st.color}20` : 'rgba(255,255,255,0.03)',
-                                        border: `1px solid ${selectedServiceTypeId === st.id ? st.color : 'rgba(255,255,255,0.08)'}`,
+                                        border: `1px solid ${selectedServiceTypeId === st.id ? st.color : 'var(--color-surface-200)'}`,
                                         color: selectedServiceTypeId === st.id ? st.color : 'rgba(255,255,255,0.4)',
                                     }}
                                 >
@@ -289,7 +289,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                         </div>
                     ) : groupedSlots.length === 0 ? (
                         <div className="w-full h-full flex items-center justify-center">
-                            <div className="py-8 px-6 rounded-2xl text-center max-w-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="py-8 px-6 rounded-2xl text-center max-w-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-surface-200)' }}>
                                 <AlertCircle className="w-8 h-8 text-yellow-500/80 mx-auto mb-3" />
                                 <p className="text-sm font-medium text-white/80">
                                     {bookingMode === 'auto' 
@@ -301,9 +301,9 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     ) : (
                         <>
                             {/* Left Pane: Dates */}
-                            <div className="w-full md:w-[45%] flex flex-col border border-white/10 rounded-xl overflow-hidden bg-white/5">
-                                <div className="p-3 border-b border-white/10 bg-black/20 shrink-0">
-                                    <span className="text-xs font-bold text-white/70 uppercase tracking-wider pl-1">Seleziona Data</span>
+                            <div className="w-full md:w-[45%] flex flex-col border border-[var(--color-surface-200)] rounded-xl overflow-hidden bg-[var(--hover-bg)]">
+                                <div className="p-3 border-b border-[var(--color-surface-200)] bg-[var(--color-surface-50)] shrink-0">
+                                    <span className="text-xs font-bold th-heading/70 uppercase tracking-wider pl-1">Seleziona Data</span>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
                                     {groupedSlots.map((group) => {
@@ -316,13 +316,13 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                                                 className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all text-left ${
                                                     isSelected 
                                                     ? 'bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-500/20' 
-                                                    : 'text-white/80 hover:bg-white/10 font-medium'
+                                                    : 'text-white/80 th-bg-hover font-medium'
                                                 }`}
                                             >
                                                 <span className="capitalize">
                                                     {d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })}
                                                 </span>
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${isSelected ? 'bg-white/20' : 'bg-white/10'}`}>
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${isSelected ? 'bg-white/20' : 'bg-[var(--hover-bg)]'}`}>
                                                     {group.slots.length}
                                                 </span>
                                             </button>
@@ -332,9 +332,9 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                             </div>
 
                             {/* Right Pane: Time Slots */}
-                            <div className="w-full md:w-[55%] flex flex-col border border-white/10 rounded-xl overflow-hidden bg-white/5">
-                                <div className="p-3 border-b border-white/10 bg-black/20 shrink-0 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-white/70 uppercase tracking-wider pl-1">Seleziona Orario</span>
+                            <div className="w-full md:w-[55%] flex flex-col border border-[var(--color-surface-200)] rounded-xl overflow-hidden bg-[var(--hover-bg)]">
+                                <div className="p-3 border-b border-[var(--color-surface-200)] bg-[var(--color-surface-50)] shrink-0 flex items-center justify-between">
+                                    <span className="text-xs font-bold th-heading/70 uppercase tracking-wider pl-1">Seleziona Orario</span>
                                     {selectedDate && (
                                         <span className="text-xs font-medium text-white/40">
                                             {new Date(selectedDate).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
@@ -352,7 +352,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                                                     className={`relative flex items-center justify-center py-3.5 rounded-xl text-sm transition-all border ${
                                                         isSelected
                                                         ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300 font-bold'
-                                                        : 'bg-white/5 border-white/10 text-white/90 font-medium hover:bg-white/10 hover:border-white/20'
+                                                        : 'bg-[var(--hover-bg)] border-[var(--color-surface-200)] text-white/90 font-medium th-bg-hover hover:border-white/20'
                                                     }`}
                                                 >
                                                     {new Date(slot.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
@@ -377,10 +377,10 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     </div>
                 )}
 
-                <div className="pt-4 mt-2 border-t border-white/10 flex justify-end gap-3 shrink-0 sticky bottom-0 pb-1" style={{ background: 'var(--color-surface-50)' }}>
+                <div className="pt-4 mt-2 border-t border-[var(--color-surface-200)] flex justify-end gap-3 shrink-0 sticky bottom-0 pb-1" style={{ background: 'var(--color-surface-50)' }}>
                     <button
                         onClick={onClose}
-                        className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                        className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-[var(--hover-bg)] text-white/70 th-bg-hover hover:text-white"
                         disabled={bookingState === 'loading'}
                     >
                         Annulla
@@ -388,7 +388,7 @@ export default function FastBookModal({ lead, onClose, onSuccess }: FastBookModa
                     <button
                         onClick={handleBook}
                         disabled={!selectedSlot || bookingState === 'loading' || bookingState === 'success'}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg flex items-center gap-2 ${
+                        className={`px-6 py-2.5 rounded-xl text-sm font-bold th-heading transition-all shadow-lg flex items-center gap-2 ${
                             !selectedSlot || bookingState === 'loading' || bookingState === 'success' ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
                         }`}
                         style={{ background: bookingState === 'success' ? '#22c55e' : 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}

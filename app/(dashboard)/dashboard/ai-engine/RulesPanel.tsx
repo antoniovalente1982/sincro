@@ -210,7 +210,7 @@ export default function RulesPanel({ campaigns }: Props) {
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                         <Shield className="w-5 h-5" style={{ color: '#818cf8' }} />
                         Regole Automatiche
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
@@ -248,7 +248,7 @@ export default function RulesPanel({ campaigns }: Props) {
             {/* Evaluation Results */}
             {evalResults !== null && (
                 <div className="glass-card p-4 animate-fade-in">
-                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold th-heading mb-3 flex items-center gap-2">
                         <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
                         Risultato Valutazione
                         <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
@@ -272,7 +272,7 @@ export default function RulesPanel({ campaigns }: Props) {
                                     }}>
                                         <span className="text-sm">{cat.emoji}</span>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-xs font-bold text-white">{r.rule_name}</div>
+                                            <div className="text-xs font-bold th-heading">{r.rule_name}</div>
                                             <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
                                                 Campagna: <strong>{r.entity_name}</strong> • Azione: <strong style={{ color: cat.color }}>{r.action}</strong>
                                                 {r.action_value && ` (${r.action_value}%)`}
@@ -298,7 +298,7 @@ export default function RulesPanel({ campaigns }: Props) {
             {/* History */}
             {showHistory && history.length > 0 && (
                 <div className="glass-card p-4 animate-fade-in">
-                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold th-heading mb-3 flex items-center gap-2">
                         <History className="w-4 h-4" style={{ color: '#818cf8' }} />
                         Ultime Esecuzioni
                     </h3>
@@ -310,7 +310,7 @@ export default function RulesPanel({ campaigns }: Props) {
                                 <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0`} style={{
                                     background: h.result === 'success' ? '#22c55e' : h.result === 'dry_run' ? '#f59e0b' : '#ef4444',
                                 }} />
-                                <span className="font-semibold text-white truncate">{h.rule_name}</span>
+                                <span className="font-semibold th-heading truncate">{h.rule_name}</span>
                                 <span style={{ color: 'var(--color-surface-500)' }}>→ {h.entity_name}</span>
                                 <span className="ml-auto text-[10px] flex-shrink-0" style={{ color: 'var(--color-surface-600)' }}>
                                     {new Date(h.executed_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
@@ -336,7 +336,7 @@ export default function RulesPanel({ campaigns }: Props) {
                             }}>
                                 <Icon className="w-3.5 h-3.5" style={{ color: catMeta.color }} />
                             </div>
-                            <h3 className="text-sm font-bold text-white">{catMeta.label}</h3>
+                            <h3 className="text-sm font-bold th-heading">{catMeta.label}</h3>
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{
                                 background: `${catMeta.color}15`, color: catMeta.color,
                             }}>{enabledInCat}/{catRules.length}</span>
@@ -362,7 +362,7 @@ export default function RulesPanel({ campaigns }: Props) {
                                         )}
                                     </button>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-xs font-semibold text-white">{rule.name}</div>
+                                        <div className="text-xs font-semibold th-heading">{rule.name}</div>
                                         <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
                                             {rule.conditions.map((c: any, i: number) => (
                                                 <span key={i}>

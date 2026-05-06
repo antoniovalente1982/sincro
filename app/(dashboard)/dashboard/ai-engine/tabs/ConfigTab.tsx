@@ -183,7 +183,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
         <Settings2 className="w-5 h-5" style={{ color: '#818cf8' }} />
-        <h2 className="text-lg font-bold text-white">Configurazione Agente</h2>
+        <h2 className="text-lg font-bold th-heading">Configurazione Agente</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -193,13 +193,13 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5 border-[1px] border-purple-500/20">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
-              <h3 className="text-sm font-bold text-white">Modello LLM (Routing VPS)</h3>
+              <h3 className="text-sm font-bold th-heading">Modello LLM (Routing VPS)</h3>
             </div>
             <div className="relative">
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none transition-colors cursor-pointer"
+                className="w-full bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none transition-colors cursor-pointer"
               >
                 {!openRouterModels.length ? (
                   <>
@@ -223,11 +223,11 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                   </>
                 )}
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none th-muted">
                 ▼
               </div>
             </div>
-            <p className="text-[10px] text-gray-400 mt-3 italic">
+            <p className="text-[10px] th-muted mt-3 italic">
               Il nodo Hermes sulla tua VPS utilizzerà questa API tramite OpenRouter.
             </p>
           </div>
@@ -236,7 +236,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-4 h-4" style={{ color: '#f59e0b' }} />
-              <h3 className="text-sm font-bold text-white">Modalità Esecuzione</h3>
+              <h3 className="text-sm font-bold th-heading">Modalità Esecuzione</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button onClick={() => setMode('dry_run')}
@@ -245,7 +245,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                   background: mode === 'dry_run' ? 'rgba(245,158,11,0.1)' : 'var(--color-surface-100)',
                   border: `2px solid ${mode === 'dry_run' ? '#f59e0b' : 'var(--color-surface-200)'}`,
                 }}>
-                <div className="text-sm font-bold text-white mb-1">🧪 Dry Run</div>
+                <div className="text-sm font-bold th-heading mb-1">🧪 Dry Run</div>
                 <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
                   Simula senza toccare Meta
                 </div>
@@ -256,7 +256,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                   background: mode === 'live' ? 'rgba(34,197,94,0.1)' : 'var(--color-surface-100)',
                   border: `2px solid ${mode === 'live' ? '#22c55e' : 'var(--color-surface-200)'}`,
                 }}>
-                <div className="text-sm font-bold text-white mb-1">🟢 Live</div>
+                <div className="text-sm font-bold th-heading mb-1">🟢 Live</div>
                 <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
                   Azioni reali su Meta Ads
                 </div>
@@ -266,7 +266,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
               background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)'
             }}>
               <div>
-                <div className="text-sm font-bold text-white">Autopilot</div>
+                <div className="text-sm font-bold th-heading">Autopilot</div>
                 <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>Ciclo automatico ogni 4h</div>
               </div>
               <button onClick={() => setAutopilot(!autopilot)}
@@ -285,7 +285,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4" style={{ color: '#ef4444' }} />
-              <h3 className="text-sm font-bold text-white">Operazioni Manuali</h3>
+              <h3 className="text-sm font-bold th-heading">Operazioni Manuali</h3>
             </div>
             <div className="flex items-center gap-2 mb-4 p-2 rounded-lg text-[11px]" style={{
               background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', color: '#f59e0b'
@@ -310,7 +310,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                     ) : (
                       <cron.icon className="w-4 h-4" style={{ color: cron.color }} />
                     )}
-                    <span className="text-xs font-bold text-white">{cron.label}</span>
+                    <span className="text-xs font-bold th-heading">{cron.label}</span>
                   </div>
                   <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{cron.desc}</span>
                 </button>
@@ -325,7 +325,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5 border-[1px] border-blue-500/20">
             <div className="flex items-center gap-2 mb-2">
                <Target className="w-4 h-4" style={{ color: '#3b82f6' }} />
-               <h3 className="text-sm font-bold text-white">⚙️ INPUT MANUALI (North Star Base)</h3>
+               <h3 className="text-sm font-bold th-heading">⚙️ INPUT MANUALI (North Star Base)</h3>
             </div>
             <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                <p className="text-[11px] text-blue-200/80 leading-relaxed italic">
@@ -338,8 +338,8 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
               <FieldInput label="Target CAC (€)" value={baseCacTarget} onChange={setBaseCacTarget} />
               <FieldInput label="CPL Stimato (€)" value={baseCpl} onChange={setBaseCpl} />
             </div>
-            <div className="mt-4 pt-4 border-t border-white/5">
-               <h4 className="text-[10px] uppercase text-gray-400 mb-3 font-bold">I Tuoi Tassi di Conversione (%)</h4>
+            <div className="mt-4 pt-4 border-t border-[var(--color-surface-200)]">
+               <h4 className="text-[10px] uppercase th-muted mb-3 font-bold">I Tuoi Tassi di Conversione (%)</h4>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                  <FieldInput label="Lead ➔ Appuntamento" value={baseLeadToAppt} onChange={setBaseLeadToAppt} />
                  <FieldInput label="Appt ➔ Show-Up" value={baseApptToShowup} onChange={setBaseApptToShowup} />
@@ -352,7 +352,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
                <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
-               <h3 className="text-sm font-bold text-white">🧮 PROIEZIONI AUTOMATICHE (Calcolate)</h3>
+               <h3 className="text-sm font-bold th-heading">🧮 PROIEZIONI AUTOMATICHE (Calcolate)</h3>
             </div>
             {expectedCac > baseCacTarget && (
               <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
@@ -369,9 +369,9 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                <ReadOnlyField label="ROAS Stimato" value={`${targetRoas}x`} />
             </div>
             
-            <div className="flex items-center gap-2 mb-4 pt-4 border-t border-white/5">
+            <div className="flex items-center gap-2 mb-4 pt-4 border-t border-[var(--color-surface-200)]">
               <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
-              <h3 className="text-sm font-bold text-white">Volume Targets (Obiettivi Settimanali)</h3>
+              <h3 className="text-sm font-bold th-heading">Volume Targets (Obiettivi Settimanali)</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
                <ReadOnlyField label="Lead da Generare (A set.)" value={weeklyLeads.toLocaleString('it-IT')} />
@@ -383,7 +383,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
 
           {/* Save Button */}
           <button onClick={handleSave} disabled={saving}
-            className="w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60"
+            className="w-full py-3.5 rounded-xl text-sm font-bold th-heading flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60"
             style={{
               background: saved ? 'linear-gradient(135deg, #22c55e, #16a34a)' : saveError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #a855f7, #6366f1)',
               boxShadow: saved ? '0 4px 20px rgba(34,197,94,0.3)' : saveError ? '0 4px 20px rgba(239,68,68,0.3)' : '0 4px 20px rgba(168,85,247,0.3)',
@@ -399,7 +399,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
           <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${hermesStatus === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h2 className="text-sm font-bold th-heading flex items-center gap-2">
                       <Cpu className="w-4 h-4 text-green-400"/> Hermes Live Engine Console
                   </h2>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{
@@ -421,7 +421,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                       ) : logLine.includes('[MediaBuyer]') ? (
                           <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-yellow-400">[MediaBuyer] </span>{logLine.replace('[MediaBuyer]', '')}</>
                       ) : logLine.includes('[System]') ? (
-                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-gray-400">[System] </span>{logLine.replace('[System]', '')}</>
+                          <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="th-muted">[System] </span>{logLine.replace('[System]', '')}</>
                       ) : (
                           <><span className="text-blue-400">[{new Date().toLocaleTimeString('it-IT')}] </span><span className="text-green-400">[Out] </span>{logLine}</>
                       )}
@@ -429,7 +429,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
               ))}
               
               {hermesLogs.length === 0 && hermesStatus === 'online' && (
-                  <div className="text-gray-500 italic mt-4">Nessun log recente ricevuto dal nodo. In attesa di elaborazioni...</div>
+                  <div className="th-muted italic mt-4">Nessun log recente ricevuto dal nodo. In attesa di elaborazioni...</div>
               )}
 
               {hermesStatus === 'offline' && (
@@ -438,7 +438,7 @@ export default function ConfigTab({ data, orgId, onSaved }: Props) {
                       Connection lost: No response from Hermes API. (La VPS è irraggiungibile)
                   </div>
               )}
-              <div className="animate-pulse mt-1 text-gray-500">_</div>
+              <div className="animate-pulse mt-1 th-muted">_</div>
           </div>
       </div>
 
@@ -485,7 +485,7 @@ function FieldInput({ label, value, onChange, step }: {
             setDisplayValue(String(num)) // Remove trailing dots etc.
           }
         }}
-        className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-white bg-transparent outline-none transition-all focus:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+        className="w-full px-3 py-2.5 rounded-lg text-sm font-bold th-heading bg-transparent outline-none transition-all focus:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
         style={{
           background: 'var(--color-surface-100)',
           border: '1px solid var(--color-surface-300)',

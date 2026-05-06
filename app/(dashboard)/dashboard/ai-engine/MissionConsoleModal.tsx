@@ -104,28 +104,28 @@ export default function MissionConsoleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#0a0a1a]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.15)] flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#0a0a1a]/90 backdrop-blur-xl border border-[var(--color-surface-200)] rounded-2xl shadow-[0_0_80px_rgba(168,85,247,0.15)] flex flex-col overflow-hidden">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.05), transparent)' }}>
+        <div className="px-6 py-4 border-b border-[var(--color-surface-200)] flex items-center justify-between" style={{ background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.05), transparent)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}>
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-wide">MISSION CONSOLE</h2>
+              <h2 className="text-lg font-bold th-heading tracking-wide">MISSION CONSOLE</h2>
               <div className="text-[11px] font-mono text-indigo-400">AGENCY COMMAND & CONTROL</div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-2 th-bg-hover rounded-xl transition-colors">
+            <X className="w-5 h-5 th-muted" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-6 border-b border-white/5 bg-black/20">
+        <div className="flex px-6 border-b border-[var(--color-surface-200)] bg-[var(--color-surface-50)]">
           {[
             { id: 'objectives', icon: Settings2, label: 'Objectives & Model' },
             { id: 'system', icon: Activity, label: 'System Vitals' },
@@ -134,7 +134,7 @@ export default function MissionConsoleModal({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-5 py-4 border-b-2 transition-all ${activeTab === tab.id ? 'border-[#a855f7] text-white bg-white/5' : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/[0.02]'}`}
+              className={`flex items-center gap-2 px-5 py-4 border-b-2 transition-all ${activeTab === tab.id ? 'border-[#a855f7] text-white bg-[var(--hover-bg)]' : 'border-transparent th-muted hover:th-sub th-bg-hover'}`}
             >
               <tab.icon className="w-4 h-4" />
               <span className="text-sm font-bold tracking-wide uppercase">{tab.label}</span>
@@ -150,31 +150,31 @@ export default function MissionConsoleModal({
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
               
               {/* Autopilot + Model Row */}
-              <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
-                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+              <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
+                <h3 className="text-sm font-bold th-heading mb-4 uppercase tracking-widest flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-400" /> Execution State
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 flex">Global Autopilot Engine</label>
+                    <label className="text-xs th-muted uppercase tracking-widest mb-2 flex">Global Autopilot Engine</label>
                     <div className="flex gap-2">
-                      <button onClick={() => setAutopilotActive(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${autopilotActive ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>ENABLED</button>
-                      <button onClick={() => setAutopilotActive(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!autopilotActive ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>DISABLED</button>
+                      <button onClick={() => setAutopilotActive(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${autopilotActive ? 'bg-indigo-500 text-white' : 'bg-[var(--hover-bg)] th-muted th-bg-hover'}`}>ENABLED</button>
+                      <button onClick={() => setAutopilotActive(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!autopilotActive ? 'bg-rose-500 text-white' : 'bg-[var(--hover-bg)] th-muted th-bg-hover'}`}>DISABLED</button>
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 flex">Action Mode</label>
+                    <label className="text-xs th-muted uppercase tracking-widest mb-2 flex">Action Mode</label>
                     <div className="flex gap-2">
-                      <button onClick={() => setExecutionMode('dry_run')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'dry_run' ? 'bg-amber-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>DRY RUN</button>
-                      <button onClick={() => setExecutionMode('live')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'live' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>LIVE</button>
+                      <button onClick={() => setExecutionMode('dry_run')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'dry_run' ? 'bg-amber-500 text-white' : 'bg-[var(--hover-bg)] th-muted th-bg-hover'}`}>DRY RUN</button>
+                      <button onClick={() => setExecutionMode('live')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${executionMode === 'live' ? 'bg-emerald-500 text-white' : 'bg-[var(--hover-bg)] th-muted th-bg-hover'}`}>LIVE</button>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* ── LLM MODEL SELECTOR ── */}
-              <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
-                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+              <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
+                <h3 className="text-sm font-bold th-heading mb-4 uppercase tracking-widest flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-cyan-400" /> AI Model (via OpenRouter)
                 </h3>
                 <div className="grid grid-cols-1 gap-2">
@@ -187,7 +187,7 @@ export default function MissionConsoleModal({
                         className={`w-full flex items-center gap-4 p-3 rounded-xl border transition-all text-left ${
                           isSelected 
                             ? 'border-[#a855f7]/50 bg-[#a855f7]/10 shadow-[0_0_20px_rgba(168,85,247,0.1)]' 
-                            : 'border-white/5 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/10'
+                            : 'border-[var(--color-surface-200)] bg-white/[0.01] hover:bg-white/[0.04] hover:border-[var(--color-surface-200)]'
                         }`}
                       >
                         <div
@@ -195,8 +195,8 @@ export default function MissionConsoleModal({
                           style={{ backgroundColor: model.color, boxShadow: isSelected ? `0 0 12px ${model.color}80` : 'none' }}
                         />
                         <div className="flex-1 min-w-0">
-                          <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-300'}`}>{model.label}</div>
-                          <div className="text-[10px] text-gray-500 truncate">{model.desc}</div>
+                          <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'th-sub'}`}>{model.label}</div>
+                          <div className="text-[10px] th-muted truncate">{model.desc}</div>
                         </div>
                         {isSelected && (
                           <div className="text-[10px] font-mono text-[#a855f7] bg-[#a855f7]/10 px-2 py-0.5 rounded-full shrink-0">ACTIVE</div>
@@ -205,53 +205,53 @@ export default function MissionConsoleModal({
                     )
                   })}
                 </div>
-                <div className="mt-3 text-[10px] text-gray-500 font-mono">
+                <div className="mt-3 text-[10px] th-muted font-mono">
                   Modello attivo: <span className="text-cyan-400">{selectedModel.label}</span> — usato dal Loop, dalla Chat e dalla Weekly Review.
                 </div>
               </div>
 
               {/* Economic Targets */}
-              <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
-                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Financial Targets</h3>
+              <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
+                <h3 className="text-sm font-bold th-heading mb-4 uppercase tracking-widest">Financial Targets</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Weekly Budget (€)</label>
-                    <input type="number" value={objectives?.weekly_spend_budget || 0} onChange={e => handleObjChange('weekly_spend_budget', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Weekly Budget (€)</label>
+                    <input type="number" value={objectives?.weekly_spend_budget || 0} onChange={e => handleObjChange('weekly_spend_budget', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Target CAC (€)</label>
-                    <input type="number" value={objectives?.target_cac || 0} onChange={e => handleObjChange('target_cac', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Target CAC (€)</label>
+                    <input type="number" value={objectives?.target_cac || 0} onChange={e => handleObjChange('target_cac', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Target CPL (€)</label>
-                    <input type="number" value={objectives?.target_cpl || 0} onChange={e => handleObjChange('target_cpl', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Target CPL (€)</label>
+                    <input type="number" value={objectives?.target_cpl || 0} onChange={e => handleObjChange('target_cpl', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Target ROAS (x)</label>
-                    <input type="number" step="0.1" value={objectives?.target_roas || 0} onChange={e => handleObjChange('target_roas', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Target ROAS (x)</label>
+                    <input type="number" step="0.1" value={objectives?.target_roas || 0} onChange={e => handleObjChange('target_roas', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                 </div>
               </div>
 
               {/* Volume Targets */}
-              <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
-                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Volume Targets</h3>
+              <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
+                <h3 className="text-sm font-bold th-heading mb-4 uppercase tracking-widest">Volume Targets</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                    <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Weekly Leads</label>
-                    <input type="number" value={objectives?.weekly_leads_target || 0} onChange={e => handleObjChange('weekly_leads_target', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Weekly Leads</label>
+                    <input type="number" value={objectives?.weekly_leads_target || 0} onChange={e => handleObjChange('weekly_leads_target', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                    <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Weekly Appts</label>
-                    <input type="number" value={objectives?.weekly_appointments_target || 0} onChange={e => handleObjChange('weekly_appointments_target', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Weekly Appts</label>
+                    <input type="number" value={objectives?.weekly_appointments_target || 0} onChange={e => handleObjChange('weekly_appointments_target', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                    <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Weekly Showups</label>
-                    <input type="number" value={objectives?.weekly_showup_target || 0} onChange={e => handleObjChange('weekly_showup_target', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Weekly Showups</label>
+                    <input type="number" value={objectives?.weekly_showup_target || 0} onChange={e => handleObjChange('weekly_showup_target', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                    <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-400">Weekly Sales</label>
-                    <input type="number" value={objectives?.weekly_sales_target || 0} onChange={e => handleObjChange('weekly_sales_target', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label className="text-[10px] uppercase tracking-widest th-muted">Weekly Sales</label>
+                    <input type="number" value={objectives?.weekly_sales_target || 0} onChange={e => handleObjChange('weekly_sales_target', e.target.value)} className="w-full bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg px-3 py-2 text-white font-mono text-sm focus:border-indigo-500 focus:outline-none" />
                   </div>
                 </div>
               </div>
@@ -286,12 +286,12 @@ export default function MissionConsoleModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
                 {/* Agent Loop (unified) */}
-                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Brain className="w-5 h-5 text-purple-500" />
-                     <h3 className="font-bold text-white text-sm">Agent Loop (Unificato)</h3>
+                     <h3 className="font-bold th-heading text-sm">Agent Loop (Unificato)</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Il cuore dell'agente: legge dati Meta + CRM, calcola gli score, esegue Kill Guardian + Scaling, formula ipotesi LLM.</p>
+                   <p className="text-xs th-muted mb-4 h-12">Il cuore dell'agente: legge dati Meta + CRM, calcola gli score, esegue Kill Guardian + Scaling, formula ipotesi LLM.</p>
                    <button 
                      onClick={() => forceCron('agent-loop')}
                      disabled={executingCron !== null}
@@ -303,12 +303,12 @@ export default function MissionConsoleModal({
                 </div>
 
                 {/* Daily Snapshot */}
-                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Shield className="w-5 h-5 text-cyan-500" />
-                     <h3 className="font-bold text-white text-sm">Daily Snapshot</h3>
+                     <h3 className="font-bold th-heading text-sm">Daily Snapshot</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Salva lo snapshot giornaliero di spesa, lead e funnel CRM. Usato per i trend settimanali e l'HUD.</p>
+                   <p className="text-xs th-muted mb-4 h-12">Salva lo snapshot giornaliero di spesa, lead e funnel CRM. Usato per i trend settimanali e l'HUD.</p>
                    <button 
                      onClick={() => forceCron('daily-snapshot')}
                      disabled={executingCron !== null}
@@ -320,12 +320,12 @@ export default function MissionConsoleModal({
                 </div>
 
                 {/* Weekly Review */}
-                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Zap className="w-5 h-5 text-amber-500" />
-                     <h3 className="font-bold text-white text-sm">Weekly Review</h3>
+                     <h3 className="font-bold th-heading text-sm">Weekly Review</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Revisione settimanale con North Star Δ, analisi LLM e report strategico Telegram.</p>
+                   <p className="text-xs th-muted mb-4 h-12">Revisione settimanale con North Star Δ, analisi LLM e report strategico Telegram.</p>
                    <button 
                      onClick={() => forceCron('weekly-review')}
                      disabled={executingCron !== null}
@@ -337,12 +337,12 @@ export default function MissionConsoleModal({
                 </div>
 
                 {/* Ads Monitor */}
-                <div className="bg-white/[0.02] border border-white/5 p-5 rounded-xl">
+                <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] p-5 rounded-xl">
                    <div className="flex items-center gap-3 mb-2">
                      <Activity className="w-5 h-5 text-emerald-500" />
-                     <h3 className="font-bold text-white text-sm">Ads Global Monitor</h3>
+                     <h3 className="font-bold th-heading text-sm">Ads Global Monitor</h3>
                    </div>
-                   <p className="text-xs text-gray-400 mb-4 h-12">Sincronizza dati ads in tempo reale da Meta: spesa, impression, clic.</p>
+                   <p className="text-xs th-muted mb-4 h-12">Sincronizza dati ads in tempo reale da Meta: spesa, impression, clic.</p>
                    <button 
                      onClick={() => forceCron('ads-monitor')}
                      disabled={executingCron !== null}
@@ -366,35 +366,35 @@ export default function MissionConsoleModal({
           {/* TAB 3: DATA LEXICON */}
           {activeTab === 'lexicon' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 text-sm">
-               <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 space-y-4">
+               <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl p-5 space-y-4">
                  <div>
                    <h4 className="text-white font-bold mb-1">Budget Spent</h4>
-                   <p className="text-gray-400">Somma reale spesa estratta via API ufficiale da <strong>Meta Ads</strong> nell&apos;intervallo &quot;ultimi 7 giorni&quot;.</p>
+                   <p className="th-muted">Somma reale spesa estratta via API ufficiale da <strong>Meta Ads</strong> nell&apos;intervallo &quot;ultimi 7 giorni&quot;.</p>
                  </div>
-                 <hr className="border-white/5" />
+                 <hr className="border-[var(--color-surface-200)]" />
                  <div>
                    <h4 className="text-white font-bold mb-1">Actual CAC (Cost Acquisition Customer)</h4>
-                   <p className="text-gray-400">Calcolato: (Totale Budget Speso Ads) / (Vendite nel <strong>CRM locale</strong> marcate come &quot;Vinte&quot;). Convergenza Cross-Channel.</p>
+                   <p className="th-muted">Calcolato: (Totale Budget Speso Ads) / (Vendite nel <strong>CRM locale</strong> marcate come &quot;Vinte&quot;). Convergenza Cross-Channel.</p>
                  </div>
-                 <hr className="border-white/5" />
+                 <hr className="border-[var(--color-surface-200)]" />
                  <div>
                    <h4 className="text-white font-bold mb-1">Angle Radar (Score -1.0 → +1.0)</h4>
-                   <p className="text-gray-400">L&apos;agente rileva l&apos;angolo persuasivo dalla naming convention dell&apos;Ad. Associa metriche Meta + conversioni CRM per generare uno score composito (CPL 25%, CAC 35%, L→A rate 20%, CTR 10%).</p>
+                   <p className="th-muted">L&apos;agente rileva l&apos;angolo persuasivo dalla naming convention dell&apos;Ad. Associa metriche Meta + conversioni CRM per generare uno score composito (CPL 25%, CAC 35%, L→A rate 20%, CTR 10%).</p>
                  </div>
-                 <hr className="border-white/5" />
+                 <hr className="border-[var(--color-surface-200)]" />
                  <div>
                    <h4 className="text-white font-bold mb-1">NorthStar Δ</h4>
-                   <p className="text-gray-400">Gap tracking tra la posizione attuale e gli obiettivi NorthStar. Misura budget consumption, CAC vs target, capacità venditori, e pace mensile vendite.</p>
+                   <p className="th-muted">Gap tracking tra la posizione attuale e gli obiettivi NorthStar. Misura budget consumption, CAC vs target, capacità venditori, e pace mensile vendite.</p>
                  </div>
-                 <hr className="border-white/5" />
+                 <hr className="border-[var(--color-surface-200)]" />
                  <div>
                    <h4 className="text-white font-bold mb-1">Agent Loop (Kill + Scale)</h4>
-                   <p className="text-gray-400">Il loop unificato ogni 4h: (1) valuta esperimenti passati, (2) legge Meta+CRM, (3) calcola score, (4) elimina ads con spesa &gt; 3×CPL target e 0 lead, (5) scala budget +20% per angoli con score &gt; 0.45. Tutto in un unico ciclo.</p>
+                   <p className="th-muted">Il loop unificato ogni 4h: (1) valuta esperimenti passati, (2) legge Meta+CRM, (3) calcola score, (4) elimina ads con spesa &gt; 3×CPL target e 0 lead, (5) scala budget +20% per angoli con score &gt; 0.45. Tutto in un unico ciclo.</p>
                  </div>
-                 <hr className="border-white/5" />
+                 <hr className="border-[var(--color-surface-200)]" />
                  <div>
                    <h4 className="text-white font-bold mb-1">Modello LLM</h4>
-                   <p className="text-gray-400">Il modello AI usato per generare ipotesi strategiche, weekly review e risposte in chat. Selezionabile per fare A/B testing tra provider diversi (Gemini, Claude, GPT, Llama).</p>
+                   <p className="th-muted">Il modello AI usato per generare ipotesi strategiche, weekly review e risposte in chat. Selezionabile per fare A/B testing tra provider diversi (Gemini, Claude, GPT, Llama).</p>
                  </div>
                </div>
             </div>

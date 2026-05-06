@@ -96,7 +96,7 @@ export default function ContextWindow({ organizationId }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <History className="w-6 h-6" style={{ color: '#a855f7' }} />
                         Context Window
                     </h1>
@@ -145,12 +145,12 @@ export default function ContextWindow({ organizationId }: Props) {
             {/* Timeline */}
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <div className="w-8 h-8 border-3 border-white/10 border-t-purple-500 rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-3 border-[var(--color-surface-200)] border-t-purple-500 rounded-full animate-spin" />
                 </div>
             ) : episodes.length === 0 ? (
                 <div className="text-center py-20 glass-card">
                     <History className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--color-surface-400)' }} />
-                    <h3 className="text-lg font-bold text-white mb-2">Nessuna operazione registrata</h3>
+                    <h3 className="text-lg font-bold th-heading mb-2">Nessuna operazione registrata</h3>
                     <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
                         Le operazioni verranno registrate automaticamente man mano che il sistema lavora.
                     </p>
@@ -169,7 +169,7 @@ export default function ContextWindow({ organizationId }: Props) {
                         return (
                             <div
                                 key={ep.id}
-                                className="glass-card p-4 transition-all hover:border-white/10"
+                                className="glass-card p-4 transition-all hover:border-[var(--color-surface-200)]"
                                 style={{ borderLeft: `3px solid ${tagMeta.color}` }}
                             >
                                 <div className="flex items-start gap-3">
@@ -207,7 +207,7 @@ export default function ContextWindow({ organizationId }: Props) {
 
                                         {/* Target */}
                                         <div className="mt-1.5">
-                                            <span className="text-sm font-semibold text-white">
+                                            <span className="text-sm font-semibold th-heading">
                                                 {ep.target_name || ep.target_type || 'Operazione'}
                                             </span>
                                             {ep.target_type && ep.target_name && (
@@ -243,7 +243,7 @@ export default function ContextWindow({ organizationId }: Props) {
                                                                 {Object.entries(ep.metrics_before).map(([k, v]) => (
                                                                     <div key={k} className="flex justify-between text-[11px] py-0.5">
                                                                         <span style={{ color: 'var(--color-surface-500)' }}>{k}</span>
-                                                                        <span className="font-bold text-white">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
+                                                                        <span className="font-bold th-heading">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -254,7 +254,7 @@ export default function ContextWindow({ organizationId }: Props) {
                                                                 {Object.entries(ep.metrics_after).map(([k, v]) => (
                                                                     <div key={k} className="flex justify-between text-[11px] py-0.5">
                                                                         <span style={{ color: 'var(--color-surface-500)' }}>{k}</span>
-                                                                        <span className="font-bold text-white">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
+                                                                        <span className="font-bold th-heading">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -288,7 +288,7 @@ export default function ContextWindow({ organizationId }: Props) {
                                             {hasDetails && (
                                                 <button
                                                     onClick={() => setExpandedId(isExpanded ? null : ep.id)}
-                                                    className="flex items-center gap-1 text-[10px] font-bold transition-colors rounded-lg px-2 py-0.5 hover:bg-white/5"
+                                                    className="flex items-center gap-1 text-[10px] font-bold transition-colors rounded-lg px-2 py-0.5 th-bg-hover"
                                                     style={{ color: 'var(--color-surface-500)' }}
                                                 >
                                                     {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}

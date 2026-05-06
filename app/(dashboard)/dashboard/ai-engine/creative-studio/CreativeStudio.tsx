@@ -109,7 +109,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                 <ArrowLeft className="w-3 h-3" /> AI Engine
                             </Link>
                         </div>
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                             <Paintbrush className="w-7 h-7" style={{ color: '#a855f7' }} />
                             Creative Studio
                         </h1>
@@ -145,7 +145,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             }}>
                                 <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
                             </div>
-                            <div className="text-2xl font-bold text-white">{stat.value}</div>
+                            <div className="text-2xl font-bold th-heading">{stat.value}</div>
                             <div className="text-xs mt-1" style={{ color: 'var(--color-surface-500)' }}>{stat.label}</div>
                         </div>
                     ))}
@@ -156,7 +156,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                     <>
                     <div className="space-y-3">
                         {(showAllBriefs ? briefs : briefs.slice(0, INITIAL_VISIBLE)).map(brief => (
-                            <div key={brief.id} className="glass-card p-5 cursor-pointer transition-all hover:scale-[1.005] hover:bg-white/[0.02]"
+                            <div key={brief.id} className="glass-card p-5 cursor-pointer transition-all hover:scale-[1.005] th-bg-hover"
                                 onClick={() => { setSelectedBrief(brief); setView('detail') }}>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{
@@ -165,7 +165,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                         <Sparkles className="w-5 h-5" style={{ color: '#a855f7' }} />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-bold text-white truncate">
+                                        <div className="text-sm font-bold th-heading truncate">
                                             {brief.brief_data?.product || 'Brief senza nome'}
                                         </div>
                                         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -229,7 +229,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                         }}>
                             <Paintbrush className="w-8 h-8" style={{ color: '#a855f7' }} />
                         </div>
-                        <h2 className="text-lg font-bold text-white mb-2">Nessun brief creativo</h2>
+                        <h2 className="text-lg font-bold th-heading mb-2">Nessun brief creativo</h2>
                         <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--color-surface-500)' }}>
                             Crea il tuo primo brief e lascia che l'AI generi headline, body e CTA pronti per le tue campagne.
                         </p>
@@ -251,7 +251,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                     <button onClick={() => setView('list')} className="text-xs flex items-center gap-1 mb-2 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
                         <ArrowLeft className="w-3 h-3" /> Torna ai brief
                     </button>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                         <Sparkles className="w-7 h-7" style={{ color: '#a855f7' }} />
                         Nuovo Brief Creativo
                     </h1>
@@ -298,7 +298,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                         background: tone === t.value ? 'rgba(168, 85, 247, 0.1)' : 'var(--color-surface-100)',
                                         border: `1px solid ${tone === t.value ? 'rgba(168, 85, 247, 0.4)' : 'var(--color-surface-200)'}`,
                                     }}>
-                                    <div className="text-sm font-semibold text-white flex items-center gap-1.5">
+                                    <div className="text-sm font-semibold th-heading flex items-center gap-1.5">
                                         <span>{t.emoji}</span> {t.label}
                                     </div>
                                     <div className="text-[10px] mt-0.5" style={{ color: 'var(--color-surface-500)' }}>{t.desc}</div>
@@ -370,7 +370,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             <ImageIcon className="w-5 h-5" style={{ color: '#a855f7' }} />
                         </div>
                         <div>
-                            <div className="text-sm font-bold text-white mb-1">Generazione Creativi Visivi</div>
+                            <div className="text-sm font-bold th-heading mb-1">Generazione Creativi Visivi</div>
                             <div className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                                 🔜 Prossimamente: integrazione con <strong>Nano Banana</strong> per le immagini.
                                 L'AI genererà automaticamente le creative visive basate sul tuo brief.
@@ -397,7 +397,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                             className="text-xs flex items-center gap-1 mb-2 hover:underline" style={{ color: 'var(--color-surface-500)' }}>
                             <ArrowLeft className="w-3 h-3" /> Torna ai brief
                         </button>
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                             <Sparkles className="w-7 h-7" style={{ color: '#a855f7' }} />
                             {bd.product || 'Brief Creativo'}
                         </h1>
@@ -427,7 +427,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                 background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
                             }}>
                                 <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--color-surface-600)' }}>{d.label}</div>
-                                <div className="text-xs font-semibold text-white truncate">{d.value || '—'}</div>
+                                <div className="text-xs font-semibold th-heading truncate">{d.value || '—'}</div>
                             </div>
                         ))}
                     </div>
@@ -435,7 +435,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
 
                 {/* Generated Copies */}
                 <div className="space-y-4">
-                    <h2 className="text-base font-bold text-white flex items-center gap-2">
+                    <h2 className="text-base font-bold th-heading flex items-center gap-2">
                         <Brain className="w-5 h-5" style={{ color: '#a855f7' }} />
                         Variazioni AI
                     </h2>
@@ -461,7 +461,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                     const full = `${copy.headline}\n\n${copy.body}\n\n${copy.cta}\n\n${copy.link_description || ''}`
                                     copyToClipboard(full, idx)
                                 }}
-                                    className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5" style={{
+                                    className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-all th-bg-hover" style={{
                                         color: copiedIdx === idx ? '#22c55e' : 'var(--color-surface-500)',
                                     }}>
                                     {copiedIdx === idx ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -473,7 +473,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
                                 {/* Headline */}
                                 <div>
                                     <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-surface-600)' }}>Headline</div>
-                                    <div className="text-lg font-bold text-white leading-tight">{copy.headline}</div>
+                                    <div className="text-lg font-bold th-heading leading-tight">{copy.headline}</div>
                                 </div>
 
                                 {/* Body */}
@@ -506,7 +506,7 @@ export default function CreativeStudio({ briefs: initialBriefs, campaigns }: Pro
 
                 <div className="glass-card p-6 flex flex-col items-center justify-center text-center mt-8 py-12" style={{ border: '1px dashed var(--color-surface-300)' }}>
                     <ImageIcon className="w-10 h-10 mb-3" style={{ color: 'var(--color-surface-500)' }} />
-                    <h3 className="text-sm font-bold text-white">Formato Grafico: {bd.format}</h3>
+                    <h3 className="text-sm font-bold th-heading">Formato Grafico: {bd.format}</h3>
                     <p className="text-xs max-w-sm mt-1 mx-auto" style={{ color: 'var(--color-surface-500)' }}>
                         Integrazione con generatore di immagini attualmente in manutenzione.
                     </p>

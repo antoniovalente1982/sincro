@@ -122,7 +122,7 @@ export default function KnowledgeTab({ orgId }: { orgId: string }) {
             style={{
               background: filter === f ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)',
               color: filter === f ? '#c084fc' : 'var(--color-surface-500)',
-              border: filter === f ? '1px solid rgba(168,85,247,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              border: filter === f ? '1px solid rgba(168,85,247,0.3)' : '1px solid var(--color-surface-200)',
             }}
           >
             {f === 'all' ? 'Tutte' : f === 'valid' ? '✅ Valide' : '❌ Invalidate'}
@@ -136,7 +136,7 @@ export default function KnowledgeTab({ orgId }: { orgId: string }) {
           style={{
             background: 'rgba(255,255,255,0.03)',
             color: 'var(--color-surface-400)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            border: '1px solid var(--color-surface-200)',
             outline: 'none',
           }}
         >
@@ -148,13 +148,13 @@ export default function KnowledgeTab({ orgId }: { orgId: string }) {
 
       {/* ═══ KNOWLEDGE ENTRIES ═══ */}
       <div>
-        <h2 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+        <h2 className="text-sm font-bold th-heading mb-3 flex items-center gap-2">
           <Brain className="w-4 h-4 text-purple-400" />
           Conoscenze Apprese ({filtered.length})
         </h2>
         
         {filtered.length === 0 ? (
-          <div className="glass-card p-8 text-center" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="glass-card p-8 text-center" style={{ border: '1px solid var(--color-surface-200)' }}>
             <Brain className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--color-surface-600)' }} />
             <p style={{ color: 'var(--color-surface-500)' }} className="text-sm">
               Hermes non ha ancora acquisito conoscenze. Verranno create automaticamente durante i cicli agent loop.
@@ -219,7 +219,7 @@ export default function KnowledgeTab({ orgId }: { orgId: string }) {
       {/* ═══ EXPERIMENTS ═══ */}
       {experiments.length > 0 && (
         <div>
-          <h2 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-sm font-bold th-heading mb-3 flex items-center gap-2">
             <FlaskConical className="w-4 h-4 text-blue-400" />
             Esperimenti ({experiments.length})
           </h2>
@@ -278,7 +278,7 @@ export default function KnowledgeTab({ orgId }: { orgId: string }) {
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string; color: string }) {
   return (
-    <div className="glass-card px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="glass-card px-4 py-3" style={{ border: '1px solid var(--color-surface-200)' }}>
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${color}15` }}>
           <Icon className="w-4 h-4" style={{ color }} />

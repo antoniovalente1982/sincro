@@ -82,13 +82,13 @@ export default function ActivityTab({ orgId }: Props) {
         <div className="flex items-center gap-3">
           <Activity className="w-5 h-5" style={{ color: '#a855f7' }} />
           <div>
-            <h2 className="text-lg font-bold text-white">Activity Feed</h2>
+            <h2 className="text-lg font-bold th-heading">Activity Feed</h2>
             <p className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
               {total} operazioni registrate — tutto quello che ha fatto l'agente
             </p>
           </div>
         </div>
-        <button onClick={() => loadEpisodes(activeTag)} className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-colors hover:bg-white/5"
+        <button onClick={() => loadEpisodes(activeTag)} className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-colors th-bg-hover"
           style={{ color: 'var(--color-surface-500)', border: '1px solid var(--color-surface-300)' }}>
           ↻ Aggiorna
         </button>
@@ -126,7 +126,7 @@ export default function ActivityTab({ orgId }: Props) {
       {/* Timeline */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-3 border-white/10 border-t-purple-500 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-3 border-[var(--color-surface-200)] border-t-purple-500 rounded-full animate-spin" />
         </div>
       ) : episodes.length === 0 ? (
         <div className="glass-card text-center py-16">
@@ -144,7 +144,7 @@ export default function ActivityTab({ orgId }: Props) {
             const hasDetail = ep.reasoning || Object.keys(ep.metrics_before || {}).length > 0 || ep.outcome_notes
 
             return (
-              <div key={ep.id} className="glass-card p-4 transition-all hover:border-white/10"
+              <div key={ep.id} className="glass-card p-4 transition-all hover:border-[var(--color-surface-200)]"
                 style={{ borderLeft: `3px solid ${tagMeta.color}` }}>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
@@ -160,7 +160,7 @@ export default function ActivityTab({ orgId }: Props) {
                         background: `${outcomeMeta.color}12`, color: outcomeMeta.color
                       }}>{outcomeMeta.label}</span>
                     </div>
-                    <div className="text-sm font-semibold text-white mt-1">
+                    <div className="text-sm font-semibold th-heading mt-1">
                       {ep.target_name || ep.target_type || 'Operazione'}
                     </div>
                     {ep.reasoning && !isExpanded && (
@@ -182,7 +182,7 @@ export default function ActivityTab({ orgId }: Props) {
                                 {Object.entries(ep.metrics_before).map(([k, v]) => (
                                   <div key={k} className="flex justify-between text-[11px] py-0.5">
                                     <span style={{ color: 'var(--color-surface-500)' }}>{k}</span>
-                                    <span className="font-bold text-white">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
+                                    <span className="font-bold th-heading">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
                                   </div>
                                 ))}
                               </div>
@@ -193,7 +193,7 @@ export default function ActivityTab({ orgId }: Props) {
                                 {Object.entries(ep.metrics_after).map(([k, v]) => (
                                   <div key={k} className="flex justify-between text-[11px] py-0.5">
                                     <span style={{ color: 'var(--color-surface-500)' }}>{k}</span>
-                                    <span className="font-bold text-white">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
+                                    <span className="font-bold th-heading">{typeof v === 'number' ? v.toLocaleString('it-IT') : String(v)}</span>
                                   </div>
                                 ))}
                               </div>
@@ -214,7 +214,7 @@ export default function ActivityTab({ orgId }: Props) {
                       </span>
                       {hasDetail && (
                         <button onClick={() => setExpandedId(isExpanded ? null : ep.id)}
-                          className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg hover:bg-white/5 transition"
+                          className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg th-bg-hover transition"
                           style={{ color: 'var(--color-surface-500)' }}>
                           {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                           {isExpanded ? 'Chiudi' : 'Dettagli'}

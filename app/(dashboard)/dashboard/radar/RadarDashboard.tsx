@@ -113,7 +113,7 @@ export default function RadarDashboard() {
                         <Brain className="w-6 h-6" style={{ color: '#818cf8' }} />
                     </div>
                     <div>
-                        <div className="text-sm font-bold text-white">Il tuo Quiz "Il Freno Invisibile"</div>
+                        <div className="text-sm font-bold th-heading">Il tuo Quiz "Il Freno Invisibile"</div>
                         <div className="text-xs font-mono mt-0.5" style={{ color: '#71717a' }}>
                             {typeof window !== 'undefined' ? `${window.location.origin}/radar` : '/radar'}
                         </div>
@@ -207,7 +207,7 @@ export default function RadarDashboard() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16 glass-card">
                     <Brain className="w-12 h-12 mx-auto mb-4" style={{ color: '#3f3f46' }} />
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <h3 className="text-lg font-bold th-heading mb-2">
                         {submissions.length === 0 ? 'Nessun quiz completato' : 'Nessun risultato per questo filtro'}
                     </h3>
                     <p className="text-sm" style={{ color: '#71717a' }}>
@@ -239,7 +239,7 @@ export default function RadarDashboard() {
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-1">
-                                            <h3 className="text-base font-bold text-white">{sub.child_name}</h3>
+                                            <h3 className="text-base font-bold th-heading">{sub.child_name}</h3>
                                             {sub.child_sport && (
                                                 <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>
                                                     {sub.child_sport}

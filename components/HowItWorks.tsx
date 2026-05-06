@@ -72,7 +72,7 @@ export default function HowItWorks({ title = 'Come Funziona', steps, footer, com
                                 <Sparkles className="w-5 h-5" style={{ color: '#6366f1' }} />
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-white">{title}</h3>
+                                <h3 className="text-base font-bold th-heading">{title}</h3>
                                 <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                                     Guida rapida di questa sezione
                                 </p>
@@ -111,7 +111,7 @@ export default function HowItWorks({ title = 'Come Funziona', steps, footer, com
                                                 Step {i + 1}
                                             </span>
                                         </div>
-                                        <div className="text-sm font-semibold text-white">{step.title}</div>
+                                        <div className="text-sm font-semibold th-heading">{step.title}</div>
                                         <div className="text-[11px] mt-0.5 leading-relaxed" style={{ color: 'var(--color-surface-500)' }}>
                                             {step.description}
                                         </div>

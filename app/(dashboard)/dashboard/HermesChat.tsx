@@ -137,7 +137,7 @@ export default function HermesChat() {
                         <Brain className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <div className="text-sm font-bold text-white flex items-center gap-2">
+                        <div className="text-sm font-bold th-heading flex items-center gap-2">
                             Hermes
                             <span className="w-2 h-2 rounded-full bg-green-500" />
                         </div>
@@ -147,7 +147,7 @@ export default function HermesChat() {
                     </div>
                 </div>
                 <button onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-xl transition-colors hover:bg-white/5"
+                    className="p-2 rounded-xl transition-colors th-bg-hover"
                 >
                     <Minimize2 className="w-4 h-4" style={{ color: 'var(--color-surface-500)' }} />
                 </button>
@@ -236,7 +236,7 @@ export default function HermesChat() {
                                 setInput(val);
                                 setTimeout(() => sendMessage(val), 10);
                             }}
-                            className="text-[10px] px-3 py-1.5 rounded-full transition-colors hover:bg-white/5"
+                            className="text-[10px] px-3 py-1.5 rounded-full transition-colors th-bg-hover"
                             style={{
                                 background: 'rgba(168, 85, 247, 0.08)',
                                 border: '1px solid rgba(168, 85, 247, 0.2)',

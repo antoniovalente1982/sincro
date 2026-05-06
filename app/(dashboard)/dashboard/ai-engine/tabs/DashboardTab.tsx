@@ -65,7 +65,7 @@ export default function DashboardTab({ data, orgId }: Props) {
         <div className="glass-card p-5">
           <div className="flex items-center gap-2 mb-4">
             <Brain className="w-4 h-4" style={{ color: '#a855f7' }} />
-            <h3 className="text-sm font-bold text-white">Ultime Decisioni Agente</h3>
+            <h3 className="text-sm font-bold th-heading">Ultime Decisioni Agente</h3>
           </div>
           <div className="space-y-3">
             {strategy_log.length === 0 && (
@@ -79,7 +79,7 @@ export default function DashboardTab({ data, orgId }: Props) {
               const hyp = entry.hypothesis || {}
               const outcomeColor = entry.outcome === 'improved' ? '#22c55e' : entry.outcome === 'worsened' ? '#ef4444' : '#f59e0b'
               return (
-                <div key={entry.id} className="flex items-start gap-3 p-3 rounded-xl transition-colors hover:bg-white/[0.03]"
+                <div key={entry.id} className="flex items-start gap-3 p-3 rounded-xl transition-colors th-bg-hover"
                   style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>
                   <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{
                     backgroundColor: outcomeColor,
@@ -123,7 +123,7 @@ export default function DashboardTab({ data, orgId }: Props) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" style={{ color: '#f59e0b' }} />
-            <h3 className="text-sm font-bold text-white">Angle Radar — Performance per Angolo Creativo</h3>
+            <h3 className="text-sm font-bold th-heading">Angle Radar — Performance per Angolo Creativo</h3>
           </div>
           <span className="text-[10px] font-mono" style={{ color: 'var(--color-surface-500)' }}>
             {angle_scores.length} angoli tracciati
@@ -141,7 +141,7 @@ export default function DashboardTab({ data, orgId }: Props) {
                 <div key={s.angle} className="p-4 rounded-xl transition-all hover:scale-[1.02]"
                   style={{ background: 'var(--color-surface-100)', border: `1px solid ${scoreColor}20` }}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-white">{s.angle.toUpperCase()}</span>
+                    <span className="text-xs font-bold th-heading">{s.angle.toUpperCase()}</span>
                     <span className="text-xs font-mono font-bold" style={{ color: scoreColor }}>
                       {s.score > 0 ? '+' : ''}{s.score.toFixed(2)}
                     </span>
@@ -159,11 +159,11 @@ export default function DashboardTab({ data, orgId }: Props) {
                   <div className="grid grid-cols-2 gap-2 text-[10px]">
                     <div>
                       <div style={{ color: 'var(--color-surface-500)' }}>CAC</div>
-                      <div className="font-bold text-white">€{s.avg_cac?.toFixed(0) || '—'}</div>
+                      <div className="font-bold th-heading">€{s.avg_cac?.toFixed(0) || '—'}</div>
                     </div>
                     <div>
                       <div style={{ color: 'var(--color-surface-500)' }}>Lead</div>
-                      <div className="font-bold text-white">{s.total_leads || 0}</div>
+                      <div className="font-bold th-heading">{s.total_leads || 0}</div>
                     </div>
                   </div>
                   <div className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-center" style={{
@@ -186,11 +186,11 @@ export default function DashboardTab({ data, orgId }: Props) {
           { href: '/dashboard/ads', label: 'Ads Dashboard', icon: BarChart3, color: '#f59e0b' },
         ].map(link => (
           <Link key={link.href} href={link.href}
-            className="glass-card p-4 flex items-center gap-3 transition-all hover:scale-[1.02] hover:border-white/10 group">
+            className="glass-card p-4 flex items-center gap-3 transition-all hover:scale-[1.02] hover:border-[var(--color-surface-200)] group">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
               <link.icon className="w-4 h-4" style={{ color: link.color }} />
             </div>
-            <span className="text-sm font-semibold text-white flex-1">{link.label}</span>
+            <span className="text-sm font-semibold th-heading flex-1">{link.label}</span>
             <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: 'var(--color-surface-500)' }} />
           </Link>
         ))}

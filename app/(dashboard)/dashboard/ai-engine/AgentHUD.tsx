@@ -72,16 +72,16 @@ export default function AgentHUD() {
       scrollbarWidth: 'none'
     }}>
       {/* ── STATUS BAR ── */}
-      <div className="p-5 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a1a]/95 backdrop-blur z-10">
+      <div className="p-5 border-b border-[var(--color-surface-200)] flex items-center justify-between sticky top-0 bg-[#0a0a1a]/95 backdrop-blur z-10">
         <div className="flex items-center gap-3">
           <Shield className="w-5 h-5 text-indigo-400" />
           <div>
-            <span className="text-sm font-bold text-white tracking-wider">SYSTEM STATUS</span>
-            <div className="text-[9px] font-mono text-gray-500">{(data.llm_model || 'gemini-2.5-flash').split('/').pop()}</div>
+            <span className="text-sm font-bold th-heading tracking-wider">SYSTEM STATUS</span>
+            <div className="text-[9px] font-mono th-muted">{(data.llm_model || 'gemini-2.5-flash').split('/').pop()}</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowConsole(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-300 transition-colors border border-white/10">
+          <button onClick={() => setShowConsole(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--hover-bg)] th-bg-hover text-xs font-bold th-sub transition-colors border border-[var(--color-surface-200)]">
             <Settings2 className="w-3.5 h-3.5" /> CONSOLE
           </button>
           <div className="flex items-center gap-2">
@@ -105,34 +105,34 @@ export default function AgentHUD() {
           </div>
           
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Budget Spent</div>
+            <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl p-3">
+              <div className="text-[10px] uppercase tracking-wider th-muted mb-1">Budget Spent</div>
               <div className="flex items-end gap-2">
-                <div className="text-xl font-bold text-white tracking-tight">€{weekly_totals.spend?.toFixed(0) || 0}</div>
-                <div className="text-[10px] text-gray-500 pb-1 mb-0.5">/ €{data.objectives?.weekly_spend_budget}</div>
+                <div className="text-xl font-bold th-heading tracking-tight">€{weekly_totals.spend?.toFixed(0) || 0}</div>
+                <div className="text-[10px] th-muted pb-1 mb-0.5">/ €{data.objectives?.weekly_spend_budget}</div>
               </div>
-              <div className="w-full bg-black/40 h-1 mt-2 rounded-full overflow-hidden">
+              <div className="w-full bg-[var(--color-surface-100)] h-1 mt-2 rounded-full overflow-hidden">
                 <div className="bg-indigo-500 h-full" style={{ width: `${Math.min(progress.spend_pct || 0, 100)}%` }} />
               </div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Actual CAC</div>
+            <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl p-3">
+              <div className="text-[10px] uppercase tracking-wider th-muted mb-1">Actual CAC</div>
               <div className="flex items-end gap-2">
                 <div className={`text-xl font-bold tracking-tight ${(kpi.cac || 0) <= (data.objectives?.target_cac || 500) ? 'text-emerald-400' : 'text-rose-400'}`}>
                   €{kpi.cac?.toFixed(0) || 0}
                 </div>
               </div>
-              <div className="text-[10px] text-gray-500 mt-1">Target: €{data.objectives?.target_cac}</div>
+              <div className="text-[10px] th-muted mt-1">Target: €{data.objectives?.target_cac}</div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Leads Gen</div>
-              <div className="text-xl font-bold text-white tracking-tight">{weekly_totals.leads || 0}</div>
+            <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl p-3">
+              <div className="text-[10px] uppercase tracking-wider th-muted mb-1">Leads Gen</div>
+              <div className="text-xl font-bold th-heading tracking-tight">{weekly_totals.leads || 0}</div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Sales</div>
+            <div className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-xl p-3">
+              <div className="text-[10px] uppercase tracking-wider th-muted mb-1">Sales</div>
               <div className="text-xl font-bold text-emerald-400 tracking-tight">{weekly_totals.sales || 0}</div>
             </div>
           </div>
@@ -151,18 +151,18 @@ export default function AgentHUD() {
               const barColor = s.score > 0.3 ? 'bg-emerald-500' : s.score > -0.1 ? 'bg-amber-500' : 'bg-rose-500'
               
               return (
-                <div key={s.angle} className="bg-white/[0.02] border border-white/5 rounded-lg p-3 hover:bg-white/[0.04] transition-colors">
+                <div key={s.angle} className="bg-[var(--hover-bg)] border border-[var(--color-surface-200)] rounded-lg p-3 hover:bg-white/[0.04] transition-colors">
                   <div className="flex justify-between items-center mb-2">
-                    <div className="text-[11px] font-bold text-white">{s.angle.toUpperCase()}</div>
+                    <div className="text-[11px] font-bold th-heading">{s.angle.toUpperCase()}</div>
                     <div className={`text-[10px] font-mono ${scoreColor}`}>
                       {s.score > 0 ? '+' : ''}{s.score.toFixed(2)}
                     </div>
                   </div>
-                  <div className="flex justify-between text-[10px] text-gray-400 mb-2">
+                  <div className="flex justify-between text-[10px] th-muted mb-2">
                     <span>CAC: €{s.avg_cac?.toFixed(0) || '-'}</span>
                     <span>Action: {s.recommended_action.toUpperCase()}</span>
                   </div>
-                  <div className="w-full bg-black/40 h-1 rounded-full overflow-hidden flex">
+                  <div className="w-full bg-[var(--color-surface-100)] h-1 rounded-full overflow-hidden flex">
                     <div className="w-1/2 flex justify-end pr-[1px]">
                       {s.score < 0 && <div className={`${barColor} h-full`} style={{ width: `${Math.min(Math.abs(s.score) * 100, 100)}%` }} />}
                     </div>
@@ -175,7 +175,7 @@ export default function AgentHUD() {
               )
             })}
             {angle_scores.length === 0 && (
-              <div className="text-xs text-gray-500 p-4 border border-white/5 bg-white/[0.01] rounded-lg text-center font-mono">
+              <div className="text-xs th-muted p-4 border border-[var(--color-surface-200)] bg-white/[0.01] rounded-lg text-center font-mono">
                 Awaiting intelligence cycle...
               </div>
             )}
@@ -196,7 +196,7 @@ export default function AgentHUD() {
                 <div key={entry.id} className="relative flex items-center justify-between pl-6 py-2">
                   <div className={`absolute left-0 w-2 h-2 rounded-full ${entry.outcome === 'improved' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : entry.outcome === 'worsened' ? 'bg-rose-500' : 'bg-amber-500 animate-pulse'}`} />
                   <div>
-                    <div className="text-[10px] font-mono text-gray-500 mb-0.5">{entry.cycle_type.toUpperCase()}</div>
+                    <div className="text-[10px] font-mono th-muted mb-0.5">{entry.cycle_type.toUpperCase()}</div>
                     <div className="text-[11px] text-white">
                       {hyp.action} su <span className="font-bold text-indigo-300">{hyp.angle?.toUpperCase()}</span>
                     </div>

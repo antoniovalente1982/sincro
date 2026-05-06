@@ -6,7 +6,7 @@ function PlaceholderPage({ title, icon: Icon, color, description }: { title: str
     return (
         <div className="space-y-6 animate-fade-in">
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h1 className="text-2xl font-bold th-heading flex items-center gap-3">
                     <Icon className="w-6 h-6" style={{ color }} />
                     {title}
                 </h1>
@@ -14,7 +14,7 @@ function PlaceholderPage({ title, icon: Icon, color, description }: { title: str
             </div>
             <div className="glass-card p-12 text-center">
                 <Icon className="w-12 h-12 mx-auto mb-4" style={{ color, opacity: 0.3 }} />
-                <p className="text-sm font-semibold text-white mb-2">In costruzione</p>
+                <p className="text-sm font-semibold th-heading mb-2">In costruzione</p>
                 <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
                     Questa sezione sarà disponibile a breve
                 </p>

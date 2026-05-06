@@ -103,7 +103,7 @@ export default function TopCreativePairs() {
                         <Target className="w-4 h-4" style={{ color: '#ec4899' }} />
                     </div>
                     <div>
-                        <h2 className="text-base font-bold text-white">Top Creative & Headline per Lead</h2>
+                        <h2 className="text-base font-bold th-heading">Top Creative & Headline per Lead</h2>
                         <p className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>
                             Headline Ad · Headline Landing · Creative — con CPL reale per inserzione
                         </p>
@@ -140,7 +140,7 @@ export default function TopCreativePairs() {
             {/* Body */}
             <div className="glass-card overflow-hidden relative">
                 {loading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl" style={{ background: 'rgba(15,15,19,0.7)', backdropFilter: 'blur(4px)' }}>
+                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(4px)' }}>
                         <Loader2 className="w-7 h-7 animate-spin" style={{ color: '#ec4899' }} />
                     </div>
                 )}
@@ -171,7 +171,7 @@ export default function TopCreativePairs() {
                                 return (
                                     <div
                                         key={idx}
-                                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors"
+                                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-xl th-bg-hover transition-colors"
                                         style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}
                                     >
                                         {/* Rank badge */}
@@ -179,18 +179,18 @@ export default function TopCreativePairs() {
                                             style={{
                                                 background: idx === 0 ? 'rgba(245,158,11,0.15)' : idx === 1 ? 'rgba(156,163,175,0.12)' : idx === 2 ? 'rgba(180,83,9,0.12)' : 'rgba(255,255,255,0.04)',
                                                 color: idx === 0 ? '#f59e0b' : idx === 1 ? '#9ca3af' : idx === 2 ? '#b45309' : 'var(--color-surface-500)',
-                                                border: `1px solid ${idx === 0 ? 'rgba(245,158,11,0.3)' : idx === 1 ? 'rgba(156,163,175,0.2)' : idx === 2 ? 'rgba(180,83,9,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                                                border: `1px solid ${idx === 0 ? 'rgba(245,158,11,0.3)' : idx === 1 ? 'rgba(156,163,175,0.2)' : idx === 2 ? 'rgba(180,83,9,0.2)' : 'var(--color-surface-200)'}`,
                                             }}>
                                             {idx + 1}
                                         </div>
 
                                         {/* Thumbnail */}
                                         {pair.thumbnail_url ? (
-                                            <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ border: '1px solid var(--color-surface-200)' }}>
                                                 <img src={pair.thumbnail_url} alt="Ad Creative" className="w-full h-full object-cover" />
                                             </div>
                                         ) : (
-                                            <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-surface-200)' }}>
                                                 <Megaphone className="w-5 h-5 opacity-20" />
                                             </div>
                                         )}
@@ -200,7 +200,7 @@ export default function TopCreativePairs() {
                                             {/* Headline Ad */}
                                             <div className="flex items-start gap-2">
                                                 <span className="text-[9px] uppercase tracking-wider font-bold flex-shrink-0 mt-0.5 w-[72px]" style={{ color: '#ec4899' }}>Headline Ad</span>
-                                                <span className="text-sm font-semibold text-white leading-tight">{pair.headline}</span>
+                                                <span className="text-sm font-semibold th-heading leading-tight">{pair.headline}</span>
                                             </div>
                                             {/* Headline Landing */}
                                             <div className="flex items-start gap-2">
