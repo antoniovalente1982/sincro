@@ -423,7 +423,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         }
 
         const targetStage = stages.find(s => s.id === stageId)
-        if (targetStage?.is_won && (!lead.value || lead.value <= 0)) {
+        const requiresValue = activePipeline?.source_type === 'ads'
+        if (targetStage?.is_won && requiresValue && (!lead.value || lead.value <= 0)) {
             alert('⚠️ ATTENZIONE: Impossibile spostare il lead in Vendita.\n\nDevi prima cliccare sul lead e inserire il "Valore (€)" commerciale per consentire a Meta di tracciare correttamente il ROAS della campagna.')
             setDragLead(null)
             return
@@ -615,7 +616,9 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         try {
             if (editingLead) {
                 const targetStage = stages.find(s => s.id === formData.stage_id)
-                if (targetStage?.is_won && (!formData.value || formData.value <= 0)) {
+                const targetPipeline = pipelines.find(p => p.id === targetStage?.pipeline_id)
+                const requiresValue = targetPipeline?.source_type === 'ads'
+                if (targetStage?.is_won && requiresValue && (!formData.value || formData.value <= 0)) {
                     alert('⚠️ ATTENZIONE: Impossibile salvare il lead in Vendita.\n\nDevi prima inserire il "Valore (€)" commerciale per consentire a Meta di tracciare correttamente il ROAS della campagna.')
                     setSaving(false)
                     return
