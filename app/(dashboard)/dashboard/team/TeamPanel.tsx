@@ -294,13 +294,13 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 <div className="flex items-center gap-4 border-b pb-2 mb-4" style={{ borderColor: 'var(--color-surface-200)' }}>
                     <button
                         onClick={() => setActiveTab('members')}
-                        className={`text-sm font-bold pb-2 border-b-2 transition-colors ${activeTab === 'members' ? 'text-white border-indigo-500' : 'text-white/50 border-transparent hover:text-white'}`}
+                        className={`text-sm font-bold pb-2 border-b-2 transition-colors ${activeTab === 'members' ? 'th-heading border-indigo-500' : 'th-muted border-transparent hover:th-heading'}`}
                     >
                         Membri & Leaderboard
                     </button>
                     <button
                         onClick={() => setActiveTab('assignments')}
-                        className={`text-sm font-bold pb-2 border-b-2 transition-colors ${activeTab === 'assignments' ? 'text-white border-indigo-500' : 'text-white/50 border-transparent hover:text-white'}`}
+                        className={`text-sm font-bold pb-2 border-b-2 transition-colors ${activeTab === 'assignments' ? 'th-heading border-indigo-500' : 'th-muted border-transparent hover:th-heading'}`}
                     >
                         Assegnazioni Lead / Appuntamenti
                     </button>
@@ -734,7 +734,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                 <CalendarDays className="w-4 h-4 text-indigo-400" />
                                 <h3 className="text-sm font-bold th-heading">Appuntamenti / Calendario</h3>
                             </div>
-                            <p className="text-xs text-white/50 mb-3">Scegli come Sincro decide chi è il venditore da assegnare all'appuntamento (Fast Booking Auto-Assegna).</p>
+                            <p className="text-xs th-muted mb-3">Scegli come Sincro decide chi è il venditore da assegnare all'appuntamento (Fast Booking Auto-Assegna).</p>
 
                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                                 {[

@@ -659,7 +659,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 {visibleCalendars.has(c.user_id) && <Check className="w-2.5 h-2.5 text-white" />}
                             </div>
                             <div className="flex flex-col flex-1 min-w-0 pr-2">
-                                <span className="text-xs font-medium text-white truncate w-full">{c.name}</span>
+                                <span className="text-xs font-medium th-heading truncate w-full">{c.name}</span>
                                 {(userRole === 'owner' || userRole === 'admin') && (
                                     <label className="flex items-center gap-1.5 mt-1 cursor-pointer w-fit group/rr" onClick={e => e.stopPropagation()}>
                                         <input 
@@ -671,7 +671,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                             }}
                                             className="w-2.5 h-2.5 rounded bg-[var(--hover-bg)] border-white/20 text-indigo-500 focus:ring-0 cursor-pointer"
                                         />
-                                        <span className={`text-[9px] uppercase tracking-wider font-bold transition-colors ${c.in_round_robin !== false ? 'text-indigo-400' : 'text-white/30'}`}>
+                                        <span className={`text-[9px] uppercase tracking-wider font-bold transition-colors ${c.in_round_robin !== false ? 'text-indigo-400' : 'th-muted'}`}>
                                             Auto-Ass.
                                         </span>
                                     </label>
@@ -719,7 +719,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                 </svg>
-                                <span className="text-xs font-medium text-white">Google Calendar</span>
+                                <span className="text-xs font-medium th-heading">Google Calendar</span>
                             </div>
                         </button>
                         {googleEventsLoading && (
@@ -789,7 +789,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {canBook && (
                             <button
                                 onClick={() => { resetBookingForm(); setShowBooking(true) }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold th-heading transition-all hover:scale-[1.02]"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-[1.02]"
                                 style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
                             >
                                 <Plus className="w-4 h-4" /> Prenota
@@ -821,13 +821,13 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                 <div className="glass-card p-3 flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-2">
                         <button onClick={() => navigate(-1)} className="p-2 rounded-lg th-bg-hover transition">
-                            <ChevronLeft className="w-4 h-4 text-white" />
+                            <ChevronLeft className="w-4 h-4 th-heading" />
                         </button>
                         <button onClick={goToday} className="px-3 py-1.5 rounded-lg text-xs font-semibold th-heading th-bg-hover transition">
                             Oggi
                         </button>
                         <button onClick={() => navigate(1)} className="p-2 rounded-lg th-bg-hover transition">
-                            <ChevronRight className="w-4 h-4 text-white" />
+                            <ChevronRight className="w-4 h-4 th-heading" />
                         </button>
                         <span className="text-sm font-bold th-heading ml-2">
                             {view === 'week'
@@ -839,7 +839,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
                     <div className="flex items-center gap-2">
                         {/* View toggle */}
-                        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-surface-200)' }}>
                             {(['week', 'day'] as const).map(v => (
                                 <button key={v} onClick={() => setView(v)}
                                     className="px-3 py-1.5 text-xs font-semibold transition"
@@ -856,7 +856,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {/* Mobile calendar filter */}
                         <select
                             className="lg:hidden px-3 py-1.5 rounded-lg text-xs font-semibold"
-                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-700)' }}
                             onChange={e => {
                                 if (e.target.value === 'all') {
                                     setVisibleCalendars(new Set(closers.map(c => c.user_id)))
@@ -887,7 +887,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <div key={i}
                                         className="p-3 text-center"
                                         style={{
-                                            borderLeft: '1px solid rgba(255,255,255,0.04)',
+                                            borderLeft: '1px solid var(--color-surface-200)',
                                             background: isToday(day) ? 'rgba(99,102,241,0.05)' : 'transparent',
                                         }}
                                     >
@@ -895,7 +895,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                             {DAYS[day.getDay()]}
                                         </div>
                                         <div className={`text-lg font-bold mt-0.5`}
-                                            style={{ color: isToday(day) ? 'white' : 'var(--color-surface-400)' }}
+                                            style={{ color: isToday(day) ? 'white' : 'var(--color-surface-700)' }}
                                         >
                                             {day.getDate()}
                                         </div>
@@ -909,7 +909,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <div key={hour} className="grid gap-0" style={{
                                         gridTemplateColumns: `60px repeat(${weekDays.length}, 1fr)`,
                                         minHeight: '60px',
-                                        borderBottom: '1px solid rgba(255,255,255,0.03)',
+                                        borderBottom: '1px solid var(--color-surface-100)',
                                     }}>
                                         <div className="p-2 text-right pr-3 pt-0" style={{ marginTop: '-6px' }}>
                                             <span className="text-[10px] font-medium" style={{ color: 'var(--color-surface-500)' }}>
@@ -923,12 +923,12 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                 <div key={di}
                                                     className="relative min-h-[60px] transition-colors th-bg-hover"
                                                     style={{
-                                                        borderLeft: '1px solid rgba(255,255,255,0.04)',
+                                                        borderLeft: '1px solid var(--color-surface-200)',
                                                         background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
                                                     }}
                                                 >
                                                     {/* Mezz'ora Line (Dashed) */}
-                                                    <div className="absolute top-[30px] left-0 right-0 border-t border-dashed border-white/[0.05] pointer-events-none" />
+                                                    <div className="absolute top-[30px] left-0 right-0 border-t border-dashed pointer-events-none" style={{ borderColor: 'var(--color-surface-200)' }} />
 
                                                     {/* Google Calendar Current Time Red Line */}
                                                     {isToday(day) && hour === now.getHours() && (
@@ -1077,11 +1077,11 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <CalendarDays className="w-5 h-5" style={{ color: '#6366f1' }} /> Prenota Appuntamento
                             </h2>
-                            <button onClick={() => setShowBooking(false)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
+                            <button onClick={() => setShowBooking(false)}><X className="w-5 h-5 th-muted hover:th-heading" /></button>
                         </div>
 
                         {/* Booking mode toggle */}
-                        <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-surface-200)' }}>
                             <button
                                 onClick={() => { setBookingMode('auto'); setBookSlot(null); setAvailableSlots([]); fetchAutoSlots() }}
                                 className="flex-1 px-4 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-2"
@@ -1107,7 +1107,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {/* Service type selector */}
                         {serviceTypes.length > 0 && (
                             <div>
-                                <label className="text-xs font-semibold th-heading/70 block mb-2">Tipo di appuntamento</label>
+                                <label className="text-xs font-semibold th-sub block mb-2">Tipo di appuntamento</label>
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         onClick={() => { setBookServiceTypeId(''); setBookSlot(null); setAvailableSlots([]) }}
@@ -1142,7 +1142,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
 
                         {/* Auto mode: assignment strategy */}
                         {bookingMode === 'auto' && (
-                            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-medium text-indigo-200">
+                            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-medium th-sub">
                                 <Sparkles className="w-3.5 h-3.5 inline mr-1 text-indigo-400" />
                                 Il venditore verrà assegnato automaticamente al momento della conferma, bilanciando il carico e la performance.
                             </div>
@@ -1151,11 +1151,11 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {/* Manual mode: Select closer */}
                         {bookingMode === 'manual' && (
                             <div>
-                                <label className="text-xs font-semibold th-heading/70 block mb-1">Venditore</label>
+                                <label className="text-xs font-semibold th-sub block mb-1">Venditore</label>
                                 <select value={bookCloserId}
                                     onChange={e => { setBookCloserId(e.target.value); setBookSlot(null); if (e.target.value) fetchSlots(e.target.value) }}
                                     className="w-full px-3 py-2 rounded-lg text-sm"
-                                    style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+                                    style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }}>
                                     <option value="">Seleziona venditore...</option>
                                     {closers.filter(c => c.has_availability).map(c => (
                                         <option key={c.user_id} value={c.user_id}>
@@ -1169,7 +1169,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {/* Slot selection */}
                         {((bookingMode === 'auto') || (bookingMode === 'manual' && bookCloserId)) && (
                             <div>
-                                <label className="text-xs font-semibold th-heading/70 block mb-2">
+                                <label className="text-xs font-semibold th-sub block mb-2">
                                     Slot disponibili (prossimi 14 giorni)
                                     {bookingMode === 'auto' && <span className="text-[10px] font-normal ml-2" style={{ color: '#22c55e' }}>Aggregati da tutti i venditori</span>}
                                 </label>
@@ -1181,7 +1181,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                     <div className="max-h-48 overflow-y-auto space-y-3">
                                         {Object.entries(slotsByDate).map(([date, slots]) => (
                                             <div key={date}>
-                                                <div className="text-[11px] font-bold th-heading/60 mb-1">
+                                                <div className="text-[11px] font-bold th-sub mb-1">
                                                     {new Date(date + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'short' })}
                                                 </div>
                                                 <div className="flex flex-wrap gap-1.5">
@@ -1199,7 +1199,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                                                 border: bookSlot?.start === slot.start
                                                                     ? '1px solid #6366f1'
                                                                     : '1px solid var(--color-surface-200)',
-                                                                color: slot.available ? 'white' : 'rgba(255,255,255,0.2)',
+                                                                color: slot.available ? 'var(--color-surface-800)' : 'var(--color-surface-300)',
                                                                 cursor: slot.available ? 'pointer' : 'not-allowed',
                                                                 textDecoration: slot.available ? 'none' : 'line-through',
                                                             }}
@@ -1231,29 +1231,29 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="text-xs font-semibold th-heading/70 block mb-1">Nome Lead *</label>
+                                        <label className="text-xs font-semibold th-sub block mb-1">Nome Lead *</label>
                                         <input value={bookLeadName} onChange={e => setBookLeadName(e.target.value)}
                                             placeholder="Mario Rossi" className="w-full px-3 py-2 rounded-lg text-sm"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                     </div>
                                     <div>
-                                        <label className="text-xs font-semibold th-heading/70 block mb-1">Telefono</label>
+                                        <label className="text-xs font-semibold th-sub block mb-1">Telefono</label>
                                         <input value={bookPhone} onChange={e => setBookPhone(e.target.value)}
                                             placeholder="+39..." className="w-full px-3 py-2 rounded-lg text-sm"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold th-heading/70 block mb-1">Email</label>
+                                    <label className="text-xs font-semibold th-sub block mb-1">Email</label>
                                     <input value={bookEmail} onChange={e => setBookEmail(e.target.value)}
                                         placeholder="email@example.com" className="w-full px-3 py-2 rounded-lg text-sm"
-                                        style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold th-heading/70 block mb-1">Note</label>
+                                    <label className="text-xs font-semibold th-sub block mb-1">Note</label>
                                     <textarea value={bookNotes} onChange={e => setBookNotes(e.target.value)}
                                         rows={2} placeholder="Note aggiuntive..." className="w-full px-3 py-2 rounded-lg text-sm resize-none"
-                                        style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                 </div>
 
                                 {/* Booking result */}
@@ -1287,45 +1287,45 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)' }}>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold th-heading">{selectedEvent.leads?.name || selectedEvent.title}</h2>
-                            <button onClick={() => setSelectedEvent(null)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
+                            <button onClick={() => setSelectedEvent(null)}><X className="w-5 h-5 th-muted hover:th-heading" /></button>
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm">
                                 <CalendarDays className="w-4 h-4" style={{ color: '#6366f1' }} />
-                                <span className="text-white">{new Date(selectedEvent.start_time).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                                <span className="th-heading">{new Date(selectedEvent.start_time).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
                                 <Clock className="w-4 h-4" style={{ color: '#22c55e' }} />
-                                <span className="text-white">{fmt(selectedEvent.start_time)} — {fmt(selectedEvent.end_time)}</span>
+                                <span className="th-heading">{fmt(selectedEvent.start_time)} — {fmt(selectedEvent.end_time)}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
                                 <User className="w-4 h-4" style={{ color: selectedEvent.closer_color }} />
-                                <span className="text-white">Venditore: {selectedEvent.closer_name}</span>
+                                <span className="th-heading">Venditore: {selectedEvent.closer_name}</span>
                             </div>
                             {selectedEvent.service_type && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Tag className="w-4 h-4" style={{ color: selectedEvent.service_type.color }} />
-                                    <span className="text-white">{selectedEvent.service_type.name}</span>
+                                    <span className="th-heading">{selectedEvent.service_type.name}</span>
                                     <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold" style={{ background: `${selectedEvent.service_type.color}20`, color: selectedEvent.service_type.color }}>{selectedEvent.service_type.duration_minutes}min</span>
                                 </div>
                             )}
                             {selectedEvent.setter_name && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                                    <span className="text-white">Setter: {selectedEvent.setter_name}</span>
+                                    <span className="th-heading">Setter: {selectedEvent.setter_name}</span>
                                 </div>
                             )}
                             {(selectedEvent.lead_phone || selectedEvent.leads?.phone) && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Phone className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                                    <span className="text-white">{selectedEvent.lead_phone || selectedEvent.leads?.phone}</span>
+                                    <span className="th-heading">{selectedEvent.lead_phone || selectedEvent.leads?.phone}</span>
                                 </div>
                             )}
                             {(selectedEvent.lead_email || selectedEvent.leads?.email) && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Mail className="w-4 h-4" style={{ color: '#ec4899' }} />
-                                    <span className="text-white">{selectedEvent.lead_email || selectedEvent.leads?.email}</span>
+                                    <span className="th-heading">{selectedEvent.lead_email || selectedEvent.leads?.email}</span>
                                 </div>
                             )}
                         </div>
@@ -1346,7 +1346,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <>
                                 {/* Esito Appuntamento */}
                                 <div className="pt-3">
-                                    <label className="text-[10px] font-bold th-heading/50 uppercase mb-2 block">Esito Appuntamento</label>
+                                    <label className="text-[10px] font-bold th-muted uppercase mb-2 block">Esito Appuntamento</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button onClick={() => handleUpdateEvent(selectedEvent.id, 'completed')}
                                             className="flex flex-col items-center justify-center py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]"
@@ -1412,7 +1412,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <Clock className="w-5 h-5" style={{ color: '#22c55e' }} /> Configura Disponibilità
                             </h2>
-                            <button onClick={() => setShowSettings(false)}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
+                            <button onClick={() => setShowSettings(false)}><X className="w-5 h-5 th-muted hover:th-heading" /></button>
                         </div>
 
                         <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
@@ -1447,18 +1447,18 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                         {isActive && schedule && (
                                             <div className="grid grid-cols-2 gap-2 mt-3">
                                                 <div>
-                                                    <label className="text-[9px] font-semibold th-heading/50">Inizio</label>
+                                                    <label className="text-[9px] font-semibold th-muted">Inizio</label>
                                                     <input type="time" value={schedule.start_time}
                                                         onChange={e => updateDaySchedule(day, 'start_time', e.target.value)}
                                                         className="w-full px-2 py-1 rounded text-xs mt-0.5"
-                                                        style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                                 </div>
                                                 <div>
-                                                    <label className="text-[9px] font-semibold th-heading/50">Fine</label>
+                                                    <label className="text-[9px] font-semibold th-muted">Fine</label>
                                                     <input type="time" value={schedule.end_time}
                                                         onChange={e => updateDaySchedule(day, 'end_time', e.target.value)}
                                                         className="w-full px-2 py-1 rounded text-xs mt-0.5"
-                                                        style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                                        style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                                 </div>
                                             </div>
                                         )}
@@ -1485,7 +1485,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             <h2 className="text-lg font-bold th-heading flex items-center gap-2">
                                 <Tag className="w-5 h-5" style={{ color: '#f59e0b' }} /> Tipi di Appuntamento
                             </h2>
-                            <button onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}><X className="w-5 h-5 text-white/50 hover:th-heading" /></button>
+                            <button onClick={() => { setShowServiceTypesManager(false); setEditingServiceType(null) }}><X className="w-5 h-5 th-muted hover:th-heading" /></button>
                         </div>
 
                         <p className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
@@ -1533,22 +1533,22 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                         {/* Add / Edit form */}
                         {editingServiceType ? (
                             <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                                <div className="text-xs font-bold th-heading/80">{editingServiceType.id ? 'Modifica Tipo' : 'Nuovo Tipo'}</div>
+                                <div className="text-xs font-bold th-heading">{editingServiceType.id ? 'Modifica Tipo' : 'Nuovo Tipo'}</div>
                                 <div className="grid grid-cols-3 gap-3">
                                     <div>
-                                        <label className="text-[9px] font-semibold th-heading/50">Nome *</label>
+                                        <label className="text-[9px] font-semibold th-muted">Nome *</label>
                                         <input value={editingServiceType.name || ''}
                                             onChange={e => setEditingServiceType(prev => prev ? { ...prev, name: e.target.value } : prev)}
                                             placeholder="Es. Consulenza Iniziale"
                                             className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-semibold th-heading/50">Durata (min) *</label>
+                                        <label className="text-[9px] font-semibold th-muted">Durata (min) *</label>
                                         <select value={editingServiceType.duration_minutes || 30}
                                             onChange={e => setEditingServiceType(prev => prev ? { ...prev, duration_minutes: Number(e.target.value) } : prev)}
                                             className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }}>
                                             <option value={15}>15 min</option>
                                             <option value={30}>30 min</option>
                                             <option value={45}>45 min</option>
@@ -1558,11 +1558,11 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-semibold th-heading/50">Pausa (min)</label>
+                                        <label className="text-[9px] font-semibold th-muted">Pausa (min)</label>
                                         <select value={editingServiceType.break_minutes || 0}
                                             onChange={e => setEditingServiceType(prev => prev ? { ...prev, break_minutes: Number(e.target.value) } : prev)}
                                             className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }}>
                                             <option value={0}>0 min</option>
                                             <option value={5}>5 min</option>
                                             <option value={10}>10 min</option>
@@ -1573,7 +1573,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="text-[9px] font-semibold th-heading/50">Colore</label>
+                                        <label className="text-[9px] font-semibold th-muted">Colore</label>
                                         <div className="flex gap-1.5 mt-1 flex-wrap">
                                             {['#6366f1', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b'].map(c => (
                                                 <button key={c} onClick={() => setEditingServiceType(prev => prev ? { ...prev, color: c } : prev)}
@@ -1587,12 +1587,12 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-semibold th-heading/50">Descrizione</label>
+                                        <label className="text-[9px] font-semibold th-muted">Descrizione</label>
                                         <input value={editingServiceType.description || ''}
                                             onChange={e => setEditingServiceType(prev => prev ? { ...prev, description: e.target.value } : prev)}
                                             placeholder="Opzionale"
                                             className="w-full px-3 py-2 rounded-lg text-sm mt-0.5"
-                                            style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }} />
+                                            style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)', color: 'var(--color-surface-800)' }} />
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
