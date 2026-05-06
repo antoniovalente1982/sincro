@@ -1404,7 +1404,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                             </div>
                                         )}
 
-                                        <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                                        <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                                             {!hiddenCardFields['date'] && (
                                                 <div className="flex flex-col gap-0.5 text-[10px]" style={{ color: '#a1a1aa' /* grigio molto più chiaro var(--color-surface-400) */ }}>
                                                     <span title="Data del primissimo contatto">Entrato: {formatDate(lead.created_at)}</span>
@@ -1449,7 +1449,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                                 <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0" style={{ background: '#6366f1' }}>S</div>
                                                             )}
                                                             <select
-                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-indigo-300"
+                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full"
+                                                                style={{ color: 'var(--filter-indigo)' }}
                                                                 value={lead.setter_id || ''}
                                                                 onChange={e => handleAssignSetter(lead.id, e.target.value)}
                                                             >
@@ -1471,7 +1472,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                                 <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold th-heading flex-shrink-0" style={{ background: '#10b981' }}>V</div>
                                                             )}
                                                             <select
-                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full text-emerald-300"
+                                                                className="text-[10px] sm:text-[11px] font-semibold bg-transparent outline-none cursor-pointer appearance-none truncate w-full"
+                                                                style={{ color: 'var(--filter-emerald)' }}
                                                                 value={lead.closer_id || ''}
                                                                 onChange={e => handleAssignCloser(lead.id, e.target.value)}
                                                             >
