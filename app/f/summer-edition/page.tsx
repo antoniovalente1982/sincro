@@ -3,7 +3,7 @@
 import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Loader2, CheckCircle2, ArrowRight, Lock, Clock, Star, User, Phone, Mail, Users, Sun, Calendar, Flame, TrendingDown, Zap } from 'lucide-react'
+import { Loader2, CheckCircle2, ArrowRight, Lock, Clock, Star, User, Phone, Mail, Users, Sun, Calendar, Flame, TrendingDown, Zap, Brain, ShieldCheck, Wifi, XCircle } from 'lucide-react'
 
 // Metodo Sincro organization id e funnel id Summer Edition
 const MS_ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
@@ -201,10 +201,10 @@ function PageContent() {
       {/* Floating summer particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="summer-particle" style={{ left: '10%', animationDelay: '0s' }}>☀️</div>
-        <div className="summer-particle" style={{ left: '25%', animationDelay: '2s' }}>⚽</div>
+        <div className="summer-particle" style={{ left: '25%', animationDelay: '2s' }}>🧠</div>
         <div className="summer-particle" style={{ left: '50%', animationDelay: '4s' }}>🔥</div>
         <div className="summer-particle" style={{ left: '75%', animationDelay: '1s' }}>⭐</div>
-        <div className="summer-particle" style={{ left: '90%', animationDelay: '3s' }}>☀️</div>
+        <div className="summer-particle" style={{ left: '90%', animationDelay: '3s' }}>💪</div>
       </div>
 
       {/* Header */}
@@ -217,7 +217,7 @@ function PageContent() {
         </div>
 
         {/* Summer Edition Badge */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold tracking-wide"
             style={{
               background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1))',
@@ -230,28 +230,101 @@ function PageContent() {
           </div>
         </div>
 
+        {/* Mental Coaching identifier badge */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
+            style={{
+              background: 'rgba(139, 92, 246, 0.12)',
+              border: '1px solid rgba(139, 92, 246, 0.25)',
+              color: '#a78bfa',
+            }}>
+            <Brain className="w-3.5 h-3.5" />
+            Programma di Mental Coaching
+          </div>
+        </div>
+
         <h2 className="text-center text-3xl sm:text-4xl px-2 font-black tracking-tight text-white mb-4 leading-tight">
-          Prepara tuo figlio a dominare<br />
+          Quest&apos;estate allena la <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-red-400">mente</span>,<br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-red-400">
-            la prossima stagione.
+            non solo le gambe.
           </span>
         </h2>
-        <p className="text-center text-zinc-400 text-lg mx-6 sm:mx-10 mb-2">
-          Il pacchetto estivo di Mental Coaching per giovani calciatori.<br className="hidden sm:block" />
-          Da giugno a metà agosto: arriva pronto quando conta davvero.
+        <p className="text-center text-zinc-400 text-base sm:text-lg mx-4 sm:mx-10 mb-2 leading-relaxed">
+          Il percorso estivo di <strong className="text-white">Mental Coaching 1-to-1</strong> per giovani calciatori.<br className="hidden sm:block" />
+          <span className="text-zinc-500">100% online — sessioni individuali con un coach certificato.</span><br className="hidden sm:block" />
+          Da giugno a metà agosto: costruisci la mentalità vincente prima della nuova stagione.
         </p>
 
         {/* Badges */}
-        <div className="flex justify-center gap-3 mt-4 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mt-4 mb-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+            <Brain className="w-3.5 h-3.5" />
+            Mental Coaching
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <Wifi className="w-3.5 h-3.5" />
+            100% Online
+          </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
             <Calendar className="w-3.5 h-3.5" />
-            15 Maggio – 15 Agosto 2026
+            Giugno – Agosto 2026
           </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
             <Star className="w-3.5 h-3.5" />
             Consulenza Gratuita
           </div>
         </div>
+
+        {/* ⚠️ Cosa NON è — chiarimento anti-confusione */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+          className="max-w-lg mx-auto rounded-xl p-4 mb-4"
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+          }}>
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-bold text-white tracking-wide uppercase">Cosa è — e cosa NON è</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <div className="flex items-start gap-2 text-[12px]">
+                <span className="text-green-400 mt-0.5 shrink-0">✓</span>
+                <span className="text-zinc-300"><strong className="text-white">Mental Coaching</strong> individuale con coach certificato</span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <span className="text-green-400 mt-0.5 shrink-0">✓</span>
+                <span className="text-zinc-300">Sessioni <strong className="text-white">online da casa</strong> — nessuno spostamento</span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <span className="text-green-400 mt-0.5 shrink-0">✓</span>
+                <span className="text-zinc-300">Lavoro su <strong className="text-white">mentalità, ansia, pressione e autostima</strong></span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <span className="text-green-400 mt-0.5 shrink-0">✓</span>
+                <span className="text-zinc-300">Costruisce <strong className="text-white">sicurezza e grinta</strong> per la nuova stagione</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-start gap-2 text-[12px]">
+                <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
+                <span className="text-zinc-500">NON è un programma di allenamento fisico</span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
+                <span className="text-zinc-500">NON è un camp estivo in presenza</span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
+                <span className="text-zinc-500">NON è tecnica calcistica o calisthenics</span>
+              </div>
+              <div className="flex items-start gap-2 text-[12px]">
+                <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
+                <span className="text-zinc-500">NON serve spostarsi — funziona ovunque</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* PRIMA PRENOTI MENO PAGHI — Pricing Timeline */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
@@ -336,13 +409,13 @@ function PageContent() {
           }}>
           <div className="flex items-center gap-2 mb-3.5">
             <span className="text-[12px] font-extrabold tracking-[1.5px] uppercase" style={{ color: '#f59e0b' }}>
-              ☀️ POSTI LIMITATI — ESTATE 2026
+              🧠 MENTAL COACHING — SUMMER EDITION
             </span>
           </div>
           <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
-            Richiedi la Consulenza Gratuita
+            Prenota la Consulenza Gratuita
           </h3>
-          <p className="text-[13px] text-zinc-500 mb-4">Compila il form e un nostro coach ti contatterà per parlare del percorso estivo</p>
+          <p className="text-[13px] text-zinc-500 mb-4">Parla con un nostro Mental Coach e scopri come preparare la mente di tuo figlio per la prossima stagione — <strong className="text-zinc-700">100% online, zero spostamenti</strong></p>
 
           <div className="flex flex-wrap justify-center gap-[14px] mb-[18px] pb-4 border-b border-zinc-200">
             <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Lock className="w-3" /> Dati protetti</div>
@@ -424,6 +497,9 @@ function PageContent() {
              <p className="text-center text-[11px] text-zinc-400 mt-2">
                  🔒 I tuoi dati sono al sicuro. Zero spam.
              </p>
+              <p className="text-center text-[10px] text-zinc-400 mt-1 italic">
+                  🧠 Percorso di Mental Coaching online — non un camp o un allenamento fisico
+              </p>
           </form>
         </div>
       </motion.div>
