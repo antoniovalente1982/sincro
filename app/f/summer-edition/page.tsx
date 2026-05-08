@@ -239,7 +239,7 @@ function PageContent() {
               color: '#a78bfa',
             }}>
             <Brain className="w-3.5 h-3.5" />
-            Programma di Mental Coaching
+            Percorso Uno a Uno di Mental Coaching
           </div>
         </div>
 
@@ -250,8 +250,8 @@ function PageContent() {
           </span>
         </h2>
         <p className="text-center text-zinc-400 text-base sm:text-lg mx-4 sm:mx-10 mb-2 leading-relaxed">
-          Il percorso estivo di <strong className="text-white">Mental Coaching 1-to-1</strong> per giovani calciatori.<br className="hidden sm:block" />
-          <span className="text-zinc-500">100% online — sessioni individuali con un coach certificato.</span><br className="hidden sm:block" />
+          <strong className="text-white">Percorso individuale uno a uno</strong> di Mental Coaching per giovani calciatori.<br className="hidden sm:block" />
+          <span className="text-zinc-500">100% online — il tuo coach dedicato, solo per tuo figlio.</span><br className="hidden sm:block" />
           Da giugno a metà agosto: costruisci la mentalità vincente prima della nuova stagione.
         </p>
 
@@ -259,7 +259,7 @@ function PageContent() {
         <div className="flex flex-wrap justify-center gap-2 mt-4 mb-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
             <Brain className="w-3.5 h-3.5" />
-            Mental Coaching
+            Uno a Uno
           </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
             <Wifi className="w-3.5 h-3.5" />
@@ -290,7 +290,7 @@ function PageContent() {
             <div className="space-y-1.5">
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
-                <span className="text-zinc-300"><strong className="text-white">Mental Coaching</strong> individuale con coach certificato</span>
+                <span className="text-zinc-300"><strong className="text-white">Percorso uno a uno</strong> — un coach certificato dedicato solo a tuo figlio</span>
               </div>
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
@@ -415,7 +415,7 @@ function PageContent() {
           <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
             Prenota la Consulenza Gratuita
           </h3>
-          <p className="text-[13px] text-zinc-500 mb-4">Parla con un nostro Mental Coach e scopri come preparare la mente di tuo figlio per la prossima stagione — <strong className="text-zinc-700">100% online, zero spostamenti</strong></p>
+          <p className="text-[13px] text-zinc-500 mb-4">Scopri il <strong className="text-zinc-700">percorso uno a uno</strong> di Mental Coaching per tuo figlio — sessioni individuali con un coach dedicato, <strong className="text-zinc-700">100% online</strong></p>
 
           <div className="flex flex-wrap justify-center gap-[14px] mb-[18px] pb-4 border-b border-zinc-200">
             <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Lock className="w-3" /> Dati protetti</div>
