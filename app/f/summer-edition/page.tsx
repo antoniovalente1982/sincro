@@ -251,7 +251,7 @@ function PageContent() {
         </h2>
         <p className="text-center text-zinc-400 text-base sm:text-lg mx-4 sm:mx-10 mb-2 leading-relaxed">
           <strong className="text-white">Percorso individuale uno a uno</strong> di Mental Coaching per giovani calciatori.<br className="hidden sm:block" />
-          <span className="text-zinc-500">100% online — il tuo coach dedicato, solo per tuo figlio.</span><br className="hidden sm:block" />
+          <span className="text-zinc-500">Il tuo coach dedicato, solo per tuo figlio.</span><br className="hidden sm:block" />
           Da giugno a metà agosto: costruisci la mentalità vincente prima della nuova stagione.
         </p>
 
@@ -261,10 +261,7 @@ function PageContent() {
             <Brain className="w-3.5 h-3.5" />
             Uno a Uno
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-            <Wifi className="w-3.5 h-3.5" />
-            100% Online
-          </div>
+
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
             <Calendar className="w-3.5 h-3.5" />
             Giugno – Agosto 2026
@@ -294,7 +291,7 @@ function PageContent() {
               </div>
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
-                <span className="text-zinc-300">Sessioni <strong className="text-white">online da casa</strong> — nessuno spostamento</span>
+                <span className="text-zinc-300">Sessioni <strong className="text-white">individuali</strong> con il tuo coach dedicato</span>
               </div>
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
@@ -317,10 +314,6 @@ function PageContent() {
               <div className="flex items-start gap-2 text-[12px]">
                 <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
                 <span className="text-zinc-500">NON è tecnica calcistica o calisthenics</span>
-              </div>
-              <div className="flex items-start gap-2 text-[12px]">
-                <XCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
-                <span className="text-zinc-500">NON serve spostarsi — funziona ovunque</span>
               </div>
             </div>
           </div>
@@ -415,7 +408,7 @@ function PageContent() {
           <h3 className="text-[22px] font-black mb-1.5 text-zinc-900 leading-tight">
             Prenota la Consulenza Gratuita
           </h3>
-          <p className="text-[13px] text-zinc-500 mb-4">Scopri il <strong className="text-zinc-700">percorso uno a uno</strong> di Mental Coaching per tuo figlio — sessioni individuali con un coach dedicato, <strong className="text-zinc-700">100% online</strong></p>
+          <p className="text-[13px] text-zinc-500 mb-4">Scopri il <strong className="text-zinc-700">percorso uno a uno</strong> di Mental Coaching per tuo figlio — sessioni individuali con un coach dedicato</p>
 
           <div className="flex flex-wrap justify-center gap-[14px] mb-[18px] pb-4 border-b border-zinc-200">
             <div className="flex items-center gap-1 text-[11px] text-zinc-500 whitespace-nowrap"><Lock className="w-3" /> Dati protetti</div>
@@ -498,7 +491,7 @@ function PageContent() {
                  🔒 I tuoi dati sono al sicuro. Zero spam.
              </p>
               <p className="text-center text-[10px] text-zinc-400 mt-1 italic">
-                  🧠 Percorso di Mental Coaching online — non un camp o un allenamento fisico
+                  🧠 Percorso di Mental Coaching uno a uno — non un camp o un allenamento fisico
               </p>
           </form>
         </div>
