@@ -251,7 +251,7 @@ function PageContent() {
         </h2>
         <p className="text-center text-zinc-400 text-base sm:text-lg mx-4 sm:mx-10 mb-2 leading-relaxed">
           <strong className="text-white">Percorso individuale uno a uno</strong> di Mental Coaching per giovani calciatori.<br className="hidden sm:block" />
-          <span className="text-zinc-500">Il tuo coach dedicato, solo per tuo figlio.</span><br className="hidden sm:block" />
+          <span className="text-zinc-500">Con i Mental Coach dei calciatori di <strong className="text-white">Serie A, B e Lega Pro</strong>.</span><br className="hidden sm:block" />
           Da giugno a metà agosto: costruisci la mentalità vincente prima della nuova stagione.
         </p>
 
@@ -291,7 +291,7 @@ function PageContent() {
               </div>
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
-                <span className="text-zinc-300">Sessioni <strong className="text-white">individuali</strong> con il tuo coach dedicato</span>
+                <span className="text-zinc-300">Con i <strong className="text-white">Mental Coach di Serie A, B e Lega Pro</strong></span>
               </div>
               <div className="flex items-start gap-2 text-[12px]">
                 <span className="text-green-400 mt-0.5 shrink-0">✓</span>
