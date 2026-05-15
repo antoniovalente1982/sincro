@@ -4,10 +4,12 @@ import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ArrowRight, Lock, Clock, Star, User, Phone, Mail, Users, Sun, Calendar, Flame, TrendingDown, Zap, Brain, ShieldCheck, Wifi, XCircle } from 'lucide-react'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 // Metodo Sincro organization id e funnel id Summer Edition
 const MS_ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
 const SUMMER_FUNNEL_ID = '237ca6c3-2280-4ca5-8591-e795299a1442'
+const SUMMER_PIXEL_ID = '311586900940615'
 
 // Early Bird pricing phases — dynamic based on current date
 function getCurrentPhase(): { phase: number; label: string; urgency: string; color: string } {
@@ -51,6 +53,16 @@ function PageContent() {
   const [phoneError, setPhoneError] = useState('')
   const [childAge, setChildAge] = useState('')
   const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [startFormFired, setStartFormFired] = useState(false)
+
+  // ── Shared Meta Tracking (PageView with eventID, ViewContent, fbc/fbp, UTMs) ──
+  // This replaces the old inline pixel + manual /api/track/pageview fetch.
+  // The hook fires PageView with eventID for proper Pixel↔CAPI deduplication.
+  const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
+      orgId: MS_ORG_ID,
+      funnelId: SUMMER_FUNNEL_ID,
+      pixelId: SUMMER_PIXEL_ID,
+  })
 
   // Validation helpers
   const handleNameChange = (val: string) => {
@@ -77,38 +89,14 @@ function PageContent() {
   const isEmailValid = email.trim().length > 0 && email.includes('@') && !emailError
   const isFormValid = isNameValid && isPhoneValid && isEmailValid
 
-  // PageView tracking
-  useEffect(() => {
-    const visitorId = sessionStorage.getItem('visitor_id') || `v_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-    sessionStorage.setItem('visitor_id', visitorId)
-
-    fetch('/api/track/pageview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        organization_id: MS_ORG_ID,
-        funnel_id: SUMMER_FUNNEL_ID,
-        page_path: '/summer-edition',
-        page_variant: 'A',
-        visitor_id: visitorId,
-        utm_source: searchParams.get('utm_source') || 'Summer Edition 2026',
-        utm_medium: searchParams.get('utm_medium') || 'landing',
-        utm_campaign: searchParams.get('utm_campaign') || 'Summer Edition 2026',
-        utm_content: searchParams.get('utm_content') || '',
-        utm_term: searchParams.get('utm_term') || '',
-        referrer: typeof window !== 'undefined' ? document.referrer : '',
-        page_url: typeof window !== 'undefined' ? window.location.href : '',
-      }),
-    }).catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // UTM Tracking — hardcoded source for attribution, override only if explicit UTM params exist
-  const utmSource   = searchParams.get('utm_source') || 'Summer Edition 2026'
-  const utmMedium   = searchParams.get('utm_medium') || 'landing'
-  const utmCampaign = searchParams.get('utm_campaign') || 'Summer Edition 2026'
-  const utmContent  = searchParams.get('utm_content') || ''
-  const utmTerm     = searchParams.get('utm_term') || ''
+  // UTM Tracking — use values from useMetaTracking hook (with 3-layer fallback)
+  // Fallback to hardcoded values for Summer Edition if no UTM params present
+  const trackingUtms = getUtmParams()
+  const utmSource   = trackingUtms.utm_source || searchParams.get('utm_source') || 'Summer Edition 2026'
+  const utmMedium   = trackingUtms.utm_medium || searchParams.get('utm_medium') || 'landing'
+  const utmCampaign = trackingUtms.utm_campaign || searchParams.get('utm_campaign') || 'Summer Edition 2026'
+  const utmContent  = trackingUtms.utm_content || searchParams.get('utm_content') || ''
+  const utmTerm     = trackingUtms.utm_term || searchParams.get('utm_term') || ''
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,16 +112,19 @@ function PageContent() {
     setLoading(true)
     setError('')
 
+    // Generate Lead event_id for dedup (Pixel ↔ CAPI)
+    const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
     try {
-      const visitorId = sessionStorage.getItem('visitor_id') || undefined
-      const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+      // Advanced Matching: re-init pixel with user PII for better matching
+      fireAdvancedMatching(SUMMER_PIXEL_ID, {
+        email: email.trim(),
+        phone: phone.trim(),
+        fn: fullName.split(' ')[0]?.trim(),
+        ln: fullName.split(' ').slice(1).join(' ')?.trim(),
+      })
 
-      // Get fbc/fbp cookies for Meta matching
-      const getCookie = (name: string) => {
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-        return match ? match[2] : undefined
-      }
-
+      const fbIds = getFbIds()
       const res = await fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,14 +140,17 @@ function PageContent() {
           utm_term:     utmTerm,
           extra_data:   { child_age: childAge, campaign_type: 'summer_edition_2026' },
           landing_url:  typeof window !== 'undefined' ? window.location.hostname + window.location.pathname : 'landing.metodosincro.com/f/summer-edition',
-          visitor_id:   visitorId,
-          event_id:     eventId,
-          fbc:          getCookie('_fbc'),
-          fbp:          getCookie('_fbp'),
+          visitor_id:   getVisitorId(),
+          event_id:     leadEventId,
+          fbc:          fbIds.fbc,
+          fbp:          fbIds.fbp,
         })
       })
 
       if (!res.ok) throw new Error("C'è stato un problema temporaneo, riprova tra un minuto.")
+
+      // Fire Lead pixel event with same eventID for CAPI deduplication
+      firePixelEvent('Lead', leadEventId, { content_category: 'summer_edition' })
 
       setSuccess(true)
     } catch (err: any) {
@@ -427,7 +421,14 @@ function PageContent() {
              <div className="mb-0 text-left">
                 <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isNameValid ? 'border-green-500 bg-green-500/5' : ((submitAttempted && !isNameValid) || fullNameError) ? 'border-red-500 bg-red-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-amber-500 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-amber-500/20'}`}>
                     <User className="w-5 h-5 text-zinc-500 shrink-0" />
-                    <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)}
+                    <input type="text" placeholder="Nome e Cognome *" value={fullName}
+                           onFocus={() => {
+                             if (!startFormFired) {
+                               fireStartForm('Summer Edition 2026', { orgId: MS_ORG_ID, visitorId: getVisitorId(), ...getFbIds() })
+                               setStartFormFired(true)
+                             }
+                           }}
+                           onChange={e => handleNameChange(e.target.value)}
                            className="w-full bg-transparent border-none outline-none text-zinc-900 placeholder:text-zinc-400 text-[15px]"
                     />
                 </div>
@@ -504,10 +505,10 @@ function PageContent() {
         </p>
       </motion.div>
 
-      {/* Meta Pixel */}
+      {/* Meta Pixel — PageView is fired via useMetaTracking hook with eventID for CAPI deduplication */}
       <script
         dangerouslySetInnerHTML={{
-          __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','311586900940615',{});fbq('track','PageView');`,
+          __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${SUMMER_PIXEL_ID}',{});`,
         }}
       />
 

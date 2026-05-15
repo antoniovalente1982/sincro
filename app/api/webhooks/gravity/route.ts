@@ -16,19 +16,28 @@ async function hashSHA256(text: string) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-async function fireCapiEvent(orgId: string, eventName: string, userData: any, pixelId: string) {
+async function fireCapiEvent(orgId: string, eventName: string, userData: any) {
     try {
-        const { data: conn } = await getSupabaseAdmin()
+        const supabase = getSupabaseAdmin()
+
+        // Get Meta CAPI connection (same pattern as WooCommerce and Submit routes)
+        const { data: conn } = await supabase
             .from('connections')
-            .select('credentials')
+            .select('credentials, config')
             .eq('organization_id', orgId)
             .eq('provider', 'meta_capi')
             .eq('status', 'active')
             .single()
 
         if (!conn?.credentials?.access_token) return
+        const pixelId = conn.config?.pixel_id || conn.credentials?.pixel_id
+        if (!pixelId) return
 
-        const eventId = userData.event_id || `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        const eventId = userData.event_id || `evt_gf_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+        // Predictive Lead Value: avg sale (€2250) × conversion rate (~5%) = €112
+        // Consistent with /api/submit route value
+        const PREDICTIVE_LEAD_VALUE = 112
 
         const payload = {
             data: [{
@@ -49,13 +58,14 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                     client_user_agent: userData.client_user_agent || undefined,
                 },
                 custom_data: {
-                    value: 0.00,
+                    value: PREDICTIVE_LEAD_VALUE,
                     currency: 'EUR',
+                    content_category: 'cliente',
                 },
             }],
         }
 
-        await fetch(
+        const res = await fetch(
             `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${conn.credentials.access_token}`,
             {
                 method: 'POST',
@@ -63,8 +73,26 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 body: JSON.stringify(payload),
             }
         )
+
+        const result = await res.json()
+
+        // Log to tracked_events for audit trail
+        await supabase.from('tracked_events').insert({
+            organization_id: orgId,
+            event_name: eventName,
+            event_id: eventId,
+            user_data_hash: { em: !!userData.email, ph: !!userData.phone },
+            event_params: { pixel_id: pixelId, source: 'gravity_forms', value: PREDICTIVE_LEAD_VALUE },
+            source: 'server',
+            sent_to_provider: res.ok,
+            provider_response: result,
+        })
+
+        if (!res.ok) {
+            console.error('[CAPI/GravityForms] Lead event failed:', result)
+        }
     } catch (err) {
-        console.error('CAPI Error:', err)
+        console.error('[CAPI/GravityForms] Error:', err)
     }
 }
 
@@ -208,23 +236,14 @@ export async function POST(req: NextRequest) {
 // NOTE: appendLeadToSheet removed — Gravity Forms no longer active.
 // The lead is already written to Google Sheets via /api/submit when it arrives natively.
 
-        // ── Trigger Server-Side META CAPI
-        const { data: orgConfig } = await supabase.from('organizations')
-            .select('settings').eq('id', orgId).single()
-            
-        let pixelId = null
-        if (orgConfig?.settings && typeof orgConfig.settings === 'object' && 'pixel_id' in orgConfig.settings) {
-            pixelId = orgConfig.settings.pixel_id as string
-        }
-        
-        if (pixelId) {
-            await fireCapiEvent(orgId, 'Lead', {
-                email, name, phone,
-                fbc, fbp,
-                client_ip: req.headers.get('x-forwarded-for') || undefined,
-                client_user_agent: req.headers.get('user-agent') || undefined,
-            }, pixelId)
-        }
+        // ── Trigger Server-Side META CAPI ──
+        // Uses connections table (same as WooCommerce and Submit routes)
+        await fireCapiEvent(orgId, 'Lead', {
+            email, name, phone,
+            fbc, fbp,
+            client_ip: req.headers.get('x-forwarded-for') || undefined,
+            client_user_agent: req.headers.get('user-agent') || undefined,
+        })
 
         return NextResponse.json({ success: true, lead_id: leadId })
 
