@@ -15,6 +15,7 @@ export default function SetPasswordPage() {
     const [success, setSuccess] = useState(false)
     const [checking, setChecking] = useState(true)
     const [hasSession, setHasSession] = useState(false)
+    const [userEmail, setUserEmail] = useState('')
     const router = useRouter()
     const supabase = createClient()
 
@@ -27,11 +28,19 @@ export default function SetPasswordPage() {
                 router.push('/login?error=session_expired')
                 return
             }
+            setUserEmail(user.email || '')
             setHasSession(true)
             setChecking(false)
         }
         checkSession()
     }, [])
+
+    const handleLogout = async () => {
+        setLoading(true)
+        await supabase.auth.signOut()
+        router.push('/login')
+        router.refresh()
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -114,7 +123,8 @@ export default function SetPasswordPage() {
                         <div className="text-center mb-2">
                             <h2 className="text-xl font-bold text-white">Imposta la tua password</h2>
                             <p className="text-sm mt-2" style={{ color: 'var(--color-surface-400)' }}>
-                                Crea una password per accedere al tuo account
+                                Stai impostando la password per:<br/>
+                                <strong className="text-white">{userEmail}</strong>
                             </p>
                         </div>
 
@@ -169,6 +179,17 @@ export default function SetPasswordPage() {
                                 </>
                             )}
                         </button>
+
+                        <div className="text-center pt-2">
+                            <button 
+                                type="button" 
+                                onClick={handleLogout}
+                                className="text-xs transition-colors hover:underline"
+                                style={{ color: 'var(--color-surface-400)' }}
+                            >
+                                Non sei tu? Disconnettiti
+                            </button>
+                        </div>
                     </form>
                 )}
 
