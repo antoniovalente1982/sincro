@@ -264,8 +264,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
         ? activeMembers 
         : activeMembers.filter(m => m.department === deptFilter)
     
-    const setters = filteredActive.filter(m => m.role === 'closer')
-    const closers = filteredActive.filter(m => m.role === 'closer')
+    const venditori = filteredActive.filter(m => m.role === 'closer')
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
@@ -387,17 +386,19 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 )}
             </div>
 
-            {/* Leaderboard */}
-            {(setters.length > 0 || closers.length > 0) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {setters.length > 0 && (
-                        <div className="glass-card p-5">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Trophy className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                                <h3 className="text-sm font-bold th-heading">Leaderboard Venditori</h3>
-                            </div>
+            {/* Leaderboard Venditori — unica classifica */}
+            {venditori.length > 0 && (
+                <div className="glass-card p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Trophy className="w-4 h-4" style={{ color: '#22c55e' }} />
+                        <h3 className="text-sm font-bold th-heading">Leaderboard Venditori</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Per Lead Assegnati */}
+                        <div>
+                            <div className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#3b82f6' }}>📋 Lead Assegnati</div>
                             <div className="space-y-3">
-                                {setters.sort((a, b) => b.leads_assigned - a.leads_assigned).map((m, i) => (
+                                {[...venditori].sort((a, b) => b.leads_assigned - a.leads_assigned).map((m, i) => (
                                     <div key={m.id} className="flex items-center gap-3">
                                         <span className="text-lg font-bold w-6 text-center" style={{ color: i === 0 ? '#f59e0b' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7f32' : 'var(--color-surface-500)' }}>
                                             {i + 1}
@@ -407,22 +408,17 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="text-sm font-semibold th-heading truncate">{(m.profiles as any)?.full_name || (m.profiles as any)?.email}</div>
-                                            <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>{m.leads_assigned} lead assegnati</div>
+                                            <div className="text-[11px]" style={{ color: 'var(--color-surface-500)' }}>{m.leads_assigned} lead</div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    )}
-
-                    {closers.length > 0 && (
-                        <div className="glass-card p-5">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Trophy className="w-4 h-4" style={{ color: '#22c55e' }} />
-                                <h3 className="text-sm font-bold th-heading">Leaderboard Closer</h3>
-                            </div>
+                        {/* Per Revenue */}
+                        <div>
+                            <div className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#22c55e' }}>💰 Vendite & Revenue</div>
                             <div className="space-y-3">
-                                {closers.sort((a, b) => b.won_revenue - a.won_revenue).map((m, i) => (
+                                {[...venditori].sort((a, b) => b.won_revenue - a.won_revenue).map((m, i) => (
                                     <div key={m.id} className="flex items-center gap-3">
                                         <span className="text-lg font-bold w-6 text-center" style={{ color: i === 0 ? '#f59e0b' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7f32' : 'var(--color-surface-500)' }}>
                                             {i + 1}
@@ -438,7 +434,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                 ))}
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             )}
 
