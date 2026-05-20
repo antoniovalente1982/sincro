@@ -229,21 +229,28 @@ export async function PATCH(req: NextRequest) {
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-        // Reassign leads if requested
-        if (body.reassign_to) {
-            // Get the user_id of the member being deactivated
-            const { data: deactivated } = await supabase
-                .from('organization_members')
-                .select('user_id')
-                .eq('id', member_id)
-                .single()
+        // Invalidate all sessions for the deactivated user (force immediate logout)
+        const { data: deactivatedMember } = await supabase
+            .from('organization_members')
+            .select('user_id')
+            .eq('id', member_id)
+            .single()
 
-            if (deactivated) {
+        if (deactivatedMember) {
+            const supabaseAdmin = getSupabaseAdmin()
+            try {
+                await supabaseAdmin.auth.admin.signOut(deactivatedMember.user_id, 'global')
+            } catch (e) {
+                console.warn('[TEAM] Failed to invalidate sessions:', e)
+            }
+
+            // Reassign leads if requested
+            if (body.reassign_to) {
                 await supabase
                     .from('leads')
                     .update({ assigned_to: body.reassign_to, updated_at: new Date().toISOString() })
                     .eq('organization_id', ctx.organization_id)
-                    .eq('assigned_to', deactivated.user_id)
+                    .eq('assigned_to', deactivatedMember.user_id)
             }
         }
 
@@ -288,6 +295,39 @@ export async function PATCH(req: NextRequest) {
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ success: true, action: 'color_updated' })
+    }
+
+    if (action === 'reset_password') {
+        // Owner/Admin can generate a password reset link for a team member
+        const memberEmail = body.email
+        if (!memberEmail) {
+            return NextResponse.json({ error: 'Email richiesta' }, { status: 400 })
+        }
+
+        const supabaseAdmin = getSupabaseAdmin()
+
+        try {
+            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+                type: 'recovery',
+                email: memberEmail,
+            })
+
+            if (linkError) {
+                return NextResponse.json({ error: 'Impossibile generare link: ' + linkError.message }, { status: 500 })
+            }
+
+            // Build the recovery URL pointing to our confirm page
+            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://landing.metodosincro.com'
+            const recoveryUrl = `${baseUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=recovery&next=/set-password`
+
+            return NextResponse.json({ 
+                success: true, 
+                action: 'reset_password',
+                recovery_url: recoveryUrl,
+            })
+        } catch (e: any) {
+            return NextResponse.json({ error: 'Errore: ' + e.message }, { status: 500 })
+        }
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })

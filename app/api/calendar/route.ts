@@ -52,8 +52,8 @@ export async function GET(req: NextRequest) {
         if (to) query = query.lte('start_time', to)
         if (closerId) query = query.eq('closer_id', closerId)
 
-        // Setter sees only their own booking events
-        if (ctx.role === 'setter') {
+        // Venditore sees only their own booking events
+        if (ctx.role === 'closer') {
             query = query.eq('setter_id', ctx.auth_user_id)
         }
         // Closer sees only their own calendar
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
         const { data, error } = await query
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-        // Enrich with closer/setter names — fetch members + profiles separately (FK embed is unreliable)
+        // Enrich with closer/venditore names — fetch members + profiles separately (FK embed is unreliable)
         const { data: members } = await supabase
             .from('organization_members')
             .select('user_id, role, department, display_color')
@@ -898,8 +898,8 @@ Telefono: ${lead_phone || 'Non specificato'}
             return NextResponse.json({ error: 'start_time e end_time richiesti' }, { status: 400 })
         }
 
-        // Only setters, admin, owner, manager can auto-book
-        if (!['setter', 'admin', 'owner', 'manager'].includes(ctx.role)) {
+        // Only venditori, admin, owner, manager can auto-book
+        if (!['closer', 'admin', 'owner', 'manager'].includes(ctx.role)) {
             return NextResponse.json({ error: 'Permesso negato' }, { status: 403 })
         }
 

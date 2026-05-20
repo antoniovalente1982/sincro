@@ -500,7 +500,7 @@ export default function DashboardOverview({ userName, orgName, leadCount, funnel
                 <h2 className="text-base font-bold th-heading mb-3">Azioni rapide</h2>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {[
-                        { label: 'Gestisci Pipeline', desc: 'CRM setter/closer', icon: Users, href: '/dashboard/crm', color: '#3b82f6' },
+                        { label: 'Gestisci Pipeline', desc: 'CRM venditori', icon: Users, href: '/dashboard/crm', color: '#3b82f6' },
                         { label: 'Vedi Analytics', desc: 'Performance', icon: BarChart3, href: '/dashboard/analytics', color: '#8b5cf6' },
                         { label: 'Connessioni', desc: 'Meta Ads / CAPI', icon: Plug, href: '/dashboard/connections', color: '#10b981' },
                         { label: 'Crea Funnel', desc: 'Landing page', icon: Target, href: '/dashboard/funnels', color: '#f59e0b' },

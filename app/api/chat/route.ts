@@ -65,7 +65,7 @@ Formattazione: usa **grassetto** per evidenziare. Usa emoji. Sii conciso ma comp
 CONTESTO BUSINESS:
 Metodo Sincro = Mental Coaching per giovani calciatori, fondato da Antonio Valente.
 Prodotti: Platinum (€2.250 + IVA, 3 mesi) e Impact (€3.000 + IVA, 2+2 mesi).
-Funnel: Meta Ads → Landing Page → Lead → Setter (qualifica) → Closer (vendita).
+Funnel: Meta Ads → Landing Page → Lead → Venditore (qualifica + vendita).
 Target: Genitori di giovani calciatori 10-20 anni (core 14-15 anni).
 
 AI ENGINE / PILOTA AUTOMATICO:

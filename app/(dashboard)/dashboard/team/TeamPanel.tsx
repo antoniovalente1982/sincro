@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { UserCircle, Plus, Trophy, TrendingUp, DollarSign, Users as UsersIcon, Mail, Shield, Trash2, X, Crown, Phone, Eye, EyeOff, RotateCcw, Filter, CalendarDays, Shuffle, ToggleLeft, ToggleRight, Scale, HandIcon } from 'lucide-react'
+import { UserCircle, Plus, Trophy, TrendingUp, DollarSign, Users as UsersIcon, Mail, Shield, Trash2, X, Crown, Phone, Eye, EyeOff, RotateCcw, Filter, CalendarDays, Shuffle, ToggleLeft, ToggleRight, Scale, HandIcon, KeyRound } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 import { createClient } from '@/lib/supabase/client'
 import { ROLE_CONFIG, DEPARTMENT_CONFIG, INVITABLE_ROLES, ALL_DEPARTMENTS, type Role, type Department } from '@/lib/permissions'
@@ -27,8 +27,8 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
     const [loading, setLoading] = useState(true)
     const [showInvite, setShowInvite] = useState(false)
     const [inviteEmail, setInviteEmail] = useState('')
-    const [inviteRole, setInviteRole] = useState<string>('setter')
-    const [inviteDepartment, setInviteDepartment] = useState<string>('setting')
+    const [inviteRole, setInviteRole] = useState<string>('closer')
+    const [inviteDepartment, setInviteDepartment] = useState<string>('sales')
     const [inviting, setInviting] = useState(false)
     const [showDeactivated, setShowDeactivated] = useState(false)
     const [deptFilter, setDeptFilter] = useState<string>('all')
@@ -37,6 +37,9 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
     const [loadError, setLoadError] = useState<string | null>(null)
     const [inviteLink, setInviteLink] = useState<string | null>(null)
     const [linkCopied, setLinkCopied] = useState(false)
+    const [resetPasswordLink, setResetPasswordLink] = useState<string | null>(null)
+    const [resetPasswordFor, setResetPasswordFor] = useState<string>('')
+    const [resetLinkCopied, setResetLinkCopied] = useState(false)
     const supabase = createClient()
 
     useEffect(() => { loadMembers() }, [])
@@ -145,9 +148,9 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
     const assignModes = [
         { value: 'round_robin', label: 'Round Robin', icon: Shuffle, desc: 'Ciclico: A→B→C→A→B→C', color: '#3b82f6' },
         { value: 'manual', label: 'Manuale', icon: UsersIcon, desc: 'Assegna manualmente dal CRM', color: '#71717a' },
-        { value: 'availability', label: 'Disponibilità', icon: Shield, desc: 'Solo setter disponibili con limite', color: '#22c55e' },
+        { value: 'availability', label: 'Disponibilità', icon: Shield, desc: 'Solo venditori disponibili con limite', color: '#22c55e' },
         { value: 'performance', label: 'Performance', icon: TrendingUp, desc: 'Priorità a chi chiude di più', color: '#f59e0b' },
-        { value: 'weighted', label: 'Weighted', icon: Scale, desc: 'Peso configurabile per setter', color: '#a855f7' },
+        { value: 'weighted', label: 'Weighted', icon: Scale, desc: 'Peso configurabile per venditore', color: '#a855f7' },
     ]
 
     const handleInvite = async (e: React.FormEvent) => {
@@ -227,6 +230,31 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
         })
     }
 
+    const handleResetPassword = async (member: TeamMember) => {
+        const email = (member.profiles as any)?.email || member.invited_email
+        if (!email) {
+            alert('Email non disponibile per questo membro')
+            return
+        }
+        try {
+            const res = await fetch('/api/team', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset_password', member_id: member.id, email }),
+            })
+            const data = await res.json()
+            if (res.ok && data.recovery_url) {
+                setResetPasswordLink(data.recovery_url)
+                setResetPasswordFor((member.profiles as any)?.full_name || email)
+                setResetLinkCopied(false)
+            } else {
+                alert('Errore: ' + (data.error || 'Impossibile generare link'))
+            }
+        } catch (e) {
+            alert('Errore di rete, riprova.')
+        }
+    }
+
     const canManage = userRole === 'owner' || userRole === 'admin'
     
     const activeMembers = members.filter(m => !m.deactivated_at)
@@ -236,7 +264,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
         ? activeMembers 
         : activeMembers.filter(m => m.department === deptFilter)
     
-    const setters = filteredActive.filter(m => m.role === 'setter')
+    const setters = filteredActive.filter(m => m.role === 'closer')
     const closers = filteredActive.filter(m => m.role === 'closer')
 
     const formatCurrency = (v: number) =>
@@ -247,7 +275,6 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
         if (!cfg) return UserCircle
         if (role === 'owner') return Crown
         if (role === 'admin') return Shield
-        if (role === 'setter') return Phone
         if (role === 'closer') return TrendingUp
         if (role === 'manager') return UsersIcon
         return UserCircle
@@ -276,9 +303,9 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                 </div>
                 <div className="flex items-center gap-2">
                     <HowItWorks compact steps={[
-                        { emoji: '👑', title: 'Ruoli e Permessi', description: 'Owner ha controllo totale. Admin gestisce team e lead. Setter gestisce i lead fino ad Appuntamento. Closer da Appuntamento in poi.' },
+                        { emoji: '👑', title: 'Ruoli e Permessi', description: 'Owner ha controllo totale. Admin gestisce team e lead. Venditori gestiscono i lead dall\'inizio alla vendita.' },
                         { emoji: '📧', title: 'Invita Membro', description: 'Invita via email con ruolo e reparto. Il membro riceve un link di accesso diretto — nessuna password da configurare.' },
-                        { emoji: '🏆', title: 'Leaderboard', description: 'Classifica automatica per Setter (lead assegnati) e Closer (vendite e revenue). Alimentata dai dati CRM.' },
+                        { emoji: '🏆', title: 'Leaderboard', description: 'Classifica automatica Venditori per lead assegnati, vendite e revenue. Alimentata dai dati CRM.' },
                         { emoji: '🔄', title: 'Disattivazione', description: 'Disattiva un membro per revocare l\'accesso. I dati storici restano. Puoi riassegnare i suoi lead a un altro membro.' },
                         { emoji: '🏬', title: 'Reparti', description: 'Ogni membro appartiene a un reparto (Setting, Closing, Marketing, ecc). Filtra per reparto per vedere le performance.' },
                     ]} footer="Solo Owner e Admin possono invitare, disattivare e gestire i ruoli dei membri." />
@@ -367,7 +394,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         <div className="glass-card p-5">
                             <div className="flex items-center gap-2 mb-4">
                                 <Trophy className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                                <h3 className="text-sm font-bold th-heading">Leaderboard Setter</h3>
+                                <h3 className="text-sm font-bold th-heading">Leaderboard Venditori</h3>
                             </div>
                             <div className="space-y-3">
                                 {setters.sort((a, b) => b.leads_assigned - a.leads_assigned).map((m, i) => (
@@ -469,13 +496,22 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             <span className="text-xs font-medium" style={{ color: 'var(--color-surface-500)' }}>{m.leads_assigned} lead</span>
                                         )}
                                         {canManage && m.role !== 'owner' && (
-                                            <button 
-                                                onClick={() => setShowDeactivateModal(m)} 
-                                                className="p-1.5 rounded-lg th-bg-hover" 
-                                                title="Disattiva"
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
-                                            </button>
+                                            <>
+                                                <button 
+                                                    onClick={() => handleResetPassword(m)} 
+                                                    className="p-1.5 rounded-lg th-bg-hover" 
+                                                    title="Reset Password"
+                                                >
+                                                    <KeyRound className="w-3.5 h-3.5" style={{ color: '#f59e0b' }} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => setShowDeactivateModal(m)} 
+                                                    className="p-1.5 rounded-lg th-bg-hover" 
+                                                    title="Disattiva"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -603,7 +639,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                     <select className="input" value={reassignTo} onChange={e => setReassignTo(e.target.value)}>
                                         <option value="">— Non riassegnare (restano all'ex-membro) —</option>
                                         {activeMembers
-                                            .filter(m => m.id !== showDeactivateModal.id && (m.role === 'setter' || m.role === 'closer' || m.role === 'admin' || m.role === 'owner'))
+                                            .filter(m => m.id !== showDeactivateModal.id && (m.role === 'closer' || m.role === 'admin' || m.role === 'owner'))
                                             .map(m => (
                                                 <option key={m.id} value={m.user_id}>
                                                     {(m.profiles as any)?.full_name || (m.profiles as any)?.email} ({ROLE_CONFIG[m.role as Role]?.label})
@@ -668,6 +704,58 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         <div className="flex justify-end pt-2">
                             <button 
                                 onClick={() => setInviteLink(null)} 
+                                className="btn-secondary"
+                            >
+                                Chiudi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Reset Password Link */}
+            {resetPasswordLink && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
+                    <div className="glass-card p-6 w-full max-w-lg mx-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+                                <KeyRound className="w-5 h-5" style={{ color: '#f59e0b' }} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold th-heading">Reset Password</h3>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-400)' }}>Link di reset per <strong className="th-heading">{resetPasswordFor}</strong></p>
+                            </div>
+                        </div>
+
+                        <div className="p-3 rounded-xl text-sm" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', color: 'var(--color-surface-400)' }}>
+                            Invia questo link al membro del team. Cliccandolo potrà impostare una nuova password.
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                readOnly
+                                value={resetPasswordLink}
+                                className="input flex-1 text-xs font-mono"
+                                style={{ cursor: 'text', userSelect: 'all' }}
+                                onClick={(e) => (e.target as HTMLInputElement).select()}
+                            />
+                            <button
+                                onClick={async () => {
+                                    await navigator.clipboard.writeText(resetPasswordLink)
+                                    setResetLinkCopied(true)
+                                    setTimeout(() => setResetLinkCopied(false), 3000)
+                                }}
+                                className="btn-primary whitespace-nowrap"
+                                style={{ minWidth: '120px' }}
+                            >
+                                {resetLinkCopied ? '✓ Copiato!' : '📋 Copia Link'}
+                            </button>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button 
+                                onClick={() => setResetPasswordLink(null)} 
                                 className="btn-secondary"
                             >
                                 Chiudi
@@ -762,7 +850,7 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                         {/* Setter list */}
                         {settersList.length > 0 && (
                             <div>
-                                <div className="text-xs font-semibold th-heading mb-2">Team Setter/Closer</div>
+                                <div className="text-xs font-semibold th-heading mb-2">Team Venditori</div>
                                 <div className="space-y-2">
                                     {settersList.map(s => (
                                         <div key={s.user_id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)' }}>

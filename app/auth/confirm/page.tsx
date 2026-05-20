@@ -33,7 +33,7 @@ function ConfirmContent() {
                 return
             }
 
-            if (type === 'invite') {
+            if (type === 'invite' || type === 'recovery') {
                 router.push('/set-password')
             } else {
                 router.push('/dashboard')

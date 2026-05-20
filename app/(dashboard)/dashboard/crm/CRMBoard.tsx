@@ -127,7 +127,7 @@ function calculateLeadScore(lead: Lead): { score: number; label: string; emoji: 
     return { score, label: 'Cold', emoji: '🧊', color: '#3b82f6', icon: Snowflake }
 }
 
-// ── Setter Workflow Constants (exact values from Google Sheet "Leads (social)") ──
+// ── Qualifica Workflow Constants (exact values from Google Sheet "Leads (social)") ──
 const SETTER_STEPS: { value: string; label: string; color: string }[] = [
     { value: 'Chiamato', label: 'Chiamato', color: '#22c55e' },
     { value: '1° chiamata fatta', label: '1° chiamata fatta', color: '#eab308' },
@@ -185,7 +185,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         if (!m.profiles?.email) return 'Utente Sincro';
         return m.profiles.email.split('@')[0].split('.').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
     }
-    const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+    const assignableSetters = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
     const assignableClosers = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
 
     const role = (userRole || 'viewer') as Role
@@ -242,7 +242,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         { id: 'date', label: 'Date Log' },
         { id: 'appuntamenti', label: 'Appuntamenti' },
         { id: 'assegnazioni', label: 'Assegnazioni Team' },
-        { id: 'step_setter', label: 'Step Setter' },
+        { id: 'step_setter', label: 'Step Qualifica' },
         { id: 'step_venditore', label: 'Step Venditore' },
     ]
     // -------------------------------------
@@ -363,7 +363,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const matchStep = stepFilter === 'all' || l.setter_step === stepFilter
         const matchEsito = esitoFilter === 'all' || l.esito === esitoFilter
 
-        // Role-based filter: setter/closer see only their assigned leads
+        // Role-based filter: venditori see only their assigned leads
         const matchOwnership = !filterOwn || l.setter_id === userId || l.closer_id === userId || l.assigned_to === userId || (!l.setter_id && !l.closer_id && !l.assigned_to)
         
         return matchSearch && matchObjective && matchPipeline && matchDate && matchSource && matchTag && matchSetter && matchCloser && matchStep && matchEsito && matchOwnership
@@ -412,12 +412,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
         const toSlug = toStage?.slug || ''
         
         if (!canMoveLead(role, department, fromSlug, toSlug, fromStage?.is_won, toStage?.is_won, fromStage?.is_lost, toStage?.is_lost)) {
-            const zoneMsg = role === 'setter' 
-                ? 'Come Setter puoi spostare lead solo fino ad "Appuntamento".' 
-                : role === 'closer' 
-                    ? 'Come Closer puoi spostare lead solo da "Appuntamento" in poi.'
-                    : 'Non hai i permessi per spostare lead.'
-            alert(`⛔ ${zoneMsg}`)
+            alert(`⛔ Non hai i permessi per spostare lead tra questi stage.`)
             setDragLead(null)
             return
         }
@@ -744,7 +739,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         { emoji: '🔄', title: 'Auto-Refresh', description: 'I nuovi lead vengono rilevati automaticamente ogni 60 secondi con notifica in tempo reale. Nessun refresh manuale necessario.' },
                         { emoji: '💰', title: 'Tracciamento Vendite', description: 'Quando sposti un lead in "Vendita", devi prima assegnare un valore (€). Questo permette a Meta di calcolare il ROAS reale delle tue campagne.' },
                         { emoji: '🏷️', title: 'Filtri Avanzati', description: 'Filtra per obiettivo, tag, fonte traffico, data acquisizione o ultimo movimento. Puoi anche cercare per nome, email o telefono.' },
-                        { emoji: '👥', title: 'Ruoli e Permessi', description: 'Setter possono spostare lead fino ad Appuntamento. Closer da Appuntamento in poi. Admin/Owner hanno accesso completo.' },
+                        { emoji: '👥', title: 'Ruoli e Permessi', description: 'I venditori possono spostare lead in tutte le fasi. Admin/Owner hanno accesso completo.' },
                     ]} footer="Ogni pipeline può avere stage personalizzati con eventi CAPI. Puoi creare multiple pipeline per fonti diverse (Meta, Google, Organico)." />
                     {/* Move Filters out of here */}
                     <div className="relative">
@@ -819,7 +814,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     value={setterFilter}
                     onChange={e => setSetterFilter(e.target.value)}
                 >
-                    <option value="all">👤 Tutti i Setter</option>
+                    <option value="all">👤 Tutti i Venditori (Q)</option>
                     <option value="">Non Assegnato</option>
                     {assignableSetters.map((m: any) => (
                         <option key={m.user_id} value={m.user_id}>{getDisplayName(m)}</option>
@@ -963,7 +958,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                         onChange={e => handleBulkAssignSetter(e.target.value)}
                         value=""
                     >
-                        <option value="" disabled>Setter...</option>
+                        <option value="" disabled>Qualificatore...</option>
                         <option value="none">Nessuno</option>
                         {assignableSetters.map((m: any) => (
                             <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
@@ -1181,7 +1176,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         {!hiddenCardFields['step_setter'] && (canEditSetterSteps || lead.setter_step || lead.try_anthon || lead.esito) ? (
                                         <div className={`mt-2 p-2 rounded-lg border border-[var(--color-surface-200)] bg-[var(--color-surface-50)] transition-opacity ${!canEditSetterSteps ? 'opacity-50 grayscale-[30%]' : ''}`} onClick={e => e.stopPropagation()}>
                                             <div className="text-[9px] font-bold th-muted uppercase tracking-widest mb-1.5 flex items-center justify-between">
-                                                <span>🛠 Setter</span>
+                                                <span>🛠 Qualifica</span>
                                             </div>
                                             <div className="flex flex-wrap gap-1">
                                             {/* Step (Chiamato) */}
@@ -1454,7 +1449,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                                 value={lead.setter_id || ''}
                                                                 onChange={e => handleAssignSetter(lead.id, e.target.value)}
                                                             >
-                                                                <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Setter</option>
+                                                                <option value="" className="th-muted bg-[var(--select-option-bg)]">+ Assegna Qualificatore</option>
                                                                 {assignableSetters.map((m: any) => (
                                                                     <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
                                                                         {getDisplayName(m)}
@@ -1603,7 +1598,7 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
         esito: lead?.esito || '',
     })
 
-    const assignableSetters = members.filter((m: any) => m.role === 'setter' || (m.role === 'manager' && m.department === 'setting'))
+    const assignableSetters = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
     const assignableClosers = members.filter((m: any) => m.role === 'closer' || (m.role === 'manager' && m.department === 'sales'))
     // Tags configuration happens globally (in SettingsPanel), here we only select
 
@@ -1682,9 +1677,9 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="label">Setter</label>
+                            <label className="label">Qualificatore</label>
                             <select className="input" value={form.setter_id} onChange={e => setForm({ ...form, setter_id: e.target.value })}>
-                                <option value="">Nessun Setter</option>
+                                <option value="">Nessun Qualificatore</option>
                                 {assignableSetters.map((m: any) => (
                                     <option key={m.user_id} value={m.user_id}>
                                         {(m.profiles as any)?.full_name || (m.profiles as any)?.email}
@@ -1705,9 +1700,9 @@ function LeadModal({ lead, stages, pipelines, activePipelineId, members, activeC
                         </div>
                     </div>
 
-                    {/* Setter Workflow Fields */}
+                    {/* Qualifica Workflow Fields */}
                     <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
-                        <h3 className="text-sm font-semibold th-heading mb-3">📞 Workflow Setter</h3>
+                        <h3 className="text-sm font-semibold th-heading mb-3">📞 Workflow Qualifica</h3>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label className="label">Step (Chiamato)</label>

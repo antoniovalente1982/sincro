@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Lock, Eye, EyeOff, Check } from 'lucide-react'
+import { Lock, Eye, EyeOff, Check, Loader2 } from 'lucide-react'
 
 export default function SetPasswordPage() {
     const [password, setPassword] = useState('')
@@ -13,8 +13,25 @@ export default function SetPasswordPage() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [checking, setChecking] = useState(true)
+    const [hasSession, setHasSession] = useState(false)
     const router = useRouter()
     const supabase = createClient()
+
+    // Verify user has an active session before showing the form
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                // No session — redirect to login
+                router.push('/login?error=session_expired')
+                return
+            }
+            setHasSession(true)
+            setChecking(false)
+        }
+        checkSession()
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -52,6 +69,20 @@ export default function SetPasswordPage() {
             }, 1500)
         }
     }
+
+    // Show loading while checking session
+    if (checking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at top, #1a1a2e 0%, #09090b 60%)' }}>
+                <div className="text-center space-y-4">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: '#a78bfa' }} />
+                    <p className="text-white font-medium">Verifica sessione...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (!hasSession) return null
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at top, #1a1a2e 0%, #09090b 60%)' }}>
@@ -142,7 +173,7 @@ export default function SetPasswordPage() {
                 )}
 
                 <p className="text-center mt-6 text-sm" style={{ color: 'var(--color-surface-600)' }}>
-                    Il tuo account è stato creato. Imposta una password per continuare.
+                    Imposta una password per continuare. Senza password non potrai rientrare.
                 </p>
             </div>
         </div>

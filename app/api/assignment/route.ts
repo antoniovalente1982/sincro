@@ -37,12 +37,12 @@ export async function GET() {
         .select('*, profiles:user_id (full_name, email)')
         .eq('organization_id', ctx.organization_id)
 
-    // Get all members who could be setters (setter/closer roles)
+    // Get all members who could be closers
     const { data: members } = await supabase
         .from('organization_members')
         .select('user_id, role, profiles:user_id (full_name, email)')
         .eq('organization_id', ctx.organization_id)
-        .in('role', ['setter', 'closer'])
+        .in('role', ['closer'])
 
     // Lead stats per setter
     const { data: leadStats } = await supabase

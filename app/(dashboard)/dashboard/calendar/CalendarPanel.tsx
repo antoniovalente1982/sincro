@@ -143,7 +143,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
         return () => clearInterval(interval)
     }, [])
 
-    const canBook = ['setter', 'admin', 'owner', 'manager'].includes(userRole)
+    const canBook = ['closer', 'admin', 'owner', 'manager'].includes(userRole)
     const canManageAvailability = ['closer', 'admin', 'owner', 'manager'].includes(userRole)
 
     const toggleRoundRobin = async (userId: string, targetValue: boolean) => {
@@ -767,7 +767,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             { emoji: '🎯', title: 'Auto-Assegnazione', description: 'Prenota con Round Robin (ciclico), Performance (chi chiude di più) o Disponibilità (meno carico).' },
                             { emoji: '✅', title: 'Gestione Esiti', description: 'Dopo l\'appuntamento, il closer segna l\'esito: Completato, No Show o Annullato.' },
                             { emoji: '⚙️', title: 'Configura Disponibilità', description: 'Ogni venditore configura i suoi giorni/orari, durata slot e pausa tra appuntamenti.' },
-                        ]} footer="I setter possono solo prenotare. I closer gestiscono gli esiti. Admin/Owner configurano le disponibilità di tutti." />
+                        ]} footer="I venditori possono prenotare e gestire gli esiti. Admin/Owner configurano le disponibilità di tutti." />
                         {['owner', 'admin'].includes(userRole) && (
                             <button
                                 onClick={() => setShowServiceTypesManager(true)}
@@ -1313,7 +1313,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                             {selectedEvent.setter_name && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Users className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                                    <span className="th-heading">Setter: {selectedEvent.setter_name}</span>
+                                    <span className="th-heading">Prenotato da: {selectedEvent.setter_name}</span>
                                 </div>
                             )}
                             {(selectedEvent.lead_phone || selectedEvent.leads?.phone) && (
