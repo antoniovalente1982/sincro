@@ -58,6 +58,18 @@ export async function GET(req: NextRequest) {
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )
 
+        // Verifica che l'utente sia un venditore (closer)
+        const { data: member } = await adminClient
+            .from('organization_members')
+            .select('role')
+            .eq('user_id', state)
+            .is('deactivated_at', null)
+            .single()
+
+        if (!member || member.role !== 'closer') {
+            return NextResponse.redirect(`${origin}/dashboard/settings?error=only_closers`)
+        }
+
         // Aggiorna l'organization_member con i token
         const updatePayload: any = {
             google_access_token: access_token,

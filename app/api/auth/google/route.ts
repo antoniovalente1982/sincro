@@ -9,13 +9,26 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { origin } = new URL(req.url)
+
+    // Verifica che l'utente sia un venditore (closer)
+    const { data: member } = await supabase
+        .from('organization_members')
+        .select('role')
+        .eq('user_id', user.id)
+        .is('deactivated_at', null)
+        .single()
+
+    if (!member || member.role !== 'closer') {
+        return NextResponse.redirect(`${origin}/dashboard/settings?error=only_closers`)
+    }
+
     const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
     
     if (!GOOGLE_CLIENT_ID) {
         return NextResponse.json({ error: 'Google Client ID not configured' }, { status: 500 })
     }
 
-    const { origin } = new URL(req.url)
     const redirectUri = `${origin}/api/auth/google/callback`
 
     // Richiediamo permessi offline per avere il refresh token
