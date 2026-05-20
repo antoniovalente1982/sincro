@@ -7,7 +7,7 @@ export default async function SettingsPage() {
 
     const { data: member } = await supabase
         .from('organization_members')
-        .select('organization_id, role, google_access_token')
+        .select('organization_id, role, department, google_access_token')
         .eq('user_id', user?.id || '')
         .single()
 
@@ -36,6 +36,7 @@ export default async function SettingsPage() {
             crmTags={tagsRes.data || []}
             profile={{ ...(profileRes.data || {}), phone: freshUserMetadata?.phone || profileRes.data?.phone || '' }}
             userRole={member?.role || 'viewer'}
+            userDepartment={member?.department || null}
             userEmail={user?.email || ''}
             isGoogleConnected={!!member?.google_access_token}
         />

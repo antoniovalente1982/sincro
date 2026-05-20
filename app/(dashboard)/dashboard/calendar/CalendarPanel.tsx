@@ -77,8 +77,11 @@ interface ServiceType {
     position: number
 }
 
+import type { Department } from '@/lib/permissions'
+
 interface Props {
     userRole: string
+    userDepartment?: Department
     userId: string
     prefillLead?: { id: string; name: string; email?: string; phone?: string } | null
     isGoogleConnected?: boolean
@@ -90,7 +93,7 @@ const ASSIGNMENT_MODES = [
     { value: 'availability', label: 'Disponibilità', icon: Shield, desc: 'Meno carico', color: '#22c55e' },
 ]
 
-export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleConnected }: Props) {
+export default function CalendarPanel({ userRole, userDepartment, userId, prefillLead, isGoogleConnected }: Props) {
     const supabase = createClient()
     const [currentDate, setCurrentDate] = useState(new Date())
     const [events, setEvents] = useState<CalendarEvent[]>([])
@@ -799,7 +802,7 @@ export default function CalendarPanel({ userRole, userId, prefillLead, isGoogleC
                 </div>
 
                 {/* Google re-auth banner */}
-                {isGoogleConnected === false && userRole === 'closer' && (
+                {isGoogleConnected === false && (userRole === 'closer' || (userRole === 'manager' && userDepartment === 'sales')) && (
                     <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(66,133,244,0.08)', border: '1px solid rgba(66,133,244,0.2)' }}>
                         <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

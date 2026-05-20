@@ -58,15 +58,18 @@ export async function GET(req: NextRequest) {
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )
 
-        // Verifica che l'utente sia un venditore (closer)
+        // Verifica che l'utente sia un venditore (closer) o responsabile vendite (manager in department sales)
         const { data: member } = await adminClient
             .from('organization_members')
-            .select('role')
+            .select('role, department')
             .eq('user_id', state)
             .is('deactivated_at', null)
             .single()
 
-        if (!member || member.role !== 'closer') {
+        const isCloser = member?.role === 'closer'
+        const isSalesManager = member?.role === 'manager' && member?.department === 'sales'
+
+        if (!member || (!isCloser && !isSalesManager)) {
             return NextResponse.redirect(`${origin}/dashboard/settings?error=only_closers`)
         }
 

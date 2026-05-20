@@ -291,7 +291,7 @@ export async function GET(req: NextRequest) {
             .select('user_id, in_round_robin')
             .eq('organization_id', ctx.organization_id)
             .is('deactivated_at', null)
-            .eq('role', 'closer')
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
             
         const activeClosers = (closers || []).filter(c => c.in_round_robin)
         if (activeClosers.length === 0) return NextResponse.json({ slots: [] })
@@ -461,7 +461,7 @@ export async function GET(req: NextRequest) {
             .select('user_id, role, display_color, in_round_robin')
             .eq('organization_id', ctx.organization_id)
             .is('deactivated_at', null)
-            .eq('role', 'closer')
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
 
         // Fetch profiles separately (no direct FK config mapping to profiles usually available)
         const userIds = (closers || []).map((c: any) => c.user_id).filter(Boolean)
@@ -910,7 +910,7 @@ Telefono: ${lead_phone || 'Non specificato'}
             .eq('organization_id', ctx.organization_id)
             .is('deactivated_at', null)
             .eq('in_round_robin', true)
-            .eq('role', 'closer')
+            .or('role.eq.closer,and(role.eq.manager,department.eq.sales)')
 
         if (!memberClosers || memberClosers.length === 0) {
             return NextResponse.json({ error: 'Nessun venditore round-robin disponibile' }, { status: 400 })

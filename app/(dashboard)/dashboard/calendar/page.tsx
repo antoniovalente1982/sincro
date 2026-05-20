@@ -31,6 +31,7 @@ export default async function CalendarPage({
     return (
         <CalendarPanel
             userRole={member?.role || 'viewer'}
+            userDepartment={member?.department || null}
             userId={user?.id || ''}
             prefillLead={prefillLead}
             isGoogleConnected={isGoogleConnected}

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Settings, Building2, User, Layers, Plus, Trash2, GripVertical, Save, X, Zap, AlertTriangle, Shuffle, Shield, TrendingUp, Users as UsersIcon, ToggleLeft, ToggleRight, Gauge, Loader2, Tag, Camera, CalendarDays } from 'lucide-react'
 import Link from 'next/link'
 
+import type { Department } from '@/lib/permissions'
+
 interface Stage {
     id: string; name: string; slug: string; color: string; sort_order: number
     is_won?: boolean; is_lost?: boolean; fire_capi_event?: string; pipeline_id?: string
@@ -29,11 +31,12 @@ interface Props {
     crmTags: CrmTag[]
     profile: any
     userRole: string
+    userDepartment?: Department
     userEmail: string
     isGoogleConnected?: boolean
 }
 
-export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userEmail, isGoogleConnected }: Props) {
+export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userDepartment, userEmail, isGoogleConnected }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
@@ -117,7 +120,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             const params = new URLSearchParams(window.location.search)
             const errorParam = params.get('error')
             if (errorParam === 'only_closers') {
-                alert('Solo i venditori (closers) possono collegare il proprio calendario.')
+                alert('Solo i venditori (closers) o i responsabili vendite possono collegare il proprio calendario.')
                 // Pulisce l'URL per estetica
                 const url = new URL(window.location.href)
                 url.searchParams.delete('error')
@@ -713,7 +716,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             </div>
 
             {/* Integrazioni */}
-            {userRole === 'closer' && (
+            {(userRole === 'closer' || (userRole === 'manager' && userDepartment === 'sales')) && (
                 <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Zap className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
