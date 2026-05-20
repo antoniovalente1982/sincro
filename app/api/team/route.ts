@@ -91,74 +91,93 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { email, role, department } = body
     const supabaseAdmin = getSupabaseAdmin()
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://landing.metodosincro.com'
 
-    // Check if user exists — use admin client to bypass RLS
+    // ── 1. Find or create the auth user ──
+    let newUserId: string | null = null
+    let confirmUrl: string | null = null
+
+    // Check if profile already exists
     const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single()
 
-    let newUserId = profile?.id
-    let confirmUrl: string | null = null
-    let isNewUser = !newUserId
+    newUserId = profile?.id || null
 
     if (!newUserId) {
-        // Check if user already exists in auth (e.g. from a previous invite attempt)
+        // Check if user exists in Supabase Auth (from a previous invite attempt)
         const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
         const existingUser = existingUsers?.users?.find(
             (u: any) => u.email?.toLowerCase() === email.toLowerCase()
         )
-
         if (existingUser) {
-            // User exists in auth but profile check failed — reuse their ID
             newUserId = existingUser.id
-            isNewUser = false
-
-            // Ensure profile exists
-            await supabaseAdmin.from('profiles').upsert({
-                id: newUserId,
-                email: email,
-                full_name: email.split('@')[0]
-            }, { onConflict: 'id' })
-        } else {
-            // Truly new user — create via invite link
-            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-                type: 'invite',
-                email: email,
-            })
-            
-            if (linkError) {
-                return NextResponse.json({ error: "Impossibile generare invito: " + linkError.message }, { status: 500 })
-            }
-            
-            if (!linkData?.user?.id) {
-                return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
-            }
-            
-            newUserId = linkData.user.id
-            confirmUrl = `https://landing.metodosincro.com/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/dashboard/team`
-
-            // Profile is created by the handle_new_user trigger,
-            // but upsert as safety net
-            await supabaseAdmin.from('profiles').upsert({
-                id: newUserId,
-                email: email,
-                full_name: email.split('@')[0]
-            }, { onConflict: 'id' })
         }
     }
 
-    // Check if already a member of this org
+    if (newUserId) {
+        // User already exists in auth — generate a recovery link so they can set/reset password
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            type: 'recovery',
+            email: email,
+        })
+
+        if (linkError) {
+            console.error('[TEAM POST] Recovery link error:', linkError.message)
+        } else if (linkData?.properties?.hashed_token) {
+            confirmUrl = `${baseUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=recovery&next=/set-password`
+        }
+
+        // Ensure profile exists
+        await supabaseAdmin.from('profiles').upsert({
+            id: newUserId,
+            email: email,
+            full_name: email.split('@')[0]
+        }, { onConflict: 'id' })
+    } else {
+        // Truly new user — create via invite link
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            type: 'invite',
+            email: email,
+        })
+        
+        if (linkError) {
+            return NextResponse.json({ error: "Impossibile generare invito: " + linkError.message }, { status: 500 })
+        }
+        
+        if (!linkData?.user?.id) {
+            return NextResponse.json({ error: "Nessun ID utente restituito dall'invito" }, { status: 500 })
+        }
+        
+        newUserId = linkData.user.id
+        confirmUrl = `${baseUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&next=/set-password`
+
+        // Profile is created by the handle_new_user trigger, but upsert as safety net
+        await supabaseAdmin.from('profiles').upsert({
+            id: newUserId,
+            email: email,
+            full_name: email.split('@')[0]
+        }, { onConflict: 'id' })
+    }
+
+    // ── 2. Check existing membership ──
     const { data: existingMember } = await supabaseAdmin
         .from('organization_members')
-        .select('id, deactivated_at')
+        .select('id, deactivated_at, joined_at')
         .eq('organization_id', ctx.organization_id)
         .eq('user_id', newUserId)
         .single()
 
     if (existingMember && !existingMember.deactivated_at) {
-        return NextResponse.json({ error: 'Questo utente è già membro del team' }, { status: 409 })
+        // Already an active member — return the link anyway so owner can re-send it
+        return NextResponse.json({ 
+            ...existingMember, 
+            invite_url: confirmUrl,
+            already_member: true,
+            message: 'Utente già nel team. Link di accesso rigenerato.'
+        })
     }
 
     // Reactivate if previously deactivated
@@ -170,7 +189,9 @@ export async function POST(req: NextRequest) {
                 department: department || null,
                 deactivated_at: null,
                 deactivated_by: null,
-                joined_at: new Date().toISOString(),
+                // Don't set joined_at — user must complete onboarding first
+                joined_at: null,
+                invited_at: new Date().toISOString(),
             })
             .eq('id', existingMember.id)
             .select()
@@ -179,10 +200,10 @@ export async function POST(req: NextRequest) {
         if (error) {
             return NextResponse.json({ error: "Errore DB: " + error.message }, { status: 500 })
         }
-        return NextResponse.json({ ...data, reactivated: true })
+        return NextResponse.json({ ...data, reactivated: true, invite_url: confirmUrl })
     }
 
-    // Insert new membership
+    // ── 3. Insert new membership ──
     const { data, error } = await supabaseAdmin
         .from('organization_members')
         .insert({
@@ -191,8 +212,9 @@ export async function POST(req: NextRequest) {
             role,
             department: department || null,
             invited_email: email,
-            invited_at: isNewUser ? new Date().toISOString() : null,
-            joined_at: !isNewUser ? new Date().toISOString() : null,
+            invited_at: new Date().toISOString(),
+            // joined_at stays NULL until user completes onboarding (sets password)
+            joined_at: null,
         })
         .select()
         .single()
