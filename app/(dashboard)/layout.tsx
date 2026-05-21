@@ -318,7 +318,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </main>
 
             {/* Hermes AI Chat Widget */}
-            <HermesChat />
+            {userRole === 'owner' && <HermesChat />}
         </div>
     )
 }
