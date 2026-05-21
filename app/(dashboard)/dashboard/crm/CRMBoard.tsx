@@ -1853,14 +1853,12 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         <button onClick={() => onEdit(lead)} className="p-2 rounded-xl th-bg-hover">
                             <Edit3 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         </button>
-                        {(userRole === 'owner' || userRole === 'admin' || userRole === 'manager') && (
-                            <button onClick={() => {
-                                if (!confirm(`⚠️ ATTENZIONE: Stai per eliminare DEFINITIVAMENTE il lead "${lead.name}" dal CRM.\n\nQuesto NON elimina solo l'appuntamento, ma cancella il lead e tutti i suoi dati.\n\nSei sicuro?`)) return
-                                onDelete(lead.id)
-                            }} className="p-2 rounded-xl th-bg-hover" title="Elimina Lead (solo Admin)">
-                                <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
-                            </button>
-                        )}
+                        <button onClick={() => {
+                            if (!confirm(`⚠️ ATTENZIONE: Stai per eliminare DEFINITIVAMENTE il lead "${lead.name}" dal CRM.\n\nQuesto NON elimina solo l'appuntamento, ma cancella il lead e tutti i suoi dati.\n\nSei sicuro?`)) return
+                            onDelete(lead.id)
+                        }} className="p-2 rounded-xl th-bg-hover" title="Elimina Lead">
+                            <Trash2 className="w-4 h-4" style={{ color: '#ef4444' }} />
+                        </button>
                         <button onClick={onClose} className="p-2 rounded-xl th-bg-hover">
                             <X className="w-5 h-5" style={{ color: 'var(--color-surface-500)' }} />
                         </button>
