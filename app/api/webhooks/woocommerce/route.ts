@@ -49,9 +49,12 @@ async function fireCapiPurchase(orgId: string, userData: {
         const pixelId = conn.config?.pixel_id || conn.credentials?.pixel_id
         if (!pixelId) return
 
-        // Use order ID as part of event_id for deterministic deduplication
-        // If WooCommerce sends the same order twice, the event_id will match → Meta deduplicates
-        const eventId = `wc_purchase_${userData.orderId || Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+        // Use order ID for DETERMINISTIC event_id — no random component
+        // This ensures:
+        // 1. If WooCommerce sends the same order webhook twice → same event_id → Meta deduplicates
+        // 2. For Pixel↔CAPI dedup: configure the WooCommerce Pixel plugin (e.g. PixelYourSite)
+        //    to use the same format: wc_purchase_{order_id}  (Settings → Event Tracking → Purchase → Event ID)
+        const eventId = `wc_purchase_${userData.orderId || Date.now()}`
 
         const payload = {
             data: [{
