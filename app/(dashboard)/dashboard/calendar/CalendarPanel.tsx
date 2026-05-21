@@ -784,15 +784,6 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 <Tag className="w-4 h-4" /> Tipi
                             </button>
                         )}
-                        {canBook && (
-                            <button
-                                onClick={() => { resetBookingForm(); setShowBooking(true) }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-[1.02]"
-                                style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
-                            >
-                                <Plus className="w-4 h-4" /> Prenota
-                            </button>
-                        )}
                     </div>
                 </div>
 
