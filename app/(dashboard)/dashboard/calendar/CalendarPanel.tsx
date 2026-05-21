@@ -693,7 +693,7 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 {!c.has_availability && (
                                     <span title="Nessuna disponibilità"><AlertCircle className="w-3 h-3" style={{ color: '#f59e0b' }} /></span>
                                 )}
-                                {canManageAvailability && (userRole === 'owner' || userRole === 'admin') && (
+                                {canManageAvailability && (userRole === 'owner' || userRole === 'admin' || c.user_id === userId) && (
                                     <button onClick={(e) => { e.stopPropagation(); openAvailabilitySettings(c.user_id) }} className="hover:th-heading" style={{ color: 'var(--color-surface-500)' }}>
                                         <Settings className="w-3 h-3" />
                                     </button>
