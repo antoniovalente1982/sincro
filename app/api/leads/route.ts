@@ -332,11 +332,17 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
 
-    // Cascade delete relations manually to avoid FK constraint errors
-    await supabase.from('lead_activities').delete().eq('lead_id', id)
-    await supabase.from('tracked_events').delete().eq('lead_id', id)
+    const admin = createAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
 
-    const { error } = await supabase
+    // Cascade delete relations manually to avoid FK constraint errors
+    await admin.from('lead_activities').delete().eq('lead_id', id)
+    await admin.from('tracked_events').delete().eq('lead_id', id)
+    await admin.from('lead_tags').delete().eq('lead_id', id)
+
+    const { error } = await admin
         .from('leads')
         .delete()
         .eq('id', id)

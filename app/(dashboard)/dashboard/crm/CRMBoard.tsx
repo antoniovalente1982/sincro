@@ -671,11 +671,16 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
     const handleDeleteLead = async (id: string) => {
         try {
-            await fetch(`/api/leads?id=${id}`, { method: 'DELETE' })
+            const res = await fetch(`/api/leads?id=${id}`, { method: 'DELETE' })
+            if (!res.ok) {
+                const err = await res.json()
+                throw new Error(err.error || 'Errore durante l\'eliminazione')
+            }
             setLeads(prev => prev.filter(l => l.id !== id))
             setSelectedLead(null)
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error deleting:', err)
+            alert(err.message)
         }
     }
 
