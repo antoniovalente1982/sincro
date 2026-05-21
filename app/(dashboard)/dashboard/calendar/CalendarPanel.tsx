@@ -681,6 +681,11 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 )}
                             </div>
                             <div className="flex items-center gap-1.5">
+                                {canManageAvailability && (userRole === 'owner' || userRole === 'admin' || c.user_id === userId) && (
+                                    <button onClick={(e) => { e.stopPropagation(); openAvailabilitySettings(c.user_id) }} className="hover:th-heading" style={{ color: 'var(--color-surface-500)' }}>
+                                        <Settings className="w-3 h-3" />
+                                    </button>
+                                )}
                                 {c.google_connected ? (
                                     <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(34,197,94,0.3)' }} title="Google Calendar connesso">
                                         <div className="w-1.5 h-1.5 rounded-full mx-auto mt-[3px]" style={{ background: '#22c55e' }} />
@@ -692,11 +697,6 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 )}
                                 {!c.has_availability && (
                                     <span title="Nessuna disponibilità"><AlertCircle className="w-3 h-3" style={{ color: '#f59e0b' }} /></span>
-                                )}
-                                {canManageAvailability && (userRole === 'owner' || userRole === 'admin' || c.user_id === userId) && (
-                                    <button onClick={(e) => { e.stopPropagation(); openAvailabilitySettings(c.user_id) }} className="hover:th-heading" style={{ color: 'var(--color-surface-500)' }}>
-                                        <Settings className="w-3 h-3" />
-                                    </button>
                                 )}
                             </div>
                         </button>
