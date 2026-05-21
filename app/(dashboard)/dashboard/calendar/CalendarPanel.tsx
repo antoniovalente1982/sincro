@@ -1426,6 +1426,15 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                             Seleziona i giorni lavorativi e imposta orari e durata degli slot.
                         </p>
 
+                        {availability.length === 0 && (
+                            <div className="flex items-start gap-2.5 p-3 rounded-xl transition-all" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#f59e0b' }} />
+                                <p className="text-xs font-medium leading-relaxed" style={{ color: 'var(--color-surface-800)' }}>
+                                    <strong style={{ color: '#f59e0b' }}>Attenzione:</strong> Disattivando tutti i giorni, le tue disponibilità saranno gestite <strong>esclusivamente da Google Calendar</strong>. Risulterai sempre prenotabile, a meno che non ci siano impegni a bloccare gli slot sul tuo calendario Google.
+                                </p>
+                            </div>
+                        )}
+
                         {/* Day toggles */}
                         <div className="space-y-2">
                             {[1, 2, 3, 4, 5, 6, 0].map(day => {
