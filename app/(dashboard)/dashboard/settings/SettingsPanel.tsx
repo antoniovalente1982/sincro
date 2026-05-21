@@ -782,6 +782,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             )}
 
             {/* Danger Zone */}
+            {userRole === 'owner' && (
             <div className="glass-card p-6" style={{ borderColor: 'rgba(239, 68, 68, 0.15)' }}>
                 <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4" style={{ color: '#ef4444' }} />
@@ -792,6 +793,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     Elimina Organizzazione
                 </button>
             </div>
+            )}
         </div>
     )
 }
