@@ -784,15 +784,6 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 <Tag className="w-4 h-4" /> Tipi
                             </button>
                         )}
-                        {canManageAvailability && (
-                            <button
-                                onClick={() => openAvailabilitySettings(userId)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all hover:scale-[1.02]"
-                                style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366f1' }}
-                            >
-                                <Settings className="w-4 h-4" /> Disponibilità
-                            </button>
-                        )}
                         {canBook && (
                             <button
                                 onClick={() => { resetBookingForm(); setShowBooking(true) }}

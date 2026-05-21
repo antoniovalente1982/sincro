@@ -299,6 +299,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
             </div>
 
             {/* Pipeline Stages — Grouped by Pipeline */}
+            {canEdit && (
             <div className="glass-card p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
@@ -498,8 +499,10 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     </div>
                 )}
             </div>
+            )}
 
             {/* Traffic Sources */}
+            {canEdit && (
             <div className="glass-card p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
@@ -578,8 +581,10 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     </div>
                 )}
             </div>
+            )}
 
             {/* CRM Tags */}
+            {canEdit && (
             <div className="glass-card p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
@@ -654,7 +659,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     </div>
                 )}
             </div>
-
+            )}
 
             {/* Profile */}
             <div className="glass-card p-6">
