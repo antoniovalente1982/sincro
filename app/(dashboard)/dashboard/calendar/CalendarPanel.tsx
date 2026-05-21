@@ -680,10 +680,14 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                     </label>
                                 )}
                             </div>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {c.google_connected && (
+                            <div className="flex items-center gap-1.5">
+                                {c.google_connected ? (
                                     <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(34,197,94,0.3)' }} title="Google Calendar connesso">
                                         <div className="w-1.5 h-1.5 rounded-full mx-auto mt-[3px]" style={{ background: '#22c55e' }} />
+                                    </div>
+                                ) : (
+                                    <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(239,68,68,0.2)' }} title="Google Calendar NON connesso">
+                                        <div className="w-1.5 h-1.5 rounded-full mx-auto mt-[3px]" style={{ background: '#ef4444' }} />
                                     </div>
                                 )}
                                 {!c.has_availability && (
