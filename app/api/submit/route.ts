@@ -257,18 +257,19 @@ export async function POST(req: NextRequest) {
                     // This fixes Meta diagnostic "missing price parameters" and improves Quality Score
                     const PREDICTIVE_LEAD_VALUE = 112
 
-                    const capiPromise = funnel.meta_pixel_id
-                        ? fireCapiEvent(funnel.organization_id, 'Lead', {
-                            name: name || undefined, email: email || undefined, phone: phone || undefined,
-                            fbc: body.fbc || undefined, fbp: body.fbp || undefined,
-                            content_category: funnel.objective || 'cliente',
-                            content_name: funnel.name || undefined,
-                            value: PREDICTIVE_LEAD_VALUE,
-                            client_ip: clientIp, client_user_agent: clientUserAgent,
-                            event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
-                            event_id: event_id || undefined, external_id: body.visitor_id || undefined,
-                        }, funnel.meta_pixel_id, lead.id).catch(err => console.error('CAPI error:', name, err))
-                        : Promise.resolve()
+                    // CAPI Lead — ALWAYS fire using pixel_id from connections table
+                    // Previously gated on funnel.meta_pixel_id, causing 5/7 funnels to silently skip CAPI.
+                    // Now resolves pixel_id from connections (always present), falling back to funnel config.
+                    const capiPromise = fireCapiEvent(funnel.organization_id, 'Lead', {
+                        name: name || undefined, email: email || undefined, phone: phone || undefined,
+                        fbc: body.fbc || undefined, fbp: body.fbp || undefined,
+                        content_category: funnel.objective || 'cliente',
+                        content_name: funnel.name || undefined,
+                        value: PREDICTIVE_LEAD_VALUE,
+                        client_ip: clientIp, client_user_agent: clientUserAgent,
+                        event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
+                        event_id: event_id || undefined, external_id: body.visitor_id || undefined,
+                    }, funnel.meta_pixel_id || null, lead.id).catch(err => console.error('CAPI error:', name, err))
 
                     const childAge = body.extra_data?.child_age
                     const adsetAngleNotif = body.extra_data?.adset_angle
@@ -308,18 +309,25 @@ export async function POST(req: NextRequest) {
     }
 }
 
-async function fireCapiEvent(orgId: string, eventName: string, userData: any, pixelId: string, leadId?: string) {
+async function fireCapiEvent(orgId: string, eventName: string, userData: any, pixelIdOverride: string | null, leadId?: string) {
     try {
-        // Get Meta access token from connections
+        // Get Meta access token and pixel_id from connections
         const { data: conn } = await getSupabaseAdmin()
             .from('connections')
-            .select('credentials')
+            .select('credentials, config')
             .eq('organization_id', orgId)
             .eq('provider', 'meta_capi')
             .eq('status', 'active')
             .single()
 
         if (!conn?.credentials?.access_token) return
+
+        // Resolve pixel_id: prefer funnel override, fall back to connections table
+        const pixelId = pixelIdOverride || conn.config?.pixel_id || conn.credentials?.pixel_id
+        if (!pixelId) {
+            console.error('[CAPI] No pixel_id available from funnel or connections table')
+            return
+        }
 
         const eventId = userData.event_id || (() => {
             console.warn('[CAPI] event_id missing from client — generating server-side fallback. Deduplication may fail.')

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Gift, Sparkles, Brain } from 'lucide-react'
-import { useMetaTracking, fireAdvancedMatching, firePixelEvent } from '@/lib/useMetaTracking'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -45,6 +45,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
     const [error, setError] = useState('')
     const [viewerCount, setViewerCount] = useState(14)
     const [adsetAngle, setAdsetAngle] = useState<string>('')
+    const startFormFiredRef = useRef(false)
 
     // Easter egg / Dev tool per visualizzare la TKP
     useEffect(() => {
@@ -99,6 +100,18 @@ export default function MetodoSincroLanding({ funnel }: Props) {
         pixelId: funnel.meta_pixel_id,
         abVariant: funnel.settings?.ab_variant,
     })
+
+    // Fire StartForm on first form field focus (with CAPI context)
+    const handleFirstFieldFocus = useCallback(() => {
+        if (startFormFiredRef.current) return
+        startFormFiredRef.current = true
+        fireStartForm(funnel.name, {
+            orgId,
+            visitorId: getVisitorId(),
+            fbc: getFbIds().fbc,
+            fbp: getFbIds().fbp,
+        })
+    }, [funnel.name, orgId, getVisitorId, getFbIds])
 
     const handleSubmit = async () => {
         if (!firstName || !lastName || !phone) return
@@ -366,6 +379,7 @@ export default function MetodoSincroLanding({ funnel }: Props) {
                                             placeholder="Es. Marco"
                                             value={firstName}
                                             onChange={e => setFirstName(e.target.value)}
+                                            onFocus={handleFirstFieldFocus}
                                             required
                                             style={{ minWidth: 0, width: '100%' }}
                                         />

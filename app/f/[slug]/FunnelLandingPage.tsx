@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, CheckCircle, Sparkles, ArrowRight, Shield, Clock, Users } from 'lucide-react'
-import { useMetaTracking, fireAdvancedMatching } from '@/lib/useMetaTracking'
+import { useMetaTracking, fireAdvancedMatching, fireStartForm, firePixelEvent } from '@/lib/useMetaTracking'
 
 interface Props {
     funnel: {
@@ -18,6 +18,7 @@ export default function FunnelLandingPage({ funnel }: Props) {
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
+    const startFormFiredRef = useRef(false)
     const [error, setError] = useState('')
 
     // ── Shared Meta Tracking (fbc/fbp, UTMs, PageView CAPI) ──
@@ -29,11 +30,26 @@ export default function FunnelLandingPage({ funnel }: Props) {
         abVariant: funnel.settings?.ab_variant,
     })
 
+    // Fire StartForm on first form field focus (with CAPI context)
+    const handleFirstFieldFocus = useCallback(() => {
+        if (startFormFiredRef.current) return
+        startFormFiredRef.current = true
+        fireStartForm(funnel.name, {
+            orgId: orgId || '',
+            visitorId: getVisitorId(),
+            fbc: getFbIds().fbc,
+            fbp: getFbIds().fbp,
+        })
+    }, [funnel.name, orgId, getVisitorId, getFbIds])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!name) return
         setLoading(true)
         setError('')
+
+        // Generate Lead event_id for dedup (Pixel ↔ CAPI)
+        const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
         try {
             // Advanced Matching via shared helper
@@ -47,6 +63,8 @@ export default function FunnelLandingPage({ funnel }: Props) {
                     name, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     landing_url: window.location.host + window.location.pathname,
+                    event_id: leadEventId,
+                    visitor_id: getVisitorId(),
                     ...getUtmParams(),
                     ...getFbIds(),
                 }),
@@ -57,6 +75,8 @@ export default function FunnelLandingPage({ funnel }: Props) {
                 throw new Error(data.error || 'Errore')
             }
 
+            // Fire Lead pixel event with same eventID for CAPI deduplication
+            firePixelEvent('Lead', leadEventId, { content_category: 'lead' })
             setSubmitted(true)
         } catch (err: any) {
             setError(err.message)
@@ -176,6 +196,7 @@ export default function FunnelLandingPage({ funnel }: Props) {
                                         placeholder="Il tuo nome completo"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
+                                        onFocus={handleFirstFieldFocus}
                                         required
                                     />
                                 </div>
