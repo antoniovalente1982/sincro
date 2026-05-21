@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
                     ph: enrichedPhone ? [await hashSHA256(enrichedPhone.replace(/\D/g, ''))] : undefined,
                     fn: enrichedName ? [await hashSHA256(enrichedName.split(' ')[0].toLowerCase().trim())] : undefined,
                     ln: enrichedName?.includes(' ') ? [await hashSHA256(enrichedName.split(' ').slice(1).join(' ').toLowerCase().trim())] : undefined,
-                    country: (enrichedEmail || enrichedPhone) ? [await hashSHA256('it')] : undefined,
+                    country: [await hashSHA256('it')],
                 },
                 // Strip value: 0 from custom_data — Meta flags it as "missing price parameters"
                 custom_data: extra_data ? (() => {
