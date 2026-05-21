@@ -774,8 +774,8 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                         {['owner', 'admin'].includes(userRole) && (
                             <button
                                 onClick={() => setShowServiceTypesManager(true)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                                style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: '#f59e0b' }}
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all hover:scale-[1.02]"
+                                style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b' }}
                             >
                                 <Tag className="w-4 h-4" /> Tipi
                             </button>
@@ -783,8 +783,8 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                         {canManageAvailability && (
                             <button
                                 onClick={() => openAvailabilitySettings(userId)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                                style={{ background: 'var(--color-surface-200)', border: '1px solid rgba(255,255,255,0.1)', color: '#a5b4fc' }}
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all hover:scale-[1.02]"
+                                style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366f1' }}
                             >
                                 <Settings className="w-4 h-4" /> Disponibilità
                             </button>
@@ -1431,14 +1431,14 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                 return (
                                     <div key={day} className="rounded-xl p-3 transition-all"
                                         style={{
-                                            background: isActive ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
-                                            border: `1px solid ${isActive ? 'rgba(99,102,241,0.2)' : 'var(--color-surface-200)'}`,
+                                            background: isActive ? 'rgba(99,102,241,0.08)' : 'var(--color-surface-100)',
+                                            border: `1px solid ${isActive ? 'rgba(99,102,241,0.3)' : 'var(--color-surface-300)'}`,
                                         }}>
                                         <div className="flex items-center justify-between">
                                             <button onClick={() => toggleDay(day)} className="flex items-center gap-2">
                                                 <div className="w-5 h-5 rounded-md flex items-center justify-center text-[10px]"
                                                     style={{
-                                                        background: isActive ? '#6366f1' : 'rgba(255,255,255,0.1)',
+                                                        background: isActive ? '#6366f1' : 'var(--color-surface-200)',
                                                         color: 'white',
                                                     }}>
                                                     {isActive && <Check className="w-3 h-3" />}
@@ -1620,8 +1620,8 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                         ) : (
                             <button
                                 onClick={() => setEditingServiceType({ name: '', duration_minutes: 30, color: '#6366f1', description: '' })}
-                                className="w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.01] flex items-center justify-center gap-2"
-                                style={{ background: 'var(--color-surface-200)', border: '1px dashed rgba(255,255,255,0.15)' }}>
+                                className="w-full py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.01] flex items-center justify-center gap-2 th-heading"
+                                style={{ background: 'var(--color-surface-100)', border: '1px dashed var(--color-surface-300)' }}>
                                 <Plus className="w-4 h-4" /> Aggiungi Tipo
                             </button>
                         )}
