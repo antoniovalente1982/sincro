@@ -245,18 +245,23 @@ export async function POST(req: NextRequest) {
             })
         }
 
-        // ── Fire CAPI Purchase event for proper Pixel↔CAPI deduplication ──
-        // This fixes the Meta Diagnostics error: "Evento Purchase dal server non deduplicato"
-        if (value > 0) {
-            await fireCapiPurchase(orgId, {
-                email, name, phone,
-                value, currency,
-                orderId: body.id,
-                productName: productLabel,
-                client_ip: clientIp,
-                client_user_agent: clientUserAgent,
-            })
-        }
+        // ── CAPI Purchase: DISABILITATA — ora gestita da Pixel Manager Pro ──
+        // Pixel Manager Pro (WooCommerce) invia sia Pixel che CAPI Purchase
+        // con event_id e deduplicazione automatica.
+        // Tenere questo attivo causerebbe un doppio Purchase in Meta.
+        // Il CRM tracking (pipeline, LTV, activities) sopra resta attivo.
+        //
+        // Se in futuro disabiliti Pixel Manager Pro, riattiva questo blocco:
+        // if (value > 0) {
+        //     await fireCapiPurchase(orgId, {
+        //         email, name, phone,
+        //         value, currency,
+        //         orderId: body.id,
+        //         productName: productLabel,
+        //         client_ip: clientIp,
+        //         client_user_agent: clientUserAgent,
+        //     })
+        // }
 
         return NextResponse.json({ success: true, lead_id: leadId })
 
