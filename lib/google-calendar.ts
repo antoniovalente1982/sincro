@@ -268,6 +268,65 @@ export async function createGoogleCalendarEvent(
     return await response.json()
 }
 
+export async function updateGoogleCalendarEvent(
+    userId: string,
+    accessToken: string,
+    refreshToken: string | null,
+    expiry: string | null,
+    eventId: string,
+    updates: {
+        summary?: string,
+        description?: string,
+        attendees?: { email: string }[],
+    }
+) {
+    let currentToken = accessToken
+
+    if (!currentToken || (expiry && new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000)) {
+        if (refreshToken) {
+            currentToken = await refreshGoogleToken(userId, refreshToken)
+        } else {
+            throw new Error('Token expired and no refresh token available')
+        }
+    }
+
+    const body: any = {}
+    if (updates.summary !== undefined) body.summary = updates.summary
+    if (updates.description !== undefined) body.description = updates.description
+    if (updates.attendees !== undefined) body.attendees = updates.attendees
+
+    const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+        method: 'PATCH',
+        headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+        if (response.status === 401 && refreshToken) {
+            currentToken = await refreshGoogleToken(userId, refreshToken)
+            const retryResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            })
+            if (!retryResponse.ok) {
+                throw new Error(await retryResponse.text())
+            }
+            return await retryResponse.json()
+        }
+
+        throw new Error(await response.text())
+    }
+
+    return await response.json()
+}
+
 export async function deleteGoogleCalendarEvent(
     userId: string,
     accessToken: string,

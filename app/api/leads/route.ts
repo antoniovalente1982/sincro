@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClickUpTask } from '@/lib/clickup'
+import { updateGoogleCalendarEvent } from '@/lib/google-calendar'
 
 export const dynamic = 'force-dynamic';
 
@@ -301,6 +302,72 @@ ${leadData.notes || 'Nessuna nota fornita.'}
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // --- GOOGLE CALENDAR SYNC: propagate lead detail changes to existing events ---
+    const leadFieldsChanged = updates.name !== undefined || updates.email !== undefined || updates.phone !== undefined
+    if (leadFieldsChanged && data) {
+        try {
+            // Find active calendar events linked to this lead that have a google_event_id
+            const { data: linkedEvents } = await supabase
+                .from('calendar_events')
+                .select('id, closer_id, google_event_id, title, description')
+                .eq('lead_id', id)
+                .eq('organization_id', orgId)
+                .neq('status', 'cancelled')
+                .not('google_event_id', 'is', null)
+
+            if (linkedEvents && linkedEvents.length > 0) {
+                const freshName = data.name || 'Non specificato'
+                const freshEmail = data.email || 'Non specificato'
+                const freshPhone = data.phone || 'Non specificato'
+
+                for (const calEvent of linkedEvents) {
+                    try {
+                        const { data: closerTokenData } = await supabase
+                            .from('organization_members')
+                            .select('google_access_token, google_refresh_token, google_token_expiry')
+                            .eq('user_id', calEvent.closer_id)
+                            .single()
+
+                        if (closerTokenData?.google_access_token && calEvent.google_event_id) {
+                            // Rebuild the description with fresh lead details
+                            // Preserve the original first line (notes/description), replace the client details block
+                            const originalDesc = calEvent.description || 'Appuntamento Sincro'
+                            const newGoogleDescription = `${originalDesc}
+
+— Dettagli Cliente —
+Nome: ${freshName}
+Email: ${freshEmail}
+Telefono: ${freshPhone}`.trim()
+
+                            const updatePayload: { description: string; attendees?: { email: string }[] } = {
+                                description: newGoogleDescription,
+                            }
+                            // If email changed, update attendees too
+                            if (updates.email && data.email) {
+                                updatePayload.attendees = [{ email: data.email }]
+                            }
+
+                            await updateGoogleCalendarEvent(
+                                calEvent.closer_id,
+                                closerTokenData.google_access_token,
+                                closerTokenData.google_refresh_token,
+                                closerTokenData.google_token_expiry,
+                                calEvent.google_event_id,
+                                updatePayload
+                            )
+                        }
+                    } catch (err) {
+                        console.error(`[Leads PUT] Failed to sync lead details to Google Calendar event ${calEvent.id}:`, err)
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[Leads PUT] Failed to check/sync Google Calendar events:', err)
+            // Non-blocking: continue with the response even if Google sync fails
+        }
+    }
+    // --- END GOOGLE CALENDAR SYNC ---
 
     // Update Tags if explicitly passed
     if (tags && Array.isArray(tags)) {
