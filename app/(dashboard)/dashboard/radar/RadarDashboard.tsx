@@ -20,11 +20,35 @@ interface RadarSubmission {
 export default function RadarDashboard() {
     const [submissions, setSubmissions] = useState<RadarSubmission[]>([])
     const [loading, setLoading] = useState(true)
+    const [funnelStats, setFunnelStats] = useState({ visits: 0, started: 0, finished: 0, leads: 0 })
+    const [isResetting, setIsResetting] = useState(false)
     const [filter, setFilter] = useState<'all' | 'critical' | 'converted' | 'not_converted'>('all')
     const [search, setSearch] = useState('')
     const [copiedId, setCopiedId] = useState<string | null>(null)
 
-    useEffect(() => { loadSubmissions() }, [])
+    useEffect(() => { 
+        loadSubmissions()
+        loadStats()
+    }, [])
+
+    async function loadStats() {
+        try {
+            const res = await fetch('/api/radar/stats')
+            if (res.ok) setFunnelStats(await res.json())
+        } catch (e) { console.error(e) }
+    }
+
+    async function resetTests() {
+        if (!confirm('Sei sicuro di voler azzerare TUTTI i dati del radar (visite, test e lead generati dal quiz)? Questa azione non può essere annullata ed è utile solo in fase di test.')) return
+        setIsResetting(true)
+        try {
+            await fetch('/api/radar/stats', { method: 'DELETE' })
+            await loadSubmissions()
+            await loadStats()
+            alert('Dati di test azzerati con successo.')
+        } catch (e) { console.error(e) }
+        setIsResetting(false)
+    }
 
     async function loadSubmissions() {
         setLoading(true)
@@ -95,12 +119,22 @@ export default function RadarDashboard() {
                         Quiz completati · Lead generati · Risultati
                     </p>
                 </div>
-                <button
-                    onClick={() => copyLink()}
-                    className="btn-primary text-sm"
-                >
-                    {copiedId === 'base' ? <><Check className="w-4 h-4" /> Copiato!</> : <><Copy className="w-4 h-4" /> Copia Link Quiz</>}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={resetTests}
+                        disabled={isResetting}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 hover:bg-red-500/10"
+                        style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                    >
+                        {isResetting ? 'Azzeramento...' : 'Azzerare Dati Test'}
+                    </button>
+                    <button
+                        onClick={() => copyLink()}
+                        className="btn-primary text-sm"
+                    >
+                        {copiedId === 'base' ? <><Check className="w-4 h-4" /> Copiato!</> : <><Copy className="w-4 h-4" /> Copia Link Quiz</>}
+                    </button>
+                </div>
             </div>
 
             {/* Quiz Link Banner */}
@@ -144,6 +178,34 @@ export default function RadarDashboard() {
                     >
                         <ExternalLink className="w-3.5 h-3.5" /> Apri Quiz
                     </a>
+                </div>
+            </div>
+
+            {/* Funnel Stats */}
+            <div className="rounded-2xl p-5 mb-2" style={{ background: 'rgba(15, 15, 19, 0.6)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                    <Filter className="w-4 h-4" style={{ color: '#818cf8' }} /> Performance Imbuto (Funnel)
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative">
+                    {/* Background line connecting the dots (desktop only) */}
+                    <div className="hidden md:block absolute top-1/2 left-[12%] right-[12%] h-[2px] -translate-y-1/2 z-0" style={{ background: 'rgba(255, 255, 255, 0.05)' }} />
+
+                    {[
+                        { label: '👁️ Visite (Atterrati)', value: funnelStats.visits, color: '#38bdf8', rate: null },
+                        { label: '✍️ Quiz Iniziati', value: funnelStats.started, color: '#8b5cf6', rate: funnelStats.visits > 0 ? Math.round((funnelStats.started / funnelStats.visits) * 100) : 0 },
+                        { label: '📊 Report Visti', value: funnelStats.finished, color: '#facc15', rate: funnelStats.started > 0 ? Math.round((funnelStats.finished / funnelStats.started) * 100) : 0 },
+                        { label: '✅ Lead Generati', value: funnelStats.leads, color: '#22c55e', rate: funnelStats.finished > 0 ? Math.round((funnelStats.leads / funnelStats.finished) * 100) : 0 },
+                    ].map((step, i) => (
+                        <div key={step.label} className="relative z-10 flex flex-col items-center text-center p-3 rounded-xl bg-[#09090b] border border-white/5">
+                            <span className="text-xs font-medium mb-1" style={{ color: '#a1a1aa' }}>{step.label}</span>
+                            <span className="text-2xl font-black mb-1" style={{ color: step.color }}>{step.value}</span>
+                            {i > 0 && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${step.color}15`, color: step.color }}>
+                                    {step.rate}% conversione
+                                </span>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
 

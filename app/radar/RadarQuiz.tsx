@@ -224,7 +224,24 @@ export default function RadarQuiz() {
             // Last question → show report directly (no data gate)
             setTimeout(() => {
                 setPhase('loading')
-                setTimeout(() => setPhase('report'), 2500)
+                setTimeout(() => {
+                    setPhase('report')
+                    // Fire CAPI ViewReport
+                    fetch('/api/track/event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            organization_id: ORG_ID,
+                            event_name: 'ViewReport',
+                            event_id: `view_report_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                            visitor_id: getVisitorId(),
+                            fbc: getFbIds().fbc,
+                            fbp: getFbIds().fbp,
+                            page_url: window.location.href,
+                            extra_data: { content_category: 'radar_quiz' },
+                        }),
+                    }).catch(() => {})
+                }, 2500)
             }, 400)
         }
     }
@@ -315,7 +332,24 @@ export default function RadarQuiz() {
                     {/* CTA Section */}
                     <div className="w-full max-w-md px-4 flex flex-col items-center">
                         <button
-                            onClick={() => setPhase('quiz')}
+                            onClick={() => {
+                                setPhase('quiz')
+                                // Fire CAPI StartQuiz
+                                fetch('/api/track/event', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        organization_id: ORG_ID,
+                                        event_name: 'StartQuiz',
+                                        event_id: `start_quiz_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                                        visitor_id: getVisitorId(),
+                                        fbc: getFbIds().fbc,
+                                        fbp: getFbIds().fbp,
+                                        page_url: window.location.href,
+                                        extra_data: { content_category: 'radar_quiz' },
+                                    }),
+                                }).catch(() => {})
+                            }}
                             className="w-full sm:w-auto inline-flex items-center justify-center gap-3 text-lg sm:text-xl font-black px-8 sm:px-12 py-5 sm:py-6 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer active:scale-[0.98]"
                             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.4)' }}
                         >
