@@ -63,6 +63,7 @@ export default function RadarQuiz() {
     const [childSport, setChildSport] = useState('')
     const [consultaSubmitting, setConsultaSubmitting] = useState(false)
     const [consultaRequested, setConsultaRequested] = useState(false)
+    const [loadStep, setLoadStep] = useState(0)
 
     // Grab partner ID from URL
     useEffect(() => {
@@ -71,6 +72,14 @@ export default function RadarQuiz() {
             setPartnerId(params.get('p'))
         }
     }, [])
+
+    // Loading phase step animation
+    useEffect(() => {
+        if (phase !== 'loading') { setLoadStep(0); return }
+        const t1 = setTimeout(() => setLoadStep(1), 800)
+        const t2 = setTimeout(() => setLoadStep(2), 1600)
+        return () => { clearTimeout(t1); clearTimeout(t2) }
+    }, [phase])
 
     /* ── Scoring ── */
     function calcAreaScore(area: string, ans: Record<number, number> = answers) {
@@ -183,8 +192,27 @@ export default function RadarQuiz() {
 
     /* ─────────────── RENDERS ─────────────── */
 
+    // Progress messages that change as user advances through the quiz
+    const PROGRESS_MESSAGES = [
+        'Stiamo iniziando a costruire il profilo...',
+        'Analisi dell\'autostima in corso...',
+        'Raccolta dati sulla fiducia...',
+        'Area fiducia completata ✓ Passiamo alla pressione...',
+        'Analisi della gestione dello stress...',
+        'Valutazione della pressione agonistica...',
+        'Area pressione completata ✓ Quasi a metà!',
+        'Analisi della motivazione in corso...',
+        'Valutazione della resilienza...',
+        'Area motivazione completata ✓ Manca poco al report!',
+        'Ultima area: blocchi specifici...',
+        'Ultime risposte per completare il tuo report!',
+    ]
+
     const GLOBAL_STYLES = `
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); } 50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes checkIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         input:focus, textarea:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
     `
 
@@ -197,36 +225,50 @@ export default function RadarQuiz() {
 
                 <div className="relative w-full max-w-xl text-center" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
                     {/* Logo */}
-                    <div className="inline-flex items-center gap-2.5 mb-8">
+                    <div className="inline-flex items-center gap-2.5 mb-6">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 40px rgba(99, 102, 241, 0.3)' }}>
                             <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
-                        <span className="text-lg sm:text-xl font-black text-white tracking-tight">RADAR SINCRO</span>
+                        <span className="text-lg sm:text-xl font-black text-white tracking-tight">METODO SINCRO</span>
                     </div>
 
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-6 sm:mb-8" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-                        ✅ Test gratuito · 3 minuti · 12 domande
+                    {/* Lead magnet badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold mb-6 sm:mb-8" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)', animation: 'pulse-glow 3s ease-in-out infinite' }}>
+                        📊 Ricevi il tuo Report Personalizzato — Gratuito
                     </div>
 
-                    {/* Main message */}
-                    <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight mb-5 sm:mb-6">
-                        Tuo figlio ha un{' '}
+                    {/* Main headline */}
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tight mb-4 sm:mb-5">
+                        Tuo figlio rende in allenamento ma{' '}
                         <span style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            freno invisibile
+                            in gara si spegne
                         </span>
                         ?
                     </h1>
 
                     <p className="text-base sm:text-lg md:text-xl leading-relaxed max-w-lg mx-auto mb-3 sm:mb-4 px-2" style={{ color: '#a1a1aa' }}>
-                        Scopri in 3 minuti se il tuo giovane atleta ha un blocco mentale
-                        che gli impedisce di tirare fuori il suo <strong className="text-white">vero potenziale</strong>.
+                        Rispondi a <strong className="text-white">12 domande</strong> e ricevi subito il{' '}
+                        <strong className="text-white">Profilo Mentale Sportivo</strong> del tuo ragazzo — con le aree di forza e i blocchi nascosti.
                     </p>
 
                     <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto mb-8 sm:mb-10 px-2" style={{ color: '#71717a' }}>
-                        12 domande rapide. Risultato immediato con il profilo mentale sportivo
-                        del tuo ragazzo. Nessun impegno.
+                        Il report analizza 4 aree chiave: fiducia, gestione della pressione, motivazione e blocchi specifici. Risultato istantaneo.
                     </p>
+
+                    {/* What you get preview */}
+                    <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mb-8">
+                        {[
+                            { icon: '🎯', text: 'Profilo su 4 aree' },
+                            { icon: '📊', text: 'Punteggi dettagliati' },
+                            { icon: '🔴', text: 'Aree critiche evidenziate' },
+                            { icon: '✅', text: 'Consiglio personalizzato' },
+                        ].map(item => (
+                            <div key={item.text} className="flex items-center gap-2 px-3 py-2 rounded-xl text-left" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                <span className="text-base">{item.icon}</span>
+                                <span className="text-[11px] sm:text-xs font-medium text-white/70">{item.text}</span>
+                            </div>
+                        ))}
+                    </div>
 
                     {/* CTA */}
                     <button
@@ -234,16 +276,18 @@ export default function RadarQuiz() {
                         className="inline-flex items-center gap-2.5 text-base sm:text-lg font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer active:scale-[0.98]"
                         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.35)' }}
                     >
-                        Inizia il Test Gratuito <ArrowRight className="w-5 h-5" />
+                        Crea il Mio Report Gratuito <ArrowRight className="w-5 h-5" />
                     </button>
+
+                    <p className="text-[11px] mt-3" style={{ color: '#52525b' }}>⏱️ Solo 3 minuti · Nessun impegno · Risultato immediato</p>
 
                     {/* Trust */}
                     <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 flex-wrap">
                         <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
-                            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#22c55e' }} /> Anonimo e gratuito
+                            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#22c55e' }} /> 100% gratuito
                         </div>
                         <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
-                            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#818cf8' }} /> Basato su casi reali
+                            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#818cf8' }} /> Basato su +500 giovani atleti
                         </div>
                     </div>
                 </div>
@@ -259,37 +303,80 @@ export default function RadarQuiz() {
         const areaMeta = AREA_META[q.area]
         const AreaIcon = areaMeta.icon
         const progress = ((currentQ + 1) / QUESTIONS.length) * 100
+        const completedAreas = currentQ >= 9 ? 3 : currentQ >= 6 ? 2 : currentQ >= 3 ? 1 : 0
+        const totalAreas = 4
 
         return (
             <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
                 <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${areaMeta.color}12, transparent 60%)` }} />
 
                 <div className="relative w-full max-w-lg" key={currentQ} style={{ animation: 'fadeInUp 0.4s ease-out' }}>
-                    {/* Progress */}
-                    <div className="mb-6 sm:mb-8">
+                    {/* Report progress header */}
+                    <div className="mb-5 sm:mb-7">
+                        {/* Top: logo + step counter */}
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <Brain className="w-4 h-4" style={{ color: '#818cf8' }} />
-                                <span className="text-xs font-bold" style={{ color: '#818cf8' }}>RADAR SINCRO</span>
+                                <span className="text-xs font-bold" style={{ color: '#818cf8' }}>IL TUO REPORT</span>
                             </div>
-                            <span className="text-xs font-bold" style={{ color: '#71717a' }}>{currentQ + 1} / {QUESTIONS.length}</span>
+                            <span className="text-xs font-bold" style={{ color: '#71717a' }}>Domanda {currentQ + 1} di {QUESTIONS.length}</span>
                         </div>
-                        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#1f1f23' }}>
-                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: areaMeta.gradient }} />
+                        {/* Main progress bar */}
+                        <div className="h-2 rounded-full overflow-hidden mb-2" style={{ background: '#1f1f23' }}>
+                            <div className="h-full rounded-full transition-all duration-500" style={{
+                                width: `${progress}%`,
+                                background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)',
+                                backgroundSize: '200% 100%',
+                                animation: 'shimmer 2s linear infinite',
+                            }} />
+                        </div>
+                        {/* Progress message */}
+                        <div className="flex items-center justify-between">
+                            <p className="text-[11px] sm:text-xs font-medium" style={{ color: '#52525b' }}>
+                                {PROGRESS_MESSAGES[currentQ]}
+                            </p>
+                            <span className="text-[11px] font-bold" style={{ color: '#818cf8' }}>
+                                {Math.round(progress)}% del report
+                            </span>
                         </div>
                     </div>
 
+                    {/* Area completion indicators */}
+                    <div className="flex items-center gap-2 mb-5">
+                        {(Object.keys(AREA_META) as (keyof typeof AREA_META)[]).map((area, i) => {
+                            const meta = AREA_META[area]
+                            const AreaI = meta.icon
+                            const isComplete = i < completedAreas
+                            const isCurrent = i === completedAreas
+                            return (
+                                <div key={area} className="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all" style={{
+                                    background: isComplete ? `${meta.color}15` : isCurrent ? `${meta.color}08` : 'rgba(255,255,255,0.02)',
+                                    border: `1px solid ${isComplete ? `${meta.color}30` : isCurrent ? `${meta.color}15` : 'rgba(255,255,255,0.04)'}`,
+                                }}>
+                                    {isComplete ? (
+                                        <CheckCircle className="w-3 h-3 flex-shrink-0" style={{ color: meta.color, animation: 'checkIn 0.3s ease-out' }} />
+                                    ) : (
+                                        <AreaI className="w-3 h-3 flex-shrink-0" style={{ color: isCurrent ? meta.color : '#3f3f46' }} />
+                                    )}
+                                    <span className="text-[9px] sm:text-[10px] font-bold truncate" style={{ color: isComplete ? meta.color : isCurrent ? '#a1a1aa' : '#3f3f46' }}>
+                                        {meta.label.split(' ')[0]}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+
                     {/* Area badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-4 sm:mb-6" style={{ background: `${areaMeta.color}12`, color: areaMeta.color, border: `1px solid ${areaMeta.color}25` }}>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-4 sm:mb-5" style={{ background: `${areaMeta.color}12`, color: areaMeta.color, border: `1px solid ${areaMeta.color}25` }}>
                         <AreaIcon className="w-3.5 h-3.5" />
-                        {areaMeta.label}
+                        Area {completedAreas + 1}/{totalAreas}: {areaMeta.label}
                     </div>
 
                     {/* Question */}
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight mb-2 sm:mb-3">
                         {q.text}
                     </h2>
-                    <p className="text-xs sm:text-sm mb-6 sm:mb-10" style={{ color: '#52525b' }}>
+                    <p className="text-xs sm:text-sm mb-6 sm:mb-8" style={{ color: '#52525b' }}>
                         Rispondi pensando agli ultimi 2-3 mesi
                     </p>
 
@@ -326,6 +413,19 @@ export default function RadarQuiz() {
                             <ArrowLeft className="w-4 h-4" /> Domanda precedente
                         </button>
                     )}
+
+                    {/* Bottom reminder */}
+                    <div className="mt-6 sm:mt-8 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                        <Activity className="w-3.5 h-3.5" style={{ color: '#818cf8' }} />
+                        <span className="text-[10px] sm:text-[11px] font-medium" style={{ color: '#71717a' }}>
+                            {currentQ < 6
+                                ? '📊 Ogni risposta migliora la precisione del tuo report personalizzato'
+                                : currentQ < 10
+                                    ? '🔍 Stiamo costruendo il profilo — mancano poche domande!'
+                                    : '🎯 Ultime domande! Il tuo report è quasi pronto'
+                            }
+                        </span>
+                    </div>
                 </div>
 
                 <style>{GLOBAL_STYLES}
@@ -338,14 +438,36 @@ export default function RadarQuiz() {
 
     // ── LOADING ──
     if (phase === 'loading') {
+        const loadingSteps = [
+            { icon: '🔍', text: 'Analisi delle risposte in corso...' },
+            { icon: '🧠', text: 'Calcolo del profilo mentale...' },
+            { icon: '📊', text: 'Generazione del report personalizzato...' },
+        ]
+
         return (
             <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
-                <div className="text-center" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 sm:mb-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(99, 102, 241, 0.3)', borderTopColor: '#6366f1' }} />
+                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08), transparent 60%)' }} />
+                <div className="relative text-center max-w-sm" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 sm:mb-8 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', animation: 'pulse-glow 2s ease-in-out infinite' }}>
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(99, 102, 241, 0.2)', borderTopColor: '#6366f1' }} />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Stiamo analizzando le risposte</h2>
-                    <p className="text-xs sm:text-sm" style={{ color: '#71717a' }}>Generazione del profilo mentale sportivo...</p>
+
+                    <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Stiamo creando il tuo Report</h2>
+                    <p className="text-xs sm:text-sm mb-8" style={{ color: '#71717a' }}>Il Profilo Mentale Sportivo personalizzato è quasi pronto</p>
+
+                    {/* Step indicators */}
+                    <div className="space-y-3 text-left">
+                        {loadingSteps.map((step, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500" style={{
+                                background: i <= loadStep ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
+                                border: `1px solid ${i <= loadStep ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255,255,255,0.04)'}`,
+                                opacity: i <= loadStep ? 1 : 0.3,
+                            }}>
+                                <span className="text-base">{i < loadStep ? '✅' : step.icon}</span>
+                                <span className="text-xs sm:text-sm font-medium" style={{ color: i <= loadStep ? '#e4e4e7' : '#52525b' }}>{step.text}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <style>{GLOBAL_STYLES}</style>
             </div>
@@ -363,15 +485,15 @@ export default function RadarQuiz() {
             <div className="relative max-w-2xl mx-auto" style={{ animation: 'fadeInUp 0.6s ease-out' }}>
                 {/* Header */}
                 <div className="text-center mb-8 sm:mb-10">
-                    <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 sm:mb-5" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
                         <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#818cf8' }} />
-                        <span className="text-xs sm:text-sm font-bold" style={{ color: '#818cf8' }}>RADAR SINCRO</span>
+                        <span className="text-xs sm:text-sm font-bold" style={{ color: '#818cf8' }}>IL TUO REPORT PERSONALIZZATO</span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 sm:mb-2">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 sm:mb-3">
                         Profilo Mentale Sportivo
                     </h1>
-                    <p className="text-base sm:text-lg" style={{ color: '#71717a' }}>
-                        Profilo del tuo giovane atleta
+                    <p className="text-sm sm:text-base" style={{ color: '#71717a' }}>
+                        Ecco cosa abbiamo scoperto analizzando le tue risposte
                     </p>
                 </div>
 
