@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ArrowRight, ArrowLeft, Brain, Shield, Target, Flame, Zap, CheckCircle, AlertTriangle, XCircle, ChevronRight, Activity } from 'lucide-react'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 /* ─────────────── QUIZ DATA ─────────────── */
 
@@ -64,6 +65,17 @@ export default function RadarQuiz() {
     const [consultaSubmitting, setConsultaSubmitting] = useState(false)
     const [consultaRequested, setConsultaRequested] = useState(false)
     const [loadStep, setLoadStep] = useState(0)
+    const startFormFiredRef = useRef(false)
+
+    // Meta Tracking setup
+    const ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
+    const PIXEL_ID = '311586900940615'
+    
+    const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
+        orgId: ORG_ID,
+        funnelId: 'radar_quiz',
+        pixelId: PIXEL_ID,
+    })
 
     // Grab partner ID from URL
     useEffect(() => {
@@ -137,7 +149,13 @@ export default function RadarQuiz() {
             blocchi: calcAreaScore('blocchi'),
             overall: calcOverall(),
         }
+        
+        const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
         try {
+            // Meta Advanced Matching
+            fireAdvancedMatching(PIXEL_ID, { email: parentEmail, phone: parentPhone, fn: parentName })
+
             // 1. Save radar submission (quiz data + contact)
             const radarRes = await fetch('/api/radar/submit', {
                 method: 'POST',
@@ -169,7 +187,28 @@ export default function RadarQuiz() {
                     radar_submission_id: radarData.id || null,
                 }),
             })
-            setConsultaRequested(true)
+            
+            // 3. Fire CAPI Lead event
+            await fetch('/api/track/event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    organization_id: ORG_ID,
+                    event_name: 'Lead',
+                    event_id: leadEventId,
+                    visitor_id: getVisitorId(),
+                    fbc: getFbIds().fbc,
+                    fbp: getFbIds().fbp,
+                    page_url: window.location.href,
+                    extra_data: { content_category: 'radar_quiz' },
+                }),
+            }).catch(() => {})
+
+            // 4. Fire Client Pixel Lead event
+            firePixelEvent('Lead', leadEventId, { content_category: 'radar_quiz' })
+
+            // Redirect to Metodo Sincro
+            window.location.href = 'https://www.metodosincro.it'
         } catch (e) { console.error('Consulenza submit error:', e) }
         setConsultaSubmitting(false)
     }
@@ -304,6 +343,7 @@ export default function RadarQuiz() {
                 </div>
 
                 <style>{GLOBAL_STYLES}</style>
+                <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}',{});` }} />
             </div>
         )
     }
@@ -442,6 +482,7 @@ export default function RadarQuiz() {
                 <style>{GLOBAL_STYLES}
                     {`button:hover { transform: translateY(-2px); }`}
                 </style>
+                <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}',{});` }} />
             </div>
         )
     }
@@ -481,6 +522,7 @@ export default function RadarQuiz() {
                     </div>
                 </div>
                 <style>{GLOBAL_STYLES}</style>
+                <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}',{});` }} />
             </div>
         )
     }
@@ -706,7 +748,18 @@ export default function RadarQuiz() {
                             <br /><span style={{ color: '#71717a' }}>Nessun costo, nessun impegno — solo chiarezza.</span>
                         </p>
                         <button
-                            onClick={() => setShowConsultaForm(true)}
+                            onClick={() => {
+                                setShowConsultaForm(true)
+                                if (!startFormFiredRef.current) {
+                                    startFormFiredRef.current = true
+                                    fireStartForm('radar_quiz', {
+                                        orgId: ORG_ID,
+                                        visitorId: getVisitorId(),
+                                        fbc: getFbIds().fbc,
+                                        fbp: getFbIds().fbp,
+                                    })
+                                }
+                            }}
                             className="inline-flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] active:scale-[0.98] cursor-pointer"
                             style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 0 50px rgba(34, 197, 94, 0.3)' }}
                         >
@@ -731,6 +784,7 @@ export default function RadarQuiz() {
             </div>
 
             <style>{GLOBAL_STYLES}</style>
+            <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}',{});` }} />
         </div>
     )
 }
