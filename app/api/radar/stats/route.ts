@@ -51,13 +51,27 @@ export async function DELETE() {
     try {
         const supabase = getSupabaseAdmin()
 
-        // Delete test data
+        // 1. Delete page views for the funnel
         await supabase.from('page_views').delete().eq('funnel_id', 'radar_quiz')
+
+        // 2. Delete tracked events for the funnel
         await supabase.from('tracked_events').delete().in('event_name', ['StartQuiz', 'ViewReport'])
-        await supabase.from('radar_submissions').delete().neq('id', '00000000-0000-0000-0000-000000000000') // Deletes all
+
+        // 3. Get all radar submissions to find the lead IDs before deleting
+        const { data: submissions } = await supabase.from('radar_submissions').select('id, lead_id')
+        
+        if (submissions && submissions.length > 0) {
+            // Delete the radar submissions (safer query)
+            await supabase.from('radar_submissions').delete().not('id', 'is', null)
+        }
+
+        // 4. Delete the leads generated from the radar (this also cascades to lead_activities)
+        const { error: leadsErr } = await supabase.from('leads').delete().contains('meta_data', { source: 'radar_consulenza' })
+        if (leadsErr) console.error('Failed to delete leads:', leadsErr)
 
         return NextResponse.json({ success: true })
     } catch (err: any) {
+        console.error('Radar stats DELETE error:', err)
         return NextResponse.json({ error: err.message }, { status: 500 })
     }
 }
