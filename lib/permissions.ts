@@ -44,7 +44,7 @@ const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
     marketing: ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'settings'],
     sales:     ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
     coaching:  ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
-    admin:     ['dashboard', 'analytics', 'settings'],
+    admin:     ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
     it:        ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
@@ -83,7 +83,14 @@ export function canAccessSection(role: Role, department: Department, section: Se
     }
 
     // Other roles: check the base matrix
-    return SECTION_ACCESS[section]?.includes(role) ?? false
+    let canAccess = SECTION_ACCESS[section]?.includes(role) ?? false
+
+    // Amministrazione override for CRM and Calendar
+    if (department === 'admin' && (section === 'crm' || section === 'calendar')) {
+        canAccess = true
+    }
+
+    return canAccess
 }
 
 // ── Filter nav items for role ──
@@ -126,6 +133,9 @@ export function canMoveLead(
     // Closer (Venditore): can move leads across all stages
     if (role === 'closer') return true
 
+    // Amministrazione can move leads to book appointments
+    if (department === 'admin') return true
+
     // Coach, viewer, marketing: no moves
     return false
 }
@@ -144,6 +154,7 @@ export function canViewAllLeads(role: Role, department: Department): boolean {
 export function canEditLead(role: Role, department: Department): boolean {
     if (role === 'owner' || role === 'admin' || role === 'manager') return true
     if (role === 'closer') return true // own leads
+    if (department === 'admin') return true // Amministrazione can book appointments
     return false
 }
 
@@ -154,6 +165,7 @@ export function canDeleteLead(role: Role): boolean {
 
 // Is this user read-only in CRM?
 export function isCrmReadOnly(role: Role, department: Department): boolean {
+    if (department === 'admin') return false // Amministrazione can edit
     if (role === 'coach' || role === 'viewer') return true
     if (role === 'manager' && department === 'marketing') return false // marketing managers CAN edit
     return false
@@ -174,6 +186,7 @@ export function shouldFilterOwnLeads(role: Role): boolean {
 export function canEditSetterFields(role: Role, department: Department): boolean {
     if (role === 'owner' || role === 'admin') return true
     if (role === 'manager' && department === 'sales') return true
+    if (department === 'admin') return true // Amministrazione can edit setter fields
     if (role === 'closer') return true
     return false
 }
