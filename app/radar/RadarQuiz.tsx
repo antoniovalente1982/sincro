@@ -219,26 +219,28 @@ export default function RadarQuiz() {
     // ── INTRO ──
     if (phase === 'intro') {
         return (
-            <div className="min-h-[100dvh] flex items-center justify-center px-5 py-10" style={{ background: '#09090b' }}>
-                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.12), transparent 60%)' }} />
-                <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full opacity-10 blur-[120px]" style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }} />
+            <div className="min-h-[100dvh] flex flex-col justify-center px-4 py-8 sm:px-6 sm:py-12" style={{ background: '#09090b' }}>
+                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 70%)' }} />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[300px] rounded-full opacity-20 blur-[100px]" style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }} />
 
-                <div className="relative w-full max-w-xl text-center" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
-                    {/* Logo */}
-                    <div className="inline-flex items-center gap-2.5 mb-6">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 40px rgba(99, 102, 241, 0.3)' }}>
-                            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="relative w-full max-w-2xl mx-auto flex flex-col items-center" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
+                    
+                    {/* Top Bar (Logo + Badge) */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-8 sm:mb-12 w-full justify-center">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 30px rgba(99, 102, 241, 0.4)' }}>
+                                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                            </div>
+                            <span className="text-xl sm:text-2xl font-black text-white tracking-tight">METODO SINCRO</span>
                         </div>
-                        <span className="text-lg sm:text-xl font-black text-white tracking-tight">METODO SINCRO</span>
+                        <div className="hidden sm:block w-px h-8 bg-white/10" />
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.3)', animation: 'pulse-glow 3s ease-in-out infinite' }}>
+                            📊 Ricevi il tuo Report Personalizzato — Gratuito
+                        </div>
                     </div>
 
-                    {/* Lead magnet badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold mb-6 sm:mb-8" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)', animation: 'pulse-glow 3s ease-in-out infinite' }}>
-                        📊 Ricevi il tuo Report Personalizzato — Gratuito
-                    </div>
-
-                    {/* Main headline */}
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tight mb-4 sm:mb-5">
+                    {/* Headline */}
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white text-center leading-[1.1] tracking-tight mb-5 sm:mb-6 w-full px-2">
                         Tuo figlio rende in allenamento ma{' '}
                         <span style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             in gara si spegne
@@ -246,48 +248,57 @@ export default function RadarQuiz() {
                         ?
                     </h1>
 
-                    <p className="text-base sm:text-lg md:text-xl leading-relaxed max-w-lg mx-auto mb-3 sm:mb-4 px-2" style={{ color: '#a1a1aa' }}>
+                    {/* Subheadline */}
+                    <p className="text-base sm:text-lg md:text-xl text-center leading-relaxed max-w-xl mx-auto mb-4 sm:mb-6 px-4" style={{ color: '#a1a1aa' }}>
                         Rispondi a <strong className="text-white">12 domande</strong> e ricevi subito il{' '}
-                        <strong className="text-white">Profilo Mentale Sportivo</strong> del tuo ragazzo — con le aree di forza e i blocchi nascosti.
+                        <strong className="text-white">Profilo sulla Mentalità Sportiva</strong> del tuo ragazzo — scopri le sue aree di forza e i blocchi nascosti.
                     </p>
 
-                    <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto mb-8 sm:mb-10 px-2" style={{ color: '#71717a' }}>
+                    <p className="text-sm sm:text-base text-center leading-relaxed max-w-lg mx-auto mb-10 sm:mb-12 px-4" style={{ color: '#71717a' }}>
                         Il report analizza 4 aree chiave: fiducia, gestione della pressione, motivazione e blocchi specifici. Risultato istantaneo.
                     </p>
 
-                    {/* What you get preview */}
-                    <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mb-8">
+                    {/* What you get grid - Mobile Optimized */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-md mx-auto mb-10 px-4">
                         {[
                             { icon: '🎯', text: 'Profilo su 4 aree' },
                             { icon: '📊', text: 'Punteggi dettagliati' },
                             { icon: '🔴', text: 'Aree critiche evidenziate' },
                             { icon: '✅', text: 'Consiglio personalizzato' },
                         ].map(item => (
-                            <div key={item.text} className="flex items-center gap-2 px-3 py-2 rounded-xl text-left" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                <span className="text-base">{item.icon}</span>
-                                <span className="text-[11px] sm:text-xs font-medium text-white/70">{item.text}</span>
+                            <div key={item.text} className="flex items-center gap-3 px-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-left bg-white/[0.03] border border-white/[0.08] backdrop-blur-sm shadow-xl">
+                                <span className="text-xl sm:text-2xl">{item.icon}</span>
+                                <span className="text-sm sm:text-base font-medium text-white/80">{item.text}</span>
                             </div>
                         ))}
                     </div>
 
-                    {/* CTA */}
-                    <button
-                        onClick={() => setPhase('quiz')}
-                        className="inline-flex items-center gap-2.5 text-base sm:text-lg font-bold px-8 sm:px-10 py-4 sm:py-5 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer active:scale-[0.98]"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.35)' }}
-                    >
-                        Crea il Mio Report Gratuito <ArrowRight className="w-5 h-5" />
-                    </button>
-
-                    <p className="text-[11px] mt-3" style={{ color: '#52525b' }}>⏱️ Solo 3 minuti · Nessun impegno · Risultato immediato</p>
-
-                    {/* Trust */}
-                    <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 flex-wrap">
-                        <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
-                            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#22c55e' }} /> 100% gratuito
+                    {/* CTA Section */}
+                    <div className="w-full max-w-md px-4 flex flex-col items-center">
+                        <button
+                            onClick={() => setPhase('quiz')}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 text-lg sm:text-xl font-black px-8 sm:px-12 py-5 sm:py-6 rounded-2xl text-white transition-all hover:translate-y-[-3px] cursor-pointer active:scale-[0.98]"
+                            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 60px rgba(99, 102, 241, 0.4)' }}
+                        >
+                            Crea il Mio Report Gratuito <ArrowRight className="w-6 h-6" />
+                        </button>
+                        
+                        <div className="flex items-center gap-2 mt-4 text-xs sm:text-sm font-medium" style={{ color: '#71717a' }}>
+                            <span>⏱️ 3 minuti</span>
+                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                            <span>Senza impegno</span>
+                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                            <span>Risultato immediato</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: '#52525b' }}>
-                            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#818cf8' }} /> Basato su +500 giovani atleti
+                    </div>
+
+                    {/* Trust Indicators */}
+                    <div className="flex items-center justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 pt-8 sm:pt-10 border-t border-white/5 w-full max-w-lg">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: '#52525b' }}>
+                            <Shield className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#22c55e' }} /> 100% gratuito
+                        </div>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: '#52525b' }}>
+                            <Activity className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#818cf8' }} /> Testato su +500 atleti
                         </div>
                     </div>
                 </div>
@@ -440,20 +451,20 @@ export default function RadarQuiz() {
     if (phase === 'loading') {
         const loadingSteps = [
             { icon: '🔍', text: 'Analisi delle risposte in corso...' },
-            { icon: '🧠', text: 'Calcolo del profilo mentale...' },
+            { icon: '🧠', text: 'Calcolo delle propensioni...' },
             { icon: '📊', text: 'Generazione del report personalizzato...' },
         ]
 
         return (
             <div className="min-h-[100dvh] flex items-center justify-center px-5 py-8" style={{ background: '#09090b' }}>
                 <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08), transparent 60%)' }} />
-                <div className="relative text-center max-w-sm" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+                <div className="relative text-center max-w-sm w-full" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
                     <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 sm:mb-8 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', animation: 'pulse-glow 2s ease-in-out infinite' }}>
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full animate-spin" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(99, 102, 241, 0.2)', borderTopColor: '#6366f1' }} />
                     </div>
 
-                    <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Stiamo creando il tuo Report</h2>
-                    <p className="text-xs sm:text-sm mb-8" style={{ color: '#71717a' }}>Il Profilo Mentale Sportivo personalizzato è quasi pronto</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">Stiamo creando il tuo Report</h2>
+                    <p className="text-sm sm:text-base mb-8" style={{ color: '#71717a' }}>Il Profilo sulla Mentalità Sportiva è quasi pronto</p>
 
                     {/* Step indicators */}
                     <div className="space-y-3 text-left">
@@ -489,8 +500,8 @@ export default function RadarQuiz() {
                         <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#818cf8' }} />
                         <span className="text-xs sm:text-sm font-bold" style={{ color: '#818cf8' }}>IL TUO REPORT PERSONALIZZATO</span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 sm:mb-3">
-                        Profilo Mentale Sportivo
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 sm:mb-4">
+                        Profilo sulla Mentalità Sportiva
                     </h1>
                     <p className="text-sm sm:text-base" style={{ color: '#71717a' }}>
                         Ecco cosa abbiamo scoperto analizzando le tue risposte
