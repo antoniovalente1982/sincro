@@ -161,7 +161,7 @@ export async function getGoogleCalendarEvents(
             }
             const retryData = await retryResponse.json()
             return (retryData.items || [])
-                .filter((e: any) => e.start?.dateTime && e.status !== 'cancelled')
+                .filter((e: any) => (e.start?.dateTime || e.start?.date) && e.status !== 'cancelled')
                 .map((e: any) => ({
                     id: e.id,
                     summary: e.summary || '(Senza titolo)',
@@ -178,7 +178,7 @@ export async function getGoogleCalendarEvents(
 
     const data = await response.json()
     return (data.items || [])
-        .filter((e: any) => e.start?.dateTime && e.status !== 'cancelled')
+        .filter((e: any) => (e.start?.dateTime || e.start?.date) && e.status !== 'cancelled')
         .map((e: any) => ({
             id: e.id,
             summary: e.summary || '(Senza titolo)',
