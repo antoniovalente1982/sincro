@@ -48,6 +48,22 @@ export async function refreshGoogleToken(userId: string, refreshToken: string) {
     return access_token
 }
 
+async function getUserCalendars(currentToken: string) {
+    try {
+        const res = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        })
+        if (!res.ok) return [{ id: 'primary' }]
+        const data = await res.json()
+        const cals = (data.items || [])
+            .filter((c: any) => c.selected && (c.accessRole === 'owner' || c.accessRole === 'writer'))
+            .map((c: any) => ({ id: c.id }))
+        return cals.length > 0 ? cals : [{ id: 'primary' }]
+    } catch {
+        return [{ id: 'primary' }]
+    }
+}
+
 export async function getGoogleCalendarFreeBusy(
     userId: string, 
     accessToken: string, 
@@ -68,6 +84,8 @@ export async function getGoogleCalendarFreeBusy(
         }
     }
 
+    let cals = await getUserCalendars(currentToken)
+
     const response = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
         method: 'POST',
         headers: {
@@ -77,7 +95,7 @@ export async function getGoogleCalendarFreeBusy(
         body: JSON.stringify({
             timeMin,
             timeMax,
-            items: [{ id: 'primary' }]
+            items: cals
         }),
     })
 
@@ -94,7 +112,7 @@ export async function getGoogleCalendarFreeBusy(
                 body: JSON.stringify({
                     timeMin,
                     timeMax,
-                    items: [{ id: 'primary' }]
+                    items: cals
                 }),
             })
             if (!retryResponse.ok) {
@@ -103,7 +121,13 @@ export async function getGoogleCalendarFreeBusy(
                 return []
             }
             const retryData = await retryResponse.json()
-            return retryData.calendars?.primary?.busy || []
+            const busySlots: any[] = []
+            if (retryData.calendars) {
+                Object.values(retryData.calendars).forEach((cal: any) => {
+                    if (cal.busy) busySlots.push(...cal.busy)
+                })
+            }
+            return busySlots
         }
 
         const error = await response.text()
@@ -112,7 +136,13 @@ export async function getGoogleCalendarFreeBusy(
     }
 
     const data = await response.json()
-    return data.calendars?.primary?.busy || []
+    const busySlots: any[] = []
+    if (data.calendars) {
+        Object.values(data.calendars).forEach((cal: any) => {
+            if (cal.busy) busySlots.push(...cal.busy)
+        })
+    }
+    return busySlots
 }
 
 export async function getGoogleCalendarEvents(
@@ -143,51 +173,60 @@ export async function getGoogleCalendarEvents(
         maxResults: '250',
     })
 
-    const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
-        headers: {
-            'Authorization': `Bearer ${currentToken}`,
-        },
-    })
+    let cals = await getUserCalendars(currentToken)
+    if (cals.length === 0) cals = [{ id: 'primary' }]
 
-    if (!response.ok) {
-        if (response.status === 401 && refreshToken) {
-            currentToken = await refreshGoogleToken(userId, refreshToken)
-            const retryResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
-                headers: { 'Authorization': `Bearer ${currentToken}` },
-            })
-            if (!retryResponse.ok) {
-                console.error('[Google API] Failed to get events after retry:', await retryResponse.text())
-                return []
+    const allEvents: any[] = []
+
+    // Helper per fetch eventi di un singolo calendario
+    const fetchEventsForCalendar = async (calId: string, token: string) => {
+        const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?${params}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+        })
+        if (!response.ok) {
+            if (response.status === 401 && refreshToken) {
+                return 'refresh_needed'
             }
-            const retryData = await retryResponse.json()
-            return (retryData.items || [])
-                .filter((e: any) => (e.start?.dateTime || e.start?.date) && e.status !== 'cancelled')
-                .map((e: any) => ({
-                    id: e.id,
-                    summary: e.summary || '(Senza titolo)',
-                    start: e.start.dateTime || e.start.date,
-                    end: e.end.dateTime || e.end.date,
-                    status: e.status,
-                    htmlLink: e.htmlLink,
-                    extendedProperties: e.extendedProperties,
-                }))
+            return []
         }
-        console.error('[Google API] Failed to get events:', await response.text())
-        return []
+        const data = await response.json()
+        return (data.items || [])
+            .filter((e: any) => (e.start?.dateTime || e.start?.date) && e.status !== 'cancelled')
+            .map((e: any) => ({
+                id: e.id,
+                summary: e.summary || '(Senza titolo)',
+                start: e.start.dateTime || e.start.date,
+                end: e.end.dateTime || e.end.date,
+                status: e.status,
+                htmlLink: e.htmlLink,
+                extendedProperties: e.extendedProperties,
+            }))
     }
 
-    const data = await response.json()
-    return (data.items || [])
-        .filter((e: any) => (e.start?.dateTime || e.start?.date) && e.status !== 'cancelled')
-        .map((e: any) => ({
-            id: e.id,
-            summary: e.summary || '(Senza titolo)',
-            start: e.start.dateTime || e.start.date,
-            end: e.end.dateTime || e.end.date,
-            status: e.status,
-            htmlLink: e.htmlLink,
-            extendedProperties: e.extendedProperties,
-        }))
+    let needsRefresh = false
+    for (const cal of cals) {
+        const items = await fetchEventsForCalendar(cal.id, currentToken)
+        if (items === 'refresh_needed') {
+            needsRefresh = true
+            break
+        }
+        allEvents.push(...(items as any[]))
+    }
+
+    if (needsRefresh && refreshToken) {
+        currentToken = await refreshGoogleToken(userId, refreshToken)
+        cals = await getUserCalendars(currentToken) // re-fetch with new token
+        allEvents.length = 0 // clear
+        for (const cal of cals) {
+            const items = await fetchEventsForCalendar(cal.id, currentToken)
+            if (items !== 'refresh_needed') {
+                allEvents.push(...(items as any[]))
+            }
+        }
+    }
+
+    allEvents.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    return allEvents
 }
 
 export async function createGoogleCalendarEvent(
