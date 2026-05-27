@@ -19,11 +19,9 @@ export async function GET(req: NextRequest) {
         .is('deactivated_at', null)
         .single()
 
-    const isCloser = member?.role === 'closer'
-    const isSalesManager = member?.role === 'manager' && member?.department === 'sales'
-
-    if (!member || (!isCloser && !isSalesManager)) {
-        return NextResponse.redirect(`${origin}/dashboard/settings?error=only_closers`)
+    // Tutti i membri del team possono connettere il loro Google Calendar
+    if (!member) {
+        return NextResponse.redirect(`${origin}/dashboard/settings?error=member_not_found`)
     }
 
     const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
@@ -39,7 +37,7 @@ export async function GET(req: NextRequest) {
     authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID)
     authUrl.searchParams.set('redirect_uri', redirectUri)
     authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly')
+    authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly')
     authUrl.searchParams.set('access_type', 'offline')
     authUrl.searchParams.set('prompt', 'consent') // Forza il prompt per ottenere sempre il refresh token
 

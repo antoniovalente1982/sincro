@@ -66,11 +66,9 @@ export async function GET(req: NextRequest) {
             .is('deactivated_at', null)
             .single()
 
-        const isCloser = member?.role === 'closer'
-        const isSalesManager = member?.role === 'manager' && member?.department === 'sales'
-
-        if (!member || (!isCloser && !isSalesManager)) {
-            return NextResponse.redirect(`${origin}/dashboard/settings?error=only_closers`)
+        // Tutti i membri del team possono connettere il loro Google Calendar
+        if (!member) {
+            return NextResponse.redirect(`${origin}/dashboard/settings?error=member_not_found`)
         }
 
         // Aggiorna l'organization_member con i token

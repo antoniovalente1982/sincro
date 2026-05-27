@@ -114,20 +114,6 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         }
     }
 
-    // Gestione messaggi di successo o errore da redirect OAuth
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search)
-            const errorParam = params.get('error')
-            if (errorParam === 'only_closers') {
-                alert('Solo i venditori (closers) o i responsabili vendite possono collegare il proprio calendario.')
-                // Pulisce l'URL per estetica
-                const url = new URL(window.location.href)
-                url.searchParams.delete('error')
-                window.history.replaceState({}, '', url.toString())
-            }
-        }
-    }, [])
 
     const handleSaveOrg = () => saveAction('update_org', { name: orgName })
     const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone })
@@ -720,9 +706,8 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 </div>
             </div>
 
-            {/* Integrazioni */}
-            {(userRole === 'closer' || (userRole === 'manager' && userDepartment === 'sales')) && (
-                <div className="glass-card p-6">
+            {/* Integrazioni — Visibile a tutti i membri del team */}
+            <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Zap className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
                         <h3 className="text-sm font-bold th-heading">Integrazioni</h3>
@@ -778,8 +763,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                             )}
                         </div>
                     </div>
-                </div>
-            )}
+            </div>
 
             {/* Danger Zone */}
             {userRole === 'owner' && (
