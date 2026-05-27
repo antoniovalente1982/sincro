@@ -564,13 +564,30 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
     const getGoogleEventsForCell = (day: Date, hour: number) => {
         if (!showGoogleEvents) return []
         const results: { event: GoogleEvent; userId: string; color: string }[] = []
+        const dayStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
+
         for (const [uid, gEvents] of Object.entries(googleEvents)) {
             if (!visibleCalendars.has(uid)) continue
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
-                const start = new Date(ge.start)
-                if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
-                    results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                const isAllDay = ge.start && ge.start.length === 10; // e.g. "YYYY-MM-DD"
+
+                if (isAllDay) {
+                    if (dayStr >= ge.start && dayStr < ge.end) {
+                        if (hour === 7) {
+                            // Inject at hour 7, span the whole visible day (13 hours)
+                            results.push({ 
+                                event: { ...ge, start: `${dayStr}T07:00:00`, end: `${dayStr}T20:00:00` }, 
+                                userId: uid, 
+                                color: closer?.color || '#64748b' 
+                            })
+                        }
+                    }
+                } else {
+                    const start = new Date(ge.start)
+                    if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
+                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                    }
                 }
             }
         }
