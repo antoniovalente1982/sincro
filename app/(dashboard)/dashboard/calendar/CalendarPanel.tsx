@@ -550,32 +550,33 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
         }
     }
 
-    // Get events for a specific day/hour cell (filtered by visible calendars)
-    const getEventsForCell = (day: Date, hour: number) => {
+    // Get Sincro events for a specific day/hour/closer cell
+    const getEventsForCell = (day: Date, hour: number, closerId?: string) => {
+        if (visibleCalendars.size === 0) return []
         return events.filter(e => {
             const start = new Date(e.start_time)
             return start.toDateString() === day.toDateString()
                 && start.getHours() === hour
                 && visibleCalendars.has(e.closer_id)
+                && (closerId ? e.closer_id === closerId : true)
         })
     }
 
-    // Get Google events for a specific day/hour cell
-    const getGoogleEventsForCell = (day: Date, hour: number) => {
+    // Get Google events for a specific day/hour/closer cell
+    const getGoogleEventsForCell = (day: Date, hour: number, closerId?: string) => {
         if (!showGoogleEvents) return []
         const results: { event: GoogleEvent; userId: string; color: string }[] = []
         const dayStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
 
         for (const [uid, gEvents] of Object.entries(googleEvents)) {
             if (!visibleCalendars.has(uid)) continue
+            if (closerId && uid !== closerId) continue // ← KEY FIX: filter by closer
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
-                const isAllDay = ge.start && ge.start.length === 10; // e.g. "YYYY-MM-DD"
-
+                const isAllDay = ge.start && ge.start.length === 10
                 if (isAllDay) {
                     if (dayStr >= ge.start && dayStr < ge.end) {
                         if (hour === 7) {
-                            // Inject at hour 7, span the whole visible day (13 hours)
                             results.push({ 
                                 event: { ...ge, start: `${dayStr}T07:00:00`, end: `${dayStr}T20:00:00` }, 
                                 userId: uid, 
@@ -879,197 +880,235 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                     </div>
                 </div>
 
-                {/* Calendar Grid */}
+                {/* Calendar Grid — Per-Vendor Column Layout */}
                 <div className="glass-card overflow-hidden flex-1">
                     <div className="overflow-x-auto h-full">
-                        <div style={{ minWidth: view === 'week' ? '900px' : '400px' }}>
-                            {/* Day Headers */}
-                            <div className="grid gap-0" style={{
-                                gridTemplateColumns: `60px repeat(${weekDays.length}, 1fr)`,
-                                borderBottom: '1px solid var(--color-surface-200)',
-                            }}>
-                                <div className="p-2" />
-                                {weekDays.map((day, i) => (
-                                    <div key={i}
-                                        className="p-3 text-center"
-                                        style={{
-                                            borderLeft: '1px solid var(--color-surface-200)',
-                                            background: isToday(day) ? 'rgba(99,102,241,0.05)' : 'transparent',
-                                        }}
-                                    >
-                                        <div className="text-[10px] font-semibold uppercase" style={{ color: isToday(day) ? '#a5b4fc' : 'var(--color-surface-500)' }}>
-                                            {DAYS[day.getDay()]}
-                                        </div>
-                                        <div className={`text-lg font-bold mt-0.5`}
-                                            style={{ color: isToday(day) ? 'white' : 'var(--color-surface-700)' }}
-                                        >
-                                            {day.getDate()}
-                                        </div>
+                        {(() => {
+                            // Build visible closers list
+                            const visibleClosers = closers.filter(c => visibleCalendars.has(c.user_id))
+                            if (visibleClosers.length === 0) {
+                                return (
+                                    <div className="flex flex-col items-center justify-center h-full py-20" style={{ color: 'var(--color-surface-500)' }}>
+                                        <CalendarDays className="w-10 h-10 mb-3 opacity-30" />
+                                        <p className="text-sm font-medium">Nessun calendario selezionato</p>
+                                        <p className="text-xs mt-1 opacity-60">Usa la barra laterale per mostrare i calendari dei venditori</p>
                                     </div>
-                                ))}
-                            </div>
+                                )
+                            }
 
-                            {/* Time Grid */}
-                            <div style={{ maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
-                                {HOURS.map(hour => (
-                                    <div key={hour} className="grid gap-0" style={{
-                                        gridTemplateColumns: `60px repeat(${weekDays.length}, 1fr)`,
-                                        minHeight: '60px',
-                                        borderBottom: '1px solid var(--color-surface-100)',
-                                    }}>
-                                        <div className="p-2 text-right pr-3 pt-0" style={{ marginTop: '-6px' }}>
-                                            <span className="text-[10px] font-medium" style={{ color: 'var(--color-surface-500)' }}>
-                                                {hour.toString().padStart(2, '0')}:00
-                                            </span>
-                                        </div>
-                                        {weekDays.map((day, di) => {
-                                            const cellEvents = getEventsForCell(day, hour)
-                                            const cellGoogleEvents = getGoogleEventsForCell(day, hour)
-                                            return (
-                                                <div key={di}
-                                                    className="relative min-h-[60px] transition-colors th-bg-hover"
+                            // In week view: columns = visibleClosers × weekDays
+                            // In day view: columns = visibleClosers × 1 day
+                            const cols = view === 'week'
+                                ? weekDays.flatMap(day => visibleClosers.map(c => ({ day, closer: c })))
+                                : visibleClosers.map(c => ({ day: weekDays[0], closer: c }))
+
+                            // group by day for header labels
+                            const totalCols = cols.length
+                            const colWidth = view === 'week' ? Math.max(120, Math.floor(900 / totalCols)) : Math.max(160, Math.floor(600 / totalCols))
+                            const gridTotalWidth = 60 + totalCols * colWidth
+
+                            return (
+                                <div style={{ minWidth: `${gridTotalWidth}px` }}>
+                                    {/* Day Header Row */}
+                                    {view === 'week' && (
+                                        <div className="flex" style={{ borderBottom: '2px solid var(--color-surface-200)' }}>
+                                            <div style={{ width: '60px', flexShrink: 0 }} />
+                                            {weekDays.map((day, di) => (
+                                                <div
+                                                    key={di}
+                                                    className="text-center py-2"
                                                     style={{
+                                                        width: `${visibleClosers.length * colWidth}px`,
+                                                        flexShrink: 0,
                                                         borderLeft: '1px solid var(--color-surface-200)',
-                                                        background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
+                                                        background: isToday(day) ? 'rgba(99,102,241,0.05)' : 'transparent',
                                                     }}
                                                 >
-                                                    {/* Mezz'ora Line (Dashed) */}
-                                                    <div className="absolute top-[30px] left-0 right-0 border-t border-dashed pointer-events-none" style={{ borderColor: 'var(--color-surface-200)' }} />
-
-                                                    {/* Google Calendar Current Time Red Line */}
-                                                    {isToday(day) && hour === now.getHours() && (
-                                                        <div 
-                                                            className="absolute left-0 right-0 flex items-center z-20 pointer-events-none w-[calc(100%+8px)] -ml-2" 
-                                                            style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
-                                                        >
-                                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500 absolute -left-1.5 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-                                                            <div className="w-full border-t-2 border-dashed border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Unified Event Rendering engine (Deduplication & Collision) */}
-                                                    {(() => {
-                                                        const merged: any[] = [];
-                                                        
-                                                        // 1. Process Sincro Events
-                                                        cellEvents.forEach(evt => {
-                                                            const startMin = new Date(evt.start_time).getMinutes()
-                                                            const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
-                                                            
-                                                            const bgColor = evt.closer_color || '#6366f1' // Calendar OWNER's color ALWAYS
-                                                            const statusIcon = evt.status === 'completed' ? '✅ ' : evt.status === 'no_show' ? '❌ ' : ''
-                                                            
-                                                            merged.push({
-                                                                type: 'sincro',
-                                                                id: evt.id,
-                                                                startMin,
-                                                                duration,
-                                                                bgColor,
-                                                                title: `${statusIcon}${evt.leads?.name || evt.title}`,
-                                                                start_time: evt.start_time,
-                                                                end_time: evt.end_time,
-                                                                subtitle: `${fmt(evt.start_time)} — ${fmt(evt.end_time)}${evt.service_type ? ` · ${evt.service_type.name}` : ''} · ${evt.closer_name}`,
-                                                                serviceTypeName: evt.service_type?.name || null,
-                                                                serviceTypeColor: evt.service_type?.color || null,
-                                                                raw: evt
-                                                            })
-                                                        });
-                                                        
-                                                        // 2. Process Google Events (with deduplication)
-                                                        cellGoogleEvents.forEach(({ event: ge, color }) => {
-                                                            const isShadow = merged.some(m => 
-                                                                new Date(m.start_time).getTime() === new Date(ge.start).getTime() && 
-                                                                (ge.summary.includes('Appuntamento') || (ge as any).extendedProperties?.private?.sincro_event_id)
-                                                            );
-                                                            if (isShadow) return; 
-                                                            
-                                                            const startMin = new Date(ge.start).getMinutes()
-                                                            const duration = (new Date(ge.end).getTime() - new Date(ge.start).getTime()) / 60000
-                                                            merged.push({
-                                                                type: 'google',
-                                                                id: `g-${ge.id}`,
-                                                                startMin,
-                                                                duration,
-                                                                bgColor: color, 
-                                                                title: ge.summary || 'Impegno',
-                                                                start_time: ge.start,
-                                                                end_time: ge.end,
-                                                                subtitle: `${fmt(ge.start)} — ${fmt(ge.end)}`,
-                                                                raw: ge
-                                                            })
-                                                        });
-                                                        
-                                                        // 3. Collision Engine
-                                                        merged.sort((a,b) => a.startMin - b.startMin);
-                                                        const columns: any[][] = [];
-                                                        merged.forEach(ev => {
-                                                            let placed = false;
-                                                            for (let i = 0; i < columns.length; i++) {
-                                                                const colEvents = columns[i];
-                                                                const last = colEvents[colEvents.length - 1];
-                                                                if (ev.startMin >= last.startMin + Math.max(last.duration, 15)) {
-                                                                    columns[i].push(ev);
-                                                                    ev.colIndex = i;
-                                                                    placed = true;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            if (!placed) {
-                                                                columns.push([ev]);
-                                                                ev.colIndex = columns.length - 1;
-                                                            }
-                                                        });
-                                                        
-                                                        const maxCols = columns.length || 1;
-                                                        
-                                                        // 4. Render Layout
-                                                        return merged.map(evt => {
-                                                            const colWidth = 100 / maxCols;
-                                                            const leftPos = evt.colIndex * colWidth;
-                                                            const isGoogle = evt.type === 'google';
-                                                            const height = Math.max((evt.duration / 60) * 60, 24);
-                                                            
-                                                            return (
-                                                                <div
-                                                                    key={evt.id}
-                                                                    onClick={() => isGoogle ? null : setSelectedEvent(evt.raw)}
-                                                                    className={`absolute rounded-md px-1.5 py-1 transition-all shadow-sm ${!isGoogle ? 'cursor-pointer hover:scale-[1.02] hover:z-10 hover:shadow-md' : ''}`}
-                                                                    style={{
-                                                                        top: `${(evt.startMin / 60) * 100}%`,
-                                                                        height: `${height}px`,
-                                                                        left: `${leftPos}%`,
-                                                                        width: `calc(${colWidth}% - 2px)`,
-                                                                        background: evt.bgColor,
-                                                                        border: isGoogle ? `1px dashed rgba(255,255,255,0.4)` : `none`,
-                                                                        zIndex: isGoogle ? 3 : 5,
-                                                                        opacity: isGoogle ? 0.8 : 1,
-                                                                    }}
-                                                                    title={isGoogle ? `Google: ${evt.title}` : undefined}
-                                                                >
-                                                                    <div className="flex items-center gap-1 overflow-hidden">
-                                                                        {!isGoogle && evt.serviceTypeName && (
-                                                                            <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: evt.serviceTypeColor || '#fff', boxShadow: `0 0 4px ${evt.serviceTypeColor || '#fff'}` }} />
-                                                                        )}
-                                                                        <div className="text-[10px] font-bold truncate leading-tight text-white drop-shadow-md">
-                                                                            {evt.title}
-                                                                        </div>
-                                                                    </div>
-                                                                    {height >= 35 && ( 
-                                                                        <div className="text-[9px] font-medium leading-tight truncate mt-[2px] text-white/90 drop-shadow-md">
-                                                                            {evt.subtitle}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )
-                                                        });
-                                                    })()}
+                                                    <div className="text-[10px] font-bold uppercase" style={{ color: isToday(day) ? '#a5b4fc' : 'var(--color-surface-500)' }}>
+                                                        {DAYS[day.getDay()]}
+                                                    </div>
+                                                    <div className="text-base font-bold" style={{ color: isToday(day) ? 'white' : 'var(--color-surface-700)' }}>
+                                                        {day.getDate()}
+                                                    </div>
                                                 </div>
-                                            )
-                                        })}
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Vendor sub-header */}
+                                    <div className="flex" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                        <div style={{ width: '60px', flexShrink: 0 }} />
+                                        {cols.map(({ day, closer }, ci) => (
+                                            <div
+                                                key={ci}
+                                                className="flex items-center justify-center gap-1.5 py-1.5 px-1"
+                                                style={{
+                                                    width: `${colWidth}px`,
+                                                    flexShrink: 0,
+                                                    borderLeft: '1px solid var(--color-surface-200)',
+                                                    background: isToday(day) ? 'rgba(99,102,241,0.03)' : 'transparent',
+                                                }}
+                                            >
+                                                <div
+                                                    className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-bold text-white"
+                                                    style={{ background: closer.color }}
+                                                >
+                                                    {closer.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <span className="text-[9px] font-semibold truncate" style={{ color: closer.color, maxWidth: `${colWidth - 28}px` }}>
+                                                    {closer.name.split(' ')[0]}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        </div>
+
+                                    {/* Time Grid */}
+                                    <div style={{ maxHeight: 'calc(100vh - 340px)', overflowY: 'auto' }}>
+                                        {HOURS.map(hour => (
+                                            <div key={hour} className="flex" style={{
+                                                minHeight: '60px',
+                                                borderBottom: '1px solid var(--color-surface-100)',
+                                            }}>
+                                                {/* Hour label */}
+                                                <div className="p-2 text-right pr-3 pt-0 flex-shrink-0" style={{ width: '60px', marginTop: '-6px' }}>
+                                                    <span className="text-[10px] font-medium" style={{ color: 'var(--color-surface-500)' }}>
+                                                        {hour.toString().padStart(2, '0')}:00
+                                                    </span>
+                                                </div>
+
+                                                {/* One cell per closer×day */}
+                                                {cols.map(({ day, closer }, ci) => {
+                                                    const cellEvents = getEventsForCell(day, hour, closer.user_id)
+                                                    const cellGoogleEvents = getGoogleEventsForCell(day, hour, closer.user_id)
+
+                                                    return (
+                                                        <div
+                                                            key={ci}
+                                                            className="relative transition-colors th-bg-hover"
+                                                            style={{
+                                                                width: `${colWidth}px`,
+                                                                flexShrink: 0,
+                                                                minHeight: '60px',
+                                                                borderLeft: '1px solid var(--color-surface-200)',
+                                                                background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
+                                                            }}
+                                                        >
+                                                            {/* Half-hour dashed line */}
+                                                            <div className="absolute top-[30px] left-0 right-0 border-t border-dashed pointer-events-none" style={{ borderColor: 'var(--color-surface-200)' }} />
+
+                                                            {/* Current time red line */}
+                                                            {isToday(day) && hour === now.getHours() && (
+                                                                <div
+                                                                    className="absolute left-0 right-0 flex items-center z-20 pointer-events-none"
+                                                                    style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
+                                                                >
+                                                                    <div className="w-2 h-2 rounded-full bg-red-500 absolute -left-1 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></div>
+                                                                    <div className="w-full border-t-2 border-dashed border-red-500"></div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Google Calendar background blocks (read-only, subtle) */}
+                                                            {cellGoogleEvents.map(({ event: ge, color }) => {
+                                                                const isSincroMirror = cellEvents.some(ev =>
+                                                                    new Date(ev.start_time).getTime() === new Date(ge.start).getTime() &&
+                                                                    (ge.summary?.includes('Appuntamento') || (ge as any).extendedProperties?.private?.sincro_event_id)
+                                                                )
+                                                                if (isSincroMirror) return null
+
+                                                                const isAllDay = ge.start.length === 10 || (ge.start.endsWith('T07:00:00') && ge.end.endsWith('T20:00:00'))
+                                                                const startMin = isAllDay ? 0 : new Date(ge.start).getMinutes()
+                                                                const durationMs = new Date(ge.end).getTime() - new Date(ge.start).getTime()
+                                                                const durationMin = isAllDay ? 60 : durationMs / 60000
+                                                                const height = isAllDay ? 60 : Math.max((durationMin / 60) * 60, 18)
+
+                                                                return (
+                                                                    <div
+                                                                        key={`g-${ge.id}`}
+                                                                        className="absolute left-0 right-0 mx-0.5 rounded overflow-hidden pointer-events-none"
+                                                                        style={{
+                                                                            top: `${(startMin / 60) * 100}%`,
+                                                                            height: `${height}px`,
+                                                                            background: `${color}22`,
+                                                                            borderLeft: `3px solid ${color}88`,
+                                                                            zIndex: 2,
+                                                                        }}
+                                                                        title={`Google: ${ge.summary || 'Impegno'}`}
+                                                                    >
+                                                                        <span className="text-[8px] font-semibold pl-1 leading-tight block truncate mt-0.5" style={{ color: `${color}cc` }}>
+                                                                            🔒 {ge.summary || 'Impegno'}
+                                                                        </span>
+                                                                    </div>
+                                                                )
+                                                            })}
+
+                                                            {/* Sincro events (clickable, solid) */}
+                                                            {(() => {
+                                                                if (cellEvents.length === 0) return null
+                                                                // Simple collision for events within same closer cell
+                                                                const sorted = [...cellEvents].sort((a, b) =>
+                                                                    new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+                                                                )
+                                                                const cols2: any[][] = []
+                                                                sorted.forEach(evt => {
+                                                                    const startMin = new Date(evt.start_time).getMinutes()
+                                                                    const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
+                                                                    let placed = false
+                                                                    for (let i = 0; i < cols2.length; i++) {
+                                                                        const last = cols2[i][cols2[i].length - 1]
+                                                                        if (startMin >= last._startMin + Math.max(last._duration, 15)) {
+                                                                            cols2[i].push({ ...evt, _startMin: startMin, _duration: duration, _col: i })
+                                                                            placed = true; break
+                                                                        }
+                                                                    }
+                                                                    if (!placed) cols2.push([{ ...evt, _startMin: new Date(evt.start_time).getMinutes(), _duration: (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000, _col: cols2.length }])
+                                                                })
+                                                                const maxSubCols = cols2.length || 1
+                                                                return cols2.flat().map(evt => {
+                                                                    const startMin = new Date(evt.start_time).getMinutes()
+                                                                    const duration = (new Date(evt.end_time).getTime() - new Date(evt.start_time).getTime()) / 60000
+                                                                    const height = Math.max((duration / 60) * 60, 24)
+                                                                    const colW = 100 / maxSubCols
+                                                                    const leftPct = evt._col * colW
+                                                                    const bgColor = evt.closer_color || '#6366f1'
+                                                                    const statusIcon = evt.status === 'completed' ? '✅ ' : evt.status === 'no_show' ? '❌ ' : ''
+                                                                    return (
+                                                                        <div
+                                                                            key={evt.id}
+                                                                            onClick={() => setSelectedEvent(evt)}
+                                                                            className="absolute rounded-md px-1.5 py-1 cursor-pointer hover:scale-[1.02] hover:z-10 hover:shadow-lg transition-all shadow-sm"
+                                                                            style={{
+                                                                                top: `${(startMin / 60) * 100}%`,
+                                                                                height: `${height}px`,
+                                                                                left: `calc(${leftPct}% + 1px)`,
+                                                                                width: `calc(${colW}% - 3px)`,
+                                                                                background: bgColor,
+                                                                                zIndex: 5,
+                                                                            }}
+                                                                        >
+                                                                            {evt.service_type && (
+                                                                                <div className="w-1.5 h-1.5 rounded-full mb-0.5" style={{ background: evt.service_type.color || '#fff', boxShadow: `0 0 4px ${evt.service_type.color || '#fff'}` }} />
+                                                                            )}
+                                                                            <div className="text-[10px] font-bold truncate leading-tight text-white drop-shadow-md">
+                                                                                {statusIcon}{evt.leads?.name || evt.title}
+                                                                            </div>
+                                                                            {height >= 35 && (
+                                                                                <div className="text-[9px] font-medium leading-tight truncate mt-[2px] text-white/90">
+                                                                                    {`${fmt(evt.start_time)} — ${fmt(evt.end_time)}`}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            })()}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )
+                        })()}
                     </div>
                 </div>
             </div>

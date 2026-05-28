@@ -497,7 +497,15 @@ export async function GET(req: NextRequest) {
             (googleTokens || []).filter((t: any) => t.google_access_token).map((t: any) => t.user_id)
         )
 
-        const result = (closers || [])
+        // Deduplicate by user_id (a person may appear twice if they match both closer AND manager+sales conditions)
+        const seenUserIds = new Set<string>()
+        const uniqueClosers = (closers || []).filter((c: any) => {
+            if (seenUserIds.has(c.user_id)) return false
+            seenUserIds.add(c.user_id)
+            return true
+        })
+
+        const result = uniqueClosers
             .map((c: any) => {
                 const profile = profileMap[c.user_id]
                 return {
