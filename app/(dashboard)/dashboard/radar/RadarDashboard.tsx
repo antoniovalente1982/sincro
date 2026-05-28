@@ -1,7 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Activity, Brain, AlertTriangle, CheckCircle, ExternalLink, Mail, Phone, Search, TrendingUp, Users, Copy, Check, ChevronRight, ArrowRight, Zap, Target, Shield, Flame, Lock } from 'lucide-react'
+import {
+    Activity, Brain, AlertTriangle, CheckCircle, ExternalLink,
+    Mail, Phone, Search, TrendingUp, Users, Copy, Check,
+    ArrowRight, Shield, Target, Flame, Lock, Zap, BarChart3
+} from 'lucide-react'
 
 interface RadarSubmission {
     id: string
@@ -17,87 +21,69 @@ interface RadarSubmission {
     converted_at: string | null
 }
 
-/* ── Radial Score Ring ── */
-function ScoreRing({ score, size = 72 }: { score: number; size?: number }) {
-    const radius = (size - 8) / 2
+/* ═══════════════════════════════════════════════
+   ANIMATED SCORE RING — SVG donut chart
+   ═══════════════════════════════════════════════ */
+function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
+    const strokeWidth = 5
+    const radius = (size - strokeWidth * 2) / 2
     const circumference = 2 * Math.PI * radius
     const offset = circumference - (score / 100) * circumference
-    const color = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
-    const label = score >= 75 ? 'Buono' : score >= 50 ? 'Attenzione' : 'Critico'
-    const bgRing = score >= 75 ? 'rgba(34,197,94,0.08)' : score >= 50 ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)'
+    const color = score >= 75 ? '#22c55e' : score >= 50 ? '#eab308' : '#ef4444'
+    const label = score >= 75 ? 'BUONO' : score >= 50 ? 'MEDIO' : 'CRITICO'
+    const glowColor = score >= 75 ? '34,197,94' : score >= 50 ? '234,179,8' : '239,68,68'
 
     return (
-        <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-            <svg width={size} height={size} className="rotate-[-90deg]">
-                <circle cx={size / 2} cy={size / 2} r={radius} fill={bgRing}
-                    stroke="var(--color-surface-200)" strokeWidth="3" opacity="0.4" />
+        <div className="relative flex-shrink-0 group" style={{ width: size, height: size }}>
+            {/* Glow effect */}
+            <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ boxShadow: `0 0 30px rgba(${glowColor}, 0.25)` }} />
+            <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+                {/* Background track */}
                 <circle cx={size / 2} cy={size / 2} r={radius} fill="none"
-                    stroke={color} strokeWidth="3.5" strokeLinecap="round"
+                    stroke="var(--color-surface-200)" strokeWidth={strokeWidth} />
+                {/* Score arc */}
+                <circle cx={size / 2} cy={size / 2} r={radius} fill="none"
+                    stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
                     strokeDasharray={circumference} strokeDashoffset={offset}
-                    style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+                    style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', filter: `drop-shadow(0 0 6px ${color}60)` }} />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-black leading-none" style={{ color }}>{score}%</span>
-                <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wide" style={{ color: 'var(--color-surface-500)' }}>{label}</span>
+                <span className="text-xl font-black leading-none tracking-tight" style={{ color }}>{score}<span className="text-xs">%</span></span>
+                <span className="text-[8px] font-extrabold mt-1 tracking-[0.15em]" style={{ color: 'var(--color-surface-400)' }}>{label}</span>
             </div>
         </div>
     )
 }
 
-/* ── Score Bar (for detail rows) ── */
-function ScoreBar({ score, label, icon: Icon }: { score: number; label: string; icon: React.ElementType }) {
-    const color = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
-    const bg = score >= 75 ? 'rgba(34,197,94,0.1)' : score >= 50 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)'
+/* ═══════════════════════════════════════════════
+   AREA SCORE BAR — compact bar with icon
+   ═══════════════════════════════════════════════ */
+function AreaBar({ score, label, icon: Icon }: { score: number; label: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }) {
+    const color = score >= 75 ? '#22c55e' : score >= 50 ? '#eab308' : '#ef4444'
     return (
-        <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: bg }}>
-                <Icon className="w-3 h-3" style={{ color }} />
+        <div className="flex items-center gap-3 group/bar">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover/bar:scale-110"
+                style={{ background: `${color}15`, border: `1px solid ${color}25` }}>
+                <Icon className="w-3.5 h-3.5" style={{ color }} />
             </div>
-            <span className="text-[12px] font-semibold w-[76px] truncate th-label">{label}</span>
-            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-200)' }}>
-                <div className="h-full rounded-full" style={{
-                    width: `${score}%`, background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-                    transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                }} />
-            </div>
-            <span className="text-[12px] font-bold w-10 text-right tabular-nums" style={{ color }}>{score}%</span>
-        </div>
-    )
-}
-
-/* ── Funnel Step Card ── */
-function FunnelStep({ label, value, color, emoji, rate, isLast }: {
-    label: string; value: number; color: string; emoji: string; rate: number | null; isLast?: boolean
-}) {
-    return (
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="glass-card p-4 flex-1 text-center relative overflow-hidden group cursor-default" style={{
-                borderColor: `${color}15`,
-            }}>
-                {/* Subtle gradient accent */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
-                    background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`
-                }} />
-                <div className="relative">
-                    <span className="text-lg mb-1 block">{emoji}</span>
-                    <span className="text-[11px] font-semibold block mb-1.5 th-muted">{label}</span>
-                    <span className="text-2xl font-black block leading-none" style={{ color }}>{value}</span>
-                    {rate !== null && (
-                        <span className="text-[10px] font-bold mt-2 inline-block px-2.5 py-0.5 rounded-full" style={{
-                            background: `${color}12`, color
-                        }}>
-                            {rate}% conv.
-                        </span>
-                    )}
+            <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] font-bold th-label uppercase tracking-wider">{label}</span>
+                    <span className="text-[12px] font-black tabular-nums" style={{ color }}>{score}%</span>
+                </div>
+                <div className="h-[6px] rounded-full overflow-hidden" style={{ background: 'var(--color-surface-200)' }}>
+                    <div className="h-full rounded-full transition-all duration-[1s] ease-out"
+                        style={{ width: `${score}%`, background: `linear-gradient(90deg, ${color}90, ${color})`, boxShadow: `0 0 8px ${color}40` }} />
                 </div>
             </div>
-            {!isLast && (
-                <ChevronRight className="w-4 h-4 flex-shrink-0 hidden md:block" style={{ color: 'var(--color-surface-300)' }} />
-            )}
         </div>
     )
 }
 
+/* ═══════════════════════════════════════════════
+   MAIN DASHBOARD
+   ═══════════════════════════════════════════════ */
 export default function RadarDashboard() {
     const [submissions, setSubmissions] = useState<RadarSubmission[]>([])
     const [loading, setLoading] = useState(true)
@@ -106,6 +92,7 @@ export default function RadarDashboard() {
     const [filter, setFilter] = useState<'all' | 'critical' | 'converted' | 'not_converted'>('all')
     const [search, setSearch] = useState('')
     const [copiedId, setCopiedId] = useState<string | null>(null)
+    const [expandedId, setExpandedId] = useState<string | null>(null)
 
     useEffect(() => {
         loadSubmissions()
@@ -120,7 +107,7 @@ export default function RadarDashboard() {
     }
 
     async function resetTests() {
-        if (!confirm('Sei sicuro di voler azzerare TUTTI i dati del radar (visite, test e lead generati dal quiz)? Questa azione non può essere annullata ed è utile solo in fase di test.')) return
+        if (!confirm('Sei sicuro di voler azzerare TUTTI i dati del radar? Questa azione non può essere annullata.')) return
         setIsResetting(true)
         try {
             await fetch('/api/radar/stats', { method: 'DELETE' })
@@ -172,239 +159,386 @@ export default function RadarDashboard() {
         fromPartners: submissions.filter(s => s.partner_id).length,
     }
 
-    const funnelSteps = [
-        { label: 'Visite', value: funnelStats.visits, color: '#38bdf8', emoji: '👁️', rate: null },
-        { label: 'Quiz iniziati', value: funnelStats.started, color: '#a78bfa', emoji: '✍️', rate: funnelStats.visits > 0 ? Math.round((funnelStats.started / funnelStats.visits) * 100) : 0 },
-        { label: 'Report visti', value: funnelStats.finished, color: '#fbbf24', emoji: '📊', rate: funnelStats.started > 0 ? Math.round((funnelStats.finished / funnelStats.started) * 100) : 0 },
-        { label: 'Lead generati', value: funnelStats.leads, color: '#34d399', emoji: '✅', rate: funnelStats.finished > 0 ? Math.round((funnelStats.leads / funnelStats.finished) * 100) : 0 },
+    /* ── Funnel conversion rates ── */
+    const funnel = [
+        { label: 'Visite', value: funnelStats.visits, icon: '👁️', color: '#38bdf8' },
+        { label: 'Quiz iniziati', value: funnelStats.started, icon: '✍️', color: '#a78bfa' },
+        { label: 'Report visti', value: funnelStats.finished, icon: '📊', color: '#fbbf24' },
+        { label: 'Lead', value: funnelStats.leads, icon: '🎯', color: '#34d399' },
     ]
 
-    const filterOptions = [
+    const filterBtns = [
         { key: 'all' as const, label: 'Tutti', count: submissions.length },
-        { key: 'critical' as const, label: 'Critici', count: stats.critical, dotColor: '#ef4444' },
-        { key: 'not_converted' as const, label: 'Da contattare', count: submissions.length - stats.converted, dotColor: '#f59e0b' },
-        { key: 'converted' as const, label: 'Convertiti', count: stats.converted, dotColor: '#22c55e' },
+        { key: 'critical' as const, label: 'Critici', count: stats.critical, dot: '#ef4444' },
+        { key: 'not_converted' as const, label: 'Da contattare', count: submissions.length - stats.converted, dot: '#eab308' },
+        { key: 'converted' as const, label: 'Convertiti', count: stats.converted, dot: '#22c55e' },
     ]
 
     return (
-        <div className="space-y-6 animate-fade-in">
-            {/* ── Header ── */}
-            <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center animate-pulse-glow" style={{
-                        background: 'linear-gradient(135deg, var(--color-sincro-600), var(--color-sincro-700))',
-                    }}>
-                        <Activity className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black th-heading tracking-tight">Radar Sincro</h1>
-                        <p className="text-sm th-muted mt-0.5">Analisi quiz · Lead generation · Performance</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={resetTests}
-                        disabled={isResetting}
-                        className="btn-secondary text-xs !py-2.5 !px-4"
-                        style={{ color: 'var(--color-danger)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
-                    >
-                        {isResetting ? 'Azzeramento...' : 'Azzera Dati Test'}
-                    </button>
-                    <button onClick={() => copyLink()} className="btn-primary text-sm !py-2.5">
-                        {copiedId === 'base'
-                            ? <><Check className="w-4 h-4" /> Copiato!</>
-                            : <><Copy className="w-4 h-4" /> Copia Link Quiz</>
-                        }
-                    </button>
-                </div>
-            </div>
+        <div className="animate-fade-in" style={{ maxWidth: 1100 }}>
+            {/* ══════════════════════════════════════
+               HERO HEADER — gradient banner
+               ══════════════════════════════════════ */}
+            <div style={{
+                background: 'linear-gradient(135deg, var(--color-sincro-600) 0%, #7c3aed 50%, #a855f7 100%)',
+                borderRadius: 20,
+                padding: '32px 32px 28px',
+                marginBottom: 24,
+                position: 'relative',
+                overflow: 'hidden',
+            }}>
+                {/* Decorative circles */}
+                <div style={{
+                    position: 'absolute', right: -40, top: -40, width: 200, height: 200,
+                    borderRadius: '50%', background: 'rgba(255,255,255,0.06)',
+                }} />
+                <div style={{
+                    position: 'absolute', right: 80, bottom: -60, width: 140, height: 140,
+                    borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
+                }} />
 
-            {/* ── Quiz Link Banner ── */}
-            <div className="glass-card p-5 flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{
-                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08))',
-                        border: '1px solid rgba(99, 102, 241, 0.15)',
-                    }}>
-                        <Brain className="w-5 h-5" style={{ color: 'var(--color-sincro-400)' }} />
-                    </div>
-                    <div>
-                        <div className="text-sm font-bold th-heading">Il tuo Quiz &ldquo;Il Freno Invisibile&rdquo;</div>
-                        <div className="text-xs font-mono mt-0.5 th-muted">
-                            {typeof window !== 'undefined' ? `${window.location.origin}/radar` : '/radar'}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => copyLink()}
-                        className="btn-secondary text-xs !py-2 !px-3.5"
-                    >
-                        {copiedId === 'base'
-                            ? <><Check className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} /> Copiato!</>
-                            : <><Copy className="w-3.5 h-3.5" /> Copia Link</>
-                        }
-                    </button>
-                    <a href="/radar" target="_blank" rel="noopener noreferrer" className="btn-primary text-xs !py-2 !px-3.5">
-                        <ExternalLink className="w-3.5 h-3.5" /> Apri Quiz
-                    </a>
-                </div>
-            </div>
-
-            {/* ── Funnel Performance ── */}
-            <div className="glass-card p-6">
-                <div className="flex items-center gap-2.5 mb-5">
-                    <Zap className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
-                    <span className="text-sm font-bold th-heading">Performance Funnel</span>
-                </div>
-                <div className="flex flex-col md:flex-row gap-2">
-                    {funnelSteps.map((step, i) => (
-                        <FunnelStep key={step.label} {...step} isLast={i === funnelSteps.length - 1} />
-                    ))}
-                </div>
-            </div>
-
-            {/* ── KPI Cards ── */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'Quiz Completati', value: stats.total, icon: Brain, color: 'var(--color-sincro-400)', gradient: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))' },
-                    { label: 'Aree Critiche', value: stats.critical, icon: AlertTriangle, color: '#ef4444', gradient: 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.03))' },
-                    { label: 'Da Partner', value: stats.fromPartners, icon: Users, color: '#22c55e', gradient: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.03))' },
-                    { label: 'Convertiti', value: stats.converted, icon: TrendingUp, color: '#f59e0b', gradient: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.03))' },
-                ].map(kpi => (
-                    <div key={kpi.label} className="kpi-card relative overflow-hidden">
-                        <div className="absolute inset-0 opacity-60" style={{ background: kpi.gradient }} />
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-3">
-                                <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
-                                <span className="text-xs font-semibold th-muted">{kpi.label}</span>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+                        <div className="flex items-center gap-4">
+                            <div style={{
+                                width: 48, height: 48, borderRadius: 14,
+                                background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                                <Activity className="w-6 h-6 text-white" />
                             </div>
-                            <div className="text-3xl font-black" style={{ color: kpi.color }}>{kpi.value}</div>
+                            <div>
+                                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>
+                                    Radar Sincro
+                                </h1>
+                                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
+                                    Quiz diagnostico · Lead qualificati · Analisi performance
+                                </p>
+                            </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={resetTests} disabled={isResetting}
+                                style={{
+                                    padding: '10px 16px', borderRadius: 12, fontSize: 12, fontWeight: 700,
+                                    background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)',
+                                    border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+                            >
+                                {isResetting ? 'Azzeramento...' : 'Azzera Test'}
+                            </button>
+                            <button onClick={() => copyLink()}
+                                style={{
+                                    padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                                    background: '#fff', color: 'var(--color-sincro-700)',
+                                    border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                                    transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)' }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)' }}
+                            >
+                                {copiedId === 'base'
+                                    ? <><Check className="w-4 h-4" /> Copiato!</>
+                                    : <><Copy className="w-4 h-4" /> Copia Link Quiz</>
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Quiz URL bar inside hero */}
+                    <div style={{
+                        background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)',
+                        borderRadius: 14, padding: '14px 20px',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        flexWrap: 'wrap', gap: 12,
+                    }}>
+                        <div className="flex items-center gap-3">
+                            <Brain className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.7)' }} />
+                            <div>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Il Freno Invisibile</div>
+                                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
+                                    {typeof window !== 'undefined' ? `${window.location.origin}/radar` : 'landing.metodosincro.com/radar'}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => copyLink()} style={{
+                                padding: '8px 14px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                                background: 'rgba(255,255,255,0.15)', color: '#fff',
+                                border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', gap: 6,
+                            }}>
+                                <Copy className="w-3.5 h-3.5" /> Copia
+                            </button>
+                            <a href="/radar" target="_blank" rel="noopener noreferrer" style={{
+                                padding: '8px 14px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                                background: '#fff', color: 'var(--color-sincro-700)',
+                                textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
+                            }}>
+                                <ExternalLink className="w-3.5 h-3.5" /> Apri
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ══════════════════════════════════════
+               FUNNEL — horizontal flow
+               ══════════════════════════════════════ */}
+            <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
+                <div className="flex items-center gap-2 mb-5">
+                    <BarChart3 className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
+                    <span style={{ fontSize: 14, fontWeight: 800 }} className="th-heading">Funnel di Conversione</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+                    {funnel.map((step, i) => {
+                        const rate = i === 0 ? null :
+                            funnel[i - 1].value > 0 ? Math.round((step.value / funnel[i - 1].value) * 100) : 0
+                        const isLast = i === funnel.length - 1
+
+                        return (
+                            <div key={step.label} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                                <div style={{
+                                    flex: 1, textAlign: 'center', padding: '20px 12px',
+                                    borderRadius: 16,
+                                    background: `linear-gradient(180deg, ${step.color}08 0%, ${step.color}03 100%)`,
+                                    border: `1px solid ${step.color}18`,
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'default',
+                                    position: 'relative',
+                                }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.background = `linear-gradient(180deg, ${step.color}15 0%, ${step.color}06 100%)`
+                                        e.currentTarget.style.transform = 'translateY(-2px)'
+                                        e.currentTarget.style.boxShadow = `0 8px 25px ${step.color}15`
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.background = `linear-gradient(180deg, ${step.color}08 0%, ${step.color}03 100%)`
+                                        e.currentTarget.style.transform = ''
+                                        e.currentTarget.style.boxShadow = ''
+                                    }}
+                                >
+                                    <div style={{ fontSize: 24, marginBottom: 6 }}>{step.icon}</div>
+                                    <div style={{ fontSize: 28, fontWeight: 900, color: step.color, lineHeight: 1 }}>{step.value}</div>
+                                    <div style={{ fontSize: 11, fontWeight: 600, marginTop: 6 }} className="th-muted">{step.label}</div>
+                                    {rate !== null && (
+                                        <div style={{
+                                            fontSize: 10, fontWeight: 800, marginTop: 8,
+                                            padding: '3px 10px', borderRadius: 20,
+                                            background: `${step.color}12`, color: step.color,
+                                            display: 'inline-block',
+                                        }}>
+                                            {rate}% conv.
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Arrow connector */}
+                                {!isLast && (
+                                    <div style={{
+                                        width: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        flexShrink: 0,
+                                    }}>
+                                        <ArrowRight className="w-4 h-4" style={{ color: 'var(--color-surface-300)' }} />
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
+            {/* ══════════════════════════════════════
+               KPI GRID — 4 compact stat cards
+               ══════════════════════════════════════ */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+                {[
+                    { label: 'Quiz Completati', value: stats.total, icon: Brain, color: '#818cf8', bg: 'linear-gradient(135deg, #818cf815, #818cf808)' },
+                    { label: 'Aree Critiche', value: stats.critical, icon: AlertTriangle, color: '#ef4444', bg: 'linear-gradient(135deg, #ef444415, #ef444408)' },
+                    { label: 'Da Partner', value: stats.fromPartners, icon: Users, color: '#22c55e', bg: 'linear-gradient(135deg, #22c55e15, #22c55e08)' },
+                    { label: 'Convertiti', value: stats.converted, icon: TrendingUp, color: '#eab308', bg: 'linear-gradient(135deg, #eab30815, #eab30808)' },
+                ].map(kpi => (
+                    <div key={kpi.label} className="glass-card" style={{
+                        padding: '20px 18px', cursor: 'default', transition: 'all 0.3s ease',
+                        background: kpi.bg,
+                    }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
+                            <span style={{ fontSize: 11, fontWeight: 600 }} className="th-muted">{kpi.label}</span>
+                        </div>
+                        <div style={{ fontSize: 30, fontWeight: 900, color: kpi.color, lineHeight: 1 }}>{kpi.value}</div>
                     </div>
                 ))}
             </div>
 
-            {/* ── Filters + Search ── */}
-            <div className="flex items-center gap-3 flex-wrap">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 th-muted" />
+            {/* ══════════════════════════════════════
+               SEARCH + FILTERS
+               ══════════════════════════════════════ */}
+            <div className="flex items-center gap-3 flex-wrap" style={{ marginBottom: 16 }}>
+                <div style={{ position: 'relative', flex: 1, maxWidth: 340 }}>
+                    <Search className="w-4 h-4" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-surface-400)' }} />
                     <input
                         type="text" value={search} onChange={e => setSearch(e.target.value)}
-                        placeholder="Cerca per nome, email, partner..."
-                        className="input pl-10"
+                        placeholder="Cerca nome, email, partner..."
+                        className="input"
+                        style={{ paddingLeft: 40 }}
                     />
                 </div>
-                <div className="flex gap-1.5">
-                    {filterOptions.map(f => (
-                        <button
-                            key={f.key}
-                            onClick={() => setFilter(f.key)}
-                            className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
-                            style={{
-                                background: filter === f.key ? 'rgba(99, 102, 241, 0.1)' : 'var(--color-surface-100)',
-                                color: filter === f.key ? 'var(--color-sincro-400)' : 'var(--color-surface-500)',
-                                border: `1px solid ${filter === f.key ? 'rgba(99, 102, 241, 0.25)' : 'var(--color-surface-200)'}`,
-                            }}
-                        >
-                            {f.dotColor && <span className="w-1.5 h-1.5 rounded-full" style={{ background: f.dotColor }} />}
-                            {f.label}
-                            <span className="text-[10px] font-bold opacity-60">{f.count}</span>
-                        </button>
-                    ))}
+                <div className="flex gap-1.5 flex-wrap">
+                    {filterBtns.map(f => {
+                        const active = filter === f.key
+                        return (
+                            <button key={f.key} onClick={() => setFilter(f.key)}
+                                style={{
+                                    padding: '9px 14px', borderRadius: 12, fontSize: 12, fontWeight: 700,
+                                    background: active ? 'var(--color-sincro-600)' : 'var(--color-surface-100)',
+                                    color: active ? '#fff' : 'var(--color-surface-500)',
+                                    border: `1px solid ${active ? 'var(--color-sincro-500)' : 'var(--color-surface-200)'}`,
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                {f.dot && !active && <span style={{ width: 6, height: 6, borderRadius: '50%', background: f.dot }} />}
+                                {f.label}
+                                <span style={{
+                                    fontSize: 10, fontWeight: 800,
+                                    background: active ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-200)',
+                                    color: active ? '#fff' : 'var(--color-surface-500)',
+                                    padding: '2px 7px', borderRadius: 8,
+                                }}>{f.count}</span>
+                            </button>
+                        )
+                    })}
                 </div>
             </div>
 
-            {/* ── Submissions List ── */}
+            {/* ══════════════════════════════════════
+               SUBMISSIONS LIST
+               ══════════════════════════════════════ */}
             {loading ? (
-                <div className="glass-card text-center py-20">
-                    <div className="w-10 h-10 border-2 rounded-full animate-spin mx-auto mb-4"
-                        style={{ borderColor: 'var(--color-surface-200)', borderTopColor: 'var(--color-sincro-500)' }} />
-                    <p className="text-sm th-muted">Caricamento quiz...</p>
+                <div className="glass-card" style={{ textAlign: 'center', padding: '80px 20px' }}>
+                    <div style={{
+                        width: 44, height: 44, border: '3px solid var(--color-surface-200)',
+                        borderTopColor: 'var(--color-sincro-500)', borderRadius: '50%',
+                        margin: '0 auto 16px', animation: 'spin 0.8s linear infinite',
+                    }} />
+                    <p style={{ fontSize: 14, fontWeight: 600 }} className="th-muted">Caricamento risultati...</p>
                 </div>
             ) : filtered.length === 0 ? (
-                <div className="glass-card text-center py-20">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{
+                <div className="glass-card" style={{ textAlign: 'center', padding: '80px 20px' }}>
+                    <div style={{
+                        width: 72, height: 72, borderRadius: 20, margin: '0 auto 20px',
                         background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-200)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                        <Brain className="w-7 h-7" style={{ color: 'var(--color-surface-400)' }} />
+                        <Brain className="w-8 h-8" style={{ color: 'var(--color-surface-300)' }} />
                     </div>
-                    <h3 className="text-base font-bold th-heading mb-2">
+                    <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 8 }} className="th-heading">
                         {submissions.length === 0 ? 'Nessun quiz completato' : 'Nessun risultato'}
                     </h3>
-                    <p className="text-sm th-muted max-w-sm mx-auto">
+                    <p style={{ fontSize: 13, maxWidth: 360, margin: '0 auto' }} className="th-muted">
                         {submissions.length === 0
-                            ? 'Condividi il link del Radar Sincro per iniziare a raccogliere lead qualificati.'
-                            : 'Prova a cambiare i filtri o il termine di ricerca.'
-                        }
+                            ? 'Condividi il link del quiz Radar Sincro per iniziare a generare lead qualificati.'
+                            : 'Nessun risultato corrisponde ai filtri selezionati.'}
                     </p>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {filtered.map((sub, idx) => {
                         const score = sub.scores?.overall || 0
                         const date = new Date(sub.created_at)
+                        const isExpanded = expandedId === sub.id
 
                         return (
-                            <div key={sub.id} className="glass-card p-5 group"
-                                style={{ animationDelay: `${idx * 50}ms`, animation: 'fadeIn 0.4s ease-out both' }}
+                            <div key={sub.id} className="glass-card"
+                                style={{
+                                    padding: 0, overflow: 'hidden', cursor: 'pointer',
+                                    animation: `fadeIn 0.4s ease-out ${idx * 60}ms both`,
+                                }}
+                                onClick={() => setExpandedId(isExpanded ? null : sub.id)}
                             >
-                                <div className="flex items-start gap-5">
-                                    {/* Score Ring */}
+                                {/* Main row */}
+                                <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 20 }}>
+                                    {/* Score ring */}
                                     <ScoreRing score={score} />
 
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        {/* Name + Badges */}
-                                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                                            <h3 className="text-base font-bold th-heading">{sub.child_name}</h3>
+                                    {/* Center info */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 6 }}>
+                                            <span style={{ fontSize: 16, fontWeight: 800 }} className="th-heading">{sub.child_name}</span>
                                             {sub.child_sport && (
                                                 <span className="badge" style={{
-                                                    background: 'rgba(99, 102, 241, 0.08)',
-                                                    color: 'var(--color-sincro-400)',
-                                                    border: '1px solid rgba(99, 102, 241, 0.15)',
+                                                    background: 'var(--color-sincro-600)15', color: 'var(--color-sincro-400)',
+                                                    border: '1px solid rgba(99,102,241,0.15)', fontSize: 11,
                                                 }}>
                                                     {sub.child_sport}
                                                 </span>
                                             )}
                                             {sub.converted && (
-                                                <span className="badge badge-success">
+                                                <span className="badge badge-success" style={{ fontSize: 11 }}>
                                                     <CheckCircle className="w-3 h-3" /> Convertito
                                                 </span>
                                             )}
                                             {sub.partner_id && (
-                                                <span className="badge badge-warning">
-                                                    🤝 {sub.partner_id}
-                                                </span>
+                                                <span className="badge badge-warning" style={{ fontSize: 11 }}>🤝 {sub.partner_id}</span>
                                             )}
                                         </div>
-
-                                        {/* Contact Info */}
-                                        <div className="flex items-center gap-4 mb-4 flex-wrap">
-                                            <span className="text-xs font-medium th-muted flex items-center gap-1.5">
+                                        <div className="flex items-center gap-4 flex-wrap">
+                                            <span style={{ fontSize: 12, fontWeight: 500 }} className="th-muted flex items-center gap-1.5">
                                                 <Users className="w-3 h-3" /> {sub.parent_name}
                                             </span>
-                                            <a href={`mailto:${sub.parent_email}`}
-                                                className="text-xs font-medium flex items-center gap-1.5 th-muted hover:text-[var(--color-sincro-400)] transition-colors">
+                                            <a href={`mailto:${sub.parent_email}`} onClick={e => e.stopPropagation()}
+                                                style={{ fontSize: 12, fontWeight: 500, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
+                                                className="th-muted hover:text-[var(--color-sincro-400)] transition-colors">
                                                 <Mail className="w-3 h-3" /> {sub.parent_email}
                                             </a>
                                             {sub.parent_phone && (
-                                                <a href={`tel:${sub.parent_phone}`}
-                                                    className="text-xs font-medium flex items-center gap-1.5 th-muted hover:text-[var(--color-sincro-400)] transition-colors">
+                                                <a href={`tel:${sub.parent_phone}`} onClick={e => e.stopPropagation()}
+                                                    style={{ fontSize: 12, fontWeight: 500, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
+                                                    className="th-muted hover:text-[var(--color-sincro-400)] transition-colors">
                                                     <Phone className="w-3 h-3" /> {sub.parent_phone}
                                                 </a>
                                             )}
-                                            <span className="text-[11px] th-muted">
-                                                {date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                                            </span>
                                         </div>
+                                    </div>
 
-                                        {/* Score Bars */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                                            <ScoreBar score={sub.scores?.fiducia || 0} label="Fiducia" icon={Shield} />
-                                            <ScoreBar score={sub.scores?.pressione || 0} label="Pressione" icon={Target} />
-                                            <ScoreBar score={sub.scores?.motivazione || 0} label="Motivazione" icon={Flame} />
-                                            <ScoreBar score={sub.scores?.blocchi || 0} label="Blocchi" icon={Lock} />
+                                    {/* Date + expand hint */}
+                                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                        <div style={{ fontSize: 12, fontWeight: 600 }} className="th-muted">
+                                            {date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+                                        </div>
+                                        <div style={{ fontSize: 11 }} className="th-muted">
+                                            {date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                        <div style={{
+                                            fontSize: 10, fontWeight: 700, marginTop: 6,
+                                            color: 'var(--color-sincro-400)',
+                                            transform: isExpanded ? 'rotate(90deg)' : '',
+                                            transition: 'transform 0.2s',
+                                            display: 'inline-block',
+                                        }}>▶</div>
+                                    </div>
+                                </div>
+
+                                {/* Expandable detail */}
+                                <div style={{
+                                    maxHeight: isExpanded ? 200 : 0, overflow: 'hidden',
+                                    transition: 'max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}>
+                                    <div style={{
+                                        padding: '0 24px 24px',
+                                        borderTop: '1px solid var(--glass-border)',
+                                        paddingTop: 20,
+                                    }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 32px' }}>
+                                            <AreaBar score={sub.scores?.fiducia || 0} label="Fiducia" icon={Shield} />
+                                            <AreaBar score={sub.scores?.pressione || 0} label="Pressione" icon={Target} />
+                                            <AreaBar score={sub.scores?.motivazione || 0} label="Motivazione" icon={Flame} />
+                                            <AreaBar score={sub.scores?.blocchi || 0} label="Blocchi" icon={Lock} />
                                         </div>
                                     </div>
                                 </div>
@@ -413,6 +547,11 @@ export default function RadarDashboard() {
                     })}
                 </div>
             )}
+
+            {/* Inline animation keyframe */}
+            <style>{`
+                @keyframes spin { to { transform: rotate(360deg); } }
+            `}</style>
         </div>
     )
 }
