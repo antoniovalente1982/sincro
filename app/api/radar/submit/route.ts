@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
 import { sendTelegramMessage } from '@/lib/telegram'
+import { appendLeadToSheet } from '@/lib/google-sheets'
 
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -87,9 +88,22 @@ export async function POST(req: NextRequest) {
                     (criticalAreas.length > 0 ? `🔴 <b>Aree Critiche:</b> ${criticalAreas.join(', ')}\n` : '✅ Nessuna area critica\n') +
                     (partner_id ? `\n🤝 <b>Partner:</b> ${partner_id}` : '')
 
-                await sendTelegramMessage(org.id, tgMsg).catch(err =>
-                    console.error('Radar TG error:', err)
-                )
+                await Promise.allSettled([
+                    sendTelegramMessage(org.id, tgMsg).catch(err =>
+                        console.error('Radar TG error:', err)
+                    ),
+                    appendLeadToSheet(org.id, {
+                        name: parent_name,
+                        email: parent_email || '',
+                        phone: parent_phone || '',
+                        funnel: 'Radar Sincro',
+                        utm_source: 'radar',
+                        utm_campaign: child_sport || '',
+                        utm_content: `Score: ${scores?.overall || '?'}% — Figlio: ${child_name}`,
+                        utm_term: '',
+                        created_at: new Date().toISOString(),
+                    }).catch(err => console.error('Radar Sheets error:', err)),
+                ])
 
                 console.log(`[RADAR] Submission saved for ${child_name} (${parent_email}), score: ${scores?.overall}%`)
             } catch (err) {
