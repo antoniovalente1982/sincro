@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
+import { assignLeadRoundRobin } from '@/lib/lead-routing'
 
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -248,6 +249,20 @@ export async function POST(req: NextRequest) {
                             to_stage_id: firstStageId,
                             notes: `Lead catturato dal funnel "${funnel.name}"`,
                         })
+                    }
+
+                    // ── LEAD ROUTING ──
+                    if (lead) {
+                        const assignedTo = await assignLeadRoundRobin(funnel.organization_id, getSupabaseAdmin())
+                        if (assignedTo) {
+                            await getSupabaseAdmin().from('leads').update({ assigned_to: assignedTo }).eq('id', lead.id)
+                            await getSupabaseAdmin().from('lead_activities').insert({
+                                organization_id: funnel.organization_id,
+                                lead_id: lead.id,
+                                activity_type: 'assignment_changed',
+                                notes: `🎯 Assegnato automaticamente via Round Robin`,
+                            })
+                        }
                     }
                 }
 

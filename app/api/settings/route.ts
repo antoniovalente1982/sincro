@@ -82,6 +82,18 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json(data)
     }
 
+    if (body.action === 'update_org_settings') {
+        const { settings } = body
+        const { data, error } = await supabase
+            .from('organizations')
+            .update({ settings, updated_at: new Date().toISOString() })
+            .eq('id', ctx.organization_id)
+            .select()
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
     if (body.action === 'create_stage') {
         const { name, slug, color, fire_capi_event, sort_order } = body
         const { data, error } = await supabase

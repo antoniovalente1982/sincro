@@ -13,6 +13,7 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
+import { assignLeadRoundRobin } from './lead-routing.js'
 
 const META_API_VERSION = 'v21.0'
 
@@ -396,7 +397,7 @@ export async function processMetaLead(
                     product: 'Fonte: Ads - Meta (Lead Form)',
                     meta_data: metaData,
                 })
-                .select('id')
+                .select('id, assigned_to')
                 .single()
 
             if (error || !createdLead) {
@@ -405,6 +406,18 @@ export async function processMetaLead(
             }
 
             leadId = createdLead.id
+
+            // ─── LEAD ROUTING ───
+            const assignedTo = await assignLeadRoundRobin(orgId, supabase)
+            if (assignedTo) {
+                await supabase.from('leads').update({ assigned_to: assignedTo }).eq('id', leadId)
+                await supabase.from('lead_activities').insert({
+                    organization_id: orgId,
+                    lead_id: leadId,
+                    activity_type: 'assignment_changed',
+                    notes: `🎯 Assegnato automaticamente via Round Robin`,
+                })
+            }
 
             await supabase.from('lead_activities').insert({
                 organization_id: orgId,

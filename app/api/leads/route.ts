@@ -3,6 +3,7 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClickUpTask } from '@/lib/clickup'
 import { updateGoogleCalendarEvent } from '@/lib/google-calendar'
+import { assignLeadRoundRobin } from '@/lib/lead-routing'
 
 export const dynamic = 'force-dynamic';
 
@@ -99,6 +100,22 @@ export async function POST(req: NextRequest) {
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // ── LEAD ROUTING ──
+    if (!insertData.assigned_to) {
+        // Usa admin_client per bypassare RLS update su records appena creati se l'utente non è admin
+        const adminClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+        const assignedTo = await assignLeadRoundRobin(orgId, adminClient)
+        if (assignedTo) {
+            await adminClient.from('leads').update({ assigned_to: assignedTo }).eq('id', data.id)
+            await adminClient.from('lead_activities').insert({
+                organization_id: orgId,
+                lead_id: data.id,
+                activity_type: 'assignment_changed',
+                notes: `🎯 Assegnato automaticamente via Round Robin`,
+            })
+        }
+    }
 
     // Insert Tags if present
     if (tags && Array.isArray(tags) && tags.length > 0) {

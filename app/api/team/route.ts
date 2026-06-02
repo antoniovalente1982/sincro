@@ -319,6 +319,18 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ success: true, action: 'color_updated' })
     }
 
+    if (action === 'update_member') {
+        const { updates } = body
+        const { error } = await supabase
+            .from('organization_members')
+            .update(updates)
+            .eq('id', member_id)
+            .eq('organization_id', ctx.organization_id)
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ success: true, action: 'member_updated' })
+    }
+
     if (action === 'reset_password') {
         // Owner/Admin can generate a password reset link for a team member
         const memberEmail = body.email

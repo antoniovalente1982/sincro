@@ -34,10 +34,12 @@ interface Props {
     userDepartment?: Department
     userEmail: string
     isGoogleConnected?: boolean
+    teamMembers?: any[]
 }
 
-export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userDepartment, userEmail, isGoogleConnected }: Props) {
+export default function SettingsPanel({ organization, stages: initialStages, pipelines, trafficSources: initialSources, crmTags: initialCrmTags, profile, userRole, userDepartment, userEmail, isGoogleConnected, teamMembers }: Props) {
     const [orgName, setOrgName] = useState(organization?.name || '')
+    const [orgSettings, setOrgSettings] = useState(organization?.settings || {})
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
     const [phone, setPhone] = useState(profile?.phone || '')
@@ -58,6 +60,8 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [tagsList, setTagsList] = useState<CrmTag[]>(initialCrmTags || [])
     const [showNewTag, setShowNewTag] = useState(false)
     const [newTagInput, setNewTagInput] = useState({ name: '', color: '#10b981' })
+
+    const [membersList, setMembersList] = useState<any[]>(teamMembers || [])
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -116,6 +120,32 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
 
 
     const handleSaveOrg = () => saveAction('update_org', { name: orgName })
+    
+    const handleToggleRouting = async () => {
+        const enabled = !(orgSettings.lead_routing_enabled === true)
+        const updatedSettings = { ...orgSettings, lead_routing_enabled: enabled }
+        setOrgSettings(updatedSettings)
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_org_settings', settings: updatedSettings }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
+    const handleToggleMemberRoundRobin = async (member: any) => {
+        const enabled = !member.in_round_robin
+        setMembersList(prev => prev.map(m => m.id === member.id ? { ...m, in_round_robin: enabled } : m))
+        try {
+            await fetch('/api/team', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_member', id: member.id, updates: { in_round_robin: enabled } }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
     const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone })
 
     const handleCreateStage = async () => {
@@ -283,6 +313,64 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     )}
                 </div>
             </div>
+
+            {/* Assegnazione Lead (Lead Routing) */}
+            {canEdit && (
+            <div className="glass-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <Shuffle className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
+                        <h3 className="text-sm font-bold th-heading">Assegnazione Automatica Lead</h3>
+                    </div>
+                    <button onClick={handleToggleRouting} className="flex items-center">
+                        {orgSettings.lead_routing_enabled === true ? (
+                            <ToggleRight className="w-8 h-8 text-green-500" />
+                        ) : (
+                            <ToggleLeft className="w-8 h-8" style={{ color: 'var(--color-surface-400)' }} />
+                        )}
+                    </button>
+                </div>
+                
+                <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
+                    Quando attivata, il sistema smista i nuovi lead in ingresso (da Meta Ads, Radar, ecc.) in modalità <b>Round Robin</b> ai membri del team selezionati.
+                </p>
+
+                {orgSettings.lead_routing_enabled === true && (
+                    <div className="space-y-3 p-4 rounded-xl border animate-fade-in" style={{ background: 'var(--color-surface-50)', borderColor: 'var(--color-surface-200)' }}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider th-heading mb-3">Membri in Rotazione</h4>
+                        {membersList.map(member => (
+                            <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border bg-white dark:bg-black/20" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                <div className="flex items-center gap-3">
+                                    {member.profiles?.avatar_url ? (
+                                        <img src={member.profiles.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <User className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    )}
+                                    <span className="text-sm font-semibold th-heading">
+                                        {member.profiles?.full_name || 'Utente Sconosciuto'}
+                                    </span>
+                                </div>
+                                <button onClick={() => handleToggleMemberRoundRobin(member)} className="flex items-center text-xs font-semibold gap-2">
+                                    <span style={{ color: member.in_round_robin ? '#22c55e' : 'var(--color-surface-400)' }}>
+                                        {member.in_round_robin ? 'Riceve Lead' : 'In Pausa'}
+                                    </span>
+                                    {member.in_round_robin ? (
+                                        <ToggleRight className="w-6 h-6 text-green-500" />
+                                    ) : (
+                                        <ToggleLeft className="w-6 h-6" style={{ color: 'var(--color-surface-400)' }} />
+                                    )}
+                                </button>
+                            </div>
+                        ))}
+                        {membersList.length === 0 && (
+                            <p className="text-xs text-center py-2" style={{ color: 'var(--color-surface-500)' }}>Nessun membro nel team.</p>
+                        )}
+                    </div>
+                )}
+            </div>
+            )}
 
             {/* Pipeline Stages — Grouped by Pipeline */}
             {canEdit && (

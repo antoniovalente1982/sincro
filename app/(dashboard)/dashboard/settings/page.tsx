@@ -18,13 +18,14 @@ export default async function SettingsPage() {
 
     const orgId = member?.organization_id || ''
 
-    const [orgRes, stagesRes, profileRes, pipelinesRes, sourcesRes, tagsRes] = await Promise.all([
+    const [orgRes, stagesRes, profileRes, pipelinesRes, sourcesRes, tagsRes, teamRes] = await Promise.all([
         supabase.from('organizations').select('*').eq('id', orgId).single(),
         supabase.from('pipeline_stages').select('*').eq('organization_id', orgId).order('sort_order'),
         supabase.from('profiles').select('*').eq('id', user?.id || '').single(),
         supabase.from('pipelines').select('*').eq('organization_id', orgId).order('sort_order'),
         supabase.from('traffic_sources').select('*').eq('organization_id', orgId).order('name'),
         supabase.from('crm_tags').select('*').eq('organization_id', orgId).order('name'),
+        supabase.from('organization_members').select('id, user_id, in_round_robin, profiles(full_name, avatar_url)').eq('organization_id', orgId).is('deactivated_at', null),
     ])
 
     return (
@@ -39,6 +40,7 @@ export default async function SettingsPage() {
             userDepartment={member?.department || null}
             userEmail={user?.email || ''}
             isGoogleConnected={!!member?.google_access_token}
+            teamMembers={teamRes.data || []}
         />
     )
 }
