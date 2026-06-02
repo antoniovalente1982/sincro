@@ -333,8 +333,9 @@ export async function syncAllLeadsToSheet(orgId: string): Promise<{ success: boo
 
     try {
         // Clear existing data
+        const sheetTab = encodeURIComponent('Leads (social)')
         await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/Sheet1!A:G:clear`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/${sheetTab}!A:G:clear`,
             {
                 method: 'POST',
                 headers: {
@@ -346,7 +347,7 @@ export async function syncAllLeadsToSheet(orgId: string): Promise<{ success: boo
 
         // Write all data
         const res = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/Sheet1!A1?valueInputOption=USER_ENTERED`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${creds.spreadsheet_id}/values/${sheetTab}!A1?valueInputOption=USER_ENTERED`,
             {
                 method: 'PUT',
                 headers: {
