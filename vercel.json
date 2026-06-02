@@ -25,6 +25,14 @@
       "schedule": "10 22 * * *"
     },
     {
+      "path": "/api/cron/sync-meta-leads",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-meta-token",
+      "schedule": "0 8 1 */2 *"
+    },
+    {
       "path": "/api/ai-engine/pulse",
       "schedule": "0 * * * *"
     }

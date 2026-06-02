@@ -123,19 +123,27 @@ async function handleLeadPayload(body: any) {
 
     const supabase = getSupabaseAdmin()
 
-    // Recupera l'org con connessione Meta Ads attiva
-    // Il webhook è globale (non per-org), quindi troviamo l'org dalla pagina Meta
-    const { data: conn } = await supabase
+    // Recupera TUTTE le org con connessione Meta Ads attiva
+    // (il webhook è globale — usiamo la page_id per trovare l'org giusta)
+    const { data: connections } = await supabase
         .from('connections')
         .select('organization_id, credentials')
         .eq('provider', 'meta_ads')
         .eq('status', 'active')
-        .limit(1)
-        .single()
+
+    if (!connections?.length) {
+        console.error('[MetaLeads Webhook] No active Meta Ads connections found in DB')
+        return NextResponse.json({ received: true, error: 'No Meta connection' }, { status: 200 })
+    }
+
+    // Tenta di identificare la page_id dal payload per matchare l'org corretta
+    const pageIdFromPayload = body.entry?.[0]?.id
+    let conn = connections.find(c => c.credentials?.page_id === pageIdFromPayload)
+    if (!conn) conn = connections[0] // fallback alla prima connessione attiva
 
     if (!conn?.credentials?.access_token) {
-        console.error('[MetaLeads Webhook] No active Meta Ads connection found')
-        return NextResponse.json({ received: true, error: 'No Meta connection' }, { status: 200 })
+        console.error('[MetaLeads Webhook] Connection found but missing access_token — token scaduto?')
+        return NextResponse.json({ received: true, error: 'Missing access_token' }, { status: 200 })
     }
 
     const { organization_id: orgId, credentials } = conn
