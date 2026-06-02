@@ -134,6 +134,38 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         } catch(e) { console.error(e) }
     }
 
+    const handleChangeRoutingMethod = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const method = e.target.value
+        const updatedSettings = { ...orgSettings, lead_routing_method: method }
+        setOrgSettings(updatedSettings)
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_org_settings', settings: updatedSettings }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
+    const handleUpdateMemberWeight = async (userId: string, weight: number) => {
+        const currentWeights = orgSettings.lead_routing_weights || {}
+        const updatedSettings = {
+            ...orgSettings,
+            lead_routing_weights: {
+                ...currentWeights,
+                [userId]: weight
+            }
+        }
+        setOrgSettings(updatedSettings)
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_org_settings', settings: updatedSettings }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
     const handleToggleMemberRoundRobin = async (member: any) => {
         const enabled = !member.in_round_robin
         setMembersList(prev => prev.map(m => m.id === member.id ? { ...m, in_round_robin: enabled } : m))
@@ -332,14 +364,29 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 </div>
                 
                 <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
-                    Quando attivata, il sistema smista i nuovi lead in ingresso (da Meta Ads, Radar, ecc.) in modalità <b>Round Robin</b> ai membri del team selezionati.
+                    Quando attivata, il sistema smista i nuovi lead in ingresso (da Meta Ads, Radar, ecc.) ai membri del team.
                 </p>
 
                 {orgSettings.lead_routing_enabled === true && (
-                    <div className="space-y-3 p-4 rounded-xl border animate-fade-in" style={{ background: 'var(--color-surface-50)', borderColor: 'var(--color-surface-200)' }}>
+                    <div className="space-y-4 p-4 rounded-xl border animate-fade-in" style={{ background: 'var(--color-surface-50)', borderColor: 'var(--color-surface-200)' }}>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 pb-4 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                            <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider th-heading">Metodologia</h4>
+                                <p className="text-[11px] text-gray-500 mt-1">Scegli come distribuire i lead</p>
+                            </div>
+                            <select 
+                                className="input-field max-w-[250px]"
+                                value={orgSettings.lead_routing_method || 'round_robin'}
+                                onChange={handleChangeRoutingMethod}
+                            >
+                                <option value="round_robin">A turno (Round Robin)</option>
+                                <option value="weighted">A percentuale (Peso)</option>
+                            </select>
+                        </div>
+
                         <h4 className="text-xs font-bold uppercase tracking-wider th-heading mb-3">Membri in Rotazione</h4>
                         {membersList.map(member => (
-                            <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border bg-white dark:bg-black/20" style={{ borderColor: 'var(--color-surface-200)' }}>
+                            <div key={member.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border bg-white dark:bg-black/20" style={{ borderColor: 'var(--color-surface-200)' }}>
                                 <div className="flex items-center gap-3">
                                     {member.profiles?.avatar_url ? (
                                         <img src={member.profiles.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
@@ -352,16 +399,30 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                         {member.profiles?.full_name || 'Utente Sconosciuto'}
                                     </span>
                                 </div>
-                                <button onClick={() => handleToggleMemberRoundRobin(member)} className="flex items-center text-xs font-semibold gap-2">
-                                    <span style={{ color: member.in_round_robin ? '#22c55e' : 'var(--color-surface-400)' }}>
-                                        {member.in_round_robin ? 'Riceve Lead' : 'In Pausa'}
-                                    </span>
-                                    {member.in_round_robin ? (
-                                        <ToggleRight className="w-6 h-6 text-green-500" />
-                                    ) : (
-                                        <ToggleLeft className="w-6 h-6" style={{ color: 'var(--color-surface-400)' }} />
+                                <div className="flex items-center gap-4 justify-between sm:justify-end w-full sm:w-auto">
+                                    {orgSettings.lead_routing_method === 'weighted' && member.in_round_robin && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] uppercase font-bold text-gray-400">Peso %</span>
+                                            <input 
+                                                type="number" 
+                                                className="input-field !py-1 !px-2 w-16 text-center text-sm" 
+                                                min="1" max="100" 
+                                                value={orgSettings.lead_routing_weights?.[member.user_id] || 100}
+                                                onChange={(e) => handleUpdateMemberWeight(member.user_id, parseInt(e.target.value) || 100)}
+                                            />
+                                        </div>
                                     )}
-                                </button>
+                                    <button onClick={() => handleToggleMemberRoundRobin(member)} className="flex items-center text-xs font-semibold gap-2">
+                                        <span style={{ color: member.in_round_robin ? '#22c55e' : 'var(--color-surface-400)' }}>
+                                            {member.in_round_robin ? 'Riceve Lead' : 'In Pausa'}
+                                        </span>
+                                        {member.in_round_robin ? (
+                                            <ToggleRight className="w-6 h-6 text-green-500" />
+                                        ) : (
+                                            <ToggleLeft className="w-6 h-6" style={{ color: 'var(--color-surface-400)' }} />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                         {membersList.length === 0 && (
