@@ -385,7 +385,11 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         </div>
 
                         <h4 className="text-xs font-bold uppercase tracking-wider th-heading mb-3">Membri in Rotazione</h4>
-                        {membersList.map(member => (
+                        {[...membersList].sort((a, b) => {
+                            if (a.in_round_robin && !b.in_round_robin) return -1;
+                            if (!a.in_round_robin && b.in_round_robin) return 1;
+                            return (a.profiles?.full_name || '').localeCompare(b.profiles?.full_name || '');
+                        }).map(member => (
                             <div key={member.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border bg-white dark:bg-black/20" style={{ borderColor: 'var(--color-surface-200)' }}>
                                 <div className="flex items-center gap-3">
                                     {member.profiles?.avatar_url ? (
@@ -395,9 +399,21 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                             <User className="w-4 h-4 text-gray-400" />
                                         </div>
                                     )}
-                                    <span className="text-sm font-semibold th-heading">
-                                        {member.profiles?.full_name || 'Utente Sconosciuto'}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-semibold th-heading">
+                                                {member.profiles?.full_name || 'Utente Sconosciuto'}
+                                            </span>
+                                            {member.role && (
+                                                <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md" style={{ background: 'var(--color-surface-200)', color: 'var(--color-surface-600)' }}>
+                                                    {member.role === 'owner' ? 'Proprietario' : member.role === 'admin' ? 'Admin' : member.role === 'manager' ? 'Manager' : member.role === 'closer' ? 'Venditore' : member.role === 'setter' ? 'Qualificatore' : member.role}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {member.department && (
+                                            <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>Reparto: {member.department}</span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-4 justify-between sm:justify-end w-full sm:w-auto">
                                     {orgSettings.lead_routing_method === 'weighted' && member.in_round_robin && (

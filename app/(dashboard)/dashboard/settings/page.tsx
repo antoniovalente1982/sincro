@@ -25,7 +25,7 @@ export default async function SettingsPage() {
         supabase.from('pipelines').select('*').eq('organization_id', orgId).order('sort_order'),
         supabase.from('traffic_sources').select('*').eq('organization_id', orgId).order('name'),
         supabase.from('crm_tags').select('*').eq('organization_id', orgId).order('name'),
-        supabase.from('organization_members').select('id, user_id, in_round_robin').eq('organization_id', orgId).is('deactivated_at', null),
+        supabase.from('organization_members').select('id, user_id, in_round_robin, role, department').eq('organization_id', orgId).is('deactivated_at', null),
     ])
 
     const members = teamRes.data || []
