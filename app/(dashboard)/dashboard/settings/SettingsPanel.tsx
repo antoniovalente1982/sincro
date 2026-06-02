@@ -171,9 +171,9 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         setMembersList(prev => prev.map(m => m.id === member.id ? { ...m, in_round_robin: enabled } : m))
         try {
             await fetch('/api/team', {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'update_member', id: member.id, updates: { in_round_robin: enabled } }),
+                body: JSON.stringify({ action: 'update_member', member_id: member.id, updates: { in_round_robin: enabled } }),
             })
         } catch(e) { console.error(e) }
     }
