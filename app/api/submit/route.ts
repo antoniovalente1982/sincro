@@ -255,12 +255,16 @@ export async function POST(req: NextRequest) {
                     if (lead) {
                         const assignedTo = await assignLeadRoundRobin(funnel.organization_id, getSupabaseAdmin())
                         if (assignedTo) {
-                            await getSupabaseAdmin().from('leads').update({ assigned_to: assignedTo }).eq('id', lead.id)
+                            await getSupabaseAdmin().from('leads').update({ 
+                                assigned_to: assignedTo,
+                                setter_id: assignedTo,
+                                closer_id: assignedTo 
+                            }).eq('id', lead.id)
                             await getSupabaseAdmin().from('lead_activities').insert({
                                 organization_id: funnel.organization_id,
                                 lead_id: lead.id,
                                 activity_type: 'assignment_changed',
-                                notes: `🎯 Assegnato automaticamente via Round Robin`,
+                                notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                             })
                         }
                     }

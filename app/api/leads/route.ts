@@ -98,23 +98,32 @@ export async function POST(req: NextRequest) {
         .insert({ ...insertData, organization_id: orgId })
         .select()
         .single()
+    // ── LEAD ROUTING ──
+    const adminClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    if (!insertData.assigned_to) {
+        const assignedTo = await assignLeadRoundRobin(orgId, adminClient)
+        if (assignedTo) {
+            insertData.assigned_to = assignedTo
+            insertData.setter_id = assignedTo
+            insertData.closer_id = assignedTo
+        }
+    }
+
+    const { data, error } = await supabase
+        .from('leads')
+        .insert({ ...insertData, organization_id: orgId })
+        .select()
+        .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // ── LEAD ROUTING ──
-    if (!insertData.assigned_to) {
-        // Usa admin_client per bypassare RLS update su records appena creati se l'utente non è admin
-        const adminClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-        const assignedTo = await assignLeadRoundRobin(orgId, adminClient)
-        if (assignedTo) {
-            await adminClient.from('leads').update({ assigned_to: assignedTo }).eq('id', data.id)
-            await adminClient.from('lead_activities').insert({
-                organization_id: orgId,
-                lead_id: data.id,
-                activity_type: 'assignment_changed',
-                notes: `🎯 Assegnato automaticamente via Round Robin`,
-            })
-        }
+    if (insertData.assigned_to) {
+        await adminClient.from('lead_activities').insert({
+            organization_id: orgId,
+            lead_id: data.id,
+            activity_type: 'assignment_changed',
+            notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
+        })
     }
 
     // Insert Tags if present

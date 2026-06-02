@@ -410,12 +410,16 @@ export async function processMetaLead(
             // ─── LEAD ROUTING ───
             const assignedTo = await assignLeadRoundRobin(orgId, supabase)
             if (assignedTo) {
-                await supabase.from('leads').update({ assigned_to: assignedTo }).eq('id', leadId)
+                await supabase.from('leads').update({ 
+                    assigned_to: assignedTo,
+                    setter_id: assignedTo,
+                    closer_id: assignedTo 
+                }).eq('id', leadId)
                 await supabase.from('lead_activities').insert({
                     organization_id: orgId,
                     lead_id: leadId,
                     activity_type: 'assignment_changed',
-                    notes: `🎯 Assegnato automaticamente via Round Robin`,
+                    notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                 })
             }
 
