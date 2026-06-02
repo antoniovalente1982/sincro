@@ -14,6 +14,7 @@
 
 import { SupabaseClient } from '@supabase/supabase-js'
 import { assignLeadRoundRobin } from './lead-routing'
+import { appendLeadToSheet } from './google-sheets'
 
 const META_API_VERSION = 'v21.0'
 
@@ -436,6 +437,20 @@ export async function processMetaLead(
         fireCapiLeadEvent(orgId, processedLead, supabase).catch(err =>
             console.error('[MetaLeadForms] CAPI error (non-blocking):', err)
         )
+
+        // 4. Sincronizzazione Google Sheets (non-blocking)
+        if (resultStatus === 'created' || resultStatus === 'updated') {
+            appendLeadToSheet(orgId, {
+                name: mapped.name || '',
+                email: mapped.email || '',
+                phone: mapped.phone || '',
+                funnel: 'Meta Lead Form',
+                utm_source: metaData.utm_source || 'facebook',
+                utm_campaign: metaData.utm_campaign || metaData.campaign_id || '',
+                utm_content: metaData.utm_content || metaData.ad_id || '',
+                created_at: new Date().toISOString()
+            }).catch(err => console.error('[MetaLeadForms] Google Sheets error:', err))
+        }
 
         return { leadgen_id: leadgenId, status: resultStatus, lead_id: leadId }
 
