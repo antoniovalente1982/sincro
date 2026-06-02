@@ -25,8 +25,27 @@ export default async function SettingsPage() {
         supabase.from('pipelines').select('*').eq('organization_id', orgId).order('sort_order'),
         supabase.from('traffic_sources').select('*').eq('organization_id', orgId).order('name'),
         supabase.from('crm_tags').select('*').eq('organization_id', orgId).order('name'),
-        supabase.from('organization_members').select('id, user_id, in_round_robin, profiles(full_name, avatar_url)').eq('organization_id', orgId).is('deactivated_at', null),
+        supabase.from('organization_members').select('id, user_id, in_round_robin').eq('organization_id', orgId).is('deactivated_at', null),
     ])
+
+    const members = teamRes.data || []
+    let enrichedMembers = members
+
+    if (members.length > 0) {
+        const userIds = members.map((m: any) => m.user_id).filter(Boolean)
+        const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', userIds)
+
+        const profileMap: Record<string, any> = {}
+        profilesData?.forEach((p: any) => { profileMap[p.id] = p })
+
+        enrichedMembers = members.map((m: any) => ({
+            ...m,
+            profiles: profileMap[m.user_id] || null
+        }))
+    }
 
     return (
         <SettingsPanel
@@ -40,7 +59,7 @@ export default async function SettingsPage() {
             userDepartment={member?.department || null}
             userEmail={user?.email || ''}
             isGoogleConnected={!!member?.google_access_token}
-            teamMembers={teamRes.data || []}
+            teamMembers={enrichedMembers}
         />
     )
 }
