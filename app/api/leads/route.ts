@@ -93,11 +93,6 @@ export async function POST(req: NextRequest) {
     delete insertData.pipeline_id
     insertData.stage_id = resolvedStageId
 
-    const { data, error } = await supabase
-        .from('leads')
-        .insert({ ...insertData, organization_id: orgId })
-        .select()
-        .single()
     // ── LEAD ROUTING ──
     const adminClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
     if (!insertData.assigned_to) {
