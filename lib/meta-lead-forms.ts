@@ -13,7 +13,7 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
-import { assignLeadRoundRobin } from './lead-routing.js'
+import { assignLeadRoundRobin } from './lead-routing'
 
 const META_API_VERSION = 'v21.0'
 
