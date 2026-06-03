@@ -955,15 +955,15 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
 
             {/* Bulk Assign Tooltray */}
             {selectedLeads.length > 0 && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 py-3 px-6 rounded-2xl shadow-2xl border border-indigo-500/30 animate-fade-in" style={{ background: 'rgba(15, 15, 20, 0.95)', backdropFilter: 'blur(8px)' }}>
-                    <div className="font-bold th-heading"><span className="text-indigo-400">{selectedLeads.length}</span> lead selezionati</div>
-                    <div className="h-6 w-px bg-[var(--hover-bg)]" />
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 py-3 px-5 rounded-2xl shadow-2xl animate-fade-in" style={{ background: 'var(--color-surface-50)', border: '1px solid var(--color-surface-200)', backdropFilter: 'blur(12px)' }}>
+                    <div className="font-bold th-heading text-sm"><span className="text-indigo-500">{selectedLeads.length}</span> <span className="th-sub">selezionati</span></div>
+                    <div className="h-6 w-px bg-[var(--color-surface-200)]" />
                     <select
-                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-indigo-300 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer w-32"
+                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-indigo-500 rounded-lg px-3 py-2 outline-none hover:border-indigo-500/50 cursor-pointer w-36"
                         onChange={e => handleBulkAssignSetter(e.target.value)}
                         value=""
                     >
-                        <option value="" disabled>Qualificatore...</option>
+                        <option value="" disabled>👤 Qualificatore...</option>
                         <option value="none">Nessuno</option>
                         {assignableSetters.map((m: any) => (
                             <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
@@ -973,11 +973,11 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     </select>
 
                     <select
-                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-emerald-300 rounded-lg px-3 py-2 outline-none hover:border-emerald-500/50 cursor-pointer w-36"
+                        className="bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-sm font-semibold text-emerald-600 rounded-lg px-3 py-2 outline-none hover:border-emerald-500/50 cursor-pointer w-36"
                         onChange={e => handleBulkAssignCloser(e.target.value)}
                         value=""
                     >
-                        <option value="" disabled>Venditore...</option>
+                        <option value="" disabled>🎯 Venditore...</option>
                         <option value="none">Nessuno</option>
                         {assignableClosers.map((m: any) => (
                             <option key={m.user_id} value={m.user_id} className="bg-[var(--select-option-bg)] th-heading">
@@ -985,7 +985,26 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             </option>
                         ))}
                     </select>
-                    <button className="th-muted hover:text-white p-2 rounded-full th-bg-hover transition-colors" onClick={() => setSelectedLeads([])}>
+
+                    <div className="h-6 w-px bg-[var(--color-surface-200)]" />
+
+                    {canDeleteLead(role) && (
+                        <button
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-red-500 hover:bg-red-500/10 transition-colors border border-red-500/20 hover:border-red-500/40"
+                            onClick={async () => {
+                                if (!confirm(`Eliminare ${selectedLeads.length} lead selezionati? Azione irreversibile.`)) return
+                                const ids = [...selectedLeads]
+                                setSelectedLeads([])
+                                await Promise.all(ids.map(id => fetch(`/api/leads?id=${id}`, { method: 'DELETE' })))
+                                setLeads(prev => prev.filter(l => !ids.includes(l.id)))
+                            }}
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Elimina
+                        </button>
+                    )}
+
+                    <button className="th-muted hover:text-red-400 p-2 rounded-full th-bg-hover transition-colors text-lg leading-none" onClick={() => setSelectedLeads([])}>
                         ✕
                     </button>
                 </div>
@@ -1006,6 +1025,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onUpdateSetterField={handleUpdateSetterField}
                     onUpdateCloserField={handleUpdateCloserField}
                     onFastBook={setFastBookLead}
+                    onDeleteLead={handleDeleteLead}
+                    canDelete={canDeleteLead(role)}
                     canEditSetterSteps={canEditSetterSteps}
                     canEditCloserSteps={canEditCloserSteps}
                     onLeadClick={(lead) => { setEditingLead(lead); setShowModal(true) }} 
