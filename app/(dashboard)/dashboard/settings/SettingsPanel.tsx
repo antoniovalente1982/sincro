@@ -43,6 +43,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
     const [phone, setPhone] = useState(profile?.phone || '')
+    const [telegramChatId, setTelegramChatId] = useState(profile?.telegram_chat_id || '')
     const [stages, setStages] = useState<Stage[]>(initialStages)
     const [pipelineList, setPipelineList] = useState<Pipeline[]>(pipelines || [])
     const [saving, setSaving] = useState<string | null>(null)
@@ -178,7 +179,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         } catch(e) { console.error(e) }
     }
 
-    const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone })
+    const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone, telegram_chat_id: telegramChatId })
 
     const handleCreateStage = async () => {
         if (!newStage.name || !addToPipelineId) return
@@ -864,6 +865,24 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     <div>
                         <label className="label">Numero di Telefono</label>
                         <input className="input max-w-md" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+39 ..." />
+                    </div>
+                    <div>
+                        <label className="label flex items-center gap-2">
+                            Chat ID Telegram
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-normal" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+                                Notifiche lead
+                            </span>
+                        </label>
+                        <input
+                            className="input max-w-md"
+                            value={telegramChatId}
+                            onChange={e => setTelegramChatId(e.target.value)}
+                            placeholder="es. 123456789"
+                        />
+                        <p className="text-[11px] mt-1.5" style={{ color: 'var(--color-surface-500)' }}>
+                            Apri Telegram, scrivi a <b>@userinfobot</b> e copia il numero ID che ti risponde.
+                            Quando configurato, riceverai un messaggio diretto ogni volta che ti viene assegnato un lead.
+                        </p>
                     </div>
                     <button onClick={handleSaveProfile} className="btn-primary" disabled={saving === 'update_profile'}>
                         {saving === 'update_profile' ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-4 h-4" /> Salva Profilo</>}

@@ -22,11 +22,11 @@ export async function PUT(req: NextRequest) {
     const body = await req.json()
 
     if (body.action === 'update_profile') {
-        const { full_name, avatar_url, phone } = body
+        const { full_name, avatar_url, phone, telegram_chat_id } = body
         const payload: any = { updated_at: new Date().toISOString() }
         if (full_name !== undefined) payload.full_name = full_name
         if (avatar_url !== undefined) payload.avatar_url = avatar_url
-        // NOTA: rimosso l'aggiornamento di 'phone' in quanto la colonna non esiste nella tabella profiles
+        if (telegram_chat_id !== undefined) payload.telegram_chat_id = telegram_chat_id || null
 
         const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
