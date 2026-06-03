@@ -15,6 +15,7 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { assignLeadRoundRobin } from './lead-routing'
 import { appendLeadToSheet } from './google-sheets'
+import { sendTelegramMessage, notifyAssignedSeller } from './telegram'
 
 const META_API_VERSION = 'v21.0'
 
@@ -422,6 +423,13 @@ export async function processMetaLead(
                     activity_type: 'assignment_changed',
                     notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                 })
+                // Notifica personale al venditore assegnato (non-blocking)
+                notifyAssignedSeller(orgId, assignedTo, {
+                    name: mapped.name || '',
+                    email: mapped.email,
+                    phone: mapped.phone,
+                    source: 'facebook (Lead Ads)',
+                }).catch(err => console.error('[MetaLeadForms] Seller notify error:', err))
             }
 
             await supabase.from('lead_activities').insert({
@@ -438,7 +446,21 @@ export async function processMetaLead(
             console.error('[MetaLeadForms] CAPI error (non-blocking):', err)
         )
 
-        // 4. Sincronizzazione Google Sheets (non-blocking)
+        // 4. Notifica Telegram a Dante (non-blocking) — solo per lead nuovi
+        if (resultStatus === 'created') {
+            const tgMsg =
+                `📥 <b>Nuovo Lead!</b> <i>(Meta Lead Form)</i>\n\n` +
+                `👤 <b>Nome:</b> ${mapped.name || 'N/A'}\n` +
+                (mapped.email ? `📧 <b>Email:</b> ${mapped.email}\n` : '') +
+                (mapped.phone ? `📱 <b>Tel:</b> ${mapped.phone}\n` : '') +
+                `📡 <b>Fonte:</b> facebook (Lead Ads)\n` +
+                (rawLead.campaign_id ? `📢 <b>Campaign ID:</b> ${rawLead.campaign_id}` : '')
+
+            sendTelegramMessage(orgId, tgMsg)
+                .catch(err => console.error('[MetaLeadForms] Telegram error:', err))
+        }
+
+        // 5. Sincronizzazione Google Sheets (non-blocking)
         if (resultStatus === 'created' || resultStatus === 'updated') {
             appendLeadToSheet(orgId, {
                 name: mapped.name || '',

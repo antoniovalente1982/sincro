@@ -52,6 +52,55 @@ export async function findOrgByChatId(chatId: string): Promise<string | null> {
 }
 
 /**
+ * Notify the assigned seller directly via their personal Telegram chat_id.
+ * Requires the seller to have saved their telegram_chat_id in their profile (Settings → Profile).
+ * Uses the organization's bot_token — same bot they already interact with.
+ * Silent no-op if seller has no telegram_chat_id configured.
+ */
+export async function notifyAssignedSeller(
+    orgId: string,
+    assignedUserId: string,
+    lead: {
+        name: string
+        email?: string | null
+        phone?: string | null
+        funnel?: string | null
+        source?: string | null
+    }
+): Promise<boolean> {
+    try {
+        // 1. Get seller's personal telegram_chat_id from profiles
+        const { data: profile } = await getSupabaseAdmin()
+            .from('profiles')
+            .select('telegram_chat_id, full_name')
+            .eq('id', assignedUserId)
+            .single()
+
+        if (!profile?.telegram_chat_id) return false // Seller hasn't set up their Telegram
+
+        // 2. Get org bot_token (same bot already used for group notifications)
+        const creds = await getTelegramCredentials(orgId)
+        if (!creds) return false
+
+        const sellerName = profile.full_name || 'Venditore'
+
+        const msg =
+            `🎯 <b>Lead assegnato a te, ${sellerName}!</b>\n\n` +
+            `👤 <b>Nome:</b> ${lead.name}\n` +
+            (lead.phone ? `📱 <b>Tel:</b> ${lead.phone}\n` : '') +
+            (lead.email ? `📧 <b>Email:</b> ${lead.email}\n` : '') +
+            (lead.funnel ? `🔗 <b>Funnel:</b> ${lead.funnel}\n` : '') +
+            (lead.source ? `📡 <b>Fonte:</b> ${lead.source}\n` : '') +
+            `\n💬 Contattalo ora dal CRM!`
+
+        return sendTelegramDirect(creds.bot_token, profile.telegram_chat_id, msg)
+    } catch (err) {
+        console.error('[Telegram] notifyAssignedSeller error:', err)
+        return false
+    }
+}
+
+/**
  * Send a message via Telegram Bot API
  */
 export async function sendTelegramMessage(

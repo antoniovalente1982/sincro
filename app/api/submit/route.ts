@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
-import { sendTelegramMessage } from '@/lib/telegram'
+import { sendTelegramMessage, notifyAssignedSeller } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
 import { assignLeadRoundRobin } from '@/lib/lead-routing'
 
@@ -260,12 +260,21 @@ export async function POST(req: NextRequest) {
                                 setter_id: assignedTo,
                                 closer_id: assignedTo 
                             }).eq('id', lead.id)
+                            lead = { ...lead, assigned_to: assignedTo }
                             await getSupabaseAdmin().from('lead_activities').insert({
                                 organization_id: funnel.organization_id,
                                 lead_id: lead.id,
                                 activity_type: 'assignment_changed',
                                 notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                             })
+                            // Notifica personale al venditore assegnato (non-blocking)
+                            notifyAssignedSeller(funnel.organization_id, assignedTo, {
+                                name,
+                                email: email || null,
+                                phone: phone || null,
+                                funnel: funnel.name,
+                                source: utm_source || null,
+                            }).catch(err => console.error('[Submit] Seller notify error:', err))
                         }
                     }
                 }

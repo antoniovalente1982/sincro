@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClickUpTask } from '@/lib/clickup'
 import { updateGoogleCalendarEvent } from '@/lib/google-calendar'
 import { assignLeadRoundRobin } from '@/lib/lead-routing'
+import { notifyAssignedSeller } from '@/lib/telegram'
+import { appendLeadToSheet } from '@/lib/google-sheets'
 
 export const dynamic = 'force-dynamic';
 
@@ -119,7 +121,25 @@ export async function POST(req: NextRequest) {
             activity_type: 'assignment_changed',
             notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
         })
+        // Notifica personale al venditore assegnato (non-blocking)
+        notifyAssignedSeller(orgId, insertData.assigned_to, {
+            name: data.name || '',
+            email: data.email,
+            phone: data.phone,
+            source: data.utm_source || data.product || 'CRM (inserimento manuale)',
+        }).catch(err => console.error('[Leads POST] Seller notify error:', err))
     }
+
+    // ── GOOGLE SHEETS ── Sync lead manuale sul foglio (non-blocking)
+    appendLeadToSheet(orgId, {
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        funnel: data.product || 'CRM (manuale)',
+        utm_source: data.utm_source || '',
+        utm_campaign: data.utm_campaign || '',
+        created_at: data.created_at || new Date().toISOString(),
+    }).catch(err => console.error('[Leads POST] Google Sheets error:', err))
 
     // Insert Tags if present
     if (tags && Array.isArray(tags) && tags.length > 0) {
