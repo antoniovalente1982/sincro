@@ -6,13 +6,14 @@
  * Complementa il webhook in tempo reale: se un lead non è arrivato via webhook
  * (es. Meta ha avuto problemi di consegna), questo cron lo recupera.
  * 
- * Schedulato: ogni ora (vercel.json: "0 * * * *")
+ * Schedulato: ogni 30 minuti (vercel.json schedule: ogni-trenta-minuti)
  * 
  * Flusso:
  *  1. Recupera le credenziali Meta da `connections`
- *  2. Lista tutti i leadgen_forms dell'account
- *  3. Per ogni form, scarica i lead delle ultime 2 ore
- *  4. Importa nel CRM solo quelli non già presenti (dedup per email + leadgen_id)
+ *  2. Valida il token — se scaduto tenta auto-refresh, altrimenti crea notifica
+ *  3. Lista tutti i leadgen_forms dell'account
+ *  4. Per ogni form, scarica i lead delle ultime 2 ore
+ *  5. Importa nel CRM solo quelli non già presenti (dedup per email + leadgen_id)
  */
 
 import { NextResponse } from 'next/server'
@@ -34,6 +35,121 @@ function getSupabaseAdmin() {
     )
 }
 
+// ─── Valida il token Meta via debug_token ─────────────────────────────────────
+async function validateMetaToken(accessToken: string): Promise<{ valid: boolean; expiresAt?: Date; error?: string }> {
+    try {
+        const res = await fetch(
+            `https://graph.facebook.com/v21.0/debug_token?input_token=${accessToken}&access_token=${accessToken}`
+        )
+        const data = await res.json()
+        if (data.error || !data.data?.is_valid) {
+            return { valid: false, error: data.error?.message || 'Token non valido' }
+        }
+        const expiresAt = data.data?.expires_at
+            ? new Date(data.data.expires_at * 1000)
+            : undefined
+        return { valid: true, expiresAt }
+    } catch (err: any) {
+        return { valid: false, error: err.message }
+    }
+}
+
+// ─── Tenta auto-refresh del token ─────────────────────────────────────────────
+async function tryRefreshToken(connId: string, accessToken: string, supabase: ReturnType<typeof getSupabaseAdmin>): Promise<string | null> {
+    const appSecret = process.env.META_APP_SECRET
+    if (!appSecret) return null
+
+    try {
+        // Debug per ottenere app_id
+        const debugRes = await fetch(
+            `https://graph.facebook.com/v21.0/debug_token?input_token=${accessToken}&access_token=${accessToken}`
+        )
+        const debugData = await debugRes.json()
+        const appId = debugData.data?.app_id
+        if (!appId) return null
+
+        // Scambia per un nuovo Long-Lived Token
+        const exchangeRes = await fetch(
+            `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${appSecret}&fb_exchange_token=${accessToken}`
+        )
+        const exchangeData = await exchangeRes.json()
+        if (exchangeData.error || !exchangeData.access_token) return null
+
+        const newToken = exchangeData.access_token
+        const newExpiresAt = new Date(Date.now() + (exchangeData.expires_in || 5183944) * 1000).toISOString()
+
+        // Salva il nuovo token in DB
+        await supabase
+            .from('connections')
+            .update({
+                credentials: supabase
+                    .from('connections')
+                    .select('credentials')
+                    .eq('id', connId),
+                status: 'active',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', connId)
+
+        // Update diretta con merge credentials
+        const { data: existing } = await supabase
+            .from('connections')
+            .select('credentials')
+            .eq('id', connId)
+            .single()
+
+        await supabase
+            .from('connections')
+            .update({
+                credentials: { ...(existing?.credentials || {}), access_token: newToken, token_expires_at: newExpiresAt, token_updated_at: new Date().toISOString() },
+                status: 'active',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', connId)
+
+        console.log(`[SyncMetaLeads] Token auto-refreshed for conn ${connId}. Expires: ${newExpiresAt}`)
+        return newToken
+    } catch (err) {
+        console.error(`[SyncMetaLeads] Auto-refresh failed for conn ${connId}:`, err)
+        return null
+    }
+}
+
+// ─── Crea notifica in dashboard + segna connessione come scaduta ──────────────
+async function notifyTokenExpired(connId: string, orgId: string, errorMsg: string, supabase: ReturnType<typeof getSupabaseAdmin>) {
+    // Segna la connessione come token_expired per bloccare ulteriori tentativi
+    await supabase
+        .from('connections')
+        .update({ status: 'token_expired', updated_at: new Date().toISOString() })
+        .eq('id', connId)
+
+    // Evita di creare duplicate notifiche se già esiste una non letta nelle ultime 24h
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const { data: existing } = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('organization_id', orgId)
+        .eq('type', 'critical')
+        .ilike('title', '%Token Meta%')
+        .eq('is_read', false)
+        .gte('created_at', oneDayAgo)
+        .limit(1)
+        .single()
+
+    if (existing) return // Notifica già presente, non duplicare
+
+    await supabase.from('notifications').insert({
+        organization_id: orgId,
+        type: 'critical',
+        title: '⚠️ Token Meta Ads scaduto',
+        message: `Il token di connessione Meta Ads è scaduto o non valido (${errorMsg}). I lead dai Meta Lead Ads NON vengono più importati automaticamente. Vai su Connessioni → Meta Ads e rinnova il token.`,
+        link: '/dashboard/connections',
+        is_read: false,
+    })
+
+    console.error(`[SyncMetaLeads] Token expired for org ${orgId}, conn ${connId}. Dashboard notification created.`)
+}
+
 export async function GET(req: Request) {
     // ── Verifica Cron Secret ──────────────────────────────────────────────────
     const authHeader = req.headers.get('authorization')
@@ -49,9 +165,10 @@ export async function GET(req: Request) {
     // ── Recupera tutte le org con Meta Ads collegato ──────────────────────────
     const { data: connections } = await supabase
         .from('connections')
-        .select('organization_id, credentials')
+        .select('id, organization_id, credentials')
         .eq('provider', 'meta_ads')
-        .eq('status', 'active')
+        .in('status', ['active', 'token_expired']) // include token_expired per tentare refresh
+        .select()
 
     if (!connections?.length) {
         return NextResponse.json({ 
@@ -68,18 +185,42 @@ export async function GET(req: Request) {
         created: number
         updated: number
         errors: number
+        skipped_reason?: string
         results: MetaLeadProcessResult[]
     }[] = []
 
     // ── Processa ogni org ─────────────────────────────────────────────────────
     for (const conn of connections) {
-        const { organization_id: orgId, credentials } = conn
-        const accessToken = credentials?.access_token
+        const { id: connId, organization_id: orgId, credentials } = conn
+        let accessToken = credentials?.access_token
         const adAccountId = credentials?.ad_account_id
 
         if (!accessToken || !adAccountId) {
             console.warn(`[SyncMetaLeads] Missing credentials for org ${orgId}`)
+            allResults.push({ org: orgId, forms_checked: 0, leads_found: 0, created: 0, updated: 0, errors: 0, skipped_reason: 'missing_credentials', results: [] })
             continue
+        }
+
+        // ── 1. Valida il token ────────────────────────────────────────────────
+        const tokenCheck = await validateMetaToken(accessToken)
+
+        if (!tokenCheck.valid) {
+            console.warn(`[SyncMetaLeads] Token invalid for org ${orgId}: ${tokenCheck.error}. Attempting auto-refresh...`)
+
+            // ── 2. Tenta auto-refresh ─────────────────────────────────────────
+            const refreshedToken = await tryRefreshToken(connId, accessToken, supabase)
+
+            if (refreshedToken) {
+                accessToken = refreshedToken
+                console.log(`[SyncMetaLeads] Auto-refresh successful for org ${orgId}, continuing with new token.`)
+                // Riattiva la connessione nel DB se era token_expired
+                await supabase.from('connections').update({ status: 'active' }).eq('id', connId)
+            } else {
+                // ── 3. Notifica in dashboard e salta ─────────────────────────
+                await notifyTokenExpired(connId, orgId, tokenCheck.error || 'unknown', supabase)
+                allResults.push({ org: orgId, forms_checked: 0, leads_found: 0, created: 0, updated: 0, errors: 1, skipped_reason: 'token_expired', results: [] })
+                continue
+            }
         }
 
         console.log(`[SyncMetaLeads] Processing org ${orgId}, account act_${adAccountId}`)
@@ -156,6 +297,8 @@ export async function GET(req: Request) {
             created: r.created,
             updated: r.updated,
             errors: r.errors,
+            skipped_reason: r.skipped_reason,
         })),
     })
 }
+

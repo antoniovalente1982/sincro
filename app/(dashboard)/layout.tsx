@@ -50,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [notifications, setNotifications] = useState<any[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
     const [showNotifs, setShowNotifs] = useState(false)
+    const [notifOrgId, setNotifOrgId] = useState<string | null>(null)
     const notifRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
     const router = useRouter()
@@ -112,6 +113,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 if (member?.organizations) {
                     setOrgName((member.organizations as any).name)
                 }
+                if (member?.organization_id) {
+                    setNotifOrgId(member.organization_id)
+                }
                 if (member?.role) {
                     setUserRole(member.role as Role)
                 }
@@ -122,9 +126,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
         getUser()
         loadNotifications()
-        const interval = setInterval(loadNotifications, 120000)
-        return () => clearInterval(interval)
+        // NON usiamo più setInterval per le notifiche:
+        // il Realtime subscription sotto fa il lavoro in modo push-based
     }, [])
+
+    // ── Supabase Realtime: notifiche push-based ────────────────────────────────
+    // Si attiva solo dopo che orgId è disponibile (impostato da getUser).
+    // Riceve solo le righe INSERT per questa org → aggiorna il badge
+    // senza polling HTTP.
+    useEffect(() => {
+        if (!notifOrgId) return
+        const supabase = createClient()
+        const channel = supabase
+            .channel(`notifications-realtime-${notifOrgId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `organization_id=eq.${notifOrgId}`,
+                },
+                () => {
+                    // Un nuovo record è arrivato → ricarichiamo la lista
+                    loadNotifications()
+                }
+            )
+            .subscribe()
+        return () => { supabase.removeChannel(channel) }
+    }, [notifOrgId])
 
     // Close dropdown on click outside
     useEffect(() => {

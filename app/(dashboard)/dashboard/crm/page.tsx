@@ -82,6 +82,7 @@ export default async function CRMPage() {
             userRole={member?.role || 'viewer'}
             userDepartment={member?.department || null}
             userId={userId}
+            orgId={orgId}
             objectives={objectives}
             activeCampaigns={activeCampaigns as string[]}
             trafficSources={sourcesRes?.data || []}

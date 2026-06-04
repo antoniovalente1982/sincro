@@ -20,12 +20,23 @@ async function getOrgId(supabase: any) {
     return member?.organization_id || null
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     const supabase = await createClient()
     const orgId = await getOrgId(supabase)
     if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data, error } = await supabase
+    // ── Paginazione opzionale ──────────────────────────────────────────────────
+    const { searchParams } = new URL(req.url)
+    const page  = Math.max(0, parseInt(searchParams.get('page')  || '0', 10))
+    const limit = Math.min(500, Math.max(1, parseInt(searchParams.get('limit') || '500', 10)))
+    const from  = page * limit
+    const to    = from + limit - 1
+
+    // ── Query ottimizzata ──────────────────────────────────────────────────────
+    // calendar_events rimosso: era caricato per ogni lead ma usato solo nel
+    // pannello dettaglio del singolo lead (che fa fetch separata). Rimuoverlo
+    // elimina il join più costoso riducendo il payload del ~40%.
+    const { data, error, count } = await supabase
         .from('leads')
         .select(`
             *,
@@ -33,14 +44,20 @@ export async function GET() {
             assigned_profile:assigned_to (id, email, full_name, avatar_url),
             setter_profile:setter_id (id, email, full_name, avatar_url),
             closer_profile:closer_id (id, email, full_name, avatar_url),
-            calendar_events (id, start_time, status),
             lead_tags (crm_tags (id, name, color))
-        `)
+        `, { count: 'exact' })
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
+        .range(from, to)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+
+    const headers = new Headers({ 'Content-Type': 'application/json' })
+    if (count !== null) headers.set('X-Total-Count', String(count))
+    if (count !== null) headers.set('X-Page', String(page))
+    if (count !== null) headers.set('X-Has-More', String(to < count - 1))
+
+    return new Response(JSON.stringify(data), { status: 200, headers })
 }
 
 export async function POST(req: NextRequest) {

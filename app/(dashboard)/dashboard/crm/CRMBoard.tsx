@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, canEditSetterFields, type Role, type Department } from '@/lib/permissions'
 import HowItWorks from '@/components/HowItWorks'
 import FastBookModal from './FastBookModal'
+import { createClient } from '@/lib/supabase/client'
 
 interface Stage {
     id: string
@@ -89,6 +90,7 @@ interface Props {
     userRole: string
     userDepartment?: string | null
     userId?: string
+    orgId: string
     objectives: string[]
     activeCampaigns: string[]
     trafficSources: TrafficSource[]
@@ -179,7 +181,7 @@ function getOptionConfig(value: string | undefined, options: { value: string; la
     return options.find(o => o.value === value) || { label: value, color: '#a1a1aa' }
 }
 
-export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, userDepartment, userId, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
+export default function CRMBoard({ pipelines, stages, initialLeads, members, userRole, userDepartment, userId, orgId, objectives, activeCampaigns, trafficSources, globalTags }: Props) {
     const getDisplayName = (m: any) => {
         if (m.profiles?.full_name) return m.profiles.full_name;
         if (!m.profiles?.email) return 'Utente Sincro';
@@ -247,32 +249,63 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     ]
     // -------------------------------------
     
-    // Auto-refresh: poll /api/leads every 60s for new leads
-    const leadsRef = useRef(leads)
-    leadsRef.current = leads
-    const fetchFreshLeads = async () => {
-        try {
-            const res = await fetch('/api/leads?t=' + Date.now())
-            if (!res.ok) return
-            const freshLeads = await res.json()
-            if (!Array.isArray(freshLeads)) return
-
-            const currentIds = new Set(leadsRef.current.map((l: Lead) => l.id))
-            const brandNew = freshLeads.filter((l: Lead) => !currentIds.has(l.id))
-
-            setLeads(freshLeads)
-            if (brandNew.length > 0) {
-                setNewLeadAlert(`🔔 ${brandNew.length === 1 ? 'Nuovo lead' : brandNew.length + ' nuovi lead'}: ${brandNew.map((l: Lead) => l.name).join(', ')}`)
-                setTimeout(() => setNewLeadAlert(null), 8000)
-            }
-        } catch { /* silent */ }
-    }
-
+    // ── Realtime: sostituisce setInterval polling /api/leads ──────────────────
+    // Supabase Realtime apre 1 WebSocket per sessione e invia solo le righe
+    // cambiate (INSERT/UPDATE/DELETE). Zero richieste HTTP extra → zero 500.
     useEffect(() => {
-        let active = true
-        const poll = setInterval(() => { if (active) fetchFreshLeads() }, 60000)
-        return () => { active = false; clearInterval(poll) }
-    }, [])
+        if (!orgId) return
+        const supabase = createClient()
+
+        const channel = supabase
+            .channel(`leads-realtime-${orgId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'leads',
+                    filter: `organization_id=eq.${orgId}`,
+                },
+                (payload) => {
+                    const newLead = payload.new as Lead
+                    setLeads(prev => {
+                        if (prev.some(l => l.id === newLead.id)) return prev
+                        setNewLeadAlert(`🔔 Nuovo lead: ${newLead.name || 'Senza nome'}`)
+                        setTimeout(() => setNewLeadAlert(null), 8000)
+                        return [newLead, ...prev]
+                    })
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'leads',
+                    filter: `organization_id=eq.${orgId}`,
+                },
+                (payload) => {
+                    const updated = payload.new as Lead
+                    setLeads(prev => prev.map(l => l.id === updated.id ? { ...l, ...updated } : l))
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'DELETE',
+                    schema: 'public',
+                    table: 'leads',
+                    filter: `organization_id=eq.${orgId}`,
+                },
+                (payload) => {
+                    const deleted = payload.old as { id: string }
+                    setLeads(prev => prev.filter(l => l.id !== deleted.id))
+                }
+            )
+            .subscribe()
+
+        return () => { supabase.removeChannel(channel) }
+    }, [orgId])
 
     // Date range filter
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('this_month')
@@ -1563,7 +1596,6 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     formatDate={formatDate}
                     formatTime={formatTime}
                     formatCurrency={formatCurrency}
-                    onRefresh={fetchFreshLeads}
                     handleUpdateCloserField={handleUpdateCloserField}
                 />
             )}
@@ -1573,7 +1605,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                     onClose={() => setFastBookLead(null)}
                     onSuccess={() => {
                         setFastBookLead(null)
-                        fetchFreshLeads()
+                        // Realtime aggiornerà automaticamente lo stato del lead
                     }}
                 />
             )}
