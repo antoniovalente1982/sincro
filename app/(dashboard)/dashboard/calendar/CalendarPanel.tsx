@@ -1065,7 +1065,8 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                 {cols.map(({ day, closer }, ci) => {
                                                     const cellEvents = getEventsForCell(day, hour, closer.user_id)
                                                     const cellGoogleEvents = getGoogleEventsForCell(day, hour, closer.user_id)
-                                                    const isAllDayUnavailable = getAllDayGoogleEventsForCell(day, closer.user_id).length > 0
+                                                    const allDayEventsForCell = getAllDayGoogleEventsForCell(day, closer.user_id)
+                                                    const isAllDayUnavailable = allDayEventsForCell.length > 0
 
                                                     return (
                                                         <div
@@ -1076,14 +1077,29 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                                 flexShrink: 0,
                                                                 minHeight: '60px',
                                                                 borderLeft: '1px solid var(--color-surface-200)',
-                                                                background: isAllDayUnavailable
-                                                                    ? 'rgba(239,68,68,0.07)'
-                                                                    : isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
-                                                                backgroundImage: isAllDayUnavailable
-                                                                    ? 'repeating-linear-gradient(135deg, transparent, transparent 8px, rgba(239,68,68,0.04) 8px, rgba(239,68,68,0.04) 9px)'
-                                                                    : undefined,
+                                                                background: isToday(day) && !isAllDayUnavailable ? 'rgba(99,102,241,0.02)' : 'transparent',
                                                             }}
                                                         >
+                                                            {/* Solid unavailability block — fills entire cell like Google Calendar */}
+                                                            {isAllDayUnavailable && (
+                                                                <div
+                                                                    className="absolute inset-0 pointer-events-none flex flex-col justify-start overflow-hidden"
+                                                                    style={{
+                                                                        background: `${closer.color}28`,
+                                                                        borderLeft: `3px solid ${closer.color}88`,
+                                                                        zIndex: 1,
+                                                                    }}
+                                                                >
+                                                                    {hour === HOURS[0] && (
+                                                                        <span
+                                                                            className="text-[8px] font-bold px-1.5 pt-1 leading-tight truncate block"
+                                                                            style={{ color: `${closer.color}cc` }}
+                                                                        >
+                                                                            🔒 {allDayEventsForCell[0]?.event.summary || 'Non disponibile'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                             {/* Half-hour dashed line */}
                                                             <div className="absolute top-[30px] left-0 right-0 border-t border-dashed pointer-events-none" style={{ borderColor: 'var(--color-surface-200)' }} />
 
