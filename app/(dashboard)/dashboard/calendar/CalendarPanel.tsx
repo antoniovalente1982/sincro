@@ -947,15 +947,21 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                         width: `${visibleClosers.length * colWidth}px`,
                                                         flexShrink: 0,
                                                         borderLeft: '1px solid var(--color-surface-200)',
-                                                        background: isToday(day) ? 'rgba(99,102,241,0.05)' : 'transparent',
+                                                        background: 'transparent',
                                                     }}
                                                 >
-                                                    <div className="text-[10px] font-bold uppercase" style={{ color: isToday(day) ? '#a5b4fc' : 'var(--color-surface-500)' }}>
+                                                    <div className="text-[10px] font-bold uppercase" style={{ color: isToday(day) ? '#ef4444' : 'var(--color-surface-500)' }}>
                                                         {DAYS[day.getDay()]}
                                                     </div>
-                                                    <div className="text-base font-bold" style={{ color: isToday(day) ? 'white' : 'var(--color-surface-700)' }}>
-                                                        {day.getDate()}
-                                                    </div>
+                                                    {isToday(day) ? (
+                                                        <div className="inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold text-white mt-0.5" style={{ background: '#ef4444' }}>
+                                                            {day.getDate()}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-base font-bold mt-0.5" style={{ color: 'var(--color-surface-700)' }}>
+                                                            {day.getDate()}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
