@@ -562,33 +562,41 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
         })
     }
 
-    // Get Google events for a specific day/hour/closer cell
-    const getGoogleEventsForCell = (day: Date, hour: number, closerId?: string) => {
+    // Get ALL-DAY Google events for a specific day+closer (for the header all-day row)
+    const getAllDayGoogleEventsForCell = (day: Date, closerId?: string) => {
         if (!showGoogleEvents) return []
         const results: { event: GoogleEvent; userId: string; color: string }[] = []
         const dayStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
 
         for (const [uid, gEvents] of Object.entries(googleEvents)) {
             if (!visibleCalendars.has(uid)) continue
-            if (closerId && uid !== closerId) continue // ← KEY FIX: filter by closer
+            if (closerId && uid !== closerId) continue
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
                 const isAllDay = ge.start && ge.start.length === 10
-                if (isAllDay) {
-                    if (dayStr >= ge.start && dayStr < ge.end) {
-                        if (hour === 7) {
-                            results.push({ 
-                                event: { ...ge, start: `${dayStr}T07:00:00`, end: `${dayStr}T20:00:00` }, 
-                                userId: uid, 
-                                color: closer?.color || '#64748b' 
-                            })
-                        }
-                    }
-                } else {
-                    const start = new Date(ge.start)
-                    if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
-                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
-                    }
+                if (isAllDay && dayStr >= ge.start && dayStr < ge.end) {
+                    results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                }
+            }
+        }
+        return results
+    }
+
+    // Get TIMED Google events for a specific day/hour/closer cell (excludes all-day)
+    const getGoogleEventsForCell = (day: Date, hour: number, closerId?: string) => {
+        if (!showGoogleEvents) return []
+        const results: { event: GoogleEvent; userId: string; color: string }[] = []
+
+        for (const [uid, gEvents] of Object.entries(googleEvents)) {
+            if (!visibleCalendars.has(uid)) continue
+            if (closerId && uid !== closerId) continue
+            const closer = closers.find(c => c.user_id === uid)
+            for (const ge of gEvents) {
+                const isAllDay = ge.start && ge.start.length === 10
+                if (isAllDay) continue // all-day events go in the header row, not in time grid
+                const start = new Date(ge.start)
+                if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
+                    results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
                 }
             }
         }
@@ -962,6 +970,55 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                         ))}
                                     </div>
 
+                                    {/* ── All-Day Events Row (NON DISPONIBILE, ferie, ecc.) ── */}
+                                    {showGoogleEvents && (() => {
+                                        const hasAnyAllDay = cols.some(({ day, closer }) =>
+                                            getAllDayGoogleEventsForCell(day, closer.user_id).length > 0
+                                        )
+                                        if (!hasAnyAllDay) return null
+                                        return (
+                                            <div className="flex" style={{ borderBottom: '2px solid var(--color-surface-200)', background: 'rgba(239,68,68,0.03)' }}>
+                                                <div className="flex items-center justify-end pr-2" style={{ width: '60px', flexShrink: 0 }}>
+                                                    <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-surface-400)' }}>Tutto il giorno</span>
+                                                </div>
+                                                {cols.map(({ day, closer }, ci) => {
+                                                    const allDayEvts = getAllDayGoogleEventsForCell(day, closer.user_id)
+                                                    return (
+                                                        <div
+                                                            key={ci}
+                                                            className="py-1 px-0.5 flex flex-col gap-0.5"
+                                                            style={{
+                                                                width: `${colWidth}px`,
+                                                                flexShrink: 0,
+                                                                minHeight: '28px',
+                                                                borderLeft: '1px solid var(--color-surface-200)',
+                                                                background: allDayEvts.length > 0
+                                                                    ? 'rgba(239,68,68,0.06)'
+                                                                    : isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
+                                                            }}
+                                                        >
+                                                            {allDayEvts.map(({ event: ge, color }) => (
+                                                                <div
+                                                                    key={`allday-${ge.id}`}
+                                                                    className="rounded px-1.5 py-0.5 flex items-center gap-1 overflow-hidden"
+                                                                    style={{
+                                                                        background: `${color}22`,
+                                                                        borderLeft: `3px solid ${color}99`,
+                                                                    }}
+                                                                    title={`Google: ${ge.summary || 'Tutto il giorno'}`}
+                                                                >
+                                                                    <span className="text-[8px] font-bold truncate" style={{ color: `${color}dd` }}>
+                                                                        🔒 {ge.summary || 'Non disponibile'}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )
+                                    })()}
+
                                     {/* Time Grid */}
                                     <div style={{ maxHeight: 'calc(100vh - 340px)', overflowY: 'auto' }}>
                                         {HOURS.map(hour => (
@@ -1015,11 +1072,11 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                                 )
                                                                 if (isSincroMirror) return null
 
-                                                                const isAllDay = ge.start.length === 10 || (ge.start.endsWith('T07:00:00') && ge.end.endsWith('T20:00:00'))
-                                                                const startMin = isAllDay ? 0 : new Date(ge.start).getMinutes()
+                                                                // getGoogleEventsForCell now only returns timed events (all-day shown in header row)
+                                                                const startMin = new Date(ge.start).getMinutes()
                                                                 const durationMs = new Date(ge.end).getTime() - new Date(ge.start).getTime()
-                                                                const durationMin = isAllDay ? 60 : durationMs / 60000
-                                                                const height = isAllDay ? 60 : Math.max((durationMin / 60) * 60, 18)
+                                                                const durationMin = durationMs / 60000
+                                                                const height = Math.max((durationMin / 60) * 60, 18)
 
                                                                 return (
                                                                     <div
