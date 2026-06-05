@@ -446,19 +446,23 @@ export async function processMetaLead(
             console.error('[MetaLeadForms] CAPI error (non-blocking):', err)
         )
 
-        // 4. Notifica Telegram a Dante (non-blocking) — solo per lead nuovi
-        if (resultStatus === 'created') {
-            const tgMsg =
-                `📥 <b>Nuovo Lead!</b> <i>(Meta Lead Form)</i>\n\n` +
-                `👤 <b>Nome:</b> ${mapped.name || 'N/A'}\n` +
-                (mapped.email ? `📧 <b>Email:</b> ${mapped.email}\n` : '') +
-                (mapped.phone ? `📱 <b>Tel:</b> ${mapped.phone}\n` : '') +
-                `📡 <b>Fonte:</b> facebook (Lead Ads)\n` +
-                (rawLead.campaign_id ? `📢 <b>Campaign ID:</b> ${rawLead.campaign_id}` : '')
+        // 4. Notifica Telegram (non-blocking) — per tutti i lead, nuovo o rientrato
+        const tgMsg = resultStatus === 'created'
+            ? `📥 <b>Nuovo Lead!</b> <i>(Meta Lead Form)</i>\n\n` +
+              `👤 <b>Nome:</b> ${mapped.name || 'N/A'}\n` +
+              (mapped.email ? `📧 <b>Email:</b> ${mapped.email}\n` : '') +
+              (mapped.phone ? `📱 <b>Tel:</b> ${mapped.phone}\n` : '') +
+              `📡 <b>Fonte:</b> facebook (Lead Ads)\n` +
+              (rawLead.campaign_id ? `📢 <b>Campaign ID:</b> ${rawLead.campaign_id}` : '')
+            : `🔁 <b>Lead Rientrato</b> <i>(Meta Lead Form)</i>\n\n` +
+              `👤 <b>Nome:</b> ${mapped.name || 'N/A'}\n` +
+              (mapped.email ? `📧 <b>Email:</b> ${mapped.email}\n` : '') +
+              (mapped.phone ? `📱 <b>Tel:</b> ${mapped.phone}\n` : '') +
+              `📡 <b>Fonte:</b> facebook (Lead Ads)\n` +
+              `ℹ️ <i>Era già nel CRM, rimesso in pipeline</i>`
 
-            sendTelegramMessage(orgId, tgMsg)
-                .catch(err => console.error('[MetaLeadForms] Telegram error:', err))
-        }
+        sendTelegramMessage(orgId, tgMsg)
+            .catch(err => console.error('[MetaLeadForms] Telegram error:', err))
 
         // 5. Sincronizzazione Google Sheets (non-blocking)
         if (resultStatus === 'created' || resultStatus === 'updated') {
