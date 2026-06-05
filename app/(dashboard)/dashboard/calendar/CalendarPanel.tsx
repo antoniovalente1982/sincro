@@ -964,28 +964,38 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                     {/* Vendor sub-header */}
                                     <div className="flex" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
                                         <div style={{ width: '60px', flexShrink: 0 }} />
-                                        {cols.map(({ day, closer }, ci) => (
-                                            <div
-                                                key={ci}
-                                                className="flex items-center justify-center gap-1.5 py-1.5 px-1"
-                                                style={{
-                                                    width: `${colWidth}px`,
-                                                    flexShrink: 0,
-                                                    borderLeft: '1px solid var(--color-surface-200)',
-                                                    background: isToday(day) ? 'rgba(99,102,241,0.03)' : 'transparent',
-                                                }}
-                                            >
+                                        {cols.map(({ day, closer }, ci) => {
+                                            const headerUnavailable = getAllDayGoogleEventsForCell(day, closer.user_id).length > 0
+                                            return (
                                                 <div
-                                                    className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-bold text-white"
-                                                    style={{ background: closer.color }}
+                                                    key={ci}
+                                                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 relative"
+                                                    style={{
+                                                        width: `${colWidth}px`,
+                                                        flexShrink: 0,
+                                                        borderLeft: '1px solid var(--color-surface-200)',
+                                                        background: headerUnavailable
+                                                            ? 'rgba(239,68,68,0.10)'
+                                                            : isToday(day) ? 'rgba(99,102,241,0.03)' : 'transparent',
+                                                    }}
                                                 >
-                                                    {closer.name.charAt(0).toUpperCase()}
+                                                    <div
+                                                        className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-bold text-white"
+                                                        style={{ background: headerUnavailable ? '#ef4444' : closer.color }}
+                                                    >
+                                                        {headerUnavailable ? '✕' : closer.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="text-[9px] font-semibold truncate" style={{ color: headerUnavailable ? '#ef4444' : closer.color, maxWidth: `${colWidth - 28}px` }}>
+                                                        {closer.name.split(' ')[0]}
+                                                    </span>
+                                                    {headerUnavailable && (
+                                                        <span className="text-[7px] font-bold px-1 py-0.5 rounded absolute top-0.5 right-0.5" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
+                                                            N/D
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <span className="text-[9px] font-semibold truncate" style={{ color: closer.color, maxWidth: `${colWidth - 28}px` }}>
-                                                    {closer.name.split(' ')[0]}
-                                                </span>
-                                            </div>
-                                        ))}
+                                            )
+                                        })}
                                     </div>
 
                                     {/* ── All-Day Events Row (NON DISPONIBILE, ferie, ecc.) ── */}
@@ -1055,6 +1065,7 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                 {cols.map(({ day, closer }, ci) => {
                                                     const cellEvents = getEventsForCell(day, hour, closer.user_id)
                                                     const cellGoogleEvents = getGoogleEventsForCell(day, hour, closer.user_id)
+                                                    const isAllDayUnavailable = getAllDayGoogleEventsForCell(day, closer.user_id).length > 0
 
                                                     return (
                                                         <div
@@ -1065,7 +1076,12 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                                 flexShrink: 0,
                                                                 minHeight: '60px',
                                                                 borderLeft: '1px solid var(--color-surface-200)',
-                                                                background: isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
+                                                                background: isAllDayUnavailable
+                                                                    ? 'rgba(239,68,68,0.07)'
+                                                                    : isToday(day) ? 'rgba(99,102,241,0.02)' : 'transparent',
+                                                                backgroundImage: isAllDayUnavailable
+                                                                    ? 'repeating-linear-gradient(135deg, transparent, transparent 8px, rgba(239,68,68,0.04) 8px, rgba(239,68,68,0.04) 9px)'
+                                                                    : undefined,
                                                             }}
                                                         >
                                                             {/* Half-hour dashed line */}
