@@ -562,6 +562,16 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
         })
     }
 
+    // Helper: considera "tutto il giorno" sia gli eventi date-only che quelli con orario che coprono ≥12h
+    const isEffectivelyAllDay = (ge: GoogleEvent): boolean => {
+        if (ge.start && ge.start.length === 10) return true // data pura: "2026-06-01"
+        // Evento con orario che inizia a mezzanotte (o molto presto) e dura ≥ 12 ore
+        const start = new Date(ge.start)
+        const end = new Date(ge.end)
+        const durationHours = (end.getTime() - start.getTime()) / 3600000
+        return start.getHours() === 0 && durationHours >= 12
+    }
+
     // Get ALL-DAY Google events for a specific day+closer (for the header all-day row)
     const getAllDayGoogleEventsForCell = (day: Date, closerId?: string) => {
         if (!showGoogleEvents) return []
@@ -573,9 +583,18 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
             if (closerId && uid !== closerId) continue
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
-                const isAllDay = ge.start && ge.start.length === 10
-                if (isAllDay && dayStr >= ge.start && dayStr < ge.end) {
-                    results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                if (!isEffectivelyAllDay(ge)) continue
+                // Per date-only: controlla range; per timed: controlla che cada in questo giorno
+                const isPureDate = ge.start.length === 10
+                if (isPureDate) {
+                    if (dayStr >= ge.start && dayStr < ge.end) {
+                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                    }
+                } else {
+                    const start = new Date(ge.start)
+                    if (start.toDateString() === day.toDateString()) {
+                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                    }
                 }
             }
         }
@@ -592,8 +611,7 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
             if (closerId && uid !== closerId) continue
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
-                const isAllDay = ge.start && ge.start.length === 10
-                if (isAllDay) continue // all-day events go in the header row, not in time grid
+                if (isEffectivelyAllDay(ge)) continue // all-day events go in the header row
                 const start = new Date(ge.start)
                 if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
                     results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
