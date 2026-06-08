@@ -7,7 +7,7 @@ import HowItWorks from '@/components/HowItWorks'
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
 const DAYS_FULL = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 7) // 7:00 - 20:00
+const HOURS = Array.from({ length: 17 }, (_, i) => i + 7) // 7:00 - 23:00
 
 interface CalendarEvent {
     id: string
@@ -562,14 +562,26 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
         })
     }
 
-    // Helper: considera "tutto il giorno" sia gli eventi date-only che quelli con orario che coprono ≥12h
+    // Helper: ritorna l'ora locale (Europe/Rome) come intero 0-23
+    const getLocalHour = (date: Date): number => {
+        return parseInt(date.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', hour12: false }), 10)
+    }
+
+    // Helper: ritorna la data locale (Europe/Rome) come stringa YYYY-MM-DD
+    const getLocalDateStr = (date: Date): string => {
+        return date.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' })
+            .split('/').reverse().join('-') // dd/mm/yyyy -> yyyy-mm-dd
+    }
+
+    // Helper: considera "tutto il giorno" sia gli eventi date-only che quelli con orario che coprono ≥12h (in ora locale)
     const isEffectivelyAllDay = (ge: GoogleEvent): boolean => {
         if (ge.start && ge.start.length === 10) return true // data pura: "2026-06-01"
-        // Evento con orario che inizia a mezzanotte (o molto presto) e dura ≥ 12 ore
+        // Evento con orario che inizia a mezzanotte locale (o presto) e dura ≥ 12 ore
         const start = new Date(ge.start)
         const end = new Date(ge.end)
         const durationHours = (end.getTime() - start.getTime()) / 3600000
-        return start.getHours() === 0 && durationHours >= 12
+        const localHour = getLocalHour(start)
+        return localHour === 0 && durationHours >= 12
     }
 
     // Get ALL-DAY Google events for a specific day+closer (for the header all-day row)
@@ -584,15 +596,18 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
             const closer = closers.find(c => c.user_id === uid)
             for (const ge of gEvents) {
                 if (!isEffectivelyAllDay(ge)) continue
-                // Per date-only: controlla range; per timed: controlla che cada in questo giorno
+                // Per date-only: controlla range; per timed: controlla che cada in questo giorno (ora locale IT)
                 const isPureDate = ge.start.length === 10
                 if (isPureDate) {
                     if (dayStr >= ge.start && dayStr < ge.end) {
                         results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
                     }
                 } else {
+                    // Usa la data locale italiana per il match (es: 2026-06-07T22:00:00Z = 2026-06-08 in Italy)
                     const start = new Date(ge.start)
-                    if (start.toDateString() === day.toDateString()) {
+                    const startLocalStr = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
+                    const dayLocalStr = day.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
+                    if (startLocalStr === dayLocalStr) {
                         results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
                     }
                 }
@@ -602,9 +617,12 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
     }
 
     // Get TIMED Google events for a specific day/hour/closer cell (excludes all-day)
+    // Uses local Italy timezone for correct hour matching
     const getGoogleEventsForCell = (day: Date, hour: number, closerId?: string) => {
         if (!showGoogleEvents) return []
         const results: { event: GoogleEvent; userId: string; color: string }[] = []
+        // Day string in Italy timezone (dd/mm/yyyy)
+        const dayLocalStr = day.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
 
         for (const [uid, gEvents] of Object.entries(googleEvents)) {
             if (!visibleCalendars.has(uid)) continue
@@ -613,7 +631,9 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
             for (const ge of gEvents) {
                 if (isEffectivelyAllDay(ge)) continue // all-day events go in the header row
                 const start = new Date(ge.start)
-                if (start.toDateString() === day.toDateString() && start.getHours() === hour) {
+                const startLocalStr = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
+                const startLocalHour = getLocalHour(start)
+                if (startLocalStr === dayLocalStr && startLocalHour === hour) {
                     results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
                 }
             }
