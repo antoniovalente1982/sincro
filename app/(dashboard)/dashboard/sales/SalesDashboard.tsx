@@ -17,7 +17,9 @@ interface Lead {
     pipeline_stages?: {
         is_won?: boolean
         is_lost?: boolean
-    } | null
+    } | null | any
+    setter_profile?: any
+    closer_profile?: any
 }
 
 interface Props {
@@ -70,9 +72,66 @@ export default function SalesDashboard({ leads }: Props) {
             monthMap[sortKey].salesValue += Number(lead.value) || 0
         })
 
-        // Convert to array and sort chronologically
+        // Convert to array and sort chronologically (descending for table, ascending for charts)
         return Object.keys(monthMap).sort().map(key => monthMap[key])
     }, [sales])
+
+    // Seller Leaderboard
+    const sellerLeaderboard = useMemo(() => {
+        const map = new Map<string, { id: string, name: string, leads: number, appts: number, sales: number, value: number, avatar?: string }>()
+        
+        filteredLeads.forEach(l => {
+            const isAppt = (l.esito && l.esito.toLowerCase().includes('appuntamento')) || (l.closer_appt_status && l.closer_appt_status.toUpperCase() === 'FATTO')
+            const isWon = l.closer_outcome === 'VINTA' || l.pipeline_stages?.is_won
+            const val = Number(l.value) || 0
+
+            const addStats = (id: string, profile: any) => {
+                if (!map.has(id)) {
+                    map.set(id, { id, name: profile?.full_name || profile?.email || 'Sconosciuto', avatar: profile?.avatar_url, leads: 0, appts: 0, sales: 0, value: 0 })
+                }
+                const s = map.get(id)!
+                s.leads += 1
+                if (isAppt) s.appts += 1
+                if (isWon) {
+                    s.sales += 1
+                    s.value += val
+                }
+            }
+
+            if (l.closer_id && l.setter_id && l.closer_id === l.setter_id) {
+                addStats(l.closer_id, l.closer_profile || l.setter_profile)
+            } else {
+                if (l.closer_id) addStats(l.closer_id, l.closer_profile)
+                if (l.setter_id) addStats(l.setter_id, l.setter_profile)
+            }
+        })
+        return Array.from(map.values()).sort((a, b) => b.value - a.value || b.sales - a.sales)
+    }, [filteredLeads])
+
+    // Per Monthly Table (aggregate leads and appts too)
+    const monthlyTableData = useMemo(() => {
+        const monthMap: Record<string, { monthKey: string, leads: number, appts: number, sales: number, value: number }> = {}
+        filteredLeads.forEach(l => {
+            const date = new Date(l.created_at)
+            const monthKey = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+            const sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+
+            if (!monthMap[sortKey]) {
+                monthMap[sortKey] = { monthKey: monthKey.charAt(0).toUpperCase() + monthKey.slice(1), leads: 0, appts: 0, sales: 0, value: 0 }
+            }
+            monthMap[sortKey].leads += 1
+            
+            const isAppt = (l.esito && l.esito.toLowerCase().includes('appuntamento')) || (l.closer_appt_status && l.closer_appt_status.toUpperCase() === 'FATTO')
+            if (isAppt) monthMap[sortKey].appts += 1
+
+            const isWon = l.closer_outcome === 'VINTA' || l.pipeline_stages?.is_won
+            if (isWon) {
+                monthMap[sortKey].sales += 1
+                monthMap[sortKey].value += Number(l.value) || 0
+            }
+        })
+        return Object.keys(monthMap).sort((a, b) => b.localeCompare(a)).map(key => monthMap[key])
+    }, [filteredLeads])
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v)
@@ -81,7 +140,7 @@ export default function SalesDashboard({ leads }: Props) {
         if (active && payload?.length) {
             return (
                 <div className="glass-card p-3" style={{ background: 'var(--glass-bg)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                    <p className="text-xs font-bold text-white mb-1">{label}</p>
+                    <p className="text-xs font-bold th-heading mb-1">{label}</p>
                     <p className="text-sm font-bold" style={{ color: '#8b5cf6' }}>
                         {payload[0].value} Vendite
                     </p>
@@ -95,7 +154,7 @@ export default function SalesDashboard({ leads }: Props) {
         if (active && payload?.length) {
             return (
                 <div className="glass-card p-3" style={{ background: 'var(--glass-bg)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                    <p className="text-xs font-bold text-white mb-1">{label}</p>
+                    <p className="text-xs font-bold th-heading mb-1">{label}</p>
                     <p className="text-sm font-bold" style={{ color: '#22c55e' }}>
                         {formatCurrency(payload[0].value)}
                     </p>
@@ -137,7 +196,7 @@ export default function SalesDashboard({ leads }: Props) {
                             <Users className="w-5 h-5" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black text-white">{assignedLeads.length}</div>
+                    <div className="text-3xl font-black th-heading">{assignedLeads.length}</div>
                     <div className="text-sm font-medium mt-1" style={{ color: 'var(--color-surface-500)' }}>Leads Assegnati</div>
                 </div>
 
@@ -149,7 +208,7 @@ export default function SalesDashboard({ leads }: Props) {
                             <CalendarCheck className="w-5 h-5" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black text-white">{appointments.length}</div>
+                    <div className="text-3xl font-black th-heading">{appointments.length}</div>
                     <div className="text-sm font-medium mt-1" style={{ color: 'var(--color-surface-500)' }}>Appuntamenti Fatti</div>
                 </div>
 
@@ -161,7 +220,7 @@ export default function SalesDashboard({ leads }: Props) {
                             <Award className="w-5 h-5" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black text-white">{sales.length}</div>
+                    <div className="text-3xl font-black th-heading">{sales.length}</div>
                     <div className="text-sm font-medium mt-1" style={{ color: 'var(--color-surface-500)' }}>Vendite Chiuse</div>
                 </div>
 
@@ -181,11 +240,11 @@ export default function SalesDashboard({ leads }: Props) {
             </div>
 
             {/* Charts Section */}
-            {monthlyData.length > 0 ? (
+            {monthlyData.length > 0 && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Volume Vendite Chart */}
                     <div className="glass-card p-6">
-                        <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                        <h3 className="text-sm font-bold th-heading mb-6 flex items-center gap-2">
                             <Award className="w-4 h-4 text-purple-500" />
                             Volume Vendite (Mensile)
                         </h3>
@@ -212,7 +271,7 @@ export default function SalesDashboard({ leads }: Props) {
 
                     {/* Montante Vendite Chart */}
                     <div className="glass-card p-6">
-                        <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                        <h3 className="text-sm font-bold th-heading mb-6 flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-green-500" />
                             Montante Vendite (Mensile)
                         </h3>
@@ -245,14 +304,111 @@ export default function SalesDashboard({ leads }: Props) {
                         </ResponsiveContainer>
                     </div>
                 </div>
-            ) : (
+            )}
+            {/* Additional Data Tables */}
+            {filteredLeads.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                    {/* Leaderboard Venditori */}
+                    <div className="glass-card overflow-hidden">
+                        <div className="p-5 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                            <h3 className="text-sm font-bold th-heading flex items-center gap-2">
+                                <Users className="w-4 h-4" style={{ color: '#06b6d4' }} />
+                                Performance per Venditore
+                            </h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead style={{ background: 'var(--color-surface-50)' }}>
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium" style={{ color: 'var(--color-surface-500)' }}>Nome</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Leads</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Appt</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Vendite</th>
+                                        <th className="px-5 py-3 font-medium text-right" style={{ color: 'var(--color-surface-500)' }}>Valore</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                    {sellerLeaderboard.map(seller => (
+                                        <tr key={seller.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                            <td className="px-5 py-3 font-semibold th-heading flex items-center gap-2">
+                                                {seller.avatar ? (
+                                                    <img src={seller.avatar} alt={seller.name} className="w-6 h-6 rounded-full" />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-[10px]">
+                                                        {seller.name.charAt(0)}
+                                                    </div>
+                                                )}
+                                                {seller.name}
+                                            </td>
+                                            <td className="px-5 py-3 text-center" style={{ color: 'var(--color-surface-600)' }}>{seller.leads}</td>
+                                            <td className="px-5 py-3 text-center text-orange-500 font-medium">{seller.appts}</td>
+                                            <td className="px-5 py-3 text-center text-purple-500 font-medium">{seller.sales}</td>
+                                            <td className="px-5 py-3 text-right text-green-500 font-bold">{formatCurrency(seller.value)}</td>
+                                        </tr>
+                                    ))}
+                                    {sellerLeaderboard.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-5 py-8 text-center" style={{ color: 'var(--color-surface-500)' }}>
+                                                Nessun venditore assegnato in questo periodo.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Dati Mensili Tabellari */}
+                    <div className="glass-card overflow-hidden">
+                        <div className="p-5 border-b" style={{ borderColor: 'var(--color-surface-200)' }}>
+                            <h3 className="text-sm font-bold th-heading flex items-center gap-2">
+                                <CalendarIcon className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                                Dati Tabellari per Mese
+                            </h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead style={{ background: 'var(--color-surface-50)' }}>
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium" style={{ color: 'var(--color-surface-500)' }}>Mese</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Leads</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Appt</th>
+                                        <th className="px-5 py-3 font-medium text-center" style={{ color: 'var(--color-surface-500)' }}>Vendite</th>
+                                        <th className="px-5 py-3 font-medium text-right" style={{ color: 'var(--color-surface-500)' }}>Valore</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y" style={{ borderColor: 'var(--color-surface-200)' }}>
+                                    {monthlyTableData.map(row => (
+                                        <tr key={row.monthKey} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                            <td className="px-5 py-3 font-semibold th-heading">{row.monthKey}</td>
+                                            <td className="px-5 py-3 text-center" style={{ color: 'var(--color-surface-600)' }}>{row.leads}</td>
+                                            <td className="px-5 py-3 text-center text-orange-500 font-medium">{row.appts}</td>
+                                            <td className="px-5 py-3 text-center text-purple-500 font-medium">{row.sales}</td>
+                                            <td className="px-5 py-3 text-right text-green-500 font-bold">{formatCurrency(row.value)}</td>
+                                        </tr>
+                                    ))}
+                                    {monthlyTableData.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-5 py-8 text-center" style={{ color: 'var(--color-surface-500)' }}>
+                                                Nessun dato mensile disponibile.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {monthlyData.length === 0 && filteredLeads.length === 0 && (
                 <div className="glass-card p-12 flex flex-col items-center justify-center text-center mt-6">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
+                    <div className="w-16 h-16 rounded-full bg-white/5 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center mb-4 th-heading">
                         <Target className="w-8 h-8" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Nessun dato di vendita in questo periodo</h3>
-                    <p className="text-sm text-zinc-500 max-w-sm">
-                        Modifica il filtro della data per visualizzare le performance di altri periodi.
+                    <h3 className="text-lg font-bold th-heading mb-2">Nessun dato disponibile</h3>
+                    <p className="text-sm" style={{ color: 'var(--color-surface-500)' }}>
+                        Non ci sono leads o vendite nel periodo selezionato.
                     </p>
                 </div>
             )}
