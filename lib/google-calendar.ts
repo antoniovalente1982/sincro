@@ -74,8 +74,9 @@ export async function getGoogleCalendarFreeBusy(
 ) {
     let currentToken = accessToken
 
-    // Check if token needs refresh
-    if (!currentToken || (expiry && new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000)) {
+    // Check if token needs refresh: refresh if missing, no expiry info, or expiring within 5 min
+    const needsRefresh = !currentToken || !expiry || new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000
+    if (needsRefresh) {
         if (refreshToken) {
             currentToken = await refreshGoogleToken(userId, refreshToken)
         } else {
@@ -155,8 +156,9 @@ export async function getGoogleCalendarEvents(
 ): Promise<{ id: string; summary: string; start: string; end: string; status: string; htmlLink?: string }[]> {
     let currentToken = accessToken
 
-    // Check if token needs refresh
-    if (!currentToken || (expiry && new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000)) {
+    // Check if token needs refresh: refresh if missing, no expiry info, or expiring within 5 min
+    const needsRefresh = !currentToken || !expiry || new Date(expiry).getTime() < Date.now() + 5 * 60 * 1000
+    if (needsRefresh) {
         if (refreshToken) {
             currentToken = await refreshGoogleToken(userId, refreshToken)
         } else {
