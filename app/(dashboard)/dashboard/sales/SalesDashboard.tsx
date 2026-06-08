@@ -8,6 +8,7 @@ import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/D
 interface Lead {
     id: string
     created_at: string
+    updated_at: string
     setter_id: string | null
     closer_id: string | null
     closer_appt_status: string | null
@@ -15,6 +16,7 @@ interface Lead {
     closer_outcome: string | null
     value: number | null
     pipeline_stages?: {
+        name?: string
         is_won?: boolean
         is_lost?: boolean
     } | null | any
@@ -29,21 +31,26 @@ interface Props {
 export default function SalesDashboard({ leads }: Props) {
     // Default to 'all' or 'this_year' to see the trend, let's default to all to see historical data.
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
+    const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
 
-    // Filter leads by date range based on created_at
+    // Filter leads by date range based on created_at or updated_at
     const filteredLeads = useMemo(() => {
         if (!range) return leads
-        return filterByDateRange(leads, range, 'created_at')
-    }, [leads, range])
+        return leads.filter(l => {
+            if (range.key === 'all') return true
+            const dStr = dateFilterMode === 'created' ? l.created_at : (l.updated_at || l.created_at)
+            const d = new Date(dStr)
+            return d >= range.from && d < range.to
+        })
+    }, [leads, range, dateFilterMode])
 
     // KPI Calculations
     const assignedLeads = filteredLeads.filter(l => l.setter_id || l.closer_id)
     const appointments = filteredLeads.filter(l => 
-        (l.esito && l.esito.toLowerCase().includes('appuntamento')) || 
-        (l.closer_appt_status && l.closer_appt_status.toUpperCase() === 'FATTO')
+        l.pipeline_stages?.name && ['Appuntamento', 'Show-up', 'Prova', 'Vendita', 'Perso', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name)
     )
     const sales = filteredLeads.filter(l => 
-        l.closer_outcome === 'VINTA' || l.pipeline_stages?.is_won
+        l.pipeline_stages?.is_won || (l.pipeline_stages?.name && ['Vendita', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name))
     )
     
     const totalSalesValue = sales.reduce((acc, lead) => acc + (Number(lead.value) || 0), 0)
@@ -54,7 +61,8 @@ export default function SalesDashboard({ leads }: Props) {
 
         // Initialize months if we want continuous data, but here we just group existing won leads
         sales.forEach(lead => {
-            const date = new Date(lead.created_at)
+            const dateStr = dateFilterMode === 'created' ? lead.created_at : (lead.updated_at || lead.created_at)
+            const date = new Date(dateStr)
             // Example format: "Jan 2026"
             const monthKey = date.toLocaleDateString('it-IT', { month: 'short', year: 'numeric' })
             // Use YYYY-MM to easily sort keys
@@ -81,29 +89,30 @@ export default function SalesDashboard({ leads }: Props) {
         const map = new Map<string, { id: string, name: string, leads: number, appts: number, sales: number, value: number, avatar?: string }>()
         
         filteredLeads.forEach(l => {
-            const isAppt = (l.esito && l.esito.toLowerCase().includes('appuntamento')) || (l.closer_appt_status && l.closer_appt_status.toUpperCase() === 'FATTO')
-            const isWon = l.closer_outcome === 'VINTA' || l.pipeline_stages?.is_won
+            const isAppt = l.pipeline_stages?.name && ['Appuntamento', 'Show-up', 'Prova', 'Vendita', 'Perso', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name)
+            const isWon = l.pipeline_stages?.is_won || (l.pipeline_stages?.name && ['Vendita', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name))
             const val = Number(l.value) || 0
 
-            const addStats = (id: string, profile: any) => {
+            const addStats = (id: string, profile: any, roleType: 'setter' | 'closer') => {
                 if (!map.has(id)) {
                     map.set(id, { id, name: profile?.full_name || profile?.email || 'Sconosciuto', avatar: profile?.avatar_url, leads: 0, appts: 0, sales: 0, value: 0 })
                 }
                 const s = map.get(id)!
+                // Le assegnazioni generiche vanno ad entrambi
                 s.leads += 1
-                if (isAppt) s.appts += 1
-                if (isWon) {
-                    s.sales += 1
-                    s.value += val
+                
+                // L'appuntamento o la vendita lo diamo SOLO se sei il Closer
+                if (roleType === 'closer') {
+                    if (isAppt) s.appts += 1
+                    if (isWon) {
+                        s.sales += 1
+                        s.value += val
+                    }
                 }
             }
 
-            if (l.closer_id && l.setter_id && l.closer_id === l.setter_id) {
-                addStats(l.closer_id, l.closer_profile || l.setter_profile)
-            } else {
-                if (l.closer_id) addStats(l.closer_id, l.closer_profile)
-                if (l.setter_id) addStats(l.setter_id, l.setter_profile)
-            }
+            if (l.closer_id) addStats(l.closer_id, l.closer_profile, 'closer')
+            if (l.setter_id && l.setter_id !== l.closer_id) addStats(l.setter_id, l.setter_profile, 'setter')
         })
         return Array.from(map.values()).sort((a, b) => b.value - a.value || b.sales - a.sales)
     }, [filteredLeads])
@@ -112,7 +121,8 @@ export default function SalesDashboard({ leads }: Props) {
     const monthlyTableData = useMemo(() => {
         const monthMap: Record<string, { monthKey: string, leads: number, appts: number, sales: number, value: number }> = {}
         filteredLeads.forEach(l => {
-            const date = new Date(l.created_at)
+            const dateStr = dateFilterMode === 'created' ? l.created_at : (l.updated_at || l.created_at)
+            const date = new Date(dateStr)
             const monthKey = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
             const sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 
@@ -121,10 +131,10 @@ export default function SalesDashboard({ leads }: Props) {
             }
             monthMap[sortKey].leads += 1
             
-            const isAppt = (l.esito && l.esito.toLowerCase().includes('appuntamento')) || (l.closer_appt_status && l.closer_appt_status.toUpperCase() === 'FATTO')
+            const isAppt = l.pipeline_stages?.name && ['Appuntamento', 'Show-up', 'Prova', 'Vendita', 'Perso', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name)
             if (isAppt) monthMap[sortKey].appts += 1
 
-            const isWon = l.closer_outcome === 'VINTA' || l.pipeline_stages?.is_won
+            const isWon = l.pipeline_stages?.is_won || (l.pipeline_stages?.name && ['Vendita', 'Upsell / Ricompra', 'Vinta'].includes(l.pipeline_stages.name))
             if (isWon) {
                 monthMap[sortKey].sales += 1
                 monthMap[sortKey].value += Number(l.value) || 0
@@ -178,6 +188,16 @@ export default function SalesDashboard({ leads }: Props) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <div className="bg-[var(--hover-bg)] p-1 rounded-xl border border-[var(--color-surface-200)] flex items-center h-[42px] px-2 mr-2">
+                        <select
+                            className="bg-transparent text-sm font-semibold th-muted focus:outline-none cursor-pointer"
+                            value={dateFilterMode}
+                            onChange={(e) => setDateFilterMode(e.target.value as 'created' | 'updated')}
+                        >
+                            <option value="created">Data Acquisizione</option>
+                            <option value="updated">Ultimo Movimento</option>
+                        </select>
+                    </div>
                     <DateRangeFilter
                         activeKey={activeKey} onSelect={setActiveKey}
                         customFrom={customFrom} customTo={customTo}
