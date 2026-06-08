@@ -9,6 +9,7 @@ export type Department = 'marketing' | 'sales' | 'coaching' | 'admin' | 'it' | n
 export type Section =
     | 'dashboard'
     | 'crm'
+    | 'sales'
     | 'calendar'
     | 'radar'
     | 'partner'
@@ -25,6 +26,7 @@ export type Section =
 const SECTION_ACCESS: Record<Section, Role[]> = {
     dashboard:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     crm:            ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
+    sales:          ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
     calendar:       ['owner', 'admin', 'manager', 'closer', 'coach'],
     radar:          ['owner', 'admin'],
     partner:        ['owner', 'admin'],
@@ -41,17 +43,18 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
 
 // Manager access is further restricted by department
 const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
-    marketing: ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'settings'],
-    sales:     ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
-    coaching:  ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
-    admin:     ['dashboard', 'crm', 'calendar', 'analytics', 'settings'],
-    it:        ['dashboard', 'crm', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'team', 'connections', 'settings'],
+    marketing: ['dashboard', 'crm', 'sales', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'settings'],
+    sales:     ['dashboard', 'crm', 'sales', 'calendar', 'analytics', 'settings'],
+    coaching:  ['dashboard', 'crm', 'sales', 'calendar', 'analytics', 'settings'],
+    admin:     ['dashboard', 'crm', 'sales', 'calendar', 'analytics', 'settings'],
+    it:        ['dashboard', 'crm', 'sales', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
 // Map href to section
 const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard':                     'dashboard',
     '/dashboard/crm':                 'crm',
+    '/dashboard/sales':               'sales',
     '/dashboard/calendar':            'calendar',
     '/dashboard/radar':               'radar',
     '/dashboard/partner':             'partner',

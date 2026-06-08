@@ -10,7 +10,7 @@ import {
     LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     History, Palette, CalendarDays, Activity, Handshake,
-    Sun, Moon,
+    Sun, Moon, TrendingUp,
     type LucideIcon
 } from 'lucide-react'
 import HermesChat from './dashboard/HermesChat'
@@ -26,6 +26,7 @@ interface NavItem {
 const allNavItems: NavItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
+    { label: 'Vendite', href: '/dashboard/sales', icon: TrendingUp },
     { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Radar Sincro', href: '/dashboard/radar', icon: Activity },
     { label: 'Partner', href: '/dashboard/partner', icon: Handshake },
