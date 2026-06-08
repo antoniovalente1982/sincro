@@ -188,15 +188,19 @@ export default function SalesDashboard({ leads }: Props) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="bg-[var(--hover-bg)] p-1 rounded-xl border border-[var(--color-surface-200)] flex items-center h-[42px] px-2 mr-2">
-                        <select
-                            className="bg-transparent text-sm font-semibold th-muted focus:outline-none cursor-pointer"
-                            value={dateFilterMode}
-                            onChange={(e) => setDateFilterMode(e.target.value as 'created' | 'updated')}
+                    <div className="flex bg-[var(--color-surface-100)] rounded-lg p-0.5" style={{ border: '1px solid var(--color-surface-200)' }}>
+                        <button 
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white' : 'text-zinc-500 hover:text-white th-bg-hover'}`}
+                            onClick={() => setDateFilterMode('created')}
                         >
-                            <option value="created">Data Acquisizione</option>
-                            <option value="updated">Ultimo Movimento</option>
-                        </select>
+                            Data Acquisizione
+                        </button>
+                        <button 
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'updated' ? 'bg-[#f59e0b] text-white' : 'text-zinc-500 hover:text-white th-bg-hover'}`}
+                            onClick={() => setDateFilterMode('updated')}
+                        >
+                            Ultimo Movimento
+                        </button>
                     </div>
                     <DateRangeFilter
                         activeKey={activeKey} onSelect={setActiveKey}
