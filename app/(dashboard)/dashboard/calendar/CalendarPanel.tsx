@@ -631,10 +631,21 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
             for (const ge of gEvents) {
                 if (isEffectivelyAllDay(ge)) continue // all-day events go in the header row
                 const start = new Date(ge.start)
+                const end = new Date(ge.end)
                 const startLocalStr = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
                 const startLocalHour = getLocalHour(start)
-                if (startLocalStr === dayLocalStr && startLocalHour === hour) {
-                    results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                const endLocalHour = getLocalHour(end)
+                
+                if (startLocalStr === dayLocalStr) {
+                    // Normal case: event starts in this hour
+                    if (startLocalHour === hour) {
+                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                    } 
+                    // Edge case: event starts before the grid (e.g. 00:00) but extends into the grid
+                    // We anchor it to the first visible hour of the grid (HOURS[0] -> 7:00)
+                    else if (startLocalHour < HOURS[0] && hour === HOURS[0] && endLocalHour > HOURS[0]) {
+                        results.push({ event: ge, userId: uid, color: closer?.color || '#64748b' })
+                    }
                 }
             }
         }
@@ -1149,8 +1160,25 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                                 if (isSincroMirror) return null
 
                                                                 // getGoogleEventsForCell now only returns timed events (all-day shown in header row)
-                                                                const startMin = new Date(ge.start).getMinutes()
-                                                                const durationMs = new Date(ge.end).getTime() - new Date(ge.start).getTime()
+                                                                const geStart = new Date(ge.start)
+                                                                const geEnd = new Date(ge.end)
+                                                                
+                                                                // Calculate local start hour
+                                                                const startLocalHour = parseInt(geStart.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', hour12: false }), 10)
+                                                                
+                                                                // If the event starts before the grid (e.g. 00:00) and we're anchoring it to HOURS[0]
+                                                                let startMin = geStart.getMinutes()
+                                                                let durationMs = geEnd.getTime() - geStart.getTime()
+                                                                let topPercent = (startMin / 60) * 100
+
+                                                                if (startLocalHour < HOURS[0]) {
+                                                                    // Visual start is at the top of the 07:00 cell
+                                                                    topPercent = 0
+                                                                    // Subtract the time "lost" before 07:00
+                                                                    const lostMs = (HOURS[0] * 3600000) - (startLocalHour * 3600000 + startMin * 60000)
+                                                                    durationMs = Math.max(0, durationMs - lostMs)
+                                                                }
+
                                                                 const durationMin = durationMs / 60000
                                                                 const height = Math.max((durationMin / 60) * 60, 18)
 
@@ -1159,7 +1187,7 @@ export default function CalendarPanel({ userRole, userDepartment, userId, prefil
                                                                         key={`g-${ge.id}`}
                                                                         className="absolute left-0 right-0 mx-0.5 rounded overflow-hidden pointer-events-none"
                                                                         style={{
-                                                                            top: `${(startMin / 60) * 100}%`,
+                                                                            top: `${topPercent}%`,
                                                                             height: `${height}px`,
                                                                             background: `${color}22`,
                                                                             borderLeft: `3px solid ${color}88`,
