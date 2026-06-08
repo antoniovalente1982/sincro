@@ -17,6 +17,7 @@ interface Lead {
     value: number | null
     pipeline_stages?: {
         name?: string
+        pipeline_id?: string
         is_won?: boolean
         is_lost?: boolean
     } | null | any
@@ -26,23 +27,35 @@ interface Lead {
 
 interface Props {
     leads: Lead[]
+    pipelines?: { id: string; name: string }[]
 }
 
-export default function SalesDashboard({ leads }: Props) {
+export default function SalesDashboard({ leads, pipelines = [] }: Props) {
     // Default to 'all' or 'this_year' to see the trend, let's default to all to see historical data.
     const { range, activeKey, setActiveKey, customFrom, setCustomFrom, customTo, setCustomTo } = useDateRange('all')
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
+    
+    // Default to the first pipeline if available, or 'all'
+    const adsPipeline = pipelines.find(p => p.name.toLowerCase().includes('ads'))
+    const defaultPipeline = adsPipeline?.id || (pipelines.length > 0 ? pipelines[0].id : 'all')
+    const [selectedPipeline, setSelectedPipeline] = useState<string>(defaultPipeline)
 
-    // Filter leads by date range based on created_at or updated_at
+    // Filter leads by date range based on created_at or updated_at and pipeline
     const filteredLeads = useMemo(() => {
         if (!range) return leads
         return leads.filter(l => {
+            // Filter by pipeline
+            if (selectedPipeline !== 'all' && l.pipeline_stages?.pipeline_id && l.pipeline_stages.pipeline_id !== selectedPipeline) {
+                return false
+            }
+
+            // Filter by date
             if (range.key === 'all') return true
             const dStr = dateFilterMode === 'created' ? l.created_at : (l.updated_at || l.created_at)
             const d = new Date(dStr)
             return d >= range.from && d < range.to
         })
-    }, [leads, range, dateFilterMode])
+    }, [leads, range, dateFilterMode, selectedPipeline])
 
     // KPI Calculations
     const assignedLeads = filteredLeads.filter(l => l.setter_id || l.closer_id)
@@ -188,6 +201,20 @@ export default function SalesDashboard({ leads }: Props) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    {pipelines.length > 0 && (
+                        <div className="bg-[var(--hover-bg)] p-1 rounded-xl border border-[var(--color-surface-200)] flex items-center h-[42px] px-2">
+                            <select
+                                className="bg-transparent text-sm font-bold text-indigo-500 focus:outline-none cursor-pointer"
+                                value={selectedPipeline}
+                                onChange={(e) => setSelectedPipeline(e.target.value)}
+                            >
+                                <option value="all">Tutte le Pipeline</option>
+                                {pipelines.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div className="flex bg-[var(--color-surface-100)] rounded-lg p-0.5" style={{ border: '1px solid var(--color-surface-200)' }}>
                         <button 
                             className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white' : 'text-zinc-500 hover:text-white th-bg-hover'}`}

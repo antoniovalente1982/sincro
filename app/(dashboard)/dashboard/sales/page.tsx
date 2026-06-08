@@ -13,13 +13,19 @@ export default async function SalesPage() {
 
     const orgId = member?.organization_id || ''
 
+    const { data: pipelines } = await supabase
+        .from('pipelines')
+        .select('id, name')
+        .eq('organization_id', orgId)
+        .order('sort_order')
+
     const { data: leads } = await supabase
         .from('leads')
-        .select('id, created_at, updated_at, setter_id, closer_id, closer_appt_status, esito, closer_outcome, value, pipeline_stages(name, is_won, is_lost), setter_profile:setter_id(id, full_name, avatar_url), closer_profile:closer_id(id, full_name, avatar_url)')
+        .select('id, created_at, updated_at, setter_id, closer_id, closer_appt_status, esito, closer_outcome, value, pipeline_stages(name, pipeline_id, is_won, is_lost), setter_profile:setter_id(id, full_name, avatar_url), closer_profile:closer_id(id, full_name, avatar_url)')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
 
     return (
-        <SalesDashboard leads={(leads as any) || []} />
+        <SalesDashboard leads={(leads as any) || []} pipelines={pipelines || []} />
     )
 }
