@@ -46,7 +46,7 @@ export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClie
             return null
         }
 
-        let nextUserId = members[0].user_id
+        let nextUserId: string | null = null
 
         // --- METHOD 1: WEIGHTED (PERCENTAGE) ---
         if (routingMethod === 'weighted') {
@@ -76,8 +76,8 @@ export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClie
             }
         }
 
-        // --- METHOD 2: ROUND ROBIN ---
-        if (routingMethod === 'round_robin' || (routingMethod === 'weighted' && nextUserId === members[0].user_id)) {
+        // --- METHOD 2: ROUND ROBIN (or fallback if weighted failed) ---
+        if (routingMethod === 'round_robin' || nextUserId === null) {
             if (lastAssignedUserId) {
                 const lastIndex = members.findIndex(m => m.user_id === lastAssignedUserId)
                 if (lastIndex !== -1 && lastIndex < members.length - 1) {
@@ -85,6 +85,8 @@ export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClie
                 } else {
                     nextUserId = members[0].user_id
                 }
+            } else {
+                nextUserId = members[0].user_id
             }
             console.log(`[Lead Routing] Assigned lead to user ${nextUserId} via Round Robin`)
         }
