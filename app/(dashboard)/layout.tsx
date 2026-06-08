@@ -25,8 +25,8 @@ interface NavItem {
 
 const allNavItems: NavItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
     { label: 'Vendite', href: '/dashboard/sales', icon: TrendingUp },
+    { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
     { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Radar Sincro', href: '/dashboard/radar', icon: Activity },
     { label: 'Partner', href: '/dashboard/partner', icon: Handshake },
