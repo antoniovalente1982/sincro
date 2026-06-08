@@ -20,6 +20,6 @@ export default async function SalesPage() {
         .order('created_at', { ascending: false })
 
     return (
-        <SalesDashboard leads={leads || []} />
+        <SalesDashboard leads={(leads as any) || []} />
     )
 }
