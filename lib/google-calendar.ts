@@ -205,17 +205,17 @@ export async function getGoogleCalendarEvents(
             }))
     }
 
-    let needsRefresh = false
+    let calNeedsRefresh = false
     for (const cal of cals) {
         const items = await fetchEventsForCalendar(cal.id, currentToken)
         if (items === 'refresh_needed') {
-            needsRefresh = true
+            calNeedsRefresh = true
             break
         }
         allEvents.push(...(items as any[]))
     }
 
-    if (needsRefresh && refreshToken) {
+    if (calNeedsRefresh && refreshToken) {
         currentToken = await refreshGoogleToken(userId, refreshToken)
         cals = await getUserCalendars(currentToken) // re-fetch with new token
         allEvents.length = 0 // clear
