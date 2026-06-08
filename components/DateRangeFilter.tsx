@@ -77,10 +77,11 @@ export function useDateRange(defaultKey: string = 'this_month') {
 
     const range: DateRange = useMemo(() => {
         if (activeKey === 'custom' && customFrom && customTo) {
-            const endOfDay = new Date(customTo)
+            // Append 'T00:00:00' so that string is parsed as local midnight, not UTC midnight
+            const endOfDay = new Date(customTo + 'T00:00:00')
             endOfDay.setDate(endOfDay.getDate() + 1)
             return {
-                from: new Date(customFrom),
+                from: new Date(customFrom + 'T00:00:00'),
                 to: endOfDay,
                 label: `${customFrom} — ${customTo}`,
                 key: 'custom',

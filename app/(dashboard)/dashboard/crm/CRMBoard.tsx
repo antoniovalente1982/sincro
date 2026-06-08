@@ -934,7 +934,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                             >
                                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
                                 {p.name}
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: `${p.color}10`, color: p.color }}>{leadCount}</span>
+                                <span key={leadCount} className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: `${p.color}10`, color: p.color }}>{leadCount}</span>
                                 {!p.is_default && (
                                     <span onClick={(e) => { e.stopPropagation(); handleDeletePipeline(p.id) }}
                                         className="opacity-0 group-hover/tab:opacity-100 transition-opacity ml-1 hover:text-red-400 cursor-pointer">
@@ -1118,7 +1118,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full" style={{ background: stage.color }} />
                                     <span className="text-sm font-bold th-heading">{stage.name}</span>
-                                    <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{
+                                    <span key={stageLeads.length} className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{
                                         background: `${stage.color}20`,
                                         color: stage.color,
                                     }}>
@@ -1132,7 +1132,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                         </span>
                                     )}
                                     {getStageValue(stage.id) > 0 && (
-                                        <span className="text-[10px] font-bold ml-auto" style={{ color: '#22c55e' }}>
+                                        <span key={getStageValue(stage.id)} className="text-[10px] font-bold ml-auto" style={{ color: '#22c55e' }}>
                                             {formatCurrency(getStageValue(stage.id))}
                                         </span>
                                     )}
