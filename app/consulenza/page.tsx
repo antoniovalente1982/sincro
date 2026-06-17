@@ -4,6 +4,7 @@ import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ArrowRight, ShieldCheck, Star, Lock, Clock, User, Phone, Mail, Users } from 'lucide-react'
+import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 type PageConfig = {
   logoTitle: string;
@@ -77,6 +78,8 @@ const CONFIG_MAP: Record<string, PageConfig> = {
 
 // Metodo Sincro organization ID
 const MS_ORG_ID = 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
+// Meta Pixel ID (same as all Metodo Sincro landing pages)
+const MS_PIXEL_ID = '311586900940615'
 
 // Map del parametro ?source= al funnel_id corretto nel DB
 const FUNNEL_ID_MAP: Record<string, string> = {
@@ -93,11 +96,13 @@ function PageContent() {
 
   // Trova la configurazione o usa la default
   const config = CONFIG_MAP[sourceParam as keyof typeof CONFIG_MAP] || CONFIG_MAP['default']
+  const funnelId = FUNNEL_ID_MAP[sourceParam] || FUNNEL_ID_MAP['MetodoSincro']
 
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [referrer, setReferrer] = useState('')
+  const [startFormFired, setStartFormFired] = useState(false)
   
   const [fullName, setFullName] = useState('')
   const [fullNameError, setFullNameError] = useState('')
@@ -106,6 +111,16 @@ function PageContent() {
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [submitAttempted, setSubmitAttempted] = useState(false)
+
+  // ── Shared Meta Tracking (PageView + ViewContent + CAPI dedup + fbc/fbp + UTMs) ──
+  // This replaces the old manual /api/track/pageview fetch.
+  // The hook fires PageView with eventID for proper Pixel↔CAPI deduplication
+  // and handles UTM 3-layer fallback (URL > sessionStorage > localStorage).
+  const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
+    orgId: MS_ORG_ID,
+    funnelId,
+    pixelId: MS_PIXEL_ID,
+  })
 
   // Validation helpers
   const handleNameChange = (val: string) => {
@@ -139,39 +154,13 @@ function PageContent() {
     }
   }, [])
 
-  // ── PageView tracking: registra la visita nella piattaforma
-  useEffect(() => {
-    const funnelId = FUNNEL_ID_MAP[sourceParam] || FUNNEL_ID_MAP['MetodoSincro']
-    const visitorId = sessionStorage.getItem('visitor_id') || `v_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-    sessionStorage.setItem('visitor_id', visitorId)
-
-    fetch('/api/track/pageview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        organization_id: MS_ORG_ID,
-        funnel_id: funnelId,
-        page_path: `/consulenza?source=${sourceParam}`,
-        page_variant: 'A',
-        visitor_id: visitorId,
-        utm_source:   searchParams.get('utm_source')   || sourceParam,
-        utm_medium:   searchParams.get('utm_medium')   || 'direct',
-        utm_campaign: searchParams.get('utm_campaign') || '',
-        utm_content:  searchParams.get('utm_content')  || '',
-        utm_term:     searchParams.get('utm_term')     || '',
-        referrer: typeof window !== 'undefined' ? document.referrer : '',
-        page_url: typeof window !== 'undefined' ? window.location.href : '',
-      }),
-    }).catch(() => {/* silent fail */})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Leggi UTM params correttamente (utm_campaign, non 'campaign')
-  const utmSource   = searchParams.get('utm_source')   || searchParams.get('source') || 'Consulenza Page'
-  const utmMedium   = searchParams.get('utm_medium')   || searchParams.get('medium') || 'direct'
-  const utmCampaign = searchParams.get('utm_campaign') || searchParams.get('campaign') || ''
-  const utmContent  = searchParams.get('utm_content')  || ''
-  const utmTerm     = searchParams.get('utm_term')     || ''
+  // UTM Tracking — use values from useMetaTracking hook (with 3-layer fallback)
+  const trackingUtms = getUtmParams()
+  const utmSource   = trackingUtms.utm_source || searchParams.get('utm_source') || searchParams.get('source') || 'Consulenza Page'
+  const utmMedium   = trackingUtms.utm_medium || searchParams.get('utm_medium') || searchParams.get('medium') || 'direct'
+  const utmCampaign = trackingUtms.utm_campaign || searchParams.get('utm_campaign') || searchParams.get('campaign') || ''
+  const utmContent  = trackingUtms.utm_content || searchParams.get('utm_content') || ''
+  const utmTerm     = trackingUtms.utm_term || searchParams.get('utm_term') || ''
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -187,10 +176,19 @@ function PageContent() {
     setLoading(true)
     setError('')
 
-    try {
-      // Mappa source → funnel_id (con fallback a MetodoSincro)
-      const funnelId = FUNNEL_ID_MAP[sourceParam] || FUNNEL_ID_MAP['MetodoSincro']
+    // Generate Lead event_id for dedup (Pixel ↔ CAPI)
+    const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
+    try {
+      // Advanced Matching: re-init pixel with user PII for better matching
+      fireAdvancedMatching(MS_PIXEL_ID, {
+        email: email.trim(),
+        phone: phone.trim(),
+        fn: fullName.split(' ')[0]?.trim(),
+        ln: fullName.split(' ').slice(1).join(' ')?.trim(),
+      })
+
+      const fbIds = getFbIds()
       const res = await fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -204,11 +202,23 @@ function PageContent() {
           utm_campaign: utmCampaign || referrer || sourceParam,
           utm_content:  utmContent,
           utm_term:     utmTerm,
-          landing_url:  typeof window !== 'undefined' ? window.location.hostname : 'landing.metodosincro.com',
+          landing_url:  typeof window !== 'undefined' ? window.location.hostname + window.location.pathname : 'landing.metodosincro.com',
+          visitor_id:   getVisitorId(),
+          event_id:     leadEventId,
+          fbc:          fbIds.fbc,
+          fbp:          fbIds.fbp,
         })
       })
 
       if (!res.ok) throw new Error("C'è stato un problema temporaneo, riprova tra un minuto.")
+
+      // Fire Lead pixel event with same eventID for CAPI deduplication
+      firePixelEvent('Lead', leadEventId, {
+        content_name: sourceParam,
+        content_category: 'consulenza',
+        currency: 'EUR',
+        value: 112, // Predictive lead value (avg sale × conversion rate)
+      })
 
       setSuccess(true)
     } catch (err: any) {
@@ -283,7 +293,14 @@ function PageContent() {
              <div className="mb-0 text-left">
                 <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isNameValid ? 'border-green-500 bg-green-500/5' : ((submitAttempted && !isNameValid) || fullNameError) ? 'border-red-500 bg-red-500/5' : 'bg-[#f4f4f5] border-[#d4d4d8] focus-within:border-yellow-400 focus-within:bg-white focus-within:ring-[3px] focus-within:ring-yellow-400/20'}`}>
                     <User className="w-5 h-5 text-zinc-500 shrink-0" />
-                    <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)}
+                    <input type="text" placeholder="Nome e Cognome *" value={fullName}
+                           onFocus={() => {
+                             if (!startFormFired) {
+                               fireStartForm(`Consulenza ${sourceParam}`, { orgId: MS_ORG_ID, visitorId: getVisitorId(), ...getFbIds() })
+                               setStartFormFired(true)
+                             }
+                           }}
+                           onChange={e => handleNameChange(e.target.value)}
                            className="w-full bg-transparent border-none outline-none text-zinc-900 placeholder:text-zinc-400 text-[15px]" 
                     />
                 </div>
@@ -331,6 +348,13 @@ function PageContent() {
           </form>
         </div>
       </motion.div>
+
+      {/* Meta Pixel Script — PageView is fired via useMetaTracking hook with eventID for CAPI deduplication */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${MS_PIXEL_ID}',{});`,
+        }}
+      />
     </div>
   )
 }
