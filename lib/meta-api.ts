@@ -45,9 +45,10 @@ export async function safeCreateAdSet(
   // 1. Injeta il targeting blindato
   const targetingStr = JSON.stringify(getHardcodedSafeTargeting());
   
-  // 2. Controllo di sicurezza preventivo: il budget non deve essere assurdo (> 200€ giornalieri al lancio)
-  if (payload.daily_budget > 20000) { // centesimi
-      throw new Error(`[PRE-LAUNCH KILL] Budget iniziale richiesto troppo alto: ${payload.daily_budget/100}€. Sicurezza intervenuta.`);
+  // 2. Controllo di sicurezza preventivo: il budget non deve essere assurdo (> 1500€ giornalieri)
+  // Nota: limite alzato da €200 a €1.500 per supportare campagne e-commerce guide (target €1.000/day)
+  if (payload.daily_budget > 150000) { // centesimi — €1.500/day max
+      throw new Error(`[PRE-LAUNCH KILL] Budget iniziale richiesto troppo alto: ${payload.daily_budget/100}€. Sicurezza intervenuta. Max consentito: €1.500/day.`);
   }
 
   // Costruisci request body
