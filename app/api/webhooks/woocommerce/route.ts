@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { assignLeadRoundRobin } from '@/lib/lead-routing'
+import { notifyAssignedSeller } from '@/lib/telegram'
 
 function getSupabaseAdmin() {
     return createClient(
@@ -232,7 +234,7 @@ export async function POST(req: NextRequest) {
 
         // Deduplication
         const { data: existingLead } = await supabase.from('leads')
-            .select('id, name, phone, value, utm_campaign, utm_source, meta_data')
+            .select('id, name, phone, value, utm_campaign, utm_source, meta_data, assigned_to')
             .eq('organization_id', orgId)
             .eq('email', email)
             .order('created_at', { ascending: false })
@@ -276,6 +278,19 @@ export async function POST(req: NextRequest) {
                 fbadid: utms.fbadid || existingMeta.fbadid || null,
             }
 
+            // Se non c'è già un assegnatario, applichiamo il Round Robin
+            let assignedTo = existingLead.assigned_to
+            let newlyAssigned = false
+            if (!assignedTo) {
+                assignedTo = await assignLeadRoundRobin(orgId, supabase)
+                if (assignedTo) {
+                    updateData.assigned_to = assignedTo
+                    updateData.setter_id = assignedTo
+                    updateData.closer_id = assignedTo
+                    newlyAssigned = true
+                }
+            }
+
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
 
             await supabase.from('lead_activities').insert({
@@ -283,6 +298,22 @@ export async function POST(req: NextRequest) {
                 activity_type: 'stage_changed', to_stage_id: firstStageId,
                 notes: `🛒 Rientrato da Shop: ${productLabel} (€${value})`
             })
+
+            if (newlyAssigned && assignedTo) {
+                await supabase.from('lead_activities').insert({
+                    organization_id: orgId,
+                    lead_id: leadId,
+                    activity_type: 'assignment_changed',
+                    notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
+                })
+                // Notifica personale al venditore assegnato
+                notifyAssignedSeller(orgId, assignedTo, {
+                    name: name || existingLead.name || '',
+                    email: email,
+                    phone: phone || existingLead.phone || '',
+                    source: utms.utm_source || 'WooCommerce Shop',
+                }).catch(err => console.error('[WooCommerce Webhook] Seller notify error (existing):', err))
+            }
         } else {
             const { data: createdLead, error } = await supabase.from('leads').insert({
                 organization_id: orgId,
@@ -312,6 +343,31 @@ export async function POST(req: NextRequest) {
                 activity_type: 'status_changed',
                 notes: `🛍️ Nuovo Cliente da WooCommerce: ${productLabel} (€${value})`
             })
+
+            // LEAD ROUTING per il nuovo lead
+            const assignedTo = await assignLeadRoundRobin(orgId, supabase)
+            if (assignedTo) {
+                await supabase.from('leads').update({
+                    assigned_to: assignedTo,
+                    setter_id: assignedTo,
+                    closer_id: assignedTo
+                }).eq('id', leadId)
+
+                await supabase.from('lead_activities').insert({
+                    organization_id: orgId,
+                    lead_id: leadId,
+                    activity_type: 'assignment_changed',
+                    notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
+                })
+
+                // Notifica personale al venditore assegnato
+                notifyAssignedSeller(orgId, assignedTo, {
+                    name: name || '',
+                    email: email,
+                    phone: phone,
+                    source: utms.utm_source || 'WooCommerce Shop',
+                }).catch(err => console.error('[WooCommerce Webhook] Seller notify error (new):', err))
+            }
         }
 
         // ── CAPI Purchase: DISABILITATA — ora gestita da Pixel Manager Pro ──
