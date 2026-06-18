@@ -119,6 +119,42 @@ async function fireCapiPurchase(orgId: string, userData: {
     }
 }
 
+function extractUtms(metaDataArray: any[]) {
+    const utms: Record<string, string> = {
+        utm_source: '',
+        utm_medium: '',
+        utm_campaign: '',
+        utm_content: '',
+        utm_term: '',
+        fbclid: '',
+        fbadid: '',
+    }
+    if (!Array.isArray(metaDataArray)) return utms
+
+    const getMetaValue = (prefixes: string[]) => {
+        for (const meta of metaDataArray) {
+            const key = String(meta.key || '').toLowerCase().trim()
+            const val = String(meta.value || '').trim()
+            if (!val) continue
+            // Check if key matches exactly or starts/ends with one of the prefixes
+            if (prefixes.some(p => key === p || key === `_${p}` || key.endsWith(`_${p}`))) {
+                return val
+            }
+        }
+        return ''
+    }
+
+    utms.utm_source = getMetaValue(['utm_source', 'utm-source', 'source'])
+    utms.utm_medium = getMetaValue(['utm_medium', 'utm-medium', 'medium'])
+    utms.utm_campaign = getMetaValue(['utm_campaign', 'utm-campaign', 'campaign'])
+    utms.utm_content = getMetaValue(['utm_content', 'utm-content', 'content'])
+    utms.utm_term = getMetaValue(['utm_term', 'utm-term', 'term'])
+    utms.fbclid = getMetaValue(['fbclid', 'fb-clid'])
+    utms.fbadid = getMetaValue(['fbadid', 'fb-adid', 'ad_id', 'adid'])
+
+    return utms
+}
+
 export async function POST(req: NextRequest) {
     try {
         const urlObj = new URL(req.url)
@@ -141,6 +177,10 @@ export async function POST(req: NextRequest) {
         const lineItems = body.line_items || []
         const productNames = lineItems.map((item: any) => item.name).join(', ')
         const productLabel = productNames ? `Shop: ${productNames}` : 'Acquisto Shop Sincro'
+
+        // Extract UTM parameters from WooCommerce metadata array
+        const metaDataArray = body.meta_data || []
+        const utms = extractUtms(metaDataArray)
 
         if (!email) {
             return NextResponse.json({ error: 'Missing billing email in WooCommerce payload' }, { status: 400 })
@@ -192,7 +232,7 @@ export async function POST(req: NextRequest) {
 
         // Deduplication
         const { data: existingLead } = await supabase.from('leads')
-            .select('id, name, phone, value')
+            .select('id, name, phone, value, utm_campaign, utm_source, meta_data')
             .eq('organization_id', orgId)
             .eq('email', email)
             .order('created_at', { ascending: false })
@@ -214,6 +254,28 @@ export async function POST(req: NextRequest) {
             if (!existingLead.phone && phone) updateData.phone = phone
             if (!existingLead.name && name) updateData.name = name
 
+            // Backfill UTMs on the lead if they are missing
+            if (!existingLead.utm_campaign && utms.utm_campaign) {
+                updateData.utm_campaign = utms.utm_campaign
+            }
+            if (!existingLead.utm_source && utms.utm_source) {
+                updateData.utm_source = utms.utm_source
+            }
+
+            // Merge metadata
+            const existingMeta = existingLead.meta_data || {}
+            updateData.meta_data = {
+                ...existingMeta,
+                source: 'woocommerce',
+                order_id: body.id,
+                order_status: body.status,
+                utm_medium: utms.utm_medium || existingMeta.utm_medium || null,
+                utm_content: utms.utm_content || existingMeta.utm_content || null,
+                utm_term: utms.utm_term || existingMeta.utm_term || null,
+                fbclid: utms.fbclid || existingMeta.fbclid || null,
+                fbadid: utms.fbadid || existingMeta.fbadid || null,
+            }
+
             await supabase.from('leads').update(updateData).eq('id', existingLead.id)
 
             await supabase.from('lead_activities').insert({
@@ -226,10 +288,17 @@ export async function POST(req: NextRequest) {
                 organization_id: orgId,
                 email, name, phone, stage_id: firstStageId, value,
                 product: productLabel,
+                utm_campaign: utms.utm_campaign || null,
+                utm_source: utms.utm_source || null,
                 meta_data: { 
                     source: 'woocommerce', 
                     order_id: body.id,
                     order_status: body.status,
+                    utm_medium: utms.utm_medium || null,
+                    utm_content: utms.utm_content || null,
+                    utm_term: utms.utm_term || null,
+                    fbclid: utms.fbclid || null,
+                    fbadid: utms.fbadid || null,
                 }
             }).select('id').single()
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket } from 'lucide-react'
+import { Megaphone, TrendingUp, DollarSign, Eye, MousePointerClick, Target, Plug, Zap, Play, Pause, ToggleLeft, ToggleRight, Brain, Lightbulb, ArrowRight, RefreshCw, ChevronUp, ChevronDown, ChevronsUpDown, ArrowUpDown, Loader2, Rocket, Users } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 import Link from 'next/link'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
@@ -92,6 +92,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const [liveCampaigns, setLiveCampaigns] = useState<Campaign[] | null>(null)
     const [liveError, setLiveError] = useState<string | null>(null)
     const [dateFilterMode, setDateFilterMode] = useState<'created' | 'updated'>('created')
+    const [dashboardMode, setDashboardMode] = useState<'lead_gen' | 'ecommerce'>('lead_gen')
 
     // When user changes period (not "Tutto"), fetch live data from Meta
     const fetchLiveInsights = useCallback(async (since: string, until: string, dMode: string) => {
@@ -235,12 +236,14 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
     const totalShowups = campaigns.reduce((s, c) => s + (Number(c.crm_showups) || 0), 0)
     const totalSales = campaigns.reduce((s, c) => s + (Number(c.crm_sales) || 0), 0)
     const totalRevenue = campaigns.reduce((s, c) => s + (Number(c.crm_revenue) || 0), 0)
+    const totalLinkClicks = campaigns.reduce((s, c) => s + (Number(c.link_clicks) || 0), 0)
 
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
     const cpAppt = totalAppts > 0 ? totalSpend / totalAppts : 0
     const cpShowup = totalShowups > 0 ? totalSpend / totalShowups : 0
     const cac = totalSales > 0 ? totalSpend / totalSales : 0
     const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0
+    const avgCPC = totalLinkClicks > 0 ? totalSpend / totalLinkClicks : 0
 
     const formatCurrency = (v: number) =>
         new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v)
@@ -328,6 +331,22 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     {loadingInsights && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#818cf8' }} />}
                     <div className="flex bg-[var(--hover-bg)] rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${dashboardMode === 'lead_gen' ? 'bg-indigo-600 text-white shadow-md' : 'text-zinc-400 hover:th-heading th-bg-hover'}`}
+                            onClick={() => setDashboardMode('lead_gen')}
+                        >
+                            <Users className="w-3.5 h-3.5" />
+                            Lead Gen
+                        </button>
+                        <button 
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${dashboardMode === 'ecommerce' ? 'bg-emerald-600 text-white shadow-md' : 'text-zinc-400 hover:th-heading th-bg-hover'}`}
+                            onClick={() => setDashboardMode('ecommerce')}
+                        >
+                            <Target className="w-3.5 h-3.5" />
+                            E-commerce
+                        </button>
+                    </div>
+                    <div className="flex bg-[var(--hover-bg)] rounded-xl p-1 gap-1" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <button 
                             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${dateFilterMode === 'created' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-zinc-400 hover:th-heading th-bg-hover'}`}
                             onClick={() => setDateFilterMode('created')}
                         >
@@ -358,7 +377,15 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
 
             {/* KPI Summary */}
             <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 transition-opacity duration-300 ${loadingInsights ? 'opacity-50 pointer-events-none blur-[1px]' : ''}`}>
-                {[
+                {(dashboardMode === 'ecommerce' ? [
+                    { label: 'Spesa Meta', value: formatCurrency(totalSpend), icon: DollarSign, color: '#ef4444' },
+                    { label: 'Clic Link', value: formatNumber(totalLinkClicks), icon: MousePointerClick, color: '#3b82f6' },
+                    { label: 'CPC Medio', value: formatCurrency(avgCPC), icon: TrendingUp, color: '#f59e0b' },
+                    { label: 'Acquisti Shop', value: formatNumber(totalSales), icon: Target, color: '#8b5cf6' },
+                    { label: 'CPA (Acquisto)', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 30 ? '#22c55e' : '#f43f5e' },
+                    { label: 'AOV Medio', value: formatCurrency(totalSales > 0 ? totalRevenue / totalSales : 0), icon: DollarSign, color: '#14b8a6' },
+                    { label: 'ROAS Shop', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 1.5 ? '#22c55e' : '#f59e0b' },
+                ] : [
                     { label: 'Spesa Meta', value: formatCurrency(totalSpend), icon: DollarSign, color: '#ef4444' },
                     { label: 'CPL Medio', value: formatCurrency(avgCPL), icon: TrendingUp, color: '#f59e0b' },
                     { label: 'Costo Appt', value: formatCurrency(cpAppt), icon: Target, color: '#3b82f6' },
@@ -366,7 +393,7 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                     { label: 'CAC Medio', value: formatCurrency(cac), icon: Zap, color: cac > 0 && cac < 500 ? '#22c55e' : '#f43f5e' },
                     { label: `Vendite (${totalSales})`, value: formatCurrency(totalRevenue), icon: DollarSign, color: '#22c55e' },
                     { label: 'ROAS', value: `${roas.toFixed(2)}x`, icon: Rocket, color: roas >= 3 ? '#22c55e' : '#f59e0b' },
-                ].map(kpi => (
+                ]).map(kpi => (
                     <div key={kpi.label} className="glass-card p-4 flex flex-col justify-between" style={{ border: `1px solid ${kpi.color}15` }}>
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 rounded-md flex justify-center items-center" style={{ background: `${kpi.color}15` }}>
@@ -431,43 +458,91 @@ export default function AdsPanel({ campaigns: cachedCampaigns, rules, connection
                 {sortedCampaigns.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                                    <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna</th>
-                                    <SortHeader label="Status" sortField="status" />
-                                    <SortHeader label="Spesa" sortField="spend" />
-                                    <SortHeader label="Impression" sortField="impressions" />
-                                    <SortHeader label="Click" sortField="clicks" />
-                                    <SortHeader label="CTR" sortField="ctr" />
-                                    <SortHeader label="Click Link" sortField="link_clicks" />
-                                    <SortHeader label="Lead" sortField="leads_count" />
-                                    <SortHeader label="CPL" sortField="cpl" />
-                                    <SortHeader label="ROAS" sortField="roas" />
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedCampaigns.map(c => (
-                                    <tr key={c.id} className="th-bg-hover transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
-                                        <td className="px-4 py-3 text-sm font-semibold th-heading max-w-[250px] truncate">{c.campaign_name || '—'}</td>
-                                        <td className="px-4 py-3">
-                                            <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
-                                                {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
-                                                {c.status === 'ACTIVE' ? 'active' : c.status === 'PAUSED' ? 'paused' : c.status?.toLowerCase() || '—'}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.clicks ? formatNumber(Number(c.clicks)) : '—'}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: Number(c.link_clicks) > 0 ? '#14b8a6' : 'var(--color-surface-500)' }}>
-                                            {c.link_clicks ? <><span className="font-semibold">{formatNumber(Number(c.link_clicks))}</span> <span className="text-[10px] opacity-70">({Number(c.link_click_ctr || 0).toFixed(2)}%)</span></> : '—'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#22c55e' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                            {dashboardMode === 'ecommerce' ? (
+                                <>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna</th>
+                                            <SortHeader label="Status" sortField="status" />
+                                            <SortHeader label="Spesa" sortField="spend" />
+                                            <SortHeader label="Impression" sortField="impressions" />
+                                            <SortHeader label="Clic Link" sortField="link_clicks" />
+                                            <SortHeader label="CTR Link" sortField="ctr" />
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Acquisti</th>
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>CPA</th>
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>AOV</th>
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Fatturato</th>
+                                            <SortHeader label="ROAS" sortField="roas" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {paginatedCampaigns.map(c => {
+                                            const cpa = c.crm_sales && c.crm_sales > 0 && c.spend ? c.spend / c.crm_sales : 0
+                                            const aov = c.crm_sales && c.crm_sales > 0 && c.crm_revenue ? c.crm_revenue / c.crm_sales : 0
+                                            return (
+                                                <tr key={c.id} className="th-bg-hover transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                                    <td className="px-4 py-3 text-sm font-semibold th-heading max-w-[250px] truncate">{c.campaign_name || '—'}</td>
+                                                    <td className="px-4 py-3">
+                                                        <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
+                                                            {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
+                                                            {c.status === 'ACTIVE' ? 'active' : c.status === 'PAUSED' ? 'paused' : c.status?.toLowerCase() || '—'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#14b8a6' }}>{c.link_clicks ? formatNumber(Number(c.link_clicks)) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.link_click_ctr ? `${Number(c.link_click_ctr).toFixed(2)}%` : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm font-bold" style={{ color: '#8b5cf6' }}>{c.crm_sales || '0'}</td>
+                                                    <td className="px-4 py-3 text-sm font-medium text-red-500">{cpa ? formatCurrency(cpa) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm font-medium text-cyan-500">{aov ? formatCurrency(aov) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm font-bold text-green-500">{c.crm_revenue ? formatCurrency(c.crm_revenue) : '—'}</td>
+                                                    <td className="px-4 py-3 text-sm font-bold" style={{ color: '#eab308' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </>
+                            ) : (
+                                <>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--color-surface-500)' }}>Campagna</th>
+                                            <SortHeader label="Status" sortField="status" />
+                                            <SortHeader label="Spesa" sortField="spend" />
+                                            <SortHeader label="Impression" sortField="impressions" />
+                                            <SortHeader label="Click" sortField="clicks" />
+                                            <SortHeader label="CTR" sortField="ctr" />
+                                            <SortHeader label="Click Link" sortField="link_clicks" />
+                                            <SortHeader label="Lead" sortField="leads_count" />
+                                            <SortHeader label="CPL" sortField="cpl" />
+                                            <SortHeader label="ROAS" sortField="roas" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {paginatedCampaigns.map(c => (
+                                            <tr key={c.id} className="th-bg-hover transition-colors" style={{ borderBottom: '1px solid var(--color-surface-200)' }}>
+                                                <td className="px-4 py-3 text-sm font-semibold th-heading max-w-[250px] truncate">{c.campaign_name || '—'}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`badge ${c.status === 'ACTIVE' ? 'badge-success' : c.status === 'PAUSED' ? 'badge-warning' : 'badge-info'}`} style={{ fontSize: '10px' }}>
+                                                        {c.status === 'ACTIVE' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
+                                                        {c.status === 'ACTIVE' ? 'active' : c.status === 'PAUSED' ? 'paused' : c.status?.toLowerCase() || '—'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--color-surface-700)' }}>{c.spend ? formatCurrency(Number(c.spend)) : '—'}</td>
+                                                <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.impressions ? formatNumber(Number(c.impressions)) : '—'}</td>
+                                                <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.clicks ? formatNumber(Number(c.clicks)) : '—'}</td>
+                                                <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-surface-700)' }}>{c.ctr ? `${Number(c.ctr).toFixed(2)}%` : '—'}</td>
+                                                <td className="px-4 py-3 text-sm" style={{ color: Number(c.link_clicks) > 0 ? '#14b8a6' : 'var(--color-surface-500)' }}>
+                                                    {c.link_clicks ? <><span className="font-semibold">{formatNumber(Number(c.link_clicks))}</span> <span className="text-[10px] opacity-70">({Number(c.link_click_ctr || 0).toFixed(2)}%)</span></> : '—'}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm font-semibold" style={{ color: Number(c.leads_count) > 0 ? '#3b82f6' : 'var(--color-surface-500)' }}>{c.leads_count || '—'}</td>
+                                                <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#f59e0b' }}>{c.cpl ? formatCurrency(Number(c.cpl)) : '—'}</td>
+                                                <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#22c55e' }}>{c.roas ? `${Number(c.roas).toFixed(2)}x` : '—'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </>
+                            )}
                         </table>
                     </div>
                 ) : (
