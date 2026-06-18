@@ -120,7 +120,7 @@ async function runEcomAutopilotForOrg(orgId: string, adAccountId: string, token:
             const currentBudget = parseFloat(campaign.daily_budget) / 100
             const verdict = evaluateRoasScaling(roasHistory, currentBudget)
 
-            console.log(`[ECOM AUTOPILOT] CBO Campaign ${campaign.name}: ROAS history: ${roasHistory.map(r => r.toFixed(2)).join(', ')}. Action: ${verdict.action}`)
+            console.log(`[ECOM AUTOPILOT] CBO Campaign ${campaign.name}: ROAS history: ${roasHistory.map((r: number) => r.toFixed(2)).join(', ')}. Action: ${verdict.action}`)
 
             if (verdict.allowed && (verdict.action === 'SCALE' || verdict.action === 'REDUCE' || verdict.action === 'KILL')) {
                 const multiplier = verdict.recommendedMultiplier || 1.0
@@ -198,7 +198,7 @@ async function runEcomAutopilotForOrg(orgId: string, adAccountId: string, token:
                 const currentBudget = adset.daily_budget ? parseFloat(adset.daily_budget) / 100 : 20 // Default min fallback
                 const verdict = evaluateRoasScaling(roasHistory, currentBudget)
 
-                console.log(`[ECOM AUTOPILOT] ABO Adset ${adset.name}: ROAS history: ${roasHistory.map(r => r.toFixed(2)).join(', ')}. Action: ${verdict.action}`)
+                console.log(`[ECOM AUTOPILOT] ABO Adset ${adset.name}: ROAS history: ${roasHistory.map((r: number) => r.toFixed(2)).join(', ')}. Action: ${verdict.action}`)
 
                 if (verdict.allowed && (verdict.action === 'SCALE' || verdict.action === 'REDUCE' || verdict.action === 'KILL')) {
                     const multiplier = verdict.recommendedMultiplier || 1.0
@@ -243,7 +243,7 @@ async function runEcomAutopilotForOrg(orgId: string, adAccountId: string, token:
     }
 
     // 4. Send Telegram Summary Report if actions were taken
-    const realActions = actionsTaken.filter(a => a.action !== 'HOLD')
+    const realActions = actionsTaken.filter((a: any) => a.action !== 'HOLD')
     if (realActions.length > 0) {
         try {
             // Get Telegram credentials for the organization
@@ -257,7 +257,7 @@ async function runEcomAutopilotForOrg(orgId: string, adAccountId: string, token:
 
             if (tgConn?.credentials?.bot_token && tgConn?.credentials?.chat_id) {
                 let tgMsg = `🤖 <b>Autopilot E-commerce — Modifica Budget</b>\n\n`
-                realActions.forEach(a => {
+                realActions.forEach((a: any) => {
                     const emoji = a.action === 'SCALE' ? '🟢📈' : a.action === 'REDUCE' ? '🟠📉' : '🔴⏸️'
                     tgMsg += `${emoji} <b>${a.entity}</b>\n`
                     tgMsg += `Azione: <code>${a.action}</code>\n`
