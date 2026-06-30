@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json()
-        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id } = body
+        const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id, tag } = body
 
         if (!funnel_id || !name) {
             return NextResponse.json({ error: 'Name and funnel_id are required' }, { status: 400 })
@@ -281,6 +281,10 @@ export async function POST(req: NextRequest) {
 
                 // ── 4. CAPI + Telegram + Google Sheets in parallel ──
                 if (lead) {
+                    if (tag) {
+                        await ensureLeadTag(funnel.organization_id, lead.id, tag, getSupabaseAdmin())
+                    }
+
                     // Predictive Lead Value: avg sale (€2250) × conversion rate (~5%) = €112
                     // This fixes Meta diagnostic "missing price parameters" and improves Quality Score
                     const PREDICTIVE_LEAD_VALUE = 112
@@ -422,4 +426,46 @@ async function hashSHA256(data: string): Promise<string> {
     const encoder = new TextEncoder()
     const buffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
     return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function ensureLeadTag(orgId: string, leadId: string, tagName: string, supabase: SupabaseClient) {
+    try {
+        // Cerca se il tag esiste già
+        let { data: tag } = await supabase
+            .from('crm_tags')
+            .select('id')
+            .eq('organization_id', orgId)
+            .eq('name', tagName)
+            .maybeSingle()
+
+        // Se non esiste, lo creiamo
+        if (!tag) {
+            const defaultColors = ['#ec4899', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#6366f1', '#a855f7']
+            const color = defaultColors[Math.floor(Math.random() * defaultColors.length)]
+            const { data: newTag, error: tagError } = await supabase
+                .from('crm_tags')
+                .insert({ organization_id: orgId, name: tagName, color })
+                .select('id')
+                .single()
+            if (tagError) {
+                console.error(`[TAG] Error creating tag ${tagName}:`, tagError)
+                return
+            }
+            tag = newTag
+        }
+
+        if (tag?.id) {
+            // Associa il tag al lead
+            const { error: joinError } = await supabase
+                .from('lead_tags')
+                .insert({ lead_id: leadId, tag_id: tag.id })
+            
+            // Ignoriamo la violazione di vincolo di unicità se già associato
+            if (joinError && joinError.code !== '23505') {
+                console.error(`[TAG] Error linking tag ${tagName} to lead ${leadId}:`, joinError)
+            }
+        }
+    } catch (err) {
+        console.error(`[TAG] Exception linking tag ${tagName}:`, err)
+    }
 }

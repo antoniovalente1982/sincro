@@ -47,6 +47,40 @@ const FAQ_ITEMS = [
 
 export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) {
     const [fullName, setFullName] = useState('')
+    
+    // Sport configuration state with default settings from funnel or falling back to calcio
+    const [sportConfig, setSportConfig] = useState({
+        targetAthletes: funnel.settings?.target_athletes || 'Giovani Calciatori',
+        sportName: funnel.settings?.sport_name || 'calcio',
+        athleteType: funnel.settings?.athlete_type || 'Calciatore',
+        athletesProof: funnel.settings?.athletes_proof || 'calciatori di Serie A',
+        hideSoccerProof: funnel.settings?.hide_soccer_proof || false,
+    })
+
+    const founderBio = sportConfig.sportName === 'tennis'
+        ? "Fondatore del Metodo Sincro® e Presidente del Sincro Group SRL. Mental Coach specializzato nello sport di alto livello, ha aiutato atleti professionisti e giovani talenti a sbloccare il proprio potenziale mentale."
+        : (funnel.settings?.founder_bio || "Fondatore del Metodo Sincro® e Presidente del Sincro Group SRL. Mental Coach specializzato nel calcio, ha aiutato calciatori di Serie A, B e Lega Pro a sbloccare il proprio potenziale mentale.")
+
+    // Dynamically localize reviews & FAQs based on the current sport settings
+    const localizedReviews = REVIEWS.map(item => {
+        let text = item.text
+        if (sportConfig.sportName !== 'calcio') {
+            text = text.replace(/calcio/g, sportConfig.sportName)
+        }
+        return { ...item, text }
+    })
+
+    const localizedFaqItems = FAQ_ITEMS.map(item => {
+        let a = item.a
+        if (sportConfig.sportName !== 'calcio') {
+            a = a
+                .replace(/calciatori/g, sportConfig.targetAthletes.toLowerCase())
+                .replace(/calciatrici/g, 'atlete')
+                .replace(/calciatore/g, sportConfig.athleteType.toLowerCase())
+                .replace(/calcio/g, sportConfig.sportName)
+        }
+        return { q: item.q, a }
+    })
     const [fullNameError, setFullNameError] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
@@ -141,6 +175,36 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
         
+        // Dynamic sport detection: if URL parameters or UTMs suggest tennis, adapt page
+        const utmCampaign = (params.get('utm_campaign') || '').toLowerCase()
+        const utmContent = (params.get('utm_content') || '').toLowerCase()
+        const utmTerm = (params.get('utm_term') || '').toLowerCase()
+        const sportParam = (params.get('sport') || '').toLowerCase()
+        
+        const isTennis = sportParam === 'tennis' || 
+                         utmCampaign.includes('tennis') || 
+                         utmContent.includes('tennis') || 
+                         utmTerm.includes('tennis')
+                         
+        if (isTennis) {
+            setSportConfig({
+                targetAthletes: 'Giovani Tennisti',
+                sportName: 'tennis',
+                athleteType: 'Tennista',
+                athletesProof: 'tennisti professionisti',
+                hideSoccerProof: true
+            })
+        } else if (funnel.settings?.sport_name) {
+            // Keep funnel settings if defined
+            setSportConfig({
+                targetAthletes: funnel.settings.target_athletes || 'Giovani Calciatori',
+                sportName: funnel.settings.sport_name || 'calcio',
+                athleteType: funnel.settings.athlete_type || 'Calciatore',
+                athletesProof: funnel.settings.athletes_proof || 'calciatori di Serie A',
+                hideSoccerProof: funnel.settings.hide_soccer_proof || false
+            })
+        }
+
         // Estrai il titolo dell'ad se passato per avere congruenza 100% (Parametro Volontario)
         let paramTitle = params.get('ad_title') || params.get('headline') || params.get('titolo')
         
@@ -171,7 +235,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
         if (match) {
             setActiveAngle(match)
         }
-    }, [routingAngles])
+    }, [routingAngles, funnel.settings])
 
     // Exit intent — ONLY after user has scrolled to bottom of page
     useEffect(() => {
@@ -274,7 +338,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     name: nameToPass, email, phone,
                     page_variant: funnel.settings?.ab_variant || 'A',
                     extra_data: {
-                        sport: 'calcio',
+                        sport: sportConfig.sportName,
                         child_age: childAge,
                         adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined
                     },
@@ -319,7 +383,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
                         </div>
-                        <h1>Perfetto{fullName ? `, ${fullName.split(' ')[0]}` : ''}! ⚽</h1>
+                        <h1>Perfetto{fullName ? `, ${fullName.split(' ')[0]}` : ''}! {sportConfig.sportName === 'tennis' ? '🎾' : '⚽'}</h1>
                         <p>La tua richiesta è stata inviata con successo. Segui questi 3 passaggi ora:</p>
                     </div>
 
@@ -463,7 +527,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-hero-bg" />
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
-                        <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per Giovani Calciatori</div>
+                        <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</div>
                         {customHeadline ? (
                             <>
                                 <h1>
@@ -482,12 +546,28 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </>
                         ) : (
                             <>
-                                <h1>In Soli 90 Giorni Tuo Figlio<br /><span className="lp-gold">Sarà un Calciatore di Un'Altra Categoria...</span></h1>
-                                <p className="lp-hero-sub">Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in calcio e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.</p>
+                                {funnel.settings?.headline ? (
+                                    <h1>
+                                        {funnel.settings.headline.includes('<span') || funnel.settings.headline.includes('<br') ? (
+                                            <span dangerouslySetInnerHTML={{ __html: funnel.settings.headline }} />
+                                        ) : (
+                                            funnel.settings.headline.split(' ').map((word: string, i: number, arr: string[]) => 
+                                                i >= Math.ceil(arr.length / 2) 
+                                                    ? <span key={i} className="lp-gold">{word} </span> 
+                                                    : <span key={i}>{word} </span>
+                                            )
+                                        )}
+                                    </h1>
+                                ) : (
+                                    <h1>In Soli 90 Giorni Tuo Figlio<br /><span className="lp-gold">Sarà un {sportConfig.athleteType} di Un'Altra Categoria...</span></h1>
+                                )}
+                                <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.` }} />
                             </>
                         )}
                         <div className="lp-hero-proof">
-                            <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
+                            {!sportConfig.hideSoccerProof && (
+                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
+                            )}
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
@@ -589,31 +669,33 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             </section>
 
             {/* ══════════ 3. SOCIAL PROOF ══════════ */}
-            <section className="lp-social">
-                <div className="lp-container">
-                    <p className="lp-section-pre">LA PROVA</p>
-                    <h2>Lo stesso metodo usato da calciatori di <span className="lp-gold">Serie A</span></h2>
-                    <p className="lp-social-sub">Non è teoria. Questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale.</p>
-                    <div className="lp-players">
-                        {FAMOUS_PLAYERS.map(p => (
-                            <div key={p.name} className="lp-player">
-                                <div className="lp-player-img">
-                                    <Image src={p.img} alt={p.name} width={160} height={160} loading="lazy" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+            {!sportConfig.hideSoccerProof && (
+                <section className="lp-social">
+                    <div className="lp-container">
+                        <p className="lp-section-pre">LA PROVA</p>
+                        <h2>Lo stesso metodo usato da {sportConfig.athletesProof}</h2>
+                        <p className="lp-social-sub">Non è teoria. Questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale.</p>
+                        <div className="lp-players">
+                            {FAMOUS_PLAYERS.map(p => (
+                                <div key={p.name} className="lp-player">
+                                    <div className="lp-player-img">
+                                        <Image src={p.img} alt={p.name} width={160} height={160} loading="lazy" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                                    </div>
+                                    <strong>{p.name}</strong>
+                                    <span>{p.team}</span>
                                 </div>
-                                <strong>{p.name}</strong>
-                                <span>{p.team}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <p className="lp-more">...e molti altri professionisti</p>
+                        <div className="lp-stats-row">
+                            <div className="lp-stat-big"><strong>2.100+</strong><span>Atleti seguiti</span></div>
+                            <div className="lp-stat-big"><strong>11.500+</strong><span>Ore di coaching</span></div>
+                            <div className="lp-stat-big"><strong>356</strong><span>Recensioni 5★</span></div>
+                            <div className="lp-stat-big"><strong>30+</strong><span>Coach nel team</span></div>
+                        </div>
                     </div>
-                    <p className="lp-more">...e molti altri professionisti</p>
-                    <div className="lp-stats-row">
-                        <div className="lp-stat-big"><strong>2.100+</strong><span>Atleti seguiti</span></div>
-                        <div className="lp-stat-big"><strong>11.500+</strong><span>Ore di coaching</span></div>
-                        <div className="lp-stat-big"><strong>356</strong><span>Recensioni 5★</span></div>
-                        <div className="lp-stat-big"><strong>30+</strong><span>Coach nel team</span></div>
-                    </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* ══════════ 4. COME FUNZIONA ══════════ */}
             <section className="lp-how">
@@ -628,7 +710,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     </div>
                     <div className="lp-how-note">
                         <Shield size={18} color="#22c55e" />
-                        <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato in calcio e per la sua fascia d'età.</span>
+                        <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato in {sportConfig.sportName} e per la sua fascia d'età.</span>
                     </div>
                     <button className="lp-cta-section" onClick={scrollToForm}>Inizia Il Percorso — Consulenza Gratuita <ArrowRight size={18} /></button>
                 </div>
@@ -646,7 +728,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con risultati garantiti per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
-                            { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: 'Lo stesso sistema usato da calciatori di Serie A per la preparazione mentale.' },
+                            { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: `Lo stesso sistema usato da ${sportConfig.athletesProof} per la preparazione mentale.` },
                         ].map(b => (
                             <div key={b.title} className="lp-benefit">
                                 <div className="lp-benefit-icon">{b.icon}</div>
@@ -680,7 +762,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <h2>Cosa dicono i <span className="lp-gold">genitori</span></h2>
                     <p className="lp-reviews-sub">356 recensioni certificate — 4.9/5 su TrustPilot</p>
                     <div className="lp-reviews-grid">
-                        {REVIEWS.map((r, i) => (
+                        {localizedReviews.map((r, i) => (
                             <div key={i} className="lp-review">
                                 <div className="lp-review-stars">{[1,2,3,4,5].map(s => <Star key={s} size={14} fill="#facc15" color="#facc15" />)}</div>
                                 <p>"{r.text}"</p>
@@ -701,7 +783,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         </div>
                         <div className="lp-founder-text">
                             <h2>Chi è <span className="lp-gold">Antonio Valente</span></h2>
-                            <p>Fondatore del Metodo Sincro® e Presidente del Sincro Group SRL. Mental Coach specializzato nel calcio, ha aiutato calciatori di Serie A, B e Lega Pro a sbloccare il proprio potenziale mentale.</p>
+                            <p>{founderBio}</p>
                             <div className="lp-founder-badges">
                                 <div><strong>2.100+</strong><span>Atleti</span></div>
                                 <div><strong>11.500+</strong><span>Ore coaching</span></div>
@@ -722,7 +804,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-container">
                     <h2>Domande <span className="lp-gold">Frequenti</span></h2>
                     <div className="lp-faq-list">
-                        {FAQ_ITEMS.map((item, i) => (
+                        {localizedFaqItems.map((item, i) => (
                             <div key={i} className={`lp-faq-item ${openFaq === i ? 'open' : ''}`}>
                                 <button className="lp-faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                                     <span>{item.q}</span>
@@ -749,7 +831,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-sticky-bar" onClick={scrollToForm}>
                     <div className="lp-sticky-bar-in">
                         <div className="lp-sticky-bar-brand">
-                            <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel Calcio</span>
+                            <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel {sportConfig.sportName === 'tennis' ? 'Tennis' : 'Calcio'}</span>
                         </div>
                         <button className="lp-sticky-bar-cta" onClick={(e) => { e.stopPropagation(); scrollToForm() }}>
                             Prenota la Consulenza <ArrowRight size={16} />
@@ -760,7 +842,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
             {/* Footer */}
             <footer className="lp-footer">
-                <p className="lp-footer-brand">⚽ Metodo Sincro® — Percorsi di Mental Coaching <strong>ONE-TO-ONE</strong>, interamente <strong>ONLINE</strong>, con coach specializzati.</p>
+                <p className="lp-footer-brand">{sportConfig.sportName === 'tennis' ? '🎾' : '⚽'} Metodo Sincro® — Percorsi di Mental Coaching <strong>ONE-TO-ONE</strong>, interamente <strong>ONLINE</strong>, con coach specializzati.</p>
                 <div className="lp-footer-legal">
                     <p><strong>Sincro Group S.R.L.</strong></p>
                     <p>Via Monte Napoleone n.8 — 20121 Milano (MI)</p>

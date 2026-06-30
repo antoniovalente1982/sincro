@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tuo figlio ha talento ma si blocca in partita? — Metodo Sincro®</title>
+  <meta name="description" content="Il metodo n°1 in Italia per sbloccare il potenziale mentale dei giovani calciatori. Più di 1.100 atleti trasformati.">
+  <meta property="og:title" content="Tuo figlio ha talento ma si blocca in partita?">
+  <meta property="og:description" content="Il Metodo Sincro® sblocca il potenziale mentale dei giovani calciatori. +1.100 atleti trasformati.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚽</text></svg>">
+
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    // Inizializza il Pixel "311586900940615" (Pixel Nuovo METODO SINCRO)
+    // Genera l'eventID per PageView client-side e lo invia
+    const pageViewEventId = 'evt_pv_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+    fbq('init', '311586900940615');
+    fbq('track', 'PageView', {}, { eventID: pageViewEventId });
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=311586900940615&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
+  <style>
+    /* ═══════════ RESET ═══════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ═══════════ TOKENS ═══════════ */
+    :root {
+      --black: #080808;
+      --off-black: #0e0e0e;
+      --dark: #141414;
+      --dark-card: #1a1a1a;
+      --white: #f4efe6;
+      --white-70: rgba(244, 239, 230, 0.7);
+      --white-45: rgba(244, 239, 230, 0.45);
+      --white-20: rgba(244, 239, 230, 0.2);
+      --white-08: rgba(244, 239, 230, 0.08);
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-20: rgba(201, 168, 76, 0.2);
+      --gold-08: rgba(201, 168, 76, 0.08);
+      --green: #1a3d24;
+      --red: #c0392b;
+      --red-soft: rgba(192, 57, 43, 0.15);
+      --tp-green: #00b67a;
+      --font-h: 'Bebas Neue', Impact, sans-serif;
+      --font-b: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-b);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  HERO — Full bleed cinematic                */
+    /* ═══════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .hero-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 65% 30%;
+    }
+
+    /* Dark cinematic gradient overlay */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        linear-gradient(to top, var(--black) 0%, rgba(8,8,8,0.85) 25%, rgba(8,8,8,0.3) 50%, rgba(8,8,8,0.15) 100%),
+        linear-gradient(to right, rgba(8,8,8,0.7) 0%, transparent 60%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      padding: 0 clamp(24px, 5vw, 80px) 64px;
+      max-width: 800px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(8, 8, 8, 0.88);
+      border: 1px solid rgba(201, 168, 76, 0.6);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+      border-radius: 999px;
+      padding: 9px 22px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ffe49e;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-h);
+      font-size: clamp(44px, 8vw, 96px);
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      margin-bottom: 24px;
+    }
+    .hero h1 .gold { color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(15px, 1.8vw, 18px);
+      color: var(--white-70);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+    .hero-sub strong { color: var(--white); font-weight: 500; }
+
+    /* CTA */
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 46px;
+      background: linear-gradient(135deg, #d4af37 0%, #ffdf00 100%);
+      color: var(--black);
+      font-family: var(--font-h);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(201, 168, 76, 0.25);
+    }
+    .cta::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      transform: skewX(-20deg);
+      animation: shimmer 4s infinite ease-in-out;
+    }
+    .cta:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 16px 48px rgba(201, 168, 76, 0.55);
+    }
+    .cta:active { transform: translateY(-1px) scale(0.98); }
+    .cta svg { flex-shrink: 0; transition: transform 0.25s; }
+    .cta:hover svg { transform: translateX(4px); }
+
+    .cta-note {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--white-45);
+    }
+
+    /* KPI bar bottom of hero */
+    .hero-kpis {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--white-08);
+      background: rgba(8, 8, 8, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .kpi {
+      padding: 28px clamp(16px, 3vw, 40px);
+      border-right: 1px solid var(--white-08);
+      text-align: center;
+    }
+    .kpi:last-child { border-right: none; }
+    .kpi-val {
+      font-family: var(--font-h);
+      font-size: clamp(26px, 3.5vw, 42px);
+      color: var(--gold);
+      line-height: 1;
+    }
+    .kpi-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white-45);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .hero-kpis { grid-template-columns: repeat(2, 1fr); }
+      .kpi:nth-child(2) { border-right: none; }
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  PAIN — Split screen image + text           */
+    /* ═══════════════════════════════════════════ */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 90vh;
+    }
+    @media (max-width: 900px) {
+      .split { grid-template-columns: 1fr; }
+    }
+
+    .split-img {
+      position: relative;
+      overflow: hidden;
+      min-height: 400px;
+    }
+    .split-img img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .split-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, transparent 60%, var(--off-black));
+    }
+    @media (max-width: 900px) {
+      .split-img::after {
+        background: linear-gradient(to bottom, transparent 50%, var(--off-black));
+      }
+    }
+
+    .split-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(40px, 6vw, 80px);
+      background: var(--off-black);
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .split-text h2 {
+      font-family: var(--font-h);
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      margin-bottom: 32px;
+    }
+    .split-text h2 .gold { color: var(--gold); }
+
+    /* Pain cards */
+    .pain-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .pain-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 20px;
+      background: var(--dark);
+      border-left: 3px solid var(--red);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .pain-item:hover {
+      transform: translateX(6px);
+      background: var(--dark-card);
+    }
+    .pain-emoji { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .pain-item p {
+      font-size: 14.5px;
+      color: var(--white-70);
+      line-height: 1.7;
+    }
+    .pain-item p strong { color: var(--white); font-weight: 500; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  EMOTIONAL BREAK — Full width dark quote    */
+    /* ═══════════════════════════════════════════ */
+    .emotional-break {
+      background: var(--green);
+      border-top: 1px solid var(--gold-20);
+      border-bottom: 1px solid var(--gold-20);
+      padding: 80px clamp(24px, 8vw, 120px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .emotional-break::before {
+      content: '\201C';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Georgia, serif;
+      font-size: 300px;
+      color: rgba(201, 168, 76, 0.06);
+      pointer-events: none;
+    }
+    .emotional-quote {
+      font-size: clamp(18px, 2.5vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.6;
+      max-width: 700px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+    .emotional-quote em { color: var(--gold); font-style: normal; font-weight: 500; }
+    .emotional-attr {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--white-45);
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  SOLUTION — Reversed split                  */
+    /* ═══════════════════════════════════════════ */
+    .split.reversed .split-img { order: 2; }
+    .split.reversed .split-text { order: 1; }
+    .split.reversed .split-img::after {
+      background: linear-gradient(to left, transparent 60%, var(--off-black));
+    }
+    @media (max-width: 900px) {
+      .split.reversed .split-img { order: 1; }
+      .split.reversed .split-text { order: 2; }
+      .split.reversed .split-img::after {
+        background: linear-gradient(to bottom, transparent 50%, var(--off-black));
+      }
+    }
+
+    /* Solution features mini-grid */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-top: 32px;
+    }
+    @media (max-width: 500px) {
+      .feat-grid { grid-template-columns: 1fr; }
+    }
+    .feat {
+      background: var(--dark);
+      padding: 24px 20px;
+      transition: border-color 0.2s;
+      border-top: 2px solid transparent;
+    }
+    .feat:hover { border-top-color: var(--gold); }
+    .feat-num {
+      font-family: var(--font-h);
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .feat-title {
+      font-family: var(--font-h);
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+    .feat-desc {
+      font-size: 13px;
+      color: var(--white-45);
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  BEFORE/AFTER — Cinematic comparison         */
+    /* ═══════════════════════════════════════════ */
+    .ba-section {
+      padding: 100px 0;
+      background: var(--black);
+    }
+    .ba-header {
+      text-align: center;
+      padding: 0 24px;
+      margin-bottom: 64px;
+    }
+    .ba-header h2 {
+      font-family: var(--font-h);
+      font-size: clamp(36px, 5.5vw, 64px);
+      line-height: 0.95;
+      margin-bottom: 16px;
+    }
+    .ba-header h2 .gold { color: var(--gold); }
+    .ba-header p {
+      font-size: 16px;
+      color: var(--white-45);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+      .ba-grid { grid-template-columns: 1fr; }
+    }
+
+    .ba-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    .ba-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .ba-card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 40px;
+    }
+    .ba-card.before .ba-card-overlay {
+      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.6) 40%, transparent 70%);
+    }
+    .ba-card.after .ba-card-overlay {
+      background: linear-gradient(to top, rgba(26,61,36,0.92) 0%, rgba(26,61,36,0.6) 40%, transparent 70%);
+    }
+
+    .ba-label {
+      font-family: var(--font-h);
+      font-size: 13px;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+    }
+    .ba-card.before .ba-label { color: var(--red); }
+    .ba-card.after .ba-label { color: var(--gold); }
+
+    .ba-card h3 {
+      font-family: var(--font-h);
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 0.95;
+      margin-bottom: 16px;
+    }
+    .ba-card.before h3 { color: var(--white-70); }
+    .ba-card.after h3 .gold { color: var(--gold); }
+
+    .ba-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ba-items li {
+      font-size: 14px;
+      color: var(--white-70);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ba-items li .icon { flex-shrink: 0; font-size: 16px; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  TESTIMONIALS — Magazine style               */
+    /* ═══════════════════════════════════════════ */
+    .reviews-section {
+      padding: 100px 0;
+      background: var(--off-black);
+    }
+    .reviews-header {
+      padding: 0 clamp(24px, 5vw, 80px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+    .reviews-header-left h2 {
+      font-family: var(--font-h);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 0.95;
+    }
+    .reviews-header-left h2 .gold { color: var(--gold); }
+
+    .tp-badge {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--dark);
+      padding: 16px 24px;
+      border-left: 3px solid var(--tp-green);
+    }
+    .tp-score-big {
+      font-family: var(--font-h);
+      font-size: 48px;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .tp-stars { color: var(--tp-green); font-size: 16px; letter-spacing: 2px; }
+    .tp-count { font-size: 12px; color: var(--white-45); margin-top: 2px; }
+
+    /* Horizontal scroll reviews */
+    .reviews-scroll {
+      display: flex;
+      gap: 16px;
+      padding: 0 clamp(24px, 5vw, 80px);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .reviews-scroll::-webkit-scrollbar { display: none; }
+
+    .rev-card {
+      min-width: 340px;
+      max-width: 380px;
+      flex-shrink: 0;
+      background: var(--dark);
+      padding: 36px 28px;
+      border-top: 3px solid var(--gold);
+      scroll-snap-align: start;
+      transition: transform 0.2s;
+    }
+    .rev-card:hover { transform: translateY(-4px); }
+    .rev-stars {
+      color: var(--tp-green);
+      font-size: 13px;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    .rev-text {
+      font-size: 15px;
+      font-style: italic;
+      color: var(--white-70);
+      line-height: 1.8;
+      margin-bottom: 20px;
+      min-height: 100px;
+    }
+    .rev-author {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .rev-role {
+      font-size: 11px;
+      color: var(--white-45);
+      margin-top: 2px;
+    }
+
+    /* Athletes + Media */
+    .social-proof-strip {
+      padding: 64px clamp(24px, 5vw, 80px);
+      background: var(--dark);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+    @media (max-width: 768px) {
+      .social-proof-strip { grid-template-columns: 1fr; }
+    }
+
+    .athletes-block h3,
+    .media-block h3 {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .athletes-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .a-tag {
+      border: 1px solid var(--gold-20);
+      padding: 6px 14px;
+      font-size: 12.5px;
+      color: var(--white-70);
+      transition: all 0.2s;
+    }
+    .a-tag:hover { background: var(--gold-08); border-color: var(--gold); }
+    .a-tag .n { color: var(--gold); font-weight: 500; }
+
+    .media-logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+    .m-logo {
+      font-family: var(--font-h);
+      font-size: 16px;
+      letter-spacing: 0.04em;
+      color: var(--white-20);
+      transition: color 0.2s;
+    }
+    .m-logo:hover { color: var(--white-45); }
+
+    /* ═══════════════════════════════════════════ */
+    /*  FAQ — Clean accordion                      */
+    /* ═══════════════════════════════════════════ */
+    .faq {
+      padding: 100px clamp(24px, 5vw, 80px);
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .faq h2 {
+      font-family: var(--font-h);
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 0.95;
+      margin-bottom: 48px;
+    }
+    .faq h2 .gold { color: var(--gold); }
+
+    .faq-item { border-bottom: 1px solid var(--white-08); }
+    .faq-q {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-family: var(--font-b);
+      font-size: 16px;
+      font-weight: 400;
+      text-align: left;
+      padding: 24px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--gold); }
+    .faq-q-icon {
+      width: 28px; height: 28px;
+      border: 1px solid var(--gold-20);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .faq-q-icon svg { color: var(--gold); transition: transform 0.3s; }
+    .faq-item.open .faq-q-icon { background: var(--gold); border-color: var(--gold); }
+    .faq-item.open .faq-q-icon svg { color: var(--black); transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 24px; }
+    .faq-a p {
+      font-size: 14.5px;
+      color: var(--white-70);
+      line-height: 1.8;
+      max-width: 620px;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  FINAL CTA — Full bleed triumph image       */
+    /* ═══════════════════════════════════════════ */
+    .final-cta {
+      position: relative;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .final-cta-img {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .final-cta-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 40%;
+    }
+    .final-cta-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        radial-gradient(ellipse at center, rgba(26,61,36,0.7) 0%, rgba(8,8,8,0.92) 70%);
+    }
+    .final-cta-content {
+      position: relative;
+      z-index: 3;
+      padding: 80px clamp(24px, 5vw, 80px);
+      max-width: 700px;
+    }
+    .final-cta h2 {
+      font-family: var(--font-h);
+      font-size: clamp(40px, 7vw, 80px);
+      line-height: 0.9;
+      margin-bottom: 24px;
+    }
+    .final-cta h2 .gold { color: var(--gold); }
+    .final-cta p {
+      font-size: 17px;
+      color: var(--white-70);
+      max-width: 480px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+    }
+
+    .trust-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 36px;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--white-45);
+    }
+    .trust-item svg { width: 16px; height: 16px; color: var(--gold); }
+
+    /* ═══════════════════════════════════════════ */
+    /*  FLOATING CTA (mobile)                      */
+    /* ═══════════════════════════════════════════ */
+    .float-cta {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 14px 20px;
+      background: rgba(8, 8, 8, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--gold-20);
+      z-index: 1000;
+      transform: translateY(100%);
+      transition: transform 0.35s;
+    }
+    .float-cta.visible { transform: translateY(0); }
+    .float-cta .cta { width: 100%; justify-content: center; padding: 16px 24px; font-size: 14px; }
+    @media (max-width: 768px) {
+      .float-cta { display: block; }
+      body.has-float-cta { padding-bottom: 76px; }
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  FOOTER                                     */
+    /* ═══════════════════════════════════════════ */
+    footer {
+      background: #050505;
+      border-top: 1px solid var(--gold-20);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .f-brand {
+      font-family: var(--font-h);
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .f-info { font-size: 12px; color: var(--white-20); line-height: 1.8; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  ANIMATIONS                                 */
+    /* ═══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-tag     { animation: fadeUp .6s ease both .1s; opacity: 0; }
+    .hero h1      { animation: fadeUp .6s ease both .25s; opacity: 0; }
+    .hero-sub     { animation: fadeUp .6s ease both .4s; opacity: 0; }
+    .hero-cta-w   { animation: fadeUp .6s ease both .55s; opacity: 0; }
+
+    .rv { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+    .rv.vis { opacity: 1; transform: translateY(0); }
+    .rv-s > * { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+    .rv-s.vis > *:nth-child(1) { transition-delay: .05s; }
+    .rv-s.vis > *:nth-child(2) { transition-delay: .1s; }
+    .rv-s.vis > *:nth-child(3) { transition-delay: .15s; }
+    .rv-s.vis > *:nth-child(4) { transition-delay: .2s; }
+    .rv-s.vis > *:nth-child(5) { transition-delay: .25s; }
+    .rv-s.vis > *:nth-child(6) { transition-delay: .3s; }
+    .rv-s.vis > * { opacity: 1; transform: translateY(0); }
+
+    @keyframes pulse { 0%,100%{box-shadow:0 0 20px rgba(201,168,76,.2)} 50%{box-shadow:0 0 44px rgba(201,168,76,.45)} }
+    .cta-pulse { animation: pulse 2.5s ease-in-out infinite; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  REAL ATHLETES GALLERY                      */
+    /* ═══════════════════════════════════════════ */
+    .athletes-section {
+      padding: 100px clamp(24px, 5vw, 80px);
+      background: var(--black);
+    }
+    .athletes-section h2 {
+      font-family: var(--font-h);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 0.95;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+    .athletes-section h2 .gold { color: var(--gold); }
+    
+    .athletes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .athlete-card {
+      background: var(--off-black);
+      border: 1px solid var(--white-08);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      aspect-ratio: 4/5;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .athlete-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--gold-20);
+    }
+    .athlete-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .athlete-card:hover img {
+      transform: scale(1.05);
+    }
+    .athlete-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.7) 50%, transparent 100%);
+      padding: 20px 16px;
+      text-align: center;
+      z-index: 2;
+    }
+    .athlete-name {
+      font-family: var(--font-h);
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+    }
+    .athlete-team {
+      font-size: 11px;
+      color: var(--gold-light);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  FOUNDER SECTION (ANTONIO VALENTE)          */
+    /* ═══════════════════════════════════════════ */
+    .founder-section {
+      background: var(--off-black);
+      padding: 100px clamp(24px, 5vw, 80px);
+      border-top: 1px solid var(--white-08);
+      border-bottom: 1px solid var(--white-08);
+    }
+    .founder-container {
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      gap: 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    @media (max-width: 850px) {
+      .founder-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+    .founder-img-w {
+      position: relative;
+      border: 1px solid var(--gold-20);
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .founder-img-w img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .founder-img-w::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 10px solid var(--black);
+      pointer-events: none;
+    }
+    .founder-text h2 {
+      font-family: var(--font-h);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 0.9;
+      margin-bottom: 8px;
+    }
+    .founder-text h2 .gold { color: var(--gold); }
+    .founder-subtitle {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white-45);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .founder-text p {
+      font-size: 15px;
+      color: var(--white-70);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .founder-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .f-stat {
+      border-left: 2px solid var(--gold);
+      padding-left: 16px;
+    }
+    .f-stat-val {
+      font-family: var(--font-h);
+      font-size: 24px;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+    .f-stat-lbl {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--white-45);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  QUALIFICATION FORM (LEAD GEN SYSTEM)      */
+    /* ═══════════════════════════════════════════ */
+    .lead-form-container {
+      background: linear-gradient(180deg, var(--dark-card) 0%, var(--dark) 100%);
+      border: 1px solid var(--gold);
+      box-shadow: 0 20px 60px rgba(201, 168, 76, 0.3);
+      padding: 44px clamp(20px, 4vw, 48px);
+      max-width: 580px;
+      margin: 40px auto 0;
+      text-align: left;
+      border-radius: 8px;
+      position: relative;
+    }
+    .lead-form-container::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    }
+    .lead-form-container h3 {
+      font-family: var(--font-h);
+      font-size: 32px;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+      text-align: center;
+      color: var(--white);
+    }
+    .lead-form-container p.form-desc {
+      font-size: 14px;
+      color: var(--white-70);
+      margin-bottom: 28px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .form-step {
+      display: none;
+    }
+    .form-step.active {
+      display: block;
+      animation: fadeUp 0.4s ease;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid var(--white-20);
+      color: var(--white);
+      font-family: var(--font-b);
+      padding: 16px;
+      font-size: 15px;
+      border-radius: 4px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(201, 168, 76, 0.25);
+    }
+    .select-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 480px) {
+      .select-options { grid-template-columns: 1fr 1fr; }
+    }
+
+    .option-card {
+      background: var(--black);
+      border: 1px solid var(--white-20);
+      padding: 16px;
+      font-size: 14.5px;
+      color: var(--white-70);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 400;
+      border-radius: 4px;
+    }
+    .option-card:hover {
+      border-color: var(--gold-light);
+      color: var(--white);
+      box-shadow: 0 0 10px rgba(244, 239, 230, 0.05);
+    }
+    .option-card.selected {
+      background: rgba(201, 168, 76, 0.14);
+      border: 1px solid var(--gold);
+      color: var(--white);
+      font-weight: 500;
+      box-shadow: 0 0 16px rgba(201, 168, 76, 0.4);
+    }
+    .other-textarea-w {
+      display: none;
+      margin-top: 16px;
+      animation: fadeUp 0.3s ease both;
+    }
+    .other-textarea-w.active {
+      display: block;
+    }
+    .form-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 28px;
+    }
+    .form-btn {
+      padding: 14px 28px;
+      font-family: var(--font-h);
+      font-size: 15px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .form-btn.btn-back {
+      background: transparent;
+      border: 1px solid var(--white-20);
+      color: var(--white-70);
+    }
+    .form-btn.btn-back:hover {
+      border-color: var(--white-45);
+      color: var(--white);
+    }
+    .form-btn.btn-next {
+      background: var(--white);
+      color: var(--black);
+      flex-grow: 1;
+    }
+    .form-btn.btn-next:hover {
+      background: var(--gold-light);
+    }
+    .form-btn.btn-submit {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--black);
+      flex-grow: 1;
+    }
+    .form-btn.btn-submit:hover {
+      box-shadow: 0 10px 24px rgba(201, 168, 76, 0.25);
+    }
+    .progress-bar {
+      height: 4px;
+      background: var(--white-08);
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 33.33%;
+      transition: width 0.3s ease;
+    }
+    /* ═══════════════════════════════════════════ */
+    /*  SUMMER BANNER                              */
+    /* ═══════════════════════════════════════════ */
+    .summer-banner {
+      background: linear-gradient(90deg, #182f20 0%, #a8832a 100%);
+      color: var(--white);
+      padding: 14px 24px;
+      text-align: center;
+      font-size: 13.5px;
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--gold-20);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+    .summer-banner strong {
+      color: #ffe49e;
+      font-weight: 700;
+    }
+    .summer-banner .sun-icon {
+      font-size: 15px;
+      margin-right: 6px;
+      display: inline-block;
+      animation: spinSun 15s linear infinite;
+    }
+    @keyframes spinSun {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @media (max-width: 768px) {
+      .summer-banner {
+        font-size: 12px;
+        padding: 10px 16px;
+        line-height: 1.5;
+      }
+    }
+  </style>
+
+  <!-- Fonts non-blocking -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+</head>
+<body>
+
+  <!-- ☀️ SUMMER BANNER ☀️ -->
+  <div class="summer-banner">
+    <span class="sun-icon">☀️</span> <strong>IL MOMENTO MIGLIORE È ORA:</strong> Sfrutta l'estate per preparare il prossimo campionato. Sessioni 1-to-1 online anche dal mare, senza perdere il programma.
+  </div>
+
+  <!-- ═══════ HERO ═══════ -->
+  <section class="hero" id="hero">
+    <div class="hero-img">
+      <img src="img-bench.jpg" alt="Giovane calciatore seduto in panchina" width="1024" height="1024">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        #1 Italia · Trustpilot · Mental Coaching
+      </div>
+      <h1>TUO FIGLIO HA <span class="gold">TALENTO</span><br>MA SI BLOCCA<br>IN PARTITA?</h1>
+      <p class="hero-sub">
+        In allenamento è un fenomeno. Ma quando arriva il momento che conta — <strong>il provino, la partita vera, il mister che grida</strong> — qualcosa si spegne.<br><br>
+        <strong>Sfrutta l'estate:</strong> il momento perfetto per sbloccare la sua mente senza lo stress del campionato. Il percorso è <strong>100% online</strong>: tuo figlio può connettersi da qualsiasi parte (anche mentre siete al mare) per farsi trovare pronto all'inizio del prossimo campionato.
+      </p>
+      <div class="hero-cta-w">
+        <a href="#qualify-form" class="cta cta-pulse" id="hero-cta">
+          VOGLIO AIUTARE MIO FIGLIO
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <div class="cta-note">🔒 Consulenza conoscitiva gratuita · Nessun impegno</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hero-kpis">
+    <div class="kpi"><div class="kpi-val">+1.100</div><div class="kpi-label">Atleti seguiti</div></div>
+    <div class="kpi"><div class="kpi-val">4,9★</div><div class="kpi-label">356 recensioni</div></div>
+    <div class="kpi"><div class="kpi-val">+20</div><div class="kpi-label">Coach specializzati</div></div>
+    <div class="kpi"><div class="kpi-val">SERIE A</div><div class="kpi-label">Professionisti</div></div>
+  </div>
+
+  <!-- ═══════ PAIN — Split screen ═══════ -->
+  <div class="split">
+    <div class="split-img">
+      <img src="img-parent.jpg" alt="Genitore preoccupato al bordo campo" width="1024" height="1024" loading="lazy">
+    </div>
+    <div class="split-text">
+      <div class="eyebrow rv">Il problema</div>
+      <h2 class="rv">LO GUARDI DAL <span class="gold">BORDO CAMPO</span><br>E NON LO RICONOSCI</h2>
+
+      <div class="pain-list rv-s">
+        <div class="pain-item">
+          <span class="pain-emoji">😔</span>
+          <p><strong>In allenamento è fortissimo, in partita scompare.</strong> Timido, insicuro, come se avesse paura di toccare il pallone.</p>
+        </div>
+        <div class="pain-item">
+          <span class="pain-emoji">😤</span>
+          <p><strong>Dopo un errore, crolla.</strong> Basta un passaggio sbagliato. Smette di chiedere palla. Il resto della partita non esiste.</p>
+        </div>
+        <div class="pain-item">
+          <span class="pain-emoji">😰</span>
+          <p><strong>I provini? Un incubo.</strong> L'hai portato lì. L'hai visto giocare con la paura. Nel viaggio di ritorno… silenzio.</p>
+        </div>
+        <div class="pain-item">
+          <span class="pain-emoji">💔</span>
+          <p><strong>Sta perdendo la passione.</strong> Quel ragazzo che viveva per il pallone ora dice "non mi va". E tu non sai più come aiutarlo.</p>
+        </div>
+        <div class="pain-item">
+          <span class="pain-emoji">🤐</span>
+          <p><strong>Non riesci più a parlargli di calcio.</strong> Ogni consiglio diventa un muro. La macchina dopo la partita è un campo minato.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ EMOTIONAL BREAK ═══════ -->
+  <div class="emotional-break">
+    <p class="emotional-quote rv">
+      Non è colpa tua. Non è colpa di tuo figlio.<br>
+      È un <em>blocco mentale</em> che si può sciogliere.<br>
+      Ed è esattamente quello che facciamo — <em>da oltre 1.100 atleti</em>.
+    </p>
+    <div class="emotional-attr rv">Antonio Valente · Fondatore, Metodo Sincro®</div>
+  </div>
+
+  <!-- ═══════ SOLUTION — Reversed split ═══════ -->
+  <div class="split reversed">
+    <div class="split-img">
+      <img src="img-coach.jpg" alt="Sessione di coaching online con giovane calciatore" width="1024" height="1024" loading="lazy">
+    </div>
+    <div class="split-text">
+      <div class="eyebrow rv">La soluzione</div>
+      <h2 class="rv">NON AGGIUNGIAMO NIENTE.<br><span class="gold">SBLOCCHIAMO</span> CIÒ CHE C'È GIÀ.</h2>
+      <p class="rv" style="font-size:15px; color:var(--white-70); margin-bottom: 8px; line-height:1.8;">
+        Il Metodo Sincro® non è motivazione da spogliatoio. È un sistema strutturato che rimuove i blocchi mentali e libera il potenziale che tuo figlio ha già dentro.
+      </p>
+
+      <div class="feat-grid rv-s">
+        <div class="feat">
+          <div class="feat-num">01</div>
+          <div class="feat-title">COACH PER FASCIA D'ETÀ</div>
+          <div class="feat-desc">Parlare a un 12enne è diverso da un 17enne. I nostri coach sono formati per fasce specifiche.</div>
+        </div>
+        <div class="feat">
+          <div class="feat-num">02</div>
+          <div class="feat-title">ONE-TO-ONE ONLINE</div>
+          <div class="feat-desc">Un coach dedicato che conosce tuo figlio — la squadra, il mister, le sue paure.</div>
+        </div>
+        <div class="feat">
+          <div class="feat-num">03</div>
+          <div class="feat-title">STRUMENTI PRATICI</div>
+          <div class="feat-desc">Tecniche applicabili subito. Già dalla prima sessione, in campo.</div>
+        </div>
+        <div class="feat">
+          <div class="feat-num">04</div>
+          <div class="feat-title">FAMIGLIA NEL PERCORSO</div>
+          <div class="feat-desc">Affianchiamo anche te. Saprai come supportarlo senza pressarlo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ BEFORE/AFTER ═══════ -->
+  <section class="ba-section">
+    <div class="ba-header rv">
+      <h2>DA BLOCCATO<br>A <span class="gold">SBLOCCATO</span></h2>
+      <p>Ecco cosa cambia nel percorso.</p>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card before">
+        <img src="img-bench.jpg" alt="Prima — ragazzo bloccato" width="1024" height="1024" loading="lazy">
+        <div class="ba-card-overlay">
+          <div class="ba-label">PRIMA</div>
+          <h3>IL BLOCCO</h3>
+          <ul class="ba-items">
+            <li><span class="icon">✗</span> Paura di sbagliare davanti a tutti</li>
+            <li><span class="icon">✗</span> Crolla dopo il primo errore</li>
+            <li><span class="icon">✗</span> Sparisce nelle partite importanti</li>
+            <li><span class="icon">✗</span> Perde fiducia e voglia di giocare</li>
+            <li><span class="icon">✗</span> Non parla più di calcio con te</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ba-card after">
+        <img src="img-triumph.jpg" alt="Dopo — ragazzo che esulta" width="1024" height="1024" loading="lazy">
+        <div class="ba-card-overlay">
+          <div class="ba-label">DOPO IL METODO SINCRO</div>
+          <h3>IL <span class="gold">POTENZIALE LIBERATO</span></h3>
+          <ul class="ba-items">
+            <li><span class="icon">✦</span> Gioca con coraggio, chiede palla</li>
+            <li><span class="icon">✦</span> Reagisce all'errore con grinta</li>
+            <li><span class="icon">✦</span> Si accende nelle partite che contano</li>
+            <li><span class="icon">✦</span> Torna ad amare il campo</li>
+            <li><span class="icon">✦</span> Ti racconta la partita sorridendo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ TESTIMONIALS ═══════ -->
+  <section class="reviews-section">
+    <div class="reviews-header">
+      <div class="reviews-header-left">
+        <div class="eyebrow rv">Recensioni certificate</div>
+        <h2 class="rv">COSA DICONO I <span class="gold">GENITORI</span></h2>
+      </div>
+      <div class="tp-badge rv">
+        <div class="tp-score-big">4,9</div>
+        <div>
+          <div class="tp-stars">★★★★★</div>
+          <div class="tp-count">356 recensioni · Trustpilot</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-scroll">
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Nostro figlio ha abbattuto diversi muri — non solo in campo, ma come persona. Un cambiamento che non pensavamo possibile in così poco tempo."</p>
+        <div class="rev-author">Genitore</div>
+        <div class="rev-role">Coach Fabio</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Arrivavo da un anno dove avevo perso tanta fiducia e un po' anche la passione. Il percorso con Coach Nicolò è stata una delle mie migliori scelte."</p>
+        <div class="rev-author">Daniel B.</div>
+        <div class="rev-role">Atleta</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Siamo partiti passo dopo passo, insieme, e abbiamo raggiunto tutti gli obiettivi prefissati. Una soddisfazione immensa."</p>
+        <div class="rev-author">Svetlana V.</div>
+        <div class="rev-role">Genitore · Coach Fabio</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Sono partita insicura e ansiosa. Affidata a Coach Nicolò, ho trovato fin da subito quel feeling necessario per aprirmi. Risultati veri."</p>
+        <div class="rev-author">Aurora</div>
+        <div class="rev-role">Atleta</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Antonio è energia allo stato puro. Ti trasmette una carica tale da illuminare una città. Massima professionalità e motivazione."</p>
+        <div class="rev-author">Roberto S.</div>
+        <div class="rev-role">Genitore</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Lavorare con Antonio è un privilegio. Sono cresciuta come calciatrice, ma anche come persona. Continuo a capire cose su me stessa."</p>
+        <div class="rev-author">Annahita Z.</div>
+        <div class="rev-role">Calciatrice · Parma</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ REAL ATHLETES GALLERY ═══════ -->
+  <section class="athletes-section">
+    <div class="eyebrow rv" style="justify-content: center; margin-bottom: 16px;">Social Proof Reale</div>
+    <h2 class="rv">I CAMPIONI CHE SI ALLENANO CON IL <span class="gold">METODO SINCRO®</span></h2>
+    
+    <div class="athletes-grid rv-s">
+      <div class="athlete-card">
+        <img src="img/calciatori/Patrick Cutrone (Monza).png" alt="Patrick Cutrone" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Patrick Cutrone</div>
+          <div class="athlete-team">Como / Monza</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Matteo Brunori (Sampdoria).png" alt="Matteo Brunori" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Matteo Brunori</div>
+          <div class="athlete-team">Palermo / Sampdoria</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Barbara Bonansea (Juventus).png" alt="Barbara Bonansea" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Barbara Bonansea</div>
+          <div class="athlete-team">Juventus / Nazionale</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Martina Piemonte (Lazio).png" alt="Martina Piemonte" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Martina Piemonte</div>
+          <div class="athlete-team">Lazio / Nazionale</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Francesca Durante (Lazio).png" alt="Francesca Durante" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Francesca Durante</div>
+          <div class="athlete-team">Fiorentina / Lazio</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Annahita Zamanian (Parma).png" alt="Annahita Zamanian" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Annahita Zamanian</div>
+          <div class="athlete-team">Juventus / Parma</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Chiara Robustellini (inter).png" alt="Chiara Robustellini" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Chiara Robustellini</div>
+          <div class="athlete-team">Inter Women</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Simone Cinquegrano (Inter).png" alt="Simone Cinquegrano" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Simone Cinquegrano</div>
+          <div class="athlete-team">Inter Primavera</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Iris Rabot (Parma).png" alt="Iris Rabot" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Iris Rabot</div>
+          <div class="athlete-team">Parma Women</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Filippo Frison (Lega Pro).png" alt="Filippo Frison" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Filippo Frison</div>
+          <div class="athlete-team">Lucchese / Lega Pro</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Gianmarco Cangiano (Lega Pro).png" alt="Gianmarco Cangiano" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Gianmarco Cangiano</div>
+          <div class="athlete-team">Bologna / Pescara</div>
+        </div>
+      </div>
+      <div class="athlete-card">
+        <img src="img/calciatori/Riccardo Zoia (Lega Pro).png" alt="Riccardo Zoia" width="300" height="375" loading="lazy">
+        <div class="athlete-info">
+          <div class="athlete-name">Riccardo Zoia</div>
+          <div class="athlete-team">Ternana / Lega Pro</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FOUNDER SECTION (ANTONIO VALENTE) ═══════ -->
+  <section class="founder-section" id="founder">
+    <div class="founder-container">
+      <div class="founder-img-w rv">
+        <img src="img/antonio.jpg" alt="Antonio Valente Mental Coach" width="400" height="400" loading="lazy">
+      </div>
+      <div class="founder-text">
+        <div class="eyebrow rv">Il Fondatore</div>
+        <h2 class="rv">ANTONIO <span class="gold">VALENTE</span></h2>
+        <div class="founder-subtitle rv">Mental Coach Sportivo · Fondatore Metodo Sincro®</div>
+        
+        <p class="rv">
+          Sono il fondatore del <strong>Metodo Sincro®</strong> e Presidente di Sincro Group Srl, ad oggi la realtà di riferimento in Italia per il mental coaching applicato esclusivamente al calcio giovanile, con un team di oltre 20 coach professionisti.
+        </p>
+        <p class="rv">
+          Il mio percorso nasce dall'osservazione dei settori giovanili: migliaia di ragazzi di straordinario talento si bloccano sotto pressione, non per limiti tecnici o fisici, ma per fragilità mentali che nessuno insegna loro a gestire.
+        </p>
+        <p class="rv">
+          Ho lavorato con calciatori di Serie A, Serie B e della Nazionale, ma la mia vera missione è aiutare i ragazzi dai 10 ai 20 anni e le loro famiglie a sbloccare il potenziale inespresso, dando loro strumenti mentali pratici che useranno in campo e, soprattutto, nella vita.
+        </p>
+        
+        <div class="founder-stats rv-s">
+          <div class="f-stat">
+            <div class="f-stat-val">+1.100</div>
+            <div class="f-stat-lbl">Atleti sbloccati</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">+8.880</div>
+            <div class="f-stat-lbl">Ore di coaching erogate</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">CONI</div>
+            <div class="f-stat-lbl">Formatori autorizzati</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">#1 Italia</div>
+            <div class="f-stat-lbl">Su Trustpilot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Media strip -->
+  <div class="social-proof-strip" style="background: var(--black); border-top: 1px solid var(--white-08); border-bottom: 1px solid var(--white-08);">
+    <div class="media-block rv" style="grid-column: 1 / -1; text-align: center;">
+      <h3 style="margin-bottom: 24px;">Il nostro metodo è stato citato su</h3>
+      <div class="media-logos" style="justify-content: center; gap: clamp(20px, 4vw, 40px);">
+        <span class="m-logo">LA REPUBBLICA</span>
+        <span class="m-logo">GAZZETTA DELLO SPORT</span>
+        <span class="m-logo">SPORT MEDIASET</span>
+        <span class="m-logo">CORRIERE DELLA SERA</span>
+        <span class="m-logo">MILLIONAIRE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FAQ ═══════ -->
+  <section class="faq" id="faq">
+    <div class="eyebrow rv">Domande frequenti</div>
+    <h2 class="rv">HAI ANCORA <span class="gold">DUBBI?</span></h2>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Mio figlio non vuole andare dallo "psicologo". Come fate?
+        <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      </button>
+      <div class="faq-a"><p>Non siamo psicologi. I nostri coach sono figure sportive — parlano il linguaggio del calcio. Per i ragazzi è come avere un allenatore mentale. Il 95% dopo la prima sessione dice: "Quando è la prossima?"</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        A che età funziona? Mio figlio ha 11 anni, non è troppo presto?
+        <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      </button>
+      <div class="faq-a"><p>Lavoriamo dai 10 ai 20 anni, con coach specializzati per fascia d'età. A 11 anni il lavoro è perfetto: sono apertissimi e prima si interviene, più l'effetto è potente e duraturo.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Quanto dura un percorso?
+        <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      </button>
+      <div class="faq-a"><p>Dai 2 ai 3 mesi, con sessioni online settimanali one-to-one. Un coach dedicato che seguirà tuo figlio in tutto il percorso. Tu come genitore sarai aggiornato/a costantemente.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Ma funziona davvero online?
+        <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      </button>
+      <div class="faq-a"><p>Oltre 1.100 atleti online — inclusi calciatori di Serie A. L'online funziona perché il ragazzo è nel suo ambiente, le sessioni si inseriscono facilmente e zero trasferte.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Ero scettico sul mental coaching. Perché fidarmi?
+        <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      </button>
+      <div class="faq-a"><p>356 recensioni, media 4.9 su Trustpilot. Primo in Italia. Calciatori di Serie A e della Nazionale. La Repubblica, Gazzetta dello Sport, Sport Mediaset. Non chiediamo di fidarti — chiediamo 15 minuti di chiamata.</p></div>
+    </div>
+  </section>
+
+  <!-- ═══════ FINAL CTA ═══════ -->
+  <section class="final-cta" id="finale">
+    <div class="final-cta-img">
+      <img src="img-triumph.png" alt="Giovane calciatore che esulta" width="1024" height="1024" loading="lazy">
+    </div>
+    <div class="final-cta-overlay"></div>
+    <div class="final-cta-content">
+      <div class="eyebrow rv" style="justify-content:center; margin-bottom:20px;">Fai il primo passo</div>
+      <h2 class="rv">IL <span class="gold">TALENTO</span> DI TUO FIGLIO<br>MERITA DI ESSERE<br>LIBERATO</h2>
+      <p class="rv">Prenota una chiamata conoscitiva gratuita. Capiamo insieme la situazione e ti diciamo onestamente se possiamo aiutarti.</p>
+      <div class="rv">
+        <!-- FORM DI QUALIFICAZIONE A STEP -->
+        <div class="lead-form-container" id="qualify-form">
+          <h3>Aiuta tuo figlio a sbloccarsi</h3>
+          <p class="form-desc">Rispondi a 3 semplici domande per prenotare la consulenza gratuita. <strong>Riceverai un Report Dettagliato sul piano di sblocco mentale personalizzato per tuo figlio.</strong></p>
+          
+          <div class="progress-bar">
+            <div class="progress-fill" id="form-progress"></div>
+          </div>
+          
+          <form id="sincro-lead-form" action="#" method="POST">
+            <!-- Step 1: Età del ragazzo -->
+            <div class="form-step active" data-step="1">
+              <div class="form-group">
+                <label>Quanti anni ha tuo figlio?</label>
+                <div class="select-options">
+                  <div class="option-card" data-val="10-12">10 - 12 anni</div>
+                  <div class="option-card" data-val="13-15">13 - 15 anni</div>
+                  <div class="option-card" data-val="16-17">16 - 17 anni</div>
+                  <div class="option-card" data-val="18-20">18 - 20 anni</div>
+                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro / Non specificato</div>
+                </div>
+                <input type="hidden" name="eta_ragazzo" id="input-eta" required>
+              </div>
+              <div class="form-nav">
+                <div></div>
+                <button type="button" class="form-btn btn-next" id="btn-step1-next" disabled>Continua</button>
+              </div>
+            </div>
+            
+            <!-- Step 2: Difficoltà principale -->
+            <div class="form-step" data-step="2">
+              <div class="form-group">
+                <label>Qual è la sua difficoltà principale?</label>
+                <div class="select-options">
+                  <div class="option-card" data-val="ansia_partita">Ansia prima della partita</div>
+                  <div class="option-card" data-val="perde_fiducia">Crolla dopo un errore</div>
+                  <div class="option-card" data-val="blocco_provini">Si blocca nei provini</div>
+                  <div class="option-card" data-val="rapporto_mister">Problemi con il mister</div>
+                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro...</div>
+                </div>
+                <input type="hidden" name="difficolta" id="input-difficolta" required>
+                <!-- Area di testo dinamica per "Altro..." -->
+                <div class="other-textarea-w" id="other-difficolta-w">
+                  <textarea id="other-difficolta-text" class="form-control" placeholder="Descrivi brevemente qual è la difficoltà principale di tuo figlio..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="form-btn btn-back">Indietro</button>
+                <button type="button" class="form-btn btn-next" id="btn-step2-next" disabled>Continua</button>
+              </div>
+            </div>
+            
+            <!-- Step 3: Dati di contatto -->
+            <div class="form-step" data-step="3">
+              <div class="form-group">
+                <label for="parent-name">Nome del Genitore</label>
+                <input type="text" id="parent-name" name="nome_genitore" class="form-control" placeholder="Es. Mario Rossi" required>
+              </div>
+              <div class="form-group">
+                <label for="parent-phone">Numero Cellulare / WhatsApp</label>
+                <input type="tel" id="parent-phone" name="telefono" class="form-control" placeholder="Es. 333 1234567" required>
+              </div>
+              <div class="form-group">
+                <label for="parent-email">Indirizzo Email</label>
+                <input type="email" id="parent-email" name="email" class="form-control" placeholder="Es. mario.rossi@email.it" required>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="form-btn btn-back">Indietro</button>
+                <button type="submit" class="form-btn btn-submit">Prenota Chiamata Gratuita</button>
+              </div>
+              <p style="font-size: 11.5px; color: var(--gold-light); text-align: center; margin-top: 14px; line-height: 1.5;">
+                🎁 Riceverai il Report di Valutazione Mentale per email dopo la chiamata conoscitiva.
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="trust-strip rv">
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Dati protetti</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 4,9 Trustpilot</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> +1.100 atleti</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating CTA mobile -->
+  <div class="float-cta" id="float-cta">
+    <a href="#qualify-form" class="cta">
+      VOGLIO AIUTARE MIO FIGLIO
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="f-brand">METODO SINCRO®</div>
+    <div class="f-info">Sincro Group Srl · Fondato da Antonio Valente · metodosincro.it · © 2026</div>
+  </footer>
+
+  <!-- ═══════ JS ═══════ -->
+  <script defer>
+    // Reveal on scroll
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } });
+    }, { threshold: .1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.rv, .rv-s').forEach(el => obs.observe(el));
+
+    // FAQ
+    document.querySelectorAll('.faq-q').forEach(b => {
+      b.addEventListener('click', () => {
+        const item = b.closest('.faq-item'), was = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!was) item.classList.add('open');
+      });
+    });
+
+    // Float CTA
+    const hCTA = document.getElementById('hero-cta');
+    const fCTA = document.getElementById('float-cta');
+    if (hCTA && fCTA) {
+      new IntersectionObserver(([e]) => {
+        fCTA.classList.toggle('visible', !e.isIntersecting);
+        document.body.classList.toggle('has-float-cta', !e.isIntersecting);
+      }).observe(hCTA);
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(l => {
+      l.addEventListener('click', e => {
+        const targetId = l.getAttribute('href');
+        const t = document.querySelector(targetId);
+        if (t) {
+          e.preventDefault();
+          if (targetId === '#qualify-form') {
+            // Allinea il form direttamente in cima (start) con un po' di margine o semplicemente start
+            // per assicurarci che sia perfettamente visibile anche su schermi mobili piccoli
+            t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      });
+    });
+
+    // === QUALIFICATION FORM STEPS SYSTEM ===
+    const formSteps = document.querySelectorAll('.form-step');
+    const progressFill = document.getElementById('form-progress');
+    let currentStep = 1;
+
+    // Gestione selezione opzioni Step 1 e 2
+    document.querySelectorAll('.form-step[data-step="1"] .option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.form-step[data-step="1"] .option-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        document.getElementById('input-eta').value = card.getAttribute('data-val');
+        document.getElementById('btn-step1-next').removeAttribute('disabled');
+      });
+    });
+
+    const otherDifficoltaW = document.getElementById('other-difficolta-w');
+    const otherDifficoltaText = document.getElementById('other-difficolta-text');
+    const btnStep2Next = document.getElementById('btn-step2-next');
+    const inputDifficolta = document.getElementById('input-difficolta');
+
+    document.querySelectorAll('.form-step[data-step="2"] .option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.form-step[data-step="2"] .option-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        
+        const val = card.getAttribute('data-val');
+        if (val === 'altro') {
+          otherDifficoltaW.classList.add('active');
+          inputDifficolta.value = otherDifficoltaText.value.trim();
+          if (otherDifficoltaText.value.trim().length > 0) {
+            btnStep2Next.removeAttribute('disabled');
+          } else {
+            btnStep2Next.setAttribute('disabled', 'true');
+          }
+        } else {
+          otherDifficoltaW.classList.remove('active');
+          inputDifficolta.value = val;
+          btnStep2Next.removeAttribute('disabled');
+        }
+      });
+    });
+
+    // Monitora il testo inserito nel textarea "Altro"
+    otherDifficoltaText.addEventListener('input', () => {
+      const selectedOption = document.querySelector('.form-step[data-step="2"] .option-card.selected');
+      if (selectedOption && selectedOption.getAttribute('data-val') === 'altro') {
+        const textVal = otherDifficoltaText.value.trim();
+        inputDifficolta.value = textVal;
+        if (textVal.length > 0) {
+          btnStep2Next.removeAttribute('disabled');
+        } else {
+          btnStep2Next.setAttribute('disabled', 'true');
+        }
+      }
+    });
+
+    // Navigazione Step
+    document.querySelectorAll('.btn-next').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep < 3) {
+          formSteps[currentStep - 1].classList.remove('active');
+          currentStep++;
+          formSteps[currentStep - 1].classList.add('active');
+          updateFormProgress();
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-back').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep > 1) {
+          formSteps[currentStep - 1].classList.remove('active');
+          currentStep--;
+          formSteps[currentStep - 1].classList.add('active');
+          updateFormProgress();
+        }
+      });
+    });
+
+    function updateFormProgress() {
+      const percentage = (currentStep / 3) * 100;
+      progressFill.style.width = `${percentage}%`;
+    }
+
+    // === COOKIE HELPER ===
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    // === VISITOR ID ===
+    let visitorId = localStorage.getItem('sincro_visitor_id');
+    if (!visitorId) {
+      visitorId = 'vis_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('sincro_visitor_id', visitorId);
+    }
+
+    // === URL PRE-FILL & PARAMETERS ===
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source') || '';
+    const utmMedium = params.get('utm_medium') || '';
+    const utmCampaign = params.get('utm_campaign') || '';
+    const utmContent = params.get('utm_content') || '';
+    const utmTerm = params.get('utm_term') || '';
+    const fbadid = params.get('fbclid') || '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Mappa parametri a ID del form
+      const nameParam = params.get('nome') || params.get('name') || params.get('first_name');
+      const phoneParam = params.get('telefono') || params.get('phone') || params.get('tel');
+      const emailParam = params.get('email');
+      
+      if (nameParam) {
+        const input = document.getElementById('parent-name');
+        if (input) input.value = decodeURIComponent(nameParam);
+      }
+      if (phoneParam) {
+        const input = document.getElementById('parent-phone');
+        if (input) input.value = decodeURIComponent(phoneParam);
+      }
+      if (emailParam) {
+        const input = document.getElementById('parent-email');
+        if (input) input.value = decodeURIComponent(emailParam);
+      }
+
+      // Fire PageView Server CAPI for client+server deduplication
+      fetch('/api/track/pageview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organization_id: 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
+          funnel_id: 'ff79dda2-4e89-498a-9798-a9d7ac86bacc',
+          page_path: window.location.pathname,
+          page_variant: 'A',
+          visitor_id: visitorId,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          fbadid: fbadid,
+          referrer: document.referrer || '',
+          event_id: window.pageViewEventId || '',
+          fbc: getCookie('_fbc') || '',
+          fbp: getCookie('_fbp') || '',
+          page_url: window.location.href
+        })
+      }).catch(err => console.error('[PageView CAPI] Error:', err));
+    });
+
+    // Gestione invio modulo
+    const leadForm = document.getElementById('sincro-lead-form');
+    if (leadForm) {
+      leadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(leadForm);
+        const name = formData.get('nome_genitore') || '';
+        const phone = formData.get('telefono') || '';
+        const email = formData.get('email') || '';
+        const eta = formData.get('eta_ragazzo') || '';
+        const difficolta = formData.get('difficolta') || '';
+        
+        // Genera Lead Event ID per la deduplicazione client/server
+        const leadEventId = 'evt_ld_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+        
+        // Invio evento Lead client-side (Meta Pixel)
+        if (window.fbq) {
+          window.fbq('track', 'Lead', {
+            content_name: 'Lead Metodo Sincro',
+            content_category: 'cliente',
+            value: 112.00,
+            currency: 'EUR'
+          }, { eventID: leadEventId });
+        }
+        
+        // Invio dati al backend Next.js (/api/submit)
+        // L'endpoint salverà nel DB, invierà le notifiche Telegram/Sheets e invierà l'evento CAPI Lead.
+        fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            funnel_id: 'ff79dda2-4e89-498a-9798-a9d7ac86bacc',
+            name: name,
+            email: email,
+            phone: phone,
+            utm_source: utmSource,
+            utm_medium: utmMedium,
+            utm_campaign: utmCampaign,
+            utm_content: utmContent,
+            utm_term: utmTerm,
+            page_variant: 'A',
+            event_id: leadEventId,
+            fbc: getCookie('_fbc') || '',
+            fbp: getCookie('_fbp') || '',
+            visitor_id: visitorId,
+            tag: 'landing Luglio',
+            landing_url: window.location.host + window.location.pathname,
+            extra_data: {
+              child_age: eta,
+              difficolta: difficolta
+            }
+          })
+        }).then(res => {
+          if (!res.ok) {
+            console.error('[Submit CAPI] Error response');
+          }
+        }).catch(err => console.error('[Submit CAPI] Error:', err));
+        
+        // Mostra il messaggio di successo
+        const container = document.getElementById('qualify-form');
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px; animation: fadeUp 0.5s ease;">
+            <div style="font-size: 60px; color: var(--gold); margin-bottom: 20px;">✓</div>
+            <h3 style="font-family: var(--font-h); font-size: 32px; color: var(--white); margin-bottom: 12px;">RICHIESTA RICEVUTA</h3>
+            <p style="font-size: 15px; color: var(--white-70); line-height: 1.8; max-width: 420px; margin: 0 auto 28px;">
+              Grazie per la fiducia. Abbiamo preso in carico la richiesta per aiutare tuo figlio. Un esperto del team del Metodo Sincro® ti contatterà su WhatsApp o telefonicamente entro 24 ore per fissare la chiamata conoscitiva.
+            </p>
+            <div style="font-size: 12px; color: var(--gold-light); letter-spacing: 1px; text-transform: uppercase;">
+              A presto, Team Metodo Sincro®
+            </div>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
