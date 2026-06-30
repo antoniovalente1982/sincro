@@ -12,6 +12,18 @@ function getSupabaseAdmin() {
     )
 }
 
+// CORS headers — must be open for external landing pages and local file tests
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+// Handle preflight (browser CORS check)
+export async function OPTIONS() {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 // Bot detection — these should NOT fire CAPI events (they inflate Pixel numbers)
 const BOT_PATTERNS = [
     /bot/i, /crawler/i, /spider/i, /crawling/i,
@@ -40,7 +52,7 @@ export async function POST(req: NextRequest) {
         const { organization_id, funnel_id, page_path, page_variant, visitor_id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, fbadid, referrer, event_id, fbc, fbp, fb_login_id, page_url } = body
 
         if (!organization_id || !page_path) {
-            return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+            return NextResponse.json({ error: 'Missing fields' }, { headers: CORS_HEADERS, status: 400 })
         }
 
         const userAgent = req.headers.get('user-agent') || ''
@@ -76,7 +88,7 @@ export async function POST(req: NextRequest) {
 
         if (error) {
             console.error('PageView insert error:', error)
-            return NextResponse.json({ error: error.message }, { status: 500 })
+            return NextResponse.json({ error: error.message }, { headers: CORS_HEADERS, status: 500 })
         }
 
         // Fire CAPI PageView event — ONLY for real users, skip bots
@@ -121,10 +133,10 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        return NextResponse.json({ success: true })
+        return NextResponse.json({ success: true }, { headers: CORS_HEADERS })
     } catch (err: any) {
         console.error('PageView error:', err)
-        return NextResponse.json({ error: err.message }, { status: 500 })
+        return NextResponse.json({ error: err.message }, { headers: CORS_HEADERS, status: 500 })
     }
 }
 

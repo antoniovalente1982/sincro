@@ -1895,6 +1895,11 @@
     const utmTerm = params.get('utm_term') || '';
     const fbadid = params.get('fbclid') || '';
 
+    // Base URL dinamico per test locali da file://
+    const API_BASE_URL = window.location.protocol === 'file:' 
+      ? 'http://localhost:3000' 
+      : window.location.origin;
+
     window.addEventListener('DOMContentLoaded', () => {
       // Mappa parametri a ID del form
       const nameParam = params.get('nome') || params.get('name') || params.get('first_name');
@@ -1915,7 +1920,7 @@
       }
 
       // Fire PageView Server CAPI for client+server deduplication
-      fetch('/api/track/pageview', {
+      fetch(API_BASE_URL + '/api/track/pageview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1967,7 +1972,7 @@
         
         // Invio dati al backend Next.js (/api/submit)
         // L'endpoint salverà nel DB, invierà le notifiche Telegram/Sheets e invierà l'evento CAPI Lead.
-        fetch('/api/submit', {
+        fetch(API_BASE_URL + '/api/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

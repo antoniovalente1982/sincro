@@ -21,6 +21,18 @@ const rateLimits = new Map<string, { count: number; resetAt: number }>()
 const RATE_LIMIT = 10
 const RATE_WINDOW = 60_000
 
+// CORS headers — must be open for external landing pages and local file tests
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+// Handle preflight (browser CORS check)
+export async function OPTIONS() {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 // Public submission endpoint — no auth required
 export async function POST(req: NextRequest) {
     // Rate limit by IP
@@ -28,7 +40,7 @@ export async function POST(req: NextRequest) {
     const now = Date.now()
     const entry = rateLimits.get(ip)
     if (entry && now < entry.resetAt && entry.count >= RATE_LIMIT) {
-        return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 })
+        return NextResponse.json({ error: 'Too many requests. Try again later.' }, { headers: CORS_HEADERS, status: 429 })
     }
     if (!entry || now > (entry?.resetAt || 0)) {
         rateLimits.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
@@ -41,7 +53,7 @@ export async function POST(req: NextRequest) {
         const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id, tag } = body
 
         if (!funnel_id || !name) {
-            return NextResponse.json({ error: 'Name and funnel_id are required' }, { status: 400 })
+            return NextResponse.json({ error: 'Name and funnel_id are required' }, { headers: CORS_HEADERS, status: 400 })
         }
 
         // Get funnel and its organization
@@ -52,11 +64,11 @@ export async function POST(req: NextRequest) {
             .single()
 
         if (funnelError || !funnel) {
-            return NextResponse.json({ error: 'Funnel not found' }, { status: 404 })
+            return NextResponse.json({ error: 'Funnel not found' }, { headers: CORS_HEADERS, status: 404 })
         }
 
         if (funnel.status !== 'active') {
-            return NextResponse.json({ error: 'Funnel is not active' }, { status: 400 })
+            return NextResponse.json({ error: 'Funnel is not active' }, { headers: CORS_HEADERS, status: 400 })
         }
 
         // Create submission
@@ -82,7 +94,7 @@ export async function POST(req: NextRequest) {
             .single()
 
         if (subError) {
-            return NextResponse.json({ error: subError.message }, { status: 500 })
+            return NextResponse.json({ error: subError.message }, { headers: CORS_HEADERS, status: 500 })
         }
 
         // ── EARLY RETURN: Only funnel validation + submission insert are synchronous ──
@@ -334,10 +346,10 @@ export async function POST(req: NextRequest) {
             }
         })
 
-        return NextResponse.json({ success: true })
+        return NextResponse.json({ success: true }, { headers: CORS_HEADERS })
     } catch (err: any) {
         console.error('Submission error:', err)
-        return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+        return NextResponse.json({ error: 'Internal error' }, { headers: CORS_HEADERS, status: 500 })
     }
 }
 
