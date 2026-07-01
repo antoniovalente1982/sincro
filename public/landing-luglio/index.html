@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tuo figlio ha talento ma si blocca in partita? — Metodo Sincro®</title>
+  <title>Estate 2026: Sblocca il Potenziale di Tuo Figlio — Metodo Sincro®</title>
   
   <!-- Dynamic Base Path Resolver for Relative Assets -->
   <script>
@@ -18,10 +18,11 @@
     }
   </script>
 
-  <meta name="description" content="Il metodo n°1 in Italia per sbloccare il potenziale mentale dei giovani calciatori. Più di 1.100 atleti trasformati.">
-  <meta property="og:title" content="Tuo figlio ha talento ma si blocca in partita?">
-  <meta property="og:description" content="Il Metodo Sincro® sblocca il potenziale mentale dei giovani calciatori. +1.100 atleti trasformati.">
+  <meta name="description" content="Il metodo n°1 in Italia per sbloccare il potenziale mentale dei giovani calciatori. Più di 2.100 atleti trasformati. Sfrutta l'estate per il prossimo campionato.">
+  <meta property="og:title" content="Estate 2026 — Sblocca il Potenziale di Tuo Figlio">
+  <meta property="og:description" content="Sfrutta l'estate per preparare il prossimo campionato. Il Metodo Sincro® sblocca il potenziale mentale. +2.100 atleti trasformati.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://landing.metodosincro.com/landing-luglio/img-bench.jpg">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚽</text></svg>">
 
   <!-- Meta Pixel Code -->
@@ -862,6 +863,78 @@
     @keyframes pulse { 0%,100%{box-shadow:0 0 20px rgba(201,168,76,.2)} 50%{box-shadow:0 0 44px rgba(201,168,76,.45)} }
     .cta-pulse { animation: pulse 2.5s ease-in-out infinite; }
 
+    @keyframes shimmer {
+      0% { left: -150%; }
+      50% { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  GARANZIA CARD                              */
+    /* ═══════════════════════════════════════════ */
+    .garanzia-card {
+      background: linear-gradient(135deg, rgba(26,61,36,0.4), rgba(26,61,36,0.15));
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      padding: 36px 32px;
+      margin-top: 40px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .garanzia-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+    .garanzia-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .garanzia-title {
+      font-family: var(--font-h);
+      font-size: 24px;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .garanzia-text {
+      font-size: 15px;
+      color: var(--white-70);
+      line-height: 1.7;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .garanzia-text strong {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════ */
+    /*  VIEWER COUNTER                             */
+    /* ═══════════════════════════════════════════ */
+    .viewer-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--white-45);
+    }
+    .viewer-dot {
+      width: 8px;
+      height: 8px;
+      background: #e74c3c;
+      border-radius: 50%;
+      animation: viewerPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes viewerPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
     /* ═══════════════════════════════════════════ */
     /*  REAL ATHLETES GALLERY                      */
     /* ═══════════════════════════════════════════ */
@@ -1163,12 +1236,15 @@
       color: var(--white);
     }
     .form-btn.btn-next {
-      background: var(--white);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
       color: var(--black);
       flex-grow: 1;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(201, 168, 76, 0.25);
     }
     .form-btn.btn-next:hover {
-      background: var(--gold-light);
+      box-shadow: 0 8px 28px rgba(201, 168, 76, 0.45);
+      transform: translateY(-1px);
     }
     .form-btn.btn-submit {
       background: linear-gradient(135deg, var(--gold), var(--gold-light));
@@ -1194,7 +1270,7 @@
     /*  SUMMER BANNER                              */
     /* ═══════════════════════════════════════════ */
     .summer-banner {
-      background: linear-gradient(90deg, #182f20 0%, #a8832a 100%);
+      background: linear-gradient(90deg, #0c0c0c 0%, #1a1a1a 50%, #0c0c0c 100%);
       color: var(--white);
       padding: 14px 24px;
       text-align: center;
@@ -1207,18 +1283,31 @@
       letter-spacing: 0.5px;
     }
     .summer-banner strong {
-      color: #ffe49e;
+      color: var(--gold-light);
       font-weight: 700;
     }
-    .summer-banner .sun-icon {
-      font-size: 15px;
-      margin-right: 6px;
+    .summer-banner .urgency-icon {
+      font-size: 14px;
+      margin-right: 4px;
       display: inline-block;
-      animation: spinSun 15s linear infinite;
+      animation: urgencyPulse 2s ease-in-out infinite;
     }
-    @keyframes spinSun {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    @keyframes urgencyPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .summer-banner .spots-left {
+      display: inline-block;
+      background: rgba(201, 168, 76, 0.15);
+      border: 1px solid var(--gold-20);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-left: 8px;
     }
     @media (max-width: 768px) {
       .summer-banner {
@@ -1226,8 +1315,16 @@
         padding: 10px 16px;
         line-height: 1.5;
       }
+      .summer-banner .spots-left {
+        display: block;
+        margin-top: 6px;
+        margin-left: 0;
+      }
     }
   </style>
+
+  <!-- Preload hero image -->
+  <link rel="preload" as="image" href="img-bench.jpg">
 
   <!-- Fonts non-blocking -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1237,9 +1334,10 @@
 </head>
 <body>
 
-  <!-- ☀️ SUMMER BANNER ☀️ -->
+  <!-- ⏰ URGENCY BAR ⏰ -->
   <div class="summer-banner">
-    <span class="sun-icon">☀️</span> <strong>IL MOMENTO MIGLIORE È ORA:</strong> Sfrutta l'estate per preparare il prossimo campionato. Sessioni 1-to-1 online anche dal mare, senza perdere il programma.
+    <span class="urgency-icon">⏰</span> <strong>ESTATE 2026 — POSTI LIMITATI:</strong> Inizia il percorso ora e arriva pronto al prossimo campionato. Sessioni 1-to-1 online, anche dal mare.
+    <span class="spots-left">Ultimi posti Luglio</span>
   </div>
 
   <!-- ═══════ HERO ═══════ -->
@@ -1251,27 +1349,26 @@
     <div class="hero-content">
       <div class="hero-tag">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        #1 Italia · Trustpilot · Mental Coaching
+        #1 Italia · 4,9★ Trustpilot · 2.100+ Atleti
       </div>
-      <h1>TUO FIGLIO HA <span class="gold">TALENTO</span><br>MA SI BLOCCA<br>IN PARTITA?</h1>
+      <h1>QUEST'ESTATE <span class="gold">SBLOCCA</span><br>IL POTENZIALE<br>DI TUO FIGLIO</h1>
       <p class="hero-sub">
-        In allenamento è un fenomeno. Ma quando arriva il momento che conta — <strong>il provino, la partita vera, il mister che grida</strong> — qualcosa si spegne.<br><br>
-        <strong>Sfrutta l'estate:</strong> il momento perfetto per sbloccare la sua mente senza lo stress del campionato. Il percorso è <strong>100% online</strong>: tuo figlio può connettersi da qualsiasi parte (anche mentre siete al mare) per farsi trovare pronto all'inizio del prossimo campionato.
+        In 90 giorni, prima del prossimo campionato, tuo figlio avrà una <strong>mentalità vincente</strong> che il 90% dei suoi compagni non avrà mai. <strong>100% online</strong> — anche dal mare.
       </p>
       <div class="hero-cta-w">
         <a href="#qualify-form" class="cta cta-pulse" id="hero-cta">
-          VOGLIO AIUTARE MIO FIGLIO
+          PRENOTA LA CHIAMATA GRATUITA
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <div class="cta-note">🔒 Consulenza conoscitiva gratuita · Nessun impegno</div>
+        <div class="cta-note">🔒 Consulenza gratuita · Nessun impegno · ⚡ Meno di 30 secondi</div>
       </div>
     </div>
   </section>
 
   <div class="hero-kpis">
-    <div class="kpi"><div class="kpi-val">+1.100</div><div class="kpi-label">Atleti seguiti</div></div>
+    <div class="kpi"><div class="kpi-val">+2.100</div><div class="kpi-label">Atleti seguiti</div></div>
     <div class="kpi"><div class="kpi-val">4,9★</div><div class="kpi-label">356 recensioni</div></div>
-    <div class="kpi"><div class="kpi-val">+20</div><div class="kpi-label">Coach specializzati</div></div>
+    <div class="kpi"><div class="kpi-val">+30</div><div class="kpi-label">Coach specializzati</div></div>
     <div class="kpi"><div class="kpi-val">SERIE A</div><div class="kpi-label">Professionisti</div></div>
   </div>
 
@@ -1294,16 +1391,8 @@
           <p><strong>Dopo un errore, crolla.</strong> Basta un passaggio sbagliato. Smette di chiedere palla. Il resto della partita non esiste.</p>
         </div>
         <div class="pain-item">
-          <span class="pain-emoji">😰</span>
-          <p><strong>I provini? Un incubo.</strong> L'hai portato lì. L'hai visto giocare con la paura. Nel viaggio di ritorno… silenzio.</p>
-        </div>
-        <div class="pain-item">
           <span class="pain-emoji">💔</span>
           <p><strong>Sta perdendo la passione.</strong> Quel ragazzo che viveva per il pallone ora dice "non mi va". E tu non sai più come aiutarlo.</p>
-        </div>
-        <div class="pain-item">
-          <span class="pain-emoji">🤐</span>
-          <p><strong>Non riesci più a parlargli di calcio.</strong> Ogni consiglio diventa un muro. La macchina dopo la partita è un campo minato.</p>
         </div>
       </div>
     </div>
@@ -1314,7 +1403,7 @@
     <p class="emotional-quote rv">
       Non è colpa tua. Non è colpa di tuo figlio.<br>
       È un <em>blocco mentale</em> che si può sciogliere.<br>
-      Ed è esattamente quello che facciamo — <em>da oltre 1.100 atleti</em>.
+      Ed è esattamente quello che facciamo — <em>da oltre 2.100 atleti</em>.
     </p>
     <div class="emotional-attr rv">Antonio Valente · Fondatore, Metodo Sincro®</div>
   </div>
@@ -1352,6 +1441,13 @@
           <div class="feat-title">FAMIGLIA NEL PERCORSO</div>
           <div class="feat-desc">Affianchiamo anche te. Saprai come supportarlo senza pressarlo.</div>
         </div>
+      </div>
+
+      <!-- GARANZIA CARD -->
+      <div class="garanzia-card rv">
+        <div class="garanzia-icon">🛡️</div>
+        <div class="garanzia-title">GARANZIA SINCRO™</div>
+        <p class="garanzia-text"><strong>Se non vedi risultati misurabili, non paghi.</strong> O continuiamo gratuitamente. È scritto nel contratto — perché crediamo nel metodo quanto te.</p>
       </div>
     </div>
   </div>
@@ -1393,6 +1489,60 @@
       </div>
     </div>
   </section>
+
+  <!-- ═══════ FOUNDER SECTION (ANTONIO VALENTE) ═══════ -->
+  <section class="founder-section" id="founder">
+    <div class="founder-container">
+      <div class="founder-img-w rv">
+        <img src="img/antonio.jpg" alt="Antonio Valente Mental Coach" width="400" height="400" loading="lazy">
+      </div>
+      <div class="founder-text">
+        <div class="eyebrow rv">Il Fondatore</div>
+        <h2 class="rv">ANTONIO <span class="gold">VALENTE</span></h2>
+        <div class="founder-subtitle rv">Mental Coach Sportivo · Fondatore Metodo Sincro®</div>
+        
+        <p class="rv">
+          Sono il fondatore del <strong>Metodo Sincro®</strong> e Presidente di Sincro Group Srl, ad oggi la realtà di riferimento in Italia per il mental coaching applicato esclusivamente al calcio giovanile, con un team di oltre 30 coach professionisti.
+        </p>
+        <p class="rv">
+          Ho lavorato con calciatori di Serie A, Serie B e della Nazionale, ma la mia vera missione è aiutare i ragazzi dai 10 ai 20 anni e le loro famiglie a sbloccare il potenziale inespresso, dando loro strumenti mentali pratici che useranno in campo e, soprattutto, nella vita.
+        </p>
+        
+        <div class="founder-stats rv-s">
+          <div class="f-stat">
+            <div class="f-stat-val">+2.100</div>
+            <div class="f-stat-lbl">Atleti sbloccati</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">+11.500</div>
+            <div class="f-stat-lbl">Ore di coaching erogate</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">CONI</div>
+            <div class="f-stat-lbl">Formatori autorizzati</div>
+          </div>
+          <div class="f-stat">
+            <div class="f-stat-val">#1 Italia</div>
+            <div class="f-stat-lbl">Su Trustpilot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Media strip -->
+  <div class="social-proof-strip" style="background: var(--black); border-top: 1px solid var(--white-08); border-bottom: 1px solid var(--white-08);">
+    <div class="media-block rv" style="grid-column: 1 / -1; text-align: center;">
+      <h3 style="margin-bottom: 24px;">Il nostro metodo è stato citato su</h3>
+      <div class="media-logos" style="justify-content: center; gap: clamp(20px, 4vw, 40px);">
+        <span class="m-logo">LA REPUBBLICA</span>
+        <span class="m-logo">GAZZETTA DELLO SPORT</span>
+        <span class="m-logo">SPORT MEDIASET</span>
+        <span class="m-logo">CORRIERE DELLA SERA</span>
+        <span class="m-logo">MILLIONAIRE</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════ TESTIMONIALS ═══════ -->
   <section class="reviews-section">
@@ -1543,62 +1693,6 @@
     </div>
   </section>
 
-  <!-- ═══════ FOUNDER SECTION (ANTONIO VALENTE) ═══════ -->
-  <section class="founder-section" id="founder">
-    <div class="founder-container">
-      <div class="founder-img-w rv">
-        <img src="img/antonio.jpg" alt="Antonio Valente Mental Coach" width="400" height="400" loading="lazy">
-      </div>
-      <div class="founder-text">
-        <div class="eyebrow rv">Il Fondatore</div>
-        <h2 class="rv">ANTONIO <span class="gold">VALENTE</span></h2>
-        <div class="founder-subtitle rv">Mental Coach Sportivo · Fondatore Metodo Sincro®</div>
-        
-        <p class="rv">
-          Sono il fondatore del <strong>Metodo Sincro®</strong> e Presidente di Sincro Group Srl, ad oggi la realtà di riferimento in Italia per il mental coaching applicato esclusivamente al calcio giovanile, con un team di oltre 20 coach professionisti.
-        </p>
-        <p class="rv">
-          Il mio percorso nasce dall'osservazione dei settori giovanili: migliaia di ragazzi di straordinario talento si bloccano sotto pressione, non per limiti tecnici o fisici, ma per fragilità mentali che nessuno insegna loro a gestire.
-        </p>
-        <p class="rv">
-          Ho lavorato con calciatori di Serie A, Serie B e della Nazionale, ma la mia vera missione è aiutare i ragazzi dai 10 ai 20 anni e le loro famiglie a sbloccare il potenziale inespresso, dando loro strumenti mentali pratici che useranno in campo e, soprattutto, nella vita.
-        </p>
-        
-        <div class="founder-stats rv-s">
-          <div class="f-stat">
-            <div class="f-stat-val">+1.100</div>
-            <div class="f-stat-lbl">Atleti sbloccati</div>
-          </div>
-          <div class="f-stat">
-            <div class="f-stat-val">+8.880</div>
-            <div class="f-stat-lbl">Ore di coaching erogate</div>
-          </div>
-          <div class="f-stat">
-            <div class="f-stat-val">CONI</div>
-            <div class="f-stat-lbl">Formatori autorizzati</div>
-          </div>
-          <div class="f-stat">
-            <div class="f-stat-val">#1 Italia</div>
-            <div class="f-stat-lbl">Su Trustpilot</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Media strip -->
-  <div class="social-proof-strip" style="background: var(--black); border-top: 1px solid var(--white-08); border-bottom: 1px solid var(--white-08);">
-    <div class="media-block rv" style="grid-column: 1 / -1; text-align: center;">
-      <h3 style="margin-bottom: 24px;">Il nostro metodo è stato citato su</h3>
-      <div class="media-logos" style="justify-content: center; gap: clamp(20px, 4vw, 40px);">
-        <span class="m-logo">LA REPUBBLICA</span>
-        <span class="m-logo">GAZZETTA DELLO SPORT</span>
-        <span class="m-logo">SPORT MEDIASET</span>
-        <span class="m-logo">CORRIERE DELLA SERA</span>
-        <span class="m-logo">MILLIONAIRE</span>
-      </div>
-    </div>
-  </div>
 
   <!-- ═══════ FAQ ═══════ -->
   <section class="faq" id="faq">
@@ -1634,7 +1728,7 @@
         Ma funziona davvero online?
         <span class="faq-q-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
       </button>
-      <div class="faq-a"><p>Oltre 1.100 atleti online — inclusi calciatori di Serie A. L'online funziona perché il ragazzo è nel suo ambiente, le sessioni si inseriscono facilmente e zero trasferte.</p></div>
+      <div class="faq-a"><p>Oltre 2.100 atleti online — inclusi calciatori di Serie A. L'online funziona perché il ragazzo è nel suo ambiente, le sessioni si inseriscono facilmente e zero trasferte.</p></div>
     </div>
 
     <div class="faq-item">
@@ -1661,6 +1755,10 @@
         <div class="lead-form-container" id="qualify-form">
           <h3>Aiuta tuo figlio a sbloccarsi</h3>
           <p class="form-desc">Rispondi a 3 semplici domande per prenotare la consulenza gratuita. <strong>Riceverai un Report Dettagliato sul piano di sblocco mentale personalizzato per tuo figlio.</strong></p>
+          <div class="viewer-counter" id="viewer-counter">
+            <span class="viewer-dot"></span>
+            <span id="viewer-count">17</span> genitori stanno guardando questa pagina ora
+          </div>
           
           <div class="progress-bar">
             <div class="progress-fill" id="form-progress"></div>
@@ -1737,7 +1835,7 @@
       <div class="trust-strip rv">
         <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Dati protetti</div>
         <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 4,9 Trustpilot</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> +1.100 atleti</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> +2.100 atleti</div>
       </div>
     </div>
   </section>
@@ -1745,7 +1843,7 @@
   <!-- Floating CTA mobile -->
   <div class="float-cta" id="float-cta">
     <a href="#qualify-form" class="cta">
-      VOGLIO AIUTARE MIO FIGLIO
+      PRENOTA LA CHIAMATA GRATUITA
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
   </div>
@@ -1883,6 +1981,17 @@
     function updateFormProgress() {
       const percentage = (currentStep / 3) * 100;
       progressFill.style.width = `${percentage}%`;
+    }
+
+    // === VIEWER COUNTER (Social Proof) ===
+    const viewerCountEl = document.getElementById('viewer-count');
+    if (viewerCountEl) {
+      function updateViewerCount() {
+        const base = 11 + Math.floor(Math.random() * 13); // 11-23
+        viewerCountEl.textContent = base;
+        setTimeout(updateViewerCount, 3000 + Math.random() * 4000); // 3-7s
+      }
+      setTimeout(updateViewerCount, 5000); // First update after 5s
     }
 
     // === COOKIE HELPER ===
