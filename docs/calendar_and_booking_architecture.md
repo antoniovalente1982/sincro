@@ -1,130 +1,164 @@
-# Architettura di Prenotazione e Gestione Pipeline (Metodo Sincro)
+# Architettura CRM, Gestione Pipeline e Presa Appuntamenti (Metodo Sincro)
 
-Questo documento descrive il funzionamento dell'infrastruttura di gestione dei calendari, calcolo delle disponibilità in tempo reale, assegnazione automatica (Round-Robin) e gestione dello stato della pipeline dei contatti (Leads). Può essere utilizzato come guida di riferimento e specifica tecnica per replicare queste logiche in altri progetti o microservizi.
+Questo documento descrive in dettaglio l'intera infrastruttura del CRM, della gestione delle pipeline, dell'assegnazione dei lead (Round-Robin) e del sistema di prenotazione degli appuntamenti con integrazione Google Calendar e tracciamento Meta Conversions API (CAPI). 
+
+È strutturato come specifica tecnica e guida di riferimento per replicare fedelmente queste logiche in altri applicativi del gruppo.
 
 ---
 
 ## 1. Mappatura del Database (Schema Supabase)
 
-L'intero motore si basa su relazioni e vincoli definiti nel database. Di seguito sono elencate le tabelle principali coinvolte:
-
-### A. `crm_calendars`
-Definisce le impostazioni globali di ciascun calendario (es. calendario di qualificazione estivo, prenotazione generale, ecc.).
-* `id` (UUID): Identificativo unico.
-* `organization_id` (UUID): Associazione multi-tenant.
-* `name` (text): Nome visualizzato dell'appuntamento (es. "Consulenza Gratuita").
-* `slug` (text): URL per accedere alla pagina di prenotazione (es. `/book/consulenza`).
-* `description` (text): Testo esplicativo mostrato all'utente.
-* `slot_duration_minutes` (int): Durata effettiva della chiamata (es. `30`).
-* `slot_interval_minutes` (int): Frequenza degli slot disponibili (es. slot ogni `30` o `15` minuti).
-* `slot_buffer_minutes` (int): Tempo di pausa necessario tra un appuntamento e l'altro (es. `15` minuti prima e dopo per evitare sovrapposizioni).
-* `redirect_url` (text): Pagina di atterraggio dopo la prenotazione (es. `/grazie`).
-* `is_active` (boolean): Flag di stato.
-
-### B. `crm_calendar_members`
-Associa i membri del team (consulenti/closers) ad uno o più calendari.
-* `id` (UUID).
-* `calendar_id` (UUID): Riferimento a `crm_calendars`.
-* `user_id` (UUID): Riferimento al profilo dell'agente.
-* `priority` (int): Valore per guidare la priorità di assegnazione in caso di disponibilità multiple (es. un valore maggiore riceve prima i lead).
-* `is_active` (boolean): Stato attivo/inattivo per escludere temporaneamente un agente (es. ferie).
-
-### C. `calendar_availability`
-Definisce i blocchi orari ricorrenti di disponibilità settimanale per ogni agente.
-* `user_id` (UUID): Riferimento al profilo dell'agente.
-* `day_of_week` (int): Giorno della settimana (`0` per Domenica, `1` per Lunedì, ecc.).
-* `start_time` (time): Ora di inizio disponibilità (es. `09:00:00`).
-* `end_time` (time): Ora di fine disponibilità (es. `18:00:00`).
-* `is_active` (boolean).
-
-### D. `calendar_events`
-Memorizza gli appuntamenti confermati presi sul sistema.
-* `id` (UUID).
-* `organization_id` (UUID).
-* `calendar_id` (UUID).
-* `closer_id` (UUID): L'agente a cui è stato assegnato il lead.
-* `lead_id` (UUID): Riferimento a `leads`.
-* `title`, `description` (text).
-* `start_time` (timestamp): Data e ora d'inizio in formato ISO.
-* `end_time` (timestamp): Data e ora di fine in formato ISO.
-* `status` (text): Stato dell'evento (`confirmed`, `cancelled`, `no_show`).
-* `google_event_id` (text): ID dell'evento su Google Calendar per poterlo sincronizzare, aggiornare o eliminare da remoto.
-
-### E. `organization_members`
-Contiene le credenziali e i token di integrazione OAuth2 per gli account Google Calendar dei singoli agenti.
-* `user_id` (UUID).
-* `google_access_token` (text).
-* `google_refresh_token` (text).
-* `google_token_expiry` (timestamp).
-
----
-
-## 2. Motore delle Disponibilità (Availability Engine)
-
-L'endpoint di consultazione (`/api/public/calendar/[slug]/availability`) calcola dinamicamente gli slot liberi per i successivi 14 giorni. Il flusso segue questo algoritmo:
+L'infrastruttura si poggia su un database relazionale strutturato in modo da supportare pipeline flessibili, log delle attività degli operatori e disponibilità orarie complesse.
 
 ```mermaid
-graph TD
-    A[Richiesta Disponibilità] --> B[Carica Configurazione Calendario]
-    B --> C[Recupera Agenti del Calendario con Priorità]
-    C --> D[Carica Disponibilità Teoriche calendar_availability]
-    D --> E[Carica Eventi Locali calendar_events]
-    E --> F[Richiede Free/Busy Google Calendar API per ogni Agente]
-    F --> G[Genera Slot Temporali]
-    G --> H[Filtra Slot Occupati + Buffer di Sicurezza]
-    H --> I[Aggrega gli Slot Comuni e restituisce al Frontend]
+erDiagram
+    organizations ||--|{ pipelines : "possiede"
+    pipelines ||--|{ pipeline_stages : "contiene"
+    pipeline_stages ||--|{ leads : "contiene"
+    organizations ||--|{ leads : "possiede"
+    leads ||--|{ lead_activities : "genera"
+    leads ||--|{ calendar_events : "pianifica"
+    crm_calendars ||--|{ calendar_events : "contiene"
+    crm_calendars ||--|{ crm_calendar_members : "ha"
+    organization_members ||--|{ crm_calendar_members : "assegnato"
+    organization_members ||--|{ calendar_availability : "definisce"
 ```
 
-### Logica Dettagliata dell'Intersezione:
-1. **Definizione della finestra temporale:** Si calcola l'intervallo dal giorno corrente (`start`) fino a 14 giorni nel futuro (`end`).
-2. **Generazione degli slot teorici:** Per ogni giorno compreso nell'intervallo, si controlla il giorno della settimana (`day_of_week`). Per ciascun agente associato, si prendono le sue disponibilità teoriche (es. `09:00` - `18:00`). Si generano slot consecutivi in base a `slot_interval_minutes`.
-3. **Controllo dei Conflitti:** Uno slot viene rimosso per un determinato agente se collide con:
-   * **Impegni interni:** Un evento già presente in `calendar_events` per lo stesso `closer_id` che si sovrappone temporalmente.
-   * **Impegni esterni:** Eventi del Google Calendar dell'agente ottenuti chiamando l'API `freeBusy` di Google Calendar (previa validazione e aggiornamento dinamico del token OAuth2 scaduto).
-   * **Buffer di sicurezza:** Nel calcolo della collisione si estende lo slot occupato aggiungendo `slot_buffer_minutes` prima dell'inizio e dopo la fine (es. se l'agente ha un impegno 10:00-10:30 e il buffer è di 15m, la finestra risulterà bloccata dalle 09:45 alle 10:45).
-4. **Aggregazione:** Se almeno un agente è disponibile in uno specifico slot temporale, quello slot viene visualizzato nel frontend. Il frontend riceve l'elenco degli slot aggregati per data.
+### A. Gestione Pipeline e Fasi (`pipelines`, `pipeline_stages`)
+Le pipeline definiscono il flusso di vendita. Le fasi (stages) indicano lo stato di avanzamento del lead.
+
+* **`pipelines`** (Definizione delle pipeline, es. "Commerciale", "Supporto")
+  * `id` (UUID): Chiave primaria.
+  * `organization_id` (UUID): ID dell'organizzazione multi-tenant.
+  * `name` (text): Nome della pipeline.
+  * `slug` (text): Stringa URL-friendly.
+  * `is_default` (boolean): Se impostata su true, accoglie i lead in ingresso per impostazione predefinita.
+  * `color` (text): Colore esadecimale per la UI.
+
+* **`pipeline_stages`** (Le singole colonne o fasi all'interno di una pipeline)
+  * `id` (text): ID univoco (es. `leads_initial`, `appuntamento_fissato`).
+  * `pipeline_id` (UUID): Chiave esterna su `pipelines`.
+  * `organization_id` (UUID).
+  * `name` (text): Nome visibile della colonna (es. "Lead Inbound", "Consulenza Effettuata").
+  * `sort_order` (int): Posizione ordinata da sinistra a destra.
+  * `is_won` (boolean): Indica se questa fase rappresenta una vendita completata (es. "Abbonato").
+  * `is_lost` (boolean): Indica se questa fase rappresenta un lead perso (es. "Non Interessato").
+  * `fire_capi_event` (boolean): Se impostato su true, lo spostamento in questa fase invia automaticamente un evento di conversione server-side (Meta CAPI) per ottimizzare le campagne pubblicitarie.
+
+### B. Anagrafica e Tracciamento Leads (`leads`)
+La tabella centrale che ospita i dati dei contatti, l'attribuzione marketing e gli esiti dei Closer/Setter.
+
+* **`leads`**
+  * `id` (UUID): Chiave primaria.
+  * `organization_id` (UUID).
+  * `pipeline_id` (UUID) / `stage_id` (text): Fasi attuali di posizionamento del lead.
+  * `name` (text): Nome e cognome del contatto (es. nome genitore).
+  * `email` (text) / `phone` (text): Canali di contatto univoci per la deduplicazione.
+  * `assigned_to` (UUID): ID dell'operatore attualmente assegnato per la gestione (Setter o Closer).
+  * `setter_id` (UUID): L'operatore (Setter) che qualifica il lead.
+  * `closer_id` (UUID): Il consulente (Closer) che esegue la trattativa commerciale.
+  * `value` (numeric): Valore economico stimato o effettivo dell'opportunità.
+  * `utm_source`, `utm_campaign`, `source_channel` (text): Dati di tracciamento marketing.
+  * `meta_data` (jsonb): Campo chiave flessibile per salvare dati specifici del modulo (es. età del figlio, risposte del questionario, note personalizzate).
+  * `closer_appt_status` (text): Stato dell'appuntamento (es. `no_show`, `eseguito`, `riprogrammare`).
+  * `closer_outcome` (text): Esito commerciale (es. `won`, `lost`, `pending`).
+  * `esito` (text): Annotazione testuale rapida sull'ultimo contatto.
+
+### C. Log Storico Attività (`lead_activities`)
+Tiene traccia di ogni interazione e cambio di fase del lead per consentire l'audit e il calcolo delle metriche di performance.
+
+* **`lead_activities`**
+  * `id` (UUID).
+  * `lead_id` (UUID): Chiave esterna su `leads`.
+  * `user_id` (UUID): L'operatore che ha effettuato l'azione (se nullo, l'azione è del sistema/AI).
+  * `activity_type` (text): Tipo di attività (es. `stage_change`, `note_added`, `call_scheduled`, `whatsapp_sent`).
+  * `from_stage_id` / `to_stage_id` (text): Popolati in caso di cambio di fase.
+  * `notes` (text): Testo della nota o descrizione dell'attività.
+  * `meta_data` (jsonb): Payload aggiuntivo (es. dettagli dell'evento programmato).
+  * `created_at` (timestamp).
+
+### D. Configurazione Calendario ed Eventi (`crm_calendars`, `crm_calendar_members`, `calendar_availability`, `calendar_events`)
+* **`crm_calendars`**: Contiene la durata, i buffer e l'URL di redirezione per ciascun tipo di appuntamento.
+* **`crm_calendar_members`**: Mappa quali consulenti (Closer) sono attivi su quel calendario, includendo una `priority` numerica.
+* **`calendar_availability`**: Definisce i giorni (`day_of_week`) e le ore ricorrenti in cui ogni closer è disponibile.
+* **`calendar_events`**: Salva le prenotazioni confermate sul database locale, tenendo traccia dell'`assigned_to`, del `lead_id` e del `google_event_id` dell'evento creato nel calendario remoto Google.
 
 ---
 
-## 3. Motore di Prenotazione e Round-Robin (Booking Engine)
+## 2. Logica di Caricamento Disponibilità (Availability Engine)
 
-Quando l'utente seleziona uno slot ed invia i suoi dati, l'endpoint di prenotazione (`/api/public/calendar/[slug]/book`) esegue i seguenti passaggi in modo transazionale:
+L'endpoint `/api/public/calendar/[slug]/availability` calcola e mostra al cliente solo gli slot orari in cui c'è **almeno un consulente libero**.
 
-### Fase 1: Validazione e Assegnazione
-* Si calcolano le ore di inizio (`start_time`) e fine (`end_time`) dello slot.
-* Si estraggono tutti gli agenti attivi associati al calendario ordinati per `priority DESC` (priorità più alta prima).
-* Viene effettuato un doppio controllo di disponibilità in tempo reale per lo slot specifico, verificando l'assenza di eventi su DB e interrogando l'API di Google Calendar per i candidati.
-* **Algoritmo di Round-Robin con Priorità:** Il sistema assegna l'evento al primo agente che supera tutti i controlli di disponibilità nell'ordine di priorità stabilito. Se più agenti sono liberi nello stesso slot, l'agente con priorità più alta riceve l'appuntamento.
-
-### Fase 2: Gestione del Lead
-* Si effettua una ricerca per verificare se il lead (tramite l'indirizzo email) esiste già nel database dell'organizzazione.
-* **Se esiste:** Si recupera l'ID del lead esistente.
-* **Se NON esiste:**
-  1. Si cerca lo stage della pipeline deputato alla presa appuntamenti (solitamente denominato `"Appuntamento"` o `"Consulenza Prenotata"`).
-  2. Viene inserito un nuovo record nella tabella `leads` agganciandolo a quel determinato `stage_id` e `pipeline_id`.
-
-### Fase 3: Creazione dell'Evento e Sincronizzazione Remota
-* Viene registrato l'appuntamento nella tabella locale `calendar_events` con lo stato `confirmed` e il riferimento al lead e all'agente assegnato.
-* Viene inviata una chiamata API asincrona per creare l'evento direttamente sul Google Calendar dell'agente assegnato:
-  * L'evento include nel corpo i dati di contatto (nome, telefono, email e note dell'utente).
-  * Viene impostato l'utente come invitato (attendee) per generare il link di Google Meet automatico.
-  * Il codice recupera l'ID dell'evento restituito da Google (`google_event_id`) e lo salva nel database locale su `calendar_events`. Questo passaggio è fondamentale per consentire modifiche, aggiornamenti o cancellazioni bidirezionali dell'evento.
-
-### Fase 4: Notifiche e Redirezione
-* Viene inviata una notifica email/Telegram all'agente assegnato (closer) contenente tutti i dati del lead.
-* Il server risponde al frontend inviando il link di redirezione impostato nel calendario (`redirect_url` o un fallback standard come `/grazie`).
+### Algoritmo di calcolo degli slot disponibili:
+1. **Generazione Finestra Temporale:** Si imposta l'intervallo per i successivi 14 giorni a partire da oggi (`startDate` ➡️ `endDate`).
+2. **Generazione degli Slot Teorici:** Per ciascun giorno e per ciascun agente attivo sul calendario, si leggono le regole di disponibilità settimanale (`calendar_availability`). Si suddivide il tempo in blocchi uguali a `slot_interval_minutes`.
+3. **Controllo dei Conflitti e Buffer di Sicurezza:** Uno slot viene marcato come **occupato** per l'agente se si sovrappone a impegni locali o remoti:
+   * **Impegni Locali (`calendar_events`):** Eventi già confermati sul DB locale per lo stesso closer.
+   * **Impegni Google Calendar (`Free/Busy API`):** Chiamate in tempo reale a Google per verificare eventi esterni sull'agenda personale del closer.
+   * **Calcolo del Buffer:** Se il calendario ha un `slot_buffer_minutes` di `15`, uno slot di 30 minuti (es. 10:00-10:30) viene considerato non disponibile se l'agente ha un qualsiasi impegno che tocca la finestra allargata dalle **09:45 alle 10:45**.
+4. **Aggregazione:** Gli slot orari che hanno almeno un closer disponibile vengono restituiti in risposta raggruppati per giorno.
 
 ---
 
-## 4. Requisiti di Integrazione per Altri Software
+## 3. Motore di Assegnazione Automatico (Round-Robin & Weighted Routing)
 
-Se desideri replicare questa architettura in altre piattaforme o servizi esterni, ecco i punti chiave da implementare:
+L'assegnazione automatica avviene sia in fase di prenotazione appuntamento (assegnazione Closer) che in fase di ricezione lead da form contatti (assegnazione Setter). 
 
-1. **Gestione del Token OAuth2 Google:**
-   * Implementare una routine di token-refresh prima di ogni chiamata `Free/Busy` o di creazione evento. Se il timestamp corrente supera `google_token_expiry`, richiedere un nuovo `access_token` tramite il `refresh_token` memorizzato.
-2. **Ottimizzazione delle Performance (Caching):**
-   * Le chiamate `Free/Busy` alle API di Google possono rallentare l'interfaccia utente (fino a 1-2 secondi di latenza). Per ottimizzare il caricamento del calendario, valuta di memorizzare in una cache (es. Redis) le risposte Free/Busy degli agenti per un tempo limitato (es. 5-10 minuti).
-3. **Gestione della Concorrenza (Race Conditions):**
-   * Se due utenti provano a prenotare contemporaneamente lo stesso identico slot con lo stesso unico agente disponibile, il sistema deve sollevare un errore di conflitto (`409 Conflict`) per il secondo utente prima di scrivere l'evento nel DB, costringendolo a scegliere un nuovo orario.
-4. **Attribution UTM & Tracking CAPI:**
-   * Durante la fase di booking, è fondamentale salvare i dati dei cookie (`fbp`, `fbc`, `utm_source`, ecc.) passandoli nel payload dell'evento di prenotazione. Questo permette di lanciare gli eventi di conversione server-side (Meta Conversions API) per tracciare il ROI delle campagne pubblicitarie in modo accurato.
+Il codice in `lib/lead-routing.ts` implementa due modalità di distribuzione automatica:
+
+### A. Modalità Round-Robin (Alternanza Semplice)
+1. Recupera la lista di tutti i membri del team abilitati alla rotazione (`in_round_robin = true`), ordinati cronologicamente per data di ingresso (`joined_at ASC`).
+2. Legge dalle impostazioni dell'organizzazione l'ID dell'ultimo utente assegnato (`last_assigned_user_id`).
+3. Individua l'indice di questo utente all'interno dell'elenco ordinato:
+   * Se l'utente si trova in mezzo all'elenco, assegna il lead all'operatore immediatamente successivo (`index + 1`).
+   * Se era l'ultimo dell'elenco o non vi è uno storico, riparte dal primo operatore in lista (`index = 0`).
+4. Aggiorna il record dell'organizzazione salvando il nuovo `last_assigned_user_id`.
+
+### B. Modalità Pesata (Weighted Distribution)
+1. Legge le percentuali o i pesi assegnati a ciascun utente (es. `{"user_A": 60, "user_B": 40}`).
+2. Calcola la somma totale dei pesi attivi.
+3. Genera un numero casuale compreso tra zero e il totale calcolato.
+4. Distribuisce il lead scorrendo la lista e sottraendo il peso di ciascun utente dal numero generato finché quest'ultimo non scende a zero o meno. L'utente corrente riceve l'assegnazione.
+
+---
+
+## 4. Flusso di Esecuzione Asincrono (Submit & Booking Workflow)
+
+Per garantire una UX ottimale e tempi di risposta istantanei (sotto i 200ms), le operazioni pesanti vengono delegate a processi in background utilizzando la funzionalità `after(...)` di Next.js:
+
+```
+[Utente invia Form] 
+       │
+       ▼
+1. Salva dati grezzi in 'funnel_submissions' (Sincrono)
+2. Invia risposta immediata '200 OK' al Browser (Sincrono)
+       │
+       ▼ ────[ Esecuzione in Background con after() ]────
+       │
+3. Deduplica ed elabora il Lead:
+   ├─ Se email/telefono corrispondono ad un record esistente:
+   │  └─ Riattiva il Lead, aggiorna meta_data e lo sposta al primo Stage.
+   └─ Se non esiste:
+      └─ Crea un nuovo record nella tabella 'leads'.
+4. Assegna il Lead in Round-Robin ad un Setter.
+5. Sincronizza i dati inserendo una riga in Google Sheets.
+6. Invia notifiche Telegram (al gruppo e chat diretta del Setter assegnato).
+7. Esegue chiamata Meta Conversions API per tracciare l'evento server-side.
+```
+
+---
+
+## 5. Linee Guida per la Replicabilità in altri Software
+
+Se si desidera sviluppare un nuovo modulo, software o microservizio per il gruppo Sincro che gestisca contatti o appuntamenti, è obbligatorio implementare questi standard:
+
+1. **Deduplicazione basata su Email e Telefono:**
+   * Non creare mai lead duplicati se condividono lo stesso indirizzo email (normalizzato in minuscolo e senza spazi esterni) o lo stesso numero di telefono (pulito da caratteri speciali). Aggiornare sempre il lead preesistente, registrando l'azione nel log storico delle attività.
+2. **Uso transazionale del Log delle Attività:**
+   * Qualsiasi operazione effettuata su un lead (cambio fase, assegnazione operatore, esito telefonata) deve inserire una riga in `lead_activities` per consentire analisi storiche corrette.
+3. **Gestione Token OAuth2 Google:**
+   * Google invalida gli access token dopo 60 minuti. Scrivere un middleware o un helper che intercetti le chiamate API verso Google: se l'ora corrente supera `google_token_expiry`, deve effettuare automaticamente un refresh del token e aggiornare il database con il nuovo access token prima di eseguire la sincronizzazione dell'appuntamento.
+4. **Tracciamento Server-Side (CAPI):**
+   * Ogni qualvolta un lead cambia fase, controllare se la colonna `fire_capi_event` del nuovo stage è impostata su `true`. In tal caso, estrarre dal lead i parametri `utm_source`, `utm_campaign`, l'indirizzo IP del browser, il pixel ID associato al funnel d'origine e inviare l'evento a Meta utilizzando la deduplicazione client-server tramite l'identificativo `event_id` univoco.
+5. **Round-Robin con Blocco di Concorrenza:**
+   * In caso di forte traffico concorrente, assicurarsi che le transazioni che leggono e aggiornano il parametro `last_assigned_user_id` siano atomiche (es. usando un blocco `SELECT ... FOR UPDATE` a livello SQL o una coda transazionale) per impedire che due lead in arrivo nello stesso millisecondo vengano assegnati allo stesso operatore saltando il turno degli altri.
