@@ -1388,7 +1388,7 @@
         </div>
         <h1>IN ALLENAMENTO È UN ALTRO.<br><span class="gold">IN PARTITA SI SPEGNE.</span></h1>
         <p class="hero-sub">
-          In 90 giorni, prima del prossimo campionato, sblocchiamo i freni mentali che lo limitano la domenica. Costruiamo una <strong>mentalità d'acciaio</strong>. 100% online — anche dal mare.
+          Con i nostri <strong>percorsi individuali di Mental Coaching</strong>, in 90 giorni sblocchiamo i freni mentali che lo limitano la domenica. Prepariamolo ora per il prossimo campionato. 100% online — anche dal mare.
         </p>
         
         <!-- Social Proof strip under subheadline in hero for instant authority -->
@@ -1402,7 +1402,7 @@
         <!-- FORM DI QUALIFICAZIONE A STEP (moved here) -->
         <div class="lead-form-container" id="qualify-form">
           <h3>PREPARALO PER LA PROSSIMA STAGIONE</h3>
-          <p class="form-desc">Rispondi a 3 domande per definire il suo piano di preparazione mentale prima dell'inizio del prossimo campionato. <strong>Riceverai un Report personalizzato.</strong></p>
+          <p class="form-desc">Rispondi a 3 domande per definire il suo percorso di <strong>Mental Coaching</strong> personalizzato prima dell'inizio del prossimo campionato. <strong>Riceverai un Report personalizzato.</strong></p>
           <div class="viewer-counter" id="viewer-counter">
             <span class="viewer-dot"></span>
             <span id="viewer-count">17</span> genitori stanno guardando questa pagina ora
@@ -1635,7 +1635,7 @@
       <div class="eyebrow rv">La soluzione</div>
       <h2 class="rv">NON AGGIUNGIAMO NIENTE.<br><span class="gold">SBLOCCHIAMO</span> CIÒ CHE C'È GIÀ.</h2>
       <p class="rv" style="font-size:15px; color:var(--white-70); margin-bottom: 8px; line-height:1.8;">
-        Il Metodo Sincro® non è motivazione da spogliatoio. È un sistema strutturato che rimuove i blocchi mentali e libera il potenziale che tuo figlio ha già dentro.
+        Il Metodo Sincro® è il percorso individuale di <strong>Mental Coaching</strong> n°1 in Italia per giovani calciatori. Non è motivazione da spogliatoio: è un sistema strutturato che rimuove i blocchi mentali e libera il potenziale che tuo figlio ha già dentro.
       </p>
 
       <div class="feat-grid rv-s">
@@ -1971,6 +1971,15 @@
     const progressFill = document.getElementById('form-progress');
     let currentStep = 1;
 
+    function goToNextStep() {
+      if (currentStep < 3) {
+        formSteps[currentStep - 1].classList.remove('active');
+        currentStep++;
+        formSteps[currentStep - 1].classList.add('active');
+        updateFormProgress();
+      }
+    }
+
     // Gestione selezione opzioni Step 1 e 2
     document.querySelectorAll('.form-step[data-step="1"] .option-card').forEach(card => {
       card.addEventListener('click', () => {
@@ -1978,6 +1987,7 @@
         card.classList.add('selected');
         document.getElementById('input-eta').value = card.getAttribute('data-val');
         document.getElementById('btn-step1-next').removeAttribute('disabled');
+        setTimeout(goToNextStep, 240);
       });
     });
 
@@ -2004,6 +2014,7 @@
           otherDifficoltaW.classList.remove('active');
           inputDifficolta.value = val;
           btnStep2Next.removeAttribute('disabled');
+          setTimeout(goToNextStep, 240);
         }
       });
     });
@@ -2024,14 +2035,7 @@
 
     // Navigazione Step
     document.querySelectorAll('.btn-next').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (currentStep < 3) {
-          formSteps[currentStep - 1].classList.remove('active');
-          currentStep++;
-          formSteps[currentStep - 1].classList.add('active');
-          updateFormProgress();
-        }
-      });
+      btn.addEventListener('click', goToNextStep);
     });
 
     document.querySelectorAll('.btn-back').forEach(btn => {
