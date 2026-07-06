@@ -197,6 +197,67 @@
     }
     .hero-sub strong { color: var(--white); font-weight: 500; }
 
+    .hero-social-proof {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+    .hero-social-proof-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--white-20);
+    }
+    @media (max-width: 768px) {
+      .hero-overlay {
+        background: linear-gradient(to top, rgba(8,8,8,0.96) 0%, rgba(8,8,8,0.88) 55%, rgba(8,8,8,0.78) 100%) !important;
+      }
+      .hero-grid {
+        padding-top: 100px !important;
+        padding-bottom: 32px !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        gap: 24px !important;
+      }
+      .hero-left {
+        text-align: center;
+        max-width: 100% !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .hero-tag {
+        margin-bottom: 20px !important;
+        padding: 8px 18px !important;
+        font-size: 10.5px !important;
+      }
+      .hero h1 {
+        font-size: 26px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 16px !important;
+        text-align: center;
+      }
+      .hero-sub {
+        font-size: 14.5px !important;
+        line-height: 1.6 !important;
+        margin-bottom: 20px !important;
+        text-align: center;
+        max-width: 100% !important;
+      }
+      .hero-social-proof {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: center !important;
+        text-align: center;
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+      }
+      .hero-social-proof-sep {
+        display: none !important;
+      }
+    }
+
     /* CTA */
     .cta {
       display: inline-flex;
@@ -1392,9 +1453,9 @@
         </p>
         
         <!-- Social Proof strip under subheadline in hero for instant authority -->
-        <div class="hero-social-proof" style="display: flex; gap: 16px; align-items: center; margin-top: 24px; margin-bottom: 24px;">
+        <div class="hero-social-proof">
           <div style="font-size: 13px; color: var(--gold-light); font-weight: 500;">✓ Riferimento in Italia</div>
-          <div style="width: 1px; height: 16px; background: var(--white-20);"></div>
+          <div class="hero-social-proof-sep"></div>
           <div style="font-size: 13px; color: var(--white-70);">Visto su: <strong style="color:var(--white);">La Repubblica, Gazzetta</strong></div>
         </div>
       </div>
