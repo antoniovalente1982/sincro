@@ -94,7 +94,7 @@
       position: relative;
       min-height: 100vh;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       overflow: hidden;
     }
 
@@ -120,11 +120,45 @@
         linear-gradient(to right, rgba(8,8,8,0.7) 0%, transparent 60%);
     }
 
-    .hero-content {
+    .hero-grid {
       position: relative;
       z-index: 3;
-      padding: 0 clamp(24px, 5vw, 80px) 64px;
-      max-width: 800px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px clamp(24px, 5vw, 80px) 64px;
+      align-items: center;
+    }
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        padding-top: 120px;
+        padding-bottom: 40px;
+        gap: 32px;
+      }
+    }
+    .hero-left {
+      max-width: 650px;
+    }
+    .hero-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+    @media (max-width: 1024px) {
+      .hero-right {
+        justify-content: center;
+      }
+    }
+    .hero-right .lead-form-container {
+      margin: 0;
+      width: 100%;
+      background: rgba(20, 20, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .hero-tag {
@@ -147,8 +181,8 @@
 
     .hero h1 {
       font-family: var(--font-h);
-      font-size: clamp(44px, 8vw, 96px);
-      line-height: 0.9;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 0.95;
       letter-spacing: 0.01em;
       margin-bottom: 24px;
     }
@@ -847,7 +881,7 @@
     .hero-tag     { animation: fadeUp .6s ease both .1s; opacity: 0; }
     .hero h1      { animation: fadeUp .6s ease both .25s; opacity: 0; }
     .hero-sub     { animation: fadeUp .6s ease both .4s; opacity: 0; }
-    .hero-cta-w   { animation: fadeUp .6s ease both .55s; opacity: 0; }
+    .hero-right   { animation: fadeUp .6s ease both .55s; opacity: 0; }
 
     .rv { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s ease; }
     .rv.vis { opacity: 1; transform: translateY(0); }
@@ -1346,21 +1380,105 @@
       <img src="img-bench.jpg" alt="Giovane calciatore seduto in panchina" width="1024" height="1024">
     </div>
     <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-tag">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        #1 Italia · 4,9★ Trustpilot · 2.100+ Atleti
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="hero-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          #1 Italia · 4,9★ Trustpilot · 2.100+ Atleti
+        </div>
+        <h1>IN ALLENAMENTO È UN ALTRO.<br><span class="gold">IN PARTITA SI SPEGNE.</span></h1>
+        <p class="hero-sub">
+          In 90 giorni, prima del prossimo campionato, sblocchiamo i freni mentali che lo limitano la domenica. Costruiamo una <strong>mentalità d'acciaio</strong>. 100% online — anche dal mare.
+        </p>
+        
+        <!-- Social Proof strip under subheadline in hero for instant authority -->
+        <div class="hero-social-proof" style="display: flex; gap: 16px; align-items: center; margin-top: 24px; margin-bottom: 24px;">
+          <div style="font-size: 13px; color: var(--gold-light); font-weight: 500;">✓ Riferimento in Italia</div>
+          <div style="width: 1px; height: 16px; background: var(--white-20);"></div>
+          <div style="font-size: 13px; color: var(--white-70);">Visto su: <strong style="color:var(--white);">La Repubblica, Gazzetta</strong></div>
+        </div>
       </div>
-      <h1>QUEST'ESTATE <span class="gold">SBLOCCA</span><br>IL POTENZIALE<br>DI TUO FIGLIO</h1>
-      <p class="hero-sub">
-        In 90 giorni, prima del prossimo campionato, tuo figlio avrà una <strong>mentalità vincente</strong> che il 90% dei suoi compagni non avrà mai. <strong>100% online</strong> — anche dal mare.
-      </p>
-      <div class="hero-cta-w">
-        <a href="#qualify-form" class="cta cta-pulse" id="hero-cta">
-          PRENOTA LA CHIAMATA GRATUITA
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <div class="cta-note">🔒 Consulenza gratuita · Nessun impegno · ⚡ Meno di 30 secondi</div>
+      <div class="hero-right">
+        <!-- FORM DI QUALIFICAZIONE A STEP (moved here) -->
+        <div class="lead-form-container" id="qualify-form">
+          <h3>Aiuta tuo figlio a sbloccarsi</h3>
+          <p class="form-desc">Rispondi a 3 semplici domande per prenotare la consulenza gratuita. <strong>Riceverai un Report Dettagliato sul piano di sblocco mentale personalizzato per tuo figlio.</strong></p>
+          <div class="viewer-counter" id="viewer-counter">
+            <span class="viewer-dot"></span>
+            <span id="viewer-count">17</span> genitori stanno guardando questa pagina ora
+          </div>
+          
+          <div class="progress-bar">
+            <div class="progress-fill" id="form-progress"></div>
+          </div>
+          
+          <form id="sincro-lead-form" action="#" method="POST">
+            <!-- Step 1: Età del ragazzo -->
+            <div class="form-step active" data-step="1">
+              <div class="form-group">
+                <label>Quanti anni ha tuo figlio?</label>
+                <div class="select-options">
+                  <div class="option-card" data-val="10-12">10 - 12 anni</div>
+                  <div class="option-card" data-val="13-15">13 - 15 anni</div>
+                  <div class="option-card" data-val="16-17">16 - 17 anni</div>
+                  <div class="option-card" data-val="18-20">18 - 20 anni</div>
+                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro / Non specificato</div>
+                </div>
+                <input type="hidden" name="eta_ragazzo" id="input-eta" required>
+              </div>
+              <div class="form-nav">
+                <div></div>
+                <button type="button" class="form-btn btn-next" id="btn-step1-next" disabled>Continua</button>
+              </div>
+            </div>
+            
+            <!-- Step 2: Difficoltà principale -->
+            <div class="form-step" data-step="2">
+              <div class="form-group">
+                <label>Qual è la sua difficoltà principale?</label>
+                <div class="select-options">
+                  <div class="option-card" data-val="ansia_partita">Ansia prima della partita</div>
+                  <div class="option-card" data-val="perde_fiducia">Crolla dopo un errore</div>
+                  <div class="option-card" data-val="blocco_provini">Si blocca nei provini</div>
+                  <div class="option-card" data-val="rapporto_mister">Problemi con il mister</div>
+                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro...</div>
+                </div>
+                <input type="hidden" name="difficolta" id="input-difficolta" required>
+                <!-- Area di testo dinamica per "Altro..." -->
+                <div class="other-textarea-w" id="other-difficolta-w">
+                  <textarea id="other-difficolta-text" class="form-control" placeholder="Descrivi brevemente qual è la difficoltà principale di tuo figlio..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="form-btn btn-back">Indietro</button>
+                <button type="button" class="form-btn btn-next" id="btn-step2-next" disabled>Continua</button>
+              </div>
+            </div>
+            
+            <!-- Step 3: Dati di contatto -->
+            <div class="form-step" data-step="3">
+              <div class="form-group">
+                <label for="parent-name">Nome del Genitore</label>
+                <input type="text" id="parent-name" name="nome_genitore" class="form-control" placeholder="Es. Mario Rossi" required>
+              </div>
+              <div class="form-group">
+                <label for="parent-phone">Numero Cellulare / WhatsApp</label>
+                <input type="tel" id="parent-phone" name="telefono" class="form-control" placeholder="Es. 333 1234567" required>
+              </div>
+              <div class="form-group">
+                <label for="parent-email">Indirizzo Email</label>
+                <input type="email" id="parent-email" name="email" class="form-control" placeholder="Es. mario.rossi@email.it" required>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="form-btn btn-back">Indietro</button>
+                <button type="submit" class="form-btn btn-submit">Prenota Chiamata Gratuita</button>
+              </div>
+              <p style="font-size: 11.5px; color: var(--gold-light); text-align: center; margin-top: 14px; line-height: 1.5;">
+                🎁 Riceverai il Report di Valutazione Mentale per email dopo la chiamata conoscitiva.
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </section>
@@ -1751,85 +1869,12 @@
       <h2 class="rv">IL <span class="gold">TALENTO</span> DI TUO FIGLIO<br>MERITA DI ESSERE<br>LIBERATO</h2>
       <p class="rv">Prenota una chiamata conoscitiva gratuita. Capiamo insieme la situazione e ti diciamo onestamente se possiamo aiutarti.</p>
       <div class="rv">
-        <!-- FORM DI QUALIFICAZIONE A STEP -->
-        <div class="lead-form-container" id="qualify-form">
-          <h3>Aiuta tuo figlio a sbloccarsi</h3>
-          <p class="form-desc">Rispondi a 3 semplici domande per prenotare la consulenza gratuita. <strong>Riceverai un Report Dettagliato sul piano di sblocco mentale personalizzato per tuo figlio.</strong></p>
-          <div class="viewer-counter" id="viewer-counter">
-            <span class="viewer-dot"></span>
-            <span id="viewer-count">17</span> genitori stanno guardando questa pagina ora
-          </div>
-          
-          <div class="progress-bar">
-            <div class="progress-fill" id="form-progress"></div>
-          </div>
-          
-          <form id="sincro-lead-form" action="#" method="POST">
-            <!-- Step 1: Età del ragazzo -->
-            <div class="form-step active" data-step="1">
-              <div class="form-group">
-                <label>Quanti anni ha tuo figlio?</label>
-                <div class="select-options">
-                  <div class="option-card" data-val="10-12">10 - 12 anni</div>
-                  <div class="option-card" data-val="13-15">13 - 15 anni</div>
-                  <div class="option-card" data-val="16-17">16 - 17 anni</div>
-                  <div class="option-card" data-val="18-20">18 - 20 anni</div>
-                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro / Non specificato</div>
-                </div>
-                <input type="hidden" name="eta_ragazzo" id="input-eta" required>
-              </div>
-              <div class="form-nav">
-                <div></div>
-                <button type="button" class="form-btn btn-next" id="btn-step1-next" disabled>Continua</button>
-              </div>
-            </div>
-            
-            <!-- Step 2: Difficoltà principale -->
-            <div class="form-step" data-step="2">
-              <div class="form-group">
-                <label>Qual è la sua difficoltà principale?</label>
-                <div class="select-options">
-                  <div class="option-card" data-val="ansia_partita">Ansia prima della partita</div>
-                  <div class="option-card" data-val="perde_fiducia">Crolla dopo un errore</div>
-                  <div class="option-card" data-val="blocco_provini">Si blocca nei provini</div>
-                  <div class="option-card" data-val="rapporto_mister">Problemi con il mister</div>
-                  <div class="option-card" data-val="altro" style="grid-column: 1 / -1;">Altro...</div>
-                </div>
-                <input type="hidden" name="difficolta" id="input-difficolta" required>
-                <!-- Area di testo dinamica per "Altro..." -->
-                <div class="other-textarea-w" id="other-difficolta-w">
-                  <textarea id="other-difficolta-text" class="form-control" placeholder="Descrivi brevemente qual è la difficoltà principale di tuo figlio..." rows="3"></textarea>
-                </div>
-              </div>
-              <div class="form-nav">
-                <button type="button" class="form-btn btn-back">Indietro</button>
-                <button type="button" class="form-btn btn-next" id="btn-step2-next" disabled>Continua</button>
-              </div>
-            </div>
-            
-            <!-- Step 3: Dati di contatto -->
-            <div class="form-step" data-step="3">
-              <div class="form-group">
-                <label for="parent-name">Nome del Genitore</label>
-                <input type="text" id="parent-name" name="nome_genitore" class="form-control" placeholder="Es. Mario Rossi" required>
-              </div>
-              <div class="form-group">
-                <label for="parent-phone">Numero Cellulare / WhatsApp</label>
-                <input type="tel" id="parent-phone" name="telefono" class="form-control" placeholder="Es. 333 1234567" required>
-              </div>
-              <div class="form-group">
-                <label for="parent-email">Indirizzo Email</label>
-                <input type="email" id="parent-email" name="email" class="form-control" placeholder="Es. mario.rossi@email.it" required>
-              </div>
-              <div class="form-nav">
-                <button type="button" class="form-btn btn-back">Indietro</button>
-                <button type="submit" class="form-btn btn-submit">Prenota Chiamata Gratuita</button>
-              </div>
-              <p style="font-size: 11.5px; color: var(--gold-light); text-align: center; margin-top: 14px; line-height: 1.5;">
-                🎁 Riceverai il Report di Valutazione Mentale per email dopo la chiamata conoscitiva.
-              </p>
-            </div>
-          </form>
+        <div style="margin-top: 32px;">
+          <a href="#qualify-form" class="cta cta-pulse">
+            PRENOTA LA CHIAMATA GRATUITA
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <div class="cta-note" style="margin-top: 14px; color: var(--white-45);">🔒 Consulenza gratuita · Nessun impegno · ⚡ Meno di 30 secondi</div>
         </div>
       </div>
       <div class="trust-strip rv">
@@ -1872,13 +1917,13 @@
     });
 
     // Float CTA
-    const hCTA = document.getElementById('hero-cta');
+    const heroSection = document.getElementById('hero');
     const fCTA = document.getElementById('float-cta');
-    if (hCTA && fCTA) {
+    if (heroSection && fCTA) {
       new IntersectionObserver(([e]) => {
         fCTA.classList.toggle('visible', !e.isIntersecting);
         document.body.classList.toggle('has-float-cta', !e.isIntersecting);
-      }).observe(hCTA);
+      }).observe(heroSection);
     }
 
     // Smooth scroll
