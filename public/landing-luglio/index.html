@@ -86,6 +86,7 @@
     }
     img { max-width: 100%; height: auto; display: block; }
     a { color: inherit; text-decoration: none; }
+    .gold { color: var(--gold) !important; }
 
     /* ═══════════════════════════════════════════ */
     /*  HERO — Full bleed cinematic                */
@@ -204,21 +205,37 @@
       margin-top: 24px;
       margin-bottom: 24px;
     }
+    .hero-social-proof {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
     .hero-social-proof-sep {
       width: 1px;
       height: 16px;
       background: var(--white-20);
     }
     @media (max-width: 768px) {
+      .summer-banner {
+        padding: 10px 14px !important;
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+      }
+      .hero-img img {
+        opacity: 0.35 !important;
+        filter: grayscale(30%) blur(1px) !important;
+      }
       .hero-overlay {
-        background: linear-gradient(to top, rgba(8,8,8,0.96) 0%, rgba(8,8,8,0.88) 55%, rgba(8,8,8,0.78) 100%) !important;
+        background: linear-gradient(to top, rgba(8,8,8,0.98) 0%, rgba(12,12,16,0.94) 50%, rgba(15,15,20,0.85) 100%) !important;
       }
       .hero-grid {
-        padding-top: 100px !important;
+        padding-top: 90px !important;
         padding-bottom: 32px !important;
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-        gap: 24px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        gap: 20px !important;
       }
       .hero-left {
         text-align: center;
@@ -228,33 +245,96 @@
         align-items: center;
       }
       .hero-tag {
-        margin-bottom: 20px !important;
-        padding: 8px 18px !important;
-        font-size: 10.5px !important;
+        margin-bottom: 16px !important;
+        padding: 8px 16px !important;
+        font-size: 10px !important;
       }
       .hero h1 {
-        font-size: 26px !important;
+        font-size: 24px !important;
         line-height: 1.25 !important;
-        margin-bottom: 16px !important;
+        margin-bottom: 14px !important;
         text-align: center;
+      }
+      .hero h1 .gold {
+        display: block;
+        margin-top: 4px;
+        font-size: 22px !important;
       }
       .hero-sub {
-        font-size: 14.5px !important;
+        font-size: 14px !important;
         line-height: 1.6 !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 16px !important;
         text-align: center;
         max-width: 100% !important;
+        color: rgba(244, 239, 230, 0.85) !important;
       }
       .hero-social-proof {
-        flex-direction: column !important;
-        gap: 8px !important;
-        align-items: center !important;
-        text-align: center;
-        margin-top: 16px !important;
-        margin-bottom: 16px !important;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 12px 16px !important;
+        width: 100%;
+        max-width: 340px;
+        margin: 16px auto !important;
+        display: flex;
+        flex-direction: column;
+        gap: 6px !important;
       }
       .hero-social-proof-sep {
         display: none !important;
+      }
+      .lead-form-container {
+        padding: 24px 16px !important;
+      }
+      .lead-form-container h3 {
+        font-size: 20px !important;
+      }
+      .form-desc {
+        font-size: 12.5px !important;
+      }
+      .option-card {
+        padding: 12px 10px !important;
+        font-size: 13.5px !important;
+      }
+      .split-text {
+        padding: 32px 20px !important;
+      }
+      .split-text h2 {
+        font-size: 26px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 20px !important;
+      }
+      .pain-item {
+        gap: 12px !important;
+      }
+      .ba-card {
+        min-height: 420px !important;
+      }
+      .ba-card-overlay {
+        padding: 24px 20px !important;
+      }
+      .ba-header {
+        margin-bottom: 32px !important;
+      }
+      .ba-header h2 {
+        font-size: 28px !important;
+        line-height: 1.1 !important;
+      }
+      .athletes-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+      }
+      .athlete-card {
+        aspect-ratio: 4/5 !important;
+      }
+      .athlete-name {
+        font-size: 15px !important;
+      }
+      .athlete-team {
+        font-size: 9px !important;
+      }
+      .athlete-info {
+        padding: 10px 8px !important;
       }
     }
 
@@ -1449,21 +1529,21 @@
         </div>
         <h1>TUO FIGLIO SI ALLENA COME UN PROFESSIONISTA...<br><span class="gold">MA LA DOMENICA GIOCA COL FRENO A MANO TIRATO?</span></h1>
         <p class="hero-sub">
-          I prossimi <strong>90 giorni sono fondamentali</strong> per sbloccare la sua mente prima del fischio d'inizio del nuovo campionato. Con i nostri <strong>percorsi di <span class="gold" style="font-weight:700;">Mental Coaching</span></strong> (lo stesso tipo di percorso seguito in <strong>Serie A</strong>), sciogliamo i blocchi della domenica. 100% online — anche dal mare.
+          I prossimi <strong>90 giorni sono fondamentali</strong> per sbloccare la sua mente prima del fischio d'inizio del nuovo campionato. Con i nostri <strong>percorsi di <strong class="gold">Mental Coaching</strong></strong> (lo stesso tipo di percorso seguito in <strong class="gold">Serie A</strong>), sciogliamo i blocchi della domenica. 100% online — anche dal mare.
         </p>
         
         <!-- Social Proof strip under subheadline in hero for instant authority -->
         <div class="hero-social-proof">
           <div style="font-size: 13px; color: var(--gold-light); font-weight: 500;">✓ Riferimento in Italia</div>
           <div class="hero-social-proof-sep"></div>
-          <div style="font-size: 13px; color: var(--white-70);">Visto su: <strong style="color:var(--white);">La Repubblica, Gazzetta</strong></div>
+          <div style="font-size: 13px; color: var(--white-70);">Visto su: <strong class="gold">La Repubblica, Gazzetta</strong></div>
         </div>
       </div>
       <div class="hero-right">
         <!-- FORM DI QUALIFICAZIONE A STEP (moved here) -->
         <div class="lead-form-container" id="qualify-form">
           <h3>PREPARALO PER LA PROSSIMA STAGIONE</h3>
-          <p class="form-desc">Rispondi a 3 domande. I prossimi <strong>90 giorni</strong> prima del campionato sono decisivi per la sua preparazione mentale (lo stesso metodo usato in <strong>Serie A</strong>). <strong>Riceverai un Report personalizzato.</strong></p>
+          <p class="form-desc">Rispondi a 3 domande. I prossimi <strong>90 giorni</strong> prima del campionato sono decisivi per la sua preparazione mentale (lo stesso metodo di <strong class="gold">Mental Coaching</strong> usato in <strong class="gold">Serie A</strong>). <strong>Riceverai un Report personalizzato.</strong></p>
           <div class="viewer-counter" id="viewer-counter">
             <span class="viewer-dot"></span>
             <span id="viewer-count">17</span> genitori stanno guardando questa pagina ora
@@ -1696,7 +1776,7 @@
       <div class="eyebrow rv">La soluzione</div>
       <h2 class="rv">NON AGGIUNGIAMO NIENTE.<br><span class="gold">SBLOCCHIAMO</span> CIÒ CHE C'È GIÀ.</h2>
       <p class="rv" style="font-size:15px; color:var(--white-70); margin-bottom: 8px; line-height:1.8;">
-        Il Metodo Sincro® è il percorso individuale di <strong class="gold">Mental Coaching</strong> n°1 in Italia per giovani calciatori — lo stesso metodo utilizzato dai professionisti di <strong>Serie A</strong> per performare sotto pressione. Non è motivazione da spogliatoio: è un sistema strutturato che rimuove i blocchi mentali e libera il potenziale che tuo figlio ha già dentro.
+        Il Metodo Sincro® è il percorso individuale di <strong class="gold">Mental Coaching</strong> n°1 in Italia per giovani calciatori — lo stesso metodo utilizzato dai professionisti di <strong class="gold">Serie A</strong> per performare sotto pressione. Non è motivazione da spogliatoio: è un sistema strutturato che rimuove i blocchi mentali e libera il potenziale che tuo figlio ha già dentro.
       </p>
 
       <div class="feat-grid rv-s">
