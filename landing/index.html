@@ -285,15 +285,18 @@
       }
       .lead-form-container {
         padding: 24px 16px !important;
-        border: 1px solid rgba(201, 168, 76, 0.15) !important;
-        background: rgba(10, 15, 12, 0.85) !important;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        border: 2px solid var(--gold) !important;
+        background: #ffffff !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
       .lead-form-container h3 {
         font-size: 20px !important;
         text-align: center !important;
+        background: linear-gradient(135deg, #111111 0%, #333333 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
       }
       .form-desc {
         font-size: 12.5px !important;
@@ -1301,23 +1304,23 @@
       50% { box-shadow: 0 8px 24px rgba(255, 223, 0, 0.65), 0 0 12px rgba(255, 223, 0, 0.35); }
     }
     .lead-form-container {
-      background: linear-gradient(180deg, rgba(14, 18, 15, 0.98) 0%, rgba(8, 10, 9, 0.99) 100%) !important;
-      border: 1px solid var(--gold);
-      box-shadow: 0 20px 60px rgba(201, 168, 76, 0.3);
+      background: #ffffff !important;
+      color: #111111 !important;
+      border: 2px solid var(--gold) !important;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45) !important;
       padding: 44px clamp(20px, 4vw, 48px);
       max-width: 580px;
       margin: 40px auto 0;
       text-align: left;
       border-radius: 12px;
       position: relative;
-      animation: borderGlowPulse 4s infinite ease-in-out;
     }
     .lead-form-container::before {
       content: '';
       position: absolute;
       top: -1px; left: 10%; right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
     }
     .lead-form-container h3 {
       font-family: var(--font-h);
@@ -1325,14 +1328,14 @@
       letter-spacing: 0.03em;
       margin-bottom: 8px;
       text-align: center;
-      background: linear-gradient(135deg, var(--gold-light) 0%, #ffdf00 50%, var(--gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: textGlowPulse 3s infinite ease-in-out;
+      background: linear-gradient(135deg, #111111 0%, #333333 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      animation: none !important;
     }
     .lead-form-container p.form-desc {
       font-size: 14px;
-      color: var(--white-70);
+      color: #4a4a4a !important;
       margin-bottom: 28px;
       text-align: center;
       line-height: 1.6;
@@ -1352,25 +1355,25 @@
       font-size: 13px;
       letter-spacing: 1px;
       text-transform: uppercase;
-      color: var(--gold-light);
+      color: #333333 !important;
       margin-bottom: 10px;
-      font-weight: 500;
+      font-weight: 600 !important;
     }
     .form-control {
       width: 100%;
-      background: var(--black);
-      border: 1px solid var(--white-20);
-      color: var(--white);
+      background: #ffffff !important;
+      border: 1px solid #cccccc !important;
+      color: #111111 !important;
       font-family: var(--font-b);
       padding: 16px;
       font-size: 15px;
-      border-radius: 4px;
+      border-radius: 6px;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .form-control:focus {
       outline: none;
-      border-color: var(--gold);
-      box-shadow: 0 0 12px rgba(201, 168, 76, 0.25);
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 12px rgba(201, 168, 76, 0.25) !important;
     }
     .select-options {
       display: grid;
@@ -1382,31 +1385,32 @@
     }
 
     .option-card {
-      background: var(--black);
-      border: 1px solid var(--white-20);
+      background: #f8f9fa !important;
+      border: 1px solid #e0e0e0 !important;
       padding: 16px;
       font-size: 14.5px;
-      color: var(--white-70);
+      color: #444444 !important;
       cursor: pointer;
       text-align: center;
       transition: all 0.25s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 400;
-      border-radius: 4px;
+      font-weight: 500;
+      border-radius: 8px;
     }
     .option-card:hover {
-      border-color: var(--gold-light);
-      color: var(--white);
-      box-shadow: 0 0 10px rgba(244, 239, 230, 0.05);
+      border-color: var(--gold) !important;
+      background: #f1f3f5 !important;
+      color: #111111 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
     .option-card.selected {
-      background: rgba(201, 168, 76, 0.22) !important;
-      border: 1px solid var(--gold) !important;
-      color: var(--white) !important;
-      font-weight: 500;
-      box-shadow: 0 0 24px rgba(201, 168, 76, 0.45) !important;
+      background: rgba(201, 168, 76, 0.15) !important;
+      border: 2px solid var(--gold) !important;
+      color: #111111 !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 16px rgba(201, 168, 76, 0.25) !important;
       transform: translateY(-2px) scale(1.02);
     }
     .other-textarea-w {
