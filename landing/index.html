@@ -217,6 +217,7 @@
       height: 16px;
       background: var(--white-20);
     }
+
     @media (max-width: 768px) {
       .summer-banner {
         padding: 8px 12px !important;
@@ -231,81 +232,66 @@
         font-size: 9.5px !important;
       }
       .hero-img img {
-        opacity: 0.8 !important;
-        filter: grayscale(10%) contrast(105%) !important;
+        opacity: 0.25 !important;
+        filter: grayscale(20%) contrast(100%) !important;
       }
       .hero-overlay {
-        background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.55) 60%, rgba(8,8,8,0.3) 100%) !important;
+        background: linear-gradient(to bottom, rgba(8,8,8,0.92) 0%, rgba(12,12,12,0.96) 100%) !important;
       }
       .hero-grid {
-        padding-top: 130px !important; /* Aumentato lo spazio sopra per far respirare il layout mobile */
+        padding-top: 110px !important;
         padding-bottom: 32px !important;
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-        gap: 20px !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        gap: 24px !important;
       }
       .hero-left {
-        text-align: center;
+        text-align: left !important;
         max-width: 100% !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: rgba(12, 12, 12, 0.72) !important;
-        backdrop-filter: blur(14px) !important;
-        -webkit-backdrop-filter: blur(14px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 20px !important;
-        padding: 24px 16px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-        margin-bottom: 12px !important;
+        display: block !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        margin-bottom: 24px !important;
       }
       .hero-tag {
         margin-bottom: 16px !important;
-        padding: 8px 16px !important;
-        font-size: 10px !important;
+        padding: 6px 14px !important;
+        font-size: 9.5px !important;
       }
       .hero h1 {
-        font-size: 24px !important;
-        line-height: 1.25 !important;
-        margin-bottom: 14px !important;
-        text-align: center;
+        font-size: 28px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 16px !important;
+        text-align: left !important;
       }
       .hero h1 .gold {
-        display: block;
-        margin-top: 4px;
-        font-size: 22px !important;
+        display: inline !important;
       }
       .hero-sub {
-        font-size: 14px !important;
+        font-size: 14.5px !important;
         line-height: 1.6 !important;
-        margin-bottom: 16px !important;
-        text-align: center;
+        margin-bottom: 24px !important;
+        text-align: left !important;
         max-width: 100% !important;
-        color: rgba(244, 239, 230, 0.85) !important;
-      }
-      .hero-social-proof {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 12px 16px !important;
-        width: 100%;
-        max-width: 340px;
-        margin: 16px auto !important;
-        display: flex;
-        flex-direction: column;
-        gap: 6px !important;
-      }
-      .hero-social-proof-sep {
-        display: none !important;
+        color: var(--white-70) !important;
       }
       .lead-form-container {
-        padding: 24px 16px !important;
+        padding: 24px 20px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: rgba(18, 18, 18, 0.8) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
       }
       .lead-form-container h3 {
         font-size: 20px !important;
+        text-align: left !important;
       }
       .form-desc {
         font-size: 12.5px !important;
+        text-align: left !important;
       }
       .option-card {
         padding: 12px 10px !important;
