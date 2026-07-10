@@ -109,7 +109,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
     const totalInSession = activeSession?.total_leads || 0
     const feedbackInSession = activeSession?.leads_with_feedback || 0
     const feedbackPct = totalInSession > 0 ? Math.round((feedbackInSession / totalInSession) * 100) : 100
-    const minFeedbackPct = rules.min_feedback_pct || 60
+    const minFeedbackPct = rules.min_feedback_pct !== undefined ? rules.min_feedback_pct : 100
     const feedbackOk = !activeSession || feedbackPct >= minFeedbackPct
 
     // Testo blocco spin

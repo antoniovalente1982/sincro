@@ -126,7 +126,7 @@ export async function POST(request: Request) {
         const withFeedback = sessionLeads?.filter(l => l.feedback !== null).length || 0
         const pct = total > 0 ? Math.round((withFeedback / total) * 100) : 100
 
-        const minPct = rule.min_feedback_pct || 60
+        const minPct = rule.min_feedback_pct || 100
 
         if (pct < minPct) {
             return NextResponse.json({

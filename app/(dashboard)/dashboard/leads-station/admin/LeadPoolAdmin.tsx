@@ -568,7 +568,7 @@ function SimulationSandbox() {
     const [simSpins, setSimSpins] = useState(0)
     const [simLeads, setSimLeads] = useState<any[]>([])
     const [spinState, setSpinState] = useState<'idle' | 'spinning' | 'done'>('idle')
-    const [feedbackRequirement, setFeedbackRequirement] = useState(60) // 60%
+    const [feedbackRequirement, setFeedbackRequirement] = useState(100) // 100%
     const [batchSize, setBatchSize] = useState(5)
 
     const MOCK_PROFILES = [
@@ -740,7 +740,7 @@ function SimulationSandbox() {
                     </label>
                     <select
                         value={feedbackRequirement}
-                        onChange={e => setFeedbackRequirement(parseInt(e.target.value) || 60)}
+                        onChange={e => setFeedbackRequirement(parseInt(e.target.value) ?? 100)}
                         style={{
                             padding: '6px 10px', borderRadius: '8px', fontSize: '12px',
                             background: 'var(--color-surface-100)', border: '1px solid var(--color-surface-300)',

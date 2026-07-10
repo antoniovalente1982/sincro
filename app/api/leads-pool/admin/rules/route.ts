@@ -100,7 +100,7 @@ export async function POST(request: Request) {
         batch_size: batch_size ?? 5,
         cooldown_minutes: cooldown_minutes ?? 0,
         require_feedback_before_next: require_feedback_before_next ?? true,
-        min_feedback_pct: min_feedback_pct ?? 60,
+        min_feedback_pct: min_feedback_pct ?? 100,
         active_list_ids: active_list_ids || null,
         allowed_hours_start: allowed_hours_start || '08:00',
         allowed_hours_end: allowed_hours_end || '21:00',

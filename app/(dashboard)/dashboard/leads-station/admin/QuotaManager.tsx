@@ -30,7 +30,7 @@ const DEFAULT_RULE: Omit<Rule, 'id'> = {
     batch_size: 5,
     cooldown_minutes: 0,
     require_feedback_before_next: true,
-    min_feedback_pct: 60,
+    min_feedback_pct: 100,
     allowed_hours_start: '08:00',
     allowed_hours_end: '21:00',
     allowed_days: [1, 2, 3, 4, 5, 6],

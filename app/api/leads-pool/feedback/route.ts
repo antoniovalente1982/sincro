@@ -128,15 +128,58 @@ export async function POST(request: Request) {
     // If converted: create CRM lead (basic)
     let crmLeadId: string | null = null
     if (feedback === 'converted') {
-        const { data: crmLead } = await supabase
+        // Cerca la stage di default della prima pipeline attiva
+        const { data: pipeline } = await supabase
+            .from('pipelines')
+            .select('id')
+            .eq('organization_id', member.organization_id)
+            .eq('is_default', true)
+            .limit(1)
+            .maybeSingle()
+
+        let defaultStageId: string | null = null
+        if (pipeline) {
+            const { data: stage } = await supabase
+                .from('pipeline_stages')
+                .select('id')
+                .eq('pipeline_id', pipeline.id)
+                .order('sort_order', { ascending: true })
+                .limit(1)
+                .maybeSingle()
+            defaultStageId = stage?.id || null
+        }
+
+        // Se non trova pipeline di default, prende la prima qualsiasi
+        if (!defaultStageId) {
+            const { data: firstPipeline } = await supabase
+                .from('pipelines')
+                .select('id')
+                .eq('organization_id', member.organization_id)
+                .limit(1)
+                .maybeSingle()
+
+            if (firstPipeline) {
+                const { data: stage } = await supabase
+                    .from('pipeline_stages')
+                    .select('id')
+                    .eq('pipeline_id', firstPipeline.id)
+                    .order('sort_order', { ascending: true })
+                    .limit(1)
+                    .maybeSingle()
+                defaultStageId = stage?.id || null
+            }
+        }
+
+        const { data: crmLead, error: insertErr } = await supabase
             .from('leads')
             .insert({
                 organization_id: member.organization_id,
-                full_name: lead.full_name || `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
+                name: lead.full_name || `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
                 phone: lead.phone,
                 email: lead.email,
                 city: lead.city,
                 closer_id: user.id,
+                stage_id: defaultStageId,
                 source: lead.source || 'lead_pool',
                 utm_campaign: lead.utm_campaign,
                 notes: `Importato dal pool leads. Lista: ${lead.list_id}. ${feedback_notes || ''}`,
