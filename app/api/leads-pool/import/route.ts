@@ -1,0 +1,273 @@
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import * as XLSX from 'xlsx'
+
+// POST /api/leads-pool/import
+// Carica un file CSV/XLSX/JSON e inserisce i lead nel pool
+// Accetta multipart/form-data con: file, list_name, list_id (opzionale)
+
+// Mappa automatica colonne → campi sistema (case-insensitive, supporta alias italiani/inglesi)
+const COLUMN_ALIASES: Record<string, string> = {
+    // Nome
+    'nome': 'first_name', 'name': 'first_name', 'first name': 'first_name', 'firstname': 'first_name',
+    // Cognome
+    'cognome': 'last_name', 'surname': 'last_name', 'last name': 'last_name', 'lastname': 'last_name',
+    // Nome completo
+    'nome e cognome': 'full_name', 'full name': 'full_name', 'fullname': 'full_name',
+    'nominativo': 'full_name', 'nome completo': 'full_name', 'cliente': 'full_name',
+    // Telefono
+    'telefono': 'phone', 'tel': 'phone', 'phone': 'phone', 'cellulare': 'phone',
+    'mobile': 'phone', 'cell': 'phone', 'numero': 'phone', 'numero di telefono': 'phone',
+    'cell.': 'phone', 'tel.': 'phone', 'phone number': 'phone',
+    // Email
+    'email': 'email', 'mail': 'email', 'e-mail': 'email', 'posta elettronica': 'email',
+    // Città
+    'città': 'city', 'citta': 'city', 'city': 'city', 'comune': 'city', 'residenza': 'city',
+    // Provincia
+    'provincia': 'province', 'prov': 'province', 'province': 'province', 'prov.': 'province',
+    // Età
+    'età': 'age', 'eta': 'age', 'age': 'age', 'anni': 'age',
+    // Genere
+    'sesso': 'gender', 'genere': 'gender', 'gender': 'gender', 'sex': 'gender',
+    // Note
+    'note': 'notes', 'notes': 'notes', 'annotazioni': 'notes', 'commenti': 'notes', 'comments': 'notes',
+    // Fonte
+    'fonte': 'source', 'source': 'source', 'provenienza': 'source', 'canale': 'source',
+    // UTM
+    'campagna': 'utm_campaign', 'campaign': 'utm_campaign', 'utm_campaign': 'utm_campaign',
+    'utm source': 'utm_source', 'utm_source': 'utm_source',
+    'utm medium': 'utm_medium', 'utm_medium': 'utm_medium',
+}
+
+function mapColumn(rawKey: string): string {
+    const normalized = rawKey.toLowerCase().trim()
+    return COLUMN_ALIASES[normalized] || 'raw_extra'
+}
+
+function normalizeRow(row: Record<string, any>): Record<string, any> {
+    const mapped: Record<string, any> = {}
+    const raw: Record<string, any> = {}
+
+    for (const [key, value] of Object.entries(row)) {
+        const field = mapColumn(key)
+        if (field === 'raw_extra') {
+            raw[key] = value
+        } else {
+            // Age: parse as integer
+            if (field === 'age') {
+                mapped[field] = parseInt(String(value)) || null
+            } else {
+                mapped[field] = value !== null && value !== undefined ? String(value).trim() : null
+            }
+        }
+    }
+
+    // Build full_name if not present but first+last are
+    if (!mapped.full_name && (mapped.first_name || mapped.last_name)) {
+        mapped.full_name = [mapped.first_name, mapped.last_name].filter(Boolean).join(' ')
+    }
+
+    mapped.raw_data = { ...raw }
+    return mapped
+}
+
+async function parseFile(buffer: Buffer, mimeType: string, fileName: string): Promise<Record<string, any>[]> {
+    const ext = fileName.split('.').pop()?.toLowerCase() || ''
+
+    // JSON
+    if (ext === 'json' || mimeType.includes('json')) {
+        const text = buffer.toString('utf-8')
+        const parsed = JSON.parse(text)
+        return Array.isArray(parsed) ? parsed : [parsed]
+    }
+
+    // CSV or XLSX/XLS — use xlsx library which handles both
+    const workbook = XLSX.read(buffer, { type: 'buffer', cellText: true, cellDates: true })
+    const sheetName = workbook.SheetNames[0]
+    const sheet = workbook.Sheets[sheetName]
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false })
+    return rows as Record<string, any>[]
+}
+
+async function requireAdmin(supabase: any) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Non autorizzato', status: 401 }
+    const { data: member } = await supabase
+        .from('organization_members')
+        .select('organization_id, role')
+        .eq('user_id', user.id)
+        .is('deactivated_at', null)
+        .single()
+    if (!member || !['owner', 'admin', 'manager'].includes(member.role)) {
+        return { error: 'Solo admin/manager possono importare leads', status: 403 }
+    }
+    return { user, member, orgId: member.organization_id }
+}
+
+export async function POST(request: Request) {
+    const supabase = await createClient()
+    const auth = await requireAdmin(supabase)
+    if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status as number })
+
+    const { user, orgId } = auth
+
+    let formData: FormData
+    try {
+        formData = await request.formData()
+    } catch {
+        return NextResponse.json({ error: 'Richiesta non valida: atteso multipart/form-data' }, { status: 400 })
+    }
+
+    const file = formData.get('file') as File | null
+    const listName = (formData.get('list_name') as string) || `Import ${new Date().toLocaleDateString('it-IT')}`
+    const listId = formData.get('list_id') as string | null
+    const tagsRaw = formData.get('tags') as string | null
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
+
+    if (!file) {
+        return NextResponse.json({ error: 'File non fornito' }, { status: 400 })
+    }
+
+    const fileName = file.name
+    const mimeType = file.type
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    // Parse file
+    let rows: Record<string, any>[]
+    try {
+        rows = await parseFile(buffer, mimeType, fileName)
+    } catch (e: any) {
+        return NextResponse.json({ error: `Errore parsing file: ${e.message}` }, { status: 422 })
+    }
+
+    if (rows.length === 0) {
+        return NextResponse.json({ error: 'Il file è vuoto o non ha righe valide' }, { status: 422 })
+    }
+
+    // Determine format
+    const ext = fileName.split('.').pop()?.toLowerCase() || 'csv'
+    const sourceFormat = ['xlsx', 'xls'].includes(ext) ? 'xlsx' : ext === 'json' ? 'json' : 'csv'
+
+    // Create or get list
+    let resolvedListId = listId
+    if (!resolvedListId) {
+        const { data: newList, error: listError } = await supabase
+            .from('lead_lists')
+            .insert({
+                organization_id: orgId,
+                name: listName,
+                source_format: sourceFormat,
+                uploaded_by: user.id,
+                tags,
+                metadata: { original_filename: fileName, columns: Object.keys(rows[0] || {}) },
+                total_count: 0,
+                available_count: 0,
+            })
+            .select()
+            .single()
+
+        if (listError || !newList) {
+            return NextResponse.json({ error: 'Errore creazione lista', detail: listError?.message }, { status: 500 })
+        }
+        resolvedListId = newList.id
+    }
+
+    // Normalize rows and prepare batch insert
+    const now = new Date().toISOString()
+    const insertRows = rows.map(row => {
+        const normalized = normalizeRow(row)
+        return {
+            organization_id: orgId,
+            list_id: resolvedListId,
+            first_name: normalized.first_name || null,
+            last_name: normalized.last_name || null,
+            full_name: normalized.full_name || null,
+            phone: normalized.phone || null,
+            email: normalized.email || null,
+            city: normalized.city || null,
+            province: normalized.province || null,
+            age: normalized.age || null,
+            gender: normalized.gender || null,
+            notes: normalized.notes || null,
+            source: normalized.source || null,
+            utm_campaign: normalized.utm_campaign || null,
+            utm_source: normalized.utm_source || null,
+            utm_medium: normalized.utm_medium || null,
+            raw_data: normalized.raw_data || {},
+            status: 'available',
+            priority_score: 0.5,
+            created_at: now,
+            updated_at: now,
+        }
+    }).filter(r => r.phone || r.email || r.full_name) // Skip completely empty rows
+
+    if (insertRows.length === 0) {
+        return NextResponse.json({ error: 'Nessuna riga valida trovata (serve almeno telefono, email o nome)' }, { status: 422 })
+    }
+
+    // Batch insert in chunks of 500
+    const CHUNK_SIZE = 500
+    let insertedCount = 0
+    const errors: string[] = []
+
+    for (let i = 0; i < insertRows.length; i += CHUNK_SIZE) {
+        const chunk = insertRows.slice(i, i + CHUNK_SIZE)
+        const { data, error } = await supabase
+            .from('lead_pool')
+            .insert(chunk)
+            .select('id')
+
+        if (error) {
+            errors.push(`Chunk ${Math.floor(i / CHUNK_SIZE) + 1}: ${error.message}`)
+        } else {
+            insertedCount += data?.length || 0
+        }
+    }
+
+    // Update list counts
+    const { data: availCount } = await supabase
+        .from('lead_pool')
+        .select('id', { count: 'exact' })
+        .eq('list_id', resolvedListId)
+        .eq('status', 'available')
+
+    await supabase
+        .from('lead_lists')
+        .update({
+            total_count: insertedCount,
+            available_count: (availCount as any)?.length || insertedCount,
+            updated_at: now,
+        })
+        .eq('id', resolvedListId)
+
+    return NextResponse.json({
+        success: true,
+        list_id: resolvedListId,
+        parsed_rows: rows.length,
+        inserted: insertedCount,
+        skipped: rows.length - insertRows.length,
+        errors: errors.length > 0 ? errors : undefined,
+        columns_detected: Object.keys(rows[0] || {}),
+        preview: insertRows.slice(0, 3).map(r => ({
+            full_name: r.full_name,
+            phone: r.phone,
+            email: r.email,
+            city: r.city,
+        })),
+    })
+}
+
+// GET /api/leads-pool/import — list available lists
+export async function GET() {
+    const supabase = await createClient()
+    const auth = await requireAdmin(supabase)
+    if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status as number })
+
+    const { data: lists } = await supabase
+        .from('lead_lists')
+        .select('*')
+        .eq('organization_id', auth.orgId)
+        .order('created_at', { ascending: false })
+
+    return NextResponse.json({ lists: lists || [] })
+}
