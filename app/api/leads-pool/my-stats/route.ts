@@ -23,7 +23,7 @@ export async function GET() {
     const today = new Date().toISOString().split('T')[0]
 
     // Fetch in parallel
-    const [quotaRes, sessionRes, rulesRes, historyRes] = await Promise.all([
+    const [quotaRes, sessionRes, rulesRes, historyRes, callbackRes] = await Promise.all([
         // Today's quota
         supabase
             .from('lead_daily_quota')
@@ -61,6 +61,16 @@ export async function GET() {
             .eq('user_id', user.id)
             .gte('quota_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
             .order('quota_date', { ascending: true }),
+
+        // Callback / unresolved leads assigned to this user
+        supabase
+            .from('lead_pool')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, notes')
+            .eq('organization_id', orgId)
+            .eq('assigned_to', user.id)
+            .in('status', ['assigned', 'called'])
+            .in('feedback', ['callback', 'no_answer'])
+            .order('updated_at', { ascending: false }),
     ])
 
     const quota = quotaRes.data
@@ -68,6 +78,7 @@ export async function GET() {
     const rules = rulesRes.data || []
     const rule = rules.find(r => r.user_id === user.id) || rules.find(r => r.user_id === null)
     const history = historyRes.data || []
+    const callbackLeads = callbackRes.data || []
 
     const maxAllowed = quota?.max_allowed || rule?.max_leads_per_day || 50
 
@@ -113,6 +124,7 @@ export async function GET() {
             total_leads: activeSession.lead_pool_ids?.length || 0,
         } : null,
         session_leads: sessionLeads,
+        callback_leads: callbackLeads,
         rules: rule ? {
             max_leads_per_day: rule.max_leads_per_day,
             batch_size: rule.batch_size,

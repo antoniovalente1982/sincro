@@ -18,6 +18,7 @@ interface Props {
 }
 
 export default function LeadsStation({ userId, orgId, userRole, isAdmin, initialStats }: Props) {
+    const [activeTab, setActiveTab] = useState<'session' | 'callbacks'>('session')
     const [stats, setStats] = useState<any>(initialStats)
     const [isLoading, setIsLoading] = useState(false)
     const [spinState, setSpinState] = useState<'idle' | 'spinning' | 'done'>('idle')
@@ -72,6 +73,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
 
             setRequestMessage('')
             await refreshStats()
+            setActiveTab('session') // Ritorna al tab sessione dopo uno spin con nuovi lead
             setSpinState('done')
             setTimeout(() => setSpinState('idle'), 500)
         } catch (err) {
@@ -81,7 +83,10 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
     }
 
     const handleFeedback = async (leadId: string, feedback: string, notes?: string) => {
-        const sessionId = stats?.active_session?.id
+        // Se stiamo modificando un lead nel tab dei richiami, non associamo la sessione attiva
+        const isCallback = stats?.callback_leads?.some((l: any) => l.id === leadId)
+        const sessionId = isCallback ? null : stats?.active_session?.id
+
         await fetch('/api/leads-pool/feedback', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -97,6 +102,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
 
     const today = stats?.today || {}
     const sessionLeads: any[] = stats?.session_leads || []
+    const callbackLeads: any[] = stats?.callback_leads || []
     const activeSession = stats?.active_session
     const rules = stats?.rules || {}
 
@@ -309,75 +315,149 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                     )}
                 </div>
 
-                {/* ── COLONNA DX: Leads correnti ── */}
+                {/* ── COLONNA DX: Leads correnti o Richiami ── */}
                 <div>
-                    {sessionLeads.length === 0 ? (
-                        <div
-                            className="glass-card"
+                    {/* Tab Selector */}
+                    <div style={{
+                        display: 'flex', gap: '8px', padding: '4px',
+                        background: 'var(--color-surface-100)',
+                        borderRadius: '12px', marginBottom: '16px',
+                        width: 'fit-content',
+                    }}>
+                        <button
+                            onClick={() => setActiveTab('session')}
                             style={{
-                                padding: '48px 24px',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                border: '1px dashed var(--color-surface-300)',
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'session' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'session' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'session' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
                             }}
                         >
-                            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🎯</div>
-                            <h3 className="font-bold mb-2" style={{ color: 'var(--color-surface-700)' }}>
-                                Nessun lead attivo
-                            </h3>
-                            <p className="text-sm" style={{ color: 'var(--color-surface-500)', maxWidth: '300px', margin: '0 auto' }}>
-                                Premi <strong>SPIN</strong> per ricevere i tuoi prossimi leads da chiamare.
-                            </p>
-                        </div>
-                    ) : (
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-sm font-bold" style={{ color: 'var(--color-surface-700)' }}>
-                                    📋 Leads da chiamare — sessione corrente
-                                </h2>
-                                {activeSession && (
-                                    <span className="text-xs px-2 py-1 rounded-full font-medium" style={{
-                                        background: 'rgba(34,197,94,0.1)',
-                                        color: '#22c55e',
-                                        border: '1px solid rgba(34,197,94,0.2)',
+                            📋 Sessione Corrente ({sessionLeads.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('callbacks')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'callbacks' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'callbacks' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'callbacks' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
+                            }}
+                        >
+                            🔄 I miei Richiami ({callbackLeads.length})
+                        </button>
+                    </div>
+
+                    {activeTab === 'session' ? (
+                        sessionLeads.length === 0 ? (
+                            <div
+                                className="glass-card"
+                                style={{
+                                    padding: '48px 24px',
+                                    borderRadius: '20px',
+                                    textAlign: 'center',
+                                    border: '1px dashed var(--color-surface-300)',
+                                }}
+                            >
+                                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🎯</div>
+                                <h3 className="font-bold mb-2" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun lead attivo
+                                </h3>
+                                <p className="text-sm" style={{ color: 'var(--color-surface-500)', maxWidth: '300px', margin: '0 auto' }}>
+                                    Premi <strong>SPIN</strong> per ricevere i tuoi prossimi leads da chiamare.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-bold" style={{ color: 'var(--color-surface-700)' }}>
+                                        📋 Leads da chiamare — sessione corrente
+                                    </h2>
+                                    {activeSession && (
+                                        <span className="text-xs px-2 py-1 rounded-full font-medium" style={{
+                                            background: 'rgba(34,197,94,0.1)',
+                                            color: '#22c55e',
+                                            border: '1px solid rgba(34,197,94,0.2)',
+                                        }}>
+                                            {feedbackInSession}/{totalInSession} aggiornati
+                                        </span>
+                                    )}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {sessionLeads.map((lead: any) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            sessionId={activeSession?.id}
+                                            onFeedback={handleFeedback}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Feedback progress nel blocco leads */}
+                                {activeSession && feedbackPct < minFeedbackPct && (
+                                    <div style={{
+                                        marginTop: '16px',
+                                        padding: '12px 16px',
+                                        borderRadius: '12px',
+                                        background: 'rgba(245,158,11,0.08)',
+                                        border: '1px solid rgba(245,158,11,0.2)',
+                                        display: 'flex', alignItems: 'center', gap: '10px',
                                     }}>
-                                        {feedbackInSession}/{totalInSession} aggiornati
-                                    </span>
+                                        <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                        <div>
+                                            <p className="text-xs font-semibold" style={{ color: '#f59e0b' }}>
+                                                Aggiorna il feedback per sbloccare il prossimo spin
+                                            </p>
+                                            <p className="text-xs mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
+                                                {feedbackInSession}/{totalInSession} leads aggiornati ({feedbackPct}% — minimo {minFeedbackPct}%)
+                                            </p>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {sessionLeads.map((lead: any) => (
-                                    <LeadCard
-                                        key={lead.id}
-                                        lead={lead}
-                                        sessionId={activeSession?.id}
-                                        onFeedback={handleFeedback}
-                                    />
-                                ))}
+                        )
+                    ) : (
+                        callbackLeads.length === 0 ? (
+                            <div
+                                className="glass-card"
+                                style={{
+                                    padding: '48px 24px',
+                                    borderRadius: '20px',
+                                    textAlign: 'center',
+                                    border: '1px dashed var(--color-surface-300)',
+                                }}
+                            >
+                                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🎉</div>
+                                <h3 className="font-bold mb-2" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun richiamo in agenda
+                                </h3>
+                                <p className="text-sm" style={{ color: 'var(--color-surface-500)', maxWidth: '300px', margin: '0 auto' }}>
+                                    Ottimo lavoro! Tutti i contatti passati sono stati lavorati o chiusi.
+                                </p>
                             </div>
-
-                            {/* Feedback progress nel blocco leads */}
-                            {activeSession && feedbackPct < minFeedbackPct && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    background: 'rgba(245,158,11,0.08)',
-                                    border: '1px solid rgba(245,158,11,0.2)',
-                                    display: 'flex', alignItems: 'center', gap: '10px',
-                                }}>
-                                    <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                    <div>
-                                        <p className="text-xs font-semibold" style={{ color: '#f59e0b' }}>
-                                            Aggiorna il feedback per sbloccare il prossimo spin
-                                        </p>
-                                        <p className="text-xs mt-0.5" style={{ color: 'var(--color-surface-500)' }}>
-                                            {feedbackInSession}/{totalInSession} leads aggiornati ({feedbackPct}% — minimo {minFeedbackPct}%)
-                                        </p>
-                                    </div>
+                        ) : (
+                            <div>
+                                <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-surface-700)' }}>
+                                    🔄 Contatti da richiamare o senza risposta
+                                </h2>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {callbackLeads.map((lead: any) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            onFeedback={handleFeedback}
+                                        />
+                                    ))}
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )
                     )}
                 </div>
             </div>
