@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
     const supabase = await createClient()
+    const supabaseAdmin = getSupabaseAdmin()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
         return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
@@ -176,7 +178,7 @@ export async function POST(request: Request) {
     // Esclude phone già presenti nella tabella leads CRM
 
     // Prima ottieni i telefoni già assegnati a questo venditore di recente
-    const { data: recentlyAssigned } = await supabase
+    const { data: recentlyAssigned } = await supabaseAdmin
         .from('lead_pool')
         .select('phone')
         .eq('organization_id', orgId)
@@ -187,7 +189,7 @@ export async function POST(request: Request) {
     const excludedPhones = recentlyAssigned?.map(l => l.phone).filter(Boolean) || []
 
     // Build query for available leads
-    let query = supabase
+    let query = supabaseAdmin
         .from('lead_pool')
         .select('*')
         .eq('organization_id', orgId)
@@ -226,7 +228,7 @@ export async function POST(request: Request) {
     const assignedAt = new Date().toISOString()
 
     // ── Crea sessione ──
-    const { data: newSession, error: sessionError } = await supabase
+    const { data: newSession, error: sessionError } = await supabaseAdmin
         .from('lead_distribution_sessions')
         .insert({
             organization_id: orgId,
@@ -244,7 +246,7 @@ export async function POST(request: Request) {
     }
 
     // ── Aggiorna lead_pool: assegnati ──
-    await supabase
+    await supabaseAdmin
         .from('lead_pool')
         .update({
             status: 'assigned',
@@ -256,7 +258,7 @@ export async function POST(request: Request) {
         .in('id', extractedIds)
 
     // ── Upsert quota giornaliera ──
-    await supabase
+    await supabaseAdmin
         .from('lead_daily_quota')
         .upsert({
             organization_id: orgId,
@@ -274,13 +276,13 @@ export async function POST(request: Request) {
     // ── Aggiorna available_count nelle liste ──
     const listIds = [...new Set(filteredLeads.map(l => l.list_id).filter(Boolean))]
     for (const listId of listIds) {
-        const { count: countAvail } = await supabase
+        const { count: countAvail } = await supabaseAdmin
             .from('lead_pool')
             .select('*', { count: 'exact', head: true })
             .eq('list_id', listId)
             .eq('status', 'available')
 
-        await supabase
+        await supabaseAdmin
             .from('lead_lists')
             .update({ available_count: countAvail || 0, updated_at: assignedAt })
             .eq('id', listId)
