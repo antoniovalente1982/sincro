@@ -396,6 +396,67 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                             />
                         </div>
                     )}
+
+                    {/* Guida procedurale "Come funziona?" */}
+                    <div
+                        className="glass-card"
+                        style={{
+                            padding: '16px 20px',
+                            borderRadius: '16px',
+                            border: '1px solid var(--color-surface-200)',
+                            background: 'rgba(168,85,247,0.02)',
+                            textAlign: 'left',
+                        }}
+                    >
+                        <h4 style={{ 
+                            fontSize: '13px', 
+                            fontWeight: '700', 
+                            color: 'var(--color-surface-800)', 
+                            marginBottom: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}>
+                            <span>❓</span> Come funziona? Procedura Operativa
+                        </h4>
+                        <ol style={{ 
+                            fontSize: '11px', 
+                            color: 'var(--color-surface-600)', 
+                            paddingLeft: '16px', 
+                            margin: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '6px',
+                            lineHeight: '1.4'
+                        }}>
+                            <li>
+                                Premere il tasto <strong>SPIN</strong> per ricevere un pacchetto di <strong>{rules.batch_size || 5} contatti</strong>.
+                            </li>
+                            <li>
+                                Avviare la telefonata al primo contatto della lista.
+                            </li>
+                            <li>
+                                <strong style={{ color: '#a855f7' }}>Importante:</strong> Inserire l'esito (feedback) <strong>subito dopo aver concluso ciascuna chiamata</strong>. Evitare di accumulare le chiamate e registrarle in blocco alla fine.
+                            </li>
+                            <li>
+                                Ripetere l'operazione per tutti i contatti assegnati prima di richiedere un nuovo SPIN.
+                            </li>
+                            <li>
+                                I contatti con esito "Da richiamare" verranno spostati nel tab <em>Da richiamare</em> per essere ri-lavorati in seguito.
+                            </li>
+                        </ol>
+                        <div style={{
+                            marginTop: '10px',
+                            padding: '8px 10px',
+                            borderRadius: '8px',
+                            background: 'rgba(168, 85, 247, 0.05)',
+                            fontSize: '10px',
+                            color: '#7c3aed',
+                            lineHeight: '1.3',
+                        }}>
+                            💡 <em>Il sistema monitora automaticamente i tempi di lavorazione per ottimizzare l'assegnazione dei lead. Seguire la procedura lineare evita segnalazioni di anomalie.</em>
+                        </div>
+                    </div>
                 </div>
 
                 {/* ── COLONNA DX: Leads correnti o Richiami ── */}
