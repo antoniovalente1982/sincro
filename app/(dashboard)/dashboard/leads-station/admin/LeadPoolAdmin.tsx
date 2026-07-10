@@ -656,7 +656,25 @@ function SimulationSandbox() {
                 setSimCallbacks(prev => prev.map(l => l.id === leadId ? updateFunction(l) : l))
             }
         } else {
-            setSimLeads(prev => prev.map(l => l.id === leadId ? updateFunction(l) : l))
+            setSimLeads(prev => prev.map(l => {
+                if (l.id !== leadId) return l
+                const updated = updateFunction(l)
+
+                // Aggiunge o aggiorna immediatamente nei richiami se è un callback/no_answer
+                if (feedback === 'callback' || feedback === 'no_answer') {
+                    setSimCallbacks(c => {
+                        if (c.some(x => x.id === leadId)) {
+                            return c.map(x => x.id === leadId ? updated : x)
+                        }
+                        return [updated, ...c]
+                    })
+                } else {
+                    // Rimuove dai richiami se l'utente cambia l'esito (es. da callback a interessato)
+                    setSimCallbacks(c => c.filter(x => x.id !== leadId))
+                }
+
+                return updated
+            }))
         }
     }
 
