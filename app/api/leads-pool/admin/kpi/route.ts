@@ -49,16 +49,27 @@ export async function GET(request: Request) {
         if (endDate) callsQuery = callsQuery.lte('started_at', endDate)
 
         // ── Eventi calendario (funnel appuntamento → presentato → venduto) ──
-        const eventsQuery = supabaseAdmin
+        let eventsQuery = supabaseAdmin
             .from('calendar_events')
             .select('lead_id, lead_phone, lead_email, closer_id, start_time, status, outcome, outcome_value')
             .eq('organization_id', orgId)
+        if (startDate) eventsQuery = eventsQuery.gte('start_time', startDate)
+        if (endDate) eventsQuery = eventsQuery.lte('start_time', endDate)
 
-        const [{ data: leads, error: poolError }, { data: calls }, { data: events }, { data: profiles }] = await Promise.all([
+        // ── Ottieni i venditori (closers) attivi dell'organizzazione ──
+        const closersQuery = supabaseAdmin
+            .from('organization_members')
+            .select('user_id')
+            .eq('organization_id', orgId)
+            .eq('role', 'closer')
+            .is('deactivated_at', null)
+
+        const [{ data: leads, error: poolError }, { data: calls }, { data: events }, { data: profiles }, { data: activeClosers }] = await Promise.all([
             poolQuery,
             callsQuery,
             eventsQuery,
             supabaseAdmin.from('profiles').select('id, full_name'),
+            closersQuery,
         ])
 
         if (poolError) {
@@ -70,6 +81,7 @@ export async function GET(request: Request) {
         const rawCalls = calls || []
         const rawEvents = events || []
         const profilesMap = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]))
+        const activeCloserIds = new Set((activeClosers || []).map(m => m.user_id))
 
         // Conversioni orfane: lead 'win' senza lead CRM reale
         const crmLeadIds = rawLeads.filter(l => WIN_FEEDBACKS.includes(l.feedback) && l.crm_lead_id).map(l => l.crm_lead_id)
@@ -90,24 +102,22 @@ export async function GET(request: Request) {
         const kpiMap: Record<string, Stat> = {}
         const anomalies: any[] = []
 
-        const ensure = (userId: string): Stat => {
-            if (!kpiMap[userId]) {
-                kpiMap[userId] = {
-                    user_id: userId, name: profilesMap[userId] || 'Venditore',
-                    leads_requested: 0, leads_called: 0, leads_converted: 0,
-                    leads_wrong_number: 0, session_ids: new Set(),
-                    dials: 0, connected: 0, talk_seconds: 0,
-                    shown: 0, sold: 0, sales_value: 0, active_days: new Set(),
-                }
+        // Inizializza kpiMap per tutti i closer attivi (anche se hanno 0 attività nel periodo)
+        activeCloserIds.forEach(userId => {
+            kpiMap[userId] = {
+                user_id: userId, name: profilesMap[userId] || 'Venditore',
+                leads_requested: 0, leads_called: 0, leads_converted: 0,
+                leads_wrong_number: 0, session_ids: new Set(),
+                dials: 0, connected: 0, talk_seconds: 0,
+                shown: 0, sold: 0, sales_value: 0, active_days: new Set(),
             }
-            return kpiMap[userId]
-        }
+        })
 
         // ── Aggrega i lead ──
         rawLeads.forEach(l => {
             const userId = l.assigned_to
-            if (!userId) return
-            const stats = ensure(userId)
+            if (!userId || !activeCloserIds.has(userId)) return
+            const stats = kpiMap[userId]
             stats.leads_requested += 1
 
             const isCalled = l.call_count > 0 || ['called', 'converted'].includes(l.status) || !!l.feedback
@@ -149,8 +159,8 @@ export async function GET(request: Request) {
 
         // ── Aggrega le chiamate reali ──
         rawCalls.forEach(c => {
-            if (!c.user_id) return
-            const stats = ensure(c.user_id)
+            if (!c.user_id || !activeCloserIds.has(c.user_id)) return
+            const stats = kpiMap[c.user_id]
             stats.dials += 1
             if (c.connected_at || (c.duration_seconds && c.duration_seconds > 0)) stats.connected += 1
             if (c.duration_seconds) stats.talk_seconds += c.duration_seconds
@@ -159,8 +169,8 @@ export async function GET(request: Request) {
 
         // ── Aggrega il funnel calendario per closer ──
         rawEvents.forEach(e => {
-            if (!e.closer_id) return
-            const stats = ensure(e.closer_id)
+            if (!e.closer_id || !activeCloserIds.has(e.closer_id)) return
+            const stats = kpiMap[e.closer_id]
             if (e.status === 'completed') stats.shown += 1
             if (e.outcome === 'won' || e.outcome === 'sold' || (e.outcome_value && e.outcome_value > 0)) {
                 stats.sold += 1
