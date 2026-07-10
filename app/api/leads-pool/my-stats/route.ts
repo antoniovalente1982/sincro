@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { romeDateString, romeDateStringDaysAgo } from '@/lib/timezone'
 
 // GET /api/leads-pool/my-stats
 // KPI personali del venditore + sessione corrente
@@ -20,10 +21,10 @@ export async function GET() {
     if (!member) return NextResponse.json({ error: 'Organizzazione non trovata' }, { status: 403 })
 
     const orgId = member.organization_id
-    const today = new Date().toISOString().split('T')[0]
+    const today = romeDateString()
 
     // Fetch in parallel
-    const [quotaRes, sessionRes, rulesRes, historyRes, callbackRes] = await Promise.all([
+    const [quotaRes, sessionRes, rulesRes, historyRes, callbackRes, interestedRes] = await Promise.all([
         // Today's quota
         supabase
             .from('lead_daily_quota')
@@ -59,17 +60,27 @@ export async function GET() {
             .select('quota_date, leads_requested, leads_called, leads_converted, spins_count')
             .eq('organization_id', orgId)
             .eq('user_id', user.id)
-            .gte('quota_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+            .gte('quota_date', romeDateStringDaysAgo(30))
             .order('quota_date', { ascending: true }),
 
-        // Callback / unresolved leads assigned to this user
+        // Callback / unresolved leads assigned to this user — ordinati per scadenza richiamo
+        supabase
+            .from('lead_pool')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, notes')
+            .eq('organization_id', orgId)
+            .eq('assigned_to', user.id)
+            .in('status', ['assigned', 'called'])
+            .in('feedback', ['callback', 'no_answer'])
+            .order('callback_at', { ascending: true, nullsFirst: false }),
+
+        // Interested leads (coda follow-up) assigned to this user
         supabase
             .from('lead_pool')
             .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, notes')
             .eq('organization_id', orgId)
             .eq('assigned_to', user.id)
-            .in('status', ['assigned', 'called'])
-            .in('feedback', ['callback', 'no_answer'])
+            .eq('status', 'called')
+            .eq('feedback', 'interested')
             .order('updated_at', { ascending: false }),
     ])
 
@@ -79,6 +90,7 @@ export async function GET() {
     const rule = rules.find(r => r.user_id === user.id) || rules.find(r => r.user_id === null)
     const history = historyRes.data || []
     const callbackLeads = callbackRes.data || []
+    const interestedLeads = interestedRes.data || []
 
     const maxAllowed = quota?.max_allowed || rule?.max_leads_per_day || 50
 
@@ -87,7 +99,7 @@ export async function GET() {
     if (activeSession?.lead_pool_ids?.length) {
         const { data: leads } = await supabase
             .from('lead_pool')
-            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at')
             .in('id', activeSession.lead_pool_ids)
         sessionLeads = leads || []
     }
@@ -125,6 +137,7 @@ export async function GET() {
         } : null,
         session_leads: sessionLeads,
         callback_leads: callbackLeads,
+        interested_leads: interestedLeads,
         rules: rule ? {
             max_leads_per_day: rule.max_leads_per_day,
             batch_size: rule.batch_size,

@@ -321,13 +321,43 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Nessuna riga valida trovata (serve almeno telefono, email o nome)' }, { status: 422 })
     }
 
+    // ── Dedup: nel file stesso + contro pool e CRM esistenti ──
+    // Raccoglie i telefoni già presenti nel pool e nel CRM leads dell'org.
+    const [{ data: poolPhones }, { data: crmPhones }] = await Promise.all([
+        supabase.from('lead_pool').select('phone').eq('organization_id', orgId).not('phone', 'is', null),
+        supabase.from('leads').select('phone').eq('organization_id', orgId).not('phone', 'is', null),
+    ])
+    const existingPhones = new Set<string>([
+        ...(poolPhones || []).map((r: any) => String(r.phone)),
+        ...(crmPhones || []).map((r: any) => String(r.phone)),
+    ])
+
+    const seenInFile = new Set<string>()
+    let dupInFile = 0
+    let dupExisting = 0
+    const dedupedRows = insertRows.filter(r => {
+        if (!r.phone) return true // senza telefono non deduplichiamo
+        if (existingPhones.has(r.phone)) { dupExisting++; return false }
+        if (seenInFile.has(r.phone)) { dupInFile++; return false }
+        seenInFile.add(r.phone)
+        return true
+    })
+
+    if (dedupedRows.length === 0) {
+        return NextResponse.json({
+            error: 'Tutti i contatti del file sono duplicati (già nel pool o nel CRM)',
+            duplicates_in_file: dupInFile,
+            duplicates_existing: dupExisting,
+        }, { status: 422 })
+    }
+
     // Batch insert in chunks of 500
     const CHUNK_SIZE = 500
     let insertedCount = 0
     const errors: string[] = []
 
-    for (let i = 0; i < insertRows.length; i += CHUNK_SIZE) {
-        const chunk = insertRows.slice(i, i + CHUNK_SIZE)
+    for (let i = 0; i < dedupedRows.length; i += CHUNK_SIZE) {
+        const chunk = dedupedRows.slice(i, i + CHUNK_SIZE)
         const { data, error } = await supabase
             .from('lead_pool')
             .insert(chunk)
@@ -350,7 +380,7 @@ export async function POST(request: Request) {
     await supabase
         .from('lead_lists')
         .update({
-            total_count: insertRows.length, // Usa le righe valide filtrate
+            total_count: dedupedRows.length, // righe effettivamente inserite (post-dedup)
             available_count: countAvail || 0,
             updated_at: now,
         })
@@ -361,10 +391,12 @@ export async function POST(request: Request) {
         list_id: resolvedListId,
         parsed_rows: rows.length,
         inserted: insertedCount,
-        skipped: rows.length - insertRows.length,
+        skipped: rows.length - dedupedRows.length,
+        duplicates_in_file: dupInFile,
+        duplicates_existing: dupExisting,
         errors: errors.length > 0 ? errors : undefined,
         columns_detected: Object.keys(rows[0] || {}),
-        preview: insertRows.slice(0, 3).map(r => ({
+        preview: dedupedRows.slice(0, 3).map(r => ({
             full_name: r.full_name,
             phone: r.phone,
             email: r.email,

@@ -91,6 +91,7 @@ export async function POST(request: Request) {
         allowed_hours_start,
         allowed_hours_end,
         allowed_days,
+        recycle_after_hours,
     } = body
 
     const payload = {
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
         allowed_hours_start: allowed_hours_start || '08:00',
         allowed_hours_end: allowed_hours_end || '21:00',
         allowed_days: allowed_days || [1, 2, 3, 4, 5, 6],
+        recycle_after_hours: recycle_after_hours ?? 48,
         updated_at: new Date().toISOString(),
     }
 
