@@ -350,7 +350,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                 transition: 'all 0.15s',
                             }}
                         >
-                            🔄 I miei Richiami ({callbackLeads.length})
+                            🔄 Da richiamare ({callbackLeads.length})
                         </button>
                     </div>
 

@@ -894,7 +894,7 @@ function SimulationSandbox() {
                                 transition: 'all 0.15s',
                             }}
                         >
-                            🔄 I miei Richiami ({simCallbacks.length})
+                            🔄 Da richiamare ({simCallbacks.length})
                         </button>
                     </div>
 
