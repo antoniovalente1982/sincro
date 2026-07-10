@@ -28,6 +28,7 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
     const [leadsList, setLeadsList] = useState<any[]>([])
     const [leadsLoading, setLeadsLoading] = useState(false)
     const [leadsPagination, setLeadsPagination] = useState<any>(null)
+    const [leadsFeedbackCounts, setLeadsFeedbackCounts] = useState<Record<string, number>>({})
     const [leadsPage, setLeadsPage] = useState(1)
     const [statusFilter, setStatusFilter] = useState<string | null>(null)
 
@@ -56,6 +57,7 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                 const data = await res.json()
                 setLeadsList(data.leads || [])
                 setLeadsPagination(data.pagination || null)
+                setLeadsFeedbackCounts(data.feedback_counts || {})
             }
         } catch (err) {
             console.error('Failed to load leads', err)
@@ -345,29 +347,74 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                 background: 'var(--color-surface-50)',
                                                 padding: '16px',
                                             }}>
-                                                {/* Leads filters */}
-                                                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '6px' }}>
-                                                    {[
-                                                        { value: null, label: 'Tutti i lead' },
-                                                        { value: 'available', label: 'Disponibili 🎯' },
-                                                        { value: 'assigned', label: 'Assegnati ⏳' },
-                                                        { value: 'called', label: 'Chiamati 📞' },
-                                                        { value: 'converted', label: 'Convertiti 💎' },
-                                                    ].map((f) => (
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                                                    {/* Leads filters */}
+                                                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px' }}>
+                                                        {[
+                                                            { value: null, label: 'Tutti i lead' },
+                                                            { value: 'available', label: 'Disponibili 🎯' },
+                                                            { value: 'assigned', label: 'Assegnati ⏳' },
+                                                            { value: 'called', label: 'Chiamati 📞' },
+                                                            { value: 'converted', label: 'Convertiti 💎' },
+                                                        ].map((f) => (
+                                                            <button
+                                                                key={f.value || 'all'}
+                                                                onClick={(e) => { e.stopPropagation(); handleStatusFilterChange(f.value); }}
+                                                                style={{
+                                                                    padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '500',
+                                                                    background: statusFilter === f.value ? 'rgba(168,85,247,0.1)' : 'var(--color-surface-100)',
+                                                                    color: statusFilter === f.value ? '#a855f7' : 'var(--color-surface-600)',
+                                                                    border: `1px solid ${statusFilter === f.value ? 'rgba(168,85,247,0.3)' : 'var(--color-surface-200)'}`,
+                                                                    cursor: 'pointer', whiteSpace: 'nowrap',
+                                                                }}
+                                                            >
+                                                                {f.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Clean wrong numbers button */}
+                                                    {leadsFeedbackCounts?.wrong_number > 0 && (
                                                         <button
-                                                            key={f.value || 'all'}
-                                                            onClick={(e) => { e.stopPropagation(); handleStatusFilterChange(f.value); }}
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
+                                                                if (!confirm(`Sei sicuro di voler eliminare permanentemente tutti i ${leadsFeedbackCounts.wrong_number} numeri errati da questa lista? Questa operazione è irreversibile.`)) return;
+                                                                
+                                                                try {
+                                                                    const res = await fetch(`/api/leads-pool/admin/list-leads?list_id=${list.id}&action=clean_wrong_numbers`, {
+                                                                        method: 'DELETE'
+                                                                    });
+                                                                    if (res.ok) {
+                                                                        const data = await res.json();
+                                                                        alert(`Pulizia completata! Eliminati con successo ${data.deleted_count} numeri errati.`);
+                                                                        loadListLeads(list.id, 1, statusFilter);
+                                                                        refreshLists();
+                                                                    } else {
+                                                                        const d = await res.json();
+                                                                        alert(d.error || 'Errore durante la pulizia');
+                                                                    }
+                                                                } catch (err) {
+                                                                    console.error(err);
+                                                                }
+                                                            }}
                                                             style={{
-                                                                padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '500',
-                                                                background: statusFilter === f.value ? 'rgba(168,85,247,0.1)' : 'var(--color-surface-100)',
-                                                                color: statusFilter === f.value ? '#a855f7' : 'var(--color-surface-600)',
-                                                                border: `1px solid ${statusFilter === f.value ? 'rgba(168,85,247,0.3)' : 'var(--color-surface-200)'}`,
-                                                                cursor: 'pointer', whiteSpace: 'nowrap',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px',
+                                                                padding: '5px 12px',
+                                                                borderRadius: '6px',
+                                                                fontSize: '11px',
+                                                                fontWeight: '600',
+                                                                background: 'rgba(239, 68, 68, 0.1)',
+                                                                color: '#ef4444',
+                                                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                                                cursor: 'pointer',
+                                                                transition: 'all 0.2s',
                                                             }}
                                                         >
-                                                            {f.label}
+                                                            🧹 Pulisci {leadsFeedbackCounts.wrong_number} Numeri Errati
                                                         </button>
-                                                    ))}
+                                                    )}
                                                 </div>
 
                                                 {leadsLoading ? (

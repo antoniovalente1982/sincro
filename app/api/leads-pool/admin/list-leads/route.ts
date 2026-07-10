@@ -39,15 +39,19 @@ export async function GET(request: Request) {
 
     if (!list) return NextResponse.json({ error: 'Lista non trovata' }, { status: 404 })
 
-    // Conteggio per status
-    const { data: statusCounts } = await supabase
+    // Conteggio per status e feedback
+    const { data: countsData } = await supabase
         .from('lead_pool')
-        .select('status')
+        .select('status, feedback')
         .eq('list_id', listId)
 
-    const counts: Record<string, number> = {}
-    for (const row of statusCounts || []) {
-        counts[row.status] = (counts[row.status] || 0) + 1
+    const statusCounts: Record<string, number> = {}
+    const feedbackCounts: Record<string, number> = {}
+    for (const row of countsData || []) {
+        statusCounts[row.status] = (statusCounts[row.status] || 0) + 1
+        if (row.feedback) {
+            feedbackCounts[row.feedback] = (feedbackCounts[row.feedback] || 0) + 1
+        }
     }
 
     // Query leads con paginazione
@@ -86,8 +90,85 @@ export async function GET(request: Request) {
             page,
             limit,
             offset,
-            total: Object.values(counts).reduce((s, v) => s + v, 0),
+            total: Object.values(statusCounts).reduce((s, v) => s + v, 0),
         },
-        status_counts: counts,
+        status_counts: statusCounts,
+        feedback_counts: feedbackCounts,
     })
+}
+
+export async function DELETE(request: Request) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
+    const { data: member } = await supabase
+        .from('organization_members')
+        .select('organization_id, role')
+        .eq('user_id', user.id)
+        .is('deactivated_at', null)
+        .single()
+
+    if (!member || !['owner', 'admin', 'manager'].includes(member.role)) {
+        return NextResponse.json({ error: 'Accesso negato' }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const listId = searchParams.get('list_id')
+    const action = searchParams.get('action')
+
+    if (!listId) return NextResponse.json({ error: 'list_id richiesto' }, { status: 400 })
+
+    // Verifica la lista
+    const { data: list } = await supabase
+        .from('lead_lists')
+        .select('*')
+        .eq('id', listId)
+        .eq('organization_id', member.organization_id)
+        .single()
+
+    if (!list) return NextResponse.json({ error: 'Lista non trovata' }, { status: 404 })
+
+    if (action === 'clean_wrong_numbers') {
+        const { count, error } = await supabase
+            .from('lead_pool')
+            .delete({ count: 'exact' })
+            .eq('list_id', listId)
+            .eq('feedback', 'wrong_number')
+
+        if (error) {
+            console.error('[CLEAN_WRONG_NUMBERS] Error:', error)
+            return NextResponse.json({ error: 'Errore durante la cancellazione dei numeri errati' }, { status: 500 })
+        }
+
+        // Ricalcola conteggi total e available
+        const { count: countTotal } = await supabase
+            .from('lead_pool')
+            .select('*', { count: 'exact', head: true })
+            .eq('list_id', listId)
+
+        const { count: countAvail } = await supabase
+            .from('lead_pool')
+            .select('*', { count: 'exact', head: true })
+            .eq('list_id', listId)
+            .eq('status', 'available')
+
+        await supabase
+            .from('lead_lists')
+            .update({
+                total_count: countTotal || 0,
+                available_count: countAvail || 0,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', listId)
+
+        return NextResponse.json({
+            success: true,
+            deleted_count: count || 0,
+            new_total_count: countTotal || 0,
+            new_available_count: countAvail || 0,
+        })
+    }
+
+    return NextResponse.json({ error: 'Azione non valida' }, { status: 400 })
 }
