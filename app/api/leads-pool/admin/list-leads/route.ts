@@ -39,11 +39,12 @@ export async function GET(request: Request) {
 
     if (!list) return NextResponse.json({ error: 'Lista non trovata' }, { status: 404 })
 
-    // Conteggio per status e feedback
+    // Conteggio per status e feedback (escludendo i blacklisted)
     const { data: countsData } = await supabase
         .from('lead_pool')
         .select('status, feedback')
         .eq('list_id', listId)
+        .neq('status', 'blacklisted')
 
     const statusCounts: Record<string, number> = {}
     const feedbackCounts: Record<string, number> = {}
@@ -65,6 +66,8 @@ export async function GET(request: Request) {
 
     if (statusFilter) {
         query = query.eq('status', statusFilter)
+    } else {
+        query = query.neq('status', 'blacklisted')
     }
 
     const { data: leads, error } = await query
@@ -130,22 +133,31 @@ export async function DELETE(request: Request) {
     if (!list) return NextResponse.json({ error: 'Lista non trovata' }, { status: 404 })
 
     if (action === 'clean_wrong_numbers') {
-        const { count, error } = await supabase
+        // Invece di cancellare fisicamente i record, li impostiamo in stato 'blacklisted'.
+        // Questo li nasconde dalle visualizzazioni ma preserva i KPI storici del venditore.
+        const { data: updatedLeads, error: updateError } = await supabase
             .from('lead_pool')
-            .delete({ count: 'exact' })
+            .update({ 
+                status: 'blacklisted', 
+                updated_at: new Date().toISOString() 
+            })
             .eq('list_id', listId)
             .eq('feedback', 'wrong_number')
+            .select('id')
 
-        if (error) {
-            console.error('[CLEAN_WRONG_NUMBERS] Error:', error)
-            return NextResponse.json({ error: 'Errore durante la cancellazione dei numeri errati' }, { status: 500 })
+        if (updateError) {
+            console.error('[CLEAN_WRONG_NUMBERS] Error:', updateError)
+            return NextResponse.json({ error: 'Errore durante l\'archiviazione dei numeri errati' }, { status: 500 })
         }
 
-        // Ricalcola conteggi total e available
+        const updatedCount = updatedLeads?.length || 0
+
+        // Ricalcola conteggi total (escludendo i blacklisted) e available
         const { count: countTotal } = await supabase
             .from('lead_pool')
             .select('*', { count: 'exact', head: true })
             .eq('list_id', listId)
+            .neq('status', 'blacklisted')
 
         const { count: countAvail } = await supabase
             .from('lead_pool')
@@ -164,7 +176,7 @@ export async function DELETE(request: Request) {
 
         return NextResponse.json({
             success: true,
-            deleted_count: count || 0,
+            deleted_count: updatedCount,
             new_total_count: countTotal || 0,
             new_available_count: countAvail || 0,
         })
