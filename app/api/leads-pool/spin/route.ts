@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
+import { romeDateString, romeTimeString, romeDayOfWeek } from '@/lib/timezone'
 
 export async function POST(request: Request) {
     const supabase = await createClient()
@@ -59,10 +60,10 @@ export async function POST(request: Request) {
         allowed_days: [1, 2, 3, 4, 5, 6],
     }
 
-    // ── Check orario permesso ──
+    // ── Check orario permesso (in ora italiana Europe/Rome, non UTC del server) ──
     const now = new Date()
-    const todayDayOfWeek = now.getDay() === 0 ? 7 : now.getDay() // 1=Mon, 7=Sun
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const todayDayOfWeek = romeDayOfWeek(now) // 1=Mon, 7=Sun
+    const currentTime = romeTimeString(now)   // 'HH:MM' ora italiana
 
     if (rule.allowed_days && !rule.allowed_days.includes(todayDayOfWeek)) {
         return NextResponse.json({
@@ -82,8 +83,8 @@ export async function POST(request: Request) {
         }
     }
 
-    // ── Check quota giornaliera ──
-    const today = now.toISOString().split('T')[0]
+    // ── Check quota giornaliera (data in ora italiana) ──
+    const today = romeDateString(now)
     const { data: quota } = await supabase
         .from('lead_daily_quota')
         .select('*')
@@ -168,73 +169,22 @@ export async function POST(request: Request) {
         }
     }
 
-    // ── Estrai leads dal pool (algoritmo smart) ──
-    // Priorità: 
-    // 1. status = 'available' e mai assegnato
-    // 2. status = 'recycled'
-    // 3. priority_score DESC
-    // 4. Non assegnato a questo venditore nelle ultime 72h
-    // Rispetta active_list_ids se configurato
-    // Esclude phone già presenti nella tabella leads CRM
+    // ── Estrazione ATOMICA dal pool (anti-race, FOR UPDATE SKIP LOCKED) ──
+    // La RPC claim_pool_leads seleziona, blocca e assegna in un'unica
+    // transazione: due venditori non possono mai ottenere lo stesso lead.
+    // Rispetta active_list_ids, dedup 72h per venditore ed esclusione
+    // dei numeri già presenti nel CRM leads.
 
-    // Prima ottieni i telefoni già assegnati a questo venditore di recente
-    const { data: recentlyAssigned } = await supabaseAdmin
-        .from('lead_pool')
-        .select('phone')
-        .eq('organization_id', orgId)
-        .eq('assigned_to', userId)
-        .gte('assigned_at', new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString())
-        .not('phone', 'is', null)
-
-    const excludedPhones = recentlyAssigned?.map(l => l.phone).filter(Boolean) || []
-
-    // Build query for available leads
-    let query = supabaseAdmin
-        .from('lead_pool')
-        .select('*')
-        .eq('organization_id', orgId)
-        .in('status', ['available', 'recycled'])
-        .order('status', { ascending: true })      // 'available' < 'recycled'
-        .order('priority_score', { ascending: false })
-        .order('created_at', { ascending: false }) // LIFO per stesso score (i più freschi/nuovi prima!)
-        .limit(batchSize * 3)                      // over-fetch per filtering
-
-    // Filter by active lists if configured
-    if (rule.active_list_ids && rule.active_list_ids.length > 0) {
-        query = query.in('list_id', rule.active_list_ids)
-    }
-
-    const { data: candidateLeads, error: poolError } = await query
-
-    if (poolError) {
-        console.error('[SPIN] Pool query error:', poolError)
-        return NextResponse.json({ error: 'Errore nel recupero dei leads' }, { status: 500 })
-    }
-
-    // Filter out excluded phones
-    const filteredLeads = (candidateLeads || []).filter(l =>
-        !l.phone || !excludedPhones.includes(l.phone)
-    ).slice(0, batchSize)
-
-    if (filteredLeads.length === 0) {
-        return NextResponse.json({
-            error: 'Nessun lead disponibile al momento',
-            code: 'NO_LEADS_AVAILABLE',
-            detail: 'Il pool di leads è esaurito o tutti i leads sono già stati assegnati di recente.'
-        }, { status: 404 })
-    }
-
-    const extractedIds = filteredLeads.map(l => l.id)
     const assignedAt = new Date().toISOString()
 
-    // ── Crea sessione ──
+    // Crea prima la sessione (vuota), poi la RPC vi collega i lead estratti
     const { data: newSession, error: sessionError } = await supabaseAdmin
         .from('lead_distribution_sessions')
         .insert({
             organization_id: orgId,
             user_id: userId,
-            lead_pool_ids: extractedIds,
-            batch_size: filteredLeads.length,
+            lead_pool_ids: [],
+            batch_size: batchSize,
             request_message: requestMessage,
             status: 'active',
         })
@@ -245,17 +195,40 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Errore nella creazione della sessione' }, { status: 500 })
     }
 
-    // ── Aggiorna lead_pool: assegnati ──
-    await supabaseAdmin
-        .from('lead_pool')
-        .update({
-            status: 'assigned',
-            assigned_to: userId,
-            assigned_at: assignedAt,
-            session_id: newSession.id,
-            updated_at: assignedAt,
+    const { data: filteredLeads, error: claimError } = await supabaseAdmin
+        .rpc('claim_pool_leads', {
+            p_org: orgId,
+            p_user: userId,
+            p_batch: batchSize,
+            p_list_ids: (rule.active_list_ids && rule.active_list_ids.length > 0) ? rule.active_list_ids : null,
+            p_session: newSession.id,
+            p_dedup_hours: 72,
         })
-        .in('id', extractedIds)
+
+    if (claimError) {
+        console.error('[SPIN] claim_pool_leads error:', claimError)
+        // Rollback della sessione vuota
+        await supabaseAdmin.from('lead_distribution_sessions').delete().eq('id', newSession.id)
+        return NextResponse.json({ error: 'Errore nel recupero dei leads' }, { status: 500 })
+    }
+
+    if (!filteredLeads || filteredLeads.length === 0) {
+        // Nessun lead: elimina la sessione vuota appena creata
+        await supabaseAdmin.from('lead_distribution_sessions').delete().eq('id', newSession.id)
+        return NextResponse.json({
+            error: 'Nessun lead disponibile al momento',
+            code: 'NO_LEADS_AVAILABLE',
+            detail: 'Il pool di leads è esaurito o tutti i leads sono già stati assegnati di recente.'
+        }, { status: 404 })
+    }
+
+    const extractedIds = filteredLeads.map((l: any) => l.id)
+
+    // ── Aggiorna la sessione con i lead effettivamente estratti ──
+    await supabaseAdmin
+        .from('lead_distribution_sessions')
+        .update({ lead_pool_ids: extractedIds, batch_size: filteredLeads.length })
+        .eq('id', newSession.id)
 
     // ── Upsert quota giornaliera ──
     await supabaseAdmin
@@ -274,7 +247,7 @@ export async function POST(request: Request) {
         })
 
     // ── Aggiorna available_count nelle liste ──
-    const listIds = [...new Set(filteredLeads.map(l => l.list_id).filter(Boolean))]
+    const listIds = [...new Set(filteredLeads.map((l: any) => l.list_id).filter(Boolean))]
     for (const listId of listIds) {
         const { count: countAvail } = await supabaseAdmin
             .from('lead_pool')

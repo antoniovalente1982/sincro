@@ -8,6 +8,7 @@ import QuotaManager from './QuotaManager'
 import SpinMachine from '../SpinMachine'
 import LeadCard from '../LeadCard'
 import DailyProgressBar from '../DailyProgressBar'
+import OperatingProcedure from '../OperatingProcedure'
 
 interface Props {
     orgId: string
@@ -70,6 +71,8 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
     const [kpiEndDate, setKpiEndDate] = useState<string>('')
     const [kpiData, setKpiData] = useState<any[]>([])
     const [anomaliesData, setAnomaliesData] = useState<any[]>([])
+    const [listQuality, setListQuality] = useState<any[]>([])
+    const [bestHours, setBestHours] = useState<any[]>([])
     const [kpiLoading, setKpiLoading] = useState(false)
 
     const refreshLists = useCallback(async () => {
@@ -133,11 +136,19 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
             if (end) params.push(`endDate=${end}`)
             if (params.length > 0) url += `?${params.join('&')}`
 
-            const res = await fetch(url)
+            const [res, lqRes] = await Promise.all([
+                fetch(url),
+                fetch('/api/leads-pool/admin/list-quality'),
+            ])
             if (res.ok) {
                 const data = await res.json()
                 setKpiData(data.kpi || [])
                 setAnomaliesData(data.anomalies || [])
+            }
+            if (lqRes.ok) {
+                const lq = await lqRes.json()
+                setListQuality(lq.lists || [])
+                setBestHours(lq.best_hours || [])
             }
         } catch (err) {
             console.error('Failed to fetch KPIs', err)
@@ -812,11 +823,14 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                 border: '1px solid var(--color-surface-200)',
                             }}>
                                 <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--color-surface-800)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    🏆 Classifica Performance Venditori
+                                    🏆 Classifica Resilienza Venditori
+                                    <span style={{ fontSize: '10px', fontWeight: 400, color: 'var(--color-surface-400)' }}>
+                                        (volume · risposta · appuntamenti · presentati · chiusi)
+                                    </span>
                                 </h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {[...kpiData]
-                                        .sort((a, b) => b.leads_converted - a.leads_converted || b.conversion_rate - a.conversion_rate)
+                                        .sort((a, b) => (b.resilience_score ?? 0) - (a.resilience_score ?? 0) || b.leads_converted - a.leads_converted)
                                         .map((u, index) => {
                                             const podiumColors = ['#f59e0b', '#94a3b8', '#b45309']
                                             const isTop3 = index < 3
@@ -846,14 +860,14 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                                 {u.name}
                                                             </div>
                                                             <div style={{ fontSize: '11px', color: 'var(--color-surface-500)' }}>
-                                                                Tasso conversione: <strong>{u.conversion_rate}%</strong> · Efficienza: <strong>{u.efficiency_rate}%</strong>
+                                                                📞 {u.dials ?? 0} dial · ☎️ {u.connect_rate ?? 0}% risposta · 📅 {u.appointments ?? u.leads_converted} app. · ✅ {u.sold ?? 0} chiusi
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                                         <div style={{ textAlign: 'right' }}>
-                                                            <span style={{ fontSize: '16px', fontWeight: '800', color: '#22c55e' }}>{u.leads_converted}</span>
-                                                            <span style={{ fontSize: '11px', color: 'var(--color-surface-500)', marginLeft: '4px' }}>appuntamenti</span>
+                                                            <span style={{ fontSize: '20px', fontWeight: '800', color: '#a855f7' }}>{u.resilience_score ?? 0}</span>
+                                                            <span style={{ fontSize: '11px', color: 'var(--color-surface-500)', marginLeft: '4px' }}>punti</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -876,47 +890,121 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}>
                                                 <th style={{ padding: '8px 12px' }}>Venditore</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Spin effettuati</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Lead prelevati (Volume)</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Resilienza</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Lead prelevati</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Contatti lavorati</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Conversione (Appuntamenti)</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Tasso Conversione lavorati</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Tasso Efficienza totale</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Dial (risposta%)</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Appuntamenti</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Presentati</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Chiusi</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Fatturato</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {kpiData.map((u) => (
                                                 <tr key={u.user_id} style={{ borderBottom: '1px solid var(--color-surface-100)', color: 'var(--color-surface-800)' }}>
                                                     <td style={{ padding: '10px 12px', fontWeight: '600' }}>{u.name}</td>
-                                                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '500' }}>{u.spins_count}</td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold',
+                                                            background: (u.resilience_score ?? 0) >= 50 ? 'rgba(168,85,247,0.12)' : 'rgba(107,114,128,0.1)',
+                                                            color: (u.resilience_score ?? 0) >= 50 ? '#a855f7' : '#6b7280'
+                                                        }}>
+                                                            {u.resilience_score ?? 0}
+                                                        </span>
+                                                    </td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '500' }}>{u.leads_requested}</td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center', color: '#2563eb', fontWeight: '600' }}>
                                                         {u.leads_called} <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--color-surface-500)' }}>({u.leads_requested > 0 ? Math.round((u.leads_called / u.leads_requested) * 100) : 0}%)</span>
                                                     </td>
-                                                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>{u.leads_converted}</td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                                                        <span style={{
-                                                            padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
-                                                            background: u.conversion_rate >= 20 ? 'rgba(34,197,94,0.1)' : u.conversion_rate >= 10 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
-                                                            color: u.conversion_rate >= 20 ? '#22c55e' : u.conversion_rate >= 10 ? '#f59e0b' : '#ef4444'
-                                                        }}>
-                                                            {u.conversion_rate}%
-                                                        </span>
+                                                        {u.dials ?? 0} <span style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>({u.connect_rate ?? 0}%)</span>
                                                     </td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>{u.appointments ?? u.leads_converted}</td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                                                        <span style={{
-                                                            padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
-                                                            background: u.efficiency_rate >= 15 ? 'rgba(168,85,247,0.1)' : 'rgba(107,114,128,0.1)',
-                                                            color: u.efficiency_rate >= 15 ? '#a855f7' : '#6b7280'
-                                                        }}>
-                                                            {u.efficiency_rate}%
-                                                        </span>
+                                                        {u.shown ?? 0} <span style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>({u.show_rate ?? 0}%)</span>
+                                                    </td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>
+                                                        {u.sold ?? 0} <span style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>({u.close_rate ?? 0}%)</span>
+                                                    </td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600' }}>
+                                                        {u.sales_value ? `€${Number(u.sales_value).toLocaleString('it-IT')}` : '—'}
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+
+                            {/* Qualità Liste + Best Time to Call (Fase 4) */}
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--color-surface-200)' }}>
+                                <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--color-surface-800)' }}>
+                                    📦 Qualità delle Liste — quale sorgente conviene comprare
+                                </h3>
+                                <p style={{ fontSize: '11px', color: 'var(--color-surface-400)', marginBottom: '14px' }}>
+                                    Tasso di appuntamento sui contatti lavorati per ciascuna lista importata.
+                                </p>
+                                {listQuality.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '24px', color: 'var(--color-surface-400)', fontSize: '12px' }}>
+                                        Nessun dato lista ancora disponibile.
+                                    </div>
+                                ) : (
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+                                            <thead>
+                                                <tr style={{ borderBottom: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}>
+                                                    <th style={{ padding: '8px 12px' }}>Lista</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Totale</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Disponibili</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Lavorati</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Appuntamenti</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Resa (lavorati)</th>
+                                                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Numeri errati</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {listQuality.map((l: any) => (
+                                                    <tr key={l.list_id} style={{ borderBottom: '1px solid var(--color-surface-100)', color: 'var(--color-surface-800)' }}>
+                                                        <td style={{ padding: '10px 12px', fontWeight: 600 }}>{l.name}</td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{l.total}</td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--color-surface-500)' }}>{l.available}</td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{l.worked}</td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: 600 }}>{l.wins}</td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                                                                background: l.win_rate_worked >= 15 ? 'rgba(34,197,94,0.12)' : l.win_rate_worked >= 7 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.1)',
+                                                                color: l.win_rate_worked >= 15 ? '#22c55e' : l.win_rate_worked >= 7 ? '#f59e0b' : '#ef4444',
+                                                            }}>{l.win_rate_worked}%</span>
+                                                        </td>
+                                                        <td style={{ padding: '10px 12px', textAlign: 'center', color: l.wrong_rate > 25 ? '#ef4444' : 'var(--color-surface-500)' }}>{l.wrong_rate}%</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {bestHours.length > 0 && (
+                                    <div style={{ marginTop: '18px' }}>
+                                        <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-surface-700)', marginBottom: '8px' }}>
+                                            ⏰ Orari migliori per chiamare (più alta % di risposta)
+                                        </h4>
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                            {bestHours.map((h: any) => (
+                                                <div key={h.hour} style={{
+                                                    padding: '8px 14px', borderRadius: '10px',
+                                                    background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)',
+                                                    textAlign: 'center',
+                                                }}>
+                                                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#a855f7' }}>{String(h.hour).padStart(2, '0')}:00</div>
+                                                    <div style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>{h.connect_rate}% risposta · {h.dials} dial</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Audit & Sicurezza (Anti-Cheat) panel */}
@@ -1079,13 +1167,15 @@ function SimulationSandbox() {
         setTimeout(() => setSpinState('idle'), 500)
     }
 
-    const handleFeedback = async (leadId: string, feedback: string, notes?: string) => {
+    const handleFeedback = async (leadId: string, feedback: string, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
+        const notes = extra?.notes
+        const WIN = ['appointment', 'converted']
         const isFromCallbacks = simCallbacks.some(l => l.id === leadId)
 
         const updateFunction = (l: any) => {
             const wasCalled = !!l.feedback
-            const isConverted = feedback === 'converted'
-            const wasConverted = l.feedback === 'converted'
+            const isConverted = WIN.includes(feedback)
+            const wasConverted = WIN.includes(l.feedback)
 
             if (!wasCalled) {
                 setSimCalled(c => c + 1)
@@ -1106,7 +1196,7 @@ function SimulationSandbox() {
         }
 
         if (isFromCallbacks) {
-            const isResolved = ['converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
+            const isResolved = ['appointment', 'converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
             if (isResolved) {
                 // Rimuovi dal tab dei richiami se è stato risolto (es. convertito o scartato)
                 setSimCallbacks(prev => prev.filter(l => l.id !== leadId))
@@ -1334,67 +1424,8 @@ function SimulationSandbox() {
                         </button>
                     </div>
 
-                    {/* Guida procedurale "Come funziona?" */}
-                    <div
-                        className="glass-card"
-                        style={{
-                            padding: '16px 20px',
-                            borderRadius: '16px',
-                            border: '1px solid var(--color-surface-200)',
-                            background: 'rgba(168,85,247,0.02)',
-                            textAlign: 'left',
-                            marginTop: '16px'
-                        }}
-                    >
-                        <h4 style={{ 
-                            fontSize: '13px', 
-                            fontWeight: '700', 
-                            color: 'var(--color-surface-800)', 
-                            marginBottom: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                        }}>
-                            <span>❓</span> Come funziona? Procedura Operativa
-                        </h4>
-                        <ol style={{ 
-                            fontSize: '11px', 
-                            color: 'var(--color-surface-600)', 
-                            paddingLeft: '16px', 
-                            margin: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '6px',
-                            lineHeight: '1.4'
-                        }}>
-                            <li>
-                                Premere il tasto <strong>SPIN</strong> per ricevere un pacchetto di <strong>{batchSize} contatti</strong>.
-                            </li>
-                            <li>
-                                Avviare la telefonata al primo contatto della lista.
-                            </li>
-                            <li>
-                                <strong style={{ color: '#a855f7' }}>Importante:</strong> Inserire l'esito (feedback) <strong>subito dopo aver concluso ciascuna chiamata</strong>. Evitare di accumulare le chiamate e registrarle in blocco alla fine.
-                            </li>
-                            <li>
-                                Ripetere l'operazione per tutti i contatti assegnati prima di richiedere un nuovo SPIN.
-                            </li>
-                            <li>
-                                I contatti con esito "Da richiamare" verranno spostati nel tab <em>Da richiamare</em> per essere ri-lavorati in seguito.
-                            </li>
-                        </ol>
-                        <div style={{
-                            marginTop: '10px',
-                            padding: '8px 10px',
-                            borderRadius: '8px',
-                            background: 'rgba(168, 85, 247, 0.05)',
-                            fontSize: '10px',
-                            color: '#7c3aed',
-                            lineHeight: '1.3',
-                        }}>
-                            💡 <em>Il sistema monitora automaticamente i tempi di lavorazione per ottimizzare l'assegnazione dei lead. Seguire la procedura lineare evita segnalazioni di anomalie.</em>
-                        </div>
-                    </div>
+                    {/* Guida procedurale "Come funziona?" — sorgente unica in OperatingProcedure */}
+                    <OperatingProcedure batchSize={batchSize} minFeedbackPct={feedbackRequirement} compact />
                 </div>
 
                 {/* Column right: Simulated Leads */}

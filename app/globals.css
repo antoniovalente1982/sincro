@@ -430,3 +430,17 @@
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
+
+/* ── Stazione Leads: layout responsive ── */
+.station-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .station-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

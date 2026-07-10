@@ -8,6 +8,7 @@ import SpinMachine from './SpinMachine'
 import LeadCard from './LeadCard'
 import DailyProgressBar from './DailyProgressBar'
 import PersonalKPIPanel from './PersonalKPIPanel'
+import OperatingProcedure from './OperatingProcedure'
 
 interface Props {
     userId: string
@@ -18,7 +19,7 @@ interface Props {
 }
 
 export default function LeadsStation({ userId, orgId, userRole, isAdmin, initialStats }: Props) {
-    const [activeTab, setActiveTab] = useState<'session' | 'callbacks'>('session')
+    const [activeTab, setActiveTab] = useState<'session' | 'callbacks' | 'interested'>('session')
     const [stats, setStats] = useState<any>(initialStats)
     const [isLoading, setIsLoading] = useState(false)
     const [spinState, setSpinState] = useState<'idle' | 'spinning' | 'done'>('idle')
@@ -87,68 +88,67 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
         }
     }
 
-    const handleFeedback = async (leadId: string, feedback: string, notes?: string) => {
-        // ── AGGIORNAMENTO OTTIMISTICO LOCALE (Istantaneo) ──
+    const WIN = ['appointment', 'converted']
+
+    // Registra il tentativo di chiamata (click-to-call → log telefonate)
+    const handleCall = useCallback((leadId: string, phone: string) => {
+        fetch('/api/leads-pool/log-call', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lead_pool_id: leadId, phone }),
+        }).catch(() => { /* best-effort */ })
+    }, [])
+
+    const handleFeedback = async (leadId: string, feedback: string, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
+        const notes = extra?.notes
+        const isInList = (list: string) => stats?.[list]?.some((l: any) => l.id === leadId)
+        const inSession = isInList('session_leads')
+        const sessionId = inSession ? stats?.active_session?.id : null
+
+        // ── AGGIORNAMENTO OTTIMISTICO LOCALE (istantaneo) ──
         setStats((prev: any) => {
             if (!prev) return prev
+            const isWin = WIN.includes(feedback)
 
-            // 1. Aggiorna nei session_leads
-            const updatedSessionLeads = prev.session_leads?.map((l: any) => {
-                if (l.id !== leadId) return l
-                const wasCalled = !!l.feedback
-                return {
-                    ...l,
-                    feedback,
-                    feedback_notes: notes || l.feedback_notes,
-                    status: feedback === 'converted' ? 'converted' : 'called',
-                    call_count: l.call_count + (wasCalled ? 0 : 1),
-                }
-            }) || []
+            const patchLead = (l: any) => ({
+                ...l,
+                feedback,
+                feedback_notes: notes || l.feedback_notes,
+                status: isWin ? 'converted' : 'called',
+                callback_at: feedback === 'callback' ? extra?.callback_at : l.callback_at,
+                appointment_at: feedback === 'appointment' ? extra?.appointment_at : l.appointment_at,
+                call_count: l.call_count + (l.feedback ? 0 : 1),
+            })
 
-            // 2. Calcola i progressi della sessione
+            const updatedSessionLeads = (prev.session_leads || []).map((l: any) => l.id === leadId ? patchLead(l) : l)
+
+            const originalLead = (prev.session_leads || []).find((l: any) => l.id === leadId)
             let leadsCalled = prev.active_session?.leads_called || 0
             let leadsWithFeedback = prev.active_session?.leads_with_feedback || 0
-            
-            const originalLead = prev.session_leads?.find((l: any) => l.id === leadId)
-            if (originalLead && !originalLead.feedback) {
-                leadsCalled += 1
-                leadsWithFeedback += 1
-            }
+            if (originalLead && !originalLead.feedback) { leadsCalled += 1; leadsWithFeedback += 1 }
 
-            // 3. Aggiorna nei callback_leads (se presente)
-            const isCallback = prev.callback_leads?.some((l: any) => l.id === leadId)
-            let updatedCallbackLeads = prev.callback_leads || []
-            if (isCallback) {
-                const isResolved = ['converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
-                if (isResolved) {
-                    updatedCallbackLeads = updatedCallbackLeads.filter((l: any) => l.id !== leadId)
-                } else {
-                    updatedCallbackLeads = updatedCallbackLeads.map((l: any) => {
-                        if (l.id !== leadId) return l
-                        return {
-                            ...l,
-                            feedback,
-                            feedback_notes: notes || l.feedback_notes,
-                            status: 'called',
-                        }
-                    })
-                }
-            }
+            // Code laterali: rimuovi se risolto, altrimenti aggiorna
+            const resolvedFromCallback = !['callback', 'no_answer'].includes(feedback)
+            const updatedCallbackLeads = (prev.callback_leads || [])
+                .filter((l: any) => !(l.id === leadId && resolvedFromCallback))
+                .map((l: any) => l.id === leadId ? patchLead(l) : l)
 
-            // 4. Aggiorna quota giornaliera
+            const updatedInterestedLeads = (prev.interested_leads || [])
+                .filter((l: any) => !(l.id === leadId && feedback !== 'interested'))
+                .map((l: any) => l.id === leadId ? patchLead(l) : l)
+
+            // Quota di oggi
             let todayCalled = prev.today?.leads_called || 0
             let todayConverted = prev.today?.leads_converted || 0
-            if (originalLead && !originalLead.feedback) {
-                todayCalled += 1
-                if (feedback === 'converted') todayConverted += 1
-            } else if (originalLead && originalLead.feedback !== 'converted' && feedback === 'converted') {
-                todayConverted += 1
-            }
+            const wasWin = originalLead && WIN.includes(originalLead.feedback)
+            if (originalLead && !originalLead.feedback) todayCalled += 1
+            if (isWin && !wasWin) todayConverted += 1
 
             return {
                 ...prev,
                 session_leads: updatedSessionLeads,
                 callback_leads: updatedCallbackLeads,
+                interested_leads: updatedInterestedLeads,
                 active_session: prev.active_session ? {
                     ...prev.active_session,
                     leads_called: leadsCalled,
@@ -158,17 +158,11 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                     ...prev.today,
                     leads_called: todayCalled,
                     leads_converted: todayConverted,
-                    leads_requested: prev.today.leads_requested,
-                    remaining: prev.today.remaining,
                 } : prev.today,
             }
         })
 
-        // ── CHIAMATA API IN BACKGROUND (Asincrona, non blocca la UI) ──
-        const isCallback = stats?.callback_leads?.some((l: any) => l.id === leadId)
-        const sessionId = isCallback ? null : stats?.active_session?.id
-
-        // Avviamo la richiesta in background senza usare 'await'
+        // ── CHIAMATA API IN BACKGROUND ──
         fetch('/api/leads-pool/feedback', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -177,15 +171,18 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                 feedback,
                 feedback_notes: notes || null,
                 session_id: sessionId,
+                callback_at: extra?.callback_at || null,
+                appointment_at: extra?.appointment_at || null,
             }),
         })
-        .then(() => refreshStats()) // Rinfresca i dati reali in background al completamento
+        .then(() => refreshStats())
         .catch(err => console.error('[Feedback background error]:', err))
     }
 
     const today = stats?.today || {}
     const sessionLeads: any[] = stats?.session_leads || []
     const callbackLeads: any[] = stats?.callback_leads || []
+    const interestedLeads: any[] = stats?.interested_leads || []
     const activeSession = stats?.active_session
     const rules = stats?.rules || {}
 
@@ -254,8 +251,8 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                 <PersonalKPIPanel stats={stats} />
             )}
 
-            {/* Layout principale: spin a sx, leads a dx */}
-            <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: '24px', alignItems: 'start' }}>
+            {/* Layout principale: spin a sx, leads a dx (responsive su mobile) */}
+            <div className="station-grid">
 
                 {/* ── COLONNA SX: Slot Machine + Progress ── */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -397,66 +394,8 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                         </div>
                     )}
 
-                    {/* Guida procedurale "Come funziona?" */}
-                    <div
-                        className="glass-card"
-                        style={{
-                            padding: '16px 20px',
-                            borderRadius: '16px',
-                            border: '1px solid var(--color-surface-200)',
-                            background: 'rgba(168,85,247,0.02)',
-                            textAlign: 'left',
-                        }}
-                    >
-                        <h4 style={{ 
-                            fontSize: '13px', 
-                            fontWeight: '700', 
-                            color: 'var(--color-surface-800)', 
-                            marginBottom: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                        }}>
-                            <span>❓</span> Come funziona? Procedura Operativa
-                        </h4>
-                        <ol style={{ 
-                            fontSize: '11px', 
-                            color: 'var(--color-surface-600)', 
-                            paddingLeft: '16px', 
-                            margin: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '6px',
-                            lineHeight: '1.4'
-                        }}>
-                            <li>
-                                Premere il tasto <strong>SPIN</strong> per ricevere un pacchetto di <strong>{rules.batch_size || 5} contatti</strong>.
-                            </li>
-                            <li>
-                                Avviare la telefonata al primo contatto della lista.
-                            </li>
-                            <li>
-                                <strong style={{ color: '#a855f7' }}>Importante:</strong> Inserire l'esito (feedback) <strong>subito dopo aver concluso ciascuna chiamata</strong>. Evitare di accumulare le chiamate e registrarle in blocco alla fine.
-                            </li>
-                            <li>
-                                Ripetere l'operazione per tutti i contatti assegnati prima di richiedere un nuovo SPIN.
-                            </li>
-                            <li>
-                                I contatti con esito "Da richiamare" verranno spostati nel tab <em>Da richiamare</em> per essere ri-lavorati in seguito.
-                            </li>
-                        </ol>
-                        <div style={{
-                            marginTop: '10px',
-                            padding: '8px 10px',
-                            borderRadius: '8px',
-                            background: 'rgba(168, 85, 247, 0.05)',
-                            fontSize: '10px',
-                            color: '#7c3aed',
-                            lineHeight: '1.3',
-                        }}>
-                            💡 <em>Il sistema monitora automaticamente i tempi di lavorazione per ottimizzare l'assegnazione dei lead. Seguire la procedura lineare evita segnalazioni di anomalie.</em>
-                        </div>
-                    </div>
+                    {/* Guida procedurale "Come funziona?" — sorgente unica in OperatingProcedure */}
+                    <OperatingProcedure batchSize={rules.batch_size || 5} minFeedbackPct={minFeedbackPct} />
                 </div>
 
                 {/* ── COLONNA DX: Leads correnti o Richiami ── */}
@@ -495,6 +434,20 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                             }}
                         >
                             🔄 Da richiamare ({callbackLeads.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('interested')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'interested' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'interested' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'interested' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
+                            }}
+                        >
+                            ⭐ Interessati ({interestedLeads.length})
                         </button>
                     </div>
 
@@ -540,6 +493,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                             lead={lead}
                                             sessionId={activeSession?.id}
                                             onFeedback={handleFeedback}
+                                            onCall={handleCall}
                                         />
                                     ))}
                                 </div>
@@ -567,7 +521,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                 )}
                             </div>
                         )
-                    ) : (
+                    ) : activeTab === 'callbacks' ? (
                         callbackLeads.length === 0 ? (
                             <div
                                 className="glass-card"
@@ -597,6 +551,44 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                             key={lead.id}
                                             lead={lead}
                                             onFeedback={handleFeedback}
+                                            onCall={handleCall}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    ) : (
+                        interestedLeads.length === 0 ? (
+                            <div
+                                className="glass-card"
+                                style={{
+                                    padding: '48px 24px',
+                                    borderRadius: '20px',
+                                    textAlign: 'center',
+                                    border: '1px dashed var(--color-surface-300)',
+                                }}
+                            >
+                                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>⭐</div>
+                                <h3 className="font-bold mb-2" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun interessato in coda
+                                </h3>
+                                <p className="text-sm" style={{ color: 'var(--color-surface-500)', maxWidth: '300px', margin: '0 auto' }}>
+                                    I contatti segnati come <strong>Interessato</strong> compaiono qui per il follow-up:
+                                    è qui che trasformi l'interesse in appuntamento.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-surface-700)' }}>
+                                    ⭐ Interessati — da trasformare in appuntamento
+                                </h2>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {interestedLeads.map((lead: any) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            onFeedback={handleFeedback}
+                                            onCall={handleCall}
                                         />
                                     ))}
                                 </div>
