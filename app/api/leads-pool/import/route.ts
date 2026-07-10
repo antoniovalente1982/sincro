@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import * as XLSX from 'xlsx'
 
+// Next.js route segment config — aumenta limite upload a 50MB
+export const maxDuration = 60  // max 60s (per file grandi)
+
 // POST /api/leads-pool/import
 // Carica un file CSV/XLSX/JSON e inserisce i lead nel pool
 // Accetta multipart/form-data con: file, list_name, list_id (opzionale)

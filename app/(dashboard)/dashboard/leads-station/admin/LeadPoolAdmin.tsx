@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Upload, Settings, Users, BarChart3, Trash2, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react'
+import { ArrowLeft, Upload, Settings, Users, BarChart3, Trash2, RefreshCw, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, Search, Eye } from 'lucide-react'
 import FileImportWizard from './FileImportWizard'
 import QuotaManager from './QuotaManager'
 
@@ -20,6 +20,14 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
     const [rules, setRules] = useState(initialRules)
     const [showImportWizard, setShowImportWizard] = useState(false)
 
+    // Leads list inspection states
+    const [expandedListId, setExpandedListId] = useState<string | null>(null)
+    const [leadsList, setLeadsList] = useState<any[]>([])
+    const [leadsLoading, setLeadsLoading] = useState(false)
+    const [leadsPagination, setLeadsPagination] = useState<any>(null)
+    const [leadsPage, setLeadsPage] = useState(1)
+    const [statusFilter, setStatusFilter] = useState<string | null>(null)
+
     const refreshLists = useCallback(async () => {
         const res = await fetch('/api/leads-pool/import')
         if (res.ok) {
@@ -36,11 +44,61 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
         }
     }, [])
 
+    const loadListLeads = useCallback(async (listId: string, page = 1, status = statusFilter) => {
+        setLeadsLoading(true)
+        try {
+            const url = `/api/leads-pool/admin/list-leads?list_id=${listId}&page=${page}&limit=20${status ? `&status=${status}` : ''}`
+            const res = await fetch(url)
+            if (res.ok) {
+                const data = await res.json()
+                setLeadsList(data.leads || [])
+                setLeadsPagination(data.pagination || null)
+            }
+        } catch (err) {
+            console.error('Failed to load leads', err)
+        } finally {
+            setLeadsLoading(false)
+        }
+    }, [statusFilter])
+
+    const handleExpandList = (listId: string) => {
+        if (expandedListId === listId) {
+            setExpandedListId(null)
+            setLeadsList([])
+            setLeadsPagination(null)
+        } else {
+            setExpandedListId(listId)
+            setLeadsPage(1)
+            loadListLeads(listId, 1, statusFilter)
+        }
+    }
+
+    const handlePageChange = (newPage: number) => {
+        if (!expandedListId) return
+        setLeadsPage(newPage)
+        loadListLeads(expandedListId, newPage, statusFilter)
+    }
+
+    const handleStatusFilterChange = (newStatus: string | null) => {
+        if (!expandedListId) return
+        setStatusFilter(newStatus)
+        setLeadsPage(1)
+        loadListLeads(expandedListId, 1, newStatus)
+    }
+
     const toggleList = async (listId: string, isActive: boolean) => {
-        // We'll use a direct supabase update via a simple API call
-        // For now, we optimistically update the UI
-        setLists(prev => prev.map(l => l.id === listId ? { ...l, is_active: !isActive } : l))
-        // TODO: implement PATCH endpoint for list toggle
+        try {
+            setLists(prev => prev.map(l => l.id === listId ? { ...l, is_active: !isActive } : l))
+            // Chiamata PATCH (o POST) per attivare/disattivare
+            await fetch('/api/leads-pool/admin/rules', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'toggle_list', list_id: listId, is_active: !isActive })
+            })
+            refreshLists()
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     const TABS = [
@@ -172,66 +230,208 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                     : 0
                                 return (
                                     <div key={list.id} className="glass-card" style={{
-                                        padding: '16px 18px',
                                         borderRadius: '14px',
                                         border: `1px solid ${list.is_active ? 'var(--color-surface-200)' : 'var(--color-surface-300)'}`,
                                         opacity: list.is_active ? 1 : 0.6,
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr auto auto',
-                                        gap: '16px',
-                                        alignItems: 'center',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        marginBottom: '8px',
+                                        overflow: 'hidden',
                                     }}>
-                                        <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <span style={{ fontSize: '1rem' }}>
-                                                    {list.source_format === 'xlsx' ? '📊' : list.source_format === 'json' ? '🔷' : '📄'}
-                                                </span>
-                                                <span className="font-semibold text-sm" style={{ color: 'var(--color-surface-900)' }}>
-                                                    {list.name}
-                                                </span>
-                                                <span style={{
-                                                    fontSize: '10px', padding: '2px 6px', borderRadius: '999px',
-                                                    background: list.is_active ? 'rgba(34,197,94,0.1)' : 'var(--color-surface-200)',
-                                                    color: list.is_active ? '#22c55e' : 'var(--color-surface-500)',
-                                                    border: `1px solid ${list.is_active ? 'rgba(34,197,94,0.3)' : 'var(--color-surface-300)'}`,
-                                                }}>
-                                                    {list.is_active ? 'Attiva' : 'Pausa'}
-                                                </span>
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
-                                                <span style={{ fontSize: '12px', color: 'var(--color-surface-500)' }}>
-                                                    🎯 <strong style={{ color: '#a855f7' }}>{list.available_count.toLocaleString('it-IT')}</strong> disponibili
-                                                </span>
-                                                <span style={{ fontSize: '12px', color: 'var(--color-surface-500)' }}>
-                                                    📋 {list.total_count.toLocaleString('it-IT')} totali ({availPct}%)
-                                                </span>
-                                                <span style={{ fontSize: '11px', color: 'var(--color-surface-400)' }}>
-                                                    {new Date(list.created_at).toLocaleDateString('it-IT')}
-                                                </span>
-                                            </div>
-                                            {/* Mini progress bar */}
-                                            <div style={{
-                                                marginTop: '6px', height: '4px', borderRadius: '2px',
-                                                background: 'var(--color-surface-200)', overflow: 'hidden', width: '200px',
-                                            }}>
+                                        <div style={{
+                                            padding: '16px 18px',
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr auto auto auto',
+                                            gap: '16px',
+                                            alignItems: 'center',
+                                            cursor: 'pointer',
+                                        }} onClick={() => handleExpandList(list.id)}>
+                                            <div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontSize: '1rem' }}>
+                                                        {list.source_format === 'xlsx' ? '📊' : list.source_format === 'json' ? '🔷' : '📄'}
+                                                    </span>
+                                                    <span className="font-semibold text-sm" style={{ color: 'var(--color-surface-900)' }}>
+                                                        {list.name}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: '10px', padding: '2px 6px', borderRadius: '999px',
+                                                        background: list.is_active ? 'rgba(34,197,94,0.1)' : 'var(--color-surface-200)',
+                                                        color: list.is_active ? '#22c55e' : 'var(--color-surface-500)',
+                                                        border: `1px solid ${list.is_active ? 'rgba(34,197,94,0.3)' : 'var(--color-surface-300)'}`,
+                                                    }}>
+                                                        {list.is_active ? 'Attiva' : 'Pausa'}
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
+                                                    <span style={{ fontSize: '12px', color: 'var(--color-surface-500)' }}>
+                                                        🎯 <strong style={{ color: '#a855f7' }}>{list.available_count.toLocaleString('it-IT')}</strong> disponibili
+                                                    </span>
+                                                    <span style={{ fontSize: '12px', color: 'var(--color-surface-500)' }}>
+                                                        📋 {list.total_count.toLocaleString('it-IT')} totali ({availPct}%)
+                                                    </span>
+                                                    <span style={{ fontSize: '11px', color: 'var(--color-surface-400)' }}>
+                                                        {new Date(list.created_at).toLocaleDateString('it-IT')}
+                                                    </span>
+                                                </div>
+                                                {/* Mini progress bar */}
                                                 <div style={{
-                                                    height: '100%', width: `${availPct}%`,
-                                                    background: availPct > 30 ? '#22c55e' : availPct > 10 ? '#f59e0b' : '#ef4444',
-                                                    borderRadius: '2px', transition: 'width 0.5s',
-                                                }} />
+                                                    marginTop: '6px', height: '4px', borderRadius: '2px',
+                                                    background: 'var(--color-surface-200)', overflow: 'hidden', width: '200px',
+                                                }}>
+                                                    <div style={{
+                                                        height: '100%', width: `${availPct}%`,
+                                                        background: availPct > 30 ? '#22c55e' : availPct > 10 ? '#f59e0b' : '#ef4444',
+                                                        borderRadius: '2px', transition: 'width 0.5s',
+                                                    }} />
+                                                </div>
+                                            </div>
+
+                                            <div style={{ color: 'var(--color-surface-500)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                                                <Eye className="w-4 h-4" />
+                                                <span>{expandedListId === list.id ? 'Nascondi lead' : 'Vedi lead'}</span>
+                                            </div>
+
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleList(list.id, list.is_active); }}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-surface-500)' }}
+                                                title={list.is_active ? 'Metti in pausa' : 'Attiva'}
+                                            >
+                                                {list.is_active
+                                                    ? <ToggleRight className="w-5 h-5" style={{ color: '#22c55e' }} />
+                                                    : <ToggleLeft className="w-5 h-5" />
+                                                }
+                                            </button>
+
+                                            <div>
+                                                {expandedListId === list.id ? <ChevronUp className="w-4 h-4 text-surface-500" /> : <ChevronDown className="w-4 h-4 text-surface-500" />}
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={() => toggleList(list.id, list.is_active)}
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-surface-500)' }}
-                                            title={list.is_active ? 'Metti in pausa' : 'Attiva'}
-                                        >
-                                            {list.is_active
-                                                ? <ToggleRight className="w-5 h-5" style={{ color: '#22c55e' }} />
-                                                : <ToggleLeft className="w-5 h-5" />
-                                            }
-                                        </button>
+                                        {/* Collapsible Leads Table */}
+                                        {expandedListId === list.id && (
+                                            <div style={{
+                                                borderTop: '1px solid var(--color-surface-200)',
+                                                background: 'var(--color-surface-50)',
+                                                padding: '16px',
+                                            }}>
+                                                {/* Leads filters */}
+                                                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '6px' }}>
+                                                    {[
+                                                        { value: null, label: 'Tutti i lead' },
+                                                        { value: 'available', label: 'Disponibili 🎯' },
+                                                        { value: 'assigned', label: 'Assegnati ⏳' },
+                                                        { value: 'called', label: 'Chiamati 📞' },
+                                                        { value: 'converted', label: 'Convertiti 💎' },
+                                                    ].map((f) => (
+                                                        <button
+                                                            key={f.value || 'all'}
+                                                            onClick={(e) => { e.stopPropagation(); handleStatusFilterChange(f.value); }}
+                                                            style={{
+                                                                padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '500',
+                                                                background: statusFilter === f.value ? 'rgba(168,85,247,0.1)' : 'var(--color-surface-100)',
+                                                                color: statusFilter === f.value ? '#a855f7' : 'var(--color-surface-600)',
+                                                                border: `1px solid ${statusFilter === f.value ? 'rgba(168,85,247,0.3)' : 'var(--color-surface-200)'}`,
+                                                                cursor: 'pointer', whiteSpace: 'nowrap',
+                                                            }}
+                                                        >
+                                                            {f.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {leadsLoading ? (
+                                                    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-surface-500)', fontSize: '12px' }}>
+                                                        Caricamento leads...
+                                                    </div>
+                                                ) : leadsList.length === 0 ? (
+                                                    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-surface-400)', fontSize: '12px' }}>
+                                                        Nessun lead trovato con questo filtro.
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ overflowX: 'auto' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'left' }}>
+                                                            <thead>
+                                                                <tr style={{ borderBottom: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}>
+                                                                    <th style={{ padding: '6px 8px' }}>Nome</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Telefono</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Email</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Priorità</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Stato</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Esito / Note</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {leadsList.map((lead) => (
+                                                                    <tr key={lead.id} style={{ borderBottom: '1px solid var(--color-surface-200)', color: 'var(--color-surface-700)' }}>
+                                                                        <td style={{ padding: '6px 8px', fontWeight: '600' }}>{lead.full_name || '—'}</td>
+                                                                        <td style={{ padding: '6px 8px' }}>{lead.phone || '—'}</td>
+                                                                        <td style={{ padding: '6px 8px' }}>{lead.email || '—'}</td>
+                                                                        <td style={{ padding: '6px 8px' }}>
+                                                                            <span style={{
+                                                                                padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 'bold',
+                                                                                background: lead.priority_score >= 0.8 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+                                                                                color: lead.priority_score >= 0.8 ? '#22c55e' : '#f59e0b',
+                                                                            }}>
+                                                                                {Math.round(lead.priority_score * 100)}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td style={{ padding: '6px 8px' }}>
+                                                                            <span style={{
+                                                                                padding: '2px 6px', borderRadius: '4px', fontSize: '9px', textTransform: 'uppercase', fontWeight: '600',
+                                                                                background: lead.status === 'available' ? 'rgba(34,197,94,0.1)' : lead.status === 'assigned' ? 'rgba(59,130,246,0.1)' : 'rgba(107,114,128,0.1)',
+                                                                                color: lead.status === 'available' ? '#22c55e' : lead.status === 'assigned' ? '#3b82f6' : '#6b7280',
+                                                                            }}>
+                                                                                {lead.status}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td style={{ padding: '6px 8px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                            {lead.feedback ? `[${lead.feedback}] ` : ''}{lead.notes || '—'}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+
+                                                        {/* Pagination */}
+                                                        {leadsPagination && leadsPagination.total > 20 && (
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', borderTop: '1px solid var(--color-surface-200)', paddingTop: '8px' }}>
+                                                                <span style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>
+                                                                    Mostrati {leadsList.length} di {leadsPagination.total}
+                                                                </span>
+                                                                <div style={{ display: 'flex', gap: '4px' }}>
+                                                                    <button
+                                                                        disabled={leadsPage === 1}
+                                                                        onClick={(e) => { e.stopPropagation(); handlePageChange(leadsPage - 1); }}
+                                                                        style={{
+                                                                            padding: '3px 8px', borderRadius: '4px', fontSize: '10px',
+                                                                            background: 'var(--color-surface-100)', color: 'var(--color-surface-600)',
+                                                                            border: '1px solid var(--color-surface-200)', cursor: leadsPage === 1 ? 'not-allowed' : 'pointer',
+                                                                        }}
+                                                                    >
+                                                                        Precedente
+                                                                    </button>
+                                                                    <span style={{ fontSize: '10px', alignSelf: 'center', padding: '0 8px', color: 'var(--color-surface-700)' }}>
+                                                                        Pagina {leadsPage}
+                                                                    </span>
+                                                                    <button
+                                                                        disabled={leadsList.length < 20}
+                                                                        onClick={(e) => { e.stopPropagation(); handlePageChange(leadsPage + 1); }}
+                                                                        style={{
+                                                                            padding: '3px 8px', borderRadius: '4px', fontSize: '10px',
+                                                                            background: 'var(--color-surface-100)', color: 'var(--color-surface-600)',
+                                                                            border: '1px solid var(--color-surface-200)', cursor: leadsList.length < 20 ? 'not-allowed' : 'pointer',
+                                                                        }}
+                                                                    >
+                                                                        Successiva
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )
                             })}

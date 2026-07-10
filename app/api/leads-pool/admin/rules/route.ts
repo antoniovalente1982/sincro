@@ -59,6 +59,27 @@ export async function POST(request: Request) {
     if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status })
 
     const body = await request.json()
+    const { action } = body
+
+    if (action === 'toggle_list') {
+        const { list_id, is_active } = body
+        if (!list_id) {
+            return NextResponse.json({ error: 'list_id richiesto' }, { status: 400 })
+        }
+        const { data, error } = await supabase
+            .from('lead_lists')
+            .update({ is_active, updated_at: new Date().toISOString() })
+            .eq('id', list_id)
+            .eq('organization_id', auth.orgId)
+            .select()
+            .single()
+
+        if (error) {
+            return NextResponse.json({ error: 'Errore aggiornamento lista', detail: error.message }, { status: 500 })
+        }
+        return NextResponse.json({ success: true, list: data })
+    }
+
     const {
         user_id,            // null = default org rule
         max_leads_per_day,
