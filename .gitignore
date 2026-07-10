@@ -49,3 +49,9 @@ next-env.d.ts
 # scratch scripts
 /scratch/
 
+# Excel and CSV files containing business/leads data (sensitive)
+*.xlsx
+*.xls
+*.csv
+*.tsv
+

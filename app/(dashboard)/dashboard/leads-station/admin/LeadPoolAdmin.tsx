@@ -241,7 +241,7 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                         <div style={{
                                             padding: '16px 18px',
                                             display: 'grid',
-                                            gridTemplateColumns: '1fr auto auto auto',
+                                            gridTemplateColumns: '1fr auto auto auto auto',
                                             gap: '16px',
                                             alignItems: 'center',
                                             cursor: 'pointer',
@@ -301,6 +301,32 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                     ? <ToggleRight className="w-5 h-5" style={{ color: '#22c55e' }} />
                                                     : <ToggleLeft className="w-5 h-5" />
                                                 }
+                                            </button>
+
+                                            <button
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    if (!confirm(`Sei sicuro di voler eliminare la lista "${list.name}" e tutti i suoi lead? Questa azione cancellerà permanentemente tutti i contatti associati.`)) return;
+                                                    try {
+                                                        const res = await fetch(`/api/leads-pool/import?list_id=${list.id}`, { method: 'DELETE' });
+                                                        if (res.ok) {
+                                                            refreshLists();
+                                                            if (expandedListId === list.id) {
+                                                                setExpandedListId(null);
+                                                                setLeadsList([]);
+                                                            }
+                                                        } else {
+                                                            const d = await res.json();
+                                                            alert(d.error || 'Errore durante l\'eliminazione');
+                                                        }
+                                                    } catch (err) {
+                                                        console.error(err);
+                                                    }
+                                                }}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                title="Elimina permanentemente lista e lead"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
 
                                             <div>

@@ -387,3 +387,27 @@ export async function GET() {
 
     return NextResponse.json({ lists: lists || [] })
 }
+
+// DELETE /api/leads-pool/import?list_id=xxx — elimina una lista e tutti i suoi lead (via cascade)
+export async function DELETE(request: Request) {
+    const supabase = await createClient()
+    const auth = await requireAdmin(supabase)
+    if ('error' in auth) return NextResponse.json({ error: auth.error }, { status: auth.status as number })
+
+    const { searchParams } = new URL(request.url)
+    const listId = searchParams.get('list_id')
+    if (!listId) return NextResponse.json({ error: 'list_id richiesto' }, { status: 400 })
+
+    const { error } = await supabase
+        .from('lead_lists')
+        .delete()
+        .eq('id', listId)
+        .eq('organization_id', auth.orgId)
+
+    if (error) {
+        return NextResponse.json({ error: 'Errore cancellazione lista', detail: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+}
+
