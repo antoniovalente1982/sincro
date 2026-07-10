@@ -88,11 +88,88 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
     }
 
     const handleFeedback = async (leadId: string, feedback: string, notes?: string) => {
-        // Se stiamo modificando un lead nel tab dei richiami, non associamo la sessione attiva
+        // ── AGGIORNAMENTO OTTIMISTICO LOCALE (Istantaneo) ──
+        setStats((prev: any) => {
+            if (!prev) return prev
+
+            // 1. Aggiorna nei session_leads
+            const updatedSessionLeads = prev.session_leads?.map((l: any) => {
+                if (l.id !== leadId) return l
+                const wasCalled = !!l.feedback
+                return {
+                    ...l,
+                    feedback,
+                    feedback_notes: notes || l.feedback_notes,
+                    status: feedback === 'converted' ? 'converted' : 'called',
+                    call_count: l.call_count + (wasCalled ? 0 : 1),
+                }
+            }) || []
+
+            // 2. Calcola i progressi della sessione
+            let leadsCalled = prev.active_session?.leads_called || 0
+            let leadsWithFeedback = prev.active_session?.leads_with_feedback || 0
+            
+            const originalLead = prev.session_leads?.find((l: any) => l.id === leadId)
+            if (originalLead && !originalLead.feedback) {
+                leadsCalled += 1
+                leadsWithFeedback += 1
+            }
+
+            // 3. Aggiorna nei callback_leads (se presente)
+            const isCallback = prev.callback_leads?.some((l: any) => l.id === leadId)
+            let updatedCallbackLeads = prev.callback_leads || []
+            if (isCallback) {
+                const isResolved = ['converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
+                if (isResolved) {
+                    updatedCallbackLeads = updatedCallbackLeads.filter((l: any) => l.id !== leadId)
+                } else {
+                    updatedCallbackLeads = updatedCallbackLeads.map((l: any) => {
+                        if (l.id !== leadId) return l
+                        return {
+                            ...l,
+                            feedback,
+                            feedback_notes: notes || l.feedback_notes,
+                            status: 'called',
+                        }
+                    })
+                }
+            }
+
+            // 4. Aggiorna quota giornaliera
+            let todayCalled = prev.today?.leads_called || 0
+            let todayConverted = prev.today?.leads_converted || 0
+            if (originalLead && !originalLead.feedback) {
+                todayCalled += 1
+                if (feedback === 'converted') todayConverted += 1
+            } else if (originalLead && originalLead.feedback !== 'converted' && feedback === 'converted') {
+                todayConverted += 1
+            }
+
+            return {
+                ...prev,
+                session_leads: updatedSessionLeads,
+                callback_leads: updatedCallbackLeads,
+                active_session: prev.active_session ? {
+                    ...prev.active_session,
+                    leads_called: leadsCalled,
+                    leads_with_feedback: leadsWithFeedback,
+                } : null,
+                today: prev.today ? {
+                    ...prev.today,
+                    leads_called: todayCalled,
+                    leads_converted: todayConverted,
+                    leads_requested: prev.today.leads_requested,
+                    remaining: prev.today.remaining,
+                } : prev.today,
+            }
+        })
+
+        // ── CHIAMATA API IN BACKGROUND (Asincrona, non blocca la UI) ──
         const isCallback = stats?.callback_leads?.some((l: any) => l.id === leadId)
         const sessionId = isCallback ? null : stats?.active_session?.id
 
-        await fetch('/api/leads-pool/feedback', {
+        // Avviamo la richiesta in background senza usare 'await'
+        fetch('/api/leads-pool/feedback', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -102,7 +179,8 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                 session_id: sessionId,
             }),
         })
-        await refreshStats()
+        .then(() => refreshStats()) // Rinfresca i dati reali in background al completamento
+        .catch(err => console.error('[Feedback background error]:', err))
     }
 
     const today = stats?.today || {}
