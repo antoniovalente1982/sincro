@@ -17,6 +17,38 @@ interface Props {
     todayQuotas: any[]
 }
 
+const getFeedbackBadge = (fb: string | null) => {
+    if (!fb) return <span style={{ color: 'var(--color-surface-400)' }}>—</span>
+    
+    const configs: Record<string, { label: string; bg: string; color: string; emoji: string }> = {
+        interested: { label: 'Interessato', bg: 'rgba(234,179,8,0.1)', color: '#ca8a04', emoji: '⭐' },
+        converted: { label: 'Convertito!', bg: 'rgba(34,197,94,0.1)', color: '#16a34a', emoji: '💎' },
+        callback: { label: 'Richiama', bg: 'rgba(59,130,246,0.1)', color: '#2563eb', emoji: '🔄' },
+        no_answer: { label: 'Non risponde', bg: 'rgba(107,114,128,0.1)', color: '#4b5563', emoji: '🚫' },
+        not_interested: { label: 'Non interessato', bg: 'rgba(239,68,68,0.1)', color: '#dc2626', emoji: '❌' },
+        wrong_number: { label: 'Numero errato', bg: 'rgba(249,115,22,0.1)', color: '#ea580c', emoji: '⚠️' },
+    }
+
+    const config = configs[fb] || { label: fb, bg: 'var(--color-surface-100)', color: 'var(--color-surface-600)', emoji: '❓' }
+    return (
+        <span style={{
+            padding: '3px 8px',
+            borderRadius: '6px',
+            fontSize: '10px',
+            fontWeight: '600',
+            background: config.bg,
+            color: config.color,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            whiteSpace: 'nowrap'
+        }}>
+            <span>{config.emoji}</span>
+            <span>{config.label}</span>
+        </span>
+    )
+}
+
 export default function LeadPoolAdmin({ orgId, initialLists, initialRules, closers, todayQuotas }: Props) {
     const [tab, setTab] = useState<'lists' | 'rules' | 'kpi' | 'simulation'>('lists')
     const [lists, setLists] = useState(initialLists)
@@ -31,6 +63,14 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
     const [leadsFeedbackCounts, setLeadsFeedbackCounts] = useState<Record<string, number>>({})
     const [leadsPage, setLeadsPage] = useState(1)
     const [statusFilter, setStatusFilter] = useState<string | null>(null)
+
+    // KPI & Anti-Cheat historical states
+    const [kpiRange, setKpiRange] = useState<'today' | 'yesterday' | 'last_7_days' | 'last_30_days' | 'this_month' | 'last_month' | 'custom'>('today')
+    const [kpiStartDate, setKpiStartDate] = useState<string>('')
+    const [kpiEndDate, setKpiEndDate] = useState<string>('')
+    const [kpiData, setKpiData] = useState<any[]>([])
+    const [anomaliesData, setAnomaliesData] = useState<any[]>([])
+    const [kpiLoading, setKpiLoading] = useState(false)
 
     const refreshLists = useCallback(async () => {
         const res = await fetch('/api/leads-pool/import')
@@ -47,6 +87,70 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
             setRules(data.rules || [])
         }
     }, [])
+
+    const fetchKpis = useCallback(async () => {
+        setKpiLoading(true)
+        try {
+            let start = ''
+            let end = ''
+
+            const now = new Date()
+            const todayStr = now.toISOString().split('T')[0]
+
+            if (kpiRange === 'today') {
+                start = `${todayStr}T00:00:00.000Z`
+                end = `${todayStr}T23:59:59.999Z`
+            } else if (kpiRange === 'yesterday') {
+                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+                const yestStr = yesterday.toISOString().split('T')[0]
+                start = `${yestStr}T00:00:00.000Z`
+                end = `${yestStr}T23:59:59.999Z`
+            } else if (kpiRange === 'last_7_days') {
+                const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                start = `${sevenDaysAgo.toISOString().split('T')[0]}T00:00:00.000Z`
+                end = `${todayStr}T23:59:59.999Z`
+            } else if (kpiRange === 'last_30_days') {
+                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                start = `${thirtyDaysAgo.toISOString().split('T')[0]}T00:00:00.000Z`
+                end = `${todayStr}T23:59:59.999Z`
+            } else if (kpiRange === 'this_month') {
+                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+                start = `${firstDayOfMonth.toISOString().split('T')[0]}T00:00:00.000Z`
+                end = `${todayStr}T23:59:59.999Z`
+            } else if (kpiRange === 'last_month') {
+                const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+                const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
+                start = `${firstDayLastMonth.toISOString().split('T')[0]}T00:00:00.000Z`
+                end = `${lastDayLastMonth.toISOString().split('T')[0]}T23:59:59.999Z`
+            } else if (kpiRange === 'custom') {
+                start = kpiStartDate ? `${kpiStartDate}T00:00:00.000Z` : ''
+                end = kpiEndDate ? `${kpiEndDate}T23:59:59.999Z` : ''
+            }
+
+            let url = '/api/leads-pool/admin/kpi'
+            const params: string[] = []
+            if (start) params.push(`startDate=${start}`)
+            if (end) params.push(`endDate=${end}`)
+            if (params.length > 0) url += `?${params.join('&')}`
+
+            const res = await fetch(url)
+            if (res.ok) {
+                const data = await res.json()
+                setKpiData(data.kpi || [])
+                setAnomaliesData(data.anomalies || [])
+            }
+        } catch (err) {
+            console.error('Failed to fetch KPIs', err)
+        } finally {
+            setKpiLoading(false)
+        }
+    }, [kpiRange, kpiStartDate, kpiEndDate])
+
+    useEffect(() => {
+        if (tab === 'kpi') {
+            fetchKpis()
+        }
+    }, [tab, fetchKpis])
 
     const loadListLeads = useCallback(async (listId: string, page = 1, status = statusFilter) => {
         setLeadsLoading(true)
@@ -468,8 +572,11 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                                     <th style={{ padding: '6px 8px' }}>Telefono</th>
                                                                     <th style={{ padding: '6px 8px' }}>Email</th>
                                                                     <th style={{ padding: '6px 8px' }}>Priorità</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Assegnato a</th>
                                                                     <th style={{ padding: '6px 8px' }}>Stato</th>
-                                                                    <th style={{ padding: '6px 8px' }}>Esito / Note</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Esito</th>
+                                                                    <th style={{ padding: '6px 8px' }}>Note Venditore</th>
+                                                                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Info</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -487,6 +594,9 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                                                 {Math.round(lead.priority_score * 100)}
                                                                             </span>
                                                                         </td>
+                                                                        <td style={{ padding: '6px 8px', fontWeight: '500', color: 'var(--color-surface-600)' }}>
+                                                                            {lead.assigned_to_name || '—'}
+                                                                        </td>
                                                                         <td style={{ padding: '6px 8px' }}>
                                                                             <span style={{
                                                                                 padding: '2px 6px', borderRadius: '4px', fontSize: '9px', textTransform: 'uppercase', fontWeight: '600',
@@ -496,8 +606,21 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                                                 {lead.status}
                                                                             </span>
                                                                         </td>
-                                                                        <td style={{ padding: '6px 8px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                            {lead.feedback ? `[${lead.feedback}] ` : ''}{lead.notes || '—'}
+                                                                        <td style={{ padding: '6px 8px' }}>
+                                                                            {getFeedbackBadge(lead.feedback)}
+                                                                        </td>
+                                                                        <td style={{ padding: '6px 8px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--color-surface-800)' }} title={lead.feedback_notes || undefined}>
+                                                                            {lead.feedback_notes || '—'}
+                                                                        </td>
+                                                                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>
+                                                                            {lead.notes && (
+                                                                                <span 
+                                                                                    title={lead.notes} 
+                                                                                    style={{ cursor: 'help', fontSize: '13px', color: 'var(--color-surface-400)' }}
+                                                                                >
+                                                                                    ℹ️
+                                                                                </span>
+                                                                            )}
                                                                         </td>
                                                                     </tr>
                                                                 ))}
@@ -562,65 +685,319 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
 
             {tab === 'kpi' && (
                 <div>
-                    <h2 className="text-sm font-bold mb-4" style={{ color: 'var(--color-surface-700)' }}>
-                        📊 Performance Team — Oggi
-                    </h2>
-                    {todayQuotas.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-surface-400)', fontSize: '13px' }}>
-                            Nessuna attività registrata oggi ancora.
+                    {/* Date Selector Toolbar */}
+                    <div className="glass-card" style={{
+                        padding: '16px 20px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-surface-200)',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-surface-600)' }}>
+                                Periodo:
+                            </span>
+                            <select
+                                value={kpiRange}
+                                onChange={(e) => setKpiRange(e.target.value as any)}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    background: 'var(--color-surface-100)',
+                                    border: '1px solid var(--color-surface-300)',
+                                    color: 'var(--color-surface-900)',
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="today">Oggi 🎯</option>
+                                <option value="yesterday">Ieri ⏳</option>
+                                <option value="last_7_days">Ultimi 7 giorni 📅</option>
+                                <option value="last_30_days">Ultimi 30 giorni 🗓️</option>
+                                <option value="this_month">Questo mese 📊</option>
+                                <option value="last_month">Mese scorso 📂</option>
+                                <option value="custom">Intervallo personalizzato ✏️</option>
+                            </select>
+                        </div>
+
+                        {kpiRange === 'custom' && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <input
+                                    type="date"
+                                    value={kpiStartDate}
+                                    onChange={(e) => setKpiStartDate(e.target.value)}
+                                    style={{
+                                        padding: '5px 10px',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        background: 'var(--color-surface-100)',
+                                        border: '1px solid var(--color-surface-300)',
+                                        color: 'var(--color-surface-900)',
+                                    }}
+                                />
+                                <span style={{ fontSize: '12px', color: 'var(--color-surface-500)' }}>al</span>
+                                <input
+                                    type="date"
+                                    value={kpiEndDate}
+                                    onChange={(e) => setKpiEndDate(e.target.value)}
+                                    style={{
+                                        padding: '5px 10px',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        background: 'var(--color-surface-100)',
+                                        border: '1px solid var(--color-surface-300)',
+                                        color: 'var(--color-surface-900)',
+                                    }}
+                                />
+                                <button
+                                    onClick={fetchKpis}
+                                    style={{
+                                        padding: '5px 12px',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        background: '#a855f7',
+                                        color: 'white',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Applica
+                                </button>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={fetchKpis}
+                            disabled={kpiLoading}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '6px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                background: 'var(--color-surface-100)',
+                                border: '1px solid var(--color-surface-200)',
+                                color: 'var(--color-surface-700)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${kpiLoading ? 'animate-spin' : ''}`} />
+                            Aggiorna
+                        </button>
+                    </div>
+
+                    {kpiLoading ? (
+                        <div style={{ textAlign: 'center', padding: '64px', color: 'var(--color-surface-500)', fontSize: '13px' }}>
+                            Caricamento statistiche KPI...
+                        </div>
+                    ) : kpiData.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '64px', color: 'var(--color-surface-400)', fontSize: '13px' }} className="glass-card">
+                            Nessuna attività registrata nel periodo selezionato.
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {todayQuotas
-                                .sort((a, b) => b.leads_requested - a.leads_requested)
-                                .map(q => {
-                                    const closer = closers.find(c => c.user_id === q.user_id)
-                                    const name = closer?.profile?.full_name || 'Venditore'
-                                    const pct = q.max_allowed > 0 ? Math.round((q.leads_requested / q.max_allowed) * 100) : 0
-                                    const callPct = q.leads_requested > 0 ? Math.round((q.leads_called / q.leads_requested) * 100) : 0
-                                    return (
-                                        <div key={q.id} className="glass-card" style={{
-                                            padding: '14px 18px',
-                                            borderRadius: '12px',
-                                            border: '1px solid var(--color-surface-200)',
-                                        }}>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '16px', alignItems: 'center' }}>
-                                                <div>
-                                                    <div className="font-semibold text-sm" style={{ color: 'var(--color-surface-900)' }}>{name}</div>
-                                                    <div className="text-xs" style={{ color: 'var(--color-surface-500)' }}>
-                                                        {q.leads_requested}/{q.max_allowed} leads · {q.spins_count} spin
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            
+                            {/* Leaderboard / Classifica Venditori */}
+                            <div className="glass-card" style={{
+                                padding: '20px',
+                                borderRadius: '12px',
+                                border: '1px solid var(--color-surface-200)',
+                            }}>
+                                <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--color-surface-800)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    🏆 Classifica Performance Venditori
+                                </h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {[...kpiData]
+                                        .sort((a, b) => b.leads_converted - a.leads_converted || b.conversion_rate - a.conversion_rate)
+                                        .map((u, index) => {
+                                            const podiumColors = ['#f59e0b', '#94a3b8', '#b45309']
+                                            const isTop3 = index < 3
+                                            return (
+                                                <div key={u.user_id} style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '10px 16px',
+                                                    borderRadius: '8px',
+                                                    background: isTop3 ? `rgba(168, 85, 247, ${0.08 - index * 0.02})` : 'var(--color-surface-50)',
+                                                    border: `1px solid ${isTop3 ? 'rgba(168,85,247,0.15)' : 'var(--color-surface-200)'}`
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                        <span style={{
+                                                            width: '24px', height: '24px',
+                                                            borderRadius: '50%',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            fontSize: '11px', fontWeight: 'bold',
+                                                            background: isTop3 ? podiumColors[index] : 'var(--color-surface-200)',
+                                                            color: isTop3 ? 'white' : 'var(--color-surface-600)'
+                                                        }}>
+                                                            {index + 1}
+                                                        </span>
+                                                        <div>
+                                                            <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-surface-900)' }}>
+                                                                {u.name}
+                                                            </div>
+                                                            <div style={{ fontSize: '11px', color: 'var(--color-surface-500)' }}>
+                                                                Tasso conversione: <strong>{u.conversion_rate}%</strong> · Efficienza: <strong>{u.efficiency_rate}%</strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <span style={{ fontSize: '16px', fontWeight: '800', color: '#22c55e' }}>{u.leads_converted}</span>
+                                                            <span style={{ fontSize: '11px', color: 'var(--color-surface-500)', marginLeft: '4px' }}>appuntamenti</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ height: '6px', borderRadius: '3px', background: 'var(--color-surface-200)', overflow: 'hidden' }}>
-                                                            <div style={{
-                                                                height: '100%', width: `${pct}%`,
-                                                                background: pct < 60 ? '#22c55e' : pct < 90 ? '#f59e0b' : '#ef4444',
-                                                                borderRadius: '3px',
-                                                            }} />
-                                                        </div>
-                                                        <div className="text-xs mt-1" style={{ color: 'var(--color-surface-500)' }}>
-                                                            Quota: {pct}%
-                                                        </div>
+                                            )
+                                        })}
+                                </div>
+                            </div>
+
+                            {/* Detailed Statistics Table */}
+                            <div className="glass-card" style={{
+                                padding: '20px',
+                                borderRadius: '12px',
+                                border: '1px solid var(--color-surface-200)',
+                            }}>
+                                <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--color-surface-800)' }}>
+                                    📈 Dettaglio Metriche Performance
+                                </h3>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: '1px solid var(--color-surface-200)', color: 'var(--color-surface-500)' }}>
+                                                <th style={{ padding: '8px 12px' }}>Venditore</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Spin effettuati</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Lead prelevati (Volume)</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Contatti lavorati</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Conversione (Appuntamenti)</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Tasso Conversione lavorati</th>
+                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Tasso Efficienza totale</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {kpiData.map((u) => (
+                                                <tr key={u.user_id} style={{ borderBottom: '1px solid var(--color-surface-100)', color: 'var(--color-surface-800)' }}>
+                                                    <td style={{ padding: '10px 12px', fontWeight: '600' }}>{u.name}</td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '500' }}>{u.spins_count}</td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '500' }}>{u.leads_requested}</td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#2563eb', fontWeight: '600' }}>
+                                                        {u.leads_called} <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--color-surface-500)' }}>({u.leads_requested > 0 ? Math.round((u.leads_called / u.leads_requested) * 100) : 0}%)</span>
+                                                    </td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>{u.leads_converted}</td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                                                            background: u.conversion_rate >= 20 ? 'rgba(34,197,94,0.1)' : u.conversion_rate >= 10 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                                                            color: u.conversion_rate >= 20 ? '#22c55e' : u.conversion_rate >= 10 ? '#f59e0b' : '#ef4444'
+                                                        }}>
+                                                            {u.conversion_rate}%
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                                                            background: u.efficiency_rate >= 15 ? 'rgba(168,85,247,0.1)' : 'rgba(107,114,128,0.1)',
+                                                            color: u.efficiency_rate >= 15 ? '#a855f7' : '#6b7280'
+                                                        }}>
+                                                            {u.efficiency_rate}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Audit & Sicurezza (Anti-Cheat) panel */}
+                            <div className="glass-card" style={{
+                                padding: '20px',
+                                borderRadius: '12px',
+                                border: '1px solid var(--color-surface-200)',
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <h3 className="text-sm font-bold" style={{ color: 'var(--color-surface-800)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        🛡️ Audit Qualità & Sicurezza (Anti-Cheat)
+                                    </h3>
+                                    {anomaliesData.length > 0 ? (
+                                        <span style={{
+                                            padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold',
+                                            background: 'rgba(239,68,68,0.15)', color: '#ef4444'
+                                        }}>
+                                            ⚠️ {anomaliesData.length} anomalie rilevate
+                                        </span>
+                                    ) : (
+                                        <span style={{
+                                            padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold',
+                                            background: 'rgba(34,197,94,0.15)', color: '#22c55e'
+                                        }}>
+                                            ✅ Nessun comportamento sospetto rilevato
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p style={{ fontSize: '11px', color: 'var(--color-surface-500)', marginBottom: '16px', lineHeight: '1.4' }}>
+                                    Il modulo di sicurezza analizza automaticamente le attività e contrassegna eventuali comportamenti anomali (es. contatti segnati come convertiti ma senza lead reali nel CRM o senza appuntamenti a calendario, oppure esiti compilati in pochissimi secondi dallo SPIN).
+                                </p>
+
+                                {anomaliesData.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '24px', color: 'var(--color-surface-400)', fontSize: '12px', border: '1px dashed var(--color-surface-200)', borderRadius: '8px' }}>
+                                        Nessuna anomalia riscontrata per il periodo selezionato.
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        {anomaliesData.map((a) => (
+                                            <div key={a.id} style={{
+                                                display: 'flex',
+                                                gap: '12px',
+                                                padding: '12px 16px',
+                                                borderRadius: '8px',
+                                                border: `1px solid ${a.severity === 'high' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
+                                                background: a.severity === 'high' ? 'rgba(239, 68, 68, 0.02)' : 'rgba(245, 158, 11, 0.02)',
+                                            }}>
+                                                <div style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
+                                                    {a.severity === 'high' ? '🚨' : '⚠️'}
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                                                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--color-surface-800)' }}>
+                                                            {a.closer_name}
+                                                        </span>
+                                                        <span style={{ fontSize: '10px', color: 'var(--color-surface-400)' }}>
+                                                            {new Date(a.timestamp).toLocaleString('it-IT')}
+                                                        </span>
                                                     </div>
-                                                    <div style={{ textAlign: 'center', minWidth: '60px' }}>
-                                                        <div style={{ fontSize: '18px', fontWeight: '700', color: '#3b82f6' }}>{q.leads_called}</div>
-                                                        <div style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>📞 chiamate</div>
-                                                    </div>
-                                                    <div style={{ textAlign: 'center', minWidth: '60px' }}>
-                                                        <div style={{ fontSize: '18px', fontWeight: '700', color: '#22c55e' }}>{q.leads_converted}</div>
-                                                        <div style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>💎 conv.</div>
-                                                    </div>
-                                                    <div style={{ textAlign: 'center', minWidth: '60px' }}>
-                                                        <div style={{ fontSize: '18px', fontWeight: '700', color: '#f59e0b' }}>{callPct}%</div>
-                                                        <div style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>tasso</div>
+                                                    <p style={{ fontSize: '11px', color: 'var(--color-surface-700)', marginTop: '4px' }}>
+                                                        {a.lead_name ? <span>Lead: <strong>{a.lead_name}</strong> — </span> : null}
+                                                        {a.detail}
+                                                    </p>
+                                                    <div style={{ marginTop: '6px' }}>
+                                                        <span style={{
+                                                            padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 'bold',
+                                                            background: a.type === 'orphan_conversion' ? 'rgba(239,68,68,0.1)' : a.type === 'speed_calling' ? 'rgba(249,115,22,0.1)' : 'rgba(245,158,11,0.1)',
+                                                            color: a.type === 'orphan_conversion' ? '#dc2626' : a.type === 'speed_calling' ? '#ea580c' : '#b45309',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {a.type.replace(/_/g, ' ')}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )
-                                })}
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                         </div>
                     )}
                 </div>
