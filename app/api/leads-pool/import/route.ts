@@ -154,6 +154,9 @@ function normalizeRow(row: Record<string, any>): Record<string, any> {
 
     // Merge raw_data
     mapped.raw_data = { ...raw }
+    if (row.orig_sheet_name) {
+        mapped.raw_data.orig_sheet_name = row.orig_sheet_name
+    }
     return mapped
 }
 
@@ -169,10 +172,35 @@ async function parseFile(buffer: Buffer, mimeType: string, fileName: string): Pr
 
     // CSV or XLSX/XLS — use xlsx library which handles both
     const workbook = XLSX.read(buffer, { type: 'buffer', cellText: true, cellDates: true })
-    const sheetName = workbook.SheetNames[0]
-    const sheet = workbook.Sheets[sheetName]
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false })
-    return rows as Record<string, any>[]
+    const allRows: Record<string, any>[] = []
+
+    for (const sheetName of workbook.SheetNames) {
+        const sheet = workbook.Sheets[sheetName]
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false }) as Record<string, any>[]
+        
+        if (rows.length === 0) continue
+
+        // Check if sheet contains lead-like headers
+        const firstRowKeys = Object.keys(rows[0] || {})
+        const hasLeadHeaders = firstRowKeys.some(key => {
+            const mapped = mapColumn(key)
+            return mapped === 'full_name' || mapped === 'first_name' || mapped === 'phone' || mapped === 'email'
+        })
+
+        // Skip instructions sheets or summary sheets that have no mapped columns
+        if (!hasLeadHeaders) {
+            console.log(`Skipping sheet ${sheetName}: no lead headers found.`)
+            continue
+        }
+
+        // Add sheet name source to each row
+        rows.forEach(r => {
+            r['orig_sheet_name'] = sheetName
+        })
+        allRows.push(...rows)
+    }
+
+    return allRows
 }
 
 async function requireAdmin(supabase: any) {
