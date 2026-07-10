@@ -6,42 +6,76 @@ import * as XLSX from 'xlsx'
 // Carica un file CSV/XLSX/JSON e inserisce i lead nel pool
 // Accetta multipart/form-data con: file, list_name, list_id (opzionale)
 
-// Mappa automatica colonne → campi sistema (case-insensitive, supporta alias italiani/inglesi)
+// Mappa automatica colonne → campi sistema (case-insensitive, supporta aliases italiani/inglesi)
+// Calibrata sul formato specifico del file leads Metodo Sincro
 const COLUMN_ALIASES: Record<string, string> = {
-    // Nome
-    'nome': 'first_name', 'name': 'first_name', 'first name': 'first_name', 'firstname': 'first_name',
-    // Cognome
+    // ── Nome ──
+    'nome': 'full_name',            // colonna principale del file
+    'name': 'first_name', 'first name': 'first_name', 'firstname': 'first_name',
     'cognome': 'last_name', 'surname': 'last_name', 'last name': 'last_name', 'lastname': 'last_name',
-    // Nome completo
     'nome e cognome': 'full_name', 'full name': 'full_name', 'fullname': 'full_name',
     'nominativo': 'full_name', 'nome completo': 'full_name', 'cliente': 'full_name',
-    // Telefono
+
+    // ── Telefono ──
     'telefono': 'phone', 'tel': 'phone', 'phone': 'phone', 'cellulare': 'phone',
     'mobile': 'phone', 'cell': 'phone', 'numero': 'phone', 'numero di telefono': 'phone',
-    'cell.': 'phone', 'tel.': 'phone', 'phone number': 'phone',
-    // Email
+    'cell.': 'phone', 'tel.': 'phone', 'phone number': 'phone', 'numero telefono': 'phone',
+
+    // ── Email ──
     'email': 'email', 'mail': 'email', 'e-mail': 'email', 'posta elettronica': 'email',
-    // Città
+
+    // ── Città / Provincia ──
     'città': 'city', 'citta': 'city', 'city': 'city', 'comune': 'city', 'residenza': 'city',
-    // Provincia
     'provincia': 'province', 'prov': 'province', 'province': 'province', 'prov.': 'province',
-    // Età
+
+    // ── Età / Genere ──
     'età': 'age', 'eta': 'age', 'age': 'age', 'anni': 'age',
-    // Genere
     'sesso': 'gender', 'genere': 'gender', 'gender': 'gender', 'sex': 'gender',
-    // Note
+
+    // ── Punteggio / Priorità (specifico file Metodo Sincro) ──
+    'punteggio': 'priority_score',   // valore 0-100 → normalizziamo a 0.0-1.0
+    'score': 'priority_score', 'lead score': 'priority_score', 'punteggio lead': 'priority_score',
+    'priorità': 'lead_priority',     // P1 - Massima priorità, P2, ecc. → note
+    'priorita': 'lead_priority', 'priority': 'lead_priority',
+
+    // ── Temperatura (specifico file Metodo Sincro) ──
+    'temperatura (email list)': 'temperature',
+    'temperatura': 'temperature', 'temperature': 'temperature', 'temp': 'temperature',
+    'caldo/freddo': 'temperature',
+
+    // ── Note / Storico ──
     'note': 'notes', 'notes': 'notes', 'annotazioni': 'notes', 'commenti': 'notes', 'comments': 'notes',
-    // Fonte
+    'storico/note': 'notes', 'storico note': 'notes', 'storico': 'notes',
+
+    // ── Fonte / Provenienza ──
+    'venditore storico': 'source',   // es. appuntamenti.metodosincro, nan, Jacob Dridi
     'fonte': 'source', 'source': 'source', 'provenienza': 'source', 'canale': 'source',
-    // UTM
+    'origine/fonte': 'utm_source',   // specifico file Metodo Sincro
+    'origine': 'utm_source', 'origin': 'utm_source',
+    'fonti dati (storico)': 'utm_campaign',  // testo lungo archivio → utm_campaign (raw)
+    'fonti dati storico': 'utm_campaign', 'fonti dati': 'utm_campaign',
+
+    // ── UTM standard ──
     'campagna': 'utm_campaign', 'campaign': 'utm_campaign', 'utm_campaign': 'utm_campaign',
     'utm source': 'utm_source', 'utm_source': 'utm_source',
     'utm medium': 'utm_medium', 'utm_medium': 'utm_medium',
+
+    // ── Ultimo contatto (raw) ──
+    'ultimo contatto': 'last_contact_raw',
+    'data contatto': 'last_contact_raw', 'last contact': 'last_contact_raw',
 }
 
 function mapColumn(rawKey: string): string {
     const normalized = rawKey.toLowerCase().trim()
     return COLUMN_ALIASES[normalized] || 'raw_extra'
+}
+
+// Valori "vuoti" da trattare come null (incluso 'nan' di pandas/Excel)
+const NULL_VALUES = new Set(['nan', 'none', 'null', 'n/a', 'n.a.', 'nd', '-', ''])
+function sanitize(val: any): string | null {
+    if (val === null || val === undefined) return null
+    const s = String(val).trim()
+    return NULL_VALUES.has(s.toLowerCase()) ? null : s
 }
 
 function normalizeRow(row: Record<string, any>): Record<string, any> {
@@ -50,23 +84,72 @@ function normalizeRow(row: Record<string, any>): Record<string, any> {
 
     for (const [key, value] of Object.entries(row)) {
         const field = mapColumn(key)
+
         if (field === 'raw_extra') {
             raw[key] = value
-        } else {
-            // Age: parse as integer
-            if (field === 'age') {
-                mapped[field] = parseInt(String(value)) || null
-            } else {
-                mapped[field] = value !== null && value !== undefined ? String(value).trim() : null
-            }
+            continue
         }
+
+        // Campi speciali con logica dedicata
+        if (field === 'age') {
+            mapped[field] = parseInt(String(value)) || null
+            continue
+        }
+
+        if (field === 'priority_score') {
+            // Punteggio 0-100 → normalizza a 0.0-1.0
+            const score = parseFloat(String(value))
+            mapped[field] = isNaN(score) ? 0.5 : Math.min(1, Math.max(0, score / 100))
+            continue
+        }
+
+        if (field === 'lead_priority') {
+            // P1 - Massima priorità → aggiungiamo alle note con prefisso
+            const cleaned = sanitize(value)
+            if (cleaned) {
+                mapped['notes'] = [mapped['notes'], `Priorità: ${cleaned}`].filter(Boolean).join(' | ')
+            }
+            continue
+        }
+
+        if (field === 'temperature') {
+            // caldo/medio/freddo → conserva in raw_data e aggiunge alla fonte
+            raw['temperatura'] = sanitize(value)
+            continue
+        }
+
+        if (field === 'last_contact_raw') {
+            // Data ultimo contatto → conserva in raw_data
+            raw['ultimo_contatto'] = sanitize(value)
+            continue
+        }
+
+        if (field === 'phone') {
+            // Normalizza telefono: rimuovi spazi extra, mantieni +39
+            const cleaned = sanitize(value)
+            if (cleaned) {
+                mapped[field] = cleaned.replace(/\s+/g, '').replace(/^\+39/, '+39')
+            } else {
+                mapped[field] = null
+            }
+            continue
+        }
+
+        // Tutti gli altri campi stringa
+        mapped[field] = sanitize(value)
     }
 
-    // Build full_name if not present but first+last are
+    // Build full_name se non presente ma first+last ci sono
     if (!mapped.full_name && (mapped.first_name || mapped.last_name)) {
         mapped.full_name = [mapped.first_name, mapped.last_name].filter(Boolean).join(' ')
     }
 
+    // Se source è 'nan' o simile, pulisci
+    if (mapped.source && NULL_VALUES.has(String(mapped.source).toLowerCase())) {
+        mapped.source = null
+    }
+
+    // Merge raw_data
     mapped.raw_data = { ...raw }
     return mapped
 }
@@ -195,11 +278,13 @@ export async function POST(request: Request) {
             utm_medium: normalized.utm_medium || null,
             raw_data: normalized.raw_data || {},
             status: 'available',
-            priority_score: 0.5,
+            // Usa il punteggio dal file (già normalizzato 0-1), altrimenti 0.5
+            priority_score: normalized.priority_score ?? 0.5,
             created_at: now,
             updated_at: now,
         }
-    }).filter(r => r.phone || r.email || r.full_name) // Skip completely empty rows
+    }).filter(r => r.phone || r.email || r.full_name) // Skip completamente vuote
+
 
     if (insertRows.length === 0) {
         return NextResponse.json({ error: 'Nessuna riga valida trovata (serve almeno telefono, email o nome)' }, { status: 422 })
