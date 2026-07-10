@@ -35,6 +35,11 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
         }
     }, [])
 
+    // Carica le statistiche fresche al montaggio
+    useEffect(() => {
+        refreshStats()
+    }, [refreshStats])
+
     // Realtime: aggiorna quota live
     useEffect(() => {
         const channel = supabase
@@ -47,7 +52,7 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
             }, () => refreshStats())
             .subscribe()
         return () => { supabase.removeChannel(channel) }
-    }, [userId])
+    }, [userId, refreshStats])
 
     const handleSpin = async () => {
         if (spinState === 'spinning') return
