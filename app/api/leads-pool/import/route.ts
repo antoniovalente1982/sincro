@@ -341,17 +341,17 @@ export async function POST(request: Request) {
     }
 
     // Update list counts
-    const { data: availCount } = await supabase
+    const { count: countAvail } = await supabase
         .from('lead_pool')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('list_id', resolvedListId)
         .eq('status', 'available')
 
     await supabase
         .from('lead_lists')
         .update({
-            total_count: insertedCount,
-            available_count: (availCount as any)?.length || insertedCount,
+            total_count: insertRows.length, // Usa le righe valide filtrate
+            available_count: countAvail || 0,
             updated_at: now,
         })
         .eq('id', resolvedListId)

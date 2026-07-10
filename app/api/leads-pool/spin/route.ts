@@ -274,15 +274,15 @@ export async function POST(request: Request) {
     // ── Aggiorna available_count nelle liste ──
     const listIds = [...new Set(filteredLeads.map(l => l.list_id).filter(Boolean))]
     for (const listId of listIds) {
-        const { data: listStats } = await supabase
+        const { count: countAvail } = await supabase
             .from('lead_pool')
-            .select('id', { count: 'exact' })
+            .select('*', { count: 'exact', head: true })
             .eq('list_id', listId)
             .eq('status', 'available')
 
         await supabase
             .from('lead_lists')
-            .update({ available_count: listStats?.length || 0, updated_at: assignedAt })
+            .update({ available_count: countAvail || 0, updated_at: assignedAt })
             .eq('id', listId)
     }
 
