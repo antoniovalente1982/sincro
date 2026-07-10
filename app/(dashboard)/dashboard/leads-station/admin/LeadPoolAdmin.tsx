@@ -567,6 +567,8 @@ function SimulationSandbox() {
     const [simConverted, setSimConverted] = useState(0)
     const [simSpins, setSimSpins] = useState(0)
     const [simLeads, setSimLeads] = useState<any[]>([])
+    const [simCallbacks, setSimCallbacks] = useState<any[]>([])
+    const [activeTab, setActiveTab] = useState<'session' | 'callbacks'>('session')
     const [spinState, setSpinState] = useState<'idle' | 'spinning' | 'done'>('idle')
     const [feedbackRequirement, setFeedbackRequirement] = useState(100) // 100%
     const [batchSize, setBatchSize] = useState(5)
@@ -588,6 +590,12 @@ function SimulationSandbox() {
         if (spinState === 'spinning') return
         setSpinState('spinning')
 
+        // Sposta i lead irrisolti della vecchia sessione (callback/non risponde) nei richiami simulati
+        const unresolved = simLeads.filter(l => l.feedback === 'callback' || l.feedback === 'no_answer')
+        if (unresolved.length > 0) {
+            setSimCallbacks(prev => [...unresolved, ...prev])
+        }
+
         await new Promise(r => setTimeout(r, 1800))
 
         // Get random profiles from MOCK_PROFILES
@@ -608,14 +616,15 @@ function SimulationSandbox() {
         setSimLeads(selected)
         setSimRequested(prev => prev + batchSize)
         setSimSpins(prev => prev + 1)
+        setActiveTab('session') // Torna a sessione dopo il nuovo spin
         setSpinState('done')
         setTimeout(() => setSpinState('idle'), 500)
     }
 
     const handleFeedback = async (leadId: string, feedback: string, notes?: string) => {
-        setSimLeads(prev => prev.map(l => {
-            if (l.id !== leadId) return l
-            
+        const isFromCallbacks = simCallbacks.some(l => l.id === leadId)
+
+        const updateFunction = (l: any) => {
             const wasCalled = !!l.feedback
             const isConverted = feedback === 'converted'
             const wasConverted = l.feedback === 'converted'
@@ -636,7 +645,19 @@ function SimulationSandbox() {
                 status: isConverted ? 'converted' : 'called',
                 call_count: l.call_count + (wasCalled ? 0 : 1),
             }
-        }))
+        }
+
+        if (isFromCallbacks) {
+            const isResolved = ['converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
+            if (isResolved) {
+                // Rimuovi dal tab dei richiami se è stato risolto (es. convertito o scartato)
+                setSimCallbacks(prev => prev.filter(l => l.id !== leadId))
+            } else {
+                setSimCallbacks(prev => prev.map(l => l.id === leadId ? updateFunction(l) : l))
+            }
+        } else {
+            setSimLeads(prev => prev.map(l => l.id === leadId ? updateFunction(l) : l))
+        }
     }
 
     const remaining = simMax - simRequested
@@ -657,6 +678,8 @@ function SimulationSandbox() {
         setSimConverted(0)
         setSimSpins(0)
         setSimLeads([])
+        setSimCallbacks([])
+        setActiveTab('session')
         setSpinState('idle')
     }
 
@@ -838,44 +861,114 @@ function SimulationSandbox() {
 
                 {/* Column right: Simulated Leads */}
                 <div>
-                    {simLeads.length === 0 ? (
-                        <div style={{
-                            padding: '48px 24px', borderRadius: '16px',
-                            textAlign: 'center', border: '2px dashed var(--color-surface-300)',
-                            background: 'var(--color-surface-50)',
-                        }}>
-                            <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '10px' }}>🎯</span>
-                            <h4 className="font-bold text-sm mb-1" style={{ color: 'var(--color-surface-700)' }}>
-                                Nessun lead attivo simulato
-                            </h4>
-                            <p className="text-xs" style={{ color: 'var(--color-surface-500)', maxWidth: '280px', margin: '0 auto' }}>
-                                Clicca su <strong>SPIN</strong> per generare {batchSize} lead fittizi e testare l'inserimento dei feedback.
-                            </p>
-                        </div>
-                    ) : (
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-surface-500)' }}>
-                                    📋 Leads estratti per il test
+                    {/* Tab Selector */}
+                    <div style={{
+                        display: 'flex', gap: '8px', padding: '4px',
+                        background: 'var(--color-surface-100)',
+                        borderRadius: '12px', marginBottom: '16px',
+                        width: 'fit-content',
+                    }}>
+                        <button
+                            onClick={() => setActiveTab('session')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'session' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'session' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'session' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
+                            }}
+                        >
+                            📋 Sessione Corrente ({simLeads.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('callbacks')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'callbacks' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'callbacks' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'callbacks' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
+                            }}
+                        >
+                            🔄 I miei Richiami ({simCallbacks.length})
+                        </button>
+                    </div>
+
+                    {activeTab === 'session' ? (
+                        simLeads.length === 0 ? (
+                            <div style={{
+                                padding: '48px 24px', borderRadius: '16px',
+                                textAlign: 'center', border: '2px dashed var(--color-surface-300)',
+                                background: 'var(--color-surface-55)',
+                            }}>
+                                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '10px' }}>🎯</span>
+                                <h4 className="font-bold text-sm mb-1" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun lead attivo simulato
                                 </h4>
-                                <span style={{
-                                    fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontWeight: '650',
-                                    background: feedbackOk ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-                                    color: feedbackOk ? '#22c55e' : '#f59e0b',
-                                }}>
-                                    Feedback: {feedbackCount}/{totalLeads} ({feedbackPct}%)
-                                </span>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)', maxWidth: '280px', margin: '0 auto' }}>
+                                    Clicca su <strong>SPIN</strong> per generare {batchSize} lead fittizi e testare l'inserimento dei feedback.
+                                </p>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {simLeads.map((lead) => (
-                                    <LeadCard
-                                        key={lead.id}
-                                        lead={lead}
-                                        onFeedback={handleFeedback}
-                                    />
-                                ))}
+                        ) : (
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                    <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-surface-500)' }}>
+                                        📋 Leads estratti per il test
+                                    </h4>
+                                    <span style={{
+                                        fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontWeight: '650',
+                                        background: feedbackOk ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+                                        color: feedbackOk ? '#22c55e' : '#f59e0b',
+                                    }}>
+                                        Feedback: {feedbackCount}/{totalLeads} ({feedbackPct}%)
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {simLeads.map((lead) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            onFeedback={handleFeedback}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )
+                    ) : (
+                        simCallbacks.length === 0 ? (
+                            <div style={{
+                                padding: '48px 24px', borderRadius: '16px',
+                                textAlign: 'center', border: '2px dashed var(--color-surface-300)',
+                                background: 'var(--color-surface-55)',
+                            }}>
+                                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '10px' }}>🎉</span>
+                                <h4 className="font-bold text-sm mb-1" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun richiamo simulato
+                                </h4>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)', maxWidth: '280px', margin: '0 auto' }}>
+                                    I contatti contrassegnati come <strong>Richiama</strong> o <strong>Non risponde</strong> verranno spostati qui dopo il prossimo SPIN.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-surface-500)' }}>
+                                    🔄 Contatti da richiamare (Sandbox)
+                                </h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {simCallbacks.map((lead) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            onFeedback={handleFeedback}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )
                     )}
                 </div>
             </div>
