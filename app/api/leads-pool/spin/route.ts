@@ -196,7 +196,7 @@ export async function POST(request: Request) {
         .in('status', ['available', 'recycled'])
         .order('status', { ascending: true })      // 'available' < 'recycled'
         .order('priority_score', { ascending: false })
-        .order('created_at', { ascending: true })  // FIFO per stesso score
+        .order('created_at', { ascending: false }) // LIFO per stesso score (i più freschi/nuovi prima!)
         .limit(batchSize * 3)                      // over-fetch per filtering
 
     // Filter by active lists if configured

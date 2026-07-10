@@ -137,20 +137,54 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                         </p>
                     </div>
                 </div>
-                <button
-                    onClick={() => setShowImportWizard(true)}
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        padding: '10px 18px', borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-                        color: 'white', fontSize: '13px', fontWeight: '600',
-                        border: 'none', cursor: 'pointer',
-                        boxShadow: '0 4px 14px rgba(168,85,247,0.35)',
-                    }}
-                >
-                    <Upload className="w-4 h-4" />
-                    Carica Nuova Lista
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={async () => {
+                            if (!confirm("Sei sicuro di voler resettare tutti i tuoi dati di test (quota giornaliera, sessioni e contatti assegnati al tuo account)? Questa azione rimetterà i tuoi contatti di test nel pool dei disponibili per i venditori.")) return;
+                            try {
+                                const res = await fetch('/api/leads-pool/admin/clean-tests', { method: 'POST' });
+                                if (res.ok) {
+                                    const d = await res.json();
+                                    alert(`Test resettati con successo! Liberati ${d.released_count} contatti.`);
+                                    refreshLists();
+                                } else {
+                                    const d = await res.json();
+                                    alert(d.error || "Errore durante il reset");
+                                }
+                            } catch (e) {
+                                console.error(e);
+                                alert("Errore di rete");
+                            }
+                        }}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '10px 18px', borderRadius: '12px',
+                            background: 'rgba(239, 68, 68, 0.08)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            fontSize: '13px', fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                        }}
+                        className="hover:bg-red-500/10"
+                    >
+                        🔄 Resetta i miei Test
+                    </button>
+                    <button
+                        onClick={() => setShowImportWizard(true)}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '10px 18px', borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                            color: 'white', fontSize: '13px', fontWeight: '600',
+                            border: 'none', cursor: 'pointer',
+                            boxShadow: '0 4px 14px rgba(168,85,247,0.35)',
+                        }}
+                    >
+                        <Upload className="w-4 h-4" />
+                        Carica Nuova Lista
+                    </button>
+                </div>
             </div>
 
             {/* Summary cards */}
