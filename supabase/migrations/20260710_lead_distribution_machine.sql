@@ -316,6 +316,9 @@ CREATE INDEX IF NOT EXISTS idx_lead_daily_quota_date ON public.lead_daily_quota(
 CREATE INDEX IF NOT EXISTS idx_lead_rules_org ON public.lead_distribution_rules(organization_id);
 CREATE INDEX IF NOT EXISTS idx_lead_rules_user ON public.lead_distribution_rules(user_id);
 
+CREATE INDEX IF NOT EXISTS idx_lead_pool_spin_optimizer ON public.lead_pool(organization_id, status, priority_score DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at_desc ON public.leads(organization_id, created_at DESC);
+
 -- ============================================================
 -- Realtime: enable for live KPI updates
 -- ============================================================
