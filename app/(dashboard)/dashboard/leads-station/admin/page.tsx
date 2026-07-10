@@ -37,12 +37,12 @@ export default async function LeadsStationAdminPage() {
             .eq('organization_id', orgId),
     ])
 
-    // Fetch closer profiles for rules display
+    // Fetch only closer (venditore) profiles — owner/admin/manager non sono venditori
     const { data: closers } = await supabase
         .from('organization_members')
         .select('user_id, role')
         .eq('organization_id', orgId)
-        .in('role', ['closer', 'manager', 'owner', 'admin'])
+        .eq('role', 'closer')
         .is('deactivated_at', null)
 
     let profiles: any[] = []

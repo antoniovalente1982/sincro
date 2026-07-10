@@ -37,12 +37,12 @@ export async function GET() {
             .eq('organization_id', orgId)
             .eq('quota_date', today),
 
-        // All closer profiles
+        // All closer (venditore) profiles only — owner/admin/manager non sono venditori
         supabase
             .from('organization_members')
             .select('user_id, role')
             .eq('organization_id', orgId)
-            .in('role', ['closer', 'manager'])
+            .eq('role', 'closer')
             .is('deactivated_at', null),
     ])
 
