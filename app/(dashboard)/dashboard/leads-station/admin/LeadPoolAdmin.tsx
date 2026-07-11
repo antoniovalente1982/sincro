@@ -1110,7 +1110,8 @@ function SimulationSandbox() {
     const [simSpins, setSimSpins] = useState(0)
     const [simLeads, setSimLeads] = useState<any[]>([])
     const [simCallbacks, setSimCallbacks] = useState<any[]>([])
-    const [activeTab, setActiveTab] = useState<'session' | 'callbacks'>('session')
+    const [simInterested, setSimInterested] = useState<any[]>([])
+    const [activeTab, setActiveTab] = useState<'session' | 'callbacks' | 'interested'>('session')
     const [spinState, setSpinState] = useState<'idle' | 'spinning' | 'done'>('idle')
     const [feedbackRequirement, setFeedbackRequirement] = useState(100) // 100%
     const [batchSize, setBatchSize] = useState(5)
@@ -1167,6 +1168,7 @@ function SimulationSandbox() {
         const notes = extra?.notes
         const WIN = ['appointment', 'converted']
         const isFromCallbacks = simCallbacks.some(l => l.id === leadId)
+        const isFromInterested = simInterested.some(l => l.id === leadId)
 
         const updateFunction = (l: any) => {
             const wasCalled = !!l.feedback
@@ -1191,20 +1193,39 @@ function SimulationSandbox() {
             }
         }
 
-        if (isFromCallbacks) {
+        if (isFromInterested) {
+            const original = simInterested.find(l => l.id === leadId)
+            const updated = updateFunction(original)
+            if (feedback !== 'interested') {
+                // Rimuovi da interessati
+                setSimInterested(prev => prev.filter(l => l.id !== leadId))
+                // Aggiungi a callback se è callback o no_answer
+                if (feedback === 'callback' || feedback === 'no_answer') {
+                    setSimCallbacks(prev => [updated, ...prev])
+                }
+            } else {
+                setSimInterested(prev => prev.map(l => l.id === leadId ? updated : l))
+            }
+        } else if (isFromCallbacks) {
+            const original = simCallbacks.find(l => l.id === leadId)
+            const updated = updateFunction(original)
             const isResolved = ['appointment', 'converted', 'not_interested', 'wrong_number', 'interested'].includes(feedback)
             if (isResolved) {
-                // Rimuovi dal tab dei richiami se è stato risolto (es. convertito o scartato)
+                // Rimuovi da richiami
                 setSimCallbacks(prev => prev.filter(l => l.id !== leadId))
+                // Se interessato, aggiungi a interessati
+                if (feedback === 'interested') {
+                    setSimInterested(prev => [updated, ...prev])
+                }
             } else {
-                setSimCallbacks(prev => prev.map(l => l.id === leadId ? updateFunction(l) : l))
+                setSimCallbacks(prev => prev.map(l => l.id === leadId ? updated : l))
             }
         } else {
             setSimLeads(prev => prev.map(l => {
                 if (l.id !== leadId) return l
                 const updated = updateFunction(l)
 
-                // Aggiunge o aggiorna immediatamente nei richiami se è un callback/no_answer
+                // Aggiunge o aggiorna nei richiami se è callback/no_answer
                 if (feedback === 'callback' || feedback === 'no_answer') {
                     setSimCallbacks(c => {
                         if (c.some(x => x.id === leadId)) {
@@ -1212,9 +1233,22 @@ function SimulationSandbox() {
                         }
                         return [updated, ...c]
                     })
-                } else {
-                    // Rimuove dai richiami se l'utente cambia l'esito (es. da callback a interessato)
+                    setSimInterested(c => c.filter(x => x.id !== leadId))
+                } 
+                // Aggiunge o aggiorna in interessati se è interested
+                else if (feedback === 'interested') {
+                    setSimInterested(c => {
+                        if (c.some(x => x.id === leadId)) {
+                            return c.map(x => x.id === leadId ? updated : x)
+                        }
+                        return [updated, ...c]
+                    })
                     setSimCallbacks(c => c.filter(x => x.id !== leadId))
+                } 
+                // Altrimenti pulisci dalle code laterali
+                else {
+                    setSimCallbacks(c => c.filter(x => x.id !== leadId))
+                    setSimInterested(c => c.filter(x => x.id !== leadId))
                 }
 
                 return updated
@@ -1461,9 +1495,23 @@ function SimulationSandbox() {
                         >
                             🔄 Da richiamare ({simCallbacks.length})
                         </button>
+                        <button
+                            onClick={() => setActiveTab('interested')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '9px',
+                                fontSize: '13px', fontWeight: '600',
+                                border: 'none', cursor: 'pointer',
+                                background: activeTab === 'interested' ? 'var(--color-surface-0)' : 'transparent',
+                                color: activeTab === 'interested' ? 'var(--color-surface-900)' : 'var(--color-surface-500)',
+                                boxShadow: activeTab === 'interested' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                                transition: 'all 0.15s',
+                            }}
+                        >
+                            ⭐ Interessati ({simInterested.length})
+                        </button>
                     </div>
 
-                    {activeTab === 'session' ? (
+                    {activeTab === 'session' && (
                         simLeads.length === 0 ? (
                             <div style={{
                                 padding: '48px 24px', borderRadius: '16px',
@@ -1503,7 +1551,9 @@ function SimulationSandbox() {
                                 </div>
                             </div>
                         )
-                    ) : (
+                    )}
+
+                    {activeTab === 'callbacks' && (
                         simCallbacks.length === 0 ? (
                             <div style={{
                                 padding: '48px 24px', borderRadius: '16px',
@@ -1525,6 +1575,39 @@ function SimulationSandbox() {
                                 </h4>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {simCallbacks.map((lead) => (
+                                        <LeadCard
+                                            key={lead.id}
+                                            lead={lead}
+                                            onFeedback={handleFeedback}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    )}
+
+                    {activeTab === 'interested' && (
+                        simInterested.length === 0 ? (
+                            <div style={{
+                                padding: '48px 24px', borderRadius: '16px',
+                                textAlign: 'center', border: '2px dashed var(--color-surface-300)',
+                                background: 'var(--color-surface-55)',
+                            }}>
+                                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '10px' }}>⭐</span>
+                                <h4 className="font-bold text-sm mb-1" style={{ color: 'var(--color-surface-700)' }}>
+                                    Nessun lead interessato simulato
+                                </h4>
+                                <p className="text-xs" style={{ color: 'var(--color-surface-500)', maxWidth: '280px', margin: '0 auto' }}>
+                                    I contatti contrassegnati come <strong>Interessato</strong> verranno spostati qui per follow-up successivi.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-surface-500)' }}>
+                                    ⭐ Contatti interessati (Sandbox)
+                                </h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {simInterested.map((lead) => (
                                         <LeadCard
                                             key={lead.id}
                                             lead={lead}
