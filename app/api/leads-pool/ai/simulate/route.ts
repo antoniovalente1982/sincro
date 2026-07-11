@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const outcome = body.outcome || 'appointment'
     let leadPoolId = body.lead_pool_id || null
 
-    const { data: agent } = await admin.from('ai_agents').select('*').eq('organization_id', orgId).limit(1).maybeSingle()
+    const { data: agent } = await admin.from('lead_ai_agents').select('*').eq('organization_id', orgId).limit(1).maybeSingle()
     if (!agent?.member_user_id) return NextResponse.json({ error: 'Agente AI non configurato (fai prima il setup)' }, { status: 400 })
 
     // Se non passato, prende (claim atomico) un lead disponibile per l'agente

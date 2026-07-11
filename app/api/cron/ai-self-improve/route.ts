@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     const admin = getSupabaseAdmin()
     const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: agents } = await admin.from('ai_agents').select('*').eq('active', true)
+    const { data: agents } = await admin.from('lead_ai_agents').select('*').eq('active', true)
     const results: any[] = []
 
     for (const agent of agents || []) {
@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
 
         // Aggiorna le metriche della versione attiva
         if (agent.current_version_id) {
-            await admin.from('ai_agent_versions')
+            await admin.from('lead_ai_agent_versions')
                 .update({ metrics: { calls: total, connects, appointments, book_rate: bookRate } })
                 .eq('id', agent.current_version_id)
         }
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
 
         // Versione attiva → base per il miglioramento
         const { data: activeVer } = await admin
-            .from('ai_agent_versions').select('*').eq('id', agent.current_version_id).maybeSingle()
+            .from('lead_ai_agent_versions').select('*').eq('id', agent.current_version_id).maybeSingle()
 
         const proposal = await proposePlaybook(
             activeVer?.playbook || '',
@@ -111,9 +111,9 @@ export async function GET(req: NextRequest) {
         if (!proposal) { results.push({ agent: agent.id, status: 'no_proposal', book_rate: bookRate }); continue }
 
         // Nuova versione CANDIDATE (l'admin la approva prima di attivarla)
-        const { data: last } = await admin.from('ai_agent_versions')
+        const { data: last } = await admin.from('lead_ai_agent_versions')
             .select('version_no').eq('agent_id', agent.id).order('version_no', { ascending: false }).limit(1).maybeSingle()
-        await admin.from('ai_agent_versions').insert({
+        await admin.from('lead_ai_agent_versions').insert({
             agent_id: agent.id,
             version_no: (last?.version_no || 0) + 1,
             system_prompt: activeVer?.system_prompt || '',

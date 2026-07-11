@@ -9,8 +9,9 @@ ALTER TABLE public.organization_members
     ADD COLUMN IF NOT EXISTS team TEXT DEFAULT 'human',          -- 'human' | 'ai'
     ADD COLUMN IF NOT EXISTS is_ai_agent BOOLEAN DEFAULT false;  -- true = setter virtuale AI
 
--- ── 2. ai_agents: configurazione di ciascun agente ───────────
-CREATE TABLE IF NOT EXISTS public.ai_agents (
+-- ── 2. lead_ai_agents: configurazione di ciascun agente ──────
+-- NB: NON riusare 'ai_agents' (già esistente per l'AI Engine swarm).
+CREATE TABLE IF NOT EXISTS public.lead_ai_agents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
 
@@ -34,9 +35,9 @@ CREATE TABLE IF NOT EXISTS public.ai_agents (
 );
 
 -- ── 3. ai_agent_versions: prompt + playbook versionati ───────
-CREATE TABLE IF NOT EXISTS public.ai_agent_versions (
+CREATE TABLE IF NOT EXISTS public.lead_ai_agent_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    agent_id UUID NOT NULL REFERENCES public.ai_agents(id) ON DELETE CASCADE,
+    agent_id UUID NOT NULL REFERENCES public.lead_ai_agents(id) ON DELETE CASCADE,
     version_no INT NOT NULL DEFAULT 1,
 
     system_prompt TEXT,        -- parte fissa dello script del setter
@@ -52,16 +53,16 @@ CREATE TABLE IF NOT EXISTS public.ai_agent_versions (
 
 -- ── 4. lead_calls: campi per le chiamate AI ──────────────────
 ALTER TABLE public.lead_calls
-    ADD COLUMN IF NOT EXISTS ai_agent_id      UUID REFERENCES public.ai_agents(id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS ai_agent_id      UUID REFERENCES public.lead_ai_agents(id) ON DELETE SET NULL,
     ADD COLUMN IF NOT EXISTS agent_version_id UUID,
     ADD COLUMN IF NOT EXISTS transcript       TEXT,
     ADD COLUMN IF NOT EXISTS summary          TEXT;
 
 -- ── 5. RLS (admin/manager only) ──────────────────────────────
-ALTER TABLE public.ai_agents ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.ai_agent_versions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lead_ai_agents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lead_ai_agent_versions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Admins manage ai_agents" ON public.ai_agents
+CREATE POLICY "Admins manage lead_ai_agents" ON public.lead_ai_agents
     FOR ALL USING (
         organization_id IN (
             SELECT organization_id FROM public.organization_members
@@ -69,17 +70,17 @@ CREATE POLICY "Admins manage ai_agents" ON public.ai_agents
         )
     );
 
-CREATE POLICY "Admins manage ai_agent_versions" ON public.ai_agent_versions
+CREATE POLICY "Admins manage lead_ai_agent_versions" ON public.lead_ai_agent_versions
     FOR ALL USING (
         agent_id IN (
-            SELECT a.id FROM public.ai_agents a
+            SELECT a.id FROM public.lead_ai_agents a
             JOIN public.organization_members m ON m.organization_id = a.organization_id
             WHERE m.user_id = auth.uid() AND m.role IN ('owner', 'admin', 'manager') AND m.deactivated_at IS NULL
         )
     );
 
 -- ── 6. Indici ────────────────────────────────────────────────
-CREATE INDEX IF NOT EXISTS idx_ai_agents_org        ON public.ai_agents(organization_id);
-CREATE INDEX IF NOT EXISTS idx_ai_versions_agent    ON public.ai_agent_versions(agent_id, version_no DESC);
+CREATE INDEX IF NOT EXISTS idx_lead_ai_agents_org   ON public.lead_ai_agents(organization_id);
+CREATE INDEX IF NOT EXISTS idx_lead_ai_versions_agent ON public.lead_ai_agent_versions(agent_id, version_no DESC);
 CREATE INDEX IF NOT EXISTS idx_lead_calls_agent     ON public.lead_calls(ai_agent_id);
 CREATE INDEX IF NOT EXISTS idx_members_team         ON public.organization_members(organization_id, team);

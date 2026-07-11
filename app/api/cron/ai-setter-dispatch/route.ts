@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     }
     const admin = getSupabaseAdmin()
 
-    const { data: agents } = await admin.from('ai_agents').select('*').eq('active', true)
+    const { data: agents } = await admin.from('lead_ai_agents').select('*').eq('active', true)
     const results: any[] = []
 
     for (const agent of agents || []) {

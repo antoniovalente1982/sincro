@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Settings, TrendingUp, Phone, Flame, Zap } from 'lucide-react'
+import { Settings, TrendingUp, Phone, Flame, Zap, Bot } from 'lucide-react'
 import SpinMachine from './SpinMachine'
 import LeadCard from './LeadCard'
 import DailyProgressBar from './DailyProgressBar'
@@ -221,18 +221,32 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                         I miei KPI
                     </button>
                     {isAdmin && (
-                        <Link
-                            href="/dashboard/leads-station/admin"
-                            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
-                            style={{
-                                background: 'var(--color-surface-100)',
-                                color: 'var(--color-surface-600)',
-                                border: '1px solid var(--color-surface-200)',
-                            }}
-                        >
-                            <Settings className="w-4 h-4" />
-                            Gestione Pool
-                        </Link>
+                        <>
+                            <Link
+                                href="/dashboard/leads-station-ai"
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+                                style={{
+                                    background: 'rgba(168,85,247,0.1)',
+                                    color: '#a855f7',
+                                    border: '1px solid rgba(168,85,247,0.3)',
+                                }}
+                            >
+                                <Bot className="w-4 h-4" />
+                                Stazione AI
+                            </Link>
+                            <Link
+                                href="/dashboard/leads-station/admin"
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+                                style={{
+                                    background: 'var(--color-surface-100)',
+                                    color: 'var(--color-surface-600)',
+                                    border: '1px solid var(--color-surface-200)',
+                                }}
+                            >
+                                <Settings className="w-4 h-4" />
+                                Gestione Pool
+                            </Link>
+                        </>
                     )}
                 </div>
             </div>

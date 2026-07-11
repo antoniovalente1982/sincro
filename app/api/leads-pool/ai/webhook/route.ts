@@ -35,9 +35,9 @@ export async function POST(req: NextRequest) {
     // Trova l'agente
     let agent: any = null
     if (agentId) {
-        agent = (await admin.from('ai_agents').select('*').eq('id', agentId).maybeSingle()).data
+        agent = (await admin.from('lead_ai_agents').select('*').eq('id', agentId).maybeSingle()).data
     } else if (providerAgentId) {
-        agent = (await admin.from('ai_agents').select('*').eq('provider_agent_id', providerAgentId).maybeSingle()).data
+        agent = (await admin.from('lead_ai_agents').select('*').eq('provider_agent_id', providerAgentId).maybeSingle()).data
     }
     if (!agent) return NextResponse.json({ error: 'Agente non trovato' }, { status: 404 })
 

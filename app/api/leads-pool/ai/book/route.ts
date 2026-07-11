@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = getSupabaseAdmin()
-    const agent = (await admin.from('ai_agents').select('*').eq('id', ai_agent_id).maybeSingle()).data
+    const agent = (await admin.from('lead_ai_agents').select('*').eq('id', ai_agent_id).maybeSingle()).data
     if (!agent?.member_user_id) return NextResponse.json({ error: 'Agente non valido' }, { status: 404 })
 
     const res = await bookAppointmentFromPool(admin, {
