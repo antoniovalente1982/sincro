@@ -90,15 +90,6 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
 
     const WIN = ['appointment', 'converted']
 
-    // Registra il tentativo di chiamata (click-to-call → log telefonate)
-    const handleCall = useCallback((leadId: string, phone: string) => {
-        fetch('/api/leads-pool/log-call', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lead_pool_id: leadId, phone }),
-        }).catch(() => { /* best-effort */ })
-    }, [])
-
     const handleFeedback = async (leadId: string, feedback: string, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
         const notes = extra?.notes
         const isInList = (list: string) => stats?.[list]?.some((l: any) => l.id === leadId)
@@ -493,7 +484,6 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                             lead={lead}
                                             sessionId={activeSession?.id}
                                             onFeedback={handleFeedback}
-                                            onCall={handleCall}
                                         />
                                     ))}
                                 </div>
@@ -551,7 +541,6 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                             key={lead.id}
                                             lead={lead}
                                             onFeedback={handleFeedback}
-                                            onCall={handleCall}
                                         />
                                     ))}
                                 </div>
@@ -588,7 +577,6 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
                                             key={lead.id}
                                             lead={lead}
                                             onFeedback={handleFeedback}
-                                            onCall={handleCall}
                                         />
                                     ))}
                                 </div>

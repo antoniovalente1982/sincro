@@ -40,14 +40,6 @@ export async function GET(request: Request) {
         if (startDate) poolQuery = poolQuery.gte('assigned_at', startDate)
         if (endDate) poolQuery = poolQuery.lte('assigned_at', endDate)
 
-        // ── Chiamate reali (Fase 3) ──
-        let callsQuery = supabaseAdmin
-            .from('lead_calls')
-            .select('user_id, started_at, connected_at, duration_seconds, outcome, lead_pool_id')
-            .eq('organization_id', orgId)
-        if (startDate) callsQuery = callsQuery.gte('started_at', startDate)
-        if (endDate) callsQuery = callsQuery.lte('started_at', endDate)
-
         // ── Eventi calendario (funnel appuntamento → presentato → venduto) ──
         let eventsQuery = supabaseAdmin
             .from('calendar_events')
@@ -64,9 +56,8 @@ export async function GET(request: Request) {
             .eq('role', 'closer')
             .is('deactivated_at', null)
 
-        const [{ data: leads, error: poolError }, { data: calls }, { data: events }, { data: profiles }, { data: activeClosers }] = await Promise.all([
+        const [{ data: leads, error: poolError }, { data: events }, { data: profiles }, { data: activeClosers }] = await Promise.all([
             poolQuery,
-            callsQuery,
             eventsQuery,
             supabaseAdmin.from('profiles').select('id, full_name'),
             closersQuery,
@@ -78,7 +69,6 @@ export async function GET(request: Request) {
         }
 
         const rawLeads = leads || []
-        const rawCalls = calls || []
         const rawEvents = events || []
         const profilesMap = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]))
         const activeCloserIds = new Set((activeClosers || []).map(m => m.user_id))
@@ -95,7 +85,6 @@ export async function GET(request: Request) {
             user_id: string; name: string
             leads_requested: number; leads_called: number; leads_converted: number
             leads_wrong_number: number; session_ids: Set<string>
-            dials: number; connected: number; talk_seconds: number
             shown: number; sold: number; sales_value: number
             active_days: Set<string>
         }
@@ -108,7 +97,6 @@ export async function GET(request: Request) {
                 user_id: userId, name: profilesMap[userId] || 'Venditore',
                 leads_requested: 0, leads_called: 0, leads_converted: 0,
                 leads_wrong_number: 0, session_ids: new Set(),
-                dials: 0, connected: 0, talk_seconds: 0,
                 shown: 0, sold: 0, sales_value: 0, active_days: new Set(),
             }
         })
@@ -135,16 +123,7 @@ export async function GET(request: Request) {
                     detail: `Contrassegnato come vittoria ma nessun lead reale creato nel CRM.`,
                 })
             }
-            // Anti-cheat 2: esito senza nessuna chiamata registrata
-            const hasCall = rawCalls.some(c => c.lead_pool_id === l.id)
-            if (l.feedback && !hasCall) {
-                anomalies.push({
-                    id: `${l.id}-nocall`, type: 'feedback_without_call', severity: 'medium',
-                    closer_name: stats.name, lead_name: l.full_name, timestamp: l.feedback_at || l.assigned_at,
-                    detail: `Esito '${l.feedback}' registrato senza alcuna chiamata tracciata (numero non toccato).`,
-                })
-            }
-            // Anti-cheat 3: esito ultra-rapido
+            // Anti-cheat 2: esito ultra-rapido
             if (l.feedback_at && l.assigned_at) {
                 const diffSec = (new Date(l.feedback_at).getTime() - new Date(l.assigned_at).getTime()) / 1000
                 if (diffSec > 0 && diffSec < 20) {
@@ -155,16 +134,6 @@ export async function GET(request: Request) {
                     })
                 }
             }
-        })
-
-        // ── Aggrega le chiamate reali ──
-        rawCalls.forEach(c => {
-            if (!c.user_id || !activeCloserIds.has(c.user_id)) return
-            const stats = kpiMap[c.user_id]
-            stats.dials += 1
-            if (c.connected_at || (c.duration_seconds && c.duration_seconds > 0)) stats.connected += 1
-            if (c.duration_seconds) stats.talk_seconds += c.duration_seconds
-            if (c.started_at) stats.active_days.add(String(c.started_at).slice(0, 10))
         })
 
         // ── Aggrega il funnel calendario per closer ──
@@ -179,25 +148,25 @@ export async function GET(request: Request) {
         })
 
         // ── Calcola KPI + Resilienza Score ──
+        // I venditori umani chiamano dal proprio telefono: niente dial/durata
+        // dal computer. Il punteggio si basa su ciò che è realmente misurabile:
+        // volume lavorato, tasso appuntamento, presentati e chiusi.
         const pct = (n: number, d: number) => d > 0 ? Math.round((n / d) * 100) : 0
-        // Target di riferimento per normalizzare il volume di dials nel periodo
-        const maxDials = Math.max(50, ...Object.values(kpiMap).map(s => s.dials))
+        const maxWorked = Math.max(20, ...Object.values(kpiMap).map(s => s.leads_called))
 
         const kpiList = Object.values(kpiMap).map(s => {
-            const connectRate = s.dials > 0 ? s.connected / s.dials : 0
             const apptRate = s.leads_called > 0 ? s.leads_converted / s.leads_called : 0
             const showRate = s.leads_converted > 0 ? s.shown / s.leads_converted : 0
             const closeRate = s.shown > 0 ? s.sold / s.shown : 0
-            const volumeScore = Math.min(1, s.dials / maxDials)
+            const volumeScore = Math.min(1, s.leads_called / maxWorked)
 
-            // Resilienza Score (0-100): premia volume, capacità di far rispondere,
-            // di fissare appuntamenti, di farli presentare e di chiudere.
+            // Resilienza Score (0-100): premia chi lavora più contatti, fissa più
+            // appuntamenti, li fa presentare e li chiude.
             const resilience = Math.round(100 * (
                 0.20 * volumeScore +
-                0.20 * connectRate +
-                0.25 * apptRate +
+                0.40 * apptRate +
                 0.20 * showRate +
-                0.15 * closeRate
+                0.20 * closeRate
             ))
 
             return {
@@ -210,9 +179,6 @@ export async function GET(request: Request) {
                 spins_count: s.session_ids.size,
                 conversion_rate: pct(s.leads_converted, s.leads_called),
                 efficiency_rate: pct(s.leads_converted, s.leads_requested),
-                dials: s.dials,
-                connect_rate: Math.round(connectRate * 100),
-                talk_minutes: Math.round(s.talk_seconds / 60),
                 appointments: s.leads_converted,
                 shown: s.shown,
                 sold: s.sold,

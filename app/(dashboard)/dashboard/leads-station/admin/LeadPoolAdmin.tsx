@@ -860,7 +860,7 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                                 {u.name}
                                                             </div>
                                                             <div style={{ fontSize: '11px', color: 'var(--color-surface-500)' }}>
-                                                                📞 {u.dials ?? 0} dial · ☎️ {u.connect_rate ?? 0}% risposta · 📅 {u.appointments ?? u.leads_converted} app. · ✅ {u.sold ?? 0} chiusi
+                                                                📅 {u.appointments ?? u.leads_converted} appuntamenti · 👀 {u.shown ?? 0} presentati · ✅ {u.sold ?? 0} chiusi
                                                             </div>
                                                         </div>
                                                     </div>
@@ -893,7 +893,6 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Resilienza</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Lead prelevati</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Contatti lavorati</th>
-                                                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Dial (risposta%)</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Appuntamenti</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Presentati</th>
                                                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Chiusi</th>
@@ -916,9 +915,6 @@ export default function LeadPoolAdmin({ orgId, initialLists, initialRules, close
                                                     <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '500' }}>{u.leads_requested}</td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center', color: '#2563eb', fontWeight: '600' }}>
                                                         {u.leads_called} <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--color-surface-500)' }}>({u.leads_requested > 0 ? Math.round((u.leads_called / u.leads_requested) * 100) : 0}%)</span>
-                                                    </td>
-                                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                                                        {u.dials ?? 0} <span style={{ fontSize: '10px', color: 'var(--color-surface-500)' }}>({u.connect_rate ?? 0}%)</span>
                                                     </td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center', color: '#16a34a', fontWeight: '600' }}>{u.appointments ?? u.leads_converted}</td>
                                                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>

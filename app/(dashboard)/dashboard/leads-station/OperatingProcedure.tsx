@@ -57,8 +57,7 @@ export default function OperatingProcedure({ batchSize = 5, minFeedbackPct = 100
                     Premi <strong>SPIN</strong> per ricevere un pacchetto di <strong>{batchSize} contatti</strong>.
                 </li>
                 <li>
-                    Tocca il <strong>numero di telefono</strong> per avviare la chiamata: il tentativo viene
-                    registrato automaticamente.
+                    Tocca il <strong>numero di telefono</strong> per chiamare il contatto dal tuo telefono.
                 </li>
                 <li>
                     <strong style={{ color: '#a855f7' }}>Subito dopo ogni chiamata</strong> registra l'esito.
@@ -92,8 +91,8 @@ export default function OperatingProcedure({ batchSize = 5, minFeedbackPct = 100
                 color: '#7c3aed',
                 lineHeight: 1.35,
             }}>
-                💡 <em>Il sistema registra chiamate, tempi ed esiti in tempo reale per misurare in modo oggettivo
-                chi lavora di più e con più costanza. Seguire la procedura lineare tiene il tuo punteggio pulito.</em>
+                💡 <em>Il sistema registra esiti, appuntamenti e tempi in tempo reale per misurare in modo
+                oggettivo chi lavora di più e con più costanza. Seguire la procedura lineare tiene il tuo punteggio pulito.</em>
             </div>
         </div>
     )

@@ -30,8 +30,6 @@ interface Props {
     lead: LeadPoolEntry
     sessionId?: string
     onFeedback: (leadId: string, feedback: string, extra?: FeedbackExtra) => Promise<void> | void
-    /** Registra il tentativo di chiamata (click-to-call). Opzionale. */
-    onCall?: (leadId: string, phone: string) => void
 }
 
 type FeedbackType = 'appointment' | 'interested' | 'callback' | 'no_answer' | 'not_interested' | 'wrong_number' | 'converted'
@@ -71,7 +69,7 @@ function toLocalInputValue(d: Date): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export default function LeadCard({ lead, onFeedback, onCall }: Props) {
+export default function LeadCard({ lead, onFeedback }: Props) {
     const [isLoading, setIsLoading] = useState(false)
     const [showNotes, setShowNotes] = useState(false)
     const [notes, setNotes] = useState('')
@@ -170,7 +168,7 @@ export default function LeadCard({ lead, onFeedback, onCall }: Props) {
                         {lead.phone && (
                             <a
                                 href={`tel:${lead.phone}`}
-                                onClick={e => { e.stopPropagation(); if (onCall && lead.phone) onCall(lead.id, lead.phone) }}
+                                onClick={e => e.stopPropagation()}
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
                                     fontSize: '13px', fontWeight: 600,
