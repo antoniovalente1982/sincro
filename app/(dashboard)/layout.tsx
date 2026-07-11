@@ -23,20 +23,52 @@ interface NavItem {
     icon: LucideIcon
 }
 
-const allNavItems: NavItem[] = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Vendite', href: '/dashboard/sales', icon: TrendingUp },
-    { label: '🎰 Stazione Leads', href: '/dashboard/leads-station', icon: Layers },
-    { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
-    { label: '⚔️ Arena AI vs Human', href: '/dashboard/crm/arena', icon: Swords },
-    { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
-    { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
-    { label: 'Operazioni', href: '/dashboard/operations', icon: History },
-    { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-    { label: 'Team', href: '/dashboard/team', icon: UserCircle },
-    { label: 'Connessioni', href: '/dashboard/connections', icon: Plug },
-    { label: 'Impostazioni', href: '/dashboard/settings', icon: Settings },
+interface NavGroup {
+    label?: string  // se assente = nessun separatore (es. Dashboard)
+    items: NavItem[]
+}
+
+const allNavGroups: NavGroup[] = [
+    {
+        items: [
+            { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+        ]
+    },
+    {
+        label: 'CRM',
+        items: [
+            { label: '🎰 Stazione Leads', href: '/dashboard/leads-station', icon: Layers },
+            { label: 'CRM Pipeline',      href: '/dashboard/crm',            icon: Users },
+            { label: '⚔️ Arena AI vs Human', href: '/dashboard/crm/arena',  icon: Swords },
+            { label: 'Calendario',         href: '/dashboard/calendar',      icon: CalendarDays },
+        ]
+    },
+    {
+        label: 'VENDITE',
+        items: [
+            { label: 'Vendite', href: '/dashboard/sales', icon: TrendingUp },
+        ]
+    },
+    {
+        label: 'MARKETING',
+        items: [
+            { label: 'Funnel',    href: '/dashboard/funnels',   icon: Target },
+            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+        ]
+    },
+    {
+        label: 'SISTEMA',
+        items: [
+            { label: 'Operazioni',  href: '/dashboard/operations',  icon: History },
+            { label: 'Team',        href: '/dashboard/team',         icon: UserCircle },
+            { label: 'Connessioni', href: '/dashboard/connections',  icon: Plug },
+            { label: 'Impostazioni',href: '/dashboard/settings',     icon: Settings },
+        ]
+    },
 ]
+
+// Flat list per compatibilità con filterNavItems
+const allNavItems: NavItem[] = allNavGroups.flatMap(g => g.items)
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false)
@@ -67,9 +99,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     // Filtered nav items based on role + department
-    const navItems = useMemo(() => 
+    const navItems = useMemo(() =>
         filterNavItems(allNavItems, userRole, userDepartment)
     , [userRole, userDepartment])
+
+    // Filtered groups: mantiene la struttura ma filtra gli item per ruolo
+    const navGroups = useMemo(() => {
+        const allowedHrefs = new Set(filterNavItems(allNavItems, userRole, userDepartment).map(i => i.href))
+        return allNavGroups
+            .map(group => ({
+                ...group,
+                items: group.items.filter(item => allowedHrefs.has(item.href))
+            }))
+            .filter(group => group.items.length > 0)
+    }, [userRole, userDepartment])
 
     useEffect(() => {
         const getUser = async () => {
@@ -217,17 +260,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 {/* Nav */}
-                <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`nav-item ${isActive(item.href) ? 'nav-item-active' : ''}`}
-                            title={collapsed ? item.label : undefined}
-                        >
-                            <item.icon className="w-5 h-5 flex-shrink-0" />
-                            {!collapsed && <span>{item.label}</span>}
-                        </Link>
+                <nav className="flex-1 p-3 overflow-y-auto">
+                    {navGroups.map((group, gi) => (
+                        <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
+                            {/* Section label — solo se expanded e il gruppo ha una label */}
+                            {group.label && !collapsed && (
+                                <div style={{
+                                    fontSize: 9,
+                                    fontWeight: 700,
+                                    letterSpacing: '0.1em',
+                                    textTransform: 'uppercase',
+                                    color: 'var(--color-surface-400)',
+                                    padding: '0 12px',
+                                    marginBottom: 4,
+                                    marginTop: gi > 0 ? 4 : 0,
+                                }}>
+                                    {group.label}
+                                </div>
+                            )}
+                            {/* Thin divider when collapsed */}
+                            {group.label && collapsed && gi > 0 && (
+                                <div style={{
+                                    height: 1,
+                                    background: 'var(--color-surface-200)',
+                                    margin: '6px 8px',
+                                }} />
+                            )}
+                            <div className="space-y-0.5">
+                                {group.items.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className={`nav-item ${isActive(item.href) ? 'nav-item-active' : ''}`}
+                                        title={collapsed ? item.label : undefined}
+                                    >
+                                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                                        {!collapsed && <span>{item.label}</span>}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     ))}
                 </nav>
 
