@@ -483,8 +483,8 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             <select
                                                 value={m.department || ''}
                                                 onChange={(e) => handleUpdateRole(m.id, m.role, e.target.value || undefined)}
-                                                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-[var(--color-surface-900)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                                style={{ color: 'white', backgroundColor: 'var(--color-surface-800)' }}
+                                                className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-[var(--hover-bg)] border border-[var(--color-surface-200)] text-[var(--color-surface-800)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 hover:border-[var(--color-surface-300)]"
+                                                style={{ color: 'var(--color-surface-900)', backgroundColor: 'var(--color-surface-50)' }}
                                             >
                                                 <option value="">Nessun Reparto</option>
                                                 {ALL_DEPARTMENTS.map(d => (
@@ -506,8 +506,8 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                             <select
                                                 value={m.role}
                                                 onChange={(e) => handleUpdateRole(m.id, e.target.value, m.department || undefined)}
-                                                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-[var(--color-surface-900)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                                style={{ color: 'white', backgroundColor: 'var(--color-surface-800)' }}
+                                                className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-[var(--hover-bg)] border border-[var(--color-surface-200)] text-[var(--color-surface-800)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 hover:border-[var(--color-surface-300)]"
+                                                style={{ color: 'var(--color-surface-900)', backgroundColor: 'var(--color-surface-50)' }}
                                             >
                                                 {INVITABLE_ROLES.map(r => (
                                                     <option key={r} value={r}>
