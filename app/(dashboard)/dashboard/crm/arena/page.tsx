@@ -2,25 +2,28 @@
 
 import { useEffect, useState, useCallback } from 'react'
 
-type TrackDist = { human: number; ai: number; duel: number; copilot: number }
-type ActorStats = {
-  total_actions: number
-  deals_won: number
-  conversion_rate: number
-  positive_rate: number
-  total_score: number
-  messages_sent: number
-  calls_made: number
+type PoolStats = {
+  worked: number
+  appointments: number
+  interested: number
+  callbacks: number
+  not_interested: number
+  wrong_number: number
+  dials: number
+  book_rate: number
+  interested_rate: number
+  score: number
 }
 type LeaderboardData = {
   period_start: string
   period_end: string | null
-  ai: ActorStats
-  human: ActorStats
+  total_pool_leads: number
+  available_pool_leads: number
+  worked_total: number
+  ai: PoolStats
+  human: PoolStats
   winner: 'ai' | 'human' | 'tie'
-  track_distribution: TrackDist
-  total_leads: number
-  ai_assigned: number
+  distribution: { human: number; ai: number }
 }
 
 type RangeKey = 'today' | 'yesterday' | '7d' | 'month' | '30d' | 'custom'
@@ -55,13 +58,6 @@ function computeRange(key: RangeKey, customStart?: string, customEnd?: string): 
       return { start: s.toISOString(), end: e.toISOString(), label: 'intervallo personalizzato' }
     }
   }
-}
-
-const TRACK_LABELS: Record<string, { label: string; emoji: string; color: string }> = {
-  human: { label: 'Umano', emoji: '👤', color: '#3b82f6' },
-  ai: { label: 'AI Solo', emoji: '🤖', color: '#a855f7' },
-  duel: { label: 'Duel', emoji: '⚔️', color: '#ef4444' },
-  copilot: { label: 'Co-Pilot', emoji: '🤝', color: '#22c55e' },
 }
 
 const MODE_INFO = [
@@ -181,7 +177,6 @@ export default function ArenaPage() {
     return () => clearInterval(t)
   }, [rangeKey, load])
 
-  const totalActions = (data?.ai.total_actions || 0) + (data?.human.total_actions || 0)
 
   const winnerBadge = () => {
     if (!data) return null
@@ -201,7 +196,7 @@ export default function ArenaPage() {
               ⚔️ Arena AI vs Human
             </h1>
             <p style={{ fontSize: 14, color: 'var(--color-surface-500)', marginTop: 6, marginBottom: 0 }}>
-              Performance comparative in tempo reale — Chi sta convertendo di più?
+              Umani vs AI sulla stessa lista caricata (pool Stazione Leads) — chi prende più appuntamenti?
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -271,13 +266,12 @@ export default function ArenaPage() {
         <>
           {/* KPI overview */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
-            <StatCard label="Lead CRM (periodo)" value={data.total_leads} sub={`nel CRM · ${data.ai_assigned} ad AI`} />
-            <StatCard label="Azioni AI" value={data.ai.total_actions} color="#a855f7" />
-            <StatCard label="Azioni Umani" value={data.human.total_actions} color="#3b82f6" />
-            <StatCard label="Deal AI" value={data.ai.deals_won} sub={`${data.ai.conversion_rate}% conv.`} color="#a855f7" />
-            <StatCard label="Deal Umani" value={data.human.deals_won} sub={`${data.human.conversion_rate}% conv.`} color="#3b82f6" />
-            <StatCard label="Score AI" value={data.ai.total_score} color="#a855f7" />
-            <StatCard label="Score Umani" value={data.human.total_score} color="#3b82f6" />
+            <StatCard label="Lead nella lista" value={data.total_pool_leads.toLocaleString('it-IT')} sub={`${data.available_pool_leads.toLocaleString('it-IT')} ancora da chiamare`} />
+            <StatCard label="Lavorati (periodo)" value={data.worked_total} sub="da AI + umani" />
+            <StatCard label="Appuntamenti AI" value={data.ai.appointments} sub={`${data.ai.book_rate}% book rate`} color="#a855f7" />
+            <StatCard label="Appuntamenti Umani" value={data.human.appointments} sub={`${data.human.book_rate}% book rate`} color="#3b82f6" />
+            <StatCard label="Score AI" value={data.ai.score} color="#a855f7" />
+            <StatCard label="Score Umani" value={data.human.score} color="#3b82f6" />
           </div>
 
           {/* Battle panel */}
@@ -301,12 +295,12 @@ export default function ArenaPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
-                  { label: 'Azioni', value: data.ai.total_actions },
-                  { label: 'Deal Vinti', value: data.ai.deals_won },
-                  { label: 'Conv. Rate', value: `${data.ai.conversion_rate}%` },
-                  { label: 'Score', value: data.ai.total_score },
-                  { label: 'Messaggi', value: data.ai.messages_sent },
-                  { label: 'Positività', value: `${data.ai.positive_rate}%` },
+                  { label: 'Lavorati', value: data.ai.worked },
+                  { label: 'Appuntamenti', value: data.ai.appointments },
+                  { label: 'Book Rate', value: `${data.ai.book_rate}%` },
+                  { label: 'Interessati', value: data.ai.interested },
+                  { label: 'Da richiamare', value: data.ai.callbacks },
+                  { label: 'Chiamate', value: data.ai.dials },
                 ].map(s => (
                   <div key={s.label} style={{ padding: '10px 12px', background: 'rgba(168,85,247,0.08)', borderRadius: 8 }}>
                     <div style={{ fontSize: 10, color: 'rgba(168,85,247,0.7)', fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</div>
@@ -335,12 +329,12 @@ export default function ArenaPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
-                  { label: 'Azioni', value: data.human.total_actions },
-                  { label: 'Deal Vinti', value: data.human.deals_won },
-                  { label: 'Conv. Rate', value: `${data.human.conversion_rate}%` },
-                  { label: 'Score', value: data.human.total_score },
-                  { label: 'Messaggi', value: data.human.messages_sent },
-                  { label: 'Positività', value: `${data.human.positive_rate}%` },
+                  { label: 'Lavorati', value: data.human.worked },
+                  { label: 'Appuntamenti', value: data.human.appointments },
+                  { label: 'Book Rate', value: `${data.human.book_rate}%` },
+                  { label: 'Interessati', value: data.human.interested },
+                  { label: 'Da richiamare', value: data.human.callbacks },
+                  { label: 'Num. errati', value: data.human.wrong_number },
                 ].map(s => (
                   <div key={s.label} style={{ padding: '10px 12px', background: 'rgba(59,130,246,0.08)', borderRadius: 8 }}>
                     <div style={{ fontSize: 10, color: 'rgba(59,130,246,0.7)', fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</div>
@@ -359,10 +353,10 @@ export default function ArenaPage() {
             <h3 style={{ margin: '0 0 20px', fontSize: 14, fontWeight: 700, color: 'var(--color-surface-700)' }}>
               📊 Confronto Metrico
             </h3>
-            <VsBar aiVal={data.ai.deals_won} humanVal={data.human.deals_won} label="Deal Vinti" />
-            <VsBar aiVal={data.ai.total_actions} humanVal={data.human.total_actions} label="Azioni Totali" />
-            <VsBar aiVal={data.ai.messages_sent} humanVal={data.human.messages_sent} label="Messaggi Inviati" />
-            <VsBar aiVal={data.ai.total_score} humanVal={data.human.total_score} label="Score Totale" />
+            <VsBar aiVal={data.ai.appointments} humanVal={data.human.appointments} label="Appuntamenti" />
+            <VsBar aiVal={data.ai.worked} humanVal={data.human.worked} label="Contatti lavorati" />
+            <VsBar aiVal={data.ai.interested} humanVal={data.human.interested} label="Interessati" />
+            <VsBar aiVal={data.ai.score} humanVal={data.human.score} label="Score" />
           </div>
 
           {/* Track Distribution */}
@@ -371,30 +365,30 @@ export default function ArenaPage() {
             borderRadius: 16, padding: 24, marginBottom: 32
           }}>
             <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, color: 'var(--color-surface-700)' }}>
-              🎯 Distribuzione Lead per Modalità
+              🎯 Chi ha lavorato la lista (nel periodo)
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-              {Object.entries(TRACK_LABELS).map(([key, cfg]) => (
-                <div key={key} style={{
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+              {[
+                { key: 'human', label: 'Umano', emoji: '👤', color: '#3b82f6', value: data.distribution.human },
+                { key: 'ai', label: 'AI', emoji: '🤖', color: '#a855f7', value: data.distribution.ai },
+              ].map(cfg => (
+                <div key={cfg.key} style={{
                   padding: '14px 16px', borderRadius: 10,
                   background: `${cfg.color}10`, border: `1px solid ${cfg.color}30`,
                   textAlign: 'center'
                 }}>
                   <div style={{ fontSize: 24 }}>{cfg.emoji}</div>
-                  <div style={{ fontWeight: 800, fontSize: 22, color: cfg.color, marginTop: 4 }}>
-                    {data.track_distribution[key as keyof TrackDist] || 0}
-                  </div>
+                  <div style={{ fontWeight: 800, fontSize: 22, color: cfg.color, marginTop: 4 }}>{cfg.value}</div>
                   <div style={{ fontSize: 11, color: 'var(--color-surface-500)', marginTop: 2 }}>{cfg.label}</div>
                   <div style={{ marginTop: 8 }}>
-                    <ProgressBar
-                      value={data.track_distribution[key as keyof TrackDist] || 0}
-                      total={data.total_leads}
-                      color={cfg.color}
-                    />
+                    <ProgressBar value={cfg.value} total={data.worked_total} color={cfg.color} />
                   </div>
                 </div>
               ))}
             </div>
+            <p style={{ fontSize: 11, color: 'var(--color-surface-400)', marginTop: 10 }}>
+              Confronto sui lead della <strong>stessa lista caricata</strong> ({data.total_pool_leads.toLocaleString('it-IT')} totali): umani e AI attingono dallo stesso pool.
+            </p>
           </div>
         </>
       ) : (
