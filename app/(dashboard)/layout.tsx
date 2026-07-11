@@ -7,10 +7,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
     LayoutDashboard, Target, Users, BarChart3, Plug, UserCircle,
-    LogOut, ChevronLeft, ChevronRight, Megaphone, Settings, Brain,
+    LogOut, ChevronLeft, ChevronRight, Settings,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
-    History, Palette, CalendarDays, Activity, Handshake,
-    Sun, Moon, TrendingUp, Layers,
+    History, CalendarDays,
+    Sun, Moon, TrendingUp, Layers, Swords,
     type LucideIcon
 } from 'lucide-react'
 import HermesChat from './dashboard/HermesChat'
@@ -28,13 +28,9 @@ const allNavItems: NavItem[] = [
     { label: 'Vendite', href: '/dashboard/sales', icon: TrendingUp },
     { label: '🎰 Stazione Leads', href: '/dashboard/leads-station', icon: Layers },
     { label: 'CRM Pipeline', href: '/dashboard/crm', icon: Users },
+    { label: '⚔️ Arena AI vs Human', href: '/dashboard/crm/arena', icon: Swords },
     { label: 'Calendario', href: '/dashboard/calendar', icon: CalendarDays },
-    { label: 'Radar Sincro', href: '/dashboard/radar', icon: Activity },
-    { label: 'Partner', href: '/dashboard/partner', icon: Handshake },
     { label: 'Funnel', href: '/dashboard/funnels', icon: Target },
-    { label: 'Ads', href: '/dashboard/ads', icon: Megaphone },
-    { label: 'AI Engine', href: '/dashboard/ai-engine', icon: Brain },
-    { label: 'Creative Studio', href: '/dashboard/ai-engine/creative-studio', icon: Palette },
     { label: 'Operazioni', href: '/dashboard/operations', icon: History },
     { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { label: 'Team', href: '/dashboard/team', icon: UserCircle },

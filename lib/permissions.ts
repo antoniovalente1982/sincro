@@ -9,15 +9,11 @@ export type Department = 'marketing' | 'sales' | 'coaching' | 'admin' | 'it' | n
 export type Section =
     | 'dashboard'
     | 'crm'
+    | 'arena'
     | 'sales'
     | 'leads_station'
     | 'calendar'
-    | 'radar'
-    | 'partner'
     | 'funnels'
-    | 'ads'
-    | 'ai_engine'
-    | 'creative_studio'
     | 'operations'
     | 'analytics'
     | 'team'
@@ -27,15 +23,11 @@ export type Section =
 const SECTION_ACCESS: Record<Section, Role[]> = {
     dashboard:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     crm:            ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
+    arena:          ['owner', 'admin', 'manager'],
     sales:          ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
     leads_station:  ['owner', 'admin', 'manager', 'closer'],
     calendar:       ['owner', 'admin', 'manager', 'closer', 'coach'],
-    radar:          ['owner', 'admin'],
-    partner:        ['owner', 'admin'],
     funnels:        ['owner', 'admin', 'manager'],
-    ads:            ['owner', 'admin', 'manager'],
-    ai_engine:      ['owner', 'admin', 'manager'],
-    creative_studio:['owner', 'admin', 'manager'],
     operations:     ['owner', 'admin', 'manager'],
     analytics:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     team:           ['owner', 'admin'],
@@ -45,26 +37,22 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
 
 // Manager access is further restricted by department
 const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
-    marketing: ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'settings'],
-    sales:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
+    marketing: ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'settings'],
+    sales:     ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     coaching:  ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     admin:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
-    it:        ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'ads', 'ai_engine', 'creative_studio', 'operations', 'analytics', 'team', 'connections', 'settings'],
+    it:        ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
 // Map href to section
 const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard':                     'dashboard',
     '/dashboard/crm':                 'crm',
+    '/dashboard/crm/arena':           'arena',
     '/dashboard/sales':               'sales',
     '/dashboard/leads-station':       'leads_station',
     '/dashboard/calendar':            'calendar',
-    '/dashboard/radar':               'radar',
-    '/dashboard/partner':             'partner',
     '/dashboard/funnels':             'funnels',
-    '/dashboard/ads':                 'ads',
-    '/dashboard/ai-engine':           'ai_engine',
-    '/dashboard/ai-engine/creative-studio': 'creative_studio',
     '/dashboard/operations':          'operations',
     '/dashboard/analytics':           'analytics',
     '/dashboard/team':                'team',
