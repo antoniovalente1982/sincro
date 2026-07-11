@@ -477,17 +477,50 @@ export default function TeamPanel({ orgId, userRole }: { orgId: string; userRole
                                                 />
                                             </div>
                                         )}
+                                        
+                                        {/* Department Dropdown / Badge */}
+                                        {canManage && m.role !== 'owner' ? (
+                                            <select
+                                                value={m.department || ''}
+                                                onChange={(e) => handleUpdateRole(m.id, m.role, e.target.value || undefined)}
+                                                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-[var(--color-surface-900)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                                style={{ color: 'white', backgroundColor: 'var(--color-surface-800)' }}
+                                            >
+                                                <option value="">Nessun Reparto</option>
+                                                {ALL_DEPARTMENTS.map(d => (
+                                                    <option key={d} value={d}>
+                                                        {DEPARTMENT_CONFIG[d].emoji} {DEPARTMENT_CONFIG[d].label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            deptCfg && (
+                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${deptCfg.color}10`, color: deptCfg.color, border: `1px solid ${deptCfg.color}20` }}>
+                                                    {deptCfg.emoji} {deptCfg.label}
+                                                </span>
+                                            )
+                                        )}
 
-                                        {/* Department Badge */}
-                                        {deptCfg && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${deptCfg.color}10`, color: deptCfg.color, border: `1px solid ${deptCfg.color}20` }}>
-                                                {deptCfg.emoji} {deptCfg.label}
+                                        {/* Role Dropdown / Badge */}
+                                        {canManage && m.role !== 'owner' ? (
+                                            <select
+                                                value={m.role}
+                                                onChange={(e) => handleUpdateRole(m.id, e.target.value, m.department || undefined)}
+                                                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[var(--color-surface-100)] border border-[var(--color-surface-200)] text-[var(--color-surface-900)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                                style={{ color: 'white', backgroundColor: 'var(--color-surface-800)' }}
+                                            >
+                                                {INVITABLE_ROLES.map(r => (
+                                                    <option key={r} value={r}>
+                                                        {ROLE_CONFIG[r].label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <span className="badge flex items-center gap-1" style={{ background: `${roleCfg.color}10`, color: roleCfg.color, border: `1px solid ${roleCfg.color}20` }}>
+                                                <RoleIcon className="w-3 h-3" /> {roleCfg.label}
                                             </span>
                                         )}
-                                        {/* Role Badge */}
-                                        <span className="badge flex items-center gap-1" style={{ background: `${roleCfg.color}10`, color: roleCfg.color, border: `1px solid ${roleCfg.color}20` }}>
-                                            <RoleIcon className="w-3 h-3" /> {roleCfg.label}
-                                        </span>
+
                                         {m.leads_assigned > 0 && (
                                             <span className="text-xs font-medium" style={{ color: 'var(--color-surface-500)' }}>{m.leads_assigned} lead</span>
                                         )}
