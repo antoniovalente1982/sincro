@@ -13,7 +13,8 @@ type ActorStats = {
   calls_made: number
 }
 type LeaderboardData = {
-  period_days: number
+  period_start: string
+  period_end: string | null
   ai: ActorStats
   human: ActorStats
   winner: 'ai' | 'human' | 'tie'
@@ -22,11 +23,39 @@ type LeaderboardData = {
   ai_assigned: number
 }
 
-const PERIOD_OPTIONS = [
-  { label: '7 giorni', value: 7 },
-  { label: '30 giorni', value: 30 },
-  { label: '90 giorni', value: 90 },
+type RangeKey = 'today' | 'yesterday' | '7d' | 'month' | '30d' | 'custom'
+
+const RANGE_OPTIONS: { label: string; value: RangeKey }[] = [
+  { label: 'Oggi', value: 'today' },
+  { label: 'Ieri', value: 'yesterday' },
+  { label: '7 giorni', value: '7d' },
+  { label: 'Mese corrente', value: 'month' },
+  { label: '30 giorni', value: '30d' },
+  { label: 'Intervallo', value: 'custom' },
 ]
+
+// Calcola start/end ISO (confini di giornata) per una scelta di intervallo
+function computeRange(key: RangeKey, customStart?: string, customEnd?: string): { start: string; end: string; label: string } {
+  const now = new Date()
+  const y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
+  const startOfDay = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0)
+  const endOfDay = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 23, 59, 59, 999)
+  switch (key) {
+    case 'today': return { start: startOfDay(now).toISOString(), end: endOfDay(now).toISOString(), label: 'oggi' }
+    case 'yesterday': {
+      const yd = new Date(y, m, d - 1)
+      return { start: startOfDay(yd).toISOString(), end: endOfDay(yd).toISOString(), label: 'ieri' }
+    }
+    case '7d': return { start: startOfDay(new Date(y, m, d - 6)).toISOString(), end: endOfDay(now).toISOString(), label: 'ultimi 7 giorni' }
+    case 'month': return { start: new Date(y, m, 1, 0, 0, 0, 0).toISOString(), end: endOfDay(now).toISOString(), label: 'questo mese' }
+    case '30d': return { start: startOfDay(new Date(y, m, d - 29)).toISOString(), end: endOfDay(now).toISOString(), label: 'ultimi 30 giorni' }
+    case 'custom': {
+      const s = customStart ? new Date(customStart + 'T00:00:00') : startOfDay(new Date(y, m, d - 29))
+      const e = customEnd ? new Date(customEnd + 'T23:59:59') : endOfDay(now)
+      return { start: s.toISOString(), end: e.toISOString(), label: 'intervallo personalizzato' }
+    }
+  }
+}
 
 const TRACK_LABELS: Record<string, { label: string; emoji: string; color: string }> = {
   human: { label: 'Umano', emoji: '👤', color: '#3b82f6' },
@@ -121,27 +150,36 @@ function VsBar({ aiVal, humanVal, label }: { aiVal: number; humanVal: number; la
 export default function ArenaPage() {
   const [data, setData] = useState<LeaderboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [period, setPeriod] = useState(30)
+  const [rangeKey, setRangeKey] = useState<RangeKey>('30d')
+  const [customStart, setCustomStart] = useState('')
+  const [customEnd, setCustomEnd] = useState('')
   const [activeMode, setActiveMode] = useState<string | null>(null)
   const [configLoading, setConfigLoading] = useState(false)
   const [configMsg, setConfigMsg] = useState('')
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const range = computeRange(rangeKey, customStart, customEnd)
+  const rangeLabel = range.label
+
+  // silent = refresh in background senza mostrare lo spinner (no lampeggio)
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
-      const res = await fetch(`/api/crm/leaderboard?days=${period}`)
+      const r = computeRange(rangeKey, customStart, customEnd)
+      const res = await fetch(`/api/crm/leaderboard?start=${encodeURIComponent(r.start)}&end=${encodeURIComponent(r.end)}`)
       if (res.ok) setData(await res.json())
     } catch {}
-    setLoading(false)
-  }, [period])
+    if (!silent) setLoading(false)
+  }, [rangeKey, customStart, customEnd])
 
+  // Ricarica (con spinner) al cambio intervallo
   useEffect(() => { load() }, [load])
 
-  // Auto-refresh ogni 30s
+  // Auto-refresh SILENZIOSO ogni 60s solo per "oggi" (dati live), altrimenti niente
   useEffect(() => {
-    const t = setInterval(load, 30000)
+    if (rangeKey !== 'today') return
+    const t = setInterval(() => load(true), 60000)
     return () => clearInterval(t)
-  }, [load])
+  }, [rangeKey, load])
 
   const totalActions = (data?.ai.total_actions || 0) + (data?.human.total_actions || 0)
 
@@ -166,11 +204,11 @@ export default function ArenaPage() {
               Performance comparative in tempo reale — Chi sta convertendo di più?
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {PERIOD_OPTIONS.map(opt => (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            {RANGE_OPTIONS.map(opt => (
               <button
                 key={opt.value}
-                onClick={() => setPeriod(opt.value)}
+                onClick={() => setRangeKey(opt.value)}
                 style={{
                   padding: '6px 14px',
                   borderRadius: 8,
@@ -179,26 +217,38 @@ export default function ArenaPage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.15s',
-                  background: period === opt.value ? 'var(--color-surface-900)' : 'transparent',
-                  color: period === opt.value ? 'var(--color-surface-50)' : 'var(--color-surface-600)',
-                  borderColor: period === opt.value ? 'var(--color-surface-900)' : 'var(--color-surface-300)',
+                  background: rangeKey === opt.value ? 'var(--color-surface-900)' : 'transparent',
+                  color: rangeKey === opt.value ? 'var(--color-surface-50)' : 'var(--color-surface-600)',
+                  borderColor: rangeKey === opt.value ? 'var(--color-surface-900)' : 'var(--color-surface-300)',
                 }}
               >
                 {opt.label}
               </button>
             ))}
             <button
-              onClick={load}
+              onClick={() => load()}
               style={{
                 padding: '6px 14px', borderRadius: 8, border: '1px solid var(--color-surface-300)',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 background: 'transparent', color: 'var(--color-surface-600)',
               }}
             >
-              ↻ Refresh
+              ↻ Aggiorna
             </button>
           </div>
         </div>
+
+        {/* Intervallo personalizzato */}
+        {rangeKey === 'custom' && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-surface-500)' }}>Dal</span>
+            <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--color-surface-300)', fontSize: 12, background: 'var(--color-surface-50)', color: 'var(--color-surface-900)' }} />
+            <span style={{ fontSize: 12, color: 'var(--color-surface-500)' }}>al</span>
+            <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)}
+              style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--color-surface-300)', fontSize: 12, background: 'var(--color-surface-50)', color: 'var(--color-surface-900)' }} />
+          </div>
+        )}
 
         {/* Winner badge */}
         {badge && !loading && (
@@ -208,7 +258,7 @@ export default function ArenaPage() {
             background: badge.bg, border: `1px solid ${badge.color}30`,
           }}>
             <span style={{ fontWeight: 800, fontSize: 14, color: badge.color }}>{badge.text}</span>
-            <span style={{ fontSize: 12, color: 'var(--color-surface-500)' }}>negli ultimi {period} giorni</span>
+            <span style={{ fontSize: 12, color: 'var(--color-surface-500)' }}>· {rangeLabel}</span>
           </div>
         )}
       </div>
@@ -221,7 +271,7 @@ export default function ArenaPage() {
         <>
           {/* KPI overview */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
-            <StatCard label="Lead Totali" value={data.total_leads} sub={`${data.ai_assigned} assegnati ad AI`} />
+            <StatCard label="Lead CRM (periodo)" value={data.total_leads} sub={`nel CRM · ${data.ai_assigned} ad AI`} />
             <StatCard label="Azioni AI" value={data.ai.total_actions} color="#a855f7" />
             <StatCard label="Azioni Umani" value={data.human.total_actions} color="#3b82f6" />
             <StatCard label="Deal AI" value={data.ai.deals_won} sub={`${data.ai.conversion_rate}% conv.`} color="#a855f7" />

@@ -2,26 +2,40 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getOrgContext } from "@/lib/org-context"
 
-// GET /api/crm/leaderboard?days=30 — statistiche comparative AI vs Human
+// GET /api/crm/leaderboard — statistiche comparative AI vs Human
+// Supporta un intervallo temporale: ?start=ISO&end=ISO (preferito)
+// oppure ?days=30 (retro-compatibile).
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
   const ctx = await getOrgContext(supabase); const orgId = ctx?.organization_id
   if (!orgId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+  const sp = req.nextUrl.searchParams
+  const startParam = sp.get('start')
+  const endParam = sp.get('end')
 
-  // Azioni AI vs Human
-  const { data: actions } = await supabase
+  let since: string
+  let until: string | null = null
+  if (startParam) {
+    since = startParam
+    until = endParam || new Date().toISOString()
+  } else {
+    const days = parseInt(sp.get('days') || '30')
+    since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+  }
+
+  // Azioni AI vs Human nel periodo
+  let actionsQuery = supabase
     .from('ai_crm_actions')
     .select('actor, action_type, outcome, score_delta, created_at')
     .eq('org_id', orgId)
     .gte('created_at', since)
+  if (until) actionsQuery = actionsQuery.lte('created_at', until)
+  const { data: actions } = await actionsQuery
 
-  if (!actions) return NextResponse.json({ ai: {}, human: {} })
-
+  const acts = actions || []
   const computeStats = (actor: 'ai' | 'human') => {
-    const filtered = actions.filter(a => a.actor === actor)
+    const filtered = acts.filter(a => a.actor === actor)
     const deals_won = filtered.filter(a => a.action_type === 'deal_won').length
     const total = filtered.length
     const positive = filtered.filter(a => a.outcome === 'positive').length
@@ -42,31 +56,33 @@ export async function GET(req: NextRequest) {
   const aiStats = computeStats('ai')
   const humanStats = computeStats('human')
 
-  // Leads attivi per track
-  const { data: leadsByTrack } = await supabase
+  // Leads del CRM creati nel periodo, per track
+  let leadsQuery = supabase
     .from('leads')
-    .select('track, ai_score, human_score, assigned_to_ai')
+    .select('track, assigned_to_ai, created_at')
     .eq('organization_id', orgId)
+    .gte('created_at', since)
+  if (until) leadsQuery = leadsQuery.lte('created_at', until)
+  const { data: leadsByTrack } = await leadsQuery
 
   const trackCounts = { human: 0, ai: 0, duel: 0, copilot: 0 }
   for (const l of (leadsByTrack || [])) {
-    if (l.track && trackCounts[l.track as keyof typeof trackCounts] !== undefined) {
-      trackCounts[l.track as keyof typeof trackCounts]++
-    }
+    const key = (l.track || 'human') as keyof typeof trackCounts
+    if (trackCounts[key] !== undefined) trackCounts[key]++
   }
 
-  // Determina winner per il periodo
   let winner = 'tie'
   if (aiStats.total_score > humanStats.total_score) winner = 'ai'
   else if (humanStats.total_score > aiStats.total_score) winner = 'human'
 
   return NextResponse.json({
-    period_days: days,
+    period_start: since,
+    period_end: until,
     ai: aiStats,
     human: humanStats,
     winner,
     track_distribution: trackCounts,
     total_leads: leadsByTrack?.length || 0,
-    ai_assigned: leadsByTrack?.filter(l => l.assigned_to_ai).length || 0
+    ai_assigned: leadsByTrack?.filter(l => l.assigned_to_ai).length || 0,
   })
 }
