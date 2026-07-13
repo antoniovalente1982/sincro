@@ -97,10 +97,23 @@ export async function GET() {
     // Fetch current session leads if active
     let sessionLeads: any[] = []
     if (activeSession?.lead_pool_ids?.length) {
+        // Sessione attiva: mostra i leads della sessione
         const { data: leads } = await supabase
             .from('lead_pool')
             .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at')
             .in('id', activeSession.lead_pool_ids)
+        sessionLeads = leads || []
+    } else {
+        // Nessuna sessione attiva: mostra comunque i leads assegnati ma non ancora chiamati
+        // (assegnati manualmente dall'admin o sessione chiusa prima che venissero chiamati)
+        const { data: leads } = await supabase
+            .from('lead_pool')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at')
+            .eq('organization_id', orgId)
+            .eq('assigned_to', user.id)
+            .eq('status', 'assigned')
+            .is('feedback', null)
+            .order('assigned_at', { ascending: false })
         sessionLeads = leads || []
     }
 
