@@ -182,29 +182,33 @@ export async function POST(request: Request) {
         const leadName = lead.full_name || `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Lead'
 
         if (!crmLeadId) {
-            const { data: crmLead } = await supabase
+            const { data: crmLead, error: crmErr } = await getSupabaseAdmin()
                 .from('leads')
                 .insert({
                     organization_id: member.organization_id,
                     name: leadName,
                     phone: lead.phone,
                     email: lead.email,
-                    city: lead.city,
                     closer_id: user.id,
                     setter_id: user.id,
+                    assigned_to: user.id,
                     stage_id: defaultStageId,
-                    source: lead.source || 'lead_pool',
+                    source_channel: 'lead_pool',
+                    track: 'human',
+                    utm_source: lead.utm_source,
                     utm_campaign: lead.utm_campaign,
-                    notes: `Da Stazione Leads. Lista: ${lead.list_id}. ${feedback_notes || ''}`.trim(),
+                    notes: `Da Stazione Leads.${lead.city ? ` Città: ${lead.city}.` : ''} Lista: ${lead.list_id}. ${feedback_notes || ''}`.trim(),
+                    meta_data: { source: 'stazione_leads', pool_lead_id: lead_pool_id, city: lead.city || null },
                     created_at: now,
                     updated_at: now,
                 })
                 .select('id')
                 .single()
 
+            if (crmErr) console.error('[FEEDBACK] Errore creazione lead CRM:', crmErr)
             if (crmLead) {
                 crmLeadId = crmLead.id
-                await supabase.from('lead_pool').update({ crm_lead_id: crmLeadId }).eq('id', lead_pool_id)
+                await getSupabaseAdmin().from('lead_pool').update({ crm_lead_id: crmLeadId }).eq('id', lead_pool_id)
             }
         }
 

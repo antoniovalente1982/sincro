@@ -22,6 +22,7 @@ const getFeedbackBadge = (fb: string | null) => {
     if (!fb) return <span style={{ color: 'var(--color-surface-400)' }}>—</span>
     
     const configs: Record<string, { label: string; bg: string; color: string; emoji: string }> = {
+        appointment: { label: 'Appuntamento!', bg: 'rgba(34,197,94,0.12)', color: '#16a34a', emoji: '🎉' },
         interested: { label: 'Interessato', bg: 'rgba(234,179,8,0.1)', color: '#ca8a04', emoji: '⭐' },
         converted: { label: 'Convertito!', bg: 'rgba(34,197,94,0.1)', color: '#16a34a', emoji: '💎' },
         callback: { label: 'Richiama', bg: 'rgba(59,130,246,0.1)', color: '#2563eb', emoji: '🔄' },

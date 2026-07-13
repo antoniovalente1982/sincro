@@ -90,25 +90,29 @@ export async function bookAppointmentFromPool(admin: Admin, opts: {
     // Lead CRM (setter = AI, closer = umano)
     let crmLeadId: string | null = lead.crm_lead_id || null
     if (!crmLeadId) {
-        const { data: crmLead } = await admin
+        const { data: crmLead, error: crmErr } = await admin
             .from('leads')
             .insert({
                 organization_id: orgId,
                 name: leadName,
                 phone: lead.phone,
                 email: lead.email,
-                city: lead.city,
                 setter_id: setterUserId,
                 closer_id: closerId,
+                assigned_to: closerId,
                 stage_id: defaultStageId,
-                source: lead.source || 'lead_pool',
+                source_channel: 'lead_pool',
+                track: 'ai',
+                utm_source: lead.utm_source,
                 utm_campaign: lead.utm_campaign,
-                notes: `Appuntamento fissato da setter. Lista: ${lead.list_id}. ${notes || ''}`.trim(),
+                notes: `Appuntamento fissato da setter AI.${lead.city ? ` Città: ${lead.city}.` : ''} Lista: ${lead.list_id}. ${notes || ''}`.trim(),
+                meta_data: { source: 'stazione_leads_ai', pool_lead_id: poolLeadId, city: lead.city || null },
                 created_at: now,
                 updated_at: now,
             })
             .select('id')
             .single()
+        if (crmErr) console.error('[AI-BOOK] Errore creazione lead CRM:', crmErr)
         crmLeadId = crmLead?.id || null
     }
 
