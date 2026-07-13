@@ -31,7 +31,17 @@ export async function GET(req: NextRequest) {
         orgThreshold[r.organization_id] = r.recycle_after_hours ?? 48
     }
 
-    // Candidati: assegnati, mai chiamati
+    // IDs dei lead che sono in sessioni attive — NON vanno riciclati
+    // (il venditore li ha ancora nella sua Stazione e sta per chiamarli)
+    const { data: activeSessions } = await supabase
+        .from('lead_distribution_sessions')
+        .select('lead_pool_ids')
+        .eq('status', 'active')
+    const activeLeadIds = new Set<string>(
+        (activeSessions || []).flatMap((s: any) => s.lead_pool_ids || [])
+    )
+
+    // Candidati: assegnati, mai chiamati, NON in sessione attiva
     const { data: candidates } = await supabase
         .from('lead_pool')
         .select('id, organization_id, assigned_at, priority_score, recycled_count, list_id')
@@ -42,6 +52,8 @@ export async function GET(req: NextRequest) {
     const now = Date.now()
     const toRecycle: any[] = []
     for (const lead of candidates || []) {
+        // Salta i leads ancora in sessione attiva
+        if (activeLeadIds.has(lead.id)) continue
         const hours = orgThreshold[lead.organization_id] ?? 48
         const ageMs = now - new Date(lead.assigned_at).getTime()
         if (ageMs >= hours * 60 * 60 * 1000) toRecycle.push(lead)
