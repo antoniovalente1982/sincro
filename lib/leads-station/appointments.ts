@@ -1,4 +1,5 @@
 import { romeDateString } from '@/lib/timezone'
+import { ensureStazioneLeadsTag } from '@/lib/leads-station/tags'
 
 // ============================================================
 // Prenotazione appuntamento dal pool — usata dagli agenti AI setter.
@@ -114,6 +115,11 @@ export async function bookAppointmentFromPool(admin: Admin, opts: {
             .single()
         if (crmErr) console.error('[AI-BOOK] Errore creazione lead CRM:', crmErr)
         crmLeadId = crmLead?.id || null
+    }
+
+    // Tagga il lead CRM come proveniente dalla Stazione Leads
+    if (crmLeadId) {
+        await ensureStazioneLeadsTag(admin, orgId, crmLeadId)
     }
 
     // Evento a calendario

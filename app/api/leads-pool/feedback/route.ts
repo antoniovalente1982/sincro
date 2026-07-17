@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
 import { romeDateString } from '@/lib/timezone'
+import { ensureStazioneLeadsTag } from '@/lib/leads-station/tags'
 
 // POST /api/leads-pool/feedback
 // Aggiorna il feedback su un singolo lead del pool.
@@ -27,14 +28,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: `Feedback non valido. Valori accettati: ${VALID_FEEDBACK.join(', ')}` }, { status: 400 })
     }
 
-    // Un appuntamento richiede sempre una data/ora
-    if (feedback === 'appointment' && !appointment_at) {
-        return NextResponse.json({ error: 'Per fissare un appuntamento serve data e ora' }, { status: 400 })
-    }
-    // Un richiamo richiede una data/ora futura
-    if (feedback === 'callback' && !callback_at) {
-        return NextResponse.json({ error: 'Per un richiamo serve la data/ora del richiamo' }, { status: 400 })
-    }
+    // Nota: appuntamento e richiamo NON richiedono più una data.
+    // - Richiama → il lead va nel tab "Da richiamare", il venditore si segna il richiamo da sé.
+    // - Appuntamento → viene creato il lead nel CRM; l'appuntamento lo fissa il venditore dalla card CRM.
 
     const { data: member } = await supabase
         .from('organization_members')
@@ -85,8 +81,8 @@ export async function POST(request: Request) {
         status: newStatus,
         last_called_at: now,
         updated_at: now,
-        callback_at: feedback === 'callback' ? callback_at : lead.callback_at,
-        appointment_at: feedback === 'appointment' ? appointment_at : lead.appointment_at,
+        callback_at: feedback === 'callback' ? (callback_at ?? null) : lead.callback_at,
+        appointment_at: feedback === 'appointment' ? (appointment_at ?? null) : lead.appointment_at,
     }
     if (isFirstCall) {
         updatePayload.first_called_at = now
@@ -210,6 +206,11 @@ export async function POST(request: Request) {
                 crmLeadId = crmLead.id
                 await getSupabaseAdmin().from('lead_pool').update({ crm_lead_id: crmLeadId }).eq('id', lead_pool_id)
             }
+        }
+
+        // Tagga il lead CRM come proveniente dalla Stazione Leads
+        if (crmLeadId) {
+            await ensureStazioneLeadsTag(getSupabaseAdmin(), member.organization_id, crmLeadId)
         }
 
         // Evento a calendario per l'appuntamento

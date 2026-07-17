@@ -63,20 +63,11 @@ function formatAssignedTime(assignedAt: string | null | undefined): string {
     return `${hours}h fa`
 }
 
-// datetime-local value (YYYY-MM-DDTHH:mm) in ora locale del browser
-function toLocalInputValue(d: Date): string {
-    const pad = (n: number) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
 export default function LeadCard({ lead, onFeedback }: Props) {
     const [isLoading, setIsLoading] = useState(false)
     const [showNotes, setShowNotes] = useState(false)
     const [notes, setNotes] = useState('')
     const [expanded, setExpanded] = useState(false)
-    // Quando si sta programmando un appuntamento o un richiamo
-    const [scheduling, setScheduling] = useState<null | 'appointment' | 'callback'>(null)
-    const [scheduleAt, setScheduleAt] = useState('')
 
     const currentFeedback = lead.feedback as FeedbackType | null
     const feedbackInfo = currentFeedback ? FEEDBACK_CONFIG[currentFeedback] : null
@@ -87,32 +78,17 @@ export default function LeadCard({ lead, onFeedback }: Props) {
         try {
             await onFeedback(lead.id, type, { notes: notes || undefined, ...extra })
             setShowNotes(false)
-            setScheduling(null)
-            setScheduleAt('')
         } finally {
             setIsLoading(false)
         }
     }
 
     const handleButton = (type: FeedbackType) => {
-        if (currentFeedback === type && type !== 'callback' && type !== 'appointment') return
-        if (type === 'appointment' || type === 'callback') {
-            // Apri il selettore data/ora con un default sensato
-            const def = new Date()
-            if (type === 'appointment') { def.setDate(def.getDate() + 1); def.setHours(10, 0, 0, 0) }
-            else { def.setHours(def.getHours() + 2, 0, 0, 0) }
-            setScheduleAt(toLocalInputValue(def))
-            setScheduling(type)
-            return
-        }
+        if (currentFeedback === type) return
+        // Appuntamento e Richiama non chiedono più una data:
+        // - Richiama → il lead finisce nel tab "Da richiamare", il venditore si segna quando richiamare
+        // - Appuntamento → viene creato il lead nel CRM assegnato al venditore, che poi fissa l'appuntamento dalla card CRM
         submit(type)
-    }
-
-    const confirmSchedule = () => {
-        if (!scheduling || !scheduleAt) return
-        const iso = new Date(scheduleAt).toISOString()
-        if (scheduling === 'appointment') submit('appointment', { appointment_at: iso })
-        else submit('callback', { callback_at: iso })
     }
 
     return (
@@ -255,59 +231,6 @@ export default function LeadCard({ lead, onFeedback }: Props) {
                             )
                         })}
                     </div>
-
-                    {/* Selettore data/ora per appuntamento o richiamo */}
-                    {scheduling && (
-                        <div style={{
-                            marginTop: '10px',
-                            padding: '10px 12px',
-                            borderRadius: '10px',
-                            background: scheduling === 'appointment' ? 'rgba(34,197,94,0.06)' : 'rgba(59,130,246,0.06)',
-                            border: `1px solid ${scheduling === 'appointment' ? 'rgba(34,197,94,0.25)' : 'rgba(59,130,246,0.25)'}`,
-                        }}>
-                            <p style={{ fontSize: '11px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-surface-700)' }}>
-                                {scheduling === 'appointment' ? '📅 Data e ora dell\'appuntamento' : '🔄 Quando richiamare'}
-                            </p>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                <input
-                                    type="datetime-local"
-                                    value={scheduleAt}
-                                    onChange={e => setScheduleAt(e.target.value)}
-                                    style={{
-                                        flex: 1, minWidth: '180px',
-                                        padding: '8px 10px', borderRadius: '8px',
-                                        fontSize: '12px',
-                                        background: 'var(--color-surface-100)',
-                                        border: '1px solid var(--color-surface-300)',
-                                        color: 'var(--color-surface-900)', outline: 'none',
-                                    }}
-                                />
-                                <button
-                                    onClick={confirmSchedule}
-                                    disabled={isLoading || !scheduleAt}
-                                    style={{
-                                        padding: '8px 14px', borderRadius: '8px',
-                                        fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                                        border: 'none', color: 'white',
-                                        background: scheduling === 'appointment' ? '#22c55e' : '#3b82f6',
-                                    }}
-                                >
-                                    Conferma
-                                </button>
-                                <button
-                                    onClick={() => { setScheduling(null); setScheduleAt('') }}
-                                    style={{
-                                        padding: '8px 12px', borderRadius: '8px',
-                                        fontSize: '12px', cursor: 'pointer',
-                                        border: '1px solid var(--color-surface-300)',
-                                        background: 'transparent', color: 'var(--color-surface-500)',
-                                    }}
-                                >
-                                    Annulla
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
                     <button
                         onClick={() => setShowNotes(!showNotes)}
