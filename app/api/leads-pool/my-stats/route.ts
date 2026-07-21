@@ -94,27 +94,49 @@ export async function GET() {
 
     const maxAllowed = quota?.max_allowed || rule?.max_leads_per_day || 50
 
-    // Fetch current session leads if active
-    let sessionLeads: any[] = []
-    if (activeSession?.lead_pool_ids?.length) {
-        // Sessione attiva: mostra i leads della sessione
+    const LEAD_FIELDS = 'id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at'
+
+    const fetchAssignedUnworked = async () => {
+        // Leads assegnati ma non ancora lavorati (assegnati manualmente
+        // dall'admin o sessione chiusa prima che venissero chiamati)
         const { data: leads } = await supabase
             .from('lead_pool')
-            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at')
-            .in('id', activeSession.lead_pool_ids)
-        sessionLeads = leads || []
-    } else {
-        // Nessuna sessione attiva: mostra comunque i leads assegnati ma non ancora chiamati
-        // (assegnati manualmente dall'admin o sessione chiusa prima che venissero chiamati)
-        const { data: leads } = await supabase
-            .from('lead_pool')
-            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at')
+            .select(LEAD_FIELDS)
             .eq('organization_id', orgId)
             .eq('assigned_to', user.id)
             .eq('status', 'assigned')
             .is('feedback', null)
             .order('assigned_at', { ascending: false })
+        return leads || []
+    }
+
+    // Fetch current session leads if active
+    let sessionLeads: any[] = []
+    let liveSession = activeSession
+    if (activeSession?.lead_pool_ids?.length) {
+        // Sessione attiva: mostra i leads della sessione
+        const { data: leads } = await supabase
+            .from('lead_pool')
+            .select(LEAD_FIELDS)
+            .in('id', activeSession.lead_pool_ids)
         sessionLeads = leads || []
+
+        // I leads della sessione possono essere spariti dalla vista del
+        // venditore (riciclati dal cron, riassegnati o cancellati). In quel
+        // caso la sessione resta "active" con contatori vecchi e il gate
+        // feedback la blocca per sempre: non vede i leads, quindi non può
+        // dare il feedback che le viene richiesto. Chiudiamo la sessione
+        // orfana e ripieghiamo sui leads ancora assegnati.
+        if (sessionLeads.length === 0) {
+            await supabase
+                .from('lead_distribution_sessions')
+                .update({ status: 'completed', completed_at: new Date().toISOString() })
+                .eq('id', activeSession.id)
+            liveSession = null
+            sessionLeads = await fetchAssignedUnworked()
+        }
+    } else {
+        sessionLeads = await fetchAssignedUnworked()
     }
 
     // Compute 7-day streak
@@ -141,12 +163,16 @@ export async function GET() {
             max_allowed: maxAllowed,
             remaining: Math.max(0, maxAllowed - (quota?.leads_requested || 0)),
         },
-        active_session: activeSession ? {
-            id: activeSession.id,
-            requested_at: activeSession.requested_at,
-            leads_called: activeSession.leads_called,
-            leads_with_feedback: activeSession.leads_with_feedback,
-            total_leads: activeSession.lead_pool_ids?.length || 0,
+        // I contatori del gate feedback si ricalcolano sui leads davvero
+        // visibili al venditore, non sui contatori denormalizzati della
+        // sessione: se un lead è stato riciclato o riassegnato non può più
+        // essere lavorato e non deve bloccare lo spin successivo.
+        active_session: liveSession ? {
+            id: liveSession.id,
+            requested_at: liveSession.requested_at,
+            leads_called: sessionLeads.filter(l => l.call_count > 0).length,
+            leads_with_feedback: sessionLeads.filter(l => l.feedback !== null).length,
+            total_leads: sessionLeads.length,
         } : null,
         session_leads: sessionLeads,
         callback_leads: callbackLeads,
