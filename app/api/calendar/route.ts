@@ -15,6 +15,47 @@ async function getContext(supabase: any) {
     return member ? { ...member, auth_user_id: user.id } : null
 }
 
+// Trova lo stage "Appuntamento" NELLA PIPELINE DEL LEAD.
+// Ogni pipeline ha il suo stage "Appuntamento": cercarlo a livello di
+// organizzazione con un .limit(1) restituisce uno stage a caso e sposta il
+// lead in un'altra pipeline, dove sparisce dalla board (il CRM mostra solo
+// gli stage della pipeline attiva).
+async function findAppointmentStage(supabase: any, orgId: string, leadStageId: string | null) {
+    let pipelineId: string | null = null
+
+    if (leadStageId) {
+        const { data: currentStage } = await supabase
+            .from('pipeline_stages')
+            .select('pipeline_id')
+            .eq('id', leadStageId)
+            .maybeSingle()
+        pipelineId = currentStage?.pipeline_id || null
+    }
+
+    // Lead senza stage (o stage orfano): ripiega sulla pipeline predefinita
+    if (!pipelineId) {
+        const { data: pipelines } = await supabase
+            .from('pipelines')
+            .select('id, is_default')
+            .eq('organization_id', orgId)
+            .order('sort_order', { ascending: true })
+        pipelineId = pipelines?.find((p: any) => p.is_default)?.id || pipelines?.[0]?.id || null
+    }
+
+    if (!pipelineId) return null
+
+    const { data: stages } = await supabase
+        .from('pipeline_stages')
+        .select('id, slug, fire_capi_event, pipeline_id')
+        .eq('organization_id', orgId)
+        .eq('pipeline_id', pipelineId)
+        .or('slug.ilike.%appunt%,name.ilike.%appunt%')
+        .order('sort_order', { ascending: true })
+        .limit(1)
+
+    return stages?.[0] || null
+}
+
 // GET: List events or available slots
 export async function GET(req: NextRequest) {
     const supabase = await createClient()
@@ -776,33 +817,18 @@ Telefono: ${lead_phone || 'Non specificato'}
                 updated_at: new Date().toISOString()
             }
 
-            // Find the "Appuntamento" stage in the SAME pipeline the lead belongs to
-            // First, get the lead's current stage to know which pipeline they're in
+            // Stage "Appuntamento" della STESSA pipeline in cui sta il lead
             const { data: leadData } = await supabase
                 .from('leads')
-                .select('stage_id, pipeline_stages!inner(pipeline_id)')
+                .select('stage_id')
                 .eq('id', lead_id)
                 .single()
 
-            let leadObj: any = leadData;
-            const leadPipelineId = (leadData as any)?.pipeline_stages?.pipeline_id
+            const leadObj: any = leadData
 
-            // Find the "Appuntamento" stage within the lead's pipeline (or fallback to default pipeline)
-            let apptStageQuery = supabase
-                .from('pipeline_stages')
-                .select('id, slug, fire_capi_event, pipeline_id')
-                .eq('organization_id', ctx.organization_id)
-                .ilike('slug', '%appuntamento%')
-
-            if (leadPipelineId) {
-                apptStageQuery = apptStageQuery.eq('pipeline_id', leadPipelineId)
-            }
-
-            const { data: stages } = await apptStageQuery.limit(1)
-
-            if (stages && stages.length > 0) {
-                updatePayload.stage_id = stages[0].id;
-            }
+            const apptStage = await findAppointmentStage(supabase, ctx.organization_id, leadObj?.stage_id || null)
+            const stages = apptStage ? [apptStage] : []
+            if (apptStage) updatePayload.stage_id = apptStage.id
 
             await supabase.from('leads').update(updatePayload).eq('id', lead_id)
 
@@ -1173,19 +1199,12 @@ Telefono: ${lead_phone || 'Non specificato'}
                 updated_at: new Date().toISOString()
             }
 
-            const { data: stages } = await supabase
-                .from('pipeline_stages')
-                .select('id, slug, fire_capi_event')
-                .eq('organization_id', ctx.organization_id)
-                .or('slug.ilike.%appunt%,name.ilike.%appunt%')
-                .limit(1)
+            const { data: lead } = await supabase.from('leads').select('stage_id').eq('id', lead_id).single()
+            const leadObj: any = lead
 
-            let leadObj: any = null;
-            if (stages && stages.length > 0) {
-                const { data: lead } = await supabase.from('leads').select('stage_id').eq('id', lead_id).single()
-                leadObj = lead;
-                updatePayload.stage_id = stages[0].id;
-            }
+            const apptStage = await findAppointmentStage(supabase, ctx.organization_id, leadObj?.stage_id || null)
+            const stages = apptStage ? [apptStage] : []
+            if (apptStage) updatePayload.stage_id = apptStage.id
 
             await supabase.from('leads').update(updatePayload).eq('id', lead_id)
 
