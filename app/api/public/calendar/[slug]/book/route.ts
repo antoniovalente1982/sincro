@@ -120,29 +120,48 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
         let leadId = existingLead?.[0]?.id
 
         if (!leadId) {
-            // Find "Appuntamento" stage or just first stage
-            const { data: stages } = await supabaseAdmin
-                .from('pipeline_stages')
-                .select('id, pipeline_id')
+            // Stage "Appuntamento" della pipeline predefinita (chi prenota dal
+            // calendario pubblico ha già fissato la call, quindi non entra come
+            // semplice "Lead"). Fallback sul primo stage della pipeline.
+            const { data: pipelines } = await supabaseAdmin
+                .from('pipelines')
+                .select('id, is_default')
                 .eq('organization_id', calendar.organization_id)
-                .order('position', { ascending: true })
-                
-            const appuntamentoStage = stages?.find(s => s.id.toLowerCase().includes('appuntamento')) || stages?.[0]
+                .order('sort_order', { ascending: true })
 
-            const { data: newLead } = await supabaseAdmin
+            const pipelineId = pipelines?.find(p => p.is_default)?.id || pipelines?.[0]?.id || null
+
+            let appuntamentoStage: { id: string } | null = null
+            if (pipelineId) {
+                const { data: stages } = await supabaseAdmin
+                    .from('pipeline_stages')
+                    .select('id, name, slug')
+                    .eq('organization_id', calendar.organization_id)
+                    .eq('pipeline_id', pipelineId)
+                    .order('sort_order', { ascending: true })
+
+                appuntamentoStage = stages?.find(s =>
+                    s.slug?.toLowerCase().includes('appunt') || s.name?.toLowerCase().includes('appunt')
+                ) || stages?.[0] || null
+            }
+
+            const { data: newLead, error: newLeadError } = await supabaseAdmin
                 .from('leads')
                 .insert({
                     organization_id: calendar.organization_id,
                     name,
                     email,
                     phone,
-                    stage_id: appuntamentoStage ? appuntamentoStage.id : null,
-                    pipeline_id: appuntamentoStage ? appuntamentoStage.pipeline_id : null,
+                    stage_id: appuntamentoStage?.id || null,
+                    closer_id: assignedUserId,
+                    assigned_to: assignedUserId,
+                    source_channel: 'calendario_pubblico',
                     created_at: new Date().toISOString()
                 })
                 .select('id')
                 .single()
-            
+
+            if (newLeadError) console.error('[Public Book] Errore creazione lead', newLeadError)
             leadId = newLead?.id
         }
 
