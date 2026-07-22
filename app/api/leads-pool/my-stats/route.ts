@@ -66,7 +66,7 @@ export async function GET() {
         // Callback / unresolved leads assigned to this user — ordinati per scadenza richiamo
         supabase
             .from('lead_pool')
-            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, notes')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, feedback_notes, status, call_count, assigned_at, callback_at, notes')
             .eq('organization_id', orgId)
             .eq('assigned_to', user.id)
             .in('status', ['assigned', 'called'])
@@ -76,7 +76,7 @@ export async function GET() {
         // Interested leads (coda follow-up) assigned to this user
         supabase
             .from('lead_pool')
-            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, notes')
+            .select('id, full_name, first_name, last_name, phone, email, city, province, feedback, feedback_notes, status, call_count, assigned_at, notes')
             .eq('organization_id', orgId)
             .eq('assigned_to', user.id)
             .eq('status', 'called')
@@ -94,7 +94,7 @@ export async function GET() {
 
     const maxAllowed = quota?.max_allowed || rule?.max_leads_per_day || 50
 
-    const LEAD_FIELDS = 'id, full_name, first_name, last_name, phone, email, city, province, feedback, status, call_count, assigned_at, callback_at, appointment_at'
+    const LEAD_FIELDS = 'id, full_name, first_name, last_name, phone, email, city, province, feedback, feedback_notes, status, call_count, assigned_at, callback_at, appointment_at'
 
     const fetchAssignedUnworked = async () => {
         // Leads assegnati ma non ancora lavorati (assegnati manualmente

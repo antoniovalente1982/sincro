@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Phone, MessageSquare, Clock, Calendar } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Phone, MessageSquare, Clock, Calendar, Check } from 'lucide-react'
 
 interface LeadPoolEntry {
     id: string
@@ -13,6 +13,7 @@ interface LeadPoolEntry {
     city?: string | null
     province?: string | null
     feedback?: string | null
+    feedback_notes?: string | null
     status: string
     call_count: number
     assigned_at?: string | null
@@ -29,7 +30,8 @@ export interface FeedbackExtra {
 interface Props {
     lead: LeadPoolEntry
     sessionId?: string
-    onFeedback: (leadId: string, feedback: string, extra?: FeedbackExtra) => Promise<void> | void
+    // feedback === null → salva solo la nota, senza toccare l'esito
+    onFeedback: (leadId: string, feedback: string | null, extra?: FeedbackExtra) => Promise<void> | void
 }
 
 type FeedbackType = 'appointment' | 'interested' | 'callback' | 'no_answer' | 'not_interested' | 'wrong_number' | 'converted'
@@ -65,30 +67,43 @@ function formatAssignedTime(assignedAt: string | null | undefined): string {
 
 export default function LeadCard({ lead, onFeedback }: Props) {
     const [isLoading, setIsLoading] = useState(false)
-    const [showNotes, setShowNotes] = useState(false)
-    const [notes, setNotes] = useState('')
     const [expanded, setExpanded] = useState(false)
+    const [justSaved, setJustSaved] = useState(false)
+
+    // La nota parte SEMPRE da quella già salvata sul lead, così riaprendo la
+    // card si rilegge e si può correggere invece di ripartire da un box vuoto.
+    const savedNotes = lead.feedback_notes || ''
+    const [notes, setNotes] = useState(savedNotes)
+    useEffect(() => { setNotes(savedNotes) }, [lead.id, savedNotes])
+
+    const notesDirty = notes.trim() !== savedNotes.trim()
 
     const currentFeedback = lead.feedback as FeedbackType | null
     const feedbackInfo = currentFeedback ? FEEDBACK_CONFIG[currentFeedback] : null
 
-    const submit = async (type: FeedbackType, extra?: FeedbackExtra) => {
+    const submit = async (type: FeedbackType | null, extra?: FeedbackExtra) => {
         if (isLoading) return
         setIsLoading(true)
         try {
-            await onFeedback(lead.id, type, { notes: notes || undefined, ...extra })
-            setShowNotes(false)
+            // La nota viaggia sempre insieme all'esito: essendo precaricata,
+            // cambiare esito non cancella più quello che era stato scritto.
+            await onFeedback(lead.id, type, { notes, ...extra })
+            setJustSaved(true)
+            setTimeout(() => setJustSaved(false), 2000)
         } finally {
             setIsLoading(false)
         }
     }
 
     const handleButton = (type: FeedbackType) => {
-        if (currentFeedback === type) return
+        // Ricliccare l'esito già attivo non è più un'azione a vuoto: serve a
+        // salvare la nota aggiornata su un lead già lavorato.
+        if (currentFeedback === type && !notesDirty) return
         // Appuntamento e Richiama non chiedono più una data:
         // - Richiama → il lead finisce nel tab "Da richiamare", il venditore si segna quando richiamare
         // - Appuntamento → viene creato il lead nel CRM assegnato al venditore, che poi fissa l'appuntamento dalla card CRM
-        submit(type)
+        if (currentFeedback === type) submit(null)
+        else submit(type)
     }
 
     return (
@@ -181,6 +196,18 @@ export default function LeadCard({ lead, onFeedback }: Props) {
                             </span>
                         )}
                     </div>
+
+                    {/* Nota già salvata: visibile senza dover aprire la card */}
+                    {savedNotes && !expanded && (
+                        <div style={{
+                            marginTop: '6px', display: 'flex', alignItems: 'center', gap: '5px',
+                            fontSize: '12px', color: 'var(--color-surface-600)',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                            <MessageSquare className="w-3 h-3" style={{ flexShrink: 0 }} />
+                            {savedNotes}
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ color: 'var(--color-surface-400)', flexShrink: 0, fontSize: '12px' }}>
@@ -232,38 +259,77 @@ export default function LeadCard({ lead, onFeedback }: Props) {
                         })}
                     </div>
 
-                    <button
-                        onClick={() => setShowNotes(!showNotes)}
-                        style={{
-                            marginTop: '8px',
-                            fontSize: '11px', color: 'var(--color-surface-500)',
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: '4px', padding: '2px 0',
-                        }}
-                    >
-                        <MessageSquare className="w-3 h-3" />
-                        {showNotes ? 'Nascondi note' : 'Aggiungi nota'}
-                    </button>
-
-                    {showNotes && (
-                        <div style={{ marginTop: '8px' }}>
-                            <textarea
-                                value={notes}
-                                onChange={e => setNotes(e.target.value)}
-                                placeholder="Note sulla chiamata..."
-                                rows={2}
-                                style={{
-                                    width: '100%', resize: 'none',
-                                    padding: '8px 10px', borderRadius: '8px',
-                                    fontSize: '12px',
-                                    background: 'var(--color-surface-100)',
-                                    border: '1px solid var(--color-surface-300)',
-                                    color: 'var(--color-surface-900)',
-                                    outline: 'none', fontFamily: 'inherit',
-                                }}
-                            />
+                    {/* Note: sempre visibili, precaricate e salvabili da sole */}
+                    <div style={{ marginTop: '12px' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            gap: '8px', marginBottom: '6px',
+                        }}>
+                            <span style={{
+                                fontSize: '11px', fontWeight: 600, color: 'var(--color-surface-500)',
+                                textTransform: 'uppercase', letterSpacing: '0.08em',
+                                display: 'flex', alignItems: 'center', gap: '4px',
+                            }}>
+                                <MessageSquare className="w-3 h-3" />
+                                Note
+                            </span>
+                            {justSaved && !notesDirty && (
+                                <span style={{
+                                    fontSize: '11px', color: '#22c55e',
+                                    display: 'flex', alignItems: 'center', gap: '3px',
+                                }}>
+                                    <Check className="w-3 h-3" />
+                                    Salvato
+                                </span>
+                            )}
                         </div>
-                    )}
+
+                        <textarea
+                            value={notes}
+                            onChange={e => setNotes(e.target.value)}
+                            placeholder="Note sulla chiamata..."
+                            rows={2}
+                            style={{
+                                width: '100%', resize: 'vertical',
+                                padding: '8px 10px', borderRadius: '8px',
+                                fontSize: '12px',
+                                background: 'var(--color-surface-100)',
+                                border: `1px solid ${notesDirty ? '#f59e0b' : 'var(--color-surface-300)'}`,
+                                color: 'var(--color-surface-900)',
+                                outline: 'none', fontFamily: 'inherit',
+                            }}
+                        />
+
+                        {notesDirty && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                                <button
+                                    onClick={() => submit(null)}
+                                    disabled={isLoading}
+                                    style={{
+                                        padding: '5px 12px', borderRadius: '8px',
+                                        fontSize: '12px', fontWeight: 600,
+                                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                                        border: '1px solid #f59e0b',
+                                        background: 'rgba(245,158,11,0.12)',
+                                        color: '#f59e0b',
+                                    }}
+                                >
+                                    {isLoading ? 'Salvo…' : 'Salva nota'}
+                                </button>
+                                <button
+                                    onClick={() => setNotes(savedNotes)}
+                                    disabled={isLoading}
+                                    style={{
+                                        fontSize: '11px', color: 'var(--color-surface-500)',
+                                        background: 'none', border: 'none',
+                                        cursor: isLoading ? 'not-allowed' : 'pointer', padding: '2px 0',
+                                    }}
+                                >
+                                    Annulla
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>

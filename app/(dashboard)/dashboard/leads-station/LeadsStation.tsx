@@ -90,11 +90,29 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
 
     const WIN = ['appointment', 'converted']
 
-    const handleFeedback = async (leadId: string, feedback: string, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
+    const handleFeedback = async (leadId: string, feedback: string | null, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
         const notes = extra?.notes
         const isInList = (list: string) => stats?.[list]?.some((l: any) => l.id === leadId)
         const inSession = isInList('session_leads')
         const sessionId = inSession ? stats?.active_session?.id : null
+
+        // ── Salvataggio della sola nota: nessun esito, nessun contatore ──
+        if (!feedback) {
+            const patchNotes = (l: any) => l.id === leadId ? { ...l, feedback_notes: notes ?? l.feedback_notes } : l
+            setStats((prev: any) => prev ? {
+                ...prev,
+                session_leads: (prev.session_leads || []).map(patchNotes),
+                callback_leads: (prev.callback_leads || []).map(patchNotes),
+                interested_leads: (prev.interested_leads || []).map(patchNotes),
+            } : prev)
+
+            await fetch('/api/leads-pool/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lead_pool_id: leadId, feedback_notes: notes ?? '' }),
+            }).catch(err => console.error('[Salvataggio nota]:', err))
+            return
+        }
 
         // ── AGGIORNAMENTO OTTIMISTICO LOCALE (istantaneo) ──
         setStats((prev: any) => {
@@ -160,7 +178,9 @@ export default function LeadsStation({ userId, orgId, userRole, isAdmin, initial
             body: JSON.stringify({
                 lead_pool_id: leadId,
                 feedback,
-                feedback_notes: notes || null,
+                // Solo se il chiamante ha davvero passato una nota: omettendo
+                // il campo, l'API tiene quella già salvata invece di azzerarla.
+                ...(notes !== undefined ? { feedback_notes: notes } : {}),
                 session_id: sessionId,
                 callback_at: extra?.callback_at || null,
                 appointment_at: extra?.appointment_at || null,

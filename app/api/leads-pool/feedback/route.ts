@@ -20,11 +20,15 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { lead_pool_id, feedback, feedback_notes, session_id, callback_at, appointment_at } = body
 
-    if (!lead_pool_id || !feedback) {
+    // La nota può essere salvata da sola, senza toccare l'esito: il venditore
+    // scrive mentre è al telefono e salva, l'esito lo mette quando ha finito.
+    const notesOnly = !feedback && typeof feedback_notes === 'string'
+
+    if (!lead_pool_id || (!feedback && !notesOnly)) {
         return NextResponse.json({ error: 'lead_pool_id e feedback sono obbligatori' }, { status: 400 })
     }
 
-    if (!VALID_FEEDBACK.includes(feedback)) {
+    if (!notesOnly && !VALID_FEEDBACK.includes(feedback)) {
         return NextResponse.json({ error: `Feedback non valido. Valori accettati: ${VALID_FEEDBACK.join(', ')}` }, { status: 400 })
     }
 
@@ -62,6 +66,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Non puoi aggiornare questo lead' }, { status: 403 })
     }
 
+    // ── Solo nota: aggiorna il testo e basta, nessun contatore toccato ──
+    if (notesOnly) {
+        const { error: notesError } = await supabase
+            .from('lead_pool')
+            .update({ feedback_notes: feedback_notes || null, updated_at: now })
+            .eq('id', lead_pool_id)
+
+        if (notesError) {
+            return NextResponse.json({ error: 'Errore salvataggio nota' }, { status: 500 })
+        }
+        return NextResponse.json({ success: true, notes_only: true, feedback_notes: feedback_notes || null })
+    }
+
     // ── Idempotenza: i contatori si incrementano SOLO al primo esito ──
     // (cambiare esito a un lead già lavorato non deve gonfiare i KPI)
     const wasFirstFeedback = !lead.feedback
@@ -76,7 +93,9 @@ export async function POST(request: Request) {
     // Update lead_pool
     const updatePayload: Record<string, any> = {
         feedback,
-        feedback_notes: feedback_notes || null,
+        // Se il client non manda il campo, la nota esistente resta:
+        // cambiare esito non deve cancellare quello che è stato scritto prima.
+        feedback_notes: feedback_notes !== undefined ? (feedback_notes || null) : lead.feedback_notes,
         feedback_at: now,
         status: newStatus,
         last_called_at: now,

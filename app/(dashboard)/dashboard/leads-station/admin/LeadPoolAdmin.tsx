@@ -1165,9 +1165,19 @@ function SimulationSandbox() {
         setTimeout(() => setSpinState('idle'), 500)
     }
 
-    const handleFeedback = async (leadId: string, feedback: string, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
+    const handleFeedback = async (leadId: string, feedback: string | null, extra?: { notes?: string; callback_at?: string; appointment_at?: string }) => {
         const notes = extra?.notes
         const WIN = ['appointment', 'converted']
+
+        // Salvataggio della sola nota (nessun esito): qui è una simulazione,
+        // aggiorno solo il testo sulle liste locali.
+        if (!feedback) {
+            const patch = (l: any) => l.id === leadId ? { ...l, feedback_notes: notes ?? l.feedback_notes } : l
+            setSimLeads(prev => prev.map(patch))
+            setSimCallbacks(prev => prev.map(patch))
+            setSimInterested(prev => prev.map(patch))
+            return
+        }
         const isFromCallbacks = simCallbacks.some(l => l.id === leadId)
         const isFromInterested = simInterested.some(l => l.id === leadId)
 
