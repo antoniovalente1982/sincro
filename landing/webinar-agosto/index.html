@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webinar LIVE — Mentalità Vincente per una Stagione Vincente | Metodo Sincro®</title>
+
+  <!-- Dynamic Base Path Resolver for Relative Assets -->
+  <script>
+    if (window.location.protocol !== 'file:') {
+      let path = window.location.pathname;
+      if (!path.endsWith('/')) {
+        path = path + '/';
+      }
+      const base = document.createElement('base');
+      base.href = path;
+      document.head.appendChild(base);
+    }
+  </script>
+
+  <meta name="description" content="Webinar LIVE Gratuito — Lunedì 24 Agosto ore 21:00. Scopri come impostare la migliore stagione della carriera di tuo figlio e aumentare di 10x le possibilità che scout e osservatori lo notino.">
+  <meta property="og:title" content="Webinar LIVE — Mentalità Vincente per una Stagione Vincente">
+  <meta property="og:description" content="Come impostare la migliore stagione della carriera di tuo figlio e aumentare di 10x le possibilità di essere notato da scout e osservatori. Lunedì 24 Agosto, ore 21:00.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://landing.metodosincro.com/webinar-agosto/img/hero-bg.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚽</text></svg>">
+
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    const pageViewEventId = 'evt_pv_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+    fbq('init', '311586900940615');
+    fbq('track', 'PageView', {}, { eventID: pageViewEventId });
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=311586900940615&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════ RESET ═══════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ═══════════ TOKENS ═══════════ */
+    :root {
+      --black: #080808;
+      --off-black: #0e0e0e;
+      --dark: #141414;
+      --dark-card: #1a1a1a;
+      --white: #f4efe6;
+      --white-70: rgba(244, 239, 230, 0.7);
+      --white-45: rgba(244, 239, 230, 0.45);
+      --white-20: rgba(244, 239, 230, 0.2);
+      --white-08: rgba(244, 239, 230, 0.08);
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-20: rgba(201, 168, 76, 0.2);
+      --gold-08: rgba(201, 168, 76, 0.08);
+      --green: #1a3d24;
+      --red: #c0392b;
+      --red-soft: rgba(192, 57, 43, 0.15);
+      --font-h: 'Bebas Neue', Impact, sans-serif;
+      --font-b: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-b);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .gold { color: var(--gold); }
+
+    /* ═══════════ LIVE BADGE ═══════════ */
+    .live-bar {
+      background: linear-gradient(90deg, #0c0c0c 0%, #1a1a1a 50%, #0c0c0c 100%);
+      padding: 12px 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--white-08);
+      position: relative;
+      overflow: hidden;
+    }
+    .live-bar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .live-bar-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--white-70);
+      font-weight: 500;
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      background: #ff2a2a;
+      border-radius: 50%;
+      animation: livePulse 1.5s infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { box-shadow: 0 0 4px #ff2a2a; opacity: 1; }
+      50% { box-shadow: 0 0 12px #ff2a2a; opacity: 0.5; }
+    }
+
+    /* ═══════════ HERO ═══════════ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('img/hero-bg.png') center/cover no-repeat;
+      filter: brightness(0.35);
+      z-index: 0;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, rgba(8,8,8,0.6) 0%, rgba(8,8,8,0.85) 70%, var(--black) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .hero-eyebrow svg { width: 16px; height: 16px; }
+    .hero h1 {
+      font-family: var(--font-h);
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--white-70);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto 16px;
+    }
+    .hero-date {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gold-08);
+      border: 1px solid var(--gold-20);
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: var(--font-h);
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: 40px;
+    }
+    .hero-date svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ═══════════ COUNTDOWN ═══════════ */
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: clamp(12px, 3vw, 28px);
+      margin-bottom: 40px;
+    }
+    .countdown-block {
+      text-align: center;
+    }
+    .countdown-val {
+      font-family: var(--font-h);
+      font-size: clamp(42px, 8vw, 72px);
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 20px rgba(201, 168, 76, 0.3));
+    }
+    .countdown-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white-45);
+      margin-top: 6px;
+    }
+    .countdown-sep {
+      font-family: var(--font-h);
+      font-size: clamp(32px, 6vw, 56px);
+      color: var(--white-20);
+      line-height: 1;
+      padding-top: 4px;
+    }
+
+    /* ═══════════ CTA BUTTON ═══════════ */
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 42px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--black);
+      font-family: var(--font-h);
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      box-shadow: 0 8px 32px rgba(201, 168, 76, 0.3);
+      cursor: pointer;
+      border: none;
+    }
+    .cta:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 40px rgba(201, 168, 76, 0.45);
+    }
+    .cta:active { transform: translateY(-1px) scale(0.98); }
+    .cta svg { flex-shrink: 0; transition: transform 0.25s; }
+    .cta:hover svg { transform: translateX(4px); }
+    .cta-pulse {
+      animation: ctaPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(201, 168, 76, 0.3); }
+      50% { box-shadow: 0 8px 48px rgba(201, 168, 76, 0.55); }
+    }
+
+    /* ═══════════ KPIs ═══════════ */
+    .kpi-strip {
+      display: flex;
+      justify-content: center;
+      gap: clamp(24px, 5vw, 64px);
+      padding: 40px 24px;
+      background: var(--off-black);
+      border-top: 1px solid var(--white-08);
+      border-bottom: 1px solid var(--white-08);
+      flex-wrap: wrap;
+    }
+    .kpi { text-align: center; }
+    .kpi-val {
+      font-family: var(--font-h);
+      font-size: clamp(24px, 4vw, 36px);
+      color: var(--gold);
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--white-45);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ═══════════ DIVIDER ═══════════ */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-20) 50%, transparent);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════ SECTIONS ═══════════ */
+    section {
+      padding: clamp(60px, 8vw, 100px) 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .section-eyebrow::before {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--gold);
+    }
+    section h2 {
+      font-family: var(--font-h);
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.1;
+      margin-bottom: 48px;
+    }
+
+    /* ═══════════ COSA IMPARERAI ═══════════ */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 600px) {
+      .learn-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .learn-card {
+      background: var(--dark-card);
+      border: 1px solid var(--white-08);
+      border-radius: 12px;
+      padding: 32px 28px;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .learn-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-20);
+    }
+    .learn-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .learn-card h3 {
+      font-family: var(--font-h);
+      font-size: 22px;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      color: var(--white);
+    }
+    .learn-card p {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--white-70);
+    }
+
+    /* ═══════════ SPEAKER ═══════════ */
+    .speaker-section {
+      background: var(--off-black);
+      border-top: 1px solid var(--white-08);
+      border-bottom: 1px solid var(--white-08);
+    }
+    .speaker-grid {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .speaker-avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      object-fit: cover;
+      box-shadow: 0 20px 50px rgba(201, 168, 76, 0.2);
+      flex-shrink: 0;
+      background: var(--dark-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+    }
+    .speaker-info { flex: 1; min-width: 280px; }
+    .speaker-name {
+      font-family: var(--font-h);
+      font-size: 32px;
+      margin-bottom: 4px;
+    }
+    .speaker-role {
+      font-size: 14px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .speaker-bio {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--white-70);
+    }
+    .speaker-badges {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .speaker-badge {
+      background: var(--gold-08);
+      border: 1px solid var(--gold-20);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ═══════════ REGISTRATION FORM ═══════════ */
+    .form-section {
+      background: linear-gradient(180deg, var(--black) 0%, #0a0a0a 100%);
+      position: relative;
+    }
+    .form-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .form-container {
+      background: #ffffff;
+      color: #111111;
+      border: 2px solid var(--gold);
+      box-shadow: 0 30px 80px rgba(201, 168, 76, 0.15), 0 0 0 1px rgba(201, 168, 76, 0.1);
+      padding: 44px clamp(20px, 5vw, 48px);
+      max-width: 560px;
+      margin: 0 auto;
+      border-radius: 16px;
+      position: relative;
+    }
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .form-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fef3cd;
+      color: #856404;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .form-header .badge-dot {
+      width: 6px; height: 6px;
+      background: #ff2a2a;
+      border-radius: 50%;
+      animation: livePulse 1.5s infinite;
+    }
+    .form-header h3 {
+      font-family: var(--font-h);
+      font-size: 30px;
+      letter-spacing: 0.03em;
+      background: linear-gradient(135deg, #111111 0%, #333333 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .form-control {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      color: #111;
+      font-family: var(--font-b);
+      padding: 15px 16px;
+      font-size: 15px;
+      border-radius: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+    }
+    .form-control::placeholder {
+      color: #aaa;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #ffdf00, var(--gold));
+      color: var(--black);
+      font-family: var(--font-h);
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 8px;
+      font-weight: 700;
+      animation: ctaPulse 2.5s ease-in-out infinite;
+    }
+    .form-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(201, 168, 76, 0.4);
+    }
+    .form-submit:active {
+      transform: translateY(0);
+    }
+    .form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      animation: none;
+      transform: none;
+    }
+    .form-privacy {
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+    .form-privacy a { color: var(--gold); text-decoration: none; }
+    .form-spots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #c0392b;
+      font-weight: 600;
+    }
+    .form-spots svg { width: 16px; height: 16px; color: #c0392b; }
+
+    /* ═══════════ SUCCESS ═══════════ */
+    .success-msg {
+      text-align: center;
+      padding: 40px 20px;
+      animation: fadeUp 0.5s ease;
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 32px rgba(201, 168, 76, 0.3);
+    }
+
+    /* ═══════════ URGENCY ═══════════ */
+    .urgency-section {
+      text-align: center;
+      padding: 60px 24px;
+      background: var(--off-black);
+      border-top: 1px solid var(--white-08);
+    }
+    .urgency-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .urgency-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--dark-card);
+      border: 1px solid var(--white-08);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--white-70);
+    }
+    .urgency-badge svg { width: 18px; height: 18px; color: var(--gold); flex-shrink: 0; }
+
+    /* ═══════════ FOOTER ═══════════ */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid var(--white-08);
+      font-size: 13px;
+      color: var(--white-45);
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ═══════════ FLOATING CTA ═══════════ */
+    .float-cta {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(8, 8, 8, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 14px 24px;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      border-top: 1px solid var(--gold-20);
+      transform: translateY(100%);
+      transition: transform 0.35s;
+    }
+    .float-cta.visible { transform: translateY(0); }
+    .float-countdown {
+      font-family: var(--font-h);
+      font-size: 18px;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .float-cta .cta {
+      padding: 12px 28px;
+      font-size: 14px;
+    }
+
+    /* ═══════════ ANIMATIONS ═══════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .rv { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+    .rv.vis { opacity: 1; transform: translateY(0); }
+
+    /* ═══════════ RESPONSIVE ═══════════ */
+    @media (max-width: 600px) {
+      .hero { min-height: auto; padding: 60px 16px 40px; }
+      .countdown-sep { display: none; }
+      .countdown { gap: 16px; }
+      .form-container { padding: 28px 18px; }
+      .speaker-avatar { width: 120px; height: 120px; font-size: 44px; }
+      .float-countdown { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════ LIVE BAR ═══════ -->
+  <div class="live-bar">
+    <div class="live-bar-inner">
+      <div class="live-dot"></div>
+      <span>Webinar LIVE Gratuito — Lunedì 24 Agosto 2026, ore 21:00</span>
+    </div>
+  </div>
+
+  <!-- ═══════ HERO ═══════ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Metodo Sincro® presenta
+      </div>
+      <h1>LA STAGIONE PIÙ <span class="gold">IMPORTANTE</span> DELLA CARRIERA DI TUO FIGLIO<br>STA PER INIZIARE</h1>
+      <p class="hero-sub">
+        Scopri come impostare la migliore stagione della sua carriera e aumentare di <strong>10 volte</strong> le possibilità che scout e osservatori lo propongano a un team di livello superiore.
+      </p>
+      <div class="hero-date">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Lunedì 24 Agosto · ore 21:00
+      </div>
+
+      <!-- Countdown -->
+      <div class="countdown" id="countdown">
+        <div class="countdown-block">
+          <div class="countdown-val" id="cd-days">--</div>
+          <div class="countdown-label">Giorni</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="countdown-val" id="cd-hours">--</div>
+          <div class="countdown-label">Ore</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="countdown-val" id="cd-mins">--</div>
+          <div class="countdown-label">Minuti</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="countdown-val" id="cd-secs">--</div>
+          <div class="countdown-label">Secondi</div>
+        </div>
+      </div>
+
+      <a href="#register" class="cta cta-pulse">
+        RISERVA IL TUO POSTO GRATIS
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══════ KPIs ═══════ -->
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-val">+2.100</div><div class="kpi-label">Atleti seguiti</div></div>
+    <div class="kpi"><div class="kpi-val">4,9★</div><div class="kpi-label">356 recensioni</div></div>
+    <div class="kpi"><div class="kpi-val">SERIE A</div><div class="kpi-label">Professionisti</div></div>
+    <div class="kpi"><div class="kpi-val">LIVE</div><div class="kpi-label">Interazione diretta</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════ COSA IMPARERAI ═══════ -->
+  <section>
+    <div class="section-eyebrow rv">Il programma</div>
+    <h2 class="rv">ECCO COSA SCOPRIRAI NEL <span class="gold">WEBINAR</span></h2>
+
+    <div class="learn-grid">
+      <div class="learn-card rv">
+        <div class="learn-icon">🎯</div>
+        <h3>LA MENTALITÀ VINCENTE</h3>
+        <p>Il protocollo mentale che utilizziamo con gli atleti professionisti per affrontare ogni partita al <strong>massimo potenziale</strong>. Come trasferirlo a tuo figlio prima della nuova stagione.</p>
+      </div>
+      <div class="learn-card rv">
+        <div class="learn-icon">👀</div>
+        <h3>FARSI NOTARE DAGLI SCOUT</h3>
+        <p>Come aumentare di <strong>10 volte</strong> le possibilità che osservatori e scout propongano tuo figlio a un team di livello superiore. Cosa cercano davvero i selezionatori.</p>
+      </div>
+      <div class="learn-card rv">
+        <div class="learn-icon">📈</div>
+        <h3>LA STAGIONE PERFETTA</h3>
+        <p>Come impostare <strong>la migliore stagione della carriera</strong>: dalla preparazione estiva al primo allenamento, fino alle partite decisive. Il piano completo.</p>
+      </div>
+      <div class="learn-card rv">
+        <div class="learn-icon">🎙️</div>
+        <h3>LIVE SESSION CON I GENITORI</h3>
+        <p>Sessione Q&A in diretta dove potrai fare domande specifiche sulla situazione di tuo figlio. <strong>Risposte personalizzate</strong> dal vivo, non un webinar registrato.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════ SPEAKER ═══════ -->
+  <section class="speaker-section">
+    <div class="section-eyebrow rv">Lo speaker</div>
+    <h2 class="rv">CHI TI GUIDERÀ NEL <span class="gold">WEBINAR</span></h2>
+
+    <div class="speaker-grid rv">
+      <div class="speaker-avatar">🧠</div>
+      <div class="speaker-info">
+        <div class="speaker-name">Antonio Valente</div>
+        <div class="speaker-role">Fondatore, Metodo Sincro®</div>
+        <p class="speaker-bio">
+          Mental coach e fondatore del <strong>Metodo Sincro®</strong>, il sistema n°1 in Italia per sbloccare il potenziale mentale degli atleti. Ha aiutato più di <strong>2.100 atleti</strong> a raggiungere le massime prestazioni, inclusi professionisti di <strong>Serie A</strong>, Nazionale e campionati internazionali.
+        </p>
+        <div class="speaker-badges">
+          <span class="speaker-badge">+2.100 atleti</span>
+          <span class="speaker-badge">Serie A</span>
+          <span class="speaker-badge">Nazionale Italiana</span>
+          <span class="speaker-badge">+30 Coach</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════ REGISTRATION FORM ═══════ -->
+  <section class="form-section" id="register">
+    <div class="section-eyebrow rv" style="text-align:center; display:flex; justify-content:center;">Registrati ora</div>
+    <h2 class="rv" style="text-align:center;">RISERVA IL TUO <span class="gold">POSTO GRATUITO</span></h2>
+
+    <div class="form-container rv" id="form-wrapper">
+      <div class="form-header">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Webinar LIVE · 24 Agosto ore 21:00
+        </div>
+        <h3>REGISTRATI AL WEBINAR GRATUITO</h3>
+        <p>Compila il form per riservare il tuo posto. Riceverai un link di accesso via email e un promemoria WhatsApp prima del webinar.</p>
+      </div>
+
+      <form id="webinar-form">
+        <div class="form-group">
+          <label for="parent-name">Il tuo nome (genitore)</label>
+          <input type="text" class="form-control" id="parent-name" name="nome_genitore" placeholder="Es. Marco Rossi" required>
+        </div>
+
+        <div class="form-group">
+          <label for="parent-email">Email</label>
+          <input type="email" class="form-control" id="parent-email" name="email" placeholder="Es. marco@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="parent-phone">Telefono / WhatsApp</label>
+          <input type="tel" class="form-control" id="parent-phone" name="telefono" placeholder="Es. 333 1234567" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="child-name">Nome del figlio/a</label>
+            <input type="text" class="form-control" id="child-name" name="nome_figlio" placeholder="Es. Luca">
+          </div>
+          <div class="form-group">
+            <label for="child-age">Età del figlio/a</label>
+            <input type="number" class="form-control" id="child-age" name="eta_figlio" placeholder="Es. 14" min="6" max="25">
+          </div>
+        </div>
+
+        <button type="submit" class="form-submit" id="submit-btn">
+          🎯 RISERVA IL MIO POSTO GRATIS
+        </button>
+
+        <p class="form-privacy">
+          Registrandoti accetti la nostra <a href="https://metodosincro.it/privacy" target="_blank">Privacy Policy</a>. 
+          I tuoi dati sono al sicuro e non verranno condivisi con terze parti.
+        </p>
+
+        <div class="form-spots">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span id="spots-counter">Solo <strong>47</strong> posti disponibili — il webinar è LIVE</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════ URGENCY ═══════ -->
+  <div class="urgency-section">
+    <div class="urgency-badges">
+      <div class="urgency-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l-4 4l-2-2"/><circle cx="12" cy="12" r="10"/></svg>
+        100% Gratuito
+      </div>
+      <div class="urgency-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Webinar LIVE, non registrato
+      </div>
+      <div class="urgency-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Q&A con risposte personalizzate
+      </div>
+    </div>
+    <a href="#register" class="cta cta-pulse">
+      RISERVA IL TUO POSTO ORA
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer>
+    <p>© 2026 Metodo Sincro® — Tutti i diritti riservati</p>
+    <p style="margin-top:8px;"><a href="https://metodosincro.it/privacy">Privacy Policy</a> · <a href="https://metodosincro.it">metodosincro.it</a></p>
+  </footer>
+
+  <!-- ═══════ FLOATING CTA ═══════ -->
+  <div class="float-cta" id="float-cta">
+    <div class="float-countdown" id="float-countdown"></div>
+    <a href="#register" class="cta" style="animation: none;">
+      REGISTRATI GRATIS
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+
+  <script>
+    // ═══════ COOKIE HELPER ═══════
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : '';
+    }
+
+    // ═══════ VISITOR ID ═══════
+    let visitorId = localStorage.getItem('sincro_visitor_id');
+    if (!visitorId) {
+      visitorId = 'vis_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('sincro_visitor_id', visitorId);
+    }
+
+    // ═══════ UTM PARAMETERS ═══════
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source') || '';
+    const utmMedium = params.get('utm_medium') || '';
+    const utmCampaign = params.get('utm_campaign') || '';
+    const utmContent = params.get('utm_content') || '';
+    const utmTerm = params.get('utm_term') || '';
+
+    // ═══════ API BASE URL ═══════
+    const API_BASE_URL = window.location.protocol === 'file:' 
+      ? 'http://localhost:3000' 
+      : 'https://landing.metodosincro.com';
+
+    // ═══════ COUNTDOWN TIMER ═══════
+    const WEBINAR_DATE = new Date('2026-08-24T21:00:00+02:00').getTime();
+
+    function updateCountdown() {
+      const now = Date.now();
+      const diff = WEBINAR_DATE - now;
+
+      if (diff <= 0) {
+        document.getElementById('cd-days').textContent = '00';
+        document.getElementById('cd-hours').textContent = '00';
+        document.getElementById('cd-mins').textContent = '00';
+        document.getElementById('cd-secs').textContent = '00';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+
+      // Floating CTA countdown
+      const floatEl = document.getElementById('float-countdown');
+      if (floatEl) {
+        floatEl.textContent = `${days}g ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // ═══════ FLOATING CTA VISIBILITY ═══════
+    const floatCTA = document.getElementById('float-cta');
+    const heroSection = document.querySelector('.hero');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          floatCTA.classList.remove('visible');
+        } else {
+          floatCTA.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    observer.observe(heroSection);
+
+    // ═══════ REVEAL ON SCROLL ═══════
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('vis');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.rv').forEach(el => revealObserver.observe(el));
+
+    // ═══════ URL PRE-FILL ═══════
+    window.addEventListener('DOMContentLoaded', () => {
+      const nameParam = params.get('nome') || params.get('name') || params.get('first_name');
+      const phoneParam = params.get('telefono') || params.get('phone') || params.get('tel');
+      const emailParam = params.get('email');
+      
+      if (nameParam) {
+        const input = document.getElementById('parent-name');
+        if (input) input.value = decodeURIComponent(nameParam);
+      }
+      if (phoneParam) {
+        const input = document.getElementById('parent-phone');
+        if (input) input.value = decodeURIComponent(phoneParam);
+      }
+      if (emailParam) {
+        const input = document.getElementById('parent-email');
+        if (input) input.value = decodeURIComponent(emailParam);
+      }
+
+      // Fire PageView Server CAPI
+      fetch(API_BASE_URL + '/api/track/pageview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organization_id: 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5',
+          funnel_id: '71c333c3-faf1-4b15-9ede-6e5314bc3e0d',
+          page_path: window.location.pathname,
+          page_variant: 'A',
+          visitor_id: visitorId,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          referrer: document.referrer || '',
+          event_id: window.pageViewEventId || '',
+          fbc: getCookie('_fbc') || '',
+          fbp: getCookie('_fbp') || '',
+          page_url: window.location.href
+        })
+      }).catch(err => console.error('[PageView CAPI] Error:', err));
+    });
+
+    // ═══════ FORM SUBMISSION ═══════
+    const webinarForm = document.getElementById('webinar-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    webinarForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Registrazione in corso...';
+
+      const formData = new FormData(webinarForm);
+      const name = formData.get('nome_genitore') || '';
+      const email = formData.get('email') || '';
+      const phone = formData.get('telefono') || '';
+      const childName = formData.get('nome_figlio') || '';
+      const childAge = formData.get('eta_figlio') || '';
+
+      // Generate Lead Event ID for client/server deduplication
+      const leadEventId = 'evt_ld_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+
+      // Fire Lead event client-side (Meta Pixel)
+      if (window.fbq) {
+        fbq('track', 'Lead', {
+          content_name: 'Webinar Agosto 2026 — Mentalità Vincente',
+          content_category: 'webinar',
+          value: 112.00,
+          currency: 'EUR'
+        }, { eventID: leadEventId });
+      }
+
+      // Submit to backend
+      fetch(API_BASE_URL + '/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          funnel_id: '71c333c3-faf1-4b15-9ede-6e5314bc3e0d',
+          name: name,
+          email: email,
+          phone: phone,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          page_variant: 'A',
+          event_id: leadEventId,
+          fbc: getCookie('_fbc') || '',
+          fbp: getCookie('_fbp') || '',
+          visitor_id: visitorId,
+          tag: 'Webinar Agosto 2026',
+          landing_url: window.location.host + window.location.pathname,
+          extra_data: {
+            child_name: childName,
+            child_age: childAge,
+            webinar_date: '2026-08-24',
+          }
+        })
+      }).then(res => {
+        if (!res.ok) {
+          console.error('[Submit] Error response');
+        }
+      }).catch(err => console.error('[Submit] Error:', err));
+
+      // Show success message
+      const wrapper = document.getElementById('form-wrapper');
+      wrapper.innerHTML = `
+        <div class="success-msg">
+          <div class="success-icon">✓</div>
+          <h3 style="font-family: var(--font-h); font-size: 30px; background: linear-gradient(135deg, #111 0%, #333 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;">
+            POSTO RISERVATO!
+          </h3>
+          <p style="font-size: 15px; color: #555; line-height: 1.8; max-width: 420px; margin: 0 auto 20px;">
+            Perfetto! Il tuo posto per il webinar del <strong>24 Agosto ore 21:00</strong> è confermato. 
+            Riceverai un'email con il link di accesso e un promemoria su WhatsApp il giorno del webinar.
+          </p>
+          <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
+            <p style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Prossimo passo</p>
+            <p style="font-size: 15px; color: #333; line-height: 1.6;">
+              📱 Salva la data: <strong>Lunedì 24 Agosto, ore 21:00</strong><br>
+              📧 Controlla la tua email per il link di accesso
+            </p>
+          </div>
+          <div style="font-size: 12px; color: #aa7d00; letter-spacing: 1px; text-transform: uppercase;">
+            A presto, Team Metodo Sincro®
+          </div>
+        </div>
+      `;
+    });
+
+    // ═══════ SPOTS COUNTER ANIMATION ═══════
+    // Simulate decreasing spots based on time
+    const spotsEl = document.querySelector('#spots-counter strong');
+    if (spotsEl) {
+      const baseSpots = 47;
+      const hoursSinceCreate = Math.floor((Date.now() - new Date('2026-08-03').getTime()) / (1000 * 60 * 60));
+      const takenSpots = Math.min(Math.floor(hoursSinceCreate * 0.3), 30);
+      const remaining = baseSpots - takenSpots;
+      spotsEl.textContent = Math.max(remaining, 12);
+    }
+  </script>
+
+</body>
+</html>
