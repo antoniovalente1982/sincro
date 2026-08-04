@@ -30,13 +30,13 @@ Nei giorni tra il 18 e il 24 dovresti mandare **3 messaggi nel gruppo** (vocali 
 |---|---|---|---|
 | **Platinum** | €2.250 + IVA | 3 mesi | coach specializzato per fascia d'età |
 | **Best Season** | €5.000 + IVA | 12 mesi | coach specializzati del team |
-| **Annuale con Antonio** *(nome da definire)* | €10.000 + IVA | 12 mesi | Antonio in persona — **solo 10 posti** |
+| **Sincro Circle** | €10.000 + IVA | 12 mesi | Antonio in persona — **solo 10 posti** |
 
 Conseguenza diretta sul copy: **nessun prezzo nelle email, nessun pulsante "compra".** Con un ticket che parte da 2.250€, l'unica CTA sensata a fine webinar è **"candidati a una call gratuita di analisi"** → setter → venditore. È esattamente come è scritta la Fase 4.
 
 Il vantaggio è che ora hai una **scarsità vera** da usare in copy, non inventata: i 10 posti del programma annuale con te. L'ho usata nella P5 e la puoi nominare dal vivo a fine webinar.
 
-⚠️ **Il programma da €10.000 non ha ancora un nome.** In P5 l'ho chiamato "il percorso che seguo personalmente". Se gli dai un nome lo sostituisco.
+**Su Sincro Circle:** nella P5 lo nomino, ma non lo spiego e non lo vendo. È il vertice della scala — a un genitore che non ha ancora fatto una call non si presenta un percorso da 10.000€, si lascia intravedere. Il nome fa il lavoro da solo: "Circle" dice piccolo e chiuso senza doverlo dichiarare.
 
 ---
 
@@ -653,7 +653,11 @@ Oggi chiudo le candidature per i percorsi che partono a settembre.
 
 Non è una scadenza di marketing, è aritmetica. Ogni coach segue un numero chiuso di ragazzi uno-a-uno, e i posti di settembre finiscono. Chi si candida dopo entra nella lista di ottobre, a stagione già cominciata — cioè fuori dalle tre settimane di cui ti parlavo lunedì.
 
-E c'è una cosa che vale la pena dirti, visto che sei arrivato fin qui: oltre ai percorsi con i coach, ogni anno seguo personalmente un piccolo gruppo di ragazzi. **Sono dieci.** Non nove, non dodici: dieci, perché è il numero che riesco a seguire davvero senza che diventi una formalità. Se è una cosa che ti interessa, dillo in chiamata — è lì che si capisce se ha senso.
+E c'è una cosa che vale la pena dirti, visto che sei arrivato fin qui.
+
+Oltre ai percorsi con i coach, ogni anno ne seguo personalmente un piccolo gruppo. Si chiama **Sincro Circle** e sono dieci ragazzi. Non nove, non dodici: dieci, perché è il numero che riesco a seguire davvero senza che diventi una formalità.
+
+Non te lo sto proponendo — non funziona così, e non sarebbe serio farlo via email. Te lo dico perché esiste. Se in chiamata viene fuori che è la cosa giusta per tuo figlio, se ne parla lì.
 
 Se in questi giorni ci hai pensato e non hai deciso, va bene lo stesso. In bocca al lupo a tuo figlio per l'anno che comincia, sinceramente.
 

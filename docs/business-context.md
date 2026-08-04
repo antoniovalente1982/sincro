@@ -36,11 +36,12 @@ Catalogo aggiornato al 4 agosto 2026. **Il prodotto da €197 non esiste più** 
 - **Include**: percorso continuativo con i coach specializzati del team
 - **Obiettivo**: accompagnare tutta la stagione, non solo il blocco iniziale
 
-### Programma annuale con Antonio *(nome da definire)*
+### Sincro Circle
 - **Prezzo**: €10.000 + IVA
 - **Durata**: annuale
 - **Include**: percorso seguito direttamente da Antonio Valente
 - **Scarsità reale**: **solo 10 posti** — è l'unico limite numerico vero del catalogo, usabile in copy
+- **Nota di posizionamento**: è il vertice della scala. Non si vende in una landing né a fine webinar: si nomina in call, e solo dove ha senso.
 
 ### Prodotto ritirato
 - ~~Impact — €3.000 + IVA, 2+2 mesi~~ (non più a catalogo)
