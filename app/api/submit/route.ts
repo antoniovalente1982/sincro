@@ -4,6 +4,7 @@ import { after } from 'next/server'
 import { sendTelegramMessage, notifyAssignedSeller } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
 import { assignLeadRoundRobin } from '@/lib/lead-routing'
+import { syncToActiveCampaign } from '@/lib/activecampaign'
 
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -317,15 +318,51 @@ export async function POST(req: NextRequest) {
 
                     const childAge = body.extra_data?.child_age
                     const adsetAngleNotif = body.extra_data?.adset_angle
-                    const tgMsg = `📥 <b>Nuovo Lead!</b>\n\n` +
+
+                    // ── ActiveCampaign sync (se configurato nel funnel) ──
+                    // Atteso PRIMA di Telegram così la notifica può riportarne l'esito.
+                    const acSettings = funnel.settings?.activecampaign
+                    const acResult = (acSettings?.list_id && acSettings?.tag_id && email)
+                        ? await syncToActiveCampaign({
+                            email,
+                            name,
+                            phone: phone || undefined,
+                            listId: acSettings.list_id,
+                            tagId: acSettings.tag_id,
+                        }).catch(err => {
+                            console.error('[AC] Sync error:', name, err)
+                            return { ok: false as const, reason: String(err) }
+                        })
+                        : null
+
+                    const acLine = acResult
+                        ? (acResult.ok
+                            ? `\n\n✅ <b>ActiveCampaign:</b> contatto sincronizzato — sequenza email avviata`
+                            : `\n\n⚠️ <b>ActiveCampaign:</b> sync FALLITA (${acResult.reason}) — nessuna email partirà, va aggiunto a mano`)
+                        : ''
+
+                    // Le registrazioni a un webinar hanno una notifica dedicata, con data evento
+                    const isWebinar = funnel.settings?.type === 'webinar'
+                    const webinarDate = funnel.settings?.webinar_date
+                        ? new Date(funnel.settings.webinar_date).toLocaleString('it-IT', {
+                            timeZone: 'Europe/Rome', weekday: 'long', day: '2-digit', month: 'long',
+                            hour: '2-digit', minute: '2-digit',
+                        })
+                        : null
+
+                    const tgMsg = (isWebinar
+                        ? `🎥 <b>NUOVA REGISTRAZIONE AL WEBINAR!</b>\n\n`
+                        : `📥 <b>Nuovo Lead!</b>\n\n`) +
                         `👤 <b>Nome:</b> ${name}\n` +
                         (email ? `📧 <b>Email:</b> ${email}\n` : '') +
                         (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
                         (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
+                        (isWebinar && webinarDate ? `📅 <b>Evento:</b> ${webinarDate}\n` : '') +
                         `🔗 <b>Funnel:</b> ${funnel.name}\n` +
                         (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +
                         (utm_source ? `📡 <b>Fonte:</b> ${utm_source}\n` : '') +
-                        (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '')
+                        (utm_campaign ? `📢 <b>Campagna:</b> ${utm_campaign}` : '') +
+                        acLine
 
                     await Promise.allSettled([
                         capiPromise,
