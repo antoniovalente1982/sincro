@@ -20,31 +20,32 @@
   - Blocco nei provini
   - Genitore non sa più come aiutarlo
 
-## Prodotti (NON comunicare prezzi nel frontend, li comunicano i venditori)
+## Prodotti
 
-Catalogo aggiornato al 4 agosto 2026. **Il prodotto da €197 non esiste più** — nessun prodotto d'ingresso a basso prezzo. Tutta l'acquisizione converge sulla call di qualifica.
+> ⛔️ **I prezzi non vanno scritti da nessuna parte.** Non in landing, non in email, non in questo file, non in nessun documento di lavoro. Li comunicano esclusivamente i venditori, in call. Se ti servono per ragionare, chiedili ad Antonio a voce: non vanno mai messi per iscritto, nemmeno in materiale interno, perché il materiale interno finisce copiato in quello esterno.
+
+Catalogo aggiornato al 4 agosto 2026, in ordine crescente di impegno.
 
 ### Platinum
-- **Prezzo**: €2.250 + IVA
 - **Durata**: 3 mesi
 - **Include**: 10 incontri online, coach specializzato per fascia d'età
 - **Obiettivo**: Trasformazione mentale completa
 
 ### Best Season
-- **Prezzo**: €5.000 + IVA
 - **Durata**: 12 mesi (stagione intera)
 - **Include**: percorso continuativo con i coach specializzati del team
 - **Obiettivo**: accompagnare tutta la stagione, non solo il blocco iniziale
 
 ### Sincro Circle
-- **Prezzo**: €10.000 + IVA
 - **Durata**: annuale
 - **Include**: percorso seguito direttamente da Antonio Valente
-- **Scarsità reale**: **solo 10 posti** — è l'unico limite numerico vero del catalogo, usabile in copy
-- **Nota di posizionamento**: è il vertice della scala. Non si vende in una landing né a fine webinar: si nomina in call, e solo dove ha senso.
+- **Scarsità reale**: **solo 10 posti** — è l'unico numero del catalogo che si può usare in copy, perché non è un prezzo
+- **Posizionamento**: è il vertice della scala. Non si vende in una landing né a fine webinar: si nomina in call, e solo dove ha senso.
 
 ### Prodotto ritirato
-- ~~Impact — €3.000 + IVA, 2+2 mesi~~ (non più a catalogo)
+- ~~Impact, 2+2 mesi~~ (non più a catalogo)
+
+**Non esiste più nessun prodotto d'ingresso a basso prezzo.** Tutta l'acquisizione converge sulla call di qualifica: webinar e lead magnet non vendono, portano alla call.
 
 ## Funnel Attuale
 ```

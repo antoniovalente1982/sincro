@@ -24,19 +24,21 @@ Come l'ho costruito:
 
 Nei giorni tra il 18 e il 24 dovresti mandare **3 messaggi nel gruppo** (vocali brevi, 60-90 secondi, funzionano meglio del testo): mercoledì 19 una presentazione, venerdì 21 una risposta a una domanda ricevuta, domenica 23 cosa vedremo lunedì. Se vuoi te li scrivo.
 
-**3. Il catalogo — confermato il 4 agosto 2026.** Non esiste più nessun prodotto a 197€, e non esiste nessun prodotto d'ingresso a basso prezzo:
+**3. Il catalogo — confermato il 4 agosto 2026.**
 
-| Programma | Prezzo | Durata | Chi segue |
-|---|---|---|---|
-| **Platinum** | €2.250 + IVA | 3 mesi | coach specializzato per fascia d'età |
-| **Best Season** | €5.000 + IVA | 12 mesi | coach specializzati del team |
-| **Sincro Circle** | €10.000 + IVA | 12 mesi | Antonio in persona — **solo 10 posti** |
+> ⛔️ **Nessun prezzo, da nessuna parte.** Non nelle email, non nella landing, non in questo documento. I prezzi li comunicano solo i venditori, in call. Questo documento verrà copiato e incollato dentro ActiveCampaign: qualunque cifra scritta qui rischia di finire davanti a un genitore.
 
-Conseguenza diretta sul copy: **nessun prezzo nelle email, nessun pulsante "compra".** Con un ticket che parte da 2.250€, l'unica CTA sensata a fine webinar è **"candidati a una call gratuita di analisi"** → setter → venditore. È esattamente come è scritta la Fase 4.
+| Programma | Durata | Chi segue |
+|---|---|---|
+| **Platinum** | 3 mesi | coach specializzato per fascia d'età |
+| **Best Season** | 12 mesi | coach specializzati del team |
+| **Sincro Circle** | annuale | Antonio in persona — **solo 10 posti** |
 
-Il vantaggio è che ora hai una **scarsità vera** da usare in copy, non inventata: i 10 posti del programma annuale con te. L'ho usata nella P5 e la puoi nominare dal vivo a fine webinar.
+Non esiste più nessun prodotto d'ingresso a basso prezzo. Conseguenza diretta sul copy: **nessun prezzo e nessun pulsante "compra".** L'unica CTA sensata a fine webinar è **"candidati a una call gratuita di analisi"** → setter → venditore. È esattamente come è scritta la Fase 4.
 
-**Su Sincro Circle:** nella P5 lo nomino, ma non lo spiego e non lo vendo. È il vertice della scala — a un genitore che non ha ancora fatto una call non si presenta un percorso da 10.000€, si lascia intravedere. Il nome fa il lavoro da solo: "Circle" dice piccolo e chiuso senza doverlo dichiarare.
+L'unico numero che puoi usare in copy sono i **10 posti di Sincro Circle** — e funziona proprio perché non è un prezzo: è un limite di capienza, che chiunque capisce senza sentirsi vendere qualcosa. L'ho usato nella P5.
+
+**Su Sincro Circle:** nella P5 lo nomino, ma non lo spiego e non lo vendo. È il vertice della scala — a un genitore che non ha ancora fatto una call non si presenta il percorso più impegnativo, si lascia intravedere. Il nome fa il lavoro da solo: "Circle" dice piccolo e chiuso senza doverlo dichiarare.
 
 ---
 
