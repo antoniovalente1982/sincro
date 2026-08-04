@@ -21,16 +21,29 @@
   - Genitore non sa più come aiutarlo
 
 ## Prodotti (NON comunicare prezzi nel frontend, li comunicano i venditori)
+
+Catalogo aggiornato al 4 agosto 2026. **Il prodotto da €197 non esiste più** — nessun prodotto d'ingresso a basso prezzo. Tutta l'acquisizione converge sulla call di qualifica.
+
 ### Platinum
 - **Prezzo**: €2.250 + IVA
 - **Durata**: 3 mesi
-- **Include**: 10 incontri online
+- **Include**: 10 incontri online, coach specializzato per fascia d'età
 - **Obiettivo**: Trasformazione mentale completa
 
-### Impact
-- **Prezzo**: €3.000 + IVA
-- **Struttura**: 2+2 mesi (2 mesi cambiamento ad alto impatto + 2 mesi consolidamento)
-- **Condizione**: Continuazione se genitore soddisfatto
+### Best Season
+- **Prezzo**: €5.000 + IVA
+- **Durata**: 12 mesi (stagione intera)
+- **Include**: percorso continuativo con i coach specializzati del team
+- **Obiettivo**: accompagnare tutta la stagione, non solo il blocco iniziale
+
+### Programma annuale con Antonio *(nome da definire)*
+- **Prezzo**: €10.000 + IVA
+- **Durata**: annuale
+- **Include**: percorso seguito direttamente da Antonio Valente
+- **Scarsità reale**: **solo 10 posti** — è l'unico limite numerico vero del catalogo, usabile in copy
+
+### Prodotto ritirato
+- ~~Impact — €3.000 + IVA, 2+2 mesi~~ (non più a catalogo)
 
 ## Funnel Attuale
 ```
