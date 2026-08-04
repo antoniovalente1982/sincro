@@ -101,16 +101,21 @@ Due trigger separati sulla stessa automazione = logica OR. È corretto così.
 
 ### Inserire il corpo delle email
 
-⚠️ **Il corpo delle email non si può caricare via API.** È un limite verificato tre volte nella sessione precedente: ActiveCampaign accetta la chiamata senza errore ma ignora l'HTML, perché i messaggi creati con l'editor visuale a blocchi non accettano sovrascritture. Va fatto a mano.
+✅ **Il corpo delle email si scrive via API.** Verificato il 4 agosto 2026 con `PUT /api/3/messages/{id}`: scrittura e rilettura confermate su oggetto, preheader e HTML.
 
-Per ogni email, dentro l'editor:
-1. Trascina un blocco **Testo**
-2. Incolla il testo da `sequenza-email-completa.md`
-3. Grassetti dove indicato, e il **pulsante CTA** dove c'è `[ TESTO PULSANTE ]`
-4. Oggetto e preheader nei campi in alto
-5. In fondo, il blocco con `%SENDER-INFO-SINGLELINE%` e `%UNSUBSCRIBELINK%` — **obbligatori**, senza questi l'invio non parte
+> ⚠️ **Correzione a un errore che girava nei documenti precedenti.** L'handoff sosteneva che l'HTML non fosse scrivibile via API. È falso: quella sessione usava l'endpoint sbagliato, `campaign/message`, che aggiorna solo i metadati e ignora il campo `html` senza restituire errore. L'endpoint corretto è **`messages`**. Se in futuro un documento ripete quel limite, è sbagliato: testalo prima di rassegnarti a incollare a mano.
 
-Sul nome: dove c'è `%FIRSTNAME%`, usa il pulsante *Personalizza* e **imposta un valore predefinito** (es. lascia vuoto e togli la virgola, oppure metti "ciao"). Metà lista non ha il nome valorizzato: senza fallback esce "Ciao ,".
+Quindi **le email non vanno incollate a mano**. Il flusso è:
+
+1. Tu crei lo scheletro dell'automazione nell'editor (trigger, attese, blocchi "Invia email" anche vuoti)
+2. Mi dici quali slot hai creato
+3. Io ci scrivo dentro oggetto, preheader e corpo impaginato, e verifico rileggendo
+
+**Già fatte così:** le tre email dell'automazione "Sequenza riscaldamento" — messaggi **18, 19, 20** (campagne 6, 8, 10).
+
+Sul nome: nel corpo uso "Ciao," senza `%FIRSTNAME%`, perché metà della lista importata non ha il nome valorizzato e senza fallback quelle persone leggono "Ciao ,". Se vuoi la personalizzazione, va inserita dall'editor col pulsante *Personalizza* impostando un valore predefinito.
+
+Resta obbligatorio in fondo a ogni email: `%SENDER-INFO-SINGLELINE%` e `%UNSUBSCRIBELINK%` — già inclusi nel template che uso.
 
 ---
 
