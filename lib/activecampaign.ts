@@ -10,8 +10,33 @@
  *   3. applyTag()        → applica il tag specificato
  */
 
-const AC_API_KEY = process.env.ACTIVECAMPAIGN_API_KEY || ''
-const AC_BASE_URL = process.env.ACTIVECAMPAIGN_BASE_URL || ''
+/**
+ * Come leggere gli errori di questo account (verificato sul campo il 5/8/2026):
+ *   403 con corpo VUOTO → la chiave è sbagliata, troncata o incollata con le
+ *                         virgolette attorno. Uno spazio in coda invece passa.
+ *   404                 → il base URL non finisce con `/api/3`.
+ * Sono due sintomi distinti: non confonderli, costano un lancio.
+ *
+ * La chiave viene ripulita da spazi e da eventuali virgolette: nessuna chiave
+ * AC le contiene, e incollarle dal pannello di Vercel è l'errore più facile
+ * da fare e il più difficile da vedere.
+ */
+const AC_API_KEY = (process.env.ACTIVECAMPAIGN_API_KEY || '')
+  .trim()
+  .replace(/^["']|["']$/g, '')
+
+/**
+ * Normalizza il base URL così il codice funziona con qualunque variante
+ * dell'env: con o senza `/api/3`, con o senza slash finale, con spazi
+ * copiati per sbaglio.
+ */
+function normalizeAcBaseUrl(raw: string): string {
+  let base = raw.trim().replace(/\/+$/, '')
+  if (base && !/\/api\/3$/.test(base)) base += '/api/3'
+  return base
+}
+
+const AC_BASE_URL = normalizeAcBaseUrl(process.env.ACTIVECAMPAIGN_BASE_URL || '')
 
 function acConfigured(): boolean {
   return Boolean(AC_API_KEY && AC_BASE_URL)
@@ -52,7 +77,10 @@ async function acPost(endpoint: string, payload: unknown): Promise<any> {
 
   if (!res.ok) {
     const errText = await res.text()
-    throw new Error(`[AC] ${endpoint} → HTTP ${res.status}: ${errText}`)
+    // URL e lunghezza della chiave (mai la chiave) nell'errore: bastano a
+    // distinguere path sbagliato da credenziale sbagliata senza altri test.
+    const indizio = errText.trim() || `corpo vuoto · chiave di ${AC_API_KEY.length} caratteri`
+    throw new Error(`[AC] POST ${AC_BASE_URL}/${endpoint} → HTTP ${res.status}: ${indizio.slice(0, 300)}`)
   }
 
   return res.json()
