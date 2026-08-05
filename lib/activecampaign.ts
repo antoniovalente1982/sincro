@@ -42,48 +42,67 @@ function acConfigured(): boolean {
   return Boolean(AC_API_KEY && AC_BASE_URL)
 }
 
-async function acGet(endpoint: string): Promise<Record<string, unknown> | null> {
+/**
+ * Oltre questo tempo si smette di aspettare. Senza, una chiamata appesa tiene
+ * occupata la funzione serverless fino al kill della piattaforma: la
+ * candidatura è già salva, ma le notifiche che seguono non partono più.
+ */
+const AC_TIMEOUT_MS = 10_000
+
+async function acRequest(method: 'GET' | 'POST', endpoint: string, payload?: unknown): Promise<any> {
   if (!acConfigured()) {
     console.warn('[AC] Missing ACTIVECAMPAIGN_API_KEY or ACTIVECAMPAIGN_BASE_URL — skipping')
     return null
   }
 
-  const res = await fetch(`${AC_BASE_URL}/${endpoint}`, {
-    headers: { 'Api-Token': AC_API_KEY },
-  })
+  const url = `${AC_BASE_URL}/${endpoint}`
 
-  if (!res.ok) {
-    const errText = await res.text()
-    throw new Error(`[AC] GET ${endpoint} → HTTP ${res.status}: ${errText}`)
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method,
+      headers: {
+        'Api-Token': AC_API_KEY,
+        ...(payload !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: payload !== undefined ? JSON.stringify(payload) : undefined,
+      signal: AbortSignal.timeout(AC_TIMEOUT_MS),
+    })
+  } catch (err) {
+    // Timeout e problemi di rete arrivano come "fetch failed", che non dice
+    // niente a chi legge il log tre giorni dopo.
+    const causa = err instanceof Error ? err.message : String(err)
+    throw new Error(`[AC] ${method} ${url} → nessuna risposta entro ${AC_TIMEOUT_MS}ms (${causa})`)
   }
 
-  return res.json()
+  // Il corpo si legge una volta sola: serve sia per l'errore sia per il dato.
+  const testo = await res.text()
+
+  if (!res.ok) {
+    // URL e lunghezza della chiave (mai la chiave) bastano a distinguere path
+    // sbagliato da credenziale sbagliata senza altri test.
+    const indizio = testo.trim() || `corpo vuoto · chiave di ${AC_API_KEY.length} caratteri`
+    throw new Error(`[AC] ${method} ${url} → HTTP ${res.status}: ${indizio.slice(0, 300)}`)
+  }
+
+  // Alcuni endpoint di AC rispondono 200 con corpo vuoto: res.json() diretto
+  // lancerebbe "Unexpected end of JSON input" trasformando un successo in un
+  // errore.
+  if (!testo.trim()) return null
+  try {
+    return JSON.parse(testo)
+  } catch {
+    console.warn(`[AC] ${method} ${endpoint} → 200 con corpo non JSON, ignorato`)
+    return null
+  }
+}
+
+async function acGet(endpoint: string): Promise<Record<string, unknown> | null> {
+  return acRequest('GET', endpoint)
 }
 
 async function acPost(endpoint: string, payload: unknown): Promise<any> {
-  if (!acConfigured()) {
-    console.warn('[AC] Missing ACTIVECAMPAIGN_API_KEY or ACTIVECAMPAIGN_BASE_URL — skipping')
-    return null
-  }
-
-  const res = await fetch(`${AC_BASE_URL}/${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Api-Token': AC_API_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-
-  if (!res.ok) {
-    const errText = await res.text()
-    // URL e lunghezza della chiave (mai la chiave) nell'errore: bastano a
-    // distinguere path sbagliato da credenziale sbagliata senza altri test.
-    const indizio = errText.trim() || `corpo vuoto · chiave di ${AC_API_KEY.length} caratteri`
-    throw new Error(`[AC] POST ${AC_BASE_URL}/${endpoint} → HTTP ${res.status}: ${indizio.slice(0, 300)}`)
-  }
-
-  return res.json()
+  return acRequest('POST', endpoint, payload)
 }
 
 /**
@@ -158,12 +177,21 @@ export async function getOrCreateTagId(name: string, description = ''): Promise<
   if (cached) return cached
 
   const find = async (): Promise<number | null> => {
-    // Il filtro `search` su questo account è inaffidabile: lo passiamo comunque
-    // ma il match esatto lo facciamo noi sui risultati.
-    const data = await acGet(`tags?filters[search][eq]=${encodeURIComponent(name)}&limit=100`)
-    const tags = (data?.tags as { id?: string; tag?: string }[] | undefined) || []
-    const match = tags.find((t) => t.tag === name)
-    return match?.id ? Number(match.id) : null
+    // Il filtro `search` su questo account è inaffidabile: può essere ignorato
+    // e restituire l'elenco intero. Per questo si pagina e il match esatto lo
+    // facciamo noi. Fermarsi alla prima pagina significherebbe non trovare un
+    // tag che esiste e ricrearlo doppio: due tag con lo stesso nome mandano a
+    // vuoto il trigger dell'automazione, in silenzio.
+    for (let offset = 0; offset < 1000; offset += 100) {
+      const data = await acGet(
+        `tags?filters[search][eq]=${encodeURIComponent(name)}&limit=100&offset=${offset}`
+      )
+      const tags = (data?.tags as { id?: string; tag?: string }[] | undefined) || []
+      const match = tags.find((t) => t.tag === name)
+      if (match?.id) return Number(match.id)
+      if (tags.length < 100) break
+    }
+    return null
   }
 
   try {

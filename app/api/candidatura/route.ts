@@ -194,15 +194,22 @@ async function sincronizzaConActiveCampaign(c: Candidatura): Promise<EsitoAc> {
             )
         }
 
-        const tagApplicato = await applyTagByName(contactId, tagName, tagDescr)
-
-        // Le risposte del form vivono nella nota: è quello che il coach legge
-        // prima di chiamare.
+        // La nota PRIMA del tag, e non viceversa, per due motivi:
+        // 1. il tag fa scattare l'automazione — quando parte, le risposte del
+        //    genitore devono essere già nella scheda, non un attimo dopo;
+        // 2. se applicare il tag fallisce (tipico su una ri-candidatura dello
+        //    stesso genitore, dove il tag c'è già), un'eccezione qui saltava
+        //    la nota: il coach si ritrovava a chiamare senza sapere niente.
         if (c.tipo === 'candidatura') {
             await addContactNote(contactId, notaPerIlCoach(c)).catch((err) =>
                 console.error('[AC] Nota non salvata:', err)
             )
         }
+
+        const tagApplicato = await applyTagByName(contactId, tagName, tagDescr).catch((err) => {
+            console.error(`[AC] Tag "${tagName}" non applicato:`, err)
+            return false
+        })
 
         if (!tagApplicato) return { ok: false, motivo: `tag "${tagName}" non applicato` }
 
