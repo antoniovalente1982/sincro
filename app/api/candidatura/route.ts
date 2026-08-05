@@ -6,6 +6,7 @@ import path from 'path'
 import { syncContact, addToList, applyTagByName, addContactNote } from '@/lib/activecampaign'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { sendCandidaturaNotification } from '@/lib/email'
+import { inserisciCandidaturaNelCrm, type EsitoCrm } from '@/lib/crm-candidatura'
 
 // Endpoint pubblico della pagina /candidatura (lancio 24 agosto 2026).
 //
@@ -144,9 +145,16 @@ export async function POST(req: NextRequest) {
     await persistiSubmission(candidatura)
 
     // ── 2. Il resto dopo la risposta ───────────────────────────────
+    const userAgent = req.headers.get('user-agent') || undefined
+
     after(async () => {
-        const esitoAc = await sincronizzaConActiveCampaign(candidatura)
-        await notifica(candidatura, esitoAc)
+        // Gestionale e ActiveCampaign sono indipendenti: se AC non risponde il
+        // lead deve comunque comparire nella pipeline, e viceversa.
+        const [esitoCrm, esitoAc] = await Promise.all([
+            inserisciCandidaturaNelCrm({ ...candidatura, userAgent }),
+            sincronizzaConActiveCampaign(candidatura),
+        ])
+        await notifica(candidatura, esitoAc, esitoCrm)
     })
 
     return NextResponse.json({ success: true })
@@ -246,13 +254,19 @@ function notaPerIlCoach(c: Candidatura): string {
     ].join('\n')
 }
 
-async function notifica(c: Candidatura, esito: EsitoAc) {
+async function notifica(c: Candidatura, esito: EsitoAc, crm: EsitoCrm) {
     const esc = (s: string) =>
         s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
     const rigaAc = esito.ok
         ? `\n\n✅ <b>ActiveCampaign:</b> contatto sincronizzato e taggato`
         : `\n\n⚠️ <b>ActiveCampaign:</b> sync FALLITA (${esc(esito.motivo)}) — va aggiunto a mano`
+
+    const rigaCrm = crm.ok
+        ? `\n${crm.nuovo
+            ? `📋 <b>Gestionale:</b> lead creato in Consulenza Post Webinar${crm.assegnato ? ' e assegnato' : ' — DA ASSEGNARE a mano'}`
+            : `📋 <b>Gestionale:</b> lead già esistente, spostato in Consulenza Post Webinar`}`
+        : `\n⚠️ <b>Gestionale:</b> lead NON creato (${esc(crm.motivo)}) — va inserito a mano`
 
     const fonte = Object.entries(c.utm).map(([k, v]) => `${k}=${v}`).join(' · ')
 
@@ -261,7 +275,7 @@ async function notifica(c: Candidatura, esito: EsitoAc) {
             ? `📋 <b>LISTA D'ATTESA</b> (candidature chiuse)\n\n` +
               `📧 <b>Email:</b> ${esc(c.email)}\n` +
               (fonte ? `📡 <b>Fonte:</b> ${esc(fonte)}` : '') +
-              rigaAc
+              rigaAc + rigaCrm
             : `🔥 <b>NUOVA CANDIDATURA ALLA CHIAMATA!</b>\n\n` +
               `👤 <b>Genitore:</b> ${esc(c.nome)}\n` +
               `📧 <b>Email:</b> ${esc(c.email)}\n` +
@@ -270,7 +284,7 @@ async function notifica(c: Candidatura, esito: EsitoAc) {
               `⚽ <b>Livello:</b> ${esc(c.livello)}\n\n` +
               `💬 <b>Difficoltà:</b> ${esc(c.difficolta)}\n` +
               (fonte ? `\n📡 <b>Fonte:</b> ${esc(fonte)}` : '') +
-              rigaAc
+              rigaAc + rigaCrm
 
     await Promise.allSettled([
         sendTelegramMessage(MS_ORG_ID, messaggio).catch((err) =>

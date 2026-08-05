@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
                 await supabase.from('lead_activities').insert({
                     organization_id: orgId,
                     lead_id: leadId,
-                    activity_type: 'assignment_changed',
+                    activity_type: 'assigned',
                     notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                 })
                 // Notifica personale al venditore assegnato
@@ -356,7 +356,7 @@ export async function POST(req: NextRequest) {
                 await supabase.from('lead_activities').insert({
                     organization_id: orgId,
                     lead_id: leadId,
-                    activity_type: 'assignment_changed',
+                    activity_type: 'assigned',
                     notes: `🎯 Assegnato automaticamente (Qualificatore e Venditore)`,
                 })
 
