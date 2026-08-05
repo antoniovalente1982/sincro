@@ -13,8 +13,30 @@
 const AC_API_KEY = process.env.ACTIVECAMPAIGN_API_KEY || ''
 const AC_BASE_URL = process.env.ACTIVECAMPAIGN_BASE_URL || ''
 
+function acConfigured(): boolean {
+  return Boolean(AC_API_KEY && AC_BASE_URL)
+}
+
+async function acGet(endpoint: string): Promise<Record<string, unknown> | null> {
+  if (!acConfigured()) {
+    console.warn('[AC] Missing ACTIVECAMPAIGN_API_KEY or ACTIVECAMPAIGN_BASE_URL — skipping')
+    return null
+  }
+
+  const res = await fetch(`${AC_BASE_URL}/${endpoint}`, {
+    headers: { 'Api-Token': AC_API_KEY },
+  })
+
+  if (!res.ok) {
+    const errText = await res.text()
+    throw new Error(`[AC] GET ${endpoint} → HTTP ${res.status}: ${errText}`)
+  }
+
+  return res.json()
+}
+
 async function acPost(endpoint: string, payload: unknown): Promise<any> {
-  if (!AC_API_KEY || !AC_BASE_URL) {
+  if (!acConfigured()) {
     console.warn('[AC] Missing ACTIVECAMPAIGN_API_KEY or ACTIVECAMPAIGN_BASE_URL — skipping')
     return null
   }
@@ -87,6 +109,87 @@ export async function applyTag(contactId: string, tagId: number): Promise<void> 
     contactTag: { contact: contactId, tag: tagId },
   })
   console.log(`[AC] Contact ${contactId} → tag ${tagId}`)
+}
+
+/**
+ * Risolve un tag per NOME, creandolo se non esiste.
+ *
+ * Serve alle pagine che applicano tag nuovi (es. la candidatura alla chiamata):
+ * l'ID non è noto in anticipo e il tag potrebbe non essere ancora stato creato
+ * a mano nell'editor di ActiveCampaign.
+ *
+ * Gli ID risolti restano in cache per la vita del processo — il nome di un tag
+ * non cambia in corsa e così si evita una GET per ogni submission.
+ */
+const tagIdCache = new Map<string, number>()
+
+export async function getOrCreateTagId(name: string, description = ''): Promise<number | null> {
+  if (!acConfigured()) return null
+
+  const cached = tagIdCache.get(name)
+  if (cached) return cached
+
+  const find = async (): Promise<number | null> => {
+    // Il filtro `search` su questo account è inaffidabile: lo passiamo comunque
+    // ma il match esatto lo facciamo noi sui risultati.
+    const data = await acGet(`tags?filters[search][eq]=${encodeURIComponent(name)}&limit=100`)
+    const tags = (data?.tags as { id?: string; tag?: string }[] | undefined) || []
+    const match = tags.find((t) => t.tag === name)
+    return match?.id ? Number(match.id) : null
+  }
+
+  try {
+    let id = await find()
+
+    if (!id) {
+      const created = await acPost('tags', {
+        tag: { tag: name, tagType: 'contact', description },
+      }).catch(async (err) => {
+        // Corsa fra due submission simultanee: se l'ha creato l'altra, rileggiamo.
+        console.warn(`[AC] Creazione tag "${name}" fallita, riprovo a leggerlo:`, err)
+        return null
+      })
+      id = created?.tag?.id ? Number(created.tag.id) : await find()
+      if (id) console.log(`[AC] Tag "${name}" creato → ID ${id}`)
+    }
+
+    if (!id) {
+      console.error(`[AC] Impossibile risolvere o creare il tag "${name}"`)
+      return null
+    }
+
+    tagIdCache.set(name, id)
+    return id
+  } catch (err) {
+    console.error(`[AC] getOrCreateTagId("${name}") fallita:`, err)
+    return null
+  }
+}
+
+/**
+ * Applica un tag a un contatto usando il nome invece dell'ID.
+ * Crea il tag se manca. Ritorna false se non è stato possibile applicarlo.
+ */
+export async function applyTagByName(
+  contactId: string,
+  tagName: string,
+  description = ''
+): Promise<boolean> {
+  const tagId = await getOrCreateTagId(tagName, description)
+  if (!tagId) return false
+  await applyTag(contactId, tagId)
+  return true
+}
+
+/**
+ * Attacca una nota al contatto. È il posto dove finiscono le risposte del form
+ * di candidatura: il coach le legge nella scheda contatto prima della chiamata.
+ */
+export async function addContactNote(contactId: string, note: string): Promise<void> {
+  await acPost('notes', {
+    note: { note, relid: Number(contactId), reltype: 'Subscriber' },
+  })
+  console.log(`[AC] Nota aggiunta al contatto ${contactId}`)
 }
 
 /** Esito del sync, usato per riportarlo nella notifica Telegram */
