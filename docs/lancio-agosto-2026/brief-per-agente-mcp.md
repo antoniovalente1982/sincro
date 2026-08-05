@@ -27,9 +27,19 @@ In più: R1 promette 3 messaggi di valore nel gruppo prima del webinar (mercoled
 | `https://chat.whatsapp.com/K3ofUeUjEuOGCXk6yD1BBI` | Community iscritti | Email R1, R1bis, R2, R3, R4, P2, P4 |
 | Link Zoom + replay | Accesso diretta / registrazione | SOLO messaggi manuali nel gruppo WhatsApp |
 
-**Unico placeholder rimasto nelle email:** `[LINK PAGINA CANDIDATURA]` in P1, P3, P4, P5 (entrambe le versioni Presente/Assente). Da sostituire appena esiste la pagina candidatura call.
+**Placeholder nelle email: NESSUNO.** `[LINK PAGINA CANDIDATURA]` sostituito il 5/8 con `https://landing.metodosincro.com/candidatura` in tutte e 8 le campagne P (verificato via get_campaign_links). B1/B2 puntano a `/resto` (live) e a `%UNSUBSCRIBELINK%`.
 
-**Stato build (5/8):** tutte e 5 le automazioni del lancio sono costruite e verificate, INATTIVE: 6 riscaldamento, 7 A1-Freddi, 8 W-Invito, 9 R-Promemoria Registrati (camp. 23/25/27/29/31), 10 P-Presenti (camp. 33/35/37/39), 11 P-Assenti (camp. 41/43/45/49). Orfani innocui: camp. 14 e 47 (bozze da copie fallite).
+**Stato build (5/8 pomeriggio) — TUTTE E 6 LE AUTOMAZIONI ATTIVE (status 1 verificato via API):**
+
+- **6 · Lancio26 - Risveglio Caldi e Tiepidi** (rinominata): trigger caldo OR tiepido → A1 → attendi 1g → attendi fino 9AM (fuso contatto) → A2 → attendi 3g → A3 → attendi 1g → If "ha aperto qualsiasi email negli ultimi 30 giorni" → SÌ: tag engaged+invitabile · NO: tag sospeso. La coda mancante è stata AGGIUNTA il 5/8: è quella che innesca la W.
+- **7 · A1 - Risveglio Freddi**: trigger freddo → B1 ("Tuo figlio gioca ancora?") → 4g → B2 ("Chiudo") → attendi 1g → If "ha cliccato un link (30gg)" → SÌ: tag riattivato+invitabile · NO: tag sospeso. Coda aggiunta il 5/8. Divergenza minore accettata: B2 arriva anche a chi ha aperto (ma non cliccato) B1 — il filtro "solo se non ha aperto" non è stato inserito per non rischiare la catena; impatto: copy leggermente incoerente per gli apritori-non-cliccatori.
+- **8 W-Invito · 9 R-Promemoria (camp. 23/25/27/29/31) · 10 P-Presenti (33/35/37/39) · 11 P-Assenti (41/43/45/49)**: invariate, attivate il 5/8.
+
+Orfani innocui: camp. 14 e 47 (bozze da copie fallite, non collegate a blocchi sul canvas).
+
+**Segmentazione → LOTTI NEUTRI (decisione 5/8).** L'account non ha mai inviato → i filtri "ha aperto/cliccato" di §4 restituiscono zero: caldi/tiepidi per engagement NON esistono. Si usa la rampa con lotti neutri in ordine di lista: `scripts/lancio_prepara_lotti.py` (committato) crea e applica i tag `lancio26-lotto2`…`lotto6` (1000/2000/2000/2500/resto), escludendo i 500 del lotto1. Eseguirlo dal Mac (`export $(grep -E '^ACTIVECAMPAIGN' .env.local | xargs) && python3 scripts/lancio_prepara_lotti.py`, ~30-40 min, riprendibile). Ogni sera: Contatti → cerca tag lottoN → seleziona tutti → aggiungi tag `lancio26-caldo` (il grilletto). La sera 6 (freddi) usa invece il tag `lancio26-freddo` → flusso B.
+
+**Restano SOLO azioni di Antonio:** 1) piano a pagamento (bloccante), 2) messaggio al supporto AC (testo pronto), 3) stasera tag caldo ai 500 del lotto1, 4) test di invio delle email su telefono, 5) i tag serali della rampa con regola di stop (>30% procedi · 15-30% dimezza · <15% fermati), 6) i messaggi manuali WhatsApp da calendario.
 
 ---
 

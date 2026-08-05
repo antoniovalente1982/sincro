@@ -9,7 +9,6 @@ export type Department = 'marketing' | 'sales' | 'coaching' | 'admin' | 'it' | n
 export type Section =
     | 'dashboard'
     | 'crm'
-    | 'arena'
     | 'sales'
     | 'leads_station'
     | 'calendar'
@@ -23,7 +22,6 @@ export type Section =
 const SECTION_ACCESS: Record<Section, Role[]> = {
     dashboard:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     crm:            ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
-    arena:          ['owner', 'admin', 'manager'],
     sales:          ['owner', 'admin', 'manager', 'closer', 'coach', 'viewer'],
     leads_station:  ['owner', 'admin', 'manager', 'closer'],
     calendar:       ['owner', 'admin', 'manager', 'closer', 'coach'],
@@ -37,18 +35,17 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
 
 // Manager access is further restricted by department
 const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
-    marketing: ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'settings'],
-    sales:     ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
+    marketing: ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'settings'],
+    sales:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     coaching:  ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     admin:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
-    it:        ['dashboard', 'crm', 'arena', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'team', 'connections', 'settings'],
+    it:        ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
 // Map href to section
 const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard':                     'dashboard',
     '/dashboard/crm':                 'crm',
-    '/dashboard/crm/arena':           'arena',
     '/dashboard/sales':               'sales',
     '/dashboard/leads-station':       'leads_station',
     '/dashboard/calendar':            'calendar',

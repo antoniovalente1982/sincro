@@ -10,10 +10,9 @@ import {
     LogOut, ChevronLeft, ChevronRight, Settings,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     History, CalendarDays,
-    Sun, Moon, TrendingUp, Layers, Swords,
+    Sun, Moon, TrendingUp, Layers,
     type LucideIcon
 } from 'lucide-react'
-import HermesChat from './dashboard/HermesChat'
 import { filterNavItems, type Role, type Department } from '@/lib/permissions'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -37,10 +36,9 @@ const allNavGroups: NavGroup[] = [
     {
         label: 'CRM',
         items: [
+            { label: 'CRM Pipeline',      href: '/dashboard/crm',           icon: Users },
             { label: '🎰 Stazione Leads', href: '/dashboard/leads-station', icon: Layers },
-            { label: 'CRM Pipeline',      href: '/dashboard/crm',            icon: Users },
-            { label: '⚔️ Arena AI vs Human', href: '/dashboard/crm/arena',  icon: Swords },
-            { label: 'Calendario',         href: '/dashboard/calendar',      icon: CalendarDays },
+            { label: 'Calendario',        href: '/dashboard/calendar',      icon: CalendarDays },
         ]
     },
     {
@@ -417,8 +415,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </main>
 
-            {/* Hermes AI Chat Widget */}
-            {userRole === 'owner' && <HermesChat />}
+
         </div>
     )
 }
