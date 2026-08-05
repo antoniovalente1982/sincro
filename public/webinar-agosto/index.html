@@ -1114,30 +1114,10 @@
         }
       }).catch(err => console.error('[Submit] Error:', err));
 
-      // Show success message
-      const wrapper = document.getElementById('form-wrapper');
-      wrapper.innerHTML = `
-        <div class="success-msg">
-          <div class="success-icon">✓</div>
-          <h3 style="font-family: var(--font-h); font-size: 30px; background: linear-gradient(135deg, #111 0%, #333 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;">
-            POSTO RISERVATO!
-          </h3>
-          <p style="font-size: 15px; color: #555; line-height: 1.8; max-width: 420px; margin: 0 auto 20px;">
-            Perfetto! Il tuo posto per il webinar del <strong>24 Agosto ore 21:00</strong> è confermato. 
-            Riceverai un'email con il link di accesso e un promemoria su WhatsApp il giorno del webinar.
-          </p>
-          <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
-            <p style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Prossimo passo</p>
-            <p style="font-size: 15px; color: #333; line-height: 1.6;">
-              📱 Salva la data: <strong>Lunedì 24 Agosto, ore 21:00</strong><br>
-              📧 Controlla la tua email per il link di accesso
-            </p>
-          </div>
-          <div style="font-size: 12px; color: #aa7d00; letter-spacing: 1px; text-transform: uppercase;">
-            A presto, Team Metodo Sincro®
-          </div>
-        </div>
-      `;
+      // Redirect to thank you page after short delay
+      setTimeout(() => {
+        window.location.href = 'grazie.html';
+      }, 800);
     });
 
     // ═══════ SPOTS COUNTER ANIMATION ═══════

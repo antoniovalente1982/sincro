@@ -11,6 +11,15 @@
 
 **Decisione del 5/8 (Antonio): link Zoom e replay NON stanno in nessuna email. Vivono SOLO nel gruppo WhatsApp** → `https://chat.whatsapp.com/K3ofUeUjEuOGCXk6yD1BBI`. Tutte le email R e P sono già state riscritte di conseguenza (bottoni → gruppo). Obiettivo: chiunque si registra deve entrare subito nella community.
 
+**THANK YOU PAGE — aggiornamento 5/8:** È stata creata la pagina `/public/webinar-agosto/grazie.html` (URL produzione: `https://landing.metodosincro.com/webinar-agosto/grazie.html`). La landing del webinar ora fa redirect a questa pagina dopo il submit del form (con 800ms di delay per far sparare il pixel). **La thank you page:**
+- Traccia `CompleteRegistration` via Meta Pixel al caricamento (niente duplicati: il `Lead` event spara nella landing al submit)
+- Traccia `WhatsAppGroupJoin` (custom event) al click sul bottone
+- Mette il gruppo WhatsApp come CTA principale, verde, in primo piano — con spiegazione esplicita che il link Zoom arriva SOLO lì
+- Ha `noindex/nofollow` — non va indicizzata
+- **Non va toccata da ActiveCampaign** — è una pagina statica HTML standalone, non ha nulla a che fare con le email dell'automazione
+- L'email R1 (già scritta e in AC) rimane il secondo punto di contatto: conferma registrazione + spinge al gruppo WA. Non duplicare il contenuto della thank you page nell'email.
+
+
 **Il funnel si regge su TRE MESSAGGI MANUALI di Antonio nel gruppo WhatsApp. Se saltano, i registrati restano senza link:**
 
 1. **Domenica 23 agosto, sera** → mandare il link Zoom nel gruppo (R1/R2 lo promettono)
