@@ -2,7 +2,50 @@
 
 **Destinatario:** agente con accesso ad ActiveCampaign (MCP o REST API v3).
 **Redatto:** 4 agosto 2026. Ogni dato qui è stato verificato con chiamate reali, non ipotizzato.
+**Aggiornato:** 4 agosto 2026, ore 17 — dopo un TEST DI INVIO REALE che ribalta la procedura email (vedi §0-bis).
 **Repo di riferimento:** `/Users/antoniovalente/Desktop/sincro`
+
+---
+
+## ⚠️⚠️ NOTE OPERATIVE CRITICHE — strategia community e giorno del webinar (agg. 5/8)
+
+**Decisione del 5/8 (Antonio): link Zoom e replay NON stanno in nessuna email. Vivono SOLO nel gruppo WhatsApp** → `https://chat.whatsapp.com/K3ofUeUjEuOGCXk6yD1BBI`. Tutte le email R e P sono già state riscritte di conseguenza (bottoni → gruppo). Obiettivo: chiunque si registra deve entrare subito nella community.
+
+**Il funnel si regge su TRE MESSAGGI MANUALI di Antonio nel gruppo WhatsApp. Se saltano, i registrati restano senza link:**
+
+1. **Domenica 23 agosto, sera** → mandare il link Zoom nel gruppo (R1/R2 lo promettono)
+2. **Lunedì 24 agosto, ore 20:45** → rimandare il link Zoom nel gruppo (R3/R4 dicono "è appena arrivato lì")
+3. **Martedì 25 agosto** → mandare il replay nel gruppo (P2/P4 dicono "la registrazione è nel gruppo"; P2 promette che sparisce giovedì sera, P4 "stasera a mezzanotte" — rispettare quelle scadenze)
+
+In più: R1 promette 3 messaggi di valore nel gruppo prima del webinar (mercoledì, venerdì, domenica sera).
+
+**I tre link — ruoli distinti, non confonderli:**
+
+| Link | Ruolo | Dove sta |
+|---|---|---|
+| `https://landing.metodosincro.com/webinar-agosto/#register` | **Registrazione al webinar** — genera il tag `lancio26-registrato` (via gestionale) | Email W1–W4. NON toccare, resta attivo |
+| `https://chat.whatsapp.com/K3ofUeUjEuOGCXk6yD1BBI` | Community iscritti | Email R1, R1bis, R2, R3, R4, P2, P4 |
+| Link Zoom + replay | Accesso diretta / registrazione | SOLO messaggi manuali nel gruppo WhatsApp |
+
+**Unico placeholder rimasto nelle email:** `[LINK PAGINA CANDIDATURA]` in P1, P3, P4, P5 (entrambe le versioni Presente/Assente). Da sostituire appena esiste la pagina candidatura call.
+
+**Stato build (5/8):** tutte e 5 le automazioni del lancio sono costruite e verificate, INATTIVE: 6 riscaldamento, 7 A1-Freddi, 8 W-Invito, 9 R-Promemoria Registrati (camp. 23/25/27/29/31), 10 P-Presenti (camp. 33/35/37/39), 11 P-Assenti (camp. 41/43/45/49). Orfani innocui: camp. 14 e 47 (bozze da copie fallite).
+
+---
+
+## 0-bis. ⚠️ CORREZIONE DEFINITIVA sulla scrittura delle email — provata con invio reale
+
+Il §0 qui sotto affermava che l'HTML si scrive via `PUT /messages/{id}` e che quindi "non va ricostruito nell'editor". **La scrittura via API funziona davvero (write + rilettura ok), MA NON È QUELLO CHE PARTE.** Test di invio reale del 4/8 ore 16:40 su msg 18 (campo html corretto e verificato via API): l'email è arrivata in casella col **template di default** ("Progetta qui la tua email!"). Conclusione, valida per tutte le email create con l'editor visuale (ed_version 3):
+
+- **L'invio rigenera il corpo dai BLOCCHI dell'editor visuale**, non dal campo `html` del messaggio. Il campo `html` scritto via API è un binario morto: leggibile, riscrivibile, ignorato dal sender.
+- Inoltre, ogni "Salva ed esci" dall'editor **sovrascrive** il campo `html` col contenuto dei blocchi (è quello che ha resettato msg 19 la mattina del 4/8).
+- Oggetto e preheader invece arrivano dal record messaggio e si impostano correttamente via API — quelli restano pilotabili.
+
+**PROCEDURA CORRETTA per il corpo (unica che funziona):** nell'editor visuale, eliminare tutti i blocchi di default, trascinare un unico elemento **HTML** (`<>`, pannello Elementi) e incollarci il frammento pronto. I 19 frammenti già pronti per l'incolla (senza doctype/head, solo body) sono in **`docs/lancio-agosto-2026/email-html-editor/*.html`** — un file per chiave (A1…P5). Un minuto a email. Dopo l'incolla: test di invio a sé stessi, sempre.
+
+Nota: il footer di ActiveCampaign (indirizzo Sincro Group + disiscrizione) viene aggiunto in coda automaticamente — verificato nel test. Se dopo l'incolla il footer risulta doppio, togliere quello del frammento.
+
+`scripts/ac_write_emails.py --write` resta utile SOLO per oggetto e preheader; `scripts/ac_inspect.py` resta valido per mappare automazioni → slot → messageid e trovare i corpi ancora al template.
 
 ---
 
@@ -10,8 +53,8 @@
 
 Ci sono tre affermazioni che girano nei documenti precedenti e che sono **false**. Sono state testate.
 
-**❌ "L'HTML delle email non si può scrivere via API."** Falso.
-`PUT /api/3/messages/{id}` con `{"message": {"html": "...", "subject": "...", "preheader_text": "..."}}` funziona: scrittura verificata con rilettura. La sessione che ha diffuso questo errore usava `campaign/message`, che aggiorna solo i metadati e **ignora il campo `html` restituendo comunque HTTP 200**. Se usi l'endpoint sbagliato non ricevi nessun errore, semplicemente non succede niente. Usa `messages`.
+**❌→⚠️ "L'HTML delle email non si può scrivere via API."** [SUPERATO — vedi §0-bis: la scrittura funziona ma il sender la ignora; il corpo va incollato nell'editor come elemento HTML.]
+`PUT /api/3/messages/{id}` con `{"message": {"html": "...", "subject": "...", "preheader_text": "..."}}` funziona: scrittura verificata con rilettura. La sessione che ha diffuso questo errore usava `campaign/message`, che aggiorna solo i metadati e **ignora il campo `html` restituendo comunque HTTP 200**. Se usi l'endpoint sbagliato non ricevi nessun errore, semplicemente non succede niente. Usa `messages` — ma solo per oggetto/preheader, per il corpo vedi §0-bis.
 
 **❌ "Il webinar è a settembre."** Falso. È **lunedì 24 agosto 2026, ore 21:00**, su Zoom. La lista in ActiveCampaign si chiamava "Registrati Webinar - Settembre 2026" ed è già stata rinominata.
 
@@ -77,9 +120,9 @@ Le automazioni 3, 4, 5 non contengono email: applicano tag e iscrivono a liste i
 ### Messaggi email
 | msg | campagna | contenuto | stato |
 |---|---|---|---|
-| 18 | 6 | Email A1 — "Tuo figlio ci sta già pensando" | ✅ scritta e verificata |
-| 19 | 8 | Email A2 — "«Stai tranquillo» è la frase che gli fa più male" | ✅ scritta e verificata |
-| 20 | 10 | Email A3 — "1.100 ragazzi. Nessuno di loro era «quello dotato»." | ✅ scritta e verificata |
+| 18 | 6 | Email A1 — "Tuo figlio ci sta già pensando" | ⚠️ html via API ok ma IGNORATO dal sender — serve incolla nell'editor (§0-bis) |
+| 19 | 8 | Email A2 — "«Stai tranquillo» è la frase che gli fa più male" | ⚠️ idem — riscritta via API il 4/8 pomeriggio, ma vale solo per oggetto/preheader |
+| 20 | 10 | Email A3 — "1.100 ragazzi. Nessuno di loro era «quello dotato»." | ⚠️ idem |
 | 5, 6, 7 | — | orfani: oggetto nuovo innestato su corpo vecchio, non collegati a nulla | ⚠️ ignorare o eliminare |
 
 ---
@@ -100,7 +143,7 @@ python3 scripts/ac_write_emails.py --write W1=31 W2=33   # scrive e verifica
 
 Chiavi disponibili: `A1 A2 A3 B1 B2 W1 W2 W3 W4 R1 R1bis R2 R3 R4 P1 P2 P3 P4 P5`
 
-Il template è già email-safe: tabelle, stili inline, preheader nascosto, `%SENDER-INFO-SINGLELINE%` e `%UNSUBSCRIBELINK%` nel footer. **Non ricostruire le email a blocchi nell'editor.** Crea lo scheletro e poi scrivi il contenuto via API.
+Il template è già email-safe: tabelle, stili inline, preheader nascosto, `%SENDER-INFO-SINGLELINE%` e `%UNSUBSCRIBELINK%` nel footer. ~~Non ricostruire le email a blocchi nell'editor. Crea lo scheletro e poi scrivi il contenuto via API.~~ **[SUPERATO dal test di invio del 4/8 — vedi §0-bis: il corpo va incollato nell'editor come elemento HTML, dai frammenti in `email-html-editor/`; `--write` serve solo per oggetto e preheader.]**
 
 Se non hai accesso al repo, gli HTML sono anche in `docs/lancio-agosto-2026/email-html/*.html`, e il copy sorgente con il razionale in `docs/lancio-agosto-2026/sequenza-email-completa.md`.
 

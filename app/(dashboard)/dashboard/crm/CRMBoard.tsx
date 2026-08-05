@@ -198,6 +198,25 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const filterOwn = shouldFilterOwnLeads(role)
     const defaultPipeline = pipelines.find(p => p.is_default)?.id || pipelines[0]?.id || ''
     const [activePipelineId, setActivePipelineId] = useState(defaultPipeline)
+
+    // Pipeline tab order - persisted in localStorage
+    const pipelineOrderKey = `crm-pipeline-order-${orgId}`
+    const [pipelineOrder, setPipelineOrder] = useState<string[]>(() => {
+        if (typeof window === 'undefined') return pipelines.map(p => p.id)
+        try {
+            const saved = localStorage.getItem(pipelineOrderKey)
+            if (saved) {
+                const parsed: string[] = JSON.parse(saved)
+                // Keep only valid IDs, append any new ones at the end
+                const validIds = parsed.filter(id => pipelines.some(p => p.id === id))
+                const newIds = pipelines.filter(p => !validIds.includes(p.id)).map(p => p.id)
+                return [...validIds, ...newIds]
+            }
+        } catch {}
+        return pipelines.map(p => p.id)
+    })
+    const dragTabRef = useRef<string | null>(null)
+    const dragOverTabRef = useRef<string | null>(null)
     const [leads, setLeads] = useState<Lead[]>(initialLeads)
     const [dragLead, setDragLead] = useState<string | null>(null)
     const [dragOverStage, setDragOverStage] = useState<string | null>(null)
@@ -341,6 +360,8 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
     const [newPipelineSource, setNewPipelineSource] = useState('custom')
     const [newPipelineColor, setNewPipelineColor] = useState('#6366f1')
     const [pipelineLoading, setPipelineLoading] = useState(false)
+    const [draggingTabId, setDraggingTabId] = useState<string | null>(null)
+    const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
     const handleCreatePipeline = async () => {
         if (!newPipelineName.trim()) return
@@ -366,6 +387,40 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
             if (res.ok) window.location.reload()
             else { const err = await res.json(); alert(err.error || 'Errore') }
         } catch { alert('Errore di rete') }
+    }
+
+    // Pipeline tab drag & drop handlers
+    const handleTabDragStart = (e: React.DragEvent, id: string) => {
+        dragTabRef.current = id
+        setDraggingTabId(id)
+        e.dataTransfer.effectAllowed = 'move'
+    }
+    const handleTabDragOver = (e: React.DragEvent, id: string) => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+        if (dragTabRef.current === id) return
+        dragOverTabRef.current = id
+        setDragOverTabId(id)
+    }
+    const handleTabDragEnd = () => {
+        const from = dragTabRef.current
+        const to = dragOverTabRef.current
+        if (from && to && from !== to) {
+            setPipelineOrder(prev => {
+                const next = [...prev]
+                const fromIdx = next.indexOf(from)
+                const toIdx = next.indexOf(to)
+                if (fromIdx === -1 || toIdx === -1) return prev
+                next.splice(fromIdx, 1)
+                next.splice(toIdx, 0, from)
+                try { localStorage.setItem(pipelineOrderKey, JSON.stringify(next)) } catch {}
+                return next
+            })
+        }
+        dragTabRef.current = null
+        dragOverTabRef.current = null
+        setDraggingTabId(null)
+        setDragOverTabId(null)
     }
 
     // Filter stages by active pipeline
@@ -917,21 +972,42 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                 </div>
             </div>
 
-            {/* Pipeline Tabs with CRUD */}
+            {/* Pipeline Tabs with CRUD + Drag to reorder */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                {pipelines.map(p => {
+                {pipelineOrder
+                    .map(id => pipelines.find(p => p.id === id))
+                    .filter(Boolean)
+                    .map(p => p!)
+                    .map(p => {
                     const leadCount = leads.filter(l => l.stage_id && stages.some(s => s.id === l.stage_id && s.pipeline_id === p.id)).length
+                    const isDragging = draggingTabId === p.id
+                    const isOver = dragOverTabId === p.id && draggingTabId !== p.id
                     return (
-                        <div key={p.id} className="flex items-center group/tab">
+                        <div
+                            key={p.id}
+                            className="flex items-center group/tab"
+                            draggable
+                            onDragStart={e => handleTabDragStart(e, p.id)}
+                            onDragOver={e => handleTabDragOver(e, p.id)}
+                            onDragEnd={handleTabDragEnd}
+                            style={{
+                                opacity: isDragging ? 0.4 : 1,
+                                transform: isOver ? 'translateX(4px)' : 'none',
+                                transition: 'opacity 0.15s, transform 0.15s',
+                                cursor: 'grab',
+                            }}
+                        >
                             <button
                                 onClick={() => setActivePipelineId(p.id)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
                                 style={{
-                                    background: activePipelineId === p.id ? `${p.color}15` : 'transparent',
+                                    background: activePipelineId === p.id ? `${p.color}15` : isOver ? 'var(--color-surface-100)' : 'transparent',
                                     color: activePipelineId === p.id ? p.color : 'var(--color-surface-500)',
-                                    border: `1px solid ${activePipelineId === p.id ? p.color + '30' : 'var(--color-surface-200)'}`,
+                                    border: `1px solid ${isOver ? p.color + '50' : activePipelineId === p.id ? p.color + '30' : 'var(--color-surface-200)'}`,
+                                    cursor: 'grab',
                                 }}
                             >
+                                <GripVertical className="w-3 h-3 opacity-0 group-hover/tab:opacity-40 transition-opacity flex-shrink-0" style={{ cursor: 'grab' }} />
                                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
                                 {p.name}
                                 <span key={leadCount} className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: `${p.color}10`, color: p.color }}>{leadCount}</span>
