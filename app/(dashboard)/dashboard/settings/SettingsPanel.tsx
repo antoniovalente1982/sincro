@@ -208,6 +208,22 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
         await handleUpdatePipelineSellerPool(pipelineId, { seller_pool: next })
     }
 
+    const handleUpdatePipelineWeight = async (pipelineId: string, userId: string, weight: number) => {
+        const current = pipelineSettingsMap[pipelineId]?.routing_weights || {}
+        const updated = { ...current, [userId]: weight }
+        setPipelineSettingsMap(prev => ({
+            ...prev,
+            [pipelineId]: { ...prev[pipelineId], routing_weights: updated }
+        }))
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_pipeline_settings', id: pipelineId, settings: { routing_weights: updated } }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
     const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone, telegram_chat_id: telegramChatId })
 
     const handleCreateStage = async () => {
@@ -487,13 +503,20 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     <h3 className="text-sm font-bold th-heading">Venditori per Pipeline</h3>
                 </div>
                 <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
-                    Scegli quali membri del team ricevono i lead di ogni singola pipeline. Se lasci tutto deselezionato, si usa la rotazione globale configurata sopra.
+                    Scegli quali venditori (reparto Vendite) ricevono i lead di ogni pipeline. Se lasci tutto deselezionato, si usa la rotazione globale.
                 </p>
 
                 <div className="space-y-4">
                     {pipelineList.map(pipeline => {
                         const ps = pipelineSettingsMap[pipeline.id] || { seller_pool: [], routing_method: 'round_robin' }
                         const hasPool = ps.seller_pool.length > 0
+                        const isWeighted = ps.routing_method === 'weighted'
+                        // Solo venditori (department Vendite o role closer/setter) — no admin/manager
+                        const sellers = membersList.filter(m =>
+                            m.department === 'Vendite' ||
+                            m.role === 'closer' ||
+                            m.role === 'setter'
+                        )
                         return (
                             <div key={pipeline.id} className="p-4 rounded-xl border" style={{ borderColor: `${pipeline.color}30`, background: `${pipeline.color}08` }}>
                                 <div className="flex items-center justify-between mb-3">
@@ -519,49 +542,70 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                     </select>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    {membersList.map(member => {
+                                {sellers.length === 0 ? (
+                                    <p className="text-xs text-center py-3" style={{ color: 'var(--color-surface-500)' }}>
+                                        Nessun membro con reparto &quot;Vendite&quot; trovato. Assegna il reparto dal pannello Team.
+                                    </p>
+                                ) : (
+                                <div className="space-y-2">
+                                    {sellers.map(member => {
                                         const uid = member.user_id
                                         const isInPool = ps.seller_pool.includes(uid)
+                                        const weight = (ps as any).routing_weights?.[uid] ?? 100
                                         return (
-                                            <button
-                                                key={member.id}
-                                                onClick={() => handleTogglePipelineSeller(pipeline.id, uid)}
-                                                className={`flex items-center gap-2 p-2 rounded-lg border text-left transition-all ${
-                                                    isInPool
-                                                        ? 'border-current bg-current/10'
-                                                        : 'border-transparent'
-                                                }`}
-                                                style={isInPool ? { borderColor: `${pipeline.color}60`, background: `${pipeline.color}12`, color: pipeline.color } : { borderColor: 'var(--color-surface-200)', background: 'var(--color-surface-50)' }}
-                                            >
-                                                {member.profiles?.avatar_url ? (
-                                                    <img src={member.profiles.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                                                ) : (
-                                                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                                                        <User className="w-3 h-3 text-gray-400" />
+                                            <div key={member.id} className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleTogglePipelineSeller(pipeline.id, uid)}
+                                                    className={`flex items-center gap-2 flex-1 p-2 rounded-lg border text-left transition-all`}
+                                                    style={isInPool
+                                                        ? { borderColor: `${pipeline.color}60`, background: `${pipeline.color}12` }
+                                                        : { borderColor: 'var(--color-surface-200)', background: 'var(--color-surface-50)' }
+                                                    }
+                                                >
+                                                    {member.profiles?.avatar_url ? (
+                                                        <img src={member.profiles.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                                                    ) : (
+                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                            <User className="w-3 h-3 text-gray-400" />
+                                                        </div>
+                                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-xs font-semibold truncate" style={{ color: isInPool ? pipeline.color : 'var(--color-surface-700)' }}>
+                                                            {member.profiles?.full_name || 'Utente'}
+                                                        </div>
+                                                        <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                            {member.role === 'closer' ? 'Venditore' : member.role === 'setter' ? 'Qualificatore' : 'Venditore'}
+                                                        </div>
+                                                    </div>
+                                                    <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border-2 transition-all ${
+                                                        isInPool ? 'border-current' : 'border-gray-300'
+                                                    }`} style={isInPool ? { borderColor: pipeline.color, background: pipeline.color } : {}}>
+                                                        {isInPool && (
+                                                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
+                                                                <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                </button>
+                                                {/* Peso % — visibile solo in modalità weighted E se il venditore è nel pool */}
+                                                {isWeighted && isInPool && (
+                                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                                        <input
+                                                            type="number"
+                                                            min="1" max="100"
+                                                            className="input-field !py-1 !px-2 w-16 text-center text-xs"
+                                                            value={weight}
+                                                            onChange={e => handleUpdatePipelineWeight(pipeline.id, uid, parseInt(e.target.value) || 1)}
+                                                            onClick={e => e.stopPropagation()}
+                                                        />
+                                                        <span className="text-[10px] font-bold" style={{ color: 'var(--color-surface-500)' }}>%</span>
                                                     </div>
                                                 )}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-xs font-semibold truncate" style={{ color: isInPool ? pipeline.color : 'var(--color-surface-700)' }}>
-                                                        {member.profiles?.full_name || 'Utente'}
-                                                    </div>
-                                                    <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                                                        {member.role === 'owner' ? 'Proprietario' : member.role === 'admin' ? 'Admin' : member.role === 'closer' ? 'Venditore' : member.role || 'Membro'}
-                                                    </div>
-                                                </div>
-                                                <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border-2 transition-all ${
-                                                    isInPool ? 'border-current' : 'border-gray-300'
-                                                }`} style={isInPool ? { borderColor: pipeline.color, background: pipeline.color } : {}}>
-                                                    {isInPool && (
-                                                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
-                                                            <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                    )}
-                                                </div>
-                                            </button>
+                                            </div>
                                         )
                                     })}
                                 </div>
+                                )}
                             </div>
                         )
                     })}
