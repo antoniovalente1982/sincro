@@ -16,6 +16,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { assignLeadRoundRobin } from './lead-routing'
 import { notifyAssignedSeller } from './telegram'
 
+const WEBINAR_TAG = 'Webinar Agosto 2026'
+
 const FUNNEL_SLUG = 'candidatura'
 
 export type CandidaturaCrm = {
@@ -107,6 +109,43 @@ async function registraAttivita(
 ): Promise<void> {
   const { error } = await db.from('lead_activities').insert(riga)
   if (error) console.error(`[CRM] Attività "${riga.activity_type}" non registrata:`, error.message)
+}
+
+async function ensureLeadTag(db: SupabaseClient, orgId: string, leadId: string, tagName: string): Promise<void> {
+  try {
+    let { data: tag } = await db
+      .from('crm_tags')
+      .select('id')
+      .eq('organization_id', orgId)
+      .eq('name', tagName)
+      .maybeSingle()
+
+    if (!tag) {
+      const defaultColors = ['#ec4899', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#6366f1', '#a855f7']
+      const color = defaultColors[Math.floor(Math.random() * defaultColors.length)]
+      const { data: newTag, error: tagError } = await db
+        .from('crm_tags')
+        .insert({ organization_id: orgId, name: tagName, color })
+        .select('id')
+        .single()
+      if (tagError) {
+        console.error(`[TAG] Errore creazione tag ${tagName}:`, tagError)
+        return
+      }
+      tag = newTag
+    }
+
+    if (tag?.id) {
+      const { error: joinError } = await db
+        .from('lead_tags')
+        .insert({ lead_id: leadId, tag_id: tag.id })
+      if (joinError && joinError.code !== '23505') {
+        console.error(`[TAG] Errore link tag ${tagName} → lead ${leadId}:`, joinError)
+      }
+    }
+  } catch (err) {
+    console.error(`[TAG] Eccezione tag ${tagName}:`, err)
+  }
 }
 
 export async function inserisciCandidaturaNelCrm(c: CandidaturaCrm): Promise<EsitoCrm> {
@@ -203,6 +242,9 @@ export async function inserisciCandidaturaNelCrm(c: CandidaturaCrm): Promise<Esi
         notes: `🔥 Si è candidato alla chiamata dalla pagina /candidatura — spostato in Consulenza Post Webinar`,
       })
 
+      // Tag webinar al lead esistente che si candida
+      await ensureLeadTag(db, funnel.organization_id, esistente.id, WEBINAR_TAG)
+
       return { ok: true, leadId: esistente.id, nuovo: false, assegnato: false }
     }
 
@@ -248,6 +290,9 @@ export async function inserisciCandidaturaNelCrm(c: CandidaturaCrm): Promise<Esi
       to_stage_id: stageId,
       notes: `Candidatura ricevuta dalla pagina /candidatura`,
     })
+
+    // Tag webinar al lead nuovo
+    await ensureLeadTag(db, funnel.organization_id, lead.id, WEBINAR_TAG)
 
     // 4. Assegnazione: senza un venditore il lead resta fermo nel primo stage
     let assegnato = false
