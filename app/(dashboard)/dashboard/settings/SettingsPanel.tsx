@@ -503,7 +503,7 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                     <h3 className="text-sm font-bold th-heading">Venditori per Pipeline</h3>
                 </div>
                 <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
-                    Scegli quali venditori (reparto Vendite) ricevono i lead di ogni pipeline. Se lasci tutto deselezionato, si usa la rotazione globale.
+                    Scegli chi riceve i lead di ogni pipeline: i venditori del reparto Vendite, e anche te come titolare se vuoi seguirne qualcuna di persona. Se lasci tutto deselezionato, si usa la rotazione globale.
                 </p>
 
                 <div className="space-y-4">
@@ -511,11 +511,19 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         const ps = pipelineSettingsMap[pipeline.id] || { seller_pool: [], routing_method: 'round_robin' }
                         const hasPool = ps.seller_pool.length > 0
                         const isWeighted = ps.routing_method === 'weighted'
-                        // Solo venditori (department Vendite o role closer/setter) — no admin/manager
+                        // Venditori (reparto Vendite o role closer/setter), più:
+                        // - il titolare, che deve poter decidere pipeline per pipeline se
+                        //   prendersi i lead di persona senza farsi spostare di reparto;
+                        // - chiunque sia GIÀ nel pool: un membro selezionato ma nascosto
+                        //   dal filtro continuerebbe a ricevere lead senza che nessuno
+                        //   possa toglierlo da qui.
+                        // Restano fuori admin e manager, che non vendono.
                         const sellers = membersList.filter(m =>
                             m.department === 'Vendite' ||
                             m.role === 'closer' ||
-                            m.role === 'setter'
+                            m.role === 'setter' ||
+                            m.role === 'owner' ||
+                            ps.seller_pool.includes(m.user_id)
                         )
                         return (
                             <div key={pipeline.id} className="p-4 rounded-xl border" style={{ borderColor: `${pipeline.color}30`, background: `${pipeline.color}08` }}>
@@ -574,7 +582,12 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                                                             {member.profiles?.full_name || 'Utente'}
                                                         </div>
                                                         <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
-                                                            {member.role === 'closer' ? 'Venditore' : member.role === 'setter' ? 'Qualificatore' : 'Venditore'}
+                                                            {member.role === 'closer' ? 'Venditore'
+                                                                : member.role === 'setter' ? 'Qualificatore'
+                                                                : member.role === 'owner' ? 'Titolare'
+                                                                : member.role === 'admin' ? 'Admin'
+                                                                : member.role === 'manager' ? 'Manager'
+                                                                : 'Venditore'}
                                                         </div>
                                                     </div>
                                                     <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border-2 transition-all ${
