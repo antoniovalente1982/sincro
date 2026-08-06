@@ -1,15 +1,25 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
 /**
- * Assigns a lead to the next available team member using Round Robin logic.
- * 
- * @param orgId The organization ID
- * @param supabase An initialized Supabase client (service role or authenticated)
- * @returns The user_id of the assigned member, or null if no one is available or routing is disabled
+ * Assigns a lead to the next available team member using Round Robin or Weighted logic.
+ *
+ * If `pipelineId` is provided and the pipeline has a `settings.seller_pool` configured,
+ * the routing will use only those members (per-pipeline pool).
+ * If no pipeline-specific pool is set, falls back to the global round robin
+ * (members with `in_round_robin = true` in organization_members).
+ *
+ * @param orgId       The organization ID
+ * @param supabase    An initialized Supabase client (service role or authenticated)
+ * @param pipelineId  Optional pipeline ID — enables per-pipeline seller pool
+ * @returns The user_id of the assigned member, or null if no one is available
  */
-export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClient): Promise<string | null> {
+export async function assignLeadRoundRobin(
+    orgId: string,
+    supabase: SupabaseClient,
+    pipelineId?: string | null,
+): Promise<string | null> {
     try {
-        // 1. Get organization settings to check if routing is enabled and find the last assigned user
+        // 1. Get organization settings (global routing config)
         const { data: org, error: orgError } = await supabase
             .from('organizations')
             .select('settings')
@@ -21,43 +31,81 @@ export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClie
             return null
         }
 
-        const settings = org?.settings || {}
-        
-        // If auto-routing is explicitly disabled, skip
-        if (settings.lead_routing_enabled === false) {
+        const orgSettings = org?.settings || {}
+
+        // If auto-routing is explicitly disabled at org level, skip
+        if (orgSettings.lead_routing_enabled === false) {
             return null
         }
 
-        const lastAssignedUserId = settings.last_assigned_user_id
-        const routingMethod = settings.lead_routing_method || 'round_robin'
-
-        // 2. Get all active members eligible for routing
-        // We order by joined_at to have a deterministic sequence for round robin
-        const { data: members, error: membersError } = await supabase
-            .from('organization_members')
-            .select('user_id')
-            .eq('organization_id', orgId)
-            .is('deactivated_at', null)
-            .eq('in_round_robin', true)
-            .order('joined_at', { ascending: true })
-
-        if (membersError || !members || members.length === 0) {
-            console.log('[Lead Routing] No eligible members found for routing')
-            return null
+        // 2. Check for per-pipeline pool
+        let pipelineSettings: Record<string, any> | null = null
+        if (pipelineId) {
+            const { data: pipeline } = await supabase
+                .from('pipelines')
+                .select('settings')
+                .eq('id', pipelineId)
+                .single()
+            pipelineSettings = pipeline?.settings || null
         }
 
+        const pipelinePool: string[] | null =
+            (pipelineSettings?.seller_pool?.length ?? 0) > 0 ? pipelineSettings!.seller_pool! : null
+
+        // 3. Build the eligible members list
+        let eligibleUserIds: string[] | null = null
+
+        if (pipelinePool) {
+            // Per-pipeline mode: use the explicitly configured pool
+            eligibleUserIds = pipelinePool
+            console.log(`[Lead Routing] Using per-pipeline pool (${pipelinePool.length} members) for pipeline ${pipelineId}`)
+        } else {
+            // Global mode: all members with in_round_robin = true
+            const { data: members, error: membersError } = await supabase
+                .from('organization_members')
+                .select('user_id')
+                .eq('organization_id', orgId)
+                .is('deactivated_at', null)
+                .eq('in_round_robin', true)
+                .order('joined_at', { ascending: true })
+
+            if (membersError || !members || members.length === 0) {
+                console.log('[Lead Routing] No eligible members found for routing')
+                return null
+            }
+            eligibleUserIds = members.map(m => m.user_id)
+            console.log(`[Lead Routing] Using global pool (${eligibleUserIds.length} members)`)
+        }
+
+        if (!eligibleUserIds || eligibleUserIds.length === 0) return null
+
+        // 4. Determine routing method and last assigned
+        // Per-pipeline settings override org-level settings
+        const routingMethod =
+            pipelineSettings?.routing_method ||
+            orgSettings.lead_routing_method ||
+            'round_robin'
+
+        const lastAssignedUserId =
+            pipelinePool
+                ? pipelineSettings?.last_assigned_user_id || null
+                : orgSettings.last_assigned_user_id || null
+
+        const routingWeights =
+            pipelinePool
+                ? pipelineSettings?.routing_weights || {}
+                : orgSettings.lead_routing_weights || {}
+
+        // 5. Assign
         let nextUserId: string | null = null
 
-        // --- METHOD 1: WEIGHTED (PERCENTAGE) ---
+        // --- METHOD 1: WEIGHTED ---
         if (routingMethod === 'weighted') {
-            const weights = settings.lead_routing_weights || {}
             let totalWeight = 0
-            
-            // Map weights and calculate total
-            const memberWeights = members.map(m => {
-                const w = parseInt(weights[m.user_id] ?? '100') || 0
+            const memberWeights = eligibleUserIds.map(uid => {
+                const w = parseInt(routingWeights[uid] ?? '100') || 0
                 totalWeight += w
-                return { ...m, weight: w }
+                return { user_id: uid, weight: w }
             }).filter(m => m.weight > 0)
 
             if (memberWeights.length > 0) {
@@ -69,41 +117,46 @@ export async function assignLeadRoundRobin(orgId: string, supabase: SupabaseClie
                         break
                     }
                 }
-                console.log(`[Lead Routing] Assigned lead to user ${nextUserId} via Weighted method`)
-            } else {
-                // Fallback to round robin if all weights are 0
-                console.log(`[Lead Routing] All weights 0, falling back to Round Robin`)
+                console.log(`[Lead Routing] Assigned to ${nextUserId} via Weighted`)
             }
         }
 
-        // --- METHOD 2: ROUND ROBIN (or fallback if weighted failed) ---
+        // --- METHOD 2: ROUND ROBIN (or fallback) ---
         if (routingMethod === 'round_robin' || nextUserId === null) {
             if (lastAssignedUserId) {
-                const lastIndex = members.findIndex(m => m.user_id === lastAssignedUserId)
-                if (lastIndex !== -1 && lastIndex < members.length - 1) {
-                    nextUserId = members[lastIndex + 1].user_id
+                const lastIndex = eligibleUserIds.indexOf(lastAssignedUserId)
+                if (lastIndex !== -1 && lastIndex < eligibleUserIds.length - 1) {
+                    nextUserId = eligibleUserIds[lastIndex + 1]
                 } else {
-                    nextUserId = members[0].user_id
+                    nextUserId = eligibleUserIds[0]
                 }
             } else {
-                nextUserId = members[0].user_id
+                nextUserId = eligibleUserIds[0]
             }
-            console.log(`[Lead Routing] Assigned lead to user ${nextUserId} via Round Robin`)
+            console.log(`[Lead Routing] Assigned to ${nextUserId} via Round Robin`)
         }
 
-        // 4. Update the organization settings with the new last_assigned_user_id (useful for both methods)
-        const newSettings = {
-            ...settings,
-            last_assigned_user_id: nextUserId
-        }
+        if (!nextUserId) return null
 
-        const { error: updateError } = await supabase
-            .from('organizations')
-            .update({ settings: newSettings })
-            .eq('id', orgId)
-
-        if (updateError) {
-            console.error('[Lead Routing] Error updating organization settings:', updateError)
+        // 6. Persist last_assigned_user_id — in pipeline settings if per-pipeline, else in org settings
+        if (pipelinePool && pipelineId) {
+            const newPipelineSettings = {
+                ...pipelineSettings,
+                last_assigned_user_id: nextUserId,
+            }
+            await supabase
+                .from('pipelines')
+                .update({ settings: newPipelineSettings })
+                .eq('id', pipelineId)
+        } else {
+            const newOrgSettings = {
+                ...orgSettings,
+                last_assigned_user_id: nextUserId,
+            }
+            await supabase
+                .from('organizations')
+                .update({ settings: newOrgSettings })
+                .eq('id', orgId)
         }
 
         return nextUserId

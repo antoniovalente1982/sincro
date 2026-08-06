@@ -296,7 +296,7 @@ export async function inserisciCandidaturaNelCrm(c: CandidaturaCrm): Promise<Esi
 
     // 4. Assegnazione: senza un venditore il lead resta fermo nel primo stage
     let assegnato = false
-    const assignedTo = await assignLeadRoundRobin(funnel.organization_id, db)
+    const assignedTo = await assignLeadRoundRobin(funnel.organization_id, db, funnel.pipeline_id)
     if (assignedTo) {
       await db
         .from('leads')

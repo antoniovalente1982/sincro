@@ -267,7 +267,7 @@ export async function POST(req: NextRequest) {
 
                     // ── LEAD ROUTING ──
                     if (lead) {
-                        const assignedTo = await assignLeadRoundRobin(funnel.organization_id, getSupabaseAdmin())
+                        const assignedTo = await assignLeadRoundRobin(funnel.organization_id, getSupabaseAdmin(), targetPipelineId)
                         if (assignedTo) {
                             await getSupabaseAdmin().from('leads').update({ 
                                 assigned_to: assignedTo,

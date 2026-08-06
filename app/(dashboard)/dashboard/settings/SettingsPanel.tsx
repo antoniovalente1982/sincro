@@ -13,6 +13,7 @@ interface Stage {
 
 interface Pipeline {
     id: string; name: string; slug: string; source_type: string; color: string; is_default: boolean
+    settings?: { seller_pool?: string[]; routing_method?: string }
 }
 
 interface TrafficSource {
@@ -63,6 +64,12 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [newTagInput, setNewTagInput] = useState({ name: '', color: '#10b981' })
 
     const [membersList, setMembersList] = useState<any[]>(teamMembers || [])
+    const [pipelineSettingsMap, setPipelineSettingsMap] = useState<Record<string, { seller_pool: string[]; routing_method: string }>>(
+        Object.fromEntries((pipelines || []).map(p => [
+            p.id,
+            { seller_pool: p.settings?.seller_pool || [], routing_method: p.settings?.routing_method || 'round_robin' }
+        ]))
+    )
 
     const canEdit = userRole === 'owner' || userRole === 'admin'
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -177,6 +184,28 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                 body: JSON.stringify({ action: 'update_member', member_id: member.id, updates: { in_round_robin: enabled } }),
             })
         } catch(e) { console.error(e) }
+    }
+
+    const handleUpdatePipelineSellerPool = async (pipelineId: string, updates: { seller_pool?: string[]; routing_method?: string }) => {
+        setPipelineSettingsMap(prev => ({
+            ...prev,
+            [pipelineId]: { ...prev[pipelineId], ...updates }
+        }))
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update_pipeline_settings', id: pipelineId, settings: updates }),
+            })
+        } catch(e) { console.error(e) }
+    }
+
+    const handleTogglePipelineSeller = async (pipelineId: string, userId: string) => {
+        const current = pipelineSettingsMap[pipelineId]?.seller_pool || []
+        const next = current.includes(userId)
+            ? current.filter(id => id !== userId)
+            : [...current, userId]
+        await handleUpdatePipelineSellerPool(pipelineId, { seller_pool: next })
     }
 
     const handleSaveProfile = () => saveAction('update_profile', { full_name: fullName, avatar_url: avatarUrl, phone: phone, telegram_chat_id: telegramChatId })
@@ -447,6 +476,96 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
                         )}
                     </div>
                 )}
+            </div>
+            )}
+
+            {/* Per-Pipeline Seller Pool */}
+            {canEdit && (
+            <div className="glass-card p-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <UsersIcon className="w-4 h-4" style={{ color: 'var(--color-sincro-400)' }} />
+                    <h3 className="text-sm font-bold th-heading">Venditori per Pipeline</h3>
+                </div>
+                <p className="text-xs mb-5" style={{ color: 'var(--color-surface-500)' }}>
+                    Scegli quali membri del team ricevono i lead di ogni singola pipeline. Se lasci tutto deselezionato, si usa la rotazione globale configurata sopra.
+                </p>
+
+                <div className="space-y-4">
+                    {pipelineList.map(pipeline => {
+                        const ps = pipelineSettingsMap[pipeline.id] || { seller_pool: [], routing_method: 'round_robin' }
+                        const hasPool = ps.seller_pool.length > 0
+                        return (
+                            <div key={pipeline.id} className="p-4 rounded-xl border" style={{ borderColor: `${pipeline.color}30`, background: `${pipeline.color}08` }}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pipeline.color }} />
+                                        <span className="text-sm font-bold" style={{ color: pipeline.color }}>{pipeline.name}</span>
+                                        {hasPool ? (
+                                            <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{ background: `${pipeline.color}20`, color: pipeline.color, border: `1px solid ${pipeline.color}40` }}>
+                                                {ps.seller_pool.length} venditore{ps.seller_pool.length !== 1 ? 'i' : ''}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-gray-100 text-gray-400">Rotazione globale</span>
+                                        )}
+                                    </div>
+                                    <select
+                                        className="input-field !py-1 !px-2 text-[11px] max-w-[160px]"
+                                        value={ps.routing_method || 'round_robin'}
+                                        onChange={e => handleUpdatePipelineSellerPool(pipeline.id, { routing_method: e.target.value })}
+                                    >
+                                        <option value="round_robin">A turno</option>
+                                        <option value="weighted">A percentuale</option>
+                                        <option value="none">Non assegnare</option>
+                                    </select>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {membersList.map(member => {
+                                        const uid = member.user_id
+                                        const isInPool = ps.seller_pool.includes(uid)
+                                        return (
+                                            <button
+                                                key={member.id}
+                                                onClick={() => handleTogglePipelineSeller(pipeline.id, uid)}
+                                                className={`flex items-center gap-2 p-2 rounded-lg border text-left transition-all ${
+                                                    isInPool
+                                                        ? 'border-current bg-current/10'
+                                                        : 'border-transparent'
+                                                }`}
+                                                style={isInPool ? { borderColor: `${pipeline.color}60`, background: `${pipeline.color}12`, color: pipeline.color } : { borderColor: 'var(--color-surface-200)', background: 'var(--color-surface-50)' }}
+                                            >
+                                                {member.profiles?.avatar_url ? (
+                                                    <img src={member.profiles.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                        <User className="w-3 h-3 text-gray-400" />
+                                                    </div>
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-xs font-semibold truncate" style={{ color: isInPool ? pipeline.color : 'var(--color-surface-700)' }}>
+                                                        {member.profiles?.full_name || 'Utente'}
+                                                    </div>
+                                                    <div className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                        {member.role === 'owner' ? 'Proprietario' : member.role === 'admin' ? 'Admin' : member.role === 'closer' ? 'Venditore' : member.role || 'Membro'}
+                                                    </div>
+                                                </div>
+                                                <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border-2 transition-all ${
+                                                    isInPool ? 'border-current' : 'border-gray-300'
+                                                }`} style={isInPool ? { borderColor: pipeline.color, background: pipeline.color } : {}}>
+                                                    {isInPool && (
+                                                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
+                                                            <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
             )}
 

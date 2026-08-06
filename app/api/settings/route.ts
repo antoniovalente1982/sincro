@@ -200,5 +200,27 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json(data)
     }
 
+    if (body.action === 'update_pipeline_settings') {
+        const { id, settings } = body
+        if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+        // Merge with existing settings to avoid overwriting unrelated keys
+        const { data: existing } = await supabase
+            .from('pipelines')
+            .select('settings')
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+            .single()
+        const merged = { ...(existing?.settings || {}), ...settings }
+        const { data, error } = await supabase
+            .from('pipelines')
+            .update({ settings: merged })
+            .eq('id', id)
+            .eq('organization_id', ctx.organization_id)
+            .select('id, settings')
+            .single()
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json(data)
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
