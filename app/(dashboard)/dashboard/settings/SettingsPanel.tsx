@@ -13,7 +13,7 @@ interface Stage {
 
 interface Pipeline {
     id: string; name: string; slug: string; source_type: string; color: string; is_default: boolean
-    settings?: { seller_pool?: string[]; routing_method?: string }
+    settings?: { seller_pool?: string[]; routing_method?: string; routing_weights?: Record<string, number> }
 }
 
 interface TrafficSource {
@@ -64,10 +64,10 @@ export default function SettingsPanel({ organization, stages: initialStages, pip
     const [newTagInput, setNewTagInput] = useState({ name: '', color: '#10b981' })
 
     const [membersList, setMembersList] = useState<any[]>(teamMembers || [])
-    const [pipelineSettingsMap, setPipelineSettingsMap] = useState<Record<string, { seller_pool: string[]; routing_method: string }>>(
+    const [pipelineSettingsMap, setPipelineSettingsMap] = useState<Record<string, { seller_pool: string[]; routing_method: string; routing_weights?: Record<string, number> }>>(
         Object.fromEntries((pipelines || []).map(p => [
             p.id,
-            { seller_pool: p.settings?.seller_pool || [], routing_method: p.settings?.routing_method || 'round_robin' }
+            { seller_pool: p.settings?.seller_pool || [], routing_method: p.settings?.routing_method || 'round_robin', routing_weights: p.settings?.routing_weights || {} }
         ]))
     )
 
