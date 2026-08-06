@@ -234,16 +234,9 @@ export async function POST(req: NextRequest) {
                                 if (funnelLower.includes('protocollo27')) return 'Fonte: protocollo27.it';
                                 if (funnelLower.includes('guida acquistata')) return 'Fonte: Upsell Guide';
                                 
-                                // Se viene passato un tag specifico (es. "Webinar Agosto 2026"),
-                                // usalo come fonte per non etichettare erroneamente come Meta Ads
-                                // lead organici/diretti (da email, WhatsApp, passaparola, ecc.)
-                                if (tag && tag.trim()) return `Fonte: ${tag.trim()}`;
-                                
-                                // Se il funnel è di tipo webinar, usa il nome del funnel come fonte
-                                if (funnelLower.includes('webinar')) return `Fonte: ${funnel.name}`;
-                                
-                                // Fallback predefinito se UTM mancante e funnel non matchato
-                                return 'Fonte: Ads - Meta';
+                                // Nessun UTM riconoscibile → traffico organico/diretto
+                                // (passaparola, link diretto, QR code, email non tracciata, ecc.)
+                                return 'Fonte: Organico';
                             })(),
                             meta_data: {
                                 source: 'funnel', funnel_name: funnel.name,
