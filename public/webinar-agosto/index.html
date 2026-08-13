@@ -753,7 +753,7 @@
       
       <div class="hero-spots">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        <span id="hero-spots-counter">Solo <strong>47</strong> posti disponibili — Webinar LIVE</span>
+        <span id="hero-spots-counter">Webinar in diretta — nessuna registrazione, nessun replay</span>
       </div>
     </div>
   </section>
@@ -877,7 +877,7 @@
 
         <div class="form-spots">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <span id="spots-counter">Solo <strong>47</strong> posti disponibili — il webinar è LIVE</span>
+          <span id="spots-counter">Diretta LIVE · niente replay · Q&amp;A con Antonio</span>
         </div>
       </form>
     </div>
@@ -1084,6 +1084,7 @@
       // Submit to backend
       fetch(API_BASE_URL + '/api/submit', {
         method: 'POST',
+        keepalive: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           funnel_id: '71c333c3-faf1-4b15-9ede-6e5314bc3e0d',
@@ -1116,20 +1117,11 @@
 
       // Redirect to thank you page after short delay
       setTimeout(() => {
-        window.location.href = 'grazie.html';
+        window.location.href = '/webinar-agosto/grazie.html';
       }, 800);
     });
 
-    // ═══════ SPOTS COUNTER ANIMATION ═══════
-    // Simulate decreasing spots based on time
-    const spotsEls = document.querySelectorAll('#spots-counter strong, #hero-spots-counter strong');
-    if (spotsEls.length > 0) {
-      const baseSpots = 47;
-      const hoursSinceCreate = Math.floor((Date.now() - new Date('2026-08-03').getTime()) / (1000 * 60 * 60));
-      const takenSpots = Math.min(Math.floor(hoursSinceCreate * 0.3), 30);
-      const remaining = baseSpots - takenSpots;
-      spotsEls.forEach(el => el.textContent = Math.max(remaining, 12));
-    }
+
   </script>
 
 </body>
