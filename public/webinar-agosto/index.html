@@ -1115,6 +1115,12 @@
         }
       }).catch(err => console.error('[Submit] Error:', err));
 
+      // Memorizza l'email per la pagina di ringraziamento (solo per questa sessione)
+      try { sessionStorage.setItem('ms_lead_email', email); } catch (e) {}
+
+      // Identifica il contatto in ActiveCampaign su questa pagina
+      if (window.vgo) { vgo('setEmail', email); vgo('process'); }
+
       // Redirect to thank you page after short delay
       setTimeout(() => {
         window.location.href = '/webinar-agosto/grazie.html';
@@ -1124,5 +1130,12 @@
 
   </script>
 
+<!-- ActiveCampaign Site Tracking -->
+<script type="text/javascript">
+(function(e,t,o,n,p,r,i){e.visitorGlobalObjectAlias=n;e[e.visitorGlobalObjectAlias]=e[e.visitorGlobalObjectAlias]||function(){(e[e.visitorGlobalObjectAlias].q=e[e.visitorGlobalObjectAlias].q||[]).push(arguments)};e[e.visitorGlobalObjectAlias].l=(new Date).getTime();r=t.createElement("script");r.src=o;r.async=true;i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i)})(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
+vgo('setAccount', '29057980');
+vgo('setTrackByDefault', true);
+vgo('process');
+</script>
 </body>
 </html>
