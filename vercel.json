@@ -1,25 +1,3 @@
 {
-  "regions": ["fra1"],
-  "crons": [
-    {
-      "path": "/api/cron/recycle-pool-leads",
-      "schedule": "15 * * * *"
-    },
-    {
-      "path": "/api/cron/ai-setter-dispatch",
-      "schedule": "0 9-19 * * 1-6"
-    },
-    {
-      "path": "/api/cron/reconcile-leads",
-      "schedule": "10 22 * * *"
-    },
-    {
-      "path": "/api/cron/daily-snapshot",
-      "schedule": "55 21 * * *"
-    },
-    {
-      "path": "/api/cron/refresh-meta-token",
-      "schedule": "0 8 1 */2 *"
-    }
-  ]
+  "regions": ["fra1"]
 }
