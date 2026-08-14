@@ -2,46 +2,6 @@
   "regions": ["fra1"],
   "crons": [
     {
-      "path": "/api/cron/agent-loop",
-      "schedule": "0 6,10,14,18 * * *"
-    },
-    {
-      "path": "/api/cron/sync-campaigns",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron/daily-snapshot",
-      "schedule": "55 21 * * *"
-    },
-    {
-      "path": "/api/cron/weekly-review",
-      "schedule": "0 18 * * 0"
-    },
-    {
-      "path": "/api/cron/ads-monitor",
-      "schedule": "30 * * * *"
-    },
-    {
-      "path": "/api/cron/reconcile-leads",
-      "schedule": "10 22 * * *"
-    },
-    {
-      "path": "/api/cron/sync-meta-leads",
-      "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/cron/refresh-meta-token",
-      "schedule": "0 8 1 */2 *"
-    },
-    {
-      "path": "/api/ai-engine/pulse",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/ecom-autopilot",
-      "schedule": "30 22 * * *"
-    },
-    {
       "path": "/api/cron/recycle-pool-leads",
       "schedule": "15 * * * *"
     },
@@ -50,8 +10,16 @@
       "schedule": "0 9-19 * * 1-6"
     },
     {
-      "path": "/api/cron/ai-self-improve",
-      "schedule": "0 2 * * *"
+      "path": "/api/cron/reconcile-leads",
+      "schedule": "10 22 * * *"
+    },
+    {
+      "path": "/api/cron/daily-snapshot",
+      "schedule": "55 21 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-meta-token",
+      "schedule": "0 8 1 */2 *"
     }
   ]
 }
