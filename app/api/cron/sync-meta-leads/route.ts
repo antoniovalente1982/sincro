@@ -26,7 +26,7 @@ import {
 } from '@/lib/meta-lead-forms'
 
 export const runtime = 'nodejs'
-export const maxDuration = 300 // 5 minuti max (molti form potrebbe richiedere tempo)
+export const maxDuration = 60
 
 function getSupabaseAdmin() {
     return createClient(

@@ -13,7 +13,7 @@ function getSupabaseAdmin() {
 const META_API_VERSION = 'v21.0'
 const ECOM_CAMPAIGN_NAMES = ['MS - [ECOM] Prospecting CBO', 'MS - [ECOM] Retargeting ABO', 'MS - [ECOM] Testing Creative ABO']
 
-export const maxDuration = 120 // 2 minutes max execution time for safety
+export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization')

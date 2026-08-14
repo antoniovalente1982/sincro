@@ -9,7 +9,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/admin'
 // (nuova versione 'candidate'). NON auto-attiva: l'admin approva.
 // ═══════════════════════════════════════════════════════════════
 
-export const maxDuration = 120
+export const maxDuration = 60
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const MODEL = 'google/gemini-2.5-flash'
 const MIN_CALLS_TO_LEARN = 15
