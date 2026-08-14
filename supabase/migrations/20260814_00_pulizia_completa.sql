@@ -3,13 +3,15 @@
 -- ============================================================
 --
 -- ISTRUZIONI
---   1. Prima di tutto: Dashboard -> Database -> Backups -> scarica un
---      backup. Fallo ORA che sei ancora su Pro: con il downgrade a Free
---      i backup automatici spariscono.
---   2. Poi esegui i blocchi A-F QUI SOTTO, UNO ALLA VOLTA.
---      Seleziona il blocco, premi Run, controlla il risultato, passa al
---      successivo. Non lanciarli tutti insieme.
---   3. Il blocco G (VACUUM FULL) va lanciato per ultimo e a parte.
+--   1. Seleziona i blocchi da A a F ed esegui. L'editor di Supabase li
+--      avvolge in una sola transazione: se qualcosa fallisce, NON resta
+--      niente a meta' — annulla tutto e il database torna com'era.
+--   2. Il blocco G (VACUUM FULL) va lanciato DOPO e DA SOLO: il VACUUM
+--      non puo' girare dentro una transazione.
+--
+-- I backup dalla dashboard Supabase non si scaricano: sono di tipo
+-- PHYSICAL, si possono solo ripristinare. La copia portabile e' quella
+-- su disco, fatta con pg_dump.
 --
 -- RETE DI SICUREZZA GIA' IN PIEDI
 --   ~/Desktop/sincro-backup-2026-08-14/   79 tabelle, 145.087 righe
@@ -28,10 +30,17 @@
 DELETE FROM public.leads WHERE created_at < '2026-07-01';
 
 
--- ═══════════════ BLOCCO B — LE 21 TABELLE MORTE ═══════════════
--- Verificate una per una: zero righe oppure dati del motore AI ormai
--- spento, zero riferimenti nel codice, nessuna foreign key in ingresso,
--- nessuna funzione SQL che le usa.
+-- ═══════════════ BLOCCO B — LE 18 TABELLE MORTE ═══════════════
+-- Lista verificata con una prova a secco: i 18 DROP eseguiti dentro una
+-- transazione e poi annullati, 18 riusciti su 18.
+--
+-- TRE TABELLE CHE SEMBRAVANO MORTE MA RESTANO, perche' qualcosa di vivo
+-- ci punta con una foreign key:
+--   ad_automation_rules   ad_rule_executions dipende da lei
+--   ai_llm_models         ai_agents dipende da lei, ed e' l'AI setter
+--                         del lead pool, tuttora attivo
+--   dante_messages        citata da una funzione SQL
+-- In tutto sono 200 kB: irrilevanti per l'obiettivo.
 
 DROP TABLE IF EXISTS public.ai_agent_logs;
 DROP TABLE IF EXISTS public.ai_ad_recommendations;
@@ -39,10 +48,8 @@ DROP TABLE IF EXISTS public.ai_performance_snapshots;
 DROP TABLE IF EXISTS public.ai_angle_scores;
 DROP TABLE IF EXISTS public.ai_working_memory;
 DROP TABLE IF EXISTS public.ai_mission_objectives;
-DROP TABLE IF EXISTS public.ad_automation_rules;
 DROP TABLE IF EXISTS public.ad_optimization_targets;
 DROP TABLE IF EXISTS public.brand_brief;
-DROP TABLE IF EXISTS public.dante_messages;
 DROP TABLE IF EXISTS public.ai_ad_sessions;
 DROP TABLE IF EXISTS public.ai_agent_skills;
 DROP TABLE IF EXISTS public.ai_budget_tracking;
@@ -52,7 +59,6 @@ DROP TABLE IF EXISTS public.automated_rules;
 DROP TABLE IF EXISTS public.department_features;
 DROP TABLE IF EXISTS public.pipeline_config;
 DROP TABLE IF EXISTS public.crm_leaderboard;
-DROP TABLE IF EXISTS public.ai_llm_models;
 DROP TABLE IF EXISTS public.video_render_jobs;
 
 
