@@ -50,7 +50,7 @@ const REVIEWS = [
 const FAQ_ITEMS = [
     { q: 'Quanto dura il percorso?', a: 'Il percorso standard dura 3 mesi con sessioni settimanali ONE-TO-ONE. I primi risultati sono visibili già dopo 30 giorni.' },
     { q: 'Come si svolge? Devo portarlo da qualche parte?', a: 'No, il percorso è 100% online. Le sessioni si svolgono comodamente da casa via videochiamata, in totale flessibilità.' },
-    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia risultati SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
+    { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia sul miglioramento SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo. Poi per calciatori sopra i 20 anni professionisti abbiamo un reparto dedicato: lì seguiamo calciatori e calciatrici di Serie A, B e Lega Pro.' },
     { q: 'Quanto costa?', a: 'Le tariffe dipendono dal percorso personalizzato. La prima consulenza è COMPLETAMENTE GRATUITA e senza impegno — lì ti spieghiamo tutto.' },
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
@@ -563,7 +563,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 ) : (
                                     <h1>In Soli 90 Giorni Tuo Figlio<br /><span className="lp-gold">Sarà un {sportConfig.athleteType} di Un'Altra Categoria...</span></h1>
                                 )}
-                                <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.` }} />
+                                <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
                         <div className="lp-hero-author">
@@ -722,7 +722,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <div className="lp-timeline">
                         <div className="lp-step"><div className="lp-step-num">1</div><div className="lp-step-content"><h3>Consulenza Gratuita</h3><p>Parli con un nostro esperto per 15 minuti. Analizziamo la situazione e capiamo se il percorso è adatto.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">2</div><div className="lp-step-content"><h3>Percorso Personalizzato</h3><p>Creiamo un piano <strong>ONE-TO-ONE</strong> su misura. Coach dedicato, specializzato per la sua fascia d'età.</p></div></div>
-                        <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>Trasformazione in 90 Giorni</h3><p>Sessioni settimanali online. Report progressi. Risultati misurabili e <strong>garantiti per contratto</strong>.</p></div></div>
+                        <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>Trasformazione in 90 Giorni</h3><p>Sessioni settimanali online. Report progressi. Miglioramenti misurabili e <strong>garantiti per contratto</strong>.</p></div></div>
                     </div>
                     <div className="lp-how-note">
                         <Shield size={18} color="#22c55e" />
@@ -741,7 +741,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         {[
                             { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista con tesserino da specialista Mental Coach del CONI, assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
                             { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Il percorso ha una durata definita con milestones misurabili settimana per settimana.' },
-                            { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con risultati garantiti per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
+                            { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con il miglioramento garantito per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
                             { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: `Lo stesso sistema usato da ${sportConfig.athletesProof} per la preparazione mentale.` },
@@ -778,11 +778,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <text x="60" y="86" textAnchor="middle" fill="#e4e4e7" fontSize="7" fontWeight="700" letterSpacing="0.4">NEL CONTRATTO</text>
                             </svg>
                         </div>
-                        <h2 style={{marginTop: 0}}>Garanzia Sui Risultati — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
-                        <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia risultati scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</p>
+                        <h2 style={{marginTop: 0}}>Garanzia Sul Miglioramento — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
+                        <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia sul miglioramento scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</p>
                         <div className="lp-guarantee-row">
                             <div><CheckCircle size={16} color="#22c55e" /> Zero rischi per te</div>
-                            <div><CheckCircle size={16} color="#22c55e" /> Risultati misurabili</div>
+                            <div><CheckCircle size={16} color="#22c55e" /> Miglioramenti misurabili</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Contratto trasparente</div>
                         </div>
                         <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
@@ -902,7 +902,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <div className="lp-exit-objections">
                             <div className="lp-exit-obj">
                                 <span className="lp-exit-obj-q">❌ "E se non funziona?"</span>
-                                <span className="lp-exit-obj-a">→ <strong>Garanzia scritta nel contratto:</strong> o funziona, o non paghi.</span>
+                                <span className="lp-exit-obj-a">→ <strong>Garanzia scritta nel contratto:</strong> o migliora, o non paghi.</span>
                             </div>
                             <div className="lp-exit-obj">
                                 <span className="lp-exit-obj-q">❌ "È troppo presto/tardi per mio figlio?"</span>
