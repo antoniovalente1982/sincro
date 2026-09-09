@@ -3,7 +3,7 @@
 import './landing-v2.css'
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
 import Image from 'next/image'
-import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
+import { Check, CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 interface Props {
@@ -56,6 +56,50 @@ const FAQ_ITEMS = [
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
 
+// Club in cui giocano gli atleti seguiti: alimenta il nastro sotto l'hero.
+const CLUBS = ['Monza', 'Palermo', 'Juventus', 'Roma', 'Inter', 'Sassuolo', 'Como', 'Parma', 'Salernitana', 'Pescara', 'Trento', 'Nazionale Italiana']
+
+// I sei blocchi dell'autodiagnosi. rgb = colore proprio della card.
+const PAINS = [
+    { icon: '😰', rgb: '239, 68, 68',  title: 'Ansia da prestazione', desc: 'Si blocca prima delle partite importanti. In allenamento è un altro.' },
+    { icon: '👀', rgb: '249, 115, 22', title: 'Paura di sbagliare', desc: 'Non tira, non rischia, si nasconde. Ha paura del giudizio.' },
+    { icon: '💔', rgb: '244, 63, 94',  title: 'Zero fiducia in sé', desc: "Non si sente mai all'altezza, anche quando la tecnica c'è." },
+    { icon: '🪑', rgb: '245, 158, 11', title: 'Panchina costante', desc: 'Ha il talento ma non lo dimostra quando il mister guarda.' },
+    { icon: '😤', rgb: '225, 29, 72',  title: 'Pressione insostenibile', desc: 'Sente il peso delle aspettative e crolla nei momenti decisivi.' },
+    { icon: '🏥', rgb: '251, 146, 60', title: 'Blocco post-infortunio', desc: 'È guarito fisicamente ma ha paura di tornare a dare il massimo.' },
+]
+
+/* Contatore che parte quando la cifra entra in viewport. Con
+   prefers-reduced-motion mostra subito il valore finale. */
+function CountUp({ to, suffix = '', duration = 1500 }: { to: number; suffix?: string; duration?: number }) {
+    const ref = useRef<HTMLElement>(null)
+    const [n, setN] = useState(0)
+    const started = useRef(false)
+    useEffect(() => {
+        const el = ref.current
+        if (!el) return
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setN(to); return }
+        const io = new IntersectionObserver(entries => {
+            if (!entries[0].isIntersecting || started.current) return
+            started.current = true
+            io.disconnect()
+            const t0 = performance.now()
+            const tick = (t: number) => {
+                const k = Math.min(1, (t - t0) / duration)
+                setN(Math.round(to * (1 - Math.pow(1 - k, 3))))
+                if (k < 1) requestAnimationFrame(tick)
+            }
+            requestAnimationFrame(tick)
+        }, { threshold: 0.35 })
+        io.observe(el)
+        return () => io.disconnect()
+    }, [to, duration])
+    // toLocaleString('it-IT') non raggruppa i numeri di 4 cifre (2100 -> "2100"),
+    // quindi il punto delle migliaia lo mettiamo noi.
+    const fmt = n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return <strong ref={ref}>{fmt}{suffix}</strong>
+}
+
 export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) {
     const [fullName, setFullName] = useState('')
     
@@ -107,6 +151,40 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const [activeAngle, setActiveAngle] = useState<any>(null)
     const [customHeadline, setCustomHeadline] = useState<string | null>(null)
     const checkoutFiredRef = useRef(false)
+
+    // ── Autodiagnosi: i blocchi selezionati viaggiano col lead ──
+    const [pains, setPains] = useState<string[]>([])
+    const togglePain = (t: string) => setPains(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])
+
+    // ── Barra di avanzamento lettura ──
+    const [readProgress, setReadProgress] = useState(0)
+    useEffect(() => {
+        const onScroll = () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight
+            setReadProgress(h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0)
+        }
+        onScroll()
+        window.addEventListener('scroll', onScroll, { passive: true })
+        window.addEventListener('resize', onScroll)
+        return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll) }
+    }, [])
+
+    // ── Comparsa progressiva delle sezioni ──
+    useEffect(() => {
+        const els = Array.from(document.querySelectorAll<HTMLElement>('.lp-rv:not([data-rv="in"])'))
+        if (!els.length) return
+        // Marcatore su data-attribute e non su className: className lo riscrive React
+        // a ogni render (es. al click su una card), cancellando la classe aggiunta qui.
+        const show = (el: Element) => el.setAttribute('data-rv', 'in')
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { els.forEach(show); return }
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target) } })
+        }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' })
+        els.forEach(el => io.observe(el))
+        // Rete di sicurezza: se l'observer non scattasse, dopo 3s si vede comunque tutto.
+        const t = setTimeout(() => els.forEach(show), 3000)
+        return () => { io.disconnect(); clearTimeout(t) }
+    }, [submitted])
 
 
 
@@ -351,7 +429,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     extra_data: {
                         sport: sportConfig.sportName,
                         child_age: childAge,
-                        adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined
+                        adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined,
+                        pains: pains.length ? pains : undefined
                     },
                     landing_url: window.location.href,
                     event_id: leadEventId,
@@ -511,6 +590,16 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     /* ======================== MAIN PAGE ======================== */
     return (
         <div className="lp" data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
+            {/* Senza JS la comparsa progressiva lascerebbe la pagina vuota */}
+            <noscript>
+                <style>{`.lp-rv{opacity:1!important;transform:none!important}`}</style>
+            </noscript>
+
+            {/* Barra di avanzamento lettura */}
+            <div className="lp-progress" aria-hidden="true">
+                <span style={{ transform: `scaleX(${readProgress})` }} />
+            </div>
+
             {/* Sticky Header */}
             <header className="lp-header">
                 <div className="lp-header-in">
@@ -653,31 +742,54 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 </div>
             </section>
 
+            {/* ══════════ NASTRO CLUB ══════════ */}
+            {!sportConfig.hideSoccerProof && (
+                <div className="lp-ticker" role="region" aria-label={`Club in cui giocano gli atleti seguiti: ${CLUBS.join(', ')}`}>
+                    <p className="lp-ticker-label">Dove giocano gli atleti che seguiamo</p>
+                    <div className="lp-ticker-vp">
+                        <div className="lp-ticker-track" aria-hidden="true">
+                            {[0, 1].map(k => (
+                                <div className="lp-ticker-set" key={k}>
+                                    {CLUBS.map(c => <span key={c}>{c}</span>)}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ══════════ 2. PAIN POINTS ══════════ */}
             <section className="lp-pain">
                 <div className="lp-container">
                     <p className="lp-section-pre">IL PROBLEMA</p>
                     <h2>Riconosci tuo figlio in <span className="lp-gold">almeno una</span> di queste?</h2>
+                    <p className="lp-pain-hint">Tocca quelle in cui lo riconosci — te lo diciamo subito</p>
                     <div className="lp-pain-grid">
-                        {[
-                            // rgb: colore proprio di ogni card, cosi' la griglia non e' sei volte la stessa cosa
-                            { icon: '😰', rgb: '239, 68, 68',  title: 'Ansia da prestazione', desc: 'Si blocca prima delle partite importanti. In allenamento è un altro.' },
-                            { icon: '👀', rgb: '249, 115, 22', title: 'Paura di sbagliare', desc: 'Non tira, non rischia, si nasconde. Ha paura del giudizio.' },
-                            { icon: '💔', rgb: '244, 63, 94',  title: 'Zero fiducia in sé', desc: 'Non si sente mai all\'altezza, anche quando la tecnica c\'è.' },
-                            { icon: '🪑', rgb: '245, 158, 11', title: 'Panchina costante', desc: 'Ha il talento ma non lo dimostra quando il mister guarda.' },
-                            { icon: '😤', rgb: '225, 29, 72',  title: 'Pressione insostenibile', desc: 'Sente il peso delle aspettative e crolla nei momenti decisivi.' },
-                            { icon: '🏥', rgb: '251, 146, 60', title: 'Blocco post-infortunio', desc: 'È guarito fisicamente ma ha paura di tornare a dare il massimo.' },
-                        ].map(p => (
-                            <div key={p.title} className="lp-pain-card" style={{ '--pc': p.rgb } as CSSProperties}>
-                                <span className="lp-pain-icon" aria-hidden="true">{p.icon}</span>
-                                <h3>{p.title}</h3>
-                                <p>{p.desc}</p>
-                            </div>
-                        ))}
+                        {PAINS.map((p, i) => {
+                            const on = pains.includes(p.title)
+                            return (
+                                <button
+                                    type="button" key={p.title} aria-pressed={on}
+                                    className={`lp-pain-card lp-rv ${on ? 'is-on' : ''}`}
+                                    style={{ '--pc': p.rgb, '--d': `${i * 55}ms` } as CSSProperties}
+                                    onClick={() => togglePain(p.title)}
+                                >
+                                    <span className="lp-pain-icon" aria-hidden="true">{p.icon}</span>
+                                    <span className="lp-pain-tick" aria-hidden="true"><Check size={13} strokeWidth={3.5} /></span>
+                                    <span className="lp-pain-title">{p.title}</span>
+                                    <span className="lp-pain-desc">{p.desc}</span>
+                                </button>
+                            )
+                        })}
                     </div>
-                    <div className="lp-pain-result">
+                    <div className={`lp-pain-result ${pains.length ? 'is-live' : ''}`} aria-live="polite">
                         <Brain size={20} color="#facc15" />
-                        <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È di mentalità.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
+                        <span>
+                            {pains.length === 0 && <>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È di mentalità.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</>}
+                            {pains.length === 1 && <>Ne hai selezionata <strong>1</strong>. Ne basta una per tenere fermo un ragazzo di talento: <strong>non è un limite tecnico, è di mentalità</strong>.</>}
+                            {pains.length > 1 && pains.length <= 3 && <>Ne hai selezionate <strong>{pains.length}</strong>. È il profilo che vediamo più spesso — <strong>non è un limite tecnico, è di mentalità</strong>. Si lavora in 90 giorni.</>}
+                            {pains.length > 3 && <>Ne hai selezionate <strong>{pains.length}</strong> su 6. Sembrano problemi diversi, ma <strong>hanno tutte la stessa radice</strong>: è esattamente lì che interviene il Mental Coaching.</>}
+                        </span>
                     </div>
                     <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
                 </div>
@@ -691,8 +803,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <h2>Lo stesso metodo usato da {sportConfig.athletesProof}</h2>
                         <p className="lp-social-sub">Non è teoria. Questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale.</p>
                         <div className="lp-players">
-                            {FAMOUS_PLAYERS.map(p => (
-                                <figure key={p.name} className="lp-player">
+                            {FAMOUS_PLAYERS.map((p, i) => (
+                                <figure key={p.name} className="lp-player lp-rv" style={{ '--d': `${i * 45}ms` } as CSSProperties}>
                                     <Image src={p.img} alt={`${p.name} — ${p.role}, ${p.team}`} width={412} height={466} loading="lazy" />
                                     <figcaption>
                                         <strong>{p.name}</strong>
@@ -703,11 +815,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             ))}
                         </div>
                         <p className="lp-more">...e molti altri professionisti</p>
-                        <div className="lp-stats-row">
-                            <div className="lp-stat-big"><strong>2.100+</strong><span>Atleti seguiti</span></div>
-                            <div className="lp-stat-big"><strong>11.500+</strong><span>Ore di coaching</span></div>
-                            <div className="lp-stat-big"><strong>356</strong><span>Recensioni 5★</span></div>
-                            <div className="lp-stat-big"><strong>30+</strong><span>Coach nel team</span></div>
+                        <div className="lp-stats-row lp-rv">
+                            <div className="lp-stat-big"><CountUp to={2100} suffix="+" /><span>Atleti seguiti</span></div>
+                            <div className="lp-stat-big"><CountUp to={11500} suffix="+" /><span>Ore di coaching</span></div>
+                            <div className="lp-stat-big"><CountUp to={356} suffix="" /><span>Recensioni 5★</span></div>
+                            <div className="lp-stat-big"><CountUp to={30} suffix="+" /><span>Coach nel team</span></div>
                         </div>
                     </div>
                 </section>
@@ -719,7 +831,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <p className="lp-section-pre">IL SISTEMA</p>
                     <h2>3 Fasi. 90 Giorni. <span className="lp-gold">Risultati Misurabili.</span></h2>
                     <p className="lp-how-sub">Non è motivazione. È un protocollo scientifico con risultati tracciabili settimana dopo settimana.</p>
-                    <div className="lp-timeline">
+                    <div className="lp-timeline lp-rv">
                         <div className="lp-step"><div className="lp-step-num">1</div><div className="lp-step-content"><h3>Consulenza Gratuita</h3><p>Parli con un nostro esperto per 15 minuti. Analizziamo la situazione e capiamo se il percorso è adatto.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">2</div><div className="lp-step-content"><h3>Percorso Personalizzato</h3><p>Creiamo un piano <strong>ONE-TO-ONE</strong> su misura. Coach dedicato, specializzato per la sua fascia d'età.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>Trasformazione in 90 Giorni</h3><p>Sessioni settimanali online. Report progressi. Miglioramenti misurabili e <strong>garantiti per contratto</strong>.</p></div></div>
@@ -745,8 +857,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
                             { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: `Lo stesso sistema usato da ${sportConfig.athletesProof} per la preparazione mentale.` },
-                        ].map(b => (
-                            <div key={b.title} className="lp-benefit">
+                        ].map((b, i) => (
+                            <div key={b.title} className="lp-benefit lp-rv" style={{ '--d': `${i * 55}ms` } as CSSProperties}>
                                 <div className="lp-benefit-icon">{b.icon}</div>
                                 <h3>{b.title}</h3>
                                 <p>{b.desc}</p>
@@ -759,7 +871,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             {/* ══════════ 6. GARANZIA ══════════ */}
             <section className="lp-guarantee">
                 <div className="lp-container">
-                    <div className="lp-guarantee-card">
+                    <div className="lp-guarantee-card lp-rv">
                         {/* Sigillo: senza un bollo riconoscibile la garanzia non si legge come tale */}
                         <div className="lp-seal" aria-hidden="true">
                             <svg viewBox="0 0 120 120">
@@ -797,7 +909,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <p className="lp-reviews-sub">356 recensioni certificate — 4.9/5 su TrustPilot</p>
                     <div className="lp-reviews-grid">
                         {localizedReviews.map((r, i) => (
-                            <div key={i} className="lp-review">
+                            <div key={i} className="lp-review lp-rv" style={{ '--d': `${i * 60}ms` } as CSSProperties}>
                                 <div className="lp-review-stars">{[1,2,3,4,5].map(s => <Star key={s} size={14} fill="#facc15" color="#facc15" />)}</div>
                                 <p>"{r.text}"</p>
                                 <div className="lp-review-author"><strong>{r.name}</strong><span>{r.role}</span></div>
@@ -811,7 +923,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             {/* ══════════ 8. CHI SIAMO ══════════ */}
             <section className="lp-founder">
                 <div className="lp-container">
-                    <div className="lp-founder-grid">
+                    <div className="lp-founder-grid lp-rv">
                         <div className="lp-founder-photo">
                             <Image src="/images/team/antonio-valente.jpg" alt="Antonio Valente, fondatore del Metodo Sincro" width={520} height={693} loading="lazy" />
                             <span className="lp-founder-photo-tag">
@@ -824,9 +936,9 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <h2>Chi è <span className="lp-gold">Antonio Valente</span></h2>
                             <p>{founderBio}</p>
                             <div className="lp-founder-badges">
-                                <div><strong>2.100+</strong><span>Atleti</span></div>
-                                <div><strong>11.500+</strong><span>Ore coaching</span></div>
-                                <div><strong>30+</strong><span>Team</span></div>
+                                <div><CountUp to={2100} suffix="+" /><span>Atleti</span></div>
+                                <div><CountUp to={11500} suffix="+" /><span>Ore coaching</span></div>
+                                <div><CountUp to={30} suffix="+" /><span>Team</span></div>
                             </div>
                             <div className="lp-founder-media">
                                 <span>Citato su:</span> La Repubblica • Gazzetta dello Sport • Sport Mediaset • Millionaire
