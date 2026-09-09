@@ -508,7 +508,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
     /* ======================== MAIN PAGE ======================== */
     return (
-        <div className="lp">
+        <div className="lp" data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
             {/* Sticky Header */}
             <header className="lp-header">
                 <div className="lp-header-in">
@@ -570,7 +570,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </span>
                             <span className="lp-hero-author-txt">
                                 <strong>Antonio Valente</strong>
-                                <span>Fondatore Metodo Sincro<sup>&reg;</sup> &middot; Mental Coach CONI</span>
+                                <span>Fondatore Metodo Sincro<sup>&reg;</sup> &middot; Mental Coach di {sportConfig.sportName === 'tennis' ? 'Atleti' : 'Calciatori'} Professionisti</span>
                             </span>
                         </div>
                         <div className="lp-hero-proof">
