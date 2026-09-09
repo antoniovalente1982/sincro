@@ -3,7 +3,7 @@
 import './landing-v2.css'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle, Gift } from 'lucide-react'
+import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 interface Props {
@@ -15,19 +15,30 @@ interface Props {
 }
 
 const FAMOUS_PLAYERS = [
-    { name: 'Patrick Cutrone', team: 'Ex Milan, Valencia, Como', img: '/images/calciatori/Patrick Cutrone (Monza).png' },
-    { name: 'Matteo Brunori', team: 'Sampdoria', img: '/images/calciatori/Matteo Brunori (Sampdoria).png' },
-    { name: 'Barbara Bonansea', team: 'Juventus Women', img: '/images/calciatori/Barbara Bonansea (Juventus).png' },
-    { name: 'Martina Piemonte', team: 'Lazio Women', img: '/images/calciatori/Martina Piemonte (Lazio).png' },
-    { name: 'Simone Cinquegrano', team: 'Inter', img: '/images/calciatori/Simone Cinquegrano (Inter).png' },
-    { name: 'Gianmarco Cangiano', team: 'Lega Pro', img: '/images/calciatori/Gianmarco Cangiano (Lega Pro).png' },
-    { name: 'Chiara Robustellini', team: 'Inter Women', img: '/images/calciatori/Chiara Robustellini (inter).png' },
-    { name: 'Filippo Frison', team: 'Lega Pro', img: '/images/calciatori/Filippo Frison (Lega Pro).png' },
-    { name: 'Francesca Durante', team: 'Lazio Women', img: '/images/calciatori/Francesca Durante (Lazio).png' },
-    { name: 'Iris Rabot', team: 'Parma Women', img: '/images/calciatori/Iris Rabot (Parma).png' },
-    { name: 'Annahita Zamanian', team: 'Parma Women', img: '/images/calciatori/Annahita Zamanian (Parma).png' },
-    { name: 'Riccardo Zoia', team: 'Lega Pro', img: '/images/calciatori/Riccardo Zoia (Lega Pro).png' },
+    { name: 'Patrick Cutrone', role: 'Attaccante', team: 'Monza', img: '/images/calciatori/cutrone.jpg' },
+    { name: 'Matteo Brunori', role: 'Attaccante, Capitano', team: 'Palermo', img: '/images/calciatori/brunori.jpg' },
+    { name: 'Barbara Bonansea', role: 'Attaccante', team: 'Juventus · Nazionale', img: '/images/calciatori/bonansea.jpg' },
+    { name: 'Martina Piemonte', role: 'Attaccante', team: 'Roma · Nazionale', img: '/images/calciatori/piemonte.jpg' },
+    { name: 'Simone Cinquegrano', role: 'Difensore', team: 'Sassuolo', img: '/images/calciatori/cinquegrano.jpg' },
+    { name: 'Francesca Durante', role: 'Portiere', team: 'Como · Nazionale', img: '/images/calciatori/durante.jpg' },
+    { name: 'Chiara Robustellini', role: 'Difensore, Capitana U23', team: 'Inter', img: '/images/calciatori/robustellini.jpg' },
+    { name: 'Gianmarco Cangiano', role: 'Attaccante', team: 'Pescara', img: '/images/calciatori/cangiano.jpg' },
+    { name: 'Riccardo Zoia', role: 'Difensore', team: 'Salernitana', img: '/images/calciatori/zoia.jpg' },
+    { name: 'Annahita Zamanian', role: 'Centrocampista', team: 'Parma', img: '/images/calciatori/zamanian.jpg' },
+    { name: 'Iris Rabot', role: 'Centrocampista', team: 'Parma', img: '/images/calciatori/rabot.jpg' },
+    { name: 'Filippo Frison', role: 'Difensore', team: 'Trento', img: '/images/calciatori/frison.jpg' },
 ]
+
+// Volti ritagliati dalle foto dei professionisti seguiti, per lo stack di credibilita'
+// accanto a TrustPilot. Sono gli stessi atleti della sezione "La prova": nessun volto inventato.
+const AVATAR_FACES = [
+    { slug: 'bonansea', name: 'Barbara Bonansea' },
+    { slug: 'piemonte', name: 'Martina Piemonte' },
+    { slug: 'durante', name: 'Francesca Durante' },
+    { slug: 'brunori', name: 'Matteo Brunori' },
+    { slug: 'cutrone', name: 'Patrick Cutrone' },
+]
+
 
 const REVIEWS = [
     { name: 'Francesco G.', text: "All'inizio ero scettico, ma mi sono ricreduto vedendo i miglioramenti di mio figlio. Reagisce benissimo alle delusioni e questo ha rilassato tutta la famiglia.", role: 'Papà di Matteo, 14 anni' },
@@ -412,15 +423,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </div>
                         </div>
 
-                        {/* STEP 3 */}
-                        <div className="lp-ty-step lp-step-gift">
-                            <div className="lp-ty-step-icon"><Gift size={24} color="#ec4899" /></div>
-                            <div className="lp-ty-step-content">
-                                <span className="lp-ty-badge-num">Passo 3 (Omaggio Sbloccato)</span>
-                                <h3>Anthon Chat</h3>
-                                <p>Presentandoti alla chiamata, avrai accesso in omaggio ad <strong>Anthon Chat</strong>, il Coach AI di Antonio Valente disponibile 24/7.</p>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="lp-ty-footer">
@@ -580,10 +582,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
                         </div>
-                        <div className="lp-gift-badge lp-gift-desktop">
-                            <Gift size={18} color="#facc15" />
-                            <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il tuo Mental Coach AI disponibile 24/7</strong></span>
-                        </div>
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
                         <div className="lp-hf-card">
@@ -592,6 +590,17 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </div>
                             <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
                             <p className="lp-hf-sub">Compila il form — ti richiamiamo noi</p>
+                            <div className="lp-hf-social">
+                                <div className="lp-avatars">
+                                    {AVATAR_FACES.map(a => (
+                                        <span key={a.slug} className="lp-avatar">
+                                            <Image src={`/images/calciatori/av-${a.slug}.jpg`} alt={a.name} width={96} height={96} />
+                                        </span>
+                                    ))}
+                                    <span className="lp-avatar lp-avatar-count">+2.1k</span>
+                                </div>
+                                <p className="lp-hf-social-txt"><strong>2.100+ atleti seguiti</strong>, tra cui professionisti di Serie A e Nazionale</p>
+                            </div>
                             <div className="lp-hf-trust" style={{ alignItems: 'center' }}>
                                 <div><Lock size={12} /> Dati protetti</div>
                                 <div><Clock size={12} /> 30 secondi</div>
@@ -634,15 +643,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 </div>
                                 {error && <div className="lp-error">{error}</div>}
                                 <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={loading} onClick={handleSubmit}>
-                                    {loading ? <div className="lp-spinner" /> : <>PRENOTA ORA — È Gratuita <ArrowRight size={20} /></>}
+                                    {loading ? <div className="lp-spinner" /> : <>Parlaci di tuo figlio/a <ArrowRight size={20} /></>}
                                 </button>
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
                             <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
-                        </div>
-                        <div className="lp-gift-badge lp-gift-mobile">
-                            <Gift size={18} color="#facc15" />
-                            <span>Chi si presenta alla consulenza riceverà in omaggio: <strong>Anthon Chat — il tuo Mental Coach AI disponibile 24/7</strong></span>
                         </div>
                     </div>
                 </div>
@@ -673,7 +678,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <Brain size={20} color="#facc15" />
                         <span>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È di mentalità.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</span>
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Prenota la Consulenza Gratuita <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -686,13 +691,14 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <p className="lp-social-sub">Non è teoria. Questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale.</p>
                         <div className="lp-players">
                             {FAMOUS_PLAYERS.map(p => (
-                                <div key={p.name} className="lp-player">
-                                    <div className="lp-player-img">
-                                        <Image src={p.img} alt={p.name} width={160} height={160} loading="lazy" style={{ objectFit: 'cover', borderRadius: '50%' }} />
-                                    </div>
-                                    <strong>{p.name}</strong>
-                                    <span>{p.team}</span>
-                                </div>
+                                <figure key={p.name} className="lp-player">
+                                    <Image src={p.img} alt={`${p.name} — ${p.role}, ${p.team}`} width={412} height={466} loading="lazy" />
+                                    <figcaption>
+                                        <strong>{p.name}</strong>
+                                        <span className="lp-player-team">{p.team}</span>
+                                        <span className="lp-player-role">{p.role}</span>
+                                    </figcaption>
+                                </figure>
                             ))}
                         </div>
                         <p className="lp-more">...e molti altri professionisti</p>
@@ -721,7 +727,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <Shield size={18} color="#22c55e" />
                         <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato in {sportConfig.sportName} e per la sua fascia d'età.</span>
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Inizia Il Percorso — Consulenza Gratuita <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -760,7 +766,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <div><CheckCircle size={16} color="#22c55e" /> Risultati misurabili</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Contratto trasparente</div>
                         </div>
-                        <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>Prenota la Consulenza Gratuita <ArrowRight size={20} /></button>
+                        <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
                     </div>
                 </div>
             </section>
@@ -779,7 +785,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </div>
                         ))}
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Anche Tuo Figlio Può Farcela <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -836,7 +842,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-container" style={{textAlign:'center'}}>
                     <h2>Il Primo Passo È <span className="lp-gold">Gratuito</span></h2>
                     <p>Non aspettare — ogni giorno che passa il gap tra il suo talento e i suoi risultati si allarga.</p>
-                    <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Prenota la Consulenza Gratuita <ArrowRight size={20} /></button>
+                    <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
                 </div>
             </section>
 
@@ -848,7 +854,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel {sportConfig.sportName === 'tennis' ? 'Tennis' : 'Calcio'}</span>
                         </div>
                         <button className="lp-sticky-bar-cta" onClick={(e) => { e.stopPropagation(); scrollToForm() }}>
-                            Prenota la Consulenza <ArrowRight size={16} />
+                            Parlaci di tuo figlio/a <ArrowRight size={16} />
                         </button>
                     </div>
                 </div>
@@ -888,12 +894,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <span className="lp-exit-obj-a">→ 100% online, sessioni <strong>ONE-TO-ONE su Zoom</strong>.</span>
                             </div>
                         </div>
-                        <div className="lp-exit-gift">
-                            <Gift size={18} color="#facc15" />
-                            <span>Chi prenota riceve in omaggio <strong>Anthon Chat</strong> — il Mental Coach AI di Antonio Valente, disponibile 24/7</span>
-                        </div>
                         <button className="lp-exit-cta" onClick={() => { setShowExitPopup(false); scrollToForm() }}>
-                            PRENOTA — 15 Minuti Gratuiti <ArrowRight size={18} />
+                            Parlaci di tuo figlio/a <ArrowRight size={18} />
                         </button>
                         <p className="lp-exit-sub">Consulenza gratuita • Senza impegno • 15 minuti</p>
                     </div>
