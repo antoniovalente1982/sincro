@@ -683,7 +683,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         </div>
                         <div className="lp-hero-proof">
                             {!sportConfig.hideSoccerProof && (
-                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong>, dai 10 anni in su</span></div>
+                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong></span></div>
                             )}
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
@@ -845,7 +845,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <div className="lp-bridge-col is-you">
                                 <span className="lp-bridge-tag">Da oggi</span>
                                 <strong>Possiamo seguire tuo figlio</strong>
-                                <span className="lp-bridge-sub">Stesso metodo, stessi coach, dai 10 anni in su</span>
+                                <span className="lp-bridge-sub">Stesso metodo, stessi coach</span>
                             </div>
                         </div>
                         <div className="lp-stats-row lp-rv">
