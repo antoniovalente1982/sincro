@@ -48,7 +48,7 @@ const REVIEWS = [
 ]
 
 const FAQ_ITEMS = [
-    { q: 'Quanto dura il percorso?', a: 'Dipende dalle esigenze di tuo figlio. Si parte da 3 mesi con sessioni settimanali ONE-TO-ONE e si può arrivare a coprire tutta la stagione, se serve accompagnarlo fino in fondo. I primi risultati sono visibili già dopo 30 giorni.' },
+    { q: 'Quanto dura il percorso?', a: 'Dipende dalle esigenze di tuo figlio. Si parte da 3 mesi con sessioni settimanali ONE-TO-ONE e si può arrivare a coprire tutta la stagione, se serve accompagnarlo fino in fondo. I primi risultati li vedi già dopo 10 giorni.' },
     { q: 'Come si svolge? Devo portarlo da qualche parte?', a: 'No, il percorso è 100% online. Le sessioni si svolgono comodamente da casa via videochiamata, in totale flessibilità.' },
     { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia sul miglioramento SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo. Poi per calciatori sopra i 20 anni professionisti abbiamo un reparto dedicato: lì seguiamo calciatori e calciatrici di Serie A, B e Lega Pro.' },
@@ -156,17 +156,34 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const [pains, setPains] = useState<string[]>([])
     const togglePain = (t: string) => setPains(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])
 
-    // ── Barra di avanzamento lettura ──
-    const [readProgress, setReadProgress] = useState(0)
+    /* ── Barra di avanzamento lettura ──
+       Prima girava su uno useState aggiornato a ogni evento di scroll: ogni
+       frame ri-renderizzava tutta la landing, e si vedeva. Ora:
+       1) dove il browser supporta le animazioni legate allo scroll, la barra
+          e' pura CSS e non passa nemmeno dal main thread;
+       2) altrimenti si scrive direttamente sul nodo dentro requestAnimationFrame,
+          senza stato React e senza re-render. */
+    const progressRef = useRef<HTMLSpanElement>(null)
     useEffect(() => {
-        const onScroll = () => {
+        if (typeof CSS !== 'undefined' && CSS.supports?.('animation-timeline', 'scroll()')) return
+        let raf = 0
+        const paint = () => {
+            raf = 0
+            const el = progressRef.current
+            if (!el) return
             const h = document.documentElement.scrollHeight - window.innerHeight
-            setReadProgress(h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0)
+            const k = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0
+            el.style.transform = `scaleX(${k})`
         }
-        onScroll()
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint) }
+        paint()
         window.addEventListener('scroll', onScroll, { passive: true })
         window.addEventListener('resize', onScroll)
-        return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll) }
+        return () => {
+            window.removeEventListener('scroll', onScroll)
+            window.removeEventListener('resize', onScroll)
+            if (raf) cancelAnimationFrame(raf)
+        }
     }, [])
 
     // ── Comparsa progressiva delle sezioni ──
@@ -597,7 +614,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
             {/* Barra di avanzamento lettura */}
             <div className="lp-progress" aria-hidden="true">
-                <span style={{ transform: `scaleX(${readProgress})` }} />
+                <span ref={progressRef} />
             </div>
 
             {/* Sticky Header */}
@@ -670,6 +687,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             )}
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
+                        </div>
+                        <div className="lp-promise">
+                            <span className="lp-promise-num">10<em>giorni</em></span>
+                            <span className="lp-promise-txt">I primi risultati li vedrai in <strong>soli 10 giorni</strong></span>
                         </div>
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
