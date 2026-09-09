@@ -683,7 +683,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         </div>
                         <div className="lp-hero-proof">
                             {!sportConfig.hideSoccerProof && (
-                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
+                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong>, dai 10 anni in su</span></div>
                             )}
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
                             <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
@@ -822,7 +822,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <div className="lp-container">
                         <p className="lp-section-pre">LA PROVA</p>
                         <h2>Lo stesso metodo usato da {sportConfig.athletesProof}</h2>
-                        <p className="lp-social-sub">Non è teoria. Questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale.</p>
+                        <p className="lp-social-sub">Non è teoria: questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale. Lo stesso metodo, con gli stessi coach, lo portiamo nel settore giovanile.</p>
                         <div className="lp-players">
                             {FAMOUS_PLAYERS.map((p, i) => (
                                 <figure key={p.name} className="lp-player lp-rv" style={{ '--d': `${i * 45}ms` } as CSSProperties}>
@@ -835,7 +835,19 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 </figure>
                             ))}
                         </div>
-                        <p className="lp-more">...e molti altri professionisti</p>
+                        <div className="lp-bridge lp-rv">
+                            <div className="lp-bridge-col">
+                                <span className="lp-bridge-tag">Da anni</span>
+                                <strong>Seguiamo {sportConfig.athletesProof}</strong>
+                                <span className="lp-bridge-sub">…e molti altri professionisti</span>
+                            </div>
+                            <div className="lp-bridge-arrow" aria-hidden="true"><ArrowRight size={22} /></div>
+                            <div className="lp-bridge-col is-you">
+                                <span className="lp-bridge-tag">Da oggi</span>
+                                <strong>Possiamo seguire tuo figlio</strong>
+                                <span className="lp-bridge-sub">Stesso metodo, stessi coach, dai 10 anni in su</span>
+                            </div>
+                        </div>
                         <div className="lp-stats-row lp-rv">
                             <div className="lp-stat-big"><CountUp to={2100} suffix="+" /><span>Atleti seguiti</span></div>
                             <div className="lp-stat-big"><CountUp to={11500} suffix="+" /><span>Ore di coaching</span></div>

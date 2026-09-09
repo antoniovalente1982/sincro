@@ -1450,3 +1450,55 @@ button.lp-pain-card:focus-visible { outline: 2px solid #facc15; outline-offset: 
     .lp-promise-num em { font-size: 8.5px; letter-spacing: 1px; }
     .lp-promise-txt { font-size: 15px; }
 }
+
+/* ═══════════ IL PONTE PRO → SETTORE GIOVANILE ═══════════
+   Con dodici professionisti in vetrina un genitore puo' concludere che il
+   percorso non sia per suo figlio. Questo blocco lo dice esplicitamente. */
+.lp-bridge {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch;
+    gap: 0; margin: 30px 0 26px; border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 14px 40px rgba(0,0,0,0.5);
+}
+.lp-bridge-col {
+    padding: 26px 28px; text-align: left;
+    background: linear-gradient(160deg, rgba(250,204,21,0.10) 0%, rgba(250,204,21,0.025) 100%);
+}
+.lp-bridge-col.is-you {
+    background: linear-gradient(160deg, rgba(34,197,94,0.13) 0%, rgba(34,197,94,0.03) 100%);
+}
+.lp-bridge-tag {
+    display: inline-block; margin-bottom: 9px;
+    padding: 4px 11px; border-radius: 100px;
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase;
+    color: #facc15; background: rgba(250,204,21,0.12); border: 1px solid rgba(250,204,21,0.26);
+}
+.lp-bridge-col.is-you .lp-bridge-tag {
+    color: #22c55e; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3);
+}
+.lp-bridge-col strong {
+    display: block; font-size: 20px; font-weight: 900; color: #fff;
+    letter-spacing: -0.6px; line-height: 1.2; margin-bottom: 6px;
+}
+.lp-bridge-col.is-you strong { color: #22c55e; }
+.lp-bridge-sub { display: block; font-size: 13.5px; color: #a1a1aa; line-height: 1.5; }
+.lp-bridge-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 18px; color: #facc15;
+    background: rgba(255,255,255,0.03);
+    border-left: 1px solid rgba(255,255,255,0.07);
+    border-right: 1px solid rgba(255,255,255,0.07);
+}
+
+@media (max-width: 768px) {
+    .lp-bridge { grid-template-columns: 1fr; margin: 22px 0 20px; border-radius: 16px; }
+    .lp-bridge-col { padding: 18px 18px; text-align: center; }
+    .lp-bridge-col strong { font-size: 17px; }
+    .lp-bridge-sub { font-size: 12.5px; }
+    .lp-bridge-arrow {
+        padding: 8px 0; border-left: none; border-right: none;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .lp-bridge-arrow svg { transform: rotate(90deg); }
+}
