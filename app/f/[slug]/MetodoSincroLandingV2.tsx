@@ -1,7 +1,7 @@
 'use client'
 
 import './landing-v2.css'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
@@ -660,15 +660,16 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <h2>Riconosci tuo figlio in <span className="lp-gold">almeno una</span> di queste?</h2>
                     <div className="lp-pain-grid">
                         {[
-                            { icon: '😰', title: 'Ansia da prestazione', desc: 'Si blocca prima delle partite importanti. In allenamento è un altro.' },
-                            { icon: '👀', title: 'Paura di sbagliare', desc: 'Non tira, non rischia, si nasconde. Ha paura del giudizio.' },
-                            { icon: '💔', title: 'Zero fiducia in sé', desc: 'Non si sente mai all\'altezza, anche quando la tecnica c\'è.' },
-                            { icon: '🪑', title: 'Panchina costante', desc: 'Ha il talento ma non lo dimostra quando il mister guarda.' },
-                            { icon: '😤', title: 'Pressione insostenibile', desc: 'Sente il peso delle aspettative e crolla nei momenti decisivi.' },
-                            { icon: '🏥', title: 'Blocco post-infortunio', desc: 'È guarito fisicamente ma ha paura di tornare a dare il massimo.' },
+                            // rgb: colore proprio di ogni card, cosi' la griglia non e' sei volte la stessa cosa
+                            { icon: '😰', rgb: '239, 68, 68',  title: 'Ansia da prestazione', desc: 'Si blocca prima delle partite importanti. In allenamento è un altro.' },
+                            { icon: '👀', rgb: '249, 115, 22', title: 'Paura di sbagliare', desc: 'Non tira, non rischia, si nasconde. Ha paura del giudizio.' },
+                            { icon: '💔', rgb: '244, 63, 94',  title: 'Zero fiducia in sé', desc: 'Non si sente mai all\'altezza, anche quando la tecnica c\'è.' },
+                            { icon: '🪑', rgb: '245, 158, 11', title: 'Panchina costante', desc: 'Ha il talento ma non lo dimostra quando il mister guarda.' },
+                            { icon: '😤', rgb: '225, 29, 72',  title: 'Pressione insostenibile', desc: 'Sente il peso delle aspettative e crolla nei momenti decisivi.' },
+                            { icon: '🏥', rgb: '251, 146, 60', title: 'Blocco post-infortunio', desc: 'È guarito fisicamente ma ha paura di tornare a dare il massimo.' },
                         ].map(p => (
-                            <div key={p.title} className="lp-pain-card">
-                                <span className="lp-pain-icon">{p.icon}</span>
+                            <div key={p.title} className="lp-pain-card" style={{ '--pc': p.rgb } as CSSProperties}>
+                                <span className="lp-pain-icon" aria-hidden="true">{p.icon}</span>
                                 <h3>{p.title}</h3>
                                 <p>{p.desc}</p>
                             </div>
@@ -759,6 +760,24 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             <section className="lp-guarantee">
                 <div className="lp-container">
                     <div className="lp-guarantee-card">
+                        {/* Sigillo: senza un bollo riconoscibile la garanzia non si legge come tale */}
+                        <div className="lp-seal" aria-hidden="true">
+                            <svg viewBox="0 0 120 120">
+                                <defs>
+                                    <linearGradient id="ms-seal-g" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stopColor="#fde047" />
+                                        <stop offset="55%" stopColor="#facc15" />
+                                        <stop offset="100%" stopColor="#b45309" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M60.00,5.00 A7.83,7.83 0 0 1 75.50,7.23 A7.83,7.83 0 0 1 89.74,13.73 A7.83,7.83 0 0 1 101.57,23.98 A7.83,7.83 0 0 1 110.03,37.15 A7.83,7.83 0 0 1 114.44,52.17 A7.83,7.83 0 0 1 114.44,67.83 A7.83,7.83 0 0 1 110.03,82.85 A7.83,7.83 0 0 1 101.57,96.02 A7.83,7.83 0 0 1 89.74,106.27 A7.83,7.83 0 0 1 75.50,112.77 A7.83,7.83 0 0 1 60.00,115.00 A7.83,7.83 0 0 1 44.50,112.77 A7.83,7.83 0 0 1 30.26,106.27 A7.83,7.83 0 0 1 18.43,96.02 A7.83,7.83 0 0 1 9.97,82.85 A7.83,7.83 0 0 1 5.56,67.83 A7.83,7.83 0 0 1 5.56,52.17 A7.83,7.83 0 0 1 9.97,37.15 A7.83,7.83 0 0 1 18.43,23.98 A7.83,7.83 0 0 1 30.26,13.73 A7.83,7.83 0 0 1 44.50,7.23 A7.83,7.83 0 0 1 60.00,5.00 Z" fill="url(#ms-seal-g)" />
+                                <circle cx="60" cy="60" r="45" fill="#080a09" />
+                                <circle cx="60" cy="60" r="41" fill="none" stroke="#facc15" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="2.5 3.5" />
+                                <text x="60" y="44" textAnchor="middle" fill="#facc15" fontSize="11" fontWeight="800" letterSpacing="1.1">GARANZIA</text>
+                                <path d="M52.5,66 l5.5,5.8 l11-13.2" fill="none" stroke="#22c55e" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                                <text x="60" y="86" textAnchor="middle" fill="#e4e4e7" fontSize="7" fontWeight="700" letterSpacing="0.4">NEL CONTRATTO</text>
+                            </svg>
+                        </div>
                         <h2 style={{marginTop: 0}}>Garanzia Sui Risultati — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
                         <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia risultati scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</p>
                         <div className="lp-guarantee-row">

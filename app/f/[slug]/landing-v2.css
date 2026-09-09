@@ -247,11 +247,7 @@
 }
 
 /* ─── PAIN POINTS ─── */
-.lp-pain {
-    padding: 70px 20px;
-    background: linear-gradient(180deg, rgba(239, 68, 68, 0.03) 0%, transparent 100%);
-    border-top: 1px solid rgba(255,255,255,0.04);
-}
+
 .lp-pain h2, .lp-social h2, .lp-how h2, .lp-benefits h2,
 .lp-reviews h2, .lp-founder h2, .lp-form-wrap h2, .lp-faq h2, .lp-final-cta h2 {
     font-size: clamp(22px, 4vw, 30px); font-weight: 800;
@@ -261,24 +257,12 @@
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
     margin: 36px 0 28px;
 }
-.lp-pain-card {
-    padding: 24px 20px; border-radius: 16px;
-    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-    transition: all 0.3s;
-}
-.lp-pain-card:hover {
-    border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03);
-    transform: translateY(-3px);
-}
-.lp-pain-icon { font-size: 28px; display: block; margin-bottom: 12px; }
+
+
+
 .lp-pain-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
 .lp-pain-card p { font-size: 13px; color: #71717a; line-height: 1.55; }
-.lp-pain-result {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 16px 24px; border-radius: 12px;
-    background: rgba(250, 204, 21, 0.05); border: 1px solid rgba(250, 204, 21, 0.1);
-    font-size: 15px; color: #a1a1aa; text-align: center;
-}
+
 .lp-pain-result strong { color: #fff; }
 
 /* ─── SOCIAL PROOF ─── */
@@ -370,14 +354,7 @@
 .lp-benefit p { font-size: 13px; color: #71717a; line-height: 1.55; }
 
 /* ─── GUARANTEE ─── */
-.lp-guarantee { padding: 70px 20px; }
-.lp-guarantee-card {
-    max-width: 700px; margin: 0 auto; text-align: center;
-    padding: 48px 40px; border-radius: 20px;
-    background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, rgba(34,197,94,0.02) 100%);
-    border: 1.5px solid rgba(34,197,94,0.15);
-    box-shadow: 0 0 60px rgba(34,197,94,0.05);
-}
+
 .lp-guarantee-card h2 { margin-top: 16px; }
 .lp-guarantee-card > p {
     font-size: 15px; color: #a1a1aa; line-height: 1.7;
@@ -717,7 +694,8 @@
 
 /* ─── Titoli di sezione piu' incisivi ─── */
 .lp-pain h2, .lp-social h2, .lp-how h2, .lp-benefits h2,
-.lp-reviews h2, .lp-founder h2, .lp-form-wrap h2, .lp-faq h2, .lp-final-cta h2 {
+.lp-reviews h2, .lp-founder h2, .lp-form-wrap h2, .lp-faq h2, .lp-final-cta h2,
+.lp-guarantee-card h2 {
     font-size: clamp(24px, 4.2vw, 34px);
     font-weight: 900; letter-spacing: -1px; line-height: 1.15;
 }
@@ -1140,4 +1118,158 @@
     .lp-hf-social { gap: 9px; }
     .lp-avatar { width: 30px; height: 30px; margin-left: -10px; }
     .lp-hf-social-txt { font-size: 10.5px; }
+}
+
+/* ═══════════ IL PROBLEMA — ridisegnata ═══════════
+   Prima le card erano rgba(255,255,255,0.02) su fondo #050508: praticamente
+   lo stesso nero, sei volte identiche. Ora il fondo scende, le card salgono
+   e ognuna porta il suo colore via --pc (impostata inline dal JSX). */
+.lp-pain {
+    padding: 84px 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background:
+        radial-gradient(ellipse 65% 46% at 50% 0%, rgba(239,68,68,0.13) 0%, transparent 62%),
+        radial-gradient(ellipse 40% 34% at 88% 88%, rgba(249,115,22,0.07) 0%, transparent 60%),
+        linear-gradient(180deg, #0a0810 0%, #060609 100%);
+}
+.lp-pain-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin: 40px 0 30px;
+}
+.lp-pain-card {
+    position: relative; overflow: hidden;
+    padding: 26px 22px 24px; border-radius: 18px;
+    background: linear-gradient(158deg,
+        rgba(255,255,255,0.085) 0%,
+        rgba(255,255,255,0.028) 46%,
+        rgba(255,255,255,0.014) 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 10px 30px rgba(0,0,0,0.5);
+    transition: transform 0.32s, border-color 0.32s, box-shadow 0.32s;
+}
+/* Filo di colore sul bordo alto: e' quello che rompe l'uniformita' */
+.lp-pain-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg,
+        rgba(var(--pc), 0.95) 0%, rgba(var(--pc), 0.35) 48%, rgba(var(--pc), 0) 100%);
+}
+/* Alone del colore nell'angolo, appena percepibile */
+.lp-pain-card::after {
+    content: ''; position: absolute; top: -46px; left: -46px;
+    width: 140px; height: 140px; border-radius: 50%;
+    background: rgba(var(--pc), 0.16); filter: blur(34px);
+    pointer-events: none;
+}
+.lp-pain-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(var(--pc), 0.42);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12),
+                0 20px 46px rgba(0,0,0,0.6),
+                0 0 34px rgba(var(--pc), 0.14);
+}
+.lp-pain-icon {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 54px; height: 54px; margin-bottom: 16px;
+    border-radius: 16px; font-size: 26px; line-height: 1;
+    background: linear-gradient(150deg, rgba(var(--pc), 0.26), rgba(var(--pc), 0.07));
+    border: 1px solid rgba(var(--pc), 0.36);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 8px 20px rgba(var(--pc), 0.18);
+}
+.lp-pain-card h3 {
+    position: relative; z-index: 1;
+    font-size: 16px; font-weight: 800; color: #fff;
+    letter-spacing: -0.3px; margin-bottom: 7px;
+}
+.lp-pain-card p {
+    position: relative; z-index: 1;
+    font-size: 13.5px; color: #a8a8b3; line-height: 1.6;
+}
+
+/* Il verdetto: adesso e' un blocco, non una riga slavata */
+.lp-pain-result {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 26px; border-radius: 16px; text-align: left;
+    font-size: 15.5px; color: #c8c8d0; line-height: 1.55;
+    background: linear-gradient(120deg, rgba(250,204,21,0.11) 0%, rgba(250,204,21,0.03) 60%, rgba(250,204,21,0.015) 100%);
+    border: 1px solid rgba(250,204,21,0.22);
+    border-left: 3px solid #facc15;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 30px rgba(0,0,0,0.4);
+}
+.lp-pain-result strong { color: #fff; font-weight: 800; }
+.lp-pain-result > svg {
+    flex-shrink: 0; width: 40px; height: 40px; padding: 9px;
+    border-radius: 12px; box-sizing: border-box;
+    background: rgba(250,204,21,0.14); border: 1px solid rgba(250,204,21,0.28);
+}
+
+@media (max-width: 768px) {
+    .lp-pain { padding: 56px 16px; }
+    .lp-pain-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin: 28px 0 22px; }
+    .lp-pain-card { padding: 18px 14px 16px; border-radius: 15px; }
+    .lp-pain-icon { width: 42px; height: 42px; font-size: 21px; border-radius: 13px; margin-bottom: 11px; }
+    .lp-pain-card h3 { font-size: 13.5px; margin-bottom: 5px; }
+    .lp-pain-card p { font-size: 11.5px; line-height: 1.5; }
+    .lp-pain-result {
+        /* una regola piu' su lo metteva in colonna: icona centrata sopra un
+           testo allineato a sinistra. In riga come sul desktop. */
+        flex-direction: row; align-items: center; text-align: left;
+        gap: 12px; padding: 16px 18px; font-size: 13px; border-radius: 14px;
+    }
+    .lp-pain-result > svg { width: 34px; height: 34px; padding: 7px; }
+}
+
+/* ═══════════ GARANZIA — ridisegnata ═══════════
+   Prima era un riquadro verde al 6% su nero: non si vedeva e soprattutto non
+   si leggeva come una garanzia. Ora c'e' un sigillo a sbalzo sul bordo alto,
+   che e' il segnale che fa riconoscere una garanzia a colpo d'occhio. */
+.lp-guarantee {
+    padding: 86px 20px 78px;
+    background: radial-gradient(ellipse 60% 60% at 50% 45%, rgba(34,197,94,0.09) 0%, transparent 65%);
+}
+.lp-guarantee-card {
+    position: relative;
+    max-width: 720px; margin: 46px auto 0; text-align: center;
+    padding: 74px 44px 44px; border-radius: 24px;
+    background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(34,197,94,0.16) 0%, transparent 62%),
+        linear-gradient(168deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.022) 55%, rgba(34,197,94,0.03) 100%);
+    border: 1.5px solid rgba(34,197,94,0.34);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1),
+                0 22px 60px rgba(0,0,0,0.55),
+                0 0 70px rgba(34,197,94,0.10);
+}
+.lp-seal {
+    position: absolute; top: 0; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 116px; height: 116px;
+    filter: drop-shadow(0 10px 26px rgba(0,0,0,0.6)) drop-shadow(0 0 22px rgba(250,204,21,0.28));
+}
+.lp-seal svg { width: 100%; height: 100%; display: block; }
+.lp-guarantee-card h2 { margin-top: 0; }
+.lp-guarantee-card > p {
+    font-size: 15.5px; color: #b4b4bd; line-height: 1.72;
+    max-width: 520px; margin: 16px auto 26px;
+}
+.lp-guarantee-card > p strong { color: #fff; }
+.lp-guarantee-row {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+}
+.lp-guarantee-row > div {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 16px; border-radius: 100px;
+    font-size: 13.5px; font-weight: 700; color: #d4d4d8;
+    background: rgba(34,197,94,0.09);
+    border: 1px solid rgba(34,197,94,0.24);
+}
+
+@media (max-width: 768px) {
+    .lp-guarantee { padding: 62px 16px 58px; }
+    .lp-guarantee-card {
+        margin-top: 38px; padding: 58px 20px 32px; border-radius: 20px;
+    }
+    .lp-seal { width: 92px; height: 92px; }
+    .lp-guarantee-card > p { font-size: 13.5px; margin: 14px auto 20px; }
+    .lp-guarantee-row { gap: 7px; }
+    .lp-guarantee-row > div { padding: 7px 13px; font-size: 11.5px; }
 }
