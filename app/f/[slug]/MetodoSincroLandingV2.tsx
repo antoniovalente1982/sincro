@@ -48,7 +48,7 @@ const REVIEWS = [
 ]
 
 const FAQ_ITEMS = [
-    { q: 'Quanto dura il percorso?', a: 'Il percorso standard dura 3 mesi con sessioni settimanali ONE-TO-ONE. I primi risultati sono visibili già dopo 30 giorni.' },
+    { q: 'Quanto dura il percorso?', a: 'Dipende dalle esigenze di tuo figlio. Si parte da 3 mesi con sessioni settimanali ONE-TO-ONE e si può arrivare a coprire tutta la stagione, se serve accompagnarlo fino in fondo. I primi risultati sono visibili già dopo 30 giorni.' },
     { q: 'Come si svolge? Devo portarlo da qualche parte?', a: 'No, il percorso è 100% online. Le sessioni si svolgono comodamente da casa via videochiamata, in totale flessibilità.' },
     { q: 'Funziona davvero? E se non vedo risultati?', a: 'Siamo gli unici in Italia con garanzia sul miglioramento SCRITTA nel contratto. Se non vedi miglioramenti misurabili, o non paghi, o continuiamo gratis fino al risultato. 2.100+ famiglie possono confermarlo.' },
     { q: 'A che età funziona?', a: 'Lavoriamo con ragazzi dai 10 ai 20 anni. Ogni coach è specializzato per fascia di età e adatta il metodo al livello di maturità del ragazzo. Poi per calciatori sopra i 20 anni professionisti abbiamo un reparto dedicato: lì seguiamo calciatori e calciatrici di Serie A, B e Lega Pro.' },
@@ -852,7 +852,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <div className="lp-benefits-grid">
                         {[
                             { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista con tesserino da specialista Mental Coach del CONI, assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
-                            { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Il percorso ha una durata definita con milestones misurabili settimana per settimana.' },
+                            { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Si parte da 3 mesi e si può estendere a tutta la stagione, con milestones misurabili settimana per settimana.' },
                             { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con il miglioramento garantito per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
