@@ -527,7 +527,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-hero-bg" />
                 <div className="lp-hero-in">
                     <div className="lp-hero-text">
-                        <div className="lp-badge"><Trophy size={14} /> Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</div>
+                        <div className="lp-badge"><Trophy size={14} /><span>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</span></div>
                         {customHeadline ? (
                             <>
                                 <h1>
@@ -564,6 +564,15 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia risultati scritta nel contratto</strong>.` }} />
                             </>
                         )}
+                        <div className="lp-hero-author">
+                            <span className="lp-hero-author-img">
+                                <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
+                            </span>
+                            <span className="lp-hero-author-txt">
+                                <strong>Antonio Valente</strong>
+                                <span>Fondatore Metodo Sincro<sup>&reg;</sup> &middot; Mental Coach CONI</span>
+                            </span>
+                        </div>
                         <div className="lp-hero-proof">
                             {!sportConfig.hideSoccerProof && (
                                 <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Usato in <strong>Serie A, B e Lega Pro</strong></span></div>
@@ -779,9 +788,14 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-container">
                     <div className="lp-founder-grid">
                         <div className="lp-founder-photo">
-                            <Image src="/images/team/Antonio Valente.png" alt="Antonio Valente" width={300} height={400} loading="lazy" style={{ objectFit: 'cover', borderRadius: '16px' }} />
+                            <Image src="/images/team/antonio-valente.jpg" alt="Antonio Valente, fondatore del Metodo Sincro" width={520} height={693} loading="lazy" />
+                            <span className="lp-founder-photo-tag">
+                                <span className="lp-founder-photo-dot" />
+                                <span>Fondatore Metodo Sincro<sup>&reg;</sup></span>
+                            </span>
                         </div>
                         <div className="lp-founder-text">
+                            <span className="lp-eyebrow">Chi c’è dietro il metodo</span>
                             <h2>Chi è <span className="lp-gold">Antonio Valente</span></h2>
                             <p>{founderBio}</p>
                             <div className="lp-founder-badges">
