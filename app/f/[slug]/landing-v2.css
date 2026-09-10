@@ -983,16 +983,19 @@
     .lp-hero-author-txt > span { font-size: 10.5px; }
 
     .lp-founder {
-        /* Su schermo stretto "cover" mostrava solo il 27% dell'immagine,
-           ingrandita e sotto un velo fitto: non si riconosceva nulla.
-           Qui diventa una fascia in cima alla sezione, larga quanto lo
-           schermo e visibile davvero, che sfuma nel nero sotto al testo. */
-        padding: 244px 16px 70px;
+        /* Stesso effetto del desktop: la foto sta dietro tutta la sezione e
+           si dissolve nel nero. Qui pero' non uso "cover", che su 390px
+           mostrava solo il 27% dell'immagine ingrandita 1,4x: la scalo
+           sull'altezza cosi' se ne vede circa la meta', proporzionata. */
+        padding: 72px 16px 70px;
         background:
             linear-gradient(180deg,
-                rgba(5,5,8,0.18) 0%, rgba(5,5,8,0.34) 42%,
-                rgba(5,5,8,0.82) 82%, #050508 100%) center top / 100% 256px no-repeat,
-            url('/images/team/antonio-palco.jpg') center top / 120% auto no-repeat;
+                rgba(5,5,8,0.42) 0%,
+                rgba(5,5,8,0.52) 16%,
+                rgba(5,5,8,0.74) 32%,
+                rgba(5,5,8,0.93) 46%,
+                #050508 60%) center top / 100% 100% no-repeat,
+            url('/images/team/antonio-palco.jpg') 100% 6% / auto 56% no-repeat;
         background-color: #050508;
     }
     .lp-founder-grid { gap: 36px; }
