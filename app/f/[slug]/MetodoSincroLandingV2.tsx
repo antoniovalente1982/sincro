@@ -963,14 +963,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             {/* ══════════ 8. CHI SIAMO ══════════ */}
             <section className="lp-founder">
                 <div className="lp-container">
-                    <figure className="lp-stage lp-rv">
-                        <Image src="/images/team/antonio-palco.jpg" alt="Antonio Valente sul palco durante un intervento su mentalità vincente nel calcio" width={1029} height={563} loading="lazy" />
-                        <figcaption>
-                            <span className="lp-stage-kicker">Mentalità vincente nel calcio</span>
-                            <strong>Antonio Valente</strong>
-                            <span className="lp-stage-role">Fondatore del Metodo Sincro<sup>&reg;</sup></span>
-                        </figcaption>
-                    </figure>
                     <div className="lp-founder-grid lp-rv">
                         <div className="lp-founder-photo">
                             <Image src="/images/team/antonio-valente.jpg" alt="Antonio Valente, fondatore del Metodo Sincro" width={520} height={693} loading="lazy" />
