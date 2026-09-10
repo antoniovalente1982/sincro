@@ -757,6 +757,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 </button>
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
+                            <p className="lp-hf-next">Ti richiamiamo noi — <strong>15 minuti, senza impegno</strong></p>
                             <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
                         </div>
                     </div>
@@ -943,9 +944,15 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <div className="lp-reviews-grid">
                         {localizedReviews.map((r, i) => (
                             <div key={i} className="lp-review lp-rv" style={{ '--d': `${i * 60}ms` } as CSSProperties}>
-                                <div className="lp-review-stars">{[1,2,3,4,5].map(s => <Star key={s} size={14} fill="#facc15" color="#facc15" />)}</div>
+                                <div className="lp-review-top">
+                                    <div className="lp-review-stars">{[1,2,3,4,5].map(s => <Star key={s} size={14} fill="#facc15" color="#facc15" />)}</div>
+                                    <span className="lp-review-badge"><CheckCircle size={11} /> Verificata</span>
+                                </div>
                                 <p>"{r.text}"</p>
-                                <div className="lp-review-author"><strong>{r.name}</strong><span>{r.role}</span></div>
+                                <div className="lp-review-author">
+                                    <span className="lp-review-av" aria-hidden="true">{r.name.charAt(0)}</span>
+                                    <span className="lp-review-who"><strong>{r.name}</strong><span>{r.role}</span></span>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -956,6 +963,14 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             {/* ══════════ 8. CHI SIAMO ══════════ */}
             <section className="lp-founder">
                 <div className="lp-container">
+                    <figure className="lp-stage lp-rv">
+                        <Image src="/images/team/antonio-palco.jpg" alt="Antonio Valente sul palco durante un intervento su mentalità vincente nel calcio" width={1029} height={563} loading="lazy" />
+                        <figcaption>
+                            <span className="lp-stage-kicker">Mentalità vincente nel calcio</span>
+                            <strong>Antonio Valente</strong>
+                            <span className="lp-stage-role">Fondatore del Metodo Sincro<sup>&reg;</sup></span>
+                        </figcaption>
+                    </figure>
                     <div className="lp-founder-grid lp-rv">
                         <div className="lp-founder-photo">
                             <Image src="/images/team/antonio-valente.jpg" alt="Antonio Valente, fondatore del Metodo Sincro" width={520} height={693} loading="lazy" />
@@ -1006,6 +1021,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 <div className="lp-container" style={{textAlign:'center'}}>
                     <h2>Il Primo Passo È <span className="lp-gold">Gratuito</span></h2>
                     <p>Non aspettare — ogni giorno che passa il gap tra il suo talento e i suoi risultati si allarga.</p>
+                    <ol className="lp-next lp-rv">
+                        <li><span>1</span><p>Lasci i contatti qui sopra. <strong>Ti richiamiamo noi</strong>, non devi fare altro.</p></li>
+                        <li><span>2</span><p><strong>15 minuti al telefono</strong> per capire la situazione di tuo figlio. Niente presentazioni, solo domande.</p></li>
+                        <li><span>3</span><p>Se il percorso è adatto a lui te lo diciamo. <strong>E se non lo è, te lo diciamo lo stesso.</strong></p></li>
+                    </ol>
                     <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
                 </div>
             </section>
