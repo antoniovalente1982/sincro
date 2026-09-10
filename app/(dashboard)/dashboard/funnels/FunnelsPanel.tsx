@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar, Loader2 } from 'lucide-react'
+import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar, Loader2, Video } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
+import { parseVturbEmbed } from '@/lib/vturb'
 
 interface Pipeline {
     id: string; name: string; is_default?: boolean
@@ -787,6 +788,10 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
         pipeline_id: funnel?.pipeline_id || '',
         status: funnel?.status || 'draft',
         settings: {
+            // Il PUT sostituisce l'intero oggetto settings: senza ricopiare qui
+            // dentro le chiavi che il modale non gestisce (sport, target,
+            // template, video_embed...), un salvataggio le cancellerebbe.
+            ...(funnel?.settings || {}),
             headline: funnel?.settings?.headline || '',
             subheadline: funnel?.settings?.subheadline || '',
             cta_text: funnel?.settings?.cta_text || 'Invia Richiesta',
@@ -801,6 +806,7 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
             google_ads_label: funnel?.settings?.google_ads_label || '',
             tiktok_pixel_id: funnel?.settings?.tiktok_pixel_id || '',
             custom_url: funnel?.settings?.custom_url || '',
+            video_embed: funnel?.settings?.video_embed || '',
         },
         ai_settings: {
             tone: funnel?.ai_settings?.tone || '',
@@ -951,6 +957,32 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                             </select>
                             <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>I lead da questo funnel entrano nella pipeline selezionata. Lascia vuoto per usare la default.</p>
                         </div>
+                    </div>
+
+                    {/* Video */}
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Video className="w-4 h-4" style={{ color: '#22c55e' }} />
+                            <span className="text-xs font-semibold th-heading">Video della landing</span>
+                        </div>
+                        <label className="label">Codice embed VTurb</label>
+                        <textarea
+                            className="input"
+                            rows={4}
+                            style={{ fontFamily: 'ui-monospace, monospace', fontSize: '11px', lineHeight: 1.45 }}
+                            value={form.settings.video_embed}
+                            onChange={e => updateSettings('video_embed', e.target.value)}
+                            placeholder={'Incolla qui il codice che ti da\' VTurb (JavaScript o iFrame, indifferente).\nPer togliere il video, svuota il campo.'}
+                        />
+                        {(() => {
+                            const ids = parseVturbEmbed(form.settings.video_embed)
+                            if (!form.settings.video_embed?.trim()) {
+                                return <p className="text-[10px] mt-1" style={{ color: 'var(--color-surface-500)' }}>Campo vuoto: la landing non mostra nessun video.</p>
+                            }
+                            return ids
+                                ? <p className="text-[10px] mt-1" style={{ color: '#22c55e' }}>Video riconosciuto — player {ids.player}</p>
+                                : <p className="text-[10px] mt-1" style={{ color: '#ef4444' }}>Non riesco a leggere il codice: dev&apos;essere un embed VTurb e contenere un indirizzo scripts.converteai.net</p>
+                        })()}
                     </div>
 
                     {/* Tracking Pixels */}

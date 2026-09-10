@@ -4,6 +4,7 @@ import './landing-v2.css'
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Script from 'next/script'
+import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
 import { Check, CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
@@ -56,20 +57,6 @@ const FAQ_ITEMS = [
     { q: 'Quanto costa?', a: 'Le tariffe dipendono dal percorso personalizzato. La prima consulenza è COMPLETAMENTE GRATUITA e senza impegno — lì ti spieghiamo tutto.' },
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
-
-/* ═══ VIDEO VTURB ═══
-   Usiamo l'embed iFrame invece di quello JavaScript. Il player JS vive in
-   shadow DOM dentro la pagina: si scontrava con i re-render di React (il
-   contatore visitatori ne provoca uno dopo 8-15s e la riproduzione moriva) e
-   col fatto che il suo segnaposto smette di occupare spazio appena l'elemento
-   diventa custom. Dentro un iframe e' un documento a se': React non puo'
-   toccarlo e il player si gestisce da solo. */
-const VTURB_ACCOUNT = 'aa89ca91-c4e7-487e-aa5a-13ea76503b32'
-const VTURB_PLAYER = '6aa2c34558d18024915cc00a'
-const VTURB_EMBED_URL = `https://scripts.converteai.net/${VTURB_ACCOUNT}/players/${VTURB_PLAYER}/v4/embed.html`
-// sdk.js sta sulla pagina ospite e fa da ponte con l'iframe (es. lo sblocco
-// dell'audio al clic). Il player vero e proprio vive dentro l'iframe.
-const VTURB_SDK = 'https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js'
 
 // Club in cui giocano gli atleti seguiti: alimenta il nastro sotto l'hero.
 const CLUBS = ['Monza', 'Palermo', 'Juventus', 'Roma', 'Inter', 'Sassuolo', 'Como', 'Parma', 'Salernitana', 'Pescara', 'Trento', 'Nazionale Italiana']
@@ -167,15 +154,19 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const [customHeadline, setCustomHeadline] = useState<string | null>(null)
     const checkoutFiredRef = useRef(false)
 
-    // ── Sorgente dell'iframe VTurb ──
-    // Come nell'embed ufficiale: si parte da about:blank e l'indirizzo vero si
-    // compone nel browser, perche' include la query della pagina e il parametro
-    // vl con l'URL corrente. Essendo in stato, i re-render non lo riscrivono e
-    // il video non riparte da capo.
+    // ── Video: l'embed VTurb si incolla dalla dashboard, in impostazioni funnel ──
+    // Da qualsiasi variante del codice ricaviamo gli identificativi e mostriamo
+    // sempre l'iframe. L'indirizzo si compone nel browser perche' include la
+    // query della pagina e il parametro vl con l'URL corrente; stando in stato,
+    // i re-render non lo riscrivono e il video non riparte da capo.
+    const vturbIds = parseVturbEmbed(funnel.settings?.video_embed)
+    const vturbKey = vturbIds ? `${vturbIds.account}/${vturbIds.player}` : ''
     const [vturbSrc, setVturbSrc] = useState<string | undefined>(undefined)
     useEffect(() => {
-        setVturbSrc(`${VTURB_EMBED_URL}${window.location.search || '?'}&vl=${encodeURIComponent(window.location.href)}`)
-    }, [])
+        if (!vturbKey) return
+        const [account, player] = vturbKey.split('/')
+        setVturbSrc(vturbFrameSrc({ account, player }, window.location.href, window.location.search))
+    }, [vturbKey])
 
     // ── Autodiagnosi: i blocchi selezionati viaggiano col lead ──
     const [pains, setPains] = useState<string[]>([])
@@ -636,11 +627,15 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 questi <link> dentro l'head. Il crossOrigin sul manifest non c'e'
                 nello snippet originale ma senza il preload as="fetch" viene
                 scartato e il file riscaricato. */}
-            <Script id="vturb-sdk" src={VTURB_SDK} strategy="afterInteractive" />
-            <link rel="dns-prefetch" href="https://cdn.converteai.net" />
-            <link rel="dns-prefetch" href="https://scripts.converteai.net" />
-            <link rel="dns-prefetch" href="https://images.converteai.net" />
-            <link rel="dns-prefetch" href="https://license.vturb.com" />
+            {vturbIds && (
+                <>
+                    <Script id="vturb-sdk" src={VTURB_SDK_SRC} strategy="afterInteractive" />
+                    <link rel="dns-prefetch" href="https://cdn.converteai.net" />
+                    <link rel="dns-prefetch" href="https://scripts.converteai.net" />
+                    <link rel="dns-prefetch" href="https://images.converteai.net" />
+                    <link rel="dns-prefetch" href="https://license.vturb.com" />
+                </>
+            )}
 
             {/* Senza JS la comparsa progressiva lascerebbe la pagina vuota */}
             <noscript>
@@ -707,17 +702,19 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
-                        <div className="lp-vsl">
-                            <iframe
-                                className="lp-vsl-box"
-                                src={vturbSrc}
-                                title="Metodo Sincro — presentazione"
-                                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                                referrerPolicy="origin"
-                                allowFullScreen
-                                scrolling="no"
-                            />
-                        </div>
+                        {vturbIds && (
+                            <div className="lp-vsl">
+                                <iframe
+                                    className="lp-vsl-box"
+                                    src={vturbSrc}
+                                    title="Metodo Sincro — presentazione"
+                                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                                    referrerPolicy="origin"
+                                    allowFullScreen
+                                    scrolling="no"
+                                />
+                            </div>
+                        )}
                         <div className="lp-hero-author">
                             <span className="lp-hero-author-img">
                                 <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
