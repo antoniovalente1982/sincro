@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Script from 'next/script'
 import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
-import { Check, CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
+import { Check, CheckCircle, ShieldCheck, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
 interface Props {
@@ -515,8 +515,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
                         </div>
-                        <h1>Perfetto{fullName ? `, ${fullName.split(' ')[0]}` : ''}! {sportConfig.sportName === 'tennis' ? '🎾' : '⚽'}</h1>
-                        <p>La tua richiesta è stata inviata con successo. Segui questi 3 passaggi ora:</p>
+                        <h1>Perfetto{fullName ? `, ${fullName.split(' ')[0]}` : ''}! <span className="lp-emoji">{sportConfig.sportName === 'tennis' ? '🎾' : '⚽'}</span></h1>
+                        <p>La richiesta è arrivata. <strong>Ecco cosa succede adesso.</strong></p>
                     </div>
 
                     <div className="lp-ty-steps">
@@ -526,7 +526,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 1</span>
                                 <h3>Attendi la nostra chiamata</h3>
-                                <p><strong>{callbackMsg}</strong> al numero <strong>{phone}</strong>. Tieniti pronto a rispondere, se non lo fai il posto passerà al prossimo genitore.</p>
+                                <p><strong>{callbackMsg}</strong>{phone ? <> al numero <strong>{phone}</strong></> : null}. Tieniti pronto a rispondere, se non lo fai il posto passerà al prossimo genitore.</p>
                             </div>
                         </div>
 
@@ -546,6 +546,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
                     </div>
 
+                    <div className="lp-ty-reassure">
+                        <ShieldCheck size={20} />
+                        <p><strong>15 minuti, nessuna presentazione.</strong> Se il percorso è adatto a tuo figlio te lo diciamo — e se non lo è, te lo diciamo lo stesso.</p>
+                    </div>
+
                     <div className="lp-ty-footer">
                         <a href="https://it.trustpilot.com/review/valenteantonio.it" target="_blank" rel="noopener noreferrer" className="lp-trust-btn">
                             <Star size={18} fill="#fff" color="#fff" />
@@ -558,71 +563,86 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 </main>
                 <style>{STYLES}</style>
                 <style dangerouslySetInnerHTML={{__html: `
-                    .lp-ty-modern { max-width: 500px; margin: 24px auto; padding: 0 16px; font-family: inherit; display: flex; flex-direction: column; gap: 16px; }
+                    /* Thank you page — riscritta: era larga 500px con testi da
+                       13px, e su telefono si leggeva a fatica. Ora respira. */
+                    .lp-ty-modern { max-width: 640px; margin: 40px auto 64px; padding: 0 20px; font-family: inherit; display: flex; flex-direction: column; gap: 22px; }
+
                     .lp-ty-header { text-align: center; }
-                    .lp-ty-success-pulse { display: inline-flex; animation: pulseSuccess 2s infinite; margin-bottom: 10px; border-radius: 50%; }
-                    .lp-ty-header h1 { font-size: 26px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -0.5px; }
-                    .lp-ty-header p { font-size: 14px; color: #a1a1aa; line-height: 1.4; margin: 0; }
-                    
-                    .lp-ty-steps { position: relative; display: flex; flex-direction: column; gap: 8px; }
-                    .lp-ty-steps::before { content: ''; position: absolute; top: 36px; bottom: 36px; left: 30px; width: 2px; background: rgba(255,255,255,0.06); z-index: 0; }
-                    .lp-ty-step { position: relative; z-index: 1; background: #131317; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: flex-start; transition: all 0.3s; }
-                    .lp-ty-step:hover { background: #18181c; transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
-                    .lp-ty-step-icon { position: relative; z-index: 2; width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                    .lp-step-urgent { border-color: rgba(250, 204, 21, 0.15); }
-                    .lp-step-urgent .lp-ty-step-icon { background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.2); }
-                    .lp-step-prep .lp-ty-step-icon { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.15); }
-                    .lp-step-gift .lp-ty-step-icon { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); }
-                    
+                    .lp-ty-success-pulse { display: inline-flex; animation: pulseSuccess 2s infinite; margin-bottom: 18px; border-radius: 50%; }
+                    .lp-ty-header h1 { font-size: clamp(28px, 6.5vw, 40px); font-weight: 900; color: #fff; margin: 0 0 10px; letter-spacing: -1.1px; line-height: 1.12; }
+                    .lp-ty-header p { font-size: 16px; color: #a1a1aa; line-height: 1.6; margin: 0; }
+                    .lp-ty-header p strong { color: #fff; font-weight: 700; }
+
+                    .lp-ty-steps { position: relative; display: flex; flex-direction: column; gap: 12px; }
+                    .lp-ty-steps::before { content: ''; position: absolute; top: 52px; bottom: 52px; left: 35px; width: 2px; background: linear-gradient(180deg, rgba(250,204,21,0.35), rgba(56,189,248,0.35)); z-index: 0; }
+                    .lp-ty-step {
+                        position: relative; z-index: 1; display: flex; gap: 16px; align-items: flex-start;
+                        padding: 22px 22px; border-radius: 18px;
+                        background: linear-gradient(158deg, rgba(255,255,255,0.075) 0%, rgba(255,255,255,0.025) 100%);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.5);
+                        transition: transform 0.3s, border-color 0.3s;
+                    }
+                    .lp-ty-step:hover { transform: translateY(-3px); }
+                    .lp-ty-step-icon {
+                        position: relative; z-index: 2; flex-shrink: 0;
+                        width: 46px; height: 46px; border-radius: 14px;
+                        display: flex; align-items: center; justify-content: center;
+                        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+                        box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+                    }
+                    .lp-step-urgent { border-color: rgba(250,204,21,0.3); }
+                    .lp-step-urgent .lp-ty-step-icon { background: linear-gradient(150deg, rgba(250,204,21,0.28), rgba(250,204,21,0.08)); border-color: rgba(250,204,21,0.4); }
+                    .lp-step-prep { border-color: rgba(56,189,248,0.24); }
+                    .lp-step-prep .lp-ty-step-icon { background: linear-gradient(150deg, rgba(56,189,248,0.26), rgba(56,189,248,0.07)); border-color: rgba(56,189,248,0.36); }
+
                     .lp-ty-step-content { flex: 1; min-width: 0; }
-                    .lp-ty-badge-num { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; margin-bottom: 2px; display: block; }
+                    .lp-ty-badge-num { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px; color: #a1a1aa; margin-bottom: 5px; display: block; }
                     .lp-step-urgent .lp-ty-badge-num { color: #facc15; }
                     .lp-step-prep .lp-ty-badge-num { color: #38bdf8; }
-                    .lp-step-gift .lp-ty-badge-num { color: #ec4899; }
-                    .lp-ty-step-content h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 3px 0; }
-                    .lp-ty-step-content p { font-size: 13px; color: #d4d4d8; line-height: 1.4; margin: 0; word-break: break-word; }
-                    .lp-ty-step-content ul { margin: 4px 0 0; padding-left: 16px; color: #d4d4d8; font-size: 12.5px; line-height: 1.5; list-style-type: disc; }
-                    .lp-ty-step-content li { margin-bottom: 1px; }
-                    .lp-ty-step-content strong { color: #e4e4e7; }
-                    .lp-step-urgent p { color: #d4d4d8; }
-                    .lp-step-urgent strong { color: #fff; font-weight: 800; }
-                    
-                    .lp-ty-footer { text-align: center; margin-top: 4px; }
-                    .lp-trust-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: linear-gradient(135deg, #00b67a, #009567); color: #fff; font-weight: 700; font-size: 14px; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0, 182, 122, 0.3); }
-                    .lp-trust-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 182, 122, 0.4); }
-                    .lp-site-link { display: inline-block; margin-top: 12px; font-size: 12px; color: #71717a; text-decoration: underline; transition: color 0.2s; }
-                    .lp-site-link:hover { color: #d4d4d8; }
-                    
-                    @keyframes pulseSuccess { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+                    .lp-ty-step-content h3 { font-size: 18px; font-weight: 800; color: #fff; margin: 0 0 6px 0; letter-spacing: -0.3px; }
+                    .lp-ty-step-content p { font-size: 14.5px; color: #b4b4bd; line-height: 1.6; margin: 0; overflow-wrap: anywhere; }
+                    .lp-ty-step-content ul { margin: 8px 0 0; padding-left: 20px; color: #b4b4bd; font-size: 14.5px; line-height: 1.75; list-style-type: disc; }
+                    .lp-ty-step-content li::marker { color: #38bdf8; }
+                    .lp-ty-step-content strong { color: #fff; font-weight: 700; }
 
-                    @media (max-width: 480px) {
-                        .lp-ty-modern { margin: 12px auto; padding: 0 10px; gap: 10px; }
-                        .lp-ty-success-pulse svg { width: 40px !important; height: 40px !important; }
-                        .lp-ty-header h1 { font-size: 22px; }
-                        .lp-ty-header p { font-size: 13px; }
-                        .lp-ty-steps { gap: 6px; }
-                        .lp-ty-steps::before { display: none; }
-                        .lp-ty-step { flex-direction: column; padding: 12px 14px; gap: 0; border-radius: 10px; }
-                        .lp-ty-step-icon { display: none; }
-                        .lp-ty-badge-num { font-size: 10px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-                        .lp-ty-step-content h3 { font-size: 15px; margin-bottom: 4px; }
-                        .lp-ty-step-content p { font-size: 13px; }
-                        .lp-ty-step-content ul { font-size: 13px; padding-left: 16px; }
-                        .lp-step-urgent { border-left: 3px solid #facc15; }
-                        .lp-step-prep { border-left: 3px solid #38bdf8; }
-                        .lp-step-gift { border-left: 3px solid #ec4899; }
-                        .lp-trust-btn { padding: 12px; font-size: 14px; }
-                        .lp-site-link { font-size: 11px; margin-top: 10px; }
-                        .lp-ty-footer { margin-top: 2px; }
+                    /* Cosa aspettarsi dalla chiamata: l'attesa e' il momento in
+                       cui il dubbio torna, e questo lo disinnesca. */
+                    .lp-ty-reassure {
+                        display: flex; align-items: flex-start; gap: 14px;
+                        padding: 18px 20px; border-radius: 16px;
+                        background: linear-gradient(120deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.03) 100%);
+                        border: 1px solid rgba(34,197,94,0.26); border-left: 3px solid #22c55e;
                     }
+                    .lp-ty-reassure svg { flex-shrink: 0; color: #22c55e; margin-top: 1px; }
+                    .lp-ty-reassure p { margin: 0; font-size: 14.5px; line-height: 1.6; color: #b4b4bd; }
+                    .lp-ty-reassure strong { color: #fff; font-weight: 800; }
 
-                    @media (max-width: 370px) {
-                        .lp-ty-modern { padding: 0 8px; gap: 8px; }
-                        .lp-ty-header h1 { font-size: 20px; }
-                        .lp-ty-step { padding: 10px 12px; }
-                        .lp-ty-step-content h3 { font-size: 14px; }
-                        .lp-ty-step-content p { font-size: 12px; }
-                        .lp-ty-step-content ul { font-size: 12px; }
+                    .lp-ty-footer { text-align: center; }
+                    .lp-trust-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; width: 100%; padding: 17px; background: linear-gradient(135deg, #00b67a, #009e69); color: #fff; font-size: 16px; font-weight: 800; border-radius: 14px; text-decoration: none; box-shadow: 0 10px 30px rgba(0,182,122,0.28); transition: transform 0.25s, box-shadow 0.25s; }
+                    .lp-trust-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,182,122,0.4); }
+                    .lp-site-link { display: inline-block; margin-top: 16px; font-size: 13px; color: #71717a; text-decoration: underline; transition: color 0.2s; }
+                    .lp-site-link:hover { color: #d4d4d8; }
+
+                    @keyframes pulseSuccess { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 70% { box-shadow: 0 0 0 14px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+
+                    @media (max-width: 560px) {
+                        .lp-ty-modern { margin: 26px auto 44px; padding: 0 15px; gap: 16px; }
+                        .lp-ty-success-pulse { margin-bottom: 14px; }
+                        .lp-ty-success-pulse svg { width: 46px !important; height: 46px !important; }
+                        .lp-ty-header p { font-size: 14.5px; }
+                        .lp-ty-steps { gap: 10px; }
+                        /* La linea che unisce i passi resta: e' il segnale che
+                           sono una sequenza. Prima su mobile spariva. */
+                        .lp-ty-steps::before { top: 44px; bottom: 44px; left: 30px; }
+                        .lp-ty-step { padding: 16px 16px; border-radius: 15px; gap: 13px; }
+                        .lp-ty-step-icon { width: 38px; height: 38px; border-radius: 12px; }
+                        .lp-ty-step-icon svg { width: 19px; height: 19px; }
+                        .lp-ty-step-content h3 { font-size: 16px; }
+                        .lp-ty-step-content p, .lp-ty-step-content ul { font-size: 13.5px; }
+                        .lp-ty-reassure { padding: 15px 16px; gap: 11px; }
+                        .lp-ty-reassure p { font-size: 13.5px; }
+                        .lp-trust-btn { padding: 15px; font-size: 15px; }
                     }
                 `}} />
             </div>
