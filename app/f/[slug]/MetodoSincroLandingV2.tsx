@@ -501,12 +501,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
     /* ======================== THANK YOU ======================== */
     if (submitted) {
-        const hour = new Date().getHours()
-        const callbackMsg = hour >= 9 && hour < 18
-            ? 'Ti chiameremo entro le prossime 2 ore'
-            : hour >= 18
-                ? 'Ti chiameremo domani mattina'
-                : 'Ti chiameremo in mattinata'
 
         return (
             <div className="lp">
@@ -525,8 +519,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             <div className="lp-ty-step-icon"><Phone size={24} color="#facc15" /></div>
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 1</span>
-                                <h3>Attendi la nostra chiamata</h3>
-                                <p><strong>{callbackMsg}</strong>{phone ? <> al numero <strong>{phone}</strong></> : null}. Tieniti pronto a rispondere, se non lo fai il posto passerà al prossimo genitore.</p>
+                                <h3>Ti chiamiamo noi, entro 24-48 ore</h3>
+                                <p>{phone ? <>Chiamiamo il <strong>{phone}</strong>. </> : null}Tieni il telefono a portata: se non riusciamo a raggiungerti, il posto passa al prossimo genitore.</p>
                             </div>
                         </div>
 
@@ -548,7 +542,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
 
                     <div className="lp-ty-reassure">
                         <ShieldCheck size={20} />
-                        <p><strong>15 minuti, nessuna presentazione.</strong> Se il percorso è adatto a tuo figlio te lo diciamo — e se non lo è, te lo diciamo lo stesso.</p>
+                        <p><strong>Massimo 15 minuti, nessuna presentazione.</strong> Se il percorso è adatto a tuo figlio te lo diciamo — e se non lo è, te lo diciamo lo stesso.</p>
                     </div>
 
                     <div className="lp-ty-footer">
@@ -829,7 +823,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 </button>
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
-                            <p className="lp-hf-next">Ti richiamiamo noi — <strong>15 minuti, senza impegno</strong></p>
+                            <p className="lp-hf-next">Ti richiamiamo noi — <strong>massimo 15 minuti, senza impegno</strong></p>
                             <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
                         </div>
                     </div>
@@ -938,7 +932,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <h2>3 Fasi. 90 Giorni. <span className="lp-gold">Risultati Misurabili.</span></h2>
                     <p className="lp-how-sub">Non è motivazione. È un protocollo scientifico con risultati tracciabili settimana dopo settimana.</p>
                     <div className="lp-timeline lp-rv">
-                        <div className="lp-step"><div className="lp-step-num">1</div><div className="lp-step-content"><h3>Consulenza Gratuita</h3><p>Parli con un nostro esperto per 15 minuti. Analizziamo la situazione e capiamo se il percorso è adatto.</p></div></div>
+                        <div className="lp-step"><div className="lp-step-num">1</div><div className="lp-step-content"><h3>Consulenza Gratuita</h3><p>Parli con un nostro esperto per massimo 15 minuti. Analizziamo la situazione e capiamo se il percorso è adatto.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">2</div><div className="lp-step-content"><h3>Percorso Personalizzato</h3><p>Creiamo un piano <strong>ONE-TO-ONE</strong> su misura. Coach dedicato, specializzato per la sua fascia d'età.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>Trasformazione in 90 Giorni</h3><p>Sessioni settimanali online. Report progressi. Miglioramenti misurabili e <strong>garantiti per contratto</strong>.</p></div></div>
                     </div>
@@ -1087,7 +1081,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                     <p>Non aspettare — ogni giorno che passa il gap tra il suo talento e i suoi risultati si allarga.</p>
                     <ol className="lp-next lp-rv">
                         <li><span>1</span><p>Lasci i contatti qui sopra. <strong>Ti richiamiamo noi</strong>, non devi fare altro.</p></li>
-                        <li><span>2</span><p><strong>15 minuti al telefono</strong> per capire la situazione di tuo figlio. Niente presentazioni, solo domande.</p></li>
+                        <li><span>2</span><p><strong>Massimo 15 minuti al telefono</strong> per capire la situazione di tuo figlio. Niente presentazioni, solo domande.</p></li>
                         <li><span>3</span><p>Se il percorso è adatto a lui te lo diciamo. <strong>E se non lo è, te lo diciamo lo stesso.</strong></p></li>
                     </ol>
                     <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
@@ -1145,7 +1139,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                         <button className="lp-exit-cta" onClick={() => { setShowExitPopup(false); scrollToForm() }}>
                             Parlaci di tuo figlio/a <ArrowRight size={18} />
                         </button>
-                        <p className="lp-exit-sub">Consulenza gratuita • Senza impegno • 15 minuti</p>
+                        <p className="lp-exit-sub">Consulenza gratuita • Senza impegno • Max 15 minuti</p>
                     </div>
                 </div>
             )}
