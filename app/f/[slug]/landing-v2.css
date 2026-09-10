@@ -983,14 +983,16 @@
     .lp-hero-author-txt > span { font-size: 10.5px; }
 
     .lp-founder {
-        padding: 60px 16px 70px;
-        /* Su schermo verticale il ritaglio "cover" isolava le lettere dello
-           schermo in blocchi giganti: inquadratura spostata su palco e
-           pubblico, e velo piu' fitto. */
+        /* Su schermo stretto "cover" mostrava solo il 27% dell'immagine,
+           ingrandita e sotto un velo fitto: non si riconosceva nulla.
+           Qui diventa una fascia in cima alla sezione, larga quanto lo
+           schermo e visibile davvero, che sfuma nel nero sotto al testo. */
+        padding: 244px 16px 70px;
         background:
-            linear-gradient(180deg, #050508 0%, rgba(6,6,11,0.92) 22%, rgba(6,6,11,0.93) 76%, #050508 100%),
-            radial-gradient(ellipse at 50% 30%, rgba(250,204,21,0.1) 0%, transparent 60%),
-            url('/images/team/antonio-palco.jpg') 14% 36% / cover no-repeat;
+            linear-gradient(180deg,
+                rgba(5,5,8,0.18) 0%, rgba(5,5,8,0.34) 42%,
+                rgba(5,5,8,0.82) 82%, #050508 100%) center top / 100% 256px no-repeat,
+            url('/images/team/antonio-palco.jpg') center top / 120% auto no-repeat;
         background-color: #050508;
     }
     .lp-founder-grid { gap: 36px; }
