@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback, type CSSProperties } from 're
 import Image from 'next/image'
 import Script from 'next/script'
 import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
+import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { Check, CheckCircle, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 
@@ -479,7 +480,15 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             }
 
             // Fire standard event immediately
-            firePixelEvent('Lead', leadEventId, { content_category: funnel.objective || 'cliente' })
+            firePixelEvent('Lead', leadEventId, {
+                content_category: funnel.objective || 'cliente',
+                content_name: funnel.name || undefined,
+                // Stessi valore e valuta della CAPI: in caso di duplicato Meta
+                // tiene l'evento arrivato per primo, quasi sempre questo del
+                // browser, e senza value il valore predittivo andrebbe perso.
+                value: PREDICTIVE_LEAD_VALUE,
+                currency: LEAD_CURRENCY,
+            })
 
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })

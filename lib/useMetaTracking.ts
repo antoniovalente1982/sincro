@@ -3,6 +3,20 @@
 import { useEffect, useRef, useCallback } from 'react'
 
 /**
+ * Meta deduplica due eventi solo se coincidono event_name ed event_id.
+ * Il componente della landing viene montato, smontato e rimontato una volta in
+ * avvio: l'effetto girava due volte, ogni giro generava un id diverso e Meta
+ * contava due PageView e due ViewContent per ogni visita.
+ *
+ * Le guardie stanno sul modulo e non su un ref, perche' un ref viene buttato
+ * via insieme al componente smontato. Il modulo vive quanto il caricamento di
+ * pagina: un ricaricamento vero lo rivaluta e gli eventi ripartono, come deve
+ * essere. La chiave include il funnel, cosi' su un funnel diverso ripartono.
+ */
+const pageViewInviati = new Set<string>()
+const viewContentInviati = new Set<string>()
+
+/**
  * Shared hook for Meta Pixel + CAPI tracking on all landing pages.
  *
  * UTM parameter extraction with 3-layer fallback:
@@ -158,8 +172,12 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         const initialFbp = cookies._fbp || undefined
         fbIdsRef.current = { fbc: initialFbc, fbp: initialFbp }
 
+        const chiave = `${orgId}|${funnelId}|${window.location.pathname}`
+        const pageViewDaInviare = !pageViewInviati.has(chiave)
+        if (pageViewDaInviare) pageViewInviati.add(chiave)
+
         // Fire pixel PageView immediately (client-side)
-        if (typeof window !== 'undefined' && (window as any).fbq) {
+        if (pageViewDaInviare && typeof window !== 'undefined' && (window as any).fbq) {
             (window as any).fbq('track', 'PageView', {}, { eventID: pageViewEventId })
         }
 
@@ -167,10 +185,9 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         // Signals to Meta that the user actually read the page (not a bounce).
         // Fires client-side Pixel immediately + CAPI via /api/track/event.
         const vcEventId = `vc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-        let vcFired = false
         const fireViewContent = () => {
-            if (vcFired) return
-            vcFired = true
+            if (viewContentInviati.has(chiave)) return
+            viewContentInviati.add(chiave)
             if (typeof window !== 'undefined' && (window as any).fbq) {
                 ;(window as any).fbq('track', 'ViewContent', { content_name: 'landing' }, { eventID: vcEventId })
             }
@@ -210,6 +227,7 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         waitForFbp(initialFbc, initialFbp).then(({ fbc, fbp }) => {
             // Update ref with the best values we found
             fbIdsRef.current = { fbc, fbp }
+            if (!pageViewDaInviare) return
 
             const freshCookies = parseCookies()
             fetch('/api/track/pageview', {
@@ -234,6 +252,11 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
                 }),
             }).catch(() => {})
         })
+
+        return () => {
+            clearTimeout(vcTimer)
+            window.removeEventListener('scroll', onScroll)
+        }
     }, [orgId, funnelId, abVariant])
 
     const getFbIds = useCallback(() => fbIdsRef.current, [])

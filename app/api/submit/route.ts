@@ -1,3 +1,4 @@
+import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
@@ -299,9 +300,6 @@ export async function POST(req: NextRequest) {
                         await ensureLeadTag(funnel.organization_id, lead.id, tag, getSupabaseAdmin())
                     }
 
-                    // Predictive Lead Value: avg sale (€2250) × conversion rate (~5%) = €112
-                    // This fixes Meta diagnostic "missing price parameters" and improves Quality Score
-                    const PREDICTIVE_LEAD_VALUE = 112
 
                     // CAPI Lead — ALWAYS fire using pixel_id from connections table
                     // Previously gated on funnel.meta_pixel_id, causing 5/7 funnels to silently skip CAPI.
@@ -438,7 +436,7 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 custom_data: {
                     content_category: userData.content_category || undefined,
                     content_name: userData.content_name || undefined,
-                    currency: 'EUR',
+                    currency: LEAD_CURRENCY,
                     value: userData.value || undefined,  // Never send 0 — Meta treats it as missing
                 },
             }],
