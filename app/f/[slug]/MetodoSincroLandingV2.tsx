@@ -56,6 +56,17 @@ const FAQ_ITEMS = [
     { q: 'Mio figlio non vuole parlare con uno psicologo...', a: 'Normale. Nessun ragazzo vuole "parlare con qualcuno dei suoi problemi." E infatti qui non lo facciamo. Il Mental Coaching funziona come un allenamento — solo che invece dei muscoli, alleni la testa. Concentrazione, gestione della pressione, fiducia. Roba concreta, con obiettivi chiari ogni settimana. La maggior parte dei ragazzi, quando capisce di cosa si tratta davvero, vuole iniziare subito. È così sia per giovani calciatori e anche con tutti i calciatori professionisti con cui lavoriamo.' },
 ]
 
+/* ═══ VIDEO VTURB ═══
+   Account e player vengono dal codice embed generato nel pannello VTurb.
+   Sostituire questi due valori basta a cambiare video. */
+const VTURB_ACCOUNT = 'aa89ca91-c4e7-487e-aa5a-13ea76503b32'
+const VTURB_PLAYER = '6aa2b5cec2f4962ca9eee9eb'
+const VTURB_VIDEO = '6aa2b5ca01c52fad3a1d4654'
+const VTURB_SRC = `https://scripts.converteai.net/${VTURB_ACCOUNT}/players/${VTURB_PLAYER}/v4/player.js`
+// Inserito via innerHTML: <vturb-smartplayer> e' un custom element, cosi' React
+// non prova a gestirlo e non litiga con il DOM che il player si costruisce da solo.
+const VTURB_EMBED = `<vturb-smartplayer id="vid-${VTURB_PLAYER}" style="display:block;margin:0 auto;width:100%"><div class="vturb-player-placeholder" style="position:relative;width:100%;padding:56.25% 0 0;z-index:0;background-color:#000"></div></vturb-smartplayer>`
+
 // Club in cui giocano gli atleti seguiti: alimenta il nastro sotto l'hero.
 const CLUBS = ['Monza', 'Palermo', 'Juventus', 'Roma', 'Inter', 'Sassuolo', 'Como', 'Parma', 'Salernitana', 'Pescara', 'Trento', 'Nazionale Italiana']
 
@@ -607,6 +618,23 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     /* ======================== MAIN PAGE ======================== */
     return (
         <div className="lp" data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
+            {/* VTurb — precaricamento consigliato dal pannello. React solleva
+                questi <link> dentro l'head. Il crossOrigin sul manifest non c'e'
+                nello snippet originale ma senza il preload as="fetch" viene
+                scartato e il file riscaricato. */}
+            <link rel="preload" href={VTURB_SRC} as="script" />
+            <link rel="preload" href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js" as="script" />
+            <link rel="preload" href={`https://cdn.converteai.net/${VTURB_ACCOUNT}/${VTURB_VIDEO}/main.m3u8`} as="fetch" crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href="https://cdn.converteai.net" />
+            <link rel="dns-prefetch" href="https://scripts.converteai.net" />
+            <link rel="dns-prefetch" href="https://images.converteai.net" />
+            <link rel="dns-prefetch" href="https://license.vturb.com" />
+            <script dangerouslySetInnerHTML={{ __html: '!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);' }} />
+            {/* React 19 solleva gli script async nell'head e li deduplica: il
+                player parte con l'HTML iniziale invece di aspettare che React
+                idrati una pagina pesante. */}
+            <script async src={VTURB_SRC} />
+
             {/* Senza JS la comparsa progressiva lascerebbe la pagina vuota */}
             <noscript>
                 <style>{`.lp-rv{opacity:1!important;transform:none!important}`}</style>
@@ -672,6 +700,9 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
+                        <div className="lp-vsl">
+                            <div className="lp-vsl-box" dangerouslySetInnerHTML={{ __html: VTURB_EMBED }} />
+                        </div>
                         <div className="lp-hero-author">
                             <span className="lp-hero-author-img">
                                 <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
