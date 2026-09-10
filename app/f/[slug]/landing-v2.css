@@ -1601,3 +1601,13 @@ button.lp-pain-card:focus-visible { outline: 2px solid #facc15; outline-offset: 
     .lp-vsl::before { border-radius: 15px; }
     .lp-vsl-box { border-radius: 14px; }
 }
+
+/* Emoji dentro i titoli: il glifo riempie tutto il quadratone del carattere,
+   mentre una maiuscola ne occupa circa il 70%. A parita' di corpo sembra
+   quindi sproporzionata: la riportiamo all'altezza delle lettere. */
+.lp-emoji {
+    display: inline-block;
+    font-size: 0.62em;
+    vertical-align: 0.1em;
+    margin-left: 0.1em;
+}
