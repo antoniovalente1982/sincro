@@ -1063,7 +1063,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </div>
                             <div className="lp-exit-obj">
                                 <span className="lp-exit-obj-q">❌ "È troppo presto/tardi per mio figlio?"</span>
-                                <span className="lp-exit-obj-a">→ Coach dedicati <strong>per ogni fascia d'età</strong> (10-20 anni).</span>
+                                <span className="lp-exit-obj-a">→ Coach dedicati <strong>per ogni fascia d'età</strong> (dai 10 ai 20+ anni).</span>
                             </div>
                             <div className="lp-exit-obj">
                                 <span className="lp-exit-obj-q">❌ "Non ho tempo per portarlo"</span>
