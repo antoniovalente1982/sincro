@@ -49,6 +49,9 @@ export interface DatiPrimoContatto {
  */
 export function messaggioPrimoContatto({ nome, creatoIl, etaFiglio }: DatiPrimoContatto): string {
     const saluto = nome ? `Buongiorno ${String(nome).trim().split(' ')[0]}` : 'Buongiorno'
+    // Firma con nome e cognome: il messaggio parte da un numero personale,
+    // e presentarsi come persona funziona meglio di un "le scrivo da".
+    const mittente = 'Antonio Valente'
     const q = quando(creatoIl)
     // quando() restituisce "oggi" / "il 10 settembre": apre la frase, quindi va
     // in maiuscolo.
@@ -57,13 +60,13 @@ export function messaggioPrimoContatto({ nome, creatoIl, etaFiglio }: DatiPrimoC
         : 'Ha richiesto una consulenza gratuita dal nostro sito'
 
     const domanda = etaFiglio
-        ? `Ho visto che ha indicato ${etaFiglio} anni: la richiesta è per suo figlio? Mi dica in che categoria gioca e cosa vorreste migliorare.`
-        : 'Le chiedo una conferma: la richiesta è per suo figlio? Se mi dice quanti anni ha e in che categoria gioca, la metto in contatto con il coach giusto.'
+        ? `Ho visto che ha indicato ${etaFiglio} anni: la richiesta è per suo figlio? Mi dica in che categoria gioca e cosa vorreste migliorare, così possiamo fissare la call.`
+        : 'Le chiedo una conferma: la richiesta è per suo figlio? Se mi dice quanti anni ha e in che categoria gioca, così possiamo fissare la call.'
 
     return [
-        `${saluto}, le scrivo da Metodo Sincro.`,
+        `${saluto}, sono ${mittente}.`,
         '',
-        `${riferimento} sul mental coaching per calciatori.`,
+        `${riferimento} sul mental coaching per calciatori, Metodo Sincro.`,
         '',
         domanda,
     ].join('\n')
