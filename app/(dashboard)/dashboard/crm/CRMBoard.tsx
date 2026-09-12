@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table, ZoomIn } from 'lucide-react'
+import { Plus, Search, Filter, GripVertical, Phone, Mail, DollarSign, Calendar, User, X, MessageSquare, ArrowRight, Clock, Trash2, Edit3, Eye, Flame, Zap, Snowflake, TrendingUp, Target, RefreshCcw, LayoutGrid, Table, ZoomIn, MessageCircle } from 'lucide-react'
 import DateRangeFilter, { useDateRange, filterByDateRange } from '@/components/DateRangeFilter'
 import CRMGrid from './CRMGrid'
 import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, canEditSetterFields, type Role, type Department } from '@/lib/permissions'
+import { linkWhatsApp } from '@/lib/whatsapp'
 import HowItWorks from '@/components/HowItWorks'
 import FastBookModal from './FastBookModal'
 import { createClient } from '@/lib/supabase/client'
@@ -36,6 +37,42 @@ interface Tag {
     id: string
     name: string
     color: string
+}
+
+/**
+ * Apre WhatsApp col primo messaggio gia' scritto. Non invia: chi scrive puo'
+ * ancora ritoccarlo. Se il numero non e' utilizzabile il pulsante non compare,
+ * invece di aprire una pagina d'errore.
+ */
+function WhatsAppLeadButton({ lead, size = 'md' }: { lead: Lead; size?: 'sm' | 'md' }) {
+    const href = linkWhatsApp(lead.phone, {
+        nome: lead.name,
+        creatoIl: lead.created_at,
+        etaFiglio: lead.meta_data?.child_age,
+        nomeFunnel: lead.funnels?.name,
+    })
+    if (!href) return null
+    const p = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Scrivi su WhatsApp — messaggio gia' pronto"
+            aria-label={`Scrivi su WhatsApp a ${lead.name}`}
+            // La card sotto apre il dettaglio del lead: il clic si ferma qui.
+            onClick={e => e.stopPropagation()}
+            className="inline-flex items-center justify-center rounded-md transition-transform hover:scale-110 shrink-0"
+            style={{
+                padding: size === 'sm' ? '3px' : '5px',
+                background: 'rgba(37, 211, 102, 0.12)',
+                border: '1px solid rgba(37, 211, 102, 0.35)',
+                color: '#25D366',
+            }}
+        >
+            <MessageCircle className={p} />
+        </a>
+    )
 }
 
 interface Lead {
@@ -1519,6 +1556,7 @@ export default function CRMBoard({ pipelines, stages, initialLeads, members, use
                                                 {lead.phone && (
                                                     <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-surface-400)' }}>
                                                         <Phone className="w-3 h-3" /> {lead.phone}
+                                                        <WhatsAppLeadButton lead={lead} size="sm" />
                                                     </div>
                                                 )}
                                                 {lead.meta_data?.child_age && (
@@ -2069,6 +2107,7 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                             {lead.phone && (
                                 <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-surface-600)' }}>
                                     <Phone className="w-4 h-4" /> {lead.phone}
+                                    <WhatsAppLeadButton lead={lead} />
                                 </div>
                             )}
                         </div>
