@@ -1,7 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
-import MetodoSincroLanding from './MetodoSincroLandingV2'
+import MetodoSincroLanding, { type AbAssignment } from './MetodoSincroLandingV2'
 
 // Slugs that redirect to dedicated landing pages
 const SLUG_REDIRECTS: Record<string, string> = {
@@ -21,9 +22,41 @@ function getSupabaseAdmin() {
     )
 }
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props {
+    params: Promise<{ slug: string }>
+    searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
-export default async function PublicFunnelPage({ params }: Props) {
+/**
+ * Variante del test A/B per questa visita.
+ *
+ * Con il test acceso (settings.ab_test_active, dalla dashboard) il visitatore
+ * nuovo riceve A o B a caso e poi la tiene: la pagina salva la scelta in un
+ * cookie e alle visite successive il server la rilegge. La sceglie il server,
+ * cosi' la pagina arriva gia' nella versione giusta e non cambia sotto gli
+ * occhi. Con il test spento resta l'etichetta fissa settings.ab_variant e
+ * nessuno vede il form a passaggi.
+ *
+ * ?ab=A o ?ab=B forza la variante: serve a vedere la B prima di accendere il test.
+ */
+async function resolveAbVariant(
+    funnelId: string,
+    settings: { ab_test_active?: boolean; ab_variant?: string } | null | undefined,
+    forced: unknown,
+): Promise<AbAssignment> {
+    if (forced === 'A' || forced === 'B') {
+        return { variant: forced, stepForm: forced === 'B', cookieName: null }
+    }
+    if (settings?.ab_test_active !== true) {
+        return { variant: settings?.ab_variant === 'B' ? 'B' : 'A', stepForm: false, cookieName: null }
+    }
+    const cookieName = `ms_ab_${funnelId}`
+    const saved = (await cookies()).get(cookieName)?.value
+    const variant = saved === 'A' || saved === 'B' ? saved : (Math.random() < 0.5 ? 'A' : 'B')
+    return { variant, stepForm: variant === 'B', cookieName }
+}
+
+export default async function PublicFunnelPage({ params, searchParams }: Props) {
     const { slug } = await params
 
     // Redirect slugs with dedicated landing pages
@@ -45,7 +78,9 @@ export default async function PublicFunnelPage({ params }: Props) {
             .from('funnel_routing_engine')
             .select('*')
 
-        return <MetodoSincroLanding funnel={funnel} routingAngles={routingAngles || []} />
+        const ab = await resolveAbVariant(funnel.id, funnel.settings, (await searchParams).ab)
+
+        return <MetodoSincroLanding funnel={funnel} routingAngles={routingAngles || []} ab={ab} />
     }
 
     return <FunnelLandingPage funnel={funnel} />

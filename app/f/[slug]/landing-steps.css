@@ -1,0 +1,145 @@
+/* ═══════════ FORM A PASSAGGI — variante B del test A/B ═══════════
+   Stessa card bianca del form classico, ma i contatti arrivano per ultimi:
+   prima il genitore dice in cosa riconosce il figlio e quanti anni ha.
+   Col form classico, su 140 visitatori da Meta solo 5 toccavano un campo. */
+
+/* L'hero si divide in tre blocchi: titolo, form, e il resto (video, autore,
+   prove). Su desktop il form resta a destra; su telefono sale subito sotto
+   il titolo, invece di stare a 760px dall'inizio pagina. */
+.lp-hero-in.lp-hero-in--steps {
+    grid-template-areas: "text form" "more form";
+    grid-template-rows: auto 1fr;
+    row-gap: 0;
+}
+.lp-hero-in--steps .lp-hero-text { grid-area: text; min-height: 0; }
+.lp-hero-in--steps .lp-hero-form { grid-area: form; }
+.lp-hero-in--steps .lp-hero-more { grid-area: more; max-width: 560px; }
+
+.lp-hf-card.lp-sf { min-height: 0; }
+
+.lp-sf-top {
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 24px; margin-bottom: 8px;
+}
+.lp-sf-count {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+    text-transform: uppercase; color: #b45309;
+}
+.lp-sf-back {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 4px 0; background: none; border: none; cursor: pointer;
+    font: inherit; font-size: 13px; font-weight: 600; color: #71717a;
+}
+.lp-sf-back:hover { color: #18181b; }
+
+.lp-sf-bar {
+    height: 5px; margin-bottom: 18px; overflow: hidden;
+    border-radius: 99px; background: #f4f4f5;
+}
+/* Avanza con scaleX, impostata inline dal JSX: animare width ricalcolerebbe il layout */
+.lp-sf-bar > span {
+    display: block; height: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, #facc15, #22c55e);
+    transform-origin: left center;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lp-sf .lp-hf-title { line-height: 1.2; margin-bottom: 4px; }
+.lp-sf .lp-hf-sub { line-height: 1.5; margin-bottom: 16px; }
+
+.lp-sf-step { animation: sfIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes sfIn {
+    from { opacity: 0; transform: translateX(14px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Passo 1: i blocchi, gli stessi sei della sezione "Il problema" */
+.lp-sf-chips {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 14px;
+}
+.lp-sf-chip, .lp-sf-age {
+    position: relative; display: flex; align-items: center; gap: 8px;
+    border: 1.5px solid #e4e4e7; border-radius: 12px; background: #fafafa;
+    font: inherit; color: #27272a; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.lp-sf-chip {
+    min-height: 52px; padding: 10px 26px 10px 11px;
+    font-size: 13.5px; font-weight: 700; line-height: 1.25; text-align: left;
+}
+.lp-sf-chip:hover, .lp-sf-age:hover { border-color: #d4d4d8; background: #fff; }
+.lp-sf-chip:active, .lp-sf-age:active { transform: scale(0.98); }
+.lp-sf-chip.is-on, .lp-sf-age.is-on {
+    border-color: #facc15; background: #fefce8;
+    box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.18);
+}
+.lp-sf-chip-ico { flex-shrink: 0; font-size: 19px; line-height: 1; }
+.lp-sf-chip-tick {
+    position: absolute; top: 50%; right: 7px;
+    display: flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; margin-top: -8px; border-radius: 50%;
+    background: #22c55e; color: #fff;
+    opacity: 0; transform: scale(0.5);
+    transition: opacity 0.2s, transform 0.2s;
+}
+.lp-sf-chip.is-on .lp-sf-chip-tick { opacity: 1; transform: scale(1); }
+
+/* Passo 2: l'eta'. Cinque fasce: l'ultima prende tutta la riga. */
+.lp-sf-ages {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.lp-sf-age {
+    justify-content: center; min-height: 54px; padding: 10px;
+    font-size: 15px; font-weight: 800;
+}
+.lp-sf-age:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* Passo 3: riepilogo di quello che ha appena detto, poi i contatti */
+.lp-sf-recap {
+    margin-bottom: 14px; padding: 10px 12px; border-radius: 12px;
+    font-size: 13px; line-height: 1.5; color: #3f3f46; text-align: left;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+}
+.lp-sf-recap strong { color: #15803d; }
+
+.lp-sf-skip {
+    display: block; width: 100%; margin-top: 8px; padding: 6px;
+    background: none; border: none; cursor: pointer;
+    font: inherit; font-size: 12.5px; color: #71717a; text-decoration: underline;
+}
+.lp-sf-skip:hover { color: #18181b; }
+
+/* Il pulsante verde pulsa con !important: da disabilitato deve fermarsi */
+.lp-sf .lp-hf-btn:disabled {
+    opacity: 0.45; animation: none !important; box-shadow: none !important;
+}
+
+.lp-sf-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid #f4f4f5; }
+.lp-sf-foot .lp-hf-social { margin: 0; }
+
+.lp-sf-chip:focus-visible, .lp-sf-age:focus-visible,
+.lp-sf-back:focus-visible, .lp-sf-skip:focus-visible {
+    outline: 2px solid #b45309; outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .lp-hero-in.lp-hero-in--steps {
+        grid-template-areas: "text" "form" "more";
+        grid-template-rows: auto;
+        row-gap: 20px;
+    }
+    .lp-hero-in--steps .lp-hero-text .lp-hero-sub { margin-bottom: 0; }
+    .lp-hero-in--steps .lp-hero-more { max-width: 100%; }
+    .lp-hf-card.lp-sf { min-height: 0; padding: 20px 16px; }
+    .lp-sf-chip { min-height: 48px; padding: 9px 24px 9px 10px; font-size: 12.5px; }
+    .lp-sf-chip-ico { font-size: 17px; }
+}
+@media (max-width: 340px) {
+    .lp-sf-chips { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .lp-sf-step { animation: none; }
+    .lp-sf-bar > span { transition: none; }
+}

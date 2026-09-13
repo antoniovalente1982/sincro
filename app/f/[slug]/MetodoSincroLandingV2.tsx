@@ -1,13 +1,23 @@
 'use client'
 
 import './landing-v2.css'
+import './landing-steps.css'
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Script from 'next/script'
 import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
-import { Check, CheckCircle, ShieldCheck, ArrowRight, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
+import { Check, CheckCircle, ShieldCheck, ArrowRight, ArrowLeft, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
+
+/** Variante del test A/B assegnata dal server (vedi resolveAbVariant in page.tsx). */
+export interface AbAssignment {
+    variant: 'A' | 'B'
+    /** true = form a passaggi (blocchi, eta', contatti) al posto del form classico */
+    stepForm: boolean
+    /** Cookie in cui ricordare la variante; null quando il test e' spento o la variante e' forzata */
+    cookieName: string | null
+}
 
 interface Props {
     funnel: {
@@ -15,7 +25,16 @@ interface Props {
         settings?: any; organizations?: any; objective?: string
     };
     routingAngles?: any[];
+    ab?: AbAssignment;
 }
+
+const AGE_OPTIONS = [
+    { value: '8-10', label: '8-10 anni' },
+    { value: '11-13', label: '11-13 anni' },
+    { value: '14-16', label: '14-16 anni' },
+    { value: '17-20', label: '17-20 anni' },
+    { value: '20+', label: 'Oltre 20 anni' },
+]
 
 const FAMOUS_PLAYERS = [
     { name: 'Patrick Cutrone', role: 'Attaccante', team: 'Monza', img: '/images/calciatori/cutrone.jpg' },
@@ -103,7 +122,11 @@ function CountUp({ to, suffix = '', duration = 1500 }: { to: number; suffix?: st
     return <strong ref={ref}>{fmt}{suffix}</strong>
 }
 
-export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) {
+export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Props) {
+    // Senza assegnazione dal server resta l'etichetta fissa del funnel, col form classico
+    const abVariant = ab?.variant ?? (funnel.settings?.ab_variant === 'B' ? 'B' : 'A')
+    const stepForm = ab?.stepForm ?? false
+
     const [fullName, setFullName] = useState('')
     
     // Sport configuration state with default settings from funnel or falling back to calcio
@@ -150,7 +173,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
     const [openFaq, setOpenFaq] = useState<number | null>(null)
-    const [viewerCount, setViewerCount] = useState(18)
     const [activeAngle, setActiveAngle] = useState<any>(null)
     const [customHeadline, setCustomHeadline] = useState<string | null>(null)
     const checkoutFiredRef = useRef(false)
@@ -262,16 +284,25 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
     const isEmailValid = email.trim().length > 0 && email.includes('@') && !emailError
     const isFormValid = isNameValid && isPhoneValid && isEmailValid
 
-    // Dynamic viewer count
+    // Il test A/B ricorda la variante: alla visita successiva il server la
+    // rilegge dal cookie e il visitatore ritrova la stessa pagina.
     useEffect(() => {
-        const interval = setInterval(() => {
-            setViewerCount(prev => {
-                const delta = Math.random() > 0.5 ? Math.floor(Math.random() * 4) + 1 : -(Math.floor(Math.random() * 3) + 1)
-                return Math.max(14, Math.min(35, prev + delta))
-            })
-        }, (Math.random() * 7000) + 8000)
-        return () => clearInterval(interval)
-    }, [])
+        if (!ab?.cookieName) return
+        document.cookie = `${ab.cookieName}=${ab.variant}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`
+    }, [ab?.cookieName, ab?.variant])
+
+    // ── Form a passaggi (variante B): 1 blocchi, 2 eta', 3 contatti ──
+    const [step, setStep] = useState<1 | 2 | 3>(1)
+    const goStep = (n: 1 | 2 | 3) => {
+        setStep(n)
+        // Il passaggio nuovo puo' essere piu' corto del precedente: se l'inizio
+        // della card e' uscito dallo schermo, lo riportiamo in vista.
+        requestAnimationFrame(() => {
+            if ((formRef.current?.getBoundingClientRect().top ?? 0) < 0) {
+                formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+        })
+    }
 
     // ── Shared Meta Tracking (fbc/fbp, UTMs, PageView CAPI) ──
     const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
@@ -279,7 +310,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
         orgId,
         funnelId: funnel.id,
         pixelId: funnel.meta_pixel_id,
-        abVariant: funnel.settings?.ab_variant,
+        abVariant,
     })
 
     // Fire StartForm on first form field focus (with CAPI context)
@@ -459,7 +490,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                 body: JSON.stringify({
                     funnel_id: funnel.id,
                     name: nameToPass, email, phone,
-                    page_variant: funnel.settings?.ab_variant || 'A',
+                    page_variant: abVariant,
                     extra_data: {
                         sport: sportConfig.sportName,
                         child_age: childAge,
@@ -643,6 +674,167 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
         )
     }
 
+    /* ── Pezzi dell'hero condivisi fra form classico (A) e form a passaggi (B) ── */
+    const heroMore = (
+        <>
+            {vturbIds && (
+                <div className="lp-vsl">
+                    <iframe
+                        className="lp-vsl-box"
+                        src={vturbSrc}
+                        title="Metodo Sincro — presentazione"
+                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                        referrerPolicy="origin"
+                        allowFullScreen
+                        scrolling="no"
+                    />
+                </div>
+            )}
+            <div className="lp-hero-author">
+                <span className="lp-hero-author-img">
+                    <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
+                </span>
+                <span className="lp-hero-author-txt">
+                    <strong>Antonio Valente</strong>
+                    <span>Fondatore Metodo Sincro<sup>&reg;</sup> &middot; Mental Coach di {sportConfig.sportName === 'tennis' ? 'Atleti' : 'Calciatori'} Professionisti</span>
+                </span>
+            </div>
+            <div className="lp-hero-proof">
+                {!sportConfig.hideSoccerProof && (
+                    <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong></span></div>
+                )}
+                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
+                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
+            </div>
+            <div className="lp-promise">
+                <span className="lp-promise-num">10<em>giorni</em></span>
+                <span className="lp-promise-txt">I primi risultati li vedrai in <strong>soli 10 giorni</strong></span>
+            </div>
+        </>
+    )
+
+    const contactFields = (
+        <>
+            <div className="lp-field">
+                <div className={`lp-input-wrap ${isNameValid ? 'filled' : ''} ${(submitAttempted && !isNameValid) || fullNameError ? 'has-error' : ''}`}>
+                    <User size={18} style={{ flexShrink: 0 }} />
+                    <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)} onFocus={handleFirstFieldFocus} style={{ minWidth: 0, width: '100%' }} />
+                </div>
+                {((submitAttempted && !isNameValid) || fullNameError) && <span className="lp-field-error">{fullNameError}</span>}
+            </div>
+            <div className="lp-field">
+                <div className={`lp-input-wrap ${isPhoneValid ? 'filled' : ''} ${(submitAttempted && !isPhoneValid) || phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} /></div>
+                {((submitAttempted && !isPhoneValid) || phoneError) && <span className="lp-field-error">{phoneError}</span>}
+            </div>
+            <div className="lp-field">
+                <div className={`lp-input-wrap ${isEmailValid ? 'filled' : ''} ${(submitAttempted && !isEmailValid) || emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                {((submitAttempted && !isEmailValid) || emailError) && <span className="lp-field-error">{emailError}</span>}
+            </div>
+        </>
+    )
+
+    const painList = pains.length <= 2 ? pains.join(' e ') : `${pains.slice(0, -1).join(', ')} e ${pains[pains.length - 1]}`
+    const ageLabel = AGE_OPTIONS.find(a => a.value === childAge)?.label
+
+    // StartForm parte al primo tocco su un blocco o su un'eta', non piu' solo
+    // sul primo campo: nella B i campi arrivano al terzo passaggio.
+    const stepCard = (
+        <div className="lp-hf-card lp-sf">
+            <div className="lp-sf-top">
+                <span className="lp-sf-count">Passo {step} di 3</span>
+                {step > 1 && (
+                    <button type="button" className="lp-sf-back" onClick={() => goStep(step === 3 ? 2 : 1)}>
+                        <ArrowLeft size={14} /> Indietro
+                    </button>
+                )}
+            </div>
+            <div className="lp-sf-bar" aria-hidden="true"><span style={{ transform: `scaleX(${step / 3})` }} /></div>
+
+            {step === 1 && (
+                <div className="lp-sf-step" key="s1">
+                    <h3 className="lp-hf-title">In cosa riconosci tuo figlio/a?</h3>
+                    <p className="lp-hf-sub">Tocca tutte quelle che ti sembrano vere. Il coach parte da qui.</p>
+                    <div className="lp-sf-chips">
+                        {PAINS.map(p => {
+                            const on = pains.includes(p.title)
+                            return (
+                                <button
+                                    type="button" key={p.title} aria-pressed={on}
+                                    className={`lp-sf-chip ${on ? 'is-on' : ''}`}
+                                    onClick={() => { handleFirstFieldFocus(); togglePain(p.title) }}
+                                >
+                                    <span className="lp-sf-chip-ico" aria-hidden="true">{p.icon}</span>
+                                    <span>{p.title}</span>
+                                    <span className="lp-sf-chip-tick" aria-hidden="true"><Check size={11} strokeWidth={3.5} /></span>
+                                </button>
+                            )
+                        })}
+                    </div>
+                    <button type="button" className="lp-btn-submit lp-hf-btn" disabled={!pains.length} onClick={() => goStep(2)}>
+                        Continua <ArrowRight size={20} />
+                    </button>
+                    <button type="button" className="lp-sf-skip" onClick={() => { handleFirstFieldFocus(); goStep(2) }}>
+                        Non saprei, andiamo avanti
+                    </button>
+                </div>
+            )}
+
+            {step === 2 && (
+                <div className="lp-sf-step" key="s2">
+                    <h3 className="lp-hf-title">Quanti anni ha?</h3>
+                    <p className="lp-hf-sub">Ogni coach segue una fascia d&apos;età precisa.</p>
+                    <div className="lp-sf-ages">
+                        {AGE_OPTIONS.map(a => (
+                            <button
+                                type="button" key={a.value} aria-pressed={childAge === a.value}
+                                className={`lp-sf-age ${childAge === a.value ? 'is-on' : ''}`}
+                                onClick={() => { handleFirstFieldFocus(); setChildAge(a.value); goStep(3) }}
+                            >
+                                {a.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {step === 3 && (
+                <div className="lp-sf-step" key="s3">
+                    <h3 className="lp-hf-title">Dove ti richiamiamo?</h3>
+                    <p className="lp-hf-sub">Un coach ti chiama entro 24-48 ore. Massimo 15 minuti, senza impegno.</p>
+                    {(pains.length > 0 || ageLabel) && (
+                        <p className="lp-sf-recap">
+                            {pains.length > 0 && <>Hai segnalato <strong>{painList}</strong>. </>}
+                            {ageLabel && <>Età: <strong>{ageLabel}</strong>. </>}
+                            Ne parliamo nella chiamata.
+                        </p>
+                    )}
+                    <div className="lp-hf-fields">
+                        {contactFields}
+                        {error && <div className="lp-error">{error}</div>}
+                        <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={loading} onClick={handleSubmit}>
+                            {loading ? <div className="lp-spinner" /> : <>Richiedi la chiamata gratuita <ArrowRight size={20} /></>}
+                        </button>
+                    </div>
+                    <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
+                </div>
+            )}
+
+            <div className="lp-sf-foot">
+                <div className="lp-hf-social">
+                    <div className="lp-avatars">
+                        {AVATAR_FACES.map(a => (
+                            <span key={a.slug} className="lp-avatar">
+                                <Image src={`/images/calciatori/av-${a.slug}.jpg`} alt={a.name} width={96} height={96} />
+                            </span>
+                        ))}
+                        <span className="lp-avatar lp-avatar-count">+2.1k</span>
+                    </div>
+                    <p className="lp-hf-social-txt"><strong>2.100+ atleti seguiti</strong>, tra cui professionisti di Serie A e Nazionale</p>
+                </div>
+            </div>
+        </div>
+    )
+
     /* ======================== MAIN PAGE ======================== */
     return (
         <div className="lp" data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
@@ -686,7 +878,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
             {/* ══════════ 1. HERO + FORM ══════════ */}
             <section className="lp-hero">
                 <div className="lp-hero-bg" />
-                <div className="lp-hero-in">
+                <div className={`lp-hero-in ${stepForm ? 'lp-hero-in--steps' : ''}`}>
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /><span>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</span></div>
                         {customHeadline ? (
@@ -725,41 +917,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
-                        {vturbIds && (
-                            <div className="lp-vsl">
-                                <iframe
-                                    className="lp-vsl-box"
-                                    src={vturbSrc}
-                                    title="Metodo Sincro — presentazione"
-                                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                                    referrerPolicy="origin"
-                                    allowFullScreen
-                                    scrolling="no"
-                                />
-                            </div>
-                        )}
-                        <div className="lp-hero-author">
-                            <span className="lp-hero-author-img">
-                                <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
-                            </span>
-                            <span className="lp-hero-author-txt">
-                                <strong>Antonio Valente</strong>
-                                <span>Fondatore Metodo Sincro<sup>&reg;</sup> &middot; Mental Coach di {sportConfig.sportName === 'tennis' ? 'Atleti' : 'Calciatori'} Professionisti</span>
-                            </span>
-                        </div>
-                        <div className="lp-hero-proof">
-                            {!sportConfig.hideSoccerProof && (
-                                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong></span></div>
-                            )}
-                            <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
-                            <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
-                        </div>
-                        <div className="lp-promise">
-                            <span className="lp-promise-num">10<em>giorni</em></span>
-                            <span className="lp-promise-txt">I primi risultati li vedrai in <strong>soli 10 giorni</strong></span>
-                        </div>
+                        {!stepForm && heroMore}
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
+                        {stepForm ? stepCard : (
                         <div className="lp-hf-card">
                             <div className="lp-hf-header">
                                 <span className="lp-hf-live">⚡ POSTI LIMITATI</span>
@@ -789,21 +950,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                                 </div>
                             </div>
                             <div className="lp-hf-fields">
-                                <div className="lp-field">
-                                    <div className={`lp-input-wrap ${isNameValid ? 'filled' : ''} ${(submitAttempted && !isNameValid) || fullNameError ? 'has-error' : ''}`}>
-                                        <User size={18} style={{ flexShrink: 0 }} />
-                                        <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)} onFocus={handleFirstFieldFocus} style={{ minWidth: 0, width: '100%' }} />
-                                    </div>
-                                    {((submitAttempted && !isNameValid) || fullNameError) && <span className="lp-field-error">{fullNameError}</span>}
-                                </div>
-                                <div className="lp-field">
-                                    <div className={`lp-input-wrap ${isPhoneValid ? 'filled' : ''} ${(submitAttempted && !isPhoneValid) || phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} /></div>
-                                    {((submitAttempted && !isPhoneValid) || phoneError) && <span className="lp-field-error">{phoneError}</span>}
-                                </div>
-                                <div className="lp-field">
-                                    <div className={`lp-input-wrap ${isEmailValid ? 'filled' : ''} ${(submitAttempted && !isEmailValid) || emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
-                                    {((submitAttempted && !isEmailValid) || emailError) && <span className="lp-field-error">{emailError}</span>}
-                                </div>
+                                {contactFields}
                                 <div className="lp-field">
                                     <div className={`lp-input-wrap lp-select-wrap ${childAge ? 'filled' : ''}`}>
                                         <Users size={18} />
@@ -824,9 +971,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles }: Props) 
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
                             <p className="lp-hf-next">Ti richiamiamo noi — <strong>massimo 15 minuti, senza impegno</strong></p>
-                            <div className="lp-hf-viewers"><span className="lp-urgency-dot" /><strong>{viewerCount}</strong> genitori stanno guardando ora</div>
                         </div>
+                        )}
                     </div>
+                    {stepForm && <div className="lp-hero-more">{heroMore}</div>}
                 </div>
             </section>
 
