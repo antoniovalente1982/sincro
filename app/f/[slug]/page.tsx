@@ -44,16 +44,17 @@ async function resolveAbVariant(
     settings: { ab_test_active?: boolean; ab_variant?: string } | null | undefined,
     forced: unknown,
 ): Promise<AbAssignment> {
+    // ?ab= e' l'anteprima aperta dal gestionale: la pagina non registra la visita
     if (forced === 'A' || forced === 'B') {
-        return { variant: forced, stepForm: forced === 'B', cookieName: null }
+        return { variant: forced, stepForm: forced === 'B', cookieName: null, preview: true }
     }
     if (settings?.ab_test_active !== true) {
-        return { variant: settings?.ab_variant === 'B' ? 'B' : 'A', stepForm: false, cookieName: null }
+        return { variant: settings?.ab_variant === 'B' ? 'B' : 'A', stepForm: false, cookieName: null, preview: false }
     }
     const cookieName = `ms_ab_${funnelId}`
     const saved = (await cookies()).get(cookieName)?.value
     const variant = saved === 'A' || saved === 'B' ? saved : (Math.random() < 0.5 ? 'A' : 'B')
-    return { variant, stepForm: variant === 'B', cookieName }
+    return { variant, stepForm: variant === 'B', cookieName, preview: false }
 }
 
 export default async function PublicFunnelPage({ params, searchParams }: Props) {

@@ -46,6 +46,8 @@ interface MetaTrackingOptions {
     funnelId: string
     pixelId?: string
     abVariant?: string
+    /** true = anteprima: niente PageView, ViewContent ne' page_views. UTM, visitor_id e fbc/fbp restano, per il form */
+    disabled?: boolean
 }
 
 function parseCookies(): Record<string, string> {
@@ -132,7 +134,7 @@ function readUtmsWithFallback(params: URLSearchParams): Record<string, string> {
     return {}
 }
 
-export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTrackingOptions) {
+export function useMetaTracking({ orgId, funnelId, pixelId, abVariant, disabled }: MetaTrackingOptions) {
     const fbIdsRef = useRef<{ fbc?: string; fbp?: string }>({})
     const utmParamsRef = useRef<Record<string, string | undefined>>({})
     const visitorIdRef = useRef<string>('')
@@ -171,6 +173,9 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
         if (!initialFbc && fbclid) initialFbc = `fb.1.${Date.now()}.${fbclid}`
         const initialFbp = cookies._fbp || undefined
         fbIdsRef.current = { fbc: initialFbc, fbp: initialFbp }
+
+        // Anteprima aperta dal gestionale: la pagina funziona ma la visita non conta
+        if (disabled) return
 
         const chiave = `${orgId}|${funnelId}|${window.location.pathname}`
         const pageViewDaInviare = !pageViewInviati.has(chiave)
@@ -257,7 +262,7 @@ export function useMetaTracking({ orgId, funnelId, pixelId, abVariant }: MetaTra
             clearTimeout(vcTimer)
             window.removeEventListener('scroll', onScroll)
         }
-    }, [orgId, funnelId, abVariant])
+    }, [orgId, funnelId, abVariant, disabled])
 
     const getFbIds = useCallback(() => fbIdsRef.current, [])
     const getUtmParams = useCallback(() => utmParamsRef.current, [])

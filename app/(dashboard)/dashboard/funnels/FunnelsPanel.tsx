@@ -136,9 +136,12 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
 
             // Per-variant A/B with proper submission tracking
             const variants = ['A', 'B']
+            // Il confronto parte dall'accensione del test: prima ogni visita era
+            // registrata come A, e falserebbe la gara fra le varianti.
+            const abStart = f.settings?.ab_test_started_at ? new Date(f.settings.ab_test_started_at).getTime() : 0
             const variantStats = variants.map(v => {
-                const vViews = views.filter(pv => (pv.page_variant || 'A') === v)
-                const vSubs = subs.filter(s => (s.page_variant || 'A') === v)
+                const vViews = views.filter(pv => (pv.page_variant || 'A') === v && new Date(pv.created_at).getTime() >= abStart)
+                const vSubs = subs.filter(s => (s.page_variant || 'A') === v && new Date(s.created_at).getTime() >= abStart)
                 const vUniqueVisitors = countUniqueVisitors(vViews)
                 const vUniqueConversions = countUniqueSubmissions(vSubs)
                 const vRate = vUniqueVisitors > 0 ? (vUniqueConversions / vUniqueVisitors * 100) : 0
@@ -254,7 +257,9 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
 
     const toggleAbTest = async (funnel: Funnel) => {
         const currentSettings = funnel.settings || {}
-        const newSettings = { ...currentSettings, ab_test_active: !currentSettings.ab_test_active }
+        const turningOn = !currentSettings.ab_test_active
+        // All'accensione si segna l'ora: da li' parte il confronto fra le varianti
+        const newSettings = { ...currentSettings, ab_test_active: turningOn, ...(turningOn ? { ab_test_started_at: new Date().toISOString() } : {}) }
         const res = await fetch('/api/funnels', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -293,6 +298,18 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
             } catch { return funnel.settings.custom_url }
         }
         return `/f/${funnel.slug}`
+    }
+
+    // Anteprima di una variante: ?ab= la forza e la pagina non registra la visita
+    const getVariantUrl = (funnel: Funnel, variant: string) => {
+        const url = getPublicUrl(funnel)
+        return `${url}${url.includes('?') ? '&' : '?'}ab=${variant}`
+    }
+
+    const copyVariantUrl = (funnel: Funnel, variant: string) => {
+        navigator.clipboard.writeText(getVariantUrl(funnel, variant))
+        setCopiedId(`${funnel.id}-${variant}`)
+        setTimeout(() => setCopiedId(null), 2000)
     }
 
     const copyUrl = (funnel: Funnel) => {
@@ -450,7 +467,10 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                     <div>
                                         <h3 className="text-sm font-bold th-heading">{stat.funnel.name}</h3>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>{getDisplayUrl(stat.funnel)}</p>
+                                            <button onClick={() => copyUrl(stat.funnel)} className="text-[10px] inline-flex items-center gap-1 hover:opacity-80" style={{ color: 'var(--color-surface-500)' }} title="Copia il link da usare negli annunci">
+                                                {getDisplayUrl(stat.funnel)}
+                                                {copiedId === stat.funnel.id ? <Check className="w-3 h-3" style={{ color: '#22c55e' }} /> : <Copy className="w-3 h-3" />}
+                                            </button>
                                             <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--color-surface-500)' }}>
                                                 📅 {new Date(stat.funnel.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             </span>
@@ -528,6 +548,11 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                         <div className="flex items-center gap-2">
                                             <FlaskConical className="w-3.5 h-3.5" style={{ color: '#8b5cf6' }} />
                                             <span className="text-xs font-semibold th-heading">Split Test — Confronto Varianti</span>
+                                            {stat.funnel.settings?.ab_test_started_at && (
+                                                <span className="text-[10px]" style={{ color: 'var(--color-surface-500)' }}>
+                                                    dal {new Date(stat.funnel.settings.ab_test_started_at).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            )}
                                         </div>
                                         {stat.winner && (
                                             <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)', fontSize: '10px' }}>
@@ -582,6 +607,25 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                                                             background: isWinner ? '#22c55e' : varColor,
                                                         }} />
                                                     </div>
+                                                    {/* Link della variante: anteprima, la visita non entra nelle statistiche */}
+                                                    {stat.funnel.settings?.template === 'metodo_sincro' && (
+                                                        <div className="mt-3 flex items-center gap-1.5">
+                                                            <a
+                                                                href={getVariantUrl(stat.funnel, v.variant)} target="_blank" rel="noopener"
+                                                                className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-semibold th-bg-hover"
+                                                                style={{ color: varColor, border: `1px solid ${varColor}30` }}
+                                                                title="Anteprima: questa visita non entra nelle statistiche"
+                                                            >
+                                                                <ExternalLink className="w-3 h-3" /> Apri pagina {v.variant}
+                                                            </a>
+                                                            <button onClick={() => copyVariantUrl(stat.funnel, v.variant)} className="p-1.5 rounded-lg th-bg-hover" title="Copia link anteprima">
+                                                                {copiedId === `${stat.funnel.id}-${v.variant}`
+                                                                    ? <Check className="w-3 h-3" style={{ color: '#22c55e' }} />
+                                                                    : <Copy className="w-3 h-3" style={{ color: 'var(--color-surface-500)' }} />
+                                                                }
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                     {/* Declare winner button */}
                                                     {stat.abActive && v.uniqueVisitors >= 30 && (
                                                         <button

@@ -17,6 +17,8 @@ export interface AbAssignment {
     stepForm: boolean
     /** Cookie in cui ricordare la variante; null quando il test e' spento o la variante e' forzata */
     cookieName: string | null
+    /** true = variante forzata con ?ab= (anteprima dal gestionale): la visita non entra in statistiche e pixel */
+    preview: boolean
 }
 
 interface Props {
@@ -311,6 +313,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
         funnelId: funnel.id,
         pixelId: funnel.meta_pixel_id,
         abVariant,
+        disabled: ab?.preview,
     })
 
     // Fire StartForm on first form field focus (with CAPI context)
