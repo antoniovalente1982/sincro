@@ -127,7 +127,10 @@ function CountUp({ to, suffix = '', duration = 1500 }: { to: number; suffix?: st
 export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Props) {
     // Senza assegnazione dal server resta l'etichetta fissa del funnel, col form classico
     const abVariant = ab?.variant ?? (funnel.settings?.ab_variant === 'B' ? 'B' : 'A')
-    const stepForm = ab?.stepForm ?? false
+    const directConsultation = funnel.settings?.direct_consultation_form === true
+    const stepForm = !directConsultation && (ab?.stepForm ?? false)
+    const formFirst = directConsultation || stepForm
+    const contactCta = directConsultation ? 'Prenota una consulenza gratuita' : 'Parlaci di tuo figlio/a'
 
     const [fullName, setFullName] = useState('')
     
@@ -840,7 +843,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
 
     /* ======================== MAIN PAGE ======================== */
     return (
-        <div className="lp" data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
+        <div className={`lp ${directConsultation ? 'lp--direct-consultation' : ''}`} data-sport={sportConfig.sportName === 'tennis' ? 'tennis' : 'calcio'}>
             {/* VTurb — precaricamento consigliato dal pannello. React solleva
                 questi <link> dentro l'head. Il crossOrigin sul manifest non c'e'
                 nello snippet originale ma senza il preload as="fetch" viene
@@ -873,7 +876,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         <div className="lp-header-badges">
                             <span className="lp-header-badge">⭐ 4.9/5 <span className="lp-tp-green">TrustPilot</span></span>
                         </div>
-                        <button className="lp-header-cta" onClick={scrollToForm}>Prenota Gratis</button>
+                        <button className="lp-header-cta" onClick={scrollToForm}>{directConsultation ? contactCta : 'Prenota Gratis'}</button>
                     </div>
                 </div>
             </header>
@@ -881,7 +884,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             {/* ══════════ 1. HERO + FORM ══════════ */}
             <section className="lp-hero">
                 <div className="lp-hero-bg" />
-                <div className={`lp-hero-in ${stepForm ? 'lp-hero-in--steps' : ''}`}>
+                <div className={`lp-hero-in ${formFirst ? 'lp-hero-in--steps' : ''}`}>
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /><span>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</span></div>
                         {customHeadline ? (
@@ -920,16 +923,16 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
-                        {!stepForm && heroMore}
+                        {!formFirst && heroMore}
                     </div>
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
                         {stepForm ? stepCard : (
-                        <div className="lp-hf-card">
+                        <div className={`lp-hf-card ${directConsultation ? 'lp-hf-card--consultation' : ''}`}>
                             <div className="lp-hf-header">
                                 <span className="lp-hf-live">⚡ POSTI LIMITATI</span>
                             </div>
-                            <h3 className="lp-hf-title">Prenota la Consulenza <span className="lp-gold">Gratuita</span></h3>
-                            <p className="lp-hf-sub">Compila il form — ti richiamiamo noi</p>
+                            <h3 className="lp-hf-title">{directConsultation ? 'Prenota una consulenza gratuita' : <>Prenota la Consulenza <span className="lp-gold">Gratuita</span></>}</h3>
+                            <p className="lp-hf-sub">{directConsultation ? 'Lascia i tuoi contatti: ti richiamiamo noi.' : 'Compila il form — ti richiamiamo noi'}</p>
                             <div className="lp-hf-social">
                                 <div className="lp-avatars">
                                     {AVATAR_FACES.map(a => (
@@ -969,7 +972,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                                 </div>
                                 {error && <div className="lp-error">{error}</div>}
                                 <button className={`lp-btn-submit lp-hf-btn ${isFormValid ? 'lp-btn-valid' : ''}`} disabled={loading} onClick={handleSubmit}>
-                                    {loading ? <div className="lp-spinner" /> : <>Parlaci di tuo figlio/a <ArrowRight size={20} /></>}
+                                    {loading ? <div className="lp-spinner" /> : <>{contactCta} <ArrowRight size={20} /></>}
                                 </button>
                             </div>
                             <p className="lp-hf-privacy">🔒 I tuoi dati sono al sicuro. Zero spam.</p>
@@ -977,7 +980,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         </div>
                         )}
                     </div>
-                    {stepForm && <div className="lp-hero-more">{heroMore}</div>}
+                    {formFirst && <div className="lp-hero-more">{heroMore}</div>}
                 </div>
             </section>
 
@@ -1030,7 +1033,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             {pains.length > 3 && <>Ne hai selezionate <strong>{pains.length}</strong> su 6. Sembrano problemi diversi, ma <strong>hanno tutte la stessa radice</strong>: è esattamente lì che interviene il Mental Coaching.</>}
                         </span>
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>{contactCta} <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -1091,7 +1094,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         <Shield size={18} color="#22c55e" />
                         <span><strong>Non è un allenamento tecnico, non è un procuratore.</strong> È Mental Coaching puro — ogni sessione è individuale, live, con un coach specializzato in {sportConfig.sportName} e per la sua fascia d'età.</span>
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>{contactCta} <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -1148,7 +1151,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             <div><CheckCircle size={16} color="#22c55e" /> Miglioramenti misurabili</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Contratto trasparente</div>
                         </div>
-                        <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
+                        <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'24px auto 0', display:'flex'}}>{contactCta} <ArrowRight size={20} /></button>
                     </div>
                 </div>
             </section>
@@ -1173,7 +1176,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             </div>
                         ))}
                     </div>
-                    <button className="lp-cta-section" onClick={scrollToForm}>Parlaci di tuo figlio/a <ArrowRight size={18} /></button>
+                    <button className="lp-cta-section" onClick={scrollToForm}>{contactCta} <ArrowRight size={18} /></button>
                 </div>
             </section>
 
@@ -1235,7 +1238,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         <li><span>2</span><p><strong>Massimo 15 minuti al telefono</strong> per capire la situazione di tuo figlio. Niente presentazioni, solo domande.</p></li>
                         <li><span>3</span><p>Se il percorso è adatto a lui te lo diciamo. <strong>E se non lo è, te lo diciamo lo stesso.</strong></p></li>
                     </ol>
-                    <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>Parlaci di tuo figlio/a <ArrowRight size={20} /></button>
+                    <button className="lp-cta-main" onClick={scrollToForm} style={{margin:'0 auto'}}>{contactCta} <ArrowRight size={20} /></button>
                 </div>
             </section>
 
@@ -1247,7 +1250,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel {sportConfig.sportName === 'tennis' ? 'Tennis' : 'Calcio'}</span>
                         </div>
                         <button className="lp-sticky-bar-cta" onClick={(e) => { e.stopPropagation(); scrollToForm() }}>
-                            Parlaci di tuo figlio/a <ArrowRight size={16} />
+                            {contactCta} <ArrowRight size={16} />
                         </button>
                     </div>
                 </div>
@@ -1288,7 +1291,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             </div>
                         </div>
                         <button className="lp-exit-cta" onClick={() => { setShowExitPopup(false); scrollToForm() }}>
-                            Parlaci di tuo figlio/a <ArrowRight size={18} />
+                            {contactCta} <ArrowRight size={18} />
                         </button>
                         <p className="lp-exit-sub">Consulenza gratuita • Senza impegno • Max 15 minuti</p>
                     </div>
