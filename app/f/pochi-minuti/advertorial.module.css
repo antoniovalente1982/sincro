@@ -1,0 +1,104 @@
+@font-face {
+    font-family: 'Sincro Editorial';
+    src: url('/fonts/barlow-condensed-bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+.page {
+    --ink: #19241e;
+    --muted: #526057;
+    --gold: #c7a24d;
+    --rule: #d6ddd7;
+    --paper: #fff;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+}
+.page *, .page *::before, .page *::after { box-sizing: border-box; }
+.page ::selection { background: #ecd8a3; color: #19241e; }
+.page a { color: inherit; text-underline-offset: .22em; }
+.page a:focus-visible { outline: 3px solid #916714; outline-offset: 5px; }
+.page section, .article { scroll-margin-top: 32px; }
+.skipLink { position: absolute; top: 12px; left: 16px; z-index: 10; padding: 12px 20px; background: white; transform: translateY(-180%); }
+.skipLink:focus { transform: translateY(0); }
+.header { max-width: 1224px; padding: 28px 40px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--rule); }
+.brand { display: flex; align-items: baseline; gap: 7px; text-decoration: none; font-size: 21px; letter-spacing: -.6px; }
+.brand strong { font-size: 27px; font-weight: 800; }
+.brand span { font-size: 12px; vertical-align: top; margin-left: 2px; }
+.headerLink { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; min-height: 44px; }
+.hero { max-width: 1224px; padding: 64px 40px 60px; margin: 0 auto; display: grid; grid-template-columns: 1.28fr 1fr; gap: 52px; align-items: start; }
+.heroCopy h1 { font: 700 clamp(42px, 5vw, 68px)/1.03 'Sincro Editorial', sans-serif; letter-spacing: -.015em; margin: 0 0 26px; text-wrap: balance; max-width: 660px; }
+.dek { margin: 0; font-size: 19px; line-height: 1.58; color: #394c40; }
+.byline { display: flex; flex-direction: column; gap: 3px; margin-top: 28px; font-size: 13px; color: var(--muted); }
+.byline strong { color: var(--ink); }
+.disclosure { margin-top: 16px; font-size: 12px; line-height: 1.55; color: var(--muted); max-width: 360px; }
+.readLink { margin-top: 24px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; min-height: 44px; }
+.heroImage { margin: 0; padding-top: 5px; }
+.heroImage img { display: block; width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: 43% center; }
+.heroImage figcaption { font-size: 11px; color: var(--muted); margin-top: 7px; text-align: right; }
+.articleLayout { max-width: 1224px; padding: 48px 40px 88px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 720px); gap: 76px; border-top: 1px solid var(--rule); }
+.aside { align-self: start; position: sticky; top: 32px; padding-top: 5px; font-size: 13px; }
+.aside > p:first-child { font-weight: 700; margin: 0 0 15px; color: var(--ink); }
+.aside nav { display: flex; flex-direction: column; }
+.aside nav a { font-size: 13px; padding: 10px 0; line-height: 1.5; text-decoration: none; color: var(--muted); border-bottom: 1px solid #e7ebe7; }
+.aside nav a:hover { color: var(--ink); text-decoration: underline; }
+.asideNote { margin-top: 28px; line-height: 1.85; color: var(--muted); }
+.article { min-width: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; line-height: 1.78; }
+.article p { margin: 0 0 20px; }
+.opening { padding-bottom: 14px; }
+.opening p:first-child { font: 700 17px/1.6 Arial, sans-serif; margin-bottom: 23px; }
+.opening p:last-child { font-size: 25px; line-height: 1.5; font-weight: 700; margin-top: 30px; }
+.section { padding-top: 37px; }
+.article h2 { font: 700 34px/1.18 'Sincro Editorial', sans-serif; margin: 0 0 22px; letter-spacing: -.005em; text-wrap: balance; }
+.article strong { font-weight: 700; }
+.article ul { list-style: disc; padding-left: 24px; margin: 0 0 25px; }
+.article li { padding-left: 5px; margin-bottom: 12px; }
+.article li::marker { color: #916714; }
+.article .pullquote { margin: 30px 0; padding: 22px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-size: 24px; line-height: 1.5; }
+.consultation { margin: 48px -32px 0; padding: 38px 32px; background: #eff3ef; border-top: 3px solid var(--gold); }
+.consultation h2 { font-size: 38px; }
+.consultation p { font-size: 19px; line-height: 1.72; }
+.cta { display: inline-flex; align-items: center; justify-content: center; gap: 15px; min-height: 56px; margin: 9px 0 19px; padding: 16px 22px; background: var(--ink); color: #fff !important; font: 700 16px/1.4 Arial, sans-serif; text-decoration: none; border-radius: 4px; transition: background-color .2s ease; }
+.cta:hover { background: #2e4836; }
+.consultation .terms { font: 13px/1.65 Arial, sans-serif; color: #45544a; margin: 0; }
+.footer { background: #19241e; color: #edf2ed; padding: 42px max(40px, calc((100vw - 1144px) / 2)); display: flex; justify-content: space-between; gap: 32px; font: 13px/1.75 Arial, sans-serif; }
+.footer p { margin: 9px 0 0; color: #c6d2c8; }
+.footerBrand { font-size: 23px; font-weight: 700; }
+@media (max-width: 1000px) {
+    .hero { gap: 32px; }
+    .articleLayout { grid-template-columns: 180px minmax(0, 1fr); gap: 40px; }
+    .article { font-size: 19px; }
+}
+@media (max-width: 760px) {
+    .header { padding: 17px 22px; gap: 12px; }
+    .brand { font-size: 17px; }
+    .brand strong { font-size: 23px; }
+    .headerLink { font-size: 13px; }
+    .hero { display: block; padding: 34px 22px 28px; }
+    .heroCopy h1 { font-size: clamp(40px, 9.5vw, 58px); margin-bottom: 20px; }
+    .dek { font-size: 17px; line-height: 1.6; }
+    .byline { margin-top: 22px; font-size: 12px; }
+    .disclosure { font-size: 11px; }
+    .readLink { margin-top: 12px; }
+    .heroImage { margin-top: 27px; }
+    .heroImage img { aspect-ratio: 4/3; object-position: 43% 48%; }
+    .articleLayout { display: block; padding: 30px 22px 56px; }
+    .aside { display: none; }
+    .article { font-size: 19px; line-height: 1.72; }
+    .article p { margin-bottom: 18px; }
+    .opening p:last-child { font-size: 23px; }
+    .section { padding-top: 30px; }
+    .article h2 { font-size: 31px; margin-bottom: 19px; }
+    .article .pullquote { font-size: 22px; padding: 19px 0; }
+    .consultation { margin: 36px -22px 0; padding: 30px 22px; }
+    .consultation h2 { font-size: 34px; }
+    .cta { display: flex; width: 100%; padding: 17px 15px; font-size: 15px; }
+    .cta svg { flex-shrink: 0; }
+    .footer { padding: 34px 22px; flex-direction: column; gap: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { .cta { transition: none; } }

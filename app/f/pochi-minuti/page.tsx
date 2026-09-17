@@ -1,0 +1,56 @@
+import type { Metadata } from 'next'
+import { cache } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { notFound } from 'next/navigation'
+import Advertorial from './Advertorial'
+import { advertorialConsultationHref } from '@/lib/advertorial'
+import content from './content.json'
+
+export const dynamic = 'force-dynamic'
+
+const getFunnel = cache(async () => {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    const { data } = await supabase.from('funnels')
+        .select('id, name, organization_id, description, meta_pixel_id, settings')
+        .eq('slug', 'pochi-minuti').eq('status', 'active').single()
+    return data
+})
+
+export async function generateMetadata(): Promise<Metadata> {
+    const funnel = await getFunnel()
+    const title = funnel?.settings?.headline || content.headline
+    const description = funnel?.description || content.subheadline
+    return {
+        title: `${title} | Metodo Sincro®`,
+        description,
+        alternates: { canonical: 'https://landing.metodosincro.com/f/pochi-minuti' },
+        openGraph: {
+            title, description, type: 'article', locale: 'it_IT', siteName: 'Metodo Sincro®',
+            url: 'https://landing.metodosincro.com/f/pochi-minuti',
+            images: [{ url: 'https://landing.metodosincro.com/landing-luglio/img-bench.jpg', width: 1024, height: 1024, alt: 'Un giovane calciatore a bordo campo. Immagine illustrativa.' }],
+        },
+    }
+}
+
+export default async function PochiMinutiPage({ searchParams }: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+    const funnel = await getFunnel()
+    if (!funnel) notFound()
+    const params = await searchParams
+    const preview = params.ab === 'A' || params.ab === 'B'
+    const query = new URLSearchParams()
+    for (const [key, value] of Object.entries(params)) {
+        if (typeof value === 'string') query.set(key, value)
+    }
+    return <Advertorial
+        headline={funnel.settings?.headline || content.headline}
+        subheadline={funnel.settings?.subheadline || content.subheadline}
+        ctaText={funnel.settings?.cta_text || 'Richiedi una consulenza gratuita'}
+        consultationHref={advertorialConsultationHref(query.toString(), preview)}
+        tracking={{ funnelId: funnel.id, orgId: funnel.organization_id, pixelId: funnel.meta_pixel_id || undefined, disabled: preview }}
+    />
+}
