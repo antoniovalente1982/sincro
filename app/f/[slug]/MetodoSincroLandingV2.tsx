@@ -190,6 +190,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     // query della pagina e il parametro vl con l'URL corrente; stando in stato,
     // i re-render non lo riscrivono e il video non riparte da capo.
     const vturbIds = parseVturbEmbed(funnel.settings?.video_embed)
+    const videoFirst = directConsultation && categoryMessaging && !!vturbIds
     const vturbKey = vturbIds ? `${vturbIds.account}/${vturbIds.player}` : ''
     const [vturbSrc, setVturbSrc] = useState<string | undefined>(undefined)
     useEffect(() => {
@@ -690,9 +691,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     }
 
     /* ── Pezzi dell'hero condivisi fra form classico (A) e form a passaggi (B) ── */
-    const heroMore = (
-        <>
-            {vturbIds && (
+    const heroVideo = vturbIds && (
                 <div className="lp-vsl">
                     <iframe
                         className="lp-vsl-box"
@@ -704,7 +703,9 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         scrolling="no"
                     />
                 </div>
-            )}
+    )
+    const heroProof = (
+        <>
             <div className="lp-hero-author">
                 <span className="lp-hero-author-img">
                     <Image src="/images/team/antonio-avatar.jpg" alt="Antonio Valente" width={52} height={52} priority />
@@ -727,6 +728,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             </div>
         </>
     )
+    const heroMore = <>{heroVideo}{heroProof}</>
 
     const contactFields = (
         <>
@@ -893,7 +895,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             {/* ══════════ 1. HERO + FORM ══════════ */}
             <section className="lp-hero">
                 <div className="lp-hero-bg" />
-                <div className={`lp-hero-in ${formFirst ? 'lp-hero-in--steps' : ''}`}>
+                <div className={`lp-hero-in ${formFirst ? 'lp-hero-in--steps' : ''} ${videoFirst ? 'lp-hero-in--video-first' : ''}`}>
                     <div className="lp-hero-text">
                         <div className="lp-badge"><Trophy size={14} /><span>{categoryMessaging ? <><span className="lp-badge-highlight">Mental Coaching</span> per il prossimo livello</> : <>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</>}</span></div>
                         {categoryMessaging ? (
@@ -937,8 +939,14 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
+                        {videoFirst && (
+                            <button type="button" className="lp-cta-section lp-hero-mobile-cta" onClick={scrollToForm}>
+                                {contactCta} <ArrowRight size={18} />
+                            </button>
+                        )}
                         {!formFirst && heroMore}
                     </div>
+                    {videoFirst && <div className="lp-hero-video">{heroVideo}</div>}
                     <div className="lp-hero-form" ref={formRef} id="ms-form">
                         {stepForm ? stepCard : (
                         <div className={`lp-hf-card ${directConsultation ? 'lp-hf-card--consultation' : ''}`}>
@@ -994,7 +1002,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         </div>
                         )}
                     </div>
-                    {formFirst && <div className="lp-hero-more">{heroMore}</div>}
+                    {formFirst && <div className="lp-hero-more">{videoFirst ? heroProof : heroMore}</div>}
                 </div>
             </section>
 

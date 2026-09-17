@@ -15,6 +15,14 @@
 .lp-hero-in--steps .lp-hero-form { grid-area: form; }
 .lp-hero-in--steps .lp-hero-more { grid-area: more; max-width: 560px; }
 
+/* Campagna categoria: video prima del modulo, con accesso diretto alla consulenza. */
+.lp-hero-in.lp-hero-in--video-first {
+    grid-template-areas: "text form" "video form" "more form";
+    grid-template-rows: auto auto 1fr;
+}
+.lp-hero-in--video-first .lp-hero-video { grid-area: video; min-width: 0; max-width: 560px; }
+.lp-cta-section.lp-hero-mobile-cta { display: none; }
+
 .lp-hf-card.lp-sf { min-height: 0; }
 
 /* Consulenza diretta: prima i contatti, poi le prove sociali. */
@@ -145,6 +153,13 @@
     }
     .lp-hero-in--steps .lp-hero-text .lp-hero-sub { margin-bottom: 0; }
     .lp-hero-in--steps .lp-hero-more { max-width: 100%; }
+    .lp-hero-in.lp-hero-in--video-first {
+        grid-template-areas: "text" "video" "form" "more";
+        grid-template-rows: auto;
+    }
+    .lp-hero-in--video-first .lp-hero-video { max-width: 100%; }
+    .lp-hero-in--video-first .lp-hero-video .lp-vsl { margin-bottom: 0; }
+    .lp-cta-section.lp-hero-mobile-cta { display: flex; margin-top: 16px; line-height: 1.3; }
     .lp-hf-card.lp-sf { min-height: 0; padding: 20px 16px; }
     .lp-hf-card--consultation { min-height: 0; padding: 20px 16px; }
     .lp-hf-card--consultation .lp-hf-btn { font-size: 16px; padding: 16px 12px; }
