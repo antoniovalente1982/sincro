@@ -39,7 +39,7 @@
 .disclosure { margin-top: 16px; font-size: 12px; line-height: 1.55; color: var(--muted); max-width: 360px; }
 .readLink { margin-top: 24px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; min-height: 44px; }
 .heroImage { margin: 0; padding-top: 5px; }
-.heroImage img { display: block; width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: 43% center; }
+.heroImage img { display: block; width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: center; }
 .heroImage figcaption { font-size: 11px; color: var(--muted); margin-top: 7px; text-align: right; }
 .articleLayout { max-width: 1224px; padding: 48px 40px 88px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 720px); gap: 76px; border-top: 1px solid var(--rule); }
 .aside { align-self: start; position: sticky; top: 32px; padding-top: 5px; font-size: 13px; }
@@ -54,6 +54,9 @@
 .opening p:first-child { font: 700 17px/1.6 Arial, sans-serif; margin-bottom: 23px; }
 .opening p:last-child { font-size: 25px; line-height: 1.5; font-weight: 700; margin-top: 30px; }
 .section { padding-top: 37px; }
+.articleImage { margin: 6px 0 27px; }
+.articleImage img { display: block; width: 100%; height: auto; }
+.articleImage figcaption { margin-top: 9px; font: 12px/1.6 Arial, sans-serif; color: var(--muted); }
 .article h2 { font: 700 34px/1.18 'Sincro Editorial', sans-serif; margin: 0 0 22px; letter-spacing: -.005em; text-wrap: balance; }
 .article strong { font-weight: 700; }
 .article ul { list-style: disc; padding-left: 24px; margin: 0 0 25px; }
@@ -86,7 +89,7 @@
     .disclosure { font-size: 11px; }
     .readLink { margin-top: 12px; }
     .heroImage { margin-top: 27px; }
-    .heroImage img { aspect-ratio: 4/3; object-position: 43% 48%; }
+    .heroImage img { aspect-ratio: 4/3; object-position: center 20%; }
     .articleLayout { display: block; padding: 30px 22px 56px; }
     .aside { display: none; }
     .article { font-size: 19px; line-height: 1.72; }

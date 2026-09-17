@@ -41,7 +41,7 @@ Documentazione dell’estensione del 17 settembre 2026. I valori descrivono ques
 
 ## Overview
 
-La pagina `/f/pochi-minuti` presenta l’approfondimento per i genitori e porta al modulo di consulenza già esistente. La direzione è quella di un articolo del brand: lettura su fondo bianco, titolo compatto, testo ampio e conclusione commerciale. Sono visibili l’attribuzione a Metodo Sincro, la natura promozionale e la distinzione tra consulenza gratuita e percorso a pagamento.
+La pagina `/f/pochi-minuti` presenta l’approfondimento per i genitori di calciatori di 16–18 anni (target prioritario precisato da Antonio il 17 settembre 2026) e porta al modulo di consulenza già esistente. La direzione è quella di un articolo del brand: lettura su fondo bianco, titolo compatto, testo ampio e conclusione commerciale. Sono visibili l’attribuzione a Metodo Sincro, la natura promozionale e la distinzione tra consulenza gratuita e percorso a pagamento.
 
 Il brief e le evidenze della revisione sono in [BRIEF.md](../outputs/ricerca-pain-genitori-2026-09-17/review/BRIEF.md). L’implementazione è circoscritta a [app/f/pochi-minuti](../app/f/pochi-minuti/), al generatore del link e al font locale. Questa documentazione non certifica che il rilascio in produzione sia completato.
 
@@ -78,7 +78,7 @@ Immagine, sezioni e conclusione hanno bordi rettangolari. La CTA ha gli angoli l
 
 ## Do's and Don'ts
 
-- Conservare la disclosure promozionale e la didascalia “Immagine illustrativa”.
+- Conservare la disclosure promozionale e le didascalie che identificano le scene illustrative generate con AI.
 - Mantenere leggibilità, gerarchia e margini delle due viste; verificare eventuali titoli più lunghi anche su mobile.
 - Non descrivere l’immagine come un cliente o una testimonianza verificata.
 - Non trasformare queste scelte locali in regole globali per gli altri funnel.
@@ -109,7 +109,7 @@ Aprendo l’articolo con `?ab=A` oppure `?ab=B`, il tracciamento delle visite vi
 
 ## Provenienza degli asset
 
-- **Fotografia:** [public/landing-luglio/img-bench.jpg](../public/landing-luglio/img-bench.jpg), asset dell’utente già presente nel progetto e riutilizzato senza modifiche. L’origine precedente non è stata verificata. È presentato come immagine illustrativa.
+- **Immagini:** [calciatore-17-anni.webp](../public/advertorial-pochi-minuti/calciatore-17-anni.webp) (1122×1402) nella testata e [genitore-calciatore-17-anni.webp](../public/advertorial-pochi-minuti/genitore-calciatore-17-anni.webp) (1536×1024) nella sezione sul genitore. Generate con image_gen per rappresentare adolescenti di circa 17 anni; scene e persone fittizie, dichiarate in didascalia come illustrative e generate con AI. Esportazione WebP qualità 86. Sostituiscono la precedente fotografia che mostrava un ragazzo troppo giovane. Il ritaglio mobile principale mantiene il punto focale al 20% verticale. [Prompt e provenienza](../outputs/ricerca-pain-genitori-2026-09-17/IMMAGINI_16_18.md).
 - **Font dei titoli:** [public/fonts/barlow-condensed-bold.ttf](../public/fonts/barlow-condensed-bold.ttf), Barlow Condensed Bold dal [repository Google Fonts](https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-Bold.ttf). Licenza SIL Open Font License 1.1 conservata in [barlow-condensed-OFL.txt](../public/fonts/barlow-condensed-OFL.txt). Il font è servito localmente con `font-display: swap`.
 - **Altri font:** Georgia, Times New Roman, Arial e Helvetica sono stack di sistema; non sono stati aggiunti download esterni per queste famiglie.
 

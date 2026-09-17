@@ -32,12 +32,12 @@ export default function Advertorial({ headline, subheadline, ctaText, consultati
                         <span>A cura di <strong>Metodo Sincro®</strong></span>
                         <span>17 settembre 2026 · 5 minuti di lettura</span>
                     </div>
-                    <p className={styles.disclosure}>Approfondimento promozionale · Mental coaching per calciatori</p>
+                    <p className={styles.disclosure}>Approfondimento promozionale · Per genitori di calciatori di 16–18 anni</p>
                     <a className={styles.readLink} href="#articolo">Leggi l’approfondimento <ArrowDown size={17} aria-hidden="true" /></a>
                 </div>
                 <figure className={styles.heroImage}>
-                    <Image src="/landing-luglio/img-bench.jpg" alt="Un giovane calciatore seduto in panchina mentre la partita continua sullo sfondo." width={1024} height={1024} sizes="(max-width: 760px) 100vw, 40vw" priority />
-                    <figcaption>Immagine illustrativa</figcaption>
+                    <Image src="/advertorial-pochi-minuti/calciatore-17-anni.webp" alt="Scena illustrativa: un calciatore di circa 17 anni attende a bordo campo vicino alla panchina." width={1122} height={1402} sizes="(max-width: 760px) 100vw, 40vw" priority />
+                    <figcaption>Scena illustrativa generata con AI</figcaption>
                 </figure>
             </section>
             <div className={styles.articleLayout}>
@@ -55,6 +55,10 @@ export default function Advertorial({ headline, subheadline, ctaText, consultati
                     </div>
                     {content.sections.map(section => <section key={section.id} id={section.id} className={styles.section}>
                         <h2>{section.heading}</h2>
+                        {section.id === 'genitore' && <figure className={styles.articleImage}>
+                            <Image src="/advertorial-pochi-minuti/genitore-calciatore-17-anni.webp" alt="Scena illustrativa: un calciatore di circa 17 anni parla con suo padre all’uscita dal campo." width={1536} height={1024} sizes="(max-width: 760px) 100vw, 720px" />
+                            <figcaption>Il confronto dopo la partita, dal punto di vista del ragazzo e del genitore. Scena illustrativa generata con AI.</figcaption>
+                        </figure>}
                         {section.blocks.map((block, index) => block.type === 'list'
                             ? <ul key={index}>{block.items?.map((item, itemIndex) => <li key={itemIndex}><Emphasis text={item} /></li>)}</ul>
                             : <p key={index} className={block.text?.startsWith('**') && block.text?.endsWith('**') ? styles.pullquote : undefined}><Emphasis text={block.text || ''} /></p>)}

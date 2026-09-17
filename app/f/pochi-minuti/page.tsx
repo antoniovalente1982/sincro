@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
         openGraph: {
             title, description, type: 'article', locale: 'it_IT', siteName: 'Metodo Sincro®',
             url: 'https://landing.metodosincro.com/f/pochi-minuti',
-            images: [{ url: 'https://landing.metodosincro.com/landing-luglio/img-bench.jpg', width: 1024, height: 1024, alt: 'Un giovane calciatore a bordo campo. Immagine illustrativa.' }],
+            images: [{ url: 'https://landing.metodosincro.com/advertorial-pochi-minuti/calciatore-17-anni.webp', width: 1122, height: 1402, alt: 'Un calciatore di circa 17 anni a bordo campo. Scena illustrativa generata con AI.' }],
         },
     }
 }
