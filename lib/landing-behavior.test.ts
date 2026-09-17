@@ -23,6 +23,7 @@ test('recorder is gated, events are allowlisted, withdrawal stops collection and
     assert.equal(startLandingAnalytics('abc123def4', 'granted'), false) // server
     const scripts: HTMLScriptElement[] = []
     const browser = {} as Window
+    const currentClarity = () => browser.clarity
     const oldWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
     const oldDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
     Object.defineProperty(globalThis, 'window', { value: browser, configurable: true })
@@ -36,7 +37,7 @@ test('recorder is gated, events are allowlisted, withdrawal stops collection and
         assert.equal(startLandingAnalytics('abc123def4', 'granted', true), false)
         trackLandingEvent('form_submit_attempt')
         assert.equal(scripts.length, 0)
-        assert.equal(browser.clarity, undefined)
+        assert.equal(currentClarity(), undefined)
 
         assert.equal(startLandingAnalytics('abc123def4', 'granted'), true)
         assert.equal(scripts.length, 1)
