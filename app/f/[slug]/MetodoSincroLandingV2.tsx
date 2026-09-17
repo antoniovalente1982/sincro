@@ -10,6 +10,8 @@ import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { Check, CheckCircle, ShieldCheck, ArrowRight, ArrowLeft, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
 import categoryCopy from '@/lib/salto-categoria-copy.json'
+import LandingBehaviorAnalytics from '@/components/LandingBehaviorAnalytics'
+import { trackLandingEvent } from '@/lib/landing-behavior'
 
 /** Variante del test A/B assegnata dal server (vedi resolveAbVariant in page.tsx). */
 export interface AbAssignment {
@@ -469,6 +471,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     }, [])
 
     const scrollToForm = () => {
+        trackLandingEvent('consultation_cta_clicked')
         // Lock the sticky bar to prevent fisarmonica during smooth scroll
         scrollLockRef.current = true
         setShowStickyBar(false)
@@ -487,6 +490,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     }
 
     const handleSubmit = async () => {
+        trackLandingEvent('form_submit_attempt')
         setSubmitAttempted(true)
 
         let isValid = true
@@ -494,13 +498,20 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
         if (!isPhoneValid) { setPhoneError(phoneError || 'Telefono obbligatorio'); isValid = false }
         if (!isEmailValid) { setEmailError(emailError || 'Email obbligatoria'); isValid = false }
 
-        if (!isValid) return
+        if (!isValid) {
+            if (!isNameValid) trackLandingEvent('form_invalid_name')
+            if (!isPhoneValid) trackLandingEvent('form_invalid_phone')
+            if (!isEmailValid) trackLandingEvent('form_invalid_email')
+            return
+        }
 
+        trackLandingEvent('form_submit_started')
         setLoading(true)
         setError('')
 
         // Generate Lead event_id for dedup
         const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        let submissionAccepted = false
 
         try {
             const nameToPass = fullName.trim()
@@ -535,6 +546,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                 throw new Error(data.error || 'Errore')
             }
 
+            submissionAccepted = true
+            trackLandingEvent('form_submit_success')
             // Fire standard event immediately
             firePixelEvent('Lead', leadEventId, {
                 content_category: funnel.objective || 'cliente',
@@ -549,6 +562,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             setSubmitted(true)
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } catch (err: any) {
+            if (!submissionAccepted) trackLandingEvent('form_submit_error')
             setError(err.message)
         } finally {
             setLoading(false)
@@ -560,7 +574,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
 
         return (
             <div className="lp">
-                <main className="lp-ty-modern">
+                <main className="lp-ty-modern" data-clarity-mask="true">
                     <div className="lp-ty-header">
                         <div className="lp-ty-success-pulse">
                             <CheckCircle size={56} color="#22c55e" />
@@ -611,6 +625,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         </a>
                     </div>
                 </main>
+                <LandingBehaviorAnalytics projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
                 <style>{STYLES}</style>
                 <style dangerouslySetInnerHTML={{__html: `
                     /* Thank you page — riscritta: era larga 500px con testi da
@@ -744,16 +759,16 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             <div className="lp-field">
                 <div className={`lp-input-wrap ${isNameValid ? 'filled' : ''} ${(submitAttempted && !isNameValid) || fullNameError ? 'has-error' : ''}`}>
                     <User size={18} style={{ flexShrink: 0 }} />
-                    <input type="text" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)} onFocus={handleFirstFieldFocus} style={{ minWidth: 0, width: '100%' }} />
+                    <input type="text" data-behavior-field="name" placeholder="Nome e Cognome *" value={fullName} onChange={e => handleNameChange(e.target.value)} onFocus={handleFirstFieldFocus} style={{ minWidth: 0, width: '100%' }} />
                 </div>
                 {((submitAttempted && !isNameValid) || fullNameError) && <span className="lp-field-error">{fullNameError}</span>}
             </div>
             <div className="lp-field">
-                <div className={`lp-input-wrap ${isPhoneValid ? 'filled' : ''} ${(submitAttempted && !isPhoneValid) || phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} /></div>
+                <div className={`lp-input-wrap ${isPhoneValid ? 'filled' : ''} ${(submitAttempted && !isPhoneValid) || phoneError ? 'has-error' : ''}`}><Phone size={18} /><input type="tel" data-behavior-field="phone" placeholder="Telefono * (+39...)" value={phone} onChange={e => handlePhoneChange(e.target.value)} onFocus={handleFirstFieldFocus} /></div>
                 {((submitAttempted && !isPhoneValid) || phoneError) && <span className="lp-field-error">{phoneError}</span>}
             </div>
             <div className="lp-field">
-                <div className={`lp-input-wrap ${isEmailValid ? 'filled' : ''} ${(submitAttempted && !isEmailValid) || emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} /></div>
+                <div className={`lp-input-wrap ${isEmailValid ? 'filled' : ''} ${(submitAttempted && !isEmailValid) || emailError ? 'has-error' : ''}`}><Mail size={18} /><input type="email" data-behavior-field="email" placeholder="Email *" value={email} onChange={e => handleEmailChange(e.target.value)} onFocus={handleFirstFieldFocus} /></div>
                 {((submitAttempted && !isEmailValid) || emailError) && <span className="lp-field-error">{emailError}</span>}
             </div>
         </>
@@ -956,7 +971,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         {!formFirst && heroMore}
                     </div>
                     {videoFirst && <div className="lp-hero-video">{heroVideo}</div>}
-                    <div className="lp-hero-form" ref={formRef} id="ms-form">
+                    <div className="lp-hero-form" ref={formRef} id="ms-form" data-clarity-mask="true">
                         {stepForm ? stepCard : (
                         <div className={`lp-hf-card ${directConsultation ? 'lp-hf-card--consultation' : ''}`}>
                             <div className="lp-hf-header">
@@ -1305,6 +1320,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                     <p>C.F: 13508690966 · P.IVA: 13508690966</p>
                 </div>
             </footer>
+            <LandingBehaviorAnalytics projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
 
             {/* ══════════ EXIT INTENT POPUP ══════════ */}
             {showExitPopup && (

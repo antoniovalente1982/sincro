@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Target, Plus, Globe, Eye, Pause, Archive, Play, Edit3, Trash2, X, ExternalLink, Inbox, Copy, Check, Link2, Sparkles, BarChart3, ArrowUpRight, ArrowDownRight, Smartphone, Monitor, Tablet, FlaskConical, Trophy, Users, ToggleLeft, ToggleRight, Calendar, Loader2, Video } from 'lucide-react'
 import HowItWorks from '@/components/HowItWorks'
 import { parseVturbEmbed } from '@/lib/vturb'
+import { clarityProjectId } from '@/lib/landing-behavior'
 
 interface Pipeline {
     id: string; name: string; is_default?: boolean
@@ -459,6 +460,11 @@ export default function FunnelsPanel({ initialFunnels, pageViews: initialPageVie
                     {/* Per-Funnel Analytics */}
                     {analytics.funnelStats.map(stat => (
                         <div key={stat.funnel.id} className="glass-card p-5 space-y-4">
+                            {clarityProjectId(stat.funnel.settings?.clarity_project_id) && (
+                                <a className="text-sm inline-flex items-center gap-2 underline" href={`https://clarity.microsoft.com/projects/view/${clarityProjectId(stat.funnel.settings?.clarity_project_id)}/dashboard`} target="_blank" rel="noopener noreferrer">
+                                    <Eye className="w-4 h-4" /> Registrazioni e mappe di calore — Clarity <ExternalLink className="w-3 h-3" />
+                                </a>
+                            )}
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
@@ -851,6 +857,7 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
             tiktok_pixel_id: funnel?.settings?.tiktok_pixel_id || '',
             custom_url: funnel?.settings?.custom_url || '',
             video_embed: funnel?.settings?.video_embed || '',
+            clarity_project_id: funnel?.settings?.clarity_project_id || '',
         },
         ai_settings: {
             tone: funnel?.ai_settings?.tone || '',
@@ -1028,6 +1035,13 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                                 : <p className="text-[10px] mt-1" style={{ color: '#ef4444' }}>Non riesco a leggere il codice: dev&apos;essere un embed VTurb e contenere un indirizzo scripts.converteai.net</p>
                         })()}
                     </div>
+
+                    {form.settings.template === 'metodo_sincro' && <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <label className="label" htmlFor="clarity-project-id">Microsoft Clarity — registrazioni e mappe di calore</label>
+                        <input id="clarity-project-id" className="input" value={form.settings.clarity_project_id} onChange={e => updateSettings('clarity_project_id', e.target.value.trim())} placeholder="ID progetto Clarity" pattern="[a-z0-9]{6,20}" title="Inserisci solo l’ID alfanumerico del progetto, non il codice script" />
+                        <p className="text-xs mt-2" style={{ color: 'var(--color-surface-500)' }}>Per landing rivolte a genitori maggiorenni. Registra solo dopo il consenso; modulo e conferma sono oscurati. Campo vuoto: registrazioni disattivate.</p>
+                        <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer" className="text-xs underline">Apri Clarity per creare o trovare il progetto</a>
+                    </div>}
 
                     {/* Tracking Pixels */}
                     <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
