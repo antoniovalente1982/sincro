@@ -1,0 +1,16 @@
+{
+  "theme": "salto_categoria",
+  "headline": "Aiutalo a fare il salto di categoria",
+  "headline_html": "Aiutalo a fare il <span class=\"lp-gold\">salto di categoria.</span>",
+  "subheadline_html": "Per affrontare un livello più alto, allena anche la mente. Con Metodo Sincro®, tuo figlio lavora su <strong>sicurezza, concentrazione e gestione della pressione</strong> con un coach dedicato, in un percorso individuale online.",
+  "description": "Aiutalo a prepararsi al salto di categoria con il Mental Coaching individuale online di Metodo Sincro®. Prenota una consulenza gratuita.",
+  "cta": "Prenota una consulenza gratuita",
+  "faqs": [
+    { "q": "Come può aiutarlo a prepararsi al salto di categoria?", "a": "Nel percorso lavora con un coach su concentrazione, fiducia e gestione della pressione: per reagire a un errore, affrontare la concorrenza e restare nel gioco nei momenti difficili. Gli obiettivi vengono definiti in base alla sua situazione sportiva." },
+    { "q": "Cosa succede nella consulenza gratuita?", "a": "Lasci i tuoi contatti e ti richiamiamo noi. Ci racconti in quale categoria gioca tuo figlio, cosa vuole raggiungere e quali difficoltà incontra. Valutiamo insieme se il percorso è adatto e ti spieghiamo come funziona, senza impegno." },
+    { "q": "Il salto di categoria è garantito?", "a": "Il lavoro riguarda le abilità mentali del calciatore. Il passaggio di categoria dipende anche dalla preparazione tecnica e fisica, dalle opportunità e dalle scelte delle società. Eventuali garanzie sul percorso riguardano gli obiettivi e le condizioni indicati nel contratto, non un ingaggio o una promozione." },
+    { "q": "Come si svolge e quanto dura il percorso?", "a": "Le sessioni sono individuali e online, con un coach dedicato. Durata e frequenza vengono definite nella proposta personalizzata, in base agli obiettivi e agli impegni sportivi di tuo figlio." },
+    { "q": "È adatto all’età e al livello di mio figlio?", "a": "Metodo Sincro® lavora con giovani calciatori e professionisti. Durante la consulenza valutiamo età, livello, obiettivi e disponibilità del ragazzo a impegnarsi nel lavoro mentale." },
+    { "q": "Quanto costa?", "a": "La prima consulenza è gratuita e senza impegno. Il percorso di coaching è a pagamento: contenuti, durata e prezzo vengono presentati nella proposta personalizzata, prima di decidere se iniziare." }
+  ]
+}

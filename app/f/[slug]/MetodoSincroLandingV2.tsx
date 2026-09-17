@@ -9,6 +9,7 @@ import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { Check, CheckCircle, ShieldCheck, ArrowRight, ArrowLeft, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
 import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
+import categoryCopy from '@/lib/salto-categoria-copy.json'
 
 /** Variante del test A/B assegnata dal server (vedi resolveAbVariant in page.tsx). */
 export interface AbAssignment {
@@ -128,9 +129,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     // Senza assegnazione dal server resta l'etichetta fissa del funnel, col form classico
     const abVariant = ab?.variant ?? (funnel.settings?.ab_variant === 'B' ? 'B' : 'A')
     const directConsultation = funnel.settings?.direct_consultation_form === true
+    const categoryMessaging = funnel.settings?.messaging_theme === categoryCopy.theme
     const stepForm = !directConsultation && (ab?.stepForm ?? false)
     const formFirst = directConsultation || stepForm
-    const contactCta = directConsultation ? 'Prenota una consulenza gratuita' : 'Parlaci di tuo figlio/a'
+    const contactCta = directConsultation ? categoryCopy.cta : 'Parlaci di tuo figlio/a'
 
     const [fullName, setFullName] = useState('')
     
@@ -156,7 +158,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
         return { ...item, text }
     })
 
-    const localizedFaqItems = FAQ_ITEMS.map(item => {
+    const localizedFaqItems = (categoryMessaging ? categoryCopy.faqs : FAQ_ITEMS).map(item => {
         let a = item.a
         if (sportConfig.sportName !== 'calcio') {
             a = a
@@ -334,6 +336,13 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
     // Detect ad angle / adset angle from global UTM string matching against the database
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
+
+        // Mantiene sport e messaggio della campagna anche nei link storici.
+        if (categoryMessaging) {
+            setCustomHeadline(null)
+            setActiveAngle(null)
+            return
+        }
         
         // Dynamic sport detection: if URL parameters or UTMs suggest tennis, adapt page
         const utmCampaign = (params.get('utm_campaign') || '').toLowerCase()
@@ -395,7 +404,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
         if (match) {
             setActiveAngle(match)
         }
-    }, [routingAngles, funnel.settings])
+    }, [routingAngles, funnel.settings, categoryMessaging])
 
     // Exit intent — ONLY after user has scrolled to bottom of page
     useEffect(() => {
@@ -557,7 +566,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                             <div className="lp-ty-step-content">
                                 <span className="lp-ty-badge-num">Passo 1</span>
                                 <h3>Ti chiamiamo noi, entro 24-48 ore</h3>
-                                <p>{phone ? <>Chiamiamo il <strong>{phone}</strong>. </> : null}Tieni il telefono a portata: se non riusciamo a raggiungerti, il posto passa al prossimo genitore.</p>
+                                <p>{phone ? <>Chiamiamo il <strong>{phone}</strong>. </> : null}{categoryMessaging ? 'Parleremo della situazione di tuo figlio e di come prepararlo al livello successivo.' : 'Tieni il telefono a portata: se non riusciamo a raggiungerti, il posto passa al prossimo genitore.'}</p>
                             </div>
                         </div>
 
@@ -710,11 +719,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                     <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Dalla <strong>Serie A</strong> al <strong>settore giovanile</strong></span></div>
                 )}
                 <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span><strong>4.9★</strong> TrustPilot (356 recensioni)</span></div>
-                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></span></div>
+                <div className="lp-proof-item"><CheckCircle size={16} color="#22c55e" /><span>{categoryMessaging ? <>Un <strong>coach dedicato</strong>, un percorso individuale</> : <>Se non funziona, <strong>o non paghi, o continuiamo gratis</strong></>}</span></div>
             </div>
             <div className="lp-promise">
-                <span className="lp-promise-num">10<em>giorni</em></span>
-                <span className="lp-promise-txt">I primi risultati li vedrai in <strong>soli 10 giorni</strong></span>
+                <span className="lp-promise-num">{categoryMessaging ? <>1:1<em>online</em></> : <>10<em>giorni</em></>}</span>
+                <span className="lp-promise-txt">{categoryMessaging ? <>Il salto di categoria si prepara <strong>anche con la mente</strong></> : <>I primi risultati li vedrai in <strong>soli 10 giorni</strong></>}</span>
             </div>
         </>
     )
@@ -886,8 +895,13 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                 <div className="lp-hero-bg" />
                 <div className={`lp-hero-in ${formFirst ? 'lp-hero-in--steps' : ''}`}>
                     <div className="lp-hero-text">
-                        <div className="lp-badge"><Trophy size={14} /><span>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</span></div>
-                        {customHeadline ? (
+                        <div className="lp-badge"><Trophy size={14} /><span>{categoryMessaging ? <><span className="lp-badge-highlight">Mental Coaching</span> per il prossimo livello</> : <>Il <span className="lp-badge-highlight">Mental Coaching</span> #1 in Italia per {sportConfig.targetAthletes}</>}</span></div>
+                        {categoryMessaging ? (
+                            <>
+                                <h1 dangerouslySetInnerHTML={{ __html: categoryCopy.headline_html }} />
+                                <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: categoryCopy.subheadline_html }} />
+                            </>
+                        ) : customHeadline ? (
                             <>
                                 <h1>
                                     {customHeadline.split(' ').map((word, i, arr) => 
@@ -929,10 +943,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         {stepForm ? stepCard : (
                         <div className={`lp-hf-card ${directConsultation ? 'lp-hf-card--consultation' : ''}`}>
                             <div className="lp-hf-header">
-                                <span className="lp-hf-live">⚡ POSTI LIMITATI</span>
+                                <span className="lp-hf-live">{categoryMessaging ? 'PER IL PROSSIMO LIVELLO' : '⚡ POSTI LIMITATI'}</span>
                             </div>
                             <h3 className="lp-hf-title">{directConsultation ? 'Prenota una consulenza gratuita' : <>Prenota la Consulenza <span className="lp-gold">Gratuita</span></>}</h3>
-                            <p className="lp-hf-sub">{directConsultation ? 'Lascia i tuoi contatti: ti richiamiamo noi.' : 'Compila il form — ti richiamiamo noi'}</p>
+                            <p className="lp-hf-sub">{categoryMessaging ? 'Lascia i tuoi contatti: ti richiamiamo per capire come prepararlo al prossimo livello.' : directConsultation ? 'Lascia i tuoi contatti: ti richiamiamo noi.' : 'Compila il form — ti richiamiamo noi'}</p>
                             <div className="lp-hf-social">
                                 <div className="lp-avatars">
                                     {AVATAR_FACES.map(a => (
@@ -1003,9 +1017,9 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             {/* ══════════ 2. PAIN POINTS ══════════ */}
             <section className="lp-pain">
                 <div className="lp-container">
-                    <p className="lp-section-pre">IL PROBLEMA</p>
-                    <h2>Riconosci tuo figlio in <span className="lp-gold">almeno una</span> di queste?</h2>
-                    <p className="lp-pain-hint">Tocca quelle in cui lo riconosci — te lo diciamo subito</p>
+                    <p className="lp-section-pre">{categoryMessaging ? 'PREPARARSI AL PROSSIMO LIVELLO' : 'IL PROBLEMA'}</p>
+                    <h2>{categoryMessaging ? <>Cosa può frenarlo nel <span className="lp-gold">salto di categoria?</span></> : <>Riconosci tuo figlio in <span className="lp-gold">almeno una</span> di queste?</>}</h2>
+                    <p className="lp-pain-hint">{categoryMessaging ? 'Se lo riconosci in una di queste situazioni, possiamo parlarne nella consulenza.' : 'Tocca quelle in cui lo riconosci — te lo diciamo subito'}</p>
                     <div className="lp-pain-grid">
                         {PAINS.map((p, i) => {
                             const on = pains.includes(p.title)
@@ -1027,10 +1041,12 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                     <div className={`lp-pain-result ${pains.length ? 'is-live' : ''}`} aria-live="polite">
                         <Brain size={20} color="#facc15" />
                         <span>
+                            {categoryMessaging ? <>Affrontare un livello più alto richiede anche <strong>fiducia, concentrazione e capacità di reagire agli errori</strong>. Partiamo dalla sua situazione per capire su cosa lavorare.</> : <>
                             {pains.length === 0 && <>Se hai riconosciuto tuo figlio, <strong>il problema NON è tecnico. È di mentalità.</strong> E con il Mental Coaching giusto, si risolve in 90 giorni.</>}
                             {pains.length === 1 && <>Ne hai selezionata <strong>1</strong>. Ne basta una per tenere fermo un ragazzo di talento: <strong>non è un limite tecnico, è di mentalità</strong>.</>}
                             {pains.length > 1 && pains.length <= 3 && <>Ne hai selezionate <strong>{pains.length}</strong>. È il profilo che vediamo più spesso — <strong>non è un limite tecnico, è di mentalità</strong>. Si lavora in 90 giorni.</>}
                             {pains.length > 3 && <>Ne hai selezionate <strong>{pains.length}</strong> su 6. Sembrano problemi diversi, ma <strong>hanno tutte la stessa radice</strong>: è esattamente lì che interviene il Mental Coaching.</>}
+                            </>}
                         </span>
                     </div>
                     <button className="lp-cta-section" onClick={scrollToForm}>{contactCta} <ArrowRight size={18} /></button>
@@ -1083,12 +1099,12 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             <section className="lp-how">
                 <div className="lp-container">
                     <p className="lp-section-pre">IL SISTEMA</p>
-                    <h2>3 Fasi. 90 Giorni. <span className="lp-gold">Risultati Misurabili.</span></h2>
-                    <p className="lp-how-sub">Non è motivazione. È un protocollo scientifico con risultati tracciabili settimana dopo settimana.</p>
+                    <h2>{categoryMessaging ? <>Un percorso per prepararlo al <span className="lp-gold">prossimo livello.</span></> : <>3 Fasi. 90 Giorni. <span className="lp-gold">Risultati Misurabili.</span></>}</h2>
+                    <p className="lp-how-sub">{categoryMessaging ? 'Dalla situazione di oggi agli obiettivi da allenare, con un coach al suo fianco.' : 'Non è motivazione. È un protocollo scientifico con risultati tracciabili settimana dopo settimana.'}</p>
                     <div className="lp-timeline lp-rv">
                         <div className="lp-step"><div className="lp-step-num">1</div><div className="lp-step-content"><h3>Consulenza Gratuita</h3><p>Parli con un nostro esperto per massimo 15 minuti. Analizziamo la situazione e capiamo se il percorso è adatto.</p></div></div>
                         <div className="lp-step"><div className="lp-step-num">2</div><div className="lp-step-content"><h3>Percorso Personalizzato</h3><p>Creiamo un piano <strong>ONE-TO-ONE</strong> su misura. Coach dedicato, specializzato per la sua fascia d'età.</p></div></div>
-                        <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>Trasformazione in 90 Giorni</h3><p>Sessioni settimanali online. Report progressi. Miglioramenti misurabili e <strong>garantiti per contratto</strong>.</p></div></div>
+                        <div className="lp-step"><div className="lp-step-num">3</div><div className="lp-step-content"><h3>{categoryMessaging ? 'Allenamento mentale per la partita' : 'Trasformazione in 90 Giorni'}</h3><p>{categoryMessaging ? 'Nelle sessioni online allena abilità da applicare in partita: restare concentrato, gestire la pressione e ripartire dopo un errore.' : <>Sessioni settimanali online. Report progressi. Miglioramenti misurabili e <strong>garantiti per contratto</strong>.</>}</p></div></div>
                     </div>
                     <div className="lp-how-note">
                         <Shield size={18} color="#22c55e" />
@@ -1102,16 +1118,23 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             <section className="lp-benefits">
                 <div className="lp-container">
                     <p className="lp-section-pre">COSA OTTIENI</p>
-                    <h2>Tutto incluso. <span className="lp-gold">Zero sorprese.</span></h2>
+                    <h2>{categoryMessaging ? <>Le abilità mentali per <span className="lp-gold">puntare più in alto.</span></> : <>Tutto incluso. <span className="lp-gold">Zero sorprese.</span></>}</h2>
                     <div className="lp-benefits-grid">
-                        {[
+                        {(categoryMessaging ? [
+                            { icon: <Target size={24} />, title: 'Un coach dedicato', desc: 'Un professionista che lavora individualmente con tuo figlio sui suoi obiettivi sportivi.' },
+                            { icon: <Brain size={24} />, title: 'Concentrazione in partita', desc: 'Allenare l’attenzione sulle azioni che contano, anche quando il ritmo e le aspettative aumentano.' },
+                            { icon: <Shield size={24} />, title: 'Gestione della pressione', desc: 'Lavorare su come affrontare una selezione, una partita importante o la concorrenza per un posto.' },
+                            { icon: <Zap size={24} />, title: 'Sessioni individuali online', desc: 'Un percorso da seguire da casa, da organizzare insieme agli allenamenti e agli impegni sportivi.' },
+                            { icon: <TrendingUp size={24} />, title: 'Reazione agli errori', desc: 'Imparare a riportare l’attenzione sulla prossima azione dopo un passaggio sbagliato o una delusione.' },
+                            { icon: <Award size={24} />, title: 'Fiducia da allenare', desc: 'Riconoscere i propri punti di forza e affrontare con più consapevolezza le sfide del livello successivo.' },
+                        ] : [
                             { icon: <Target size={24} />, title: 'Coach Dedicato', desc: 'Un professionista con tesserino da specialista Mental Coach del CONI, assegnato solo a tuo figlio. Non gruppi, non videocorsi.' },
                             { icon: <Clock size={24} />, title: 'Risultati in 90 Giorni', desc: 'Si parte da 3 mesi e si può estendere a tutta la stagione, con milestones misurabili settimana per settimana.' },
                             { icon: <Shield size={24} />, title: 'Garanzia Contrattuale', desc: 'Gli UNICI in Italia con il miglioramento garantito per iscritto. Se non funziona, o non paghi, o continuiamo gratis.' },
                             { icon: <Zap size={24} />, title: '100% Online', desc: 'Sessioni comode da casa, via videochiamata. Zero spostamenti, massima flessibilità.' },
                             { icon: <TrendingUp size={24} />, title: 'Report Settimanali', desc: 'Ogni settimana ricevi un report dettagliato sui progressi di tuo figlio.' },
                             { icon: <Award size={24} />, title: 'Metodo dei Campioni', desc: `Lo stesso sistema usato da ${sportConfig.athletesProof} per la preparazione mentale.` },
-                        ].map((b, i) => (
+                        ]).map((b, i) => (
                             <div key={b.title} className="lp-benefit lp-rv" style={{ '--d': `${i * 55}ms` } as CSSProperties}>
                                 <div className="lp-benefit-icon">{b.icon}</div>
                                 <h3>{b.title}</h3>
@@ -1144,10 +1167,10 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                                 <text x="60" y="86" textAnchor="middle" fill="#e4e4e7" fontSize="7" fontWeight="700" letterSpacing="0.4">NEL CONTRATTO</text>
                             </svg>
                         </div>
-                        <h2 style={{marginTop: 0}}>Garanzia Sul Miglioramento — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></h2>
-                        <p>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia sul miglioramento scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</p>
+                        <h2 style={{marginTop: 0}}>{categoryMessaging ? <>Obiettivi chiari. <span style={{color:'#22c55e'}}>Impegni scritti.</span></> : <>Garanzia Sul Miglioramento — <span style={{color:'#22c55e'}}>Scritta Nel Contratto</span></>}</h2>
+                        <p>{categoryMessaging ? <>Prima di iniziare, definiamo il percorso e gli obiettivi su cui lavorare. Nella proposta trovi <strong>contenuti, durata, prezzo e condizioni della garanzia sul miglioramento</strong>, da valutare insieme al team.</> : <>Siamo gli <strong>UNICI</strong> in Italia nel settore del mental coaching sportivo ad offrire una garanzia sul miglioramento scritta nel contratto. Se non vedi miglioramenti misurabili, <strong>o non paghi, o continuiamo gratis</strong>.</>}</p>
                         <div className="lp-guarantee-row">
-                            <div><CheckCircle size={16} color="#22c55e" /> Zero rischi per te</div>
+                            <div><CheckCircle size={16} color="#22c55e" /> {categoryMessaging ? 'Consulenza gratuita e senza impegno' : 'Zero rischi per te'}</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Miglioramenti misurabili</div>
                             <div><CheckCircle size={16} color="#22c55e" /> Contratto trasparente</div>
                         </div>
@@ -1231,8 +1254,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             {/* ══════════ 11. FINAL CTA ══════════ */}
             <section className="lp-final-cta">
                 <div className="lp-container" style={{textAlign:'center'}}>
-                    <h2>Il Primo Passo È <span className="lp-gold">Gratuito</span></h2>
-                    <p>Non aspettare — ogni giorno che passa il gap tra il suo talento e i suoi risultati si allarga.</p>
+                    <h2>{categoryMessaging ? <>Aiutalo a fare il <span className="lp-gold">salto di categoria.</span></> : <>Il Primo Passo È <span className="lp-gold">Gratuito</span></>}</h2>
+                    <p>{categoryMessaging ? 'Parti da una consulenza gratuita: capiamo insieme come prepararlo mentalmente alle prossime sfide.' : 'Non aspettare — ogni giorno che passa il gap tra il suo talento e i suoi risultati si allarga.'}</p>
                     <ol className="lp-next lp-rv">
                         <li><span>1</span><p>Lasci i contatti qui sopra. <strong>Ti richiamiamo noi</strong>, non devi fare altro.</p></li>
                         <li><span>2</span><p><strong>Massimo 15 minuti al telefono</strong> per capire la situazione di tuo figlio. Niente presentazioni, solo domande.</p></li>
@@ -1247,7 +1270,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                 <div className="lp-sticky-bar" onClick={scrollToForm}>
                     <div className="lp-sticky-bar-in">
                         <div className="lp-sticky-bar-brand">
-                            <span className="lp-sticky-bar-text">Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel {sportConfig.sportName === 'tennis' ? 'Tennis' : 'Calcio'}</span>
+                            <span className="lp-sticky-bar-text">{categoryMessaging ? <>Preparalo al <strong>salto di categoria</strong></> : <>Affidati al team di Mental Coach <strong>n.1 in Italia</strong> nel {sportConfig.sportName === 'tennis' ? 'Tennis' : 'Calcio'}</>}</span>
                         </div>
                         <button className="lp-sticky-bar-cta" onClick={(e) => { e.stopPropagation(); scrollToForm() }}>
                             {contactCta} <ArrowRight size={16} />
@@ -1274,12 +1297,12 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                         <div className="lp-exit-header">
                             <span className="lp-exit-emoji">🤔</span>
                             <h2>Aspetta — Hai Ancora Dei <span className="lp-gold">Dubbi?</span></h2>
-                            <p>È normale. Ogni genitore che ha iniziato il Metodo Sincro® aveva gli stessi.</p>
+                            <p>{categoryMessaging ? 'Parliamo di come preparare tuo figlio al salto di categoria.' : 'È normale. Ogni genitore che ha iniziato il Metodo Sincro® aveva gli stessi.'}</p>
                         </div>
                         <div className="lp-exit-objections">
                             <div className="lp-exit-obj">
-                                <span className="lp-exit-obj-q">❌ "E se non funziona?"</span>
-                                <span className="lp-exit-obj-a">→ <strong>Garanzia scritta nel contratto:</strong> o migliora, o non paghi.</span>
+                                <span className="lp-exit-obj-q">{categoryMessaging ? '“Da dove iniziamo?”' : '❌ "E se non funziona?"'}</span>
+                                <span className="lp-exit-obj-a">{categoryMessaging ? <>Da una <strong>consulenza gratuita</strong> sulla sua situazione e sui suoi obiettivi.</> : <>→ <strong>Garanzia scritta nel contratto:</strong> o migliora, o non paghi.</>}</span>
                             </div>
                             <div className="lp-exit-obj">
                                 <span className="lp-exit-obj-q">❌ "È troppo presto/tardi per mio figlio?"</span>

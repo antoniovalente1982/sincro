@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
 import MetodoSincroLanding, { type AbAssignment } from './MetodoSincroLandingV2'
+import categoryCopy from '@/lib/salto-categoria-copy.json'
 
 // Slugs that redirect to dedicated landing pages
 const SLUG_REDIRECTS: Record<string, string> = {
@@ -98,6 +99,17 @@ export async function generateMetadata({ params }: Props) {
     const template = funnel?.settings?.template
 
     if (template === 'metodo_sincro') {
+        if (funnel?.settings?.messaging_theme === categoryCopy.theme) {
+            return {
+                title: `${categoryCopy.headline} | Metodo Sincro®`,
+                description: categoryCopy.description,
+                openGraph: {
+                    title: `${categoryCopy.headline} | Metodo Sincro®`,
+                    description: categoryCopy.description,
+                    type: 'website',
+                },
+            }
+        }
         return {
             title: 'Metodo Sincro® | Mental Coaching per Giovani Calciatori',
             description: 'Il percorso di Mental Coaching n.1 in Italia per giovani calciatori. Migliaia di atleti seguiti, tra cui calciatori di Serie A. Richiedi una consulenza gratuita.',
