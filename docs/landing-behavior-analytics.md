@@ -28,7 +28,7 @@ Gli eventi di visibilità, scroll e focus sono emessi una volta per montaggio de
 
 - Lo script viene inserito solo dopo l'accettazione dell'analisi Clarity. Consenso analitico concesso, consenso pubblicitario Clarity negato (`consentv2`).
 - La scelta, datata e distinta per progetto, viene ricordata per 180 giorni. “Preferenze analisi delle visite” nel fondo della pagina consente di cambiarla. La revoca nega il consenso e arresta il recorder, senza ricaricare il modulo. La scelta si propaga alle altre schede dello stesso sito.
-- L'intero modulo e il contenuto della conferma hanno `data-clarity-mask="true"`. Non vengono inviati nomi, contatti, età, risposte, identificativi CRM o messaggi d'errore come eventi o identificatori Clarity.
+- L'intero modulo, la sezione con le difficoltà selezionabili e il contenuto della conferma hanno `data-clarity-mask="true"`. Non vengono inviati nomi, contatti, età, risposte, identificativi CRM o messaggi d'errore come eventi o identificatori Clarity.
 - Questo controllo riguarda Clarity. Non sostituisce la gestione degli strumenti Meta/VTurb già esistenti né un'informativa completa su tutti i trattamenti del sito.
 - Chi rifiuta, usa un blocco del tracciamento o visita prima dell'attivazione non sarà rappresentato nelle registrazioni. I conteggi Clarity non coincidono quindi con tutte le visite del CRM.
 - Il player VTurb è in un iframe di un altro dominio. Per avvii e ritenzione del video usare VTurb: Clarity misura la visibilità del riquadro, non il momento guardato.

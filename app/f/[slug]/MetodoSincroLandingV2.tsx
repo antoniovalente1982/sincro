@@ -1047,7 +1047,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
             )}
 
             {/* ══════════ 2. PAIN POINTS ══════════ */}
-            <section className="lp-pain">
+            <section className="lp-pain" data-clarity-mask="true">
                 <div className="lp-container">
                     <p className="lp-section-pre">{categoryMessaging ? 'PREPARARSI AL PROSSIMO LIVELLO' : 'IL PROBLEMA'}</p>
                     <h2>{categoryMessaging ? <>Cosa può frenarlo nel <span className="lp-gold">salto di categoria?</span></> : <>Riconosci tuo figlio in <span className="lp-gold">almeno una</span> di queste?</>}</h2>
