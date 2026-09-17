@@ -472,7 +472,16 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
         // Lock the sticky bar to prevent fisarmonica during smooth scroll
         scrollLockRef.current = true
         setShowStickyBar(false)
-        formRef.current?.scrollIntoView({ behavior: 'smooth' })
+        if (videoFirst && formRef.current) {
+            // Il salto diretto deve raggiungere i campi anche dentro l'hero con overflow.
+            const headerHeight = document.querySelector('.lp-header')?.getBoundingClientRect().height ?? 0
+            window.scrollTo({
+                top: Math.max(0, window.scrollY + formRef.current.getBoundingClientRect().top - headerHeight - 16),
+                behavior: 'instant',
+            })
+        } else {
+            formRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }
         // Unlock after scroll animation completes
         setTimeout(() => { scrollLockRef.current = false }, 1200)
     }
@@ -692,17 +701,17 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
 
     /* ── Pezzi dell'hero condivisi fra form classico (A) e form a passaggi (B) ── */
     const heroVideo = vturbIds && (
-                <div className="lp-vsl">
-                    <iframe
-                        className="lp-vsl-box"
-                        src={vturbSrc}
-                        title="Metodo Sincro — presentazione"
-                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                        referrerPolicy="origin"
-                        allowFullScreen
-                        scrolling="no"
-                    />
-                </div>
+        <div className="lp-vsl">
+            <iframe
+                className="lp-vsl-box"
+                src={vturbSrc}
+                title="Metodo Sincro — presentazione"
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                referrerPolicy="origin"
+                allowFullScreen
+                scrolling="no"
+            />
+        </div>
     )
     const heroProof = (
         <>
