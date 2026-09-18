@@ -36,7 +36,7 @@ export default function BlogEditor({ initial, onClose, onSaved, demo = false, in
         finally { setSaving(false) }
     }
     const previewPost: BlogPost = { ...form, id: 'id' in form ? form.id : 'preview', createdAt: '', updatedAt: '', publishedAt: 'publishedAt' in form ? form.publishedAt : null }
-    return <div className={styles.editor}>
+    return <div className={`${styles.editor}${preview ? ` ${styles.previewMode}` : ''}`}>
         <div className={styles.toolbar}><button onClick={close} disabled={saving}><ArrowLeft size={17} /> Advertorial</button><span>{dirty ? 'Modifiche da salvare' : existing ? 'Versione salvata' : 'Nuova bozza'}</span><div><button onClick={() => setPreview(!preview)}><Eye size={16} /> {preview ? 'Torna al testo' : 'Anteprima'}</button><button disabled={saving || demo} onClick={() => save(form.status === 'active' ? 'active' : 'draft')}><Save size={16} /> {saving ? 'Salvataggio…' : form.status === 'active' ? 'Aggiorna online' : 'Salva bozza'}</button>{form.status !== 'active' && <button className={styles.primary} disabled={saving || demo} onClick={() => save('active')}><Send size={16} /> Pubblica</button>}</div></div>
         {demo && <p className={styles.notice}>Anteprima del gestionale: puoi provare l’editor, ma qui non vengono salvati o pubblicati contenuti.</p>}
         {error && <p className={styles.error} role="alert">{error}</p>}
