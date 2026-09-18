@@ -975,7 +975,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                                 <p className="lp-hero-sub" dangerouslySetInnerHTML={{ __html: funnel.settings?.subheadline || `Il percorso di <strong>Mental Coaching sportivo ONE-TO-ONE</strong> con coach <strong>CONI certificati</strong>, specializzati <strong>in ${sportConfig.sportName} e per fascia d'età</strong>. Elimina ansia da prestazione, paura del giudizio e blocchi mentali — con <strong>garanzia sul miglioramento scritta nel contratto</strong>.` }} />
                             </>
                         )}
-                        {parentMessaging && <p className="lp-parent-fit"><CheckCircle size={18} /><span><strong>Non serve essere professionisti.</strong> Il percorso è anche per chi gioca nella squadra del paese, in una scuola calcio o nel settore giovanile. Partiamo dalla persona e dalla sua situazione.</span></p>}
+                        {parentMessaging && <p className="lp-parent-fit"><CheckCircle size={18} /><span><strong>Non serve essere professionisti.</strong> Il percorso è anche per chi gioca in una squadra provinciale, in una scuola calcio o nel settore giovanile. Partiamo dalla persona e dalla sua situazione.</span></p>}
                         {videoFirst && (
                             <button type="button" className="lp-cta-section lp-hero-mobile-cta" onClick={scrollToForm}>
                                 {contactCta} <ArrowRight size={18} />
@@ -1104,7 +1104,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                 <section className="lp-social">
                     <div className="lp-container">
                         <p className="lp-section-pre">{parentMessaging ? 'UN METODO, LIVELLI DIVERSI' : 'LA PROVA'}</p>
-                        <h2>{parentMessaging ? 'Dalla squadra del paese ai professionisti. Il punto di partenza sei tu.' : <>Lo stesso metodo usato da {sportConfig.athletesProof}</>}</h2>
+                        <h2>{parentMessaging ? 'Dalla squadra provinciale ai professionisti.' : <>Lo stesso metodo usato da {sportConfig.athletesProof}</>}</h2>
                         <p className="lp-social-sub">{parentMessaging ? 'Tuo figlio o tua figlia non deve essere un talento selezionato, avere un contratto o puntare alla Serie A. L’esperienza con i professionisti fa parte del lavoro del team; gli obiettivi del percorso si definiscono sulla persona, sull’età e sulla situazione che vive.' : 'Non è teoria: questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale. Lo stesso metodo, con gli stessi coach, lo portiamo nel settore giovanile.'}</p>
                         {parentMessaging && <button type="button" className="lp-professional-toggle" aria-expanded={showProfessionalExamples} aria-controls="professional-examples" onClick={() => setShowProfessionalExamples(value => !value)}>{showProfessionalExamples ? 'Chiudi gli esempi' : 'Scopri anche il lavoro con i professionisti'} <ChevronDown size={18} /></button>}
                         <div className="lp-players" id="professional-examples" style={parentMessaging && !showProfessionalExamples ? { display: 'none' } : undefined}>
