@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validateBlogInput, blogConsultationHref, blogCanonical, isPublishedBlog, safeBlogLink, blogNavigationHref, blogEntry } from './blog'
+import { validateBlogInput, blogConsultationHref, blogCanonical, isPublishedBlog, safeBlogLink, blogNavigationHref, blogEntry, blogEntryHref, blogTextBlocks, type BlogPost } from './blog'
 
 const draft = { title: 'Mio figlio ha paura di sbagliare', slug: 'paura-di-sbagliare', excerpt: '', body: '', topic: 'fiducia', seoTitle: '', seoDescription: '', cover: '', coverAlt: '', status: 'draft' }
 
@@ -47,4 +47,19 @@ test('un articolo completo può essere pubblicato, percorsi immagine esterni ven
     assert.equal(validateBlogInput(complete).ok, true)
     assert.equal(validateBlogInput({ ...complete, cover: 'https://external.test/image.jpg' }).ok, false)
     assert.equal(validateBlogInput({ ...complete, cover: '/images/../../secret.png' }).ok, false)
+})
+
+
+test('l’ingresso pubblico apre il primo advertorial e conserva solo i parametri di campagna', () => {
+    const legacy = [{ id: 'one', slug: 'pochi-minuti', title: 'Titolo', description: '', status: 'active' }]
+    assert.equal(blogEntryHref([], legacy, 'utm_source=meta&email=privata&ab=A'), '/f/pochi-minuti?utm_source=meta&ab=A')
+})
+test('l’ingresso non apre bozze né advertorial ritirati', () => {
+    const post = { ...draft, id: 'draft', createdAt: '', updatedAt: '', publishedAt: null } as BlogPost
+    assert.equal(blogEntryHref([post], [{ id: 'one', slug: 'pochi-minuti', title: 'Titolo', description: '', status: 'draft' }]), null)
+    assert.equal(blogEntryHref([{ ...post, status: 'active', publishedAt: '2026-09-18T10:00:00Z' }], []), '/blog/paura-di-sbagliare')
+})
+
+test('un sottotitolo seguito subito da un elenco non assorbe il testo dell’advertorial', () => {
+    assert.deepEqual(blogTextBlocks('Introduzione.\n## Capire la panchina\n- Primo punto\n- Secondo punto\n\n### Una domanda\nLa risposta.'), ['Introduzione.', '## Capire la panchina', '- Primo punto\n- Secondo punto', '### Una domanda', 'La risposta.'])
 })

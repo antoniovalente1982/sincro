@@ -2,6 +2,12 @@
 
 18 settembre 2026. **Blog pubblicato online e area gestionale attiva.**
 
+## Modello corretto su indicazione di Antonio
+
+Antonio ha scelto il template della V3 `/f/pochi-minuti/anteprima`. Il precedente archivio pubblico con grafica diversa viene sostituito: `/blog` apre direttamente un advertorial, mentre Blog resta la raccolta nel gestionale. Nuove pagine e anteprima editor condividono testata, firma, immagine, colonna autore, CTA e CSS del modello. La V3 è inclusa in questo aggiornamento. Nessuna nuova bozza viene pubblicata.
+
+Verifiche della correzione: 15 test superati, lint mirato e build isolata superati; browser 1440/390 px senza overflow; smoke produzione locale su redirect con UTM/ab, sitemap, anteprime 404 e bozza privata. Revisione indipendente statica: nessun problema materiale residuo nel perimetro verificato. Rilascio della correzione in corso.
+
 ## Link per Antonio
 
 - [Blog pubblico — Dentro la partita](https://landing.metodosincro.com/blog)

@@ -8,7 +8,7 @@ web
 Il team Metodo Sincro usa il gestionale per marketing, funnel e CRM. I genitori di calciatori sono il pubblico degli approfondimenti; il primo advertorial ha target 16–18 anni.
 
 ## Product Purpose
-Gestire gli articoli di «Dentro la partita» dal Blog nel gestionale, aiutare i genitori a comprendere situazioni sportive concrete e collegare gli approfondimenti alla richiesta di consulenza.
+Gestire una raccolta di pagine advertorial «Dentro la partita» dalla voce Blog del gestionale. Ogni pagina affronta un problema dei genitori e accompagna alla richiesta di consulenza; il link pubblico generale apre direttamente un advertorial.
 
 ## Brand Commitments
 Antonio ha confermato il 18 settembre 2026: «Dentro la partita, a firma Metodo Sincro». Non è una testata indipendente dal brand.
@@ -18,3 +18,6 @@ Progetto Next.js con Supabase e hosting Vercel, dominio documentato landing.meto
 
 ## Evidence on Hand
 Ricerca documentata in outputs/ricerca-pain-genitori-2026-09-17, V3 locale in outputs/revisione-advertorial-2026-09-18. Il design editoriale esistente è in app/f/pochi-minuti. Non sono disponibili dati di conversione della V3 o volumi di ricerca verificati per tutti gli argomenti.
+
+## Modello confermato
+Il 18 settembre 2026 Antonio ha scelto esplicitamente il template di `/f/pochi-minuti/anteprima`: testata compatta, titolo serif, firma con foto, grande immagine, colonna autore e inviti alla consulenza. Ha rifiutato la homepage e l’impaginazione alternativa del Blog. Il modello V3 è ora la fonte visuale unica anche per le nuove pagine e l’anteprima dell’editor.

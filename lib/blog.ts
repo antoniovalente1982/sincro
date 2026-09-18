@@ -1,4 +1,6 @@
 export const BLOG_NAME = 'Dentro la partita'
+export const BLOG_DEFAULT_COVER = '/advertorial-pochi-minuti/calciatore-17-anni.webp'
+export const BLOG_DEFAULT_COVER_ALT = 'Un calciatore a bordo campo. Scena illustrativa generata con AI.'
 export const BLOG_TEMPLATE = 'blog_article'
 export const BLOG_ORIGIN = process.env.NEXT_PUBLIC_BLOG_ORIGIN || 'https://landing.metodosincro.com'
 export const BLOG_TOPICS = [
@@ -25,6 +27,10 @@ export interface BlogRow {
     settings: Record<string, unknown> & { template?: string; blog?: BlogInput & { publishedAt?: string | null } }
 }
 
+// Keep a heading distinct even when the next paragraph/list has no blank line.
+export function blogTextBlocks(body: string): string[] {
+    return body.replace(/^(#{2,3} [^\n]+)$/gm, '\n$1\n').split(/\n\s*\n/).map(block => block.trim()).filter(Boolean)
+}
 export function safeBlogLink(value: string): string | null {
     if (/^\/(?!\/)[^\\\s]*$/.test(value)) return value
     try { return new URL(value).protocol === 'https:' ? value : null } catch { return null }
@@ -41,6 +47,14 @@ export function blogNavigationHref(path: string, search: string): string {
     }
     if (incoming.get('ab') === 'A') params.set('ab', 'A')
     return `${path}${params.size ? `?${params}` : ''}`
+}
+export function blogEntryHref(posts: BlogPost[], legacy: LegacyArticle[], search = ''): string | null {
+    const first = legacy.find(post => post.slug === 'pochi-minuti' && post.status === 'active')
+    if (first) return blogNavigationHref(`/f/${first.slug}`, search)
+    const published = posts.find(post => post.status === 'active' && !!post.publishedAt)
+    if (published) return blogNavigationHref(`/blog/${published.slug}`, search)
+    const other = legacy.find(post => post.status === 'active')
+    return other ? blogNavigationHref(`/f/${other.slug}`, search) : null
 }
 export function blogConsultationHref(slug: string, search: string, preview = false): string {
     const params = new URLSearchParams(search)

@@ -5,8 +5,8 @@ Area richiesta da Antonio il 18 settembre 2026; identità confermata «Dentro la
 ## Superfici
 
 - `/dashboard/blog`: gestione autenticata, editor, anteprima, pubblicazione/ritiro, SEO e 12 brief editoriali. Ruoli owner/admin e manager marketing/IT.
-- `/blog`: archivio pubblico con articoli attivi e advertorial legacy individuati per slug pochi-minuti o template advertorial.
-- `/blog/[slug]`: articolo pubblico, HTML sul server, CTA al funnel esistente, correlati, canonical/OG/JSON-LD.
+- `/blog`: ingresso pubblico con redirect al primo advertorial attivo (`pochi-minuti` quando disponibile), conservando i parametri di campagna ammessi. Non è una homepage di rivista.
+- `/blog/[slug]`: pagina advertorial sul template V3 condiviso con pochi-minuti: firma, immagine, autore laterale, CTA intermedia/finale, HTML sul server, canonical/OG/JSON-LD.
 - `/blog/anteprima`, `/blog/anteprima/articolo`, `/blog/anteprima/gestionale`: solo development, fixture dichiarata, nessun salvataggio/tracking, noindex. 404 in produzione.
 
 ## Persistenza e accessi
@@ -17,7 +17,7 @@ Il server pubblico usa service role e legge un solo tenant: `BLOG_ORGANIZATION_I
 
 ## SEO e domini
 
-`NEXT_PUBLIC_BLOG_ORIGIN` è l’origine pubblica, default `https://landing.metodosincro.com`. Gli URL contengono `/blog`; un dominio dedicato con path abbreviati richiede un successivo routing per host. `/sitemap.xml` contiene archivio, articoli pubblicati e legacy attivi, senza parametri. `/robots.txt` esclude aree tecniche e anteprime; Vercel non-production disallow `/`.
+`NEXT_PUBLIC_BLOG_ORIGIN` è l’origine pubblica, default `https://landing.metodosincro.com`. Gli URL contengono `/blog`; un dominio dedicato con path abbreviati richiede un successivo routing per host. `/sitemap.xml` contiene solo advertorial pubblicati e legacy attivi, senza parametri; esclude l’ingresso `/blog`, che redirige. `/robots.txt` esclude aree tecniche e anteprime; Vercel non-production disallow `/`.
 
 La sitemap copre il contenuto editoriale, non pretende di inventariare tutte le landing del progetto. Le pagine pubblicate mantengono lo slug, anche se cambiano titolo; cambiare slug richiederebbe introdurre redirect permanenti. Nessun dominio alternativo è configurato dal codice di questa consegna. Le anteprime non ereditano canonical di un articolo pubblico.
 
@@ -38,3 +38,7 @@ Strategia e raccomandazione dominio: `outputs/blog-dentro-la-partita-2026-09-18/
 ## Attivazione 18 settembre 2026
 
 Rilascio produzione completato (`a28838ef`). Blog pubblico e gestionale verificati online; bozza creata e aggiornata dall’editor con sessione autenticata e controllata nel database. Bozza esclusa da archivio/sitemap e URL pubblico 404. RLS e passaggi bozza/pubblicazione/ritiro verificati con SQL transazionale e rollback. Dettagli e link: `outputs/blog-dentro-la-partita-2026-09-18/STATO.md`.
+
+## Correzione del modello su indicazione di Antonio
+
+Il modello visuale unico è `components/advertorial/AdvertorialFrame.tsx` con i CSS della V3 in `app/f/pochi-minuti/advertorial.module.css`. Il vecchio CSS del Blog è rimosso. La testata punta a `#inizio`: conserva la pagina e l’attribuzione, senza uscire dall’eventuale anteprima. Le impostazioni/API/storage delle bozze restano compatibili. `blog_article` è il nome tecnico preesistente del record, non un template visuale alternativo. L’editor mostra sempre la stessa pagina advertorial che verrà pubblicata.

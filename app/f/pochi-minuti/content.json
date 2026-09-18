@@ -1,181 +1,260 @@
 {
-  "headline": "Pochi minuti per dimostrare quanto vale. Troppa paura di sbagliare per riuscirci.",
-  "subheadline": "A 16–18 anni, ogni occasione in campo può pesare. Se tuo figlio entra pensando soprattutto a non sbagliare, come puoi aiutarlo a giocarsi quei minuti?",
+  "headline": "«In allenamento è un altro». Perché tuo figlio si blocca proprio quando vuole farsi vedere.",
+  "subheadline": "A 16–18 anni, pochi minuti in campo possono sembrare un esame. E il desiderio di dimostrare quanto si vale può trasformarsi in paura di sbagliare. Ecco il passaggio su cui si può lavorare, anche quando gli incoraggiamenti non bastano.",
   "intro": [
-    "Pensa a questa scena.",
-    "Tuo figlio ha 16, 17 o 18 anni. Si alza dalla panchina. Tra poco entra.",
-    "Tu speri che riesca a fare le cose che gli hai già visto fare. Che chieda il pallone. Che provi la giocata quando serve. Che si faccia trovare pronto.",
-    "Lui, invece, potrebbe essere impegnato in un’altra partita: quella con il pensiero di sbagliare davanti a chi decide quanto spazio concedergli.",
-    "Un pallone perso. Uno sguardo verso la panchina. L’azione continua, ma quel pensiero resta.",
-    "Da fuori viene spontaneo chiedersi perché non si lasci andare.",
-    "Da dentro, può sembrare di dover meritare tutto a ogni tocco."
+    "Il mister lo chiama. Finalmente tocca a lui.",
+    "Immagina la scena: tuo figlio si toglie la pettorina, arriva a bordo campo e aspetta di entrare. Dalla tribuna pensi: stavolta speriamo che faccia vedere quello che sa fare.",
+    "Poi perde il primo pallone.",
+    "Guarda verso la panchina. Alla giocata successiva esita. Passano i minuti e tu riconosci sempre meno il ragazzo che hai visto allenarsi durante la settimana.",
+    "Al ritorno vorresti chiedergli perché. Ma già immagini la risposta: «Lo so, papà». Oppure il silenzio.",
+    "**Come può desiderare così tanto un’occasione e sentirsi bloccato proprio quando arriva?**",
+    "Per capirlo, vale la pena guardare a ciò che può succedere fra il primo errore e il pallone successivo."
   ],
   "sections": [
     {
-      "id": "occasione",
-      "heading": "La paura del genitore: che venga giudicato prima di riuscire a mostrarsi",
+      "id": "sotto-esame",
+      "heading": "Quando ogni pallone diventa un giudizio su di lui",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Ci sono partite dopo le quali il risultato passa in secondo piano."
+          "text": "Un passaggio sbagliato è un episodio della partita. Ma nella testa di un ragazzo che sente di avere poco spazio può diventare qualcosa di molto più grande: «Ecco. Adesso il mister penserà che non sono pronto»."
         },
         {
           "type": "paragraph",
-          "text": "A restare è il dubbio che tuo figlio stia vivendo le opportunità che desidera con una tensione che gli rende difficile sfruttarle."
+          "text": "Da quel momento una parte della sua attenzione può restare lì: sul pallone perso, sullo sguardo dell’allenatore, sulla paura di tornare in panchina. Intanto il gioco continua e gli chiede un’altra decisione."
         },
         {
           "type": "paragraph",
-          "text": "Magari si allena con impegno. Vuole crescere. Tiene al posto, alla squadra, al prossimo passo."
+          "text": "È il circolo del sentirsi sotto esame. Vuole dimostrare tanto, dà un peso enorme all’errore e comincia a proteggersi. Può smettere di proporsi, ritardare una scelta o rinunciare a una giocata che in allenamento affronta."
+        },
+        {
+          "type": "diagram"
         },
         {
           "type": "paragraph",
-          "text": "E proprio perché ci tiene, l’idea di sbagliare può diventare ingombrante."
+          "text": "Giocare semplice può essere la scelta giusta. Il punto è capire **se sta scegliendo per il gioco o per la paura del giudizio**. Da fuori i due comportamenti possono somigliarsi. Per lavorarci, serve ascoltare anche lui."
         },
         {
           "type": "paragraph",
-          "text": "Tu vorresti aiutarlo. Provi a incoraggiarlo prima della partita, a trovare le parole dopo, a ricordargli quello che sa fare."
-        },
-        {
-          "type": "paragraph",
-          "text": "Ma arriva una domanda scomoda: **che cosa gli serve quando entra in campo e quelle parole non bastano più?**"
+          "text": "Questo non spiega ogni difficoltà: preparazione, ruolo, livello della squadra e indicazioni tecniche contano. Ma quando il ragazzo continua a tornare su un errore mentre l’azione è già ripartita, c’è un passaggio preciso da esplorare."
         }
       ]
     },
     {
-      "id": "pressione",
-      "heading": "Che cosa succede tra “voglio farmi vedere” e la giocata",
+      "id": "incoraggiamenti",
+      "heading": "«Gioca tranquillo» gli dice dove arrivare. Come ci arriva?",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Il primo passo è capire quel momento con precisione."
+          "text": "Probabilmente hai già provato a rassicurarlo. Gli hai ricordato le partite giocate bene, quanto si impegna, le qualità che gli riconosci. Il tuo sostegno conta."
         },
         {
           "type": "paragraph",
-          "text": "Si irrigidisce già mentre aspetta di entrare? Dopo un errore continua a ripensarci? Cerca conferme dalla panchina? Si rimprovera mentre dovrebbe seguire l’azione?"
+          "text": "Il dubbio nasce quando quelle parole gli fanno bene a casa, ma sul campo torna tutto uguale."
         },
         {
           "type": "paragraph",
-          "text": "Situazioni diverse richiedono un lavoro diverso."
+          "text": "«Abbi fiducia». «Non pensarci». «Fai quello che sai». Sono inviti comprensibili. Resta da costruire la risposta pratica: che cosa fa quando si accorge che sta ancora pensando al pallone perso?"
+        },
+        {
+          "type": "pullquote",
+          "text": "Il primo errore è già successo. La giocata successiva ha ancora bisogno di lui."
         },
         {
           "type": "paragraph",
-          "text": "Per questo un invito generico ad avere fiducia può lasciare irrisolta la domanda pratica: dove dirigere l’attenzione, che cosa dirsi e quale azione compiere quando torna la pressione."
+          "text": "Anche un allenamento tecnico in più può essergli utile. Però, se la difficoltà emerge nella reazione all’errore, vale la pena allenare anche quella: riconoscere dove si sposta l’attenzione e imparare a riportarla su un compito del gioco."
         },
         {
-          "type": "paragraph",
-          "text": "Con Metodo Sincro il lavoro individuale parte dalla situazione del calciatore e dai suoi obiettivi. Il coach lo accompagna ad allenare abilità come concentrazione, dialogo interno e gestione della reazione all’errore."
-        },
-        {
-          "type": "paragraph",
-          "text": "Sono abilità da portare nel lavoro della settimana, da provare e rivedere insieme."
+          "type": "image",
+          "image": {
+            "src": "/advertorial-pochi-minuti/ritorno-al-gioco-17-anni.webp",
+            "alt": "Scena illustrativa: un calciatore di circa 17 anni si propone per ricevere un passaggio.",
+            "caption": "Tornare a proporsi per il pallone: un’azione concreta su cui riportare l’attenzione. Scena illustrativa generata con AI."
+          }
         }
       ]
     },
     {
       "id": "lavoro-concreto",
-      "heading": "Un esempio: dare una direzione all’azione successiva",
+      "heading": "Lo stesso errore. Una risposta da allenare.",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Immaginiamo che, dopo un passaggio sbagliato, un ragazzo inizi a rimproverarsi e perda il contatto con quello che sta succedendo intorno."
+          "text": "Prendiamo un esempio: un ragazzo sbaglia un appoggio e comincia a ripetersi «Sbaglio sempre». Mentre si rimprovera, perde di vista ciò che sta succedendo intorno."
         },
         {
           "type": "paragraph",
-          "text": "Nel percorso si può partire da un episodio preciso: che cosa ha notato, che cosa si è detto, che cosa ha fatto subito dopo."
+          "text": "Il lavoro può partire proprio da quell’episodio. Il coach ricostruisce con lui che cosa ha notato, che cosa si è detto e che cosa ha fatto. Poi lo aiuta a preparare una risposta collegata al suo ruolo e alle richieste dell’allenatore."
+        },
+        {
+          "type": "demonstration"
         },
         {
           "type": "paragraph",
-          "text": "Da lì il coach può aiutarlo a individuare una breve indicazione utile, collegata a un comportamento che il ragazzo può eseguire e alle richieste del suo ruolo."
+          "text": "L’indicazione va provata durante la settimana. Al confronto successivo si guarda che cosa è successo: l’ha ricordata? In quale momento? Era abbastanza concreta? Se non ha aiutato, si rivede."
         },
         {
           "type": "paragraph",
-          "text": "Per esempio, ritrovare la posizione richiesta e cercare le informazioni utili alla prossima azione."
+          "text": "**La fiducia può cominciare anche da qui: sapere che cosa fare quando una giocata va male.** Un comportamento su cui lavorare, osservare e tornare insieme al coach."
         },
         {
           "type": "paragraph",
-          "text": "Quell’indicazione va poi provata in allenamento. Se è troppo astratta o non aiuta, va modificata."
+          "text": "È un esempio didattico, da personalizzare. Per un altro ragazzo il punto di partenza potrebbe essere l’attesa prima di entrare, un cambio di categoria o il modo in cui vive le correzioni del mister."
+        }
+      ]
+    },
+    {
+      "id": "metodo",
+      "heading": "È su queste interferenze che lavora Metodo Sincro",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Metodo Sincro®, fondato dal mental coach Antonio Valente, usa una formula per spiegare il proprio approccio: **Performance = Potenziale − Interferenze**."
         },
         {
           "type": "paragraph",
-          "text": "Il confronto successivo serve a capire se il ragazzo l’ha ricordata, quando l’ha usata e che cosa gli ha reso difficile farlo."
+          "text": "È un modello di lavoro: aiuta a distinguere le risorse del calciatore da ciò che gli rende difficile esprimerle. Paura del giudizio, dialogo interno, attenzione rimasta sull’errore: il percorso parte dalle difficoltà di quel ragazzo."
         },
         {
           "type": "paragraph",
-          "text": "**È così che una frase come “devi reagire” può diventare un lavoro osservabile e ripetibile.**"
+          "text": "Nelle sessioni individuali online, un coach dedicato lo accompagna ad allenare concentrazione, gestione della pressione e risposta alle difficoltà. Il lavoro prosegue con la pratica fra gli incontri e con il confronto su ciò che succede in campo."
+        },
+        {
+          "type": "image",
+          "image": {
+            "src": "/advertorial-pochi-minuti/sessione-online-17-anni.webp",
+            "alt": "Scena illustrativa: un calciatore di circa 17 anni prende appunti durante un incontro online con un coach.",
+            "caption": "Un episodio di campo, un confronto individuale, una risposta da provare in allenamento. Scena illustrativa generata con AI; non ritrae clienti o coach reali."
+          }
         },
         {
           "type": "paragraph",
-          "text": "È un esempio del processo. Il punto di partenza di tuo figlio potrebbe essere diverso: la preparazione prima della gara, la concorrenza nel gruppo, il nuovo livello o il modo in cui interpreta un feedback."
+          "text": "L’obiettivo è costruire autonomia: riconoscere i momenti difficili e avere strumenti da usare anche quando il coach non è con lui. Frequenza, durata e attività si definiscono in base alla situazione."
+        },
+        {
+          "type": "inlineCta"
         }
       ]
     },
     {
       "id": "genitore",
-      "heading": "Anche tu hai bisogno di sapere come essergli utile",
+      "heading": "E tu? Puoi tornare a fare il genitore, senza cercare ogni volta il discorso perfetto.",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Quando vedi tuo figlio in difficoltà, restare a guardare pesa."
+          "text": "Dopo una partita difficile, anche tu puoi sentirti sotto esame: se ne parli temi di peggiorare le cose; se taci ti sembra di lasciarlo solo."
         },
         {
           "type": "paragraph",
-          "text": "Puoi trovarti a oscillare fra incoraggiarlo, spronarlo e lasciare cadere il discorso per evitare un’altra discussione."
+          "text": "Nel lavoro con la famiglia c’è spazio per questo: scegliere quando parlare, ascoltare il punto di vista del ragazzo e chiarire come sostenerlo rispettando il ruolo dell’allenatore."
         },
         {
           "type": "paragraph",
-          "text": "Il lavoro con la famiglia serve anche a chiarire come accompagnarlo: ascoltare ciò che sta vivendo, scegliere il momento per parlarne e distinguere il ruolo del genitore da quello dell’allenatore."
+          "text": "Pensa alla differenza fra iniziare subito con «Perché non hai chiesto il pallone?» e chiedergli se ha voglia di raccontare come ha vissuto quei minuti. Il momento e il modo vanno scelti con lui."
         },
         {
           "type": "paragraph",
-          "text": "Il ragazzo resta protagonista del percorso. La sua disponibilità a lavorare è parte della valutazione iniziale, insieme all’età, agli obiettivi e al contesto sportivo."
+          "text": "Il suo coinvolgimento è essenziale. A 16–18 anni deve poter capire il senso del lavoro e partecipare alle decisioni. Anche questo fa parte della valutazione iniziale."
         }
       ]
     },
     {
-      "id": "percorso",
-      "heading": "Su che cosa possiamo lavorare insieme",
+      "id": "esperienze",
+      "heading": "Prima di affidarti a qualcuno, guarda le esperienze delle famiglie.",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Metodo Sincro propone sessioni individuali online con un coach dedicato. Durata, frequenza e contenuti vengono definiti in base alla situazione."
+          "text": "Stai valutando una persona che lavorerà con tuo figlio. È ragionevole volere qualcosa di più di una bella spiegazione."
+        },
+        {
+          "type": "proof"
         },
         {
           "type": "paragraph",
-          "text": "Il lavoro può riguardare:"
-        },
-        {
-          "type": "list",
-          "items": [
-            "affrontare la pressione prima di entrare in campo;",
-            "riportare l’attenzione sul gioco dopo un errore;",
-            "riconoscere le parole con cui il ragazzo si ostacola e allenare indicazioni più utili;",
-            "prepararsi mentalmente a concorrenza, difficoltà e cambiamenti di livello."
-          ]
+          "text": "Leggi i racconti per intero: da quale situazione partivano, che cosa descrivono del rapporto con il coach, quali cambiamenti riferiscono. Cerca ciò che è vicino alla vostra esperienza."
         },
         {
           "type": "paragraph",
-          "text": "Lo spazio in squadra dipende anche dalle scelte tecniche, dalla preparazione e dal contesto. Il percorso lavora sulle abilità mentali dell’atleta; non garantisce titolarità, ingaggi o passaggi di categoria."
+          "text": "Le recensioni riportano esperienze individuali. La consulenza serve a valutare il vostro caso: lo spazio in squadra dipende anche dalle scelte tecniche e dal contesto. Il percorso non garantisce titolarità, ingaggi o passaggi di categoria."
+        }
+      ]
+    },
+    {
+      "id": "domande",
+      "heading": "Le domande dei genitori, prima di fare il primo passo",
+      "blocks": [
+        {
+          "type": "faq",
+          "question": "E se mio figlio è scettico?",
+          "text": "La sua disponibilità va ascoltata. Nel primo confronto puoi raccontarci anche questo: capire come presentargli il lavoro e se ci sono le condizioni per coinvolgerlo fa parte della valutazione."
         },
         {
-          "type": "paragraph",
-          "text": "Nella consulenza iniziale partiamo proprio da qui: capire che cosa sta succedendo e valutare se il nostro lavoro è pertinente."
+          "type": "faq",
+          "question": "Come capire se la difficoltà è mentale o tecnica?",
+          "text": "I minuti giocati o un errore non bastano a stabilirlo. Contano il contesto, le richieste dell’allenatore e il punto di vista del ragazzo. Un episodio preciso aiuta a iniziare il confronto; se serve, gli aspetti tecnici vanno chiariti con chi lo allena."
+        },
+        {
+          "type": "faq",
+          "question": "Come si inserisce fra scuola e allenamenti?",
+          "text": "Le sessioni sono individuali e online. Frequenza e organizzazione si concordano in base al percorso; è prevista anche pratica fra gli incontri. La proposta deve chiarire l’impegno richiesto prima della decisione."
+        },
+        {
+          "type": "faq",
+          "question": "Il percorso è gratuito?",
+          "text": "È gratuita e senza impegno la consulenza iniziale. Il percorso di coaching è a pagamento: attività, durata e prezzo vengono presentati nella proposta personalizzata."
+        },
+        {
+          "type": "faq",
+          "question": "Che cosa preparo per il primo confronto?",
+          "text": "Scegli un episodio recente: che cosa è successo, che cosa hai osservato e che cosa ha raccontato tuo figlio. Per esempio, come ha reagito a un errore o che cosa ha detto tornando a casa. È un punto di partenza più utile di «deve avere più fiducia»."
+        },
+        {
+          "type": "faq",
+          "question": "Che cosa succede dopo la richiesta?",
+          "text": "Compili il modulo con i tuoi contatti e il team ti richiama. Il confronto parte dall’età, dal contesto sportivo e dagli episodi che ti preoccupano, per valutare se il percorso è pertinente."
         }
       ]
     }
   ],
-  "indexLabels": [
-    "Il peso dell’occasione",
-    "La pressione in campo",
-    "Come si allena una risposta",
-    "Il ruolo del genitore",
-    "Il percorso individuale"
-  ],
   "conclusion": {
-    "heading": "Raccontaci l’episodio che ti ha fatto pensare: “Così non so più come aiutarlo”",
+    "heading": "La prossima volta che il mister lo chiama, che cosa vorresti vederlo fare?",
     "paragraphs": [
-      "Una partita. Una convocazione mancata. Il primo periodo nella nuova squadra.",
-      "Puoi partire da una situazione concreta, senza dover trovare da solo il nome del problema.",
-      "Lasci i tuoi contatti e il team ti richiama. Parliamo della categoria in cui gioca tuo figlio, dei suoi obiettivi e delle difficoltà che incontra. Ti spieghiamo come funziona il percorso e valutiamo insieme se è adatto."
+      "Chiedere il pallone. Restare dentro la partita dopo un errore. Provare a giocarsi quei minuti con gli strumenti che ha allenato.",
+      "Se hai riconosciuto tuo figlio in queste righe, il primo passo è raccontarci una situazione concreta. Quella partita, quell’ingresso dalla panchina, quella frase detta tornando a casa.",
+      "Nella consulenza gratuita valutiamo che cosa sta succedendo, su quali aspetti si potrebbe lavorare e se Metodo Sincro è adatto alla vostra situazione."
     ]
+  },
+  "ctaText": "Richiedi una consulenza gratuita",
+  "terms": "Consulenza gratuita e senza impegno. Il percorso di coaching è a pagamento; contenuti, durata e prezzo vengono presentati prima di decidere se iniziare.",
+  "diagram": {
+    "caption": "Una possibile sequenza da riconoscere insieme al ragazzo",
+    "steps": [
+      "Ho poco tempo per dimostrare",
+      "Non posso sbagliare",
+      "Ripenso all’errore",
+      "Esito nella giocata successiva"
+    ],
+    "note": "Il punto su cui lavorare: riportare l’attenzione a ciò che può fare adesso."
+  },
+  "demonstration": {
+    "caption": "Esempio di lavoro sulla risposta a un passaggio sbagliato",
+    "before": {
+      "title": "Il pensiero che lo trattiene",
+      "thought": "«Sbaglio sempre. Adesso mi toglie.»",
+      "action": "Resta sull’errore e cerca il giudizio della panchina."
+    },
+    "practice": {
+      "title": "L’indicazione da provare",
+      "thought": "«Posizione. Guardo. Mi rendo disponibile.»",
+      "action": "Ritrova il compito del proprio ruolo e cerca informazioni per l’azione successiva."
+    },
+    "note": "Esempio illustrativo, non un risultato prima/dopo. Il richiamo si concorda con il coach e si prova in allenamento."
+  },
+  "proof": {
+    "score": "4,9 su 5",
+    "count": "361 recensioni",
+    "date": "18 settembre 2026",
+    "url": "https://it.trustpilot.com/review/valenteantonio.it",
+    "label": "Leggi le recensioni su Trustpilot"
   }
 }

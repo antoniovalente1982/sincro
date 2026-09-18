@@ -22,7 +22,7 @@ const getFunnel = cache(async () => {
 export async function generateMetadata(): Promise<Metadata> {
     const funnel = await getFunnel()
     const title = funnel?.settings?.headline || content.headline
-    const description = funnel?.description || content.subheadline
+    const description = funnel?.settings?.subheadline || funnel?.description || content.subheadline
     return {
         title: `${title} | Metodo Sincro®`,
         description,
@@ -49,7 +49,7 @@ export default async function PochiMinutiPage({ searchParams }: {
     return <Advertorial
         headline={funnel.settings?.headline || content.headline}
         subheadline={funnel.settings?.subheadline || content.subheadline}
-        ctaText={funnel.settings?.cta_text || 'Richiedi una consulenza gratuita'}
+        ctaText={funnel.settings?.cta_text || content.ctaText}
         consultationHref={advertorialConsultationHref(query.toString(), preview)}
         tracking={{ funnelId: funnel.id, orgId: funnel.organization_id, pixelId: funnel.meta_pixel_id || undefined, disabled: preview }}
     />

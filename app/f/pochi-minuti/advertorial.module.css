@@ -1,107 +1,163 @@
 @font-face {
+    font-family: 'Sincro News';
+    src: url('/fonts/source-serif-4.woff2') format('woff2');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
     font-family: 'Sincro Editorial';
     src: url('/fonts/barlow-condensed-bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
-
 .page {
-    --ink: #19241e;
-    --muted: #526057;
-    --gold: #c7a24d;
-    --rule: #d6ddd7;
-    --paper: #fff;
+    --ink: #20231f;
+    --muted: #5c625a;
+    --accent: #92501f;
+    --rule: #d9dbd4;
+    --paper: #fffefb;
     background: var(--paper);
     color: var(--ink);
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.6;
     min-height: 100vh;
     overflow-wrap: break-word;
+    scrollbar-color: #899080 var(--paper);
 }
 .page *, .page *::before, .page *::after { box-sizing: border-box; }
-.page ::selection { background: #ecd8a3; color: #19241e; }
-.page a { color: inherit; text-underline-offset: .22em; }
-.page a:focus-visible { outline: 3px solid #916714; outline-offset: 5px; }
-.page section, .article { scroll-margin-top: 32px; }
+.page ::selection { background: #f4dbb5; color: var(--ink); }
+.page a { color: inherit; text-underline-offset: .2em; }
+.page a:focus-visible { outline: 3px solid #92501f; outline-offset: 5px; }
+.page section, .article { scroll-margin-top: 24px; }
 .skipLink { position: absolute; top: 12px; left: 16px; z-index: 10; padding: 12px 20px; background: white; transform: translateY(-180%); }
 .skipLink:focus { transform: translateY(0); }
-.header { max-width: 1224px; padding: 28px 40px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--rule); }
-.brand { display: flex; align-items: baseline; gap: 7px; text-decoration: none; font-size: 21px; letter-spacing: -.6px; }
-.brand strong { font-size: 27px; font-weight: 800; }
-.brand span { font-size: 12px; vertical-align: top; margin-left: 2px; }
-.headerLink { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; min-height: 44px; }
-.hero { max-width: 1224px; padding: 64px 40px 60px; margin: 0 auto; display: grid; grid-template-columns: 1.28fr 1fr; gap: 52px; align-items: start; }
-.heroCopy h1 { font: 700 clamp(42px, 5vw, 68px)/1.03 'Sincro Editorial', sans-serif; letter-spacing: -.015em; margin: 0 0 26px; text-wrap: balance; max-width: 660px; }
-.dek { margin: 0; font-size: 19px; line-height: 1.58; color: #394c40; }
-.byline { display: flex; flex-direction: column; gap: 3px; margin-top: 28px; font-size: 13px; color: var(--muted); }
-.byline strong { color: var(--ink); }
-.disclosure { margin-top: 16px; font-size: 12px; line-height: 1.55; color: var(--muted); max-width: 360px; }
-.readLink { margin-top: 24px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; min-height: 44px; }
-.heroImage { margin: 0; padding-top: 5px; }
-.heroImage img { display: block; width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: center; }
-.heroImage figcaption { font-size: 11px; color: var(--muted); margin-top: 7px; text-align: right; }
-.articleLayout { max-width: 1224px; padding: 48px 40px 88px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 720px); gap: 76px; border-top: 1px solid var(--rule); }
-.aside { align-self: start; position: sticky; top: 32px; padding-top: 5px; font-size: 13px; }
-.aside > p:first-child { font-weight: 700; margin: 0 0 15px; color: var(--ink); }
-.aside nav { display: flex; flex-direction: column; }
-.aside nav a { font-size: 13px; padding: 10px 0; line-height: 1.5; text-decoration: none; color: var(--muted); border-bottom: 1px solid #e7ebe7; }
-.aside nav a:hover { color: var(--ink); text-decoration: underline; }
-.asideNote { margin-top: 28px; line-height: 1.85; color: var(--muted); }
-.article { min-width: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; line-height: 1.78; }
-.article p { margin: 0 0 20px; }
-.opening { padding-bottom: 14px; }
-.opening p:first-child { font: 700 17px/1.6 Arial, sans-serif; margin-bottom: 23px; }
-.opening p:last-child { font-size: 25px; line-height: 1.5; font-weight: 700; margin-top: 30px; }
-.section { padding-top: 37px; }
-.articleImage { margin: 6px 0 27px; }
-.articleImage img { display: block; width: 100%; height: auto; }
-.articleImage figcaption { margin-top: 9px; font: 12px/1.6 Arial, sans-serif; color: var(--muted); }
-.article h2 { font: 700 34px/1.18 'Sincro Editorial', sans-serif; margin: 0 0 22px; letter-spacing: -.005em; text-wrap: balance; }
+.disclosure { padding: 7px 20px; text-align: center; background: #eff0eb; color: #4e554c; font-size: 11px; }
+.header { max-width: 1120px; margin: 0 auto; padding: 23px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 3px solid var(--ink); }
+.masthead { display: block; text-decoration: none; font: 700 48px/1 'Sincro Editorial', sans-serif; letter-spacing: -.02em; }
+.masthead span { display: block; margin-top: 8px; font: 12px/1.4 Arial, sans-serif; letter-spacing: .04em; }
+.publisher { text-align: right; font-size: 12px; line-height: 1.6; margin: 0; color: var(--muted); }
+.publisher strong { color: var(--ink); font-size: 15px; }
+.edition { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding: 9px 0; font-size: 11px; color: var(--muted); }
+.layout { max-width: 1120px; padding: 38px 0 76px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 760px) 240px; gap: 72px; align-items: start; }
+.article { min-width: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.75; }
+.article p { margin: 0 0 21px; }
+.articleHeader h1 { font: 700 clamp(36px, 3.6vw, 49px)/1.14 'Sincro News', Georgia, serif; letter-spacing: -.025em; margin: 0 0 22px; text-wrap: pretty; }
+.article .dek { font: 18px/1.65 Arial, sans-serif; color: #50584d; margin: 0 0 22px; }
+.byline { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font: 12px/1.65 Arial, sans-serif; }
+.byline img { width: 44px; height: 44px; object-fit: cover; object-position: center 20%; border-radius: 50%; }
+.byline strong, .byline span { display: block; }
+.byline span { color: var(--muted); }
+.heroImage { margin: 25px 0 30px; }
+.heroImage img { width: 100%; height: auto; aspect-ratio: 1.95; object-fit: cover; object-position: center 7%; display: block; }
+.heroImage figcaption, .articleImage figcaption { margin-top: 9px; font: 12px/1.5 Arial, sans-serif; color: var(--muted); }
+.opening p:first-child { font-weight: 700; font-size: 23px; line-height: 1.5; }
+.section { padding-top: 33px; }
+.article h2 { font: 700 31px/1.23 'Sincro News', Georgia, serif; letter-spacing: -.018em; margin: 0 0 22px; text-wrap: pretty; }
 .article strong { font-weight: 700; }
-.article ul { list-style: disc; padding-left: 24px; margin: 0 0 25px; }
-.article li { padding-left: 5px; margin-bottom: 12px; }
-.article li::marker { color: #916714; }
-.article .pullquote { margin: 30px 0; padding: 22px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-size: 24px; line-height: 1.5; }
-.consultation { margin: 48px -32px 0; padding: 38px 32px; background: #eff3ef; border-top: 3px solid var(--gold); }
-.consultation h2 { font-size: 38px; }
-.consultation p { font-size: 19px; line-height: 1.72; }
-.cta { display: inline-flex; align-items: center; justify-content: center; gap: 15px; min-height: 56px; margin: 9px 0 19px; padding: 16px 22px; background: var(--ink); color: #fff !important; font: 700 16px/1.4 Arial, sans-serif; text-decoration: none; border-radius: 4px; transition: background-color .2s ease; }
-.cta:hover { background: #2e4836; }
-.consultation .terms { font: 13px/1.65 Arial, sans-serif; color: #45544a; margin: 0; }
-.footer { background: #19241e; color: #edf2ed; padding: 42px max(40px, calc((100vw - 1144px) / 2)); display: flex; justify-content: space-between; gap: 32px; font: 13px/1.75 Arial, sans-serif; }
-.footer p { margin: 9px 0 0; color: #c6d2c8; }
-.footerBrand { font-size: 23px; font-weight: 700; }
-@media (max-width: 1000px) {
-    .hero { gap: 32px; }
-    .articleLayout { grid-template-columns: 180px minmax(0, 1fr); gap: 40px; }
-    .article { font-size: 19px; }
+.article .pullquote { font: 600 30px/1.35 'Sincro News', Georgia, serif; color: #77421b; margin: 30px 0; padding: 26px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.sequence, .demonstration { margin: 30px 0; padding: 23px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-family: Arial, sans-serif; }
+.sequence figcaption, .demonstration figcaption { font-size: 13px; font-weight: 700; margin-bottom: 20px; }
+.sequence ol { padding: 0; margin: 0 0 20px; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.sequence li { font-size: 15px; line-height: 1.5; font-weight: 700; position: relative; padding-right: 15px; }
+.sequence li svg { position: absolute; right: -12px; top: 12px; color: var(--accent); }
+.sequence li:last-child svg { display: none; }
+.sequence p { font-size: 14px; line-height: 1.6; margin: 0; padding-top: 16px; border-top: 1px dashed var(--rule); color: #74421f; }
+.comparison { display: grid; grid-template-columns: 1fr 1fr; }
+.comparison > div { padding: 22px; background: #efefe9; }
+.comparison > div:last-child { background: #e6eddf; }
+.comparison h3 { margin: 0 0 14px; font: 700 13px/1.5 Arial, sans-serif; }
+.comparison .thought { font: 600 24px/1.4 'Sincro News', Georgia, serif; margin-bottom: 16px; }
+.comparison p { font-size: 15px; line-height: 1.65; margin: 0; }
+.article .figureNote { font: 12px/1.6 Arial, sans-serif; color: var(--muted); margin: 14px 0 0; }
+.inlineCta { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 23px 0; margin: 30px 0 4px; }
+.inlineCta p { font-size: 17px; margin-bottom: 16px; }
+.cta { display: inline-flex; justify-content: center; align-items: center; gap: 15px; min-height: 56px; padding: 16px 24px; background: #254432; color: #fff !important; font: 700 16px/1.4 Arial, sans-serif; border-radius: 3px; text-decoration: none; transition: background-color .18s ease; }
+.cta:hover { background: #163222; }
+.cta svg { flex-shrink: 0; }
+.articleImage { margin: 25px 0; }
+.articleImage img { display: block; width: 100%; height: auto; }
+.proof { padding: 22px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 24px 0; font: 16px/1.6 Arial, sans-serif; }
+.proof p { margin-bottom: 10px; }
+.proof a { display: inline-flex; align-items: center; gap: 6px; color: #254432; font-weight: 700; min-height: 44px; }
+.faq { border-top: 1px solid var(--rule); padding: 21px 0 3px; }
+.faq h3 { font: 700 18px/1.5 Arial, sans-serif; margin: 0 0 10px; }
+.faq p { font-size: 18px; }
+.consultation { margin-top: 32px; padding: 31px; background: #eef1e8; border-top: 3px solid #254432; }
+.consultation h2 { font-size: 32px; }
+.consultation p { font-size: 18px; }
+.consultation .cta { display: flex; margin: 26px 0 15px; }
+.consultation .nextStep { font: 13px/1.5 Arial, sans-serif; margin-bottom: 16px; }
+.consultation .terms { font: 12px/1.6 Arial, sans-serif; color: #4e5848; margin: 0; }
+.aside { padding-top: 7px; font: 14px/1.65 Arial, sans-serif; }
+.author { border-top: 3px solid var(--ink); padding-top: 20px; }
+.author img { width: 100%; height: auto; display: block; aspect-ratio: 1; object-fit: cover; object-position: center 19%; }
+.author h2 { margin: 16px 0 5px; font: 700 25px/1.2 'Sincro Editorial', sans-serif; }
+.author p { margin: 16px 0 0; color: var(--muted); }
+.author .authorRole { margin-top: 0; font-size: 12px; color: #4e554c; }
+.marginNote { margin-top: 35px; border-top: 1px solid var(--rule); padding-top: 24px; }
+.marginNote p:first-child { font: 600 26px/1.3 'Sincro News', Georgia, serif; margin: 0 0 12px; }
+.marginNote p { color: #50584d; }
+.marginNote a { display: inline-flex; gap: 7px; align-items: center; font-weight: 700; min-height: 44px; font-size: 13px; }
+.asideDisclosure { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--rule); font-size: 11px; color: var(--muted); }
+.footer { border-top: 1px solid var(--rule); max-width: 1120px; margin: 0 auto; padding: 32px 0 44px; display: flex; justify-content: space-between; gap: 30px; font: 12px/1.7 Arial, sans-serif; }
+.footer p { margin: 8px 0 0; color: var(--muted); }
+.footerBrand { font-size: 20px; }
+@media (max-width: 1220px) {
+    .header, .edition, .layout, .footer { margin-left: 32px; margin-right: 32px; }
+    .layout { grid-template-columns: minmax(0, 1fr) 210px; gap: 44px; }
 }
-@media (max-width: 760px) {
-    .header { padding: 17px 22px; gap: 12px; }
-    .brand { font-size: 17px; }
-    .brand strong { font-size: 23px; }
-    .headerLink { font-size: 13px; }
-    .hero { display: block; padding: 34px 22px 28px; }
-    .heroCopy h1 { font-size: clamp(40px, 9.5vw, 58px); margin-bottom: 20px; }
-    .dek { font-size: 17px; line-height: 1.6; }
-    .byline { margin-top: 22px; font-size: 12px; }
-    .disclosure { font-size: 11px; }
-    .readLink { margin-top: 12px; }
-    .heroImage { margin-top: 27px; }
-    .heroImage img { aspect-ratio: 4/3; object-position: center 20%; }
-    .articleLayout { display: block; padding: 30px 22px 56px; }
+@media (max-width: 900px) {
+    .layout { display: block; max-width: 740px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; }
     .aside { display: none; }
-    .article { font-size: 19px; line-height: 1.72; }
-    .article p { margin-bottom: 18px; }
-    .opening p:last-child { font-size: 23px; }
-    .section { padding-top: 30px; }
-    .article h2 { font-size: 31px; margin-bottom: 19px; }
-    .article .pullquote { font-size: 22px; padding: 19px 0; }
-    .consultation { margin: 36px -22px 0; padding: 30px 22px; }
-    .consultation h2 { font-size: 34px; }
-    .cta { display: flex; width: 100%; padding: 17px 15px; font-size: 15px; }
-    .cta svg { flex-shrink: 0; }
-    .footer { padding: 34px 22px; flex-direction: column; gap: 26px; }
+    .articleHeader h1 { font-size: 43px; }
+}
+@media (max-width: 600px) {
+    .header, .edition, .footer { margin-left: 20px; margin-right: 20px; }
+    .header { padding: 18px 0 15px; gap: 12px; }
+    .masthead { font-size: 36px; }
+    .masthead span { font-size: 10px; margin-top: 5px; }
+    .publisher { font-size: 10px; }
+    .publisher strong { font-size: 12px; }
+    .edition { font-size: 10px; gap: 8px; }
+    .edition span:last-child { white-space: nowrap; }
+    .disclosure { font-size: 10px; }
+    .layout { padding: 25px 20px 44px; }
+    .articleHeader h1 { font-size: clamp(30px, 8.2vw, 39px); line-height: 1.18; margin-bottom: 17px; }
+    .article .dek { font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+    .byline { font-size: 11px; gap: 10px; padding: 13px 0; }
+    .byline img { width: 38px; height: 38px; }
+    .heroImage { margin: 20px 0 25px; }
+    .heroImage img { aspect-ratio: 1.5; object-position: center 15%; }
+    .heroImage figcaption, .articleImage figcaption { font-size: 11px; }
+    .article { font-size: 18px; line-height: 1.75; }
+    .article p { margin-bottom: 19px; }
+    .opening p:first-child { font-size: 21px; }
+    .section { padding-top: 25px; }
+    .article h2 { font-size: 27px; margin-bottom: 19px; }
+    .article .pullquote { font-size: 27px; }
+    .sequence ol { grid-template-columns: 1fr; gap: 23px; }
+    .sequence li { padding: 0 0 0 24px; }
+    .sequence li svg { left: 0; right: auto; top: 26px; width: 14px; height: 14px; transform: rotate(90deg); }
+    .comparison { grid-template-columns: 1fr; }
+    .comparison > div { padding: 21px; }
+    .comparison .thought { font-size: 23px; }
+    .comparison p { margin: 0; }
+    .inlineCta .cta { display: flex; width: 100%; }
+    .cta { padding: 16px; font-size: 15px; }
+    .consultation { padding: 26px 20px; margin: 30px -20px 0; }
+    .consultation h2 { font-size: 29px; }
+    .footer { flex-direction: column; gap: 25px; padding: 28px 0; }
 }
 @media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
+
+/* Body authored in the advertorial editor, sharing the reference layout. */
+.authored h3 { font: 700 21px/1.4 'Sincro News', Georgia, serif; margin: 26px 0 15px; }
+.authored blockquote { font: 600 30px/1.35 'Sincro News', Georgia, serif; color: #77421b; margin: 30px 0; padding: 26px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.authored ul { padding-left: 24px; margin: 0 0 22px; }
+.authored li { margin-bottom: 10px; }
+.related { margin-top: 42px; padding-top: 25px; border-top: 1px solid var(--rule); }
+.related a { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 15px 0; font: 16px/1.5 Arial, sans-serif; }
+.related svg { flex-shrink: 0; }
+@media (max-width: 600px) { .authored blockquote { font-size: 27px; } }

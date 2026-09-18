@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { safeBlogLink } from '@/lib/blog'
+import { safeBlogLink, blogTextBlocks } from '@/lib/blog'
 
 function Inline({ text }: { text: string }) {
     return text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^\s)]+\))/g).map((part, i) => {
@@ -13,7 +13,7 @@ function Inline({ text }: { text: string }) {
 // A deliberately small text format: React escapes every user-authored string.
 // Raw HTML, embeds and executable Markdown are never rendered.
 export default function BlogText({ body }: { body: string }) {
-    return body.split(/\n\s*\n/).filter(Boolean).map((block, index) => {
+    return blogTextBlocks(body).map((block, index) => {
         if (block.startsWith('### ')) return <h3 key={index}><Inline text={block.slice(4)} /></h3>
         if (block.startsWith('## ')) return <h2 key={index}><Inline text={block.slice(3)} /></h2>
         if (block.startsWith('> ')) return <blockquote key={index}><Inline text={block.slice(2)} /></blockquote>
