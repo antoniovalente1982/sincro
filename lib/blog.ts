@@ -31,7 +31,25 @@ export interface BlogRow {
 export function blogTextBlocks(body: string): string[] {
     return body.replace(/^(#{2,3} [^\n]+)$/gm, '\n$1\n').split(/\n\s*\n/).map(block => block.trim()).filter(Boolean)
 }
+export function safeBlogImagePath(value: string): string | null {
+    return /^\/(?:images|advertorial-pochi-minuti)\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:webp|jpg|jpeg|png)$/.test(value) ? value : null
+}
+export function blogImageBlock(block: string): { src: string; alt: string; caption?: string } | null {
+    const image = block.match(/^!\[([^\[\]<>\r\n]+)\]\(([^\s()]+)(?: "([^"<>\r\n]+)")?\)$/)
+    if (!image) return null
+    const src = safeBlogImagePath(image[2])
+    const alt = image[1].trim()
+    if (!src || !alt || alt.length > 300) return null
+    return { src, alt, caption: image[3]?.trim() || undefined }
+}
+// The caller supplies only posts fetched after the dashboard's role and tenant checks.
+export function blogDashboardSelection(posts: BlogPost[], params: { articolo?: string | string[]; vista?: string | string[] }): { post: BlogPost; preview: boolean } | null {
+    if (typeof params.articolo !== 'string') return null
+    const post = posts.find(item => item.slug === params.articolo)
+    return post ? { post, preview: params.vista === 'anteprima' } : null
+}
 export function safeBlogLink(value: string): string | null {
+    if (/^#[a-zA-Z][a-zA-Z0-9_-]*$/.test(value)) return value
     if (/^\/(?!\/)[^\\\s]*$/.test(value)) return value
     try { return new URL(value).protocol === 'https:' ? value : null } catch { return null }
 }
@@ -91,7 +109,7 @@ export function validateBlogInput(value: unknown): { ok: true; data: BlogInput }
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug) || data.slug.length > 90 || ['anteprima', 'feed', 'sitemap', 'tag', 'categoria'].includes(data.slug)) return { ok: false, error: 'Indirizzo non valido: usa lettere minuscole, numeri e trattini.' }
     if (!BLOG_TOPICS.some(topic => topic.id === data.topic)) return { ok: false, error: 'Scegli un argomento.' }
     if (data.body.length > 80000 || data.excerpt.length > 500 || data.seoTitle.length > 100 || data.seoDescription.length > 240 || data.coverAlt.length > 300) return { ok: false, error: 'Uno dei testi supera il limite consentito.' }
-    if (data.cover && (!/^\/(?:images|advertorial-pochi-minuti)\/[a-zA-Z0-9/_.-]+\.(?:webp|jpg|jpeg|png)$/.test(data.cover) || data.cover.includes('..'))) return { ok: false, error: 'Scegli una delle immagini del progetto.' }
+    if (data.cover && !safeBlogImagePath(data.cover)) return { ok: false, error: 'Scegli una delle immagini del progetto.' }
     if (data.status === 'active' && (!data.excerpt || data.body.length < 800 || !data.seoTitle || !data.seoDescription || (data.cover && !data.coverAlt))) return { ok: false, error: 'Prima di pubblicare completa introduzione, articolo (almeno 800 caratteri), titolo e descrizione SEO e testo alternativo dell’immagine.' }
     return { ok: true, data }
 }

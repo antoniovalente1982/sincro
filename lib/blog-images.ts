@@ -1,0 +1,18 @@
+export const BLOG_IMAGES = [
+    { path: '/advertorial-pochi-minuti/calciatore-17-anni.webp', label: 'Calciatore a bordo campo', alt: 'Un giovane calciatore a bordo campo. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/genitore-calciatore-17-anni.webp', label: 'Genitore e figlio', alt: 'Un genitore e un giovane calciatore. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/ritorno-al-gioco-17-anni.webp', label: 'Ritorno al gioco', alt: 'Un calciatore si propone per ricevere il pallone. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/sessione-online-17-anni.webp', label: 'Sessione online', alt: 'Un giovane calciatore durante una sessione online. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/incoraggiare-figlio.webp', label: 'Incoraggiare un figlio', alt: 'Un genitore ascolta il figlio calciatore vicino al campo. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/dopo-partita.webp', label: 'Il ritorno dopo la partita', alt: 'Un genitore e il figlio condividono il ritorno dopo una partita. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/motivazione.webp', label: 'Un momento di riflessione', alt: 'Un giovane calciatore siede fuori dallo spogliatoio e guarda il campo. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/cambio-squadra.webp', label: 'Il cambio di squadra', alt: 'Un giovane calciatore si avvicina ai compagni sul campo di allenamento. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/panchina.webp', label: 'Aspettare in panchina', alt: 'Un giovane calciatore osserva la partita dalla panchina. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/allenamento-extra.webp', label: 'Allenamento individuale', alt: 'Un giovane calciatore svolge un esercizio individuale con il pallone. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/infortunio.webp', label: 'L’attesa del ritorno in campo', alt: 'Scarpe da calcio, maglia e borsa su una panchina vuota vicino al campo. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/pressione-partita.webp', label: 'Prima della partita', alt: 'Un giovane calciatore si raccoglie prima di entrare in campo. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/provino.webp', label: 'Il giorno del provino', alt: 'Un giovane calciatore si prepara a una prova sul campo. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/genitore-tribuna.webp', label: 'I genitori in tribuna', alt: 'Due genitori seguono una partita giovanile dalla tribuna. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/scuola-calcio.webp', label: 'Tra scuola e calcio', alt: 'Un ragazzo studia al tavolo con sua madre; la borsa da calcio è accanto alla sedia. Scena illustrativa generata con AI.' },
+    { path: '/images/blog/gruppo-squadra.webp', label: 'Sentirsi parte della squadra', alt: 'Un gruppo di giovani calciatori si ritrova sul campo. Scena illustrativa generata con AI.' },
+] as const

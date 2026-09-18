@@ -1,5 +1,7 @@
 import { Fragment } from 'react'
-import { safeBlogLink, blogTextBlocks } from '@/lib/blog'
+import Image from 'next/image'
+import { safeBlogLink, blogTextBlocks, blogImageBlock } from '@/lib/blog'
+import styles from '@/app/f/pochi-minuti/advertorial.module.css'
 
 function Inline({ text }: { text: string }) {
     return text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^\s)]+\))/g).map((part, i) => {
@@ -14,6 +16,12 @@ function Inline({ text }: { text: string }) {
 // Raw HTML, embeds and executable Markdown are never rendered.
 export default function BlogText({ body }: { body: string }) {
     return blogTextBlocks(body).map((block, index) => {
+        const image = blogImageBlock(block)
+        if (image) return <figure key={index} className={styles.articleImage}>
+            <Image src={image.src} alt={image.alt} width={1536} height={1024} sizes="(max-width: 760px) 100vw, 740px" />
+            {image.caption && <figcaption>{image.caption}</figcaption>}
+        </figure>
+        if (block.startsWith('![')) return <p key={index}>{block}</p>
         if (block.startsWith('### ')) return <h3 key={index}><Inline text={block.slice(4)} /></h3>
         if (block.startsWith('## ')) return <h2 key={index}><Inline text={block.slice(3)} /></h2>
         if (block.startsWith('> ')) return <blockquote key={index}><Inline text={block.slice(2)} /></blockquote>

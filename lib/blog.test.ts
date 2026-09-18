@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validateBlogInput, blogConsultationHref, blogCanonical, isPublishedBlog, safeBlogLink, blogNavigationHref, blogEntry, blogEntryHref, blogTextBlocks, type BlogPost } from './blog'
+import { validateBlogInput, blogConsultationHref, blogCanonical, isPublishedBlog, safeBlogLink, blogNavigationHref, blogEntry, blogEntryHref, blogTextBlocks, blogImageBlock, blogDashboardSelection, type BlogPost } from './blog'
 
 const draft = { title: 'Mio figlio ha paura di sbagliare', slug: 'paura-di-sbagliare', excerpt: '', body: '', topic: 'fiducia', seoTitle: '', seoDescription: '', cover: '', coverAlt: '', status: 'draft' }
 
@@ -28,6 +28,9 @@ test('bozze, record di altri template e articoli senza data non sono pubblici', 
     assert.equal(isPublishedBlog({ status: 'active', settings: { template: 'blog_article', blog: { publishedAt: '2026-09-18T10:00:00Z' } } }), true)
 })
 test('link del testo ammettono HTTPS e percorsi locali, mai javascript o protocol-relative', () => {
+    assert.equal(safeBlogLink('#consulenza'), '#consulenza')
+    assert.equal(safeBlogLink('#<script>'), null)
+    assert.equal(safeBlogLink('#consulenza onclick=alert(1)'), null)
     assert.equal(safeBlogLink('javascript:alert(1)'), null)
     assert.equal(safeBlogLink('//evil.test'), null)
     assert.equal(safeBlogLink('/blog/paura-di-sbagliare'), '/blog/paura-di-sbagliare')
@@ -62,4 +65,41 @@ test('l’ingresso non apre bozze né advertorial ritirati', () => {
 
 test('un sottotitolo seguito subito da un elenco non assorbe il testo dell’advertorial', () => {
     assert.deepEqual(blogTextBlocks('Introduzione.\n## Capire la panchina\n- Primo punto\n- Secondo punto\n\n### Una domanda\nLa risposta.'), ['Introduzione.', '## Capire la panchina', '- Primo punto\n- Secondo punto', '### Una domanda', 'La risposta.'])
+})
+
+test('un’immagine locale diventa un blocco con descrizione accessibile e didascalia facoltativa', () => {
+    assert.deepEqual(blogImageBlock('![Un genitore ascolta il figlio a bordo campo](/images/blog/incoraggiare-figlio.webp "Ascoltare prima di dare consigli.")'), {
+        src: '/images/blog/incoraggiare-figlio.webp', alt: 'Un genitore ascolta il figlio a bordo campo', caption: 'Ascoltare prima di dare consigli.',
+    })
+    assert.deepEqual(blogImageBlock('![Un calciatore torna in campo](/advertorial-pochi-minuti/ritorno-al-gioco-17-anni.webp)'), {
+        src: '/advertorial-pochi-minuti/ritorno-al-gioco-17-anni.webp', alt: 'Un calciatore torna in campo', caption: undefined,
+    })
+})
+
+test('le immagini rifiutano URL esterni, percorsi ambigui e contenuti eseguibili', () => {
+    for (const path of [
+        'https://external.test/image.webp', '//external.test/image.webp', 'data:image/png;base64,abc',
+        'javascript:alert(1)', '/images/blog/../secret.webp', '/images/blog/%2e%2e/secret.webp',
+        '/images/blog/./panchina.webp', '/images//panchina.webp', '/images/blog\\panchina.webp',
+        '/images/blog/panchina.svg', '/api/private.webp', '/images/blog/panchina.webp?download=1',
+        '/images/blog/panchina.webp#fragment', '/images/blog/panchina.webp" onerror="alert(1)',
+    ]) assert.equal(blogImageBlock(`![Un calciatore a bordo campo](${path})`), null, path)
+    for (const block of [
+        '![](/images/blog/panchina.webp)', '![   ](/images/blog/panchina.webp)',
+        '![<img src=x onerror=alert(1)>](/images/blog/panchina.webp)',
+        '![Un calciatore](/images/blog/panchina.webp "<script>alert(1)</script>")',
+        'Testo ![Un calciatore](/images/blog/panchina.webp)',
+        '![Un calciatore](/images/blog/panchina.webp)\nUn altro paragrafo.',
+    ]) assert.equal(blogImageBlock(block), null, block)
+})
+
+test('l’anteprima diretta seleziona soltanto articoli già caricati per l’organizzazione autorizzata', () => {
+    const post = { ...draft, id: 'draft', createdAt: '', updatedAt: '', publishedAt: null } as BlogPost
+    assert.deepEqual(blogDashboardSelection([post], { articolo: post.slug, vista: 'anteprima' }), { post, preview: true })
+    assert.deepEqual(blogDashboardSelection([post], { articolo: post.slug }), { post, preview: false })
+    assert.equal(blogDashboardSelection([post], { articolo: 'bozza-di-un-altro-tenant', vista: 'anteprima' }), null)
+    assert.equal(blogDashboardSelection([], { articolo: post.slug, vista: 'anteprima' }), null)
+    assert.equal(blogDashboardSelection([post], { articolo: [post.slug], vista: 'anteprima' }), null)
+    assert.equal(blogDashboardSelection([post], { vista: 'anteprima' }), null)
+    assert.deepEqual(blogDashboardSelection([post], { articolo: post.slug, vista: ['anteprima'] }), { post, preview: false })
 })

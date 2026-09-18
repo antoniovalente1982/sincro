@@ -19,16 +19,17 @@ export function BlogArticle({ post, consultationHref, preview = false, related =
         {sections.map((section, index) => <Fragment key={index}>
             <div className={`${section.startsWith('## ') ? styles.section : styles.opening} ${styles.authored}`}><BlogText body={section} /></div>
             {sections.length > 1 && index === ctaAfter && <div className={styles.inlineCta}>
-                <p><strong>Vuoi capire da dove partire con tuo figlio?</strong><br />Raccontaci che cosa succede in campo: valutiamo insieme se il percorso è adatto.</p>
-                <ConsultationLink href={consultationHref} />
+                <p><strong>Hai già provato ad aiutarlo. Da dove puoi ripartire?</strong><br />Porta un episodio al primo confronto: mettiamo a fuoco i tuoi dubbi e valutiamo se il percorso è adatto alla vostra situazione.</p>
+                <ConsultationLink href={consultationHref} text="Voglio capire come aiutarlo" />
                 <p className={styles.figureNote}>Primo confronto gratuito e senza impegno. Percorso a pagamento.</p>
             </div>}
         </Fragment>)}
         <section className={styles.consultation} id="consulenza" aria-labelledby="consulenza-titolo">
             <h2 id="consulenza-titolo">Hai riconosciuto la situazione di tuo figlio?</h2>
             <p>Il primo passo è raccontarci un episodio concreto: quella partita, quell’ingresso in campo, quella frase detta tornando a casa.</p>
-            <p>Nella consulenza gratuita valutiamo che cosa sta succedendo, su quali aspetti si potrebbe lavorare e se Metodo Sincro è adatto alla vostra situazione.</p>
-            <ConsultationLink href={consultationHref} />
+            <p>Il primo confronto gratuito è rivolto a te, il genitore che sta valutando come aiutarlo. Partiamo da ciò che hai osservato e dai tentativi già fatti, per capire quali domande approfondire e se Metodo Sincro può essere pertinente.</p>
+            <p>Se emerge una proposta, chiariremo come coinvolgere tuo figlio, che cosa prevede il lavoro e quale investimento richiede.</p>
+            <ConsultationLink href={consultationHref} text="Voglio capire come aiutarlo" />
             <p className={styles.nextStep}>Compila il modulo. Il team ti richiama per il primo confronto.</p>
             <p className={styles.terms}>Consulenza gratuita e senza impegno. Il percorso di coaching è a pagamento; contenuti, durata e prezzo vengono presentati prima di decidere se iniziare.</p>
         </section>

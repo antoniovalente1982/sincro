@@ -3,12 +3,12 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getOrgContext } from '@/lib/org-context'
 import { canAccessSection } from '@/lib/permissions'
-import { rowToBlogPost, type BlogRow } from '@/lib/blog'
+import { rowToBlogPost, blogDashboardSelection, type BlogRow } from '@/lib/blog'
 import { BLOG_SELECT, legacyArticles } from '@/lib/blog-server'
 import BlogPanel from './BlogPanel'
 
 export const metadata: Metadata = { title: 'Blog | Gestionale Metodo Sincro', robots: { index: false, follow: false } }
-export default async function BlogDashboardPage() {
+export default async function BlogDashboardPage({ searchParams }: { searchParams: Promise<{ articolo?: string | string[]; vista?: string | string[] }> }) {
     const supabase = await createClient()
     const org = await getOrgContext(supabase)
     if (!org) redirect('/login')
@@ -17,5 +17,7 @@ export default async function BlogDashboardPage() {
         supabase.from('blog_posts').select(BLOG_SELECT).eq('organization_id', org.organization_id).order('updated_at', { ascending: false }),
         supabase.from('funnels').select(BLOG_SELECT).eq('organization_id', org.organization_id).order('updated_at', { ascending: false }),
     ])
-    return <BlogPanel initialPosts={((articles.data || []) as BlogRow[]).map(rowToBlogPost)} legacy={legacyArticles((funnels.data || []) as BlogRow[])} loadError={articles.error || funnels.error ? 'Non è stato possibile leggere gli articoli. Verifica il collegamento e l’attivazione del Blog.' : ''} />
+    const posts = ((articles.data || []) as BlogRow[]).map(rowToBlogPost)
+    const selection = blogDashboardSelection(posts, await searchParams)
+    return <BlogPanel initialPosts={posts} initialArticleId={selection?.post.id} initialPreview={selection?.preview} legacy={legacyArticles((funnels.data || []) as BlogRow[])} loadError={articles.error || funnels.error ? 'Non è stato possibile leggere gli articoli. Verifica il collegamento e l’attivazione del Blog.' : ''} />
 }
