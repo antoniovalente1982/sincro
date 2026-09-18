@@ -20,7 +20,7 @@ export default function Advertorial({ headline, subheadline, ctaText, consultati
     return <div className={styles.page}>
         <a className={styles.skipLink} href="#articolo">Vai all’articolo</a>
         <header className={styles.header}>
-            <a className={styles.brand} href="#inizio" aria-label="Metodo Sincro, inizio articolo">Metodo <strong>Sincro<span>®</span></strong></a>
+            <a className={styles.brand} href="/blog" aria-label="Metodo Sincro, inizio articolo">Metodo <strong>Sincro<span>®</span></strong></a>
             <a className={styles.headerLink} href="#consulenza">Parliamone <ArrowDown size={16} aria-hidden="true" /></a>
         </header>
         <main id="inizio">

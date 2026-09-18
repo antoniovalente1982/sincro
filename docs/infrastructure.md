@@ -15,7 +15,7 @@ Codice (locale) → GitHub → Vercel (auto-deploy) → Produzione
 |---|---|---|
 | **GitHub** | Repository codice | `antoniovalente1982/sincro` — MCP `github-mcp-server` |
 | **Vercel** | Hosting & deploy | Auto-deploy su push a `main` — progetto `adpilotik` |
-| **Supabase** | Database & Auth | Project ID: `jbcfcfigfvllhsviuvrl` — MCP `supabase-mcp-server` |
+| **Supabase** | Database & Auth | Project ID: `bktiuhxenxwhkgvdaxnp` — MCP `supabase-mcp-server` |
 | **Google** | Sheets API, Analytics | Integrato via API keys in env vars |
 | **Meta** | Ads API, CAPI, Pixel | Graph API v21.0 — token in Supabase `organization_settings` |
 | **Telegram** | Notifiche lead | Bot token in `organization_settings` |

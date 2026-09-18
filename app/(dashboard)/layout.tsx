@@ -10,7 +10,7 @@ import {
     LogOut, ChevronLeft, ChevronRight, Settings,
     Bell, X, Check, AlertTriangle, Info, Sparkles, CheckCircle,
     History, CalendarDays,
-    Sun, Moon, TrendingUp, Layers,
+    Sun, Moon, TrendingUp, Layers, BookOpen,
     type LucideIcon
 } from 'lucide-react'
 import { filterNavItems, type Role, type Department } from '@/lib/permissions'
@@ -51,6 +51,7 @@ const allNavGroups: NavGroup[] = [
         label: 'MARKETING',
         items: [
             { label: 'Funnel',    href: '/dashboard/funnels',   icon: Target },
+            { label: 'Blog',      href: '/dashboard/blog',      icon: BookOpen },
             { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
         ]
     },

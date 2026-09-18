@@ -13,6 +13,7 @@ export type Section =
     | 'leads_station'
     | 'calendar'
     | 'funnels'
+    | 'blog'
     | 'operations'
     | 'analytics'
     | 'team'
@@ -26,6 +27,7 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
     leads_station:  ['owner', 'admin', 'manager', 'closer'],
     calendar:       ['owner', 'admin', 'manager', 'closer', 'coach'],
     funnels:        ['owner', 'admin', 'manager'],
+    blog:           ['owner', 'admin', 'manager'],
     operations:     ['owner', 'admin', 'manager'],
     analytics:      ['owner', 'admin', 'manager', 'coach', 'viewer'],
     team:           ['owner', 'admin'],
@@ -35,11 +37,11 @@ const SECTION_ACCESS: Record<Section, Role[]> = {
 
 // Manager access is further restricted by department
 const MANAGER_SECTION_BY_DEPT: Record<string, Section[]> = {
-    marketing: ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'settings'],
+    marketing: ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'blog', 'operations', 'analytics', 'settings'],
     sales:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     coaching:  ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
     admin:     ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'analytics', 'settings'],
-    it:        ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'operations', 'analytics', 'team', 'connections', 'settings'],
+    it:        ['dashboard', 'crm', 'sales', 'leads_station', 'calendar', 'funnels', 'blog', 'operations', 'analytics', 'team', 'connections', 'settings'],
 }
 
 // Map href to section
@@ -50,6 +52,7 @@ const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard/leads-station':       'leads_station',
     '/dashboard/calendar':            'calendar',
     '/dashboard/funnels':             'funnels',
+    '/dashboard/blog':                'blog',
     '/dashboard/operations':          'operations',
     '/dashboard/analytics':           'analytics',
     '/dashboard/team':                'team',

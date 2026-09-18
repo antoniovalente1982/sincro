@@ -1,4 +1,5 @@
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
+import { blogEntry } from '@/lib/blog'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
         const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id, tag } = body
+        const editorialEntry = blogEntry(extra_data?.editorial_entry)
 
         if (!funnel_id || !name) {
             return NextResponse.json({ error: 'Name and funnel_id are required' }, { headers: CORS_HEADERS, status: 400 })
@@ -87,7 +89,7 @@ export async function POST(req: NextRequest) {
                 utm_campaign: utm_campaign || null,
                 utm_content: utm_content || null,
                 utm_term: utm_term || null,
-                extra_data: extra_data || {},
+                extra_data: { ...(extra_data || {}), editorial_entry: editorialEntry },
                 page_variant: page_variant || 'A',
                 ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null,
                 user_agent: req.headers.get('user-agent') || null,
@@ -168,6 +170,7 @@ export async function POST(req: NextRequest) {
                         if (!match.funnel_id && funnel_id) updateData.funnel_id = funnel_id
                         updateData.meta_data = {
                             ...existingMeta,
+                            ...(editorialEntry ? { first_editorial_entry: existingMeta.first_editorial_entry || editorialEntry, last_editorial_entry: editorialEntry } : {}),
                             ...((!existingMeta.utm_content && body.utm_content) ? { utm_content: body.utm_content } : {}),
                             ...((!existingMeta.utm_term && body.utm_term) ? { utm_term: body.utm_term } : {}),
                             ...((!existingMeta.fbc && body.fbc) ? { fbc: body.fbc } : {}),
@@ -241,6 +244,7 @@ export async function POST(req: NextRequest) {
                             })(),
                             meta_data: {
                                 source: 'funnel', funnel_name: funnel.name,
+                                ...(editorialEntry ? { first_editorial_entry: editorialEntry, last_editorial_entry: editorialEntry } : {}),
                                 utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
                                 child_age: body.extra_data?.child_age || null,
                                 adset_angle: body.extra_data?.adset_angle || null,

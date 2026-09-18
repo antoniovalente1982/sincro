@@ -1,0 +1,57 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { ArrowLeft, Save, Eye, Send, X } from 'lucide-react'
+import { BLOG_TOPICS, blogCanonical, blogConsultationHref, type BlogInput, type BlogPost } from '@/lib/blog'
+import { BlogArticle } from '@/app/blog/BlogViews'
+import styles from './blog-admin.module.css'
+
+export const emptyArticle: BlogInput = { title: '', slug: '', excerpt: '', body: '', topic: 'fiducia', seoTitle: '', seoDescription: '', cover: '', coverAlt: '', status: 'draft' }
+const images = [
+    { path: '/advertorial-pochi-minuti/calciatore-17-anni.webp', label: 'Calciatore a bordo campo', alt: 'Un giovane calciatore a bordo campo. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/genitore-calciatore-17-anni.webp', label: 'Genitore e figlio', alt: 'Un genitore e un giovane calciatore. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/ritorno-al-gioco-17-anni.webp', label: 'Ritorno al gioco', alt: 'Un calciatore si propone per ricevere il pallone. Scena illustrativa generata con AI.' },
+    { path: '/advertorial-pochi-minuti/sessione-online-17-anni.webp', label: 'Sessione online', alt: 'Un giovane calciatore durante una sessione online. Scena illustrativa generata con AI.' },
+]
+
+export default function BlogEditor({ initial, onClose, onSaved, demo = false }: { initial: BlogInput | BlogPost; onClose: () => void; onSaved: (post: BlogPost) => void; demo?: boolean }) {
+    const [form, setForm] = useState(initial)
+    const [saved, setSaved] = useState(initial)
+    const [saving, setSaving] = useState(false)
+    const [preview, setPreview] = useState(false)
+    const [error, setError] = useState('')
+    const dirty = JSON.stringify(form) !== JSON.stringify(saved)
+    const existing = 'id' in form
+    useEffect(() => {
+        if (!dirty) return
+        const warn = (event: BeforeUnloadEvent) => { event.preventDefault() }
+        window.addEventListener('beforeunload', warn)
+        return () => window.removeEventListener('beforeunload', warn)
+    }, [dirty])
+    function update(key: keyof BlogInput, value: string) { setForm(current => ({ ...current, [key]: value })) }
+    function close() { if (!dirty || window.confirm('Hai modifiche non salvate. Vuoi uscire dall’articolo?')) onClose() }
+    async function save(status: BlogInput['status']) {
+        if (demo) return
+        setSaving(true); setError('')
+        try {
+            const response = await fetch('/api/blog', { method: existing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, status }) })
+            const result = await response.json()
+            if (!response.ok) throw new Error(result.error || 'Salvataggio non riuscito.')
+            setForm(result); setSaved(result); onSaved(result)
+        } catch (reason) { setError(reason instanceof Error ? reason.message : 'Connessione non disponibile. Il testo è ancora nell’editor.') }
+        finally { setSaving(false) }
+    }
+    const previewPost: BlogPost = { ...form, id: 'id' in form ? form.id : 'preview', createdAt: '', updatedAt: '', publishedAt: 'publishedAt' in form ? form.publishedAt : null }
+    return <div className={styles.editor}>
+        <div className={styles.toolbar}><button onClick={close} disabled={saving}><ArrowLeft size={17} /> Articoli</button><span>{dirty ? 'Modifiche da salvare' : existing ? 'Versione salvata' : 'Nuova bozza'}</span><div><button onClick={() => setPreview(!preview)}><Eye size={16} /> {preview ? 'Torna al testo' : 'Anteprima'}</button><button disabled={saving || demo} onClick={() => save(form.status === 'active' ? 'active' : 'draft')}><Save size={16} /> {saving ? 'Salvataggio…' : form.status === 'active' ? 'Aggiorna online' : 'Salva bozza'}</button>{form.status !== 'active' && <button className={styles.primary} disabled={saving || demo} onClick={() => save('active')}><Send size={16} /> Pubblica</button>}</div></div>
+        {demo && <p className={styles.notice}>Anteprima del gestionale: puoi provare l’editor, ma qui non vengono salvati o pubblicati contenuti.</p>}
+        {error && <p className={styles.error} role="alert">{error}</p>}
+        {preview ? <div className={styles.articlePreview}><BlogArticle post={previewPost} preview consultationHref={`https://landing.metodosincro.com${blogConsultationHref(form.slug || 'anteprima', '', true)}`} /></div> : <fieldset className={styles.editorGrid} disabled={saving}>
+            <section className={styles.writing}><span className={styles.overline}>DENTRO LA PARTITA · METODO SINCRO</span><label>Titolo dell’articolo<input className={styles.titleInput} value={form.title} maxLength={200} placeholder="La domanda da cui partire" onChange={event => update('title', event.target.value)} /></label><label>Introduzione<textarea rows={3} value={form.excerpt} maxLength={500} placeholder="La situazione del genitore e ciò che troverà nell’articolo." onChange={event => update('excerpt', event.target.value)} /></label><label>Testo dell’articolo<textarea className={styles.bodyInput} rows={22} value={form.body} maxLength={80000} placeholder="Comincia da una situazione concreta…" onChange={event => update('body', event.target.value)} /></label><p className={styles.hint}>Usa ## per i sottotitoli, **testo** per il grassetto, - per gli elenchi e [nome](https://…) per le fonti. Separa i paragrafi con una riga vuota.</p><p className={styles.hint}>{form.body.trim() ? form.body.trim().split(/\s+/).length : 0} parole · Autore pubblico: Metodo Sincro</p></section>
+            <aside className={styles.settings}><h2>Pubblicazione</h2><label>Argomento<select value={form.topic} onChange={event => update('topic', event.target.value)}>{BLOG_TOPICS.map(topic => <option key={topic.id} value={topic.id}>{topic.label}</option>)}</select></label><label>Indirizzo dell’articolo<input value={form.slug} disabled={existing} placeholder="paura-di-sbagliare-nel-calcio" maxLength={90} onChange={event => update('slug', event.target.value)} /></label><p className={styles.hint}>{existing ? 'L’indirizzo resta stabile per conservare i link.' : 'Lettere minuscole, numeri e trattini. Sarà stabile dopo il primo salvataggio.'}</p><label>Immagine principale<select value={form.cover} onChange={event => { const image = images.find(item => item.path === event.target.value); setForm(current => ({ ...current, cover: image?.path || '', coverAlt: image?.alt || '' })) }}><option value="">Senza immagine</option>{images.map(image => <option key={image.path} value={image.path}>{image.label}</option>)}</select></label>{form.cover && <label>Descrizione dell’immagine<textarea rows={3} value={form.coverAlt} maxLength={300} onChange={event => update('coverAlt', event.target.value)} /></label>}
+                <h2>Come appare su Google</h2><p className={styles.hint}>È una simulazione: Google può scegliere testi diversi. Compilare questi campi non certifica l’indicizzazione.</p><label>Titolo SEO<input value={form.seoTitle} maxLength={100} onChange={event => update('seoTitle', event.target.value)} /></label><label>Descrizione SEO<textarea rows={4} maxLength={240} value={form.seoDescription} onChange={event => update('seoDescription', event.target.value)} /></label><div className={styles.searchPreview}><small>{blogCanonical(form.slug || 'titolo-articolo')}</small><strong>{form.seoTitle || form.title || 'Titolo dell’articolo'} | Dentro la partita</strong><p>{form.seoDescription || 'La descrizione dell’articolo apparirà qui.'}</p></div>
+                {form.status === 'active' && <div className={styles.unpublish}><p>L’articolo è pubblico. Puoi ritirarlo e tornare a lavorarci come bozza.</p><button disabled={saving || demo} onClick={() => { if (window.confirm('Ritirare questo articolo? Il suo indirizzo non sarà più pubblico finché non lo ripubblichi.')) void save('draft') }}><X size={15} /> Ritira dalla pubblicazione</button></div>}
+            </aside>
+        </fieldset>}
+    </div>
+}

@@ -528,6 +528,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab }: Pro
                     name: nameToPass, email, phone,
                     page_variant: abVariant,
                     extra_data: {
+                        editorial_entry: new URLSearchParams(window.location.search).get('entry') || undefined,
                         sport: sportConfig.sportName,
                         child_age: childAge,
                         adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined,
