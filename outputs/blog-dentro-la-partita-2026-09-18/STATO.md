@@ -6,11 +6,11 @@
 
 Antonio ha scelto il template della V3 `/f/pochi-minuti/anteprima`. Il precedente archivio pubblico con grafica diversa viene sostituito: `/blog` apre direttamente un advertorial, mentre Blog resta la raccolta nel gestionale. Nuove pagine e anteprima editor condividono testata, firma, immagine, colonna autore, CTA e CSS del modello. La V3 è inclusa in questo aggiornamento. Nessuna nuova bozza viene pubblicata.
 
-Verifiche della correzione: 15 test superati, lint mirato e build isolata superati; browser 1440/390 px senza overflow; smoke produzione locale su redirect con UTM/ab, sitemap, anteprime 404 e bozza privata. Revisione indipendente statica: nessun problema materiale residuo nel perimetro verificato. Rilascio della correzione in corso.
+Verifiche della correzione: 15 test superati, lint mirato e build isolata superati; browser 1440/390 px senza overflow; smoke produzione locale su redirect con UTM/ab, sitemap, anteprime 404 e bozza privata. Revisione indipendente statica: nessun problema materiale residuo nel perimetro verificato. Correzione pubblicata su Vercel Production nel commit `c7178f19`. Verificati online redirect con UTM/ab, V3 completa, sitemap e 404 per anteprime e bozza. Titolo e sottotitolo allineati al modello scelto conservando tutte le altre impostazioni del funnel.
 
 ## Link per Antonio
 
-- [Blog pubblico — Dentro la partita](https://landing.metodosincro.com/blog)
+- [Dentro la partita — apre l’advertorial](https://landing.metodosincro.com/blog)
 - [Blog nel gestionale](https://landing.metodosincro.com/dashboard/blog) — richiede accesso al gestionale
 - [Advertorial già pubblicato](https://landing.metodosincro.com/f/pochi-minuti)
 - [Sitemap](https://landing.metodosincro.com/sitemap.xml)
@@ -18,16 +18,16 @@ Verifiche della correzione: 15 test superati, lint mirato e build isolata supera
 
 ## Cosa c’è adesso
 
-- 1 advertorial già pubblico, raccolto nell’archivio e collegato al Blog dalla testata.
+- 1 advertorial pubblico nel modello V3 approvato; la testata riporta all’inizio della stessa pagina.
 - 1 bozza privata: «Mio figlio gioca poco: come stargli vicino senza aumentare la pressione». Contiene una scaletta di lavoro, non un articolo finito; non è pubblicata.
 - 12 temi nel piano editoriale, con avvio della bozza dall’interfaccia. Le ricerche SEO indicate sono ipotesi da validare, non volumi misurati.
 - Voce Blog nel menu Marketing, elenco, ricerca e filtro; editor e anteprima; salvataggio, pubblicazione e ritiro; campi SEO, argomento e immagine.
-- Archivio e pagine articolo con HTML sul server, canonical, Open Graph e dati strutturati; sitemap e robots.
+- Pagine advertorial con HTML sul server, canonical, Open Graph e dati strutturati; sitemap e robots.
 - Provenienza editoriale conservata nei dati della richiesta/CRM, insieme ai parametri di campagna ammessi.
 
 ## Rilascio e verifiche
 
-Codice rilasciato su main nel commit `a28838ef`; deploy Vercel Production completato. La revisione V3 dell’advertorial e le modifiche alle impostazioni già in lavorazione restano nel progetto locale.
+Attivazione iniziale nel commit `a28838ef`. La V3 è stata successivamente rilasciata nella correzione descritta sopra. La modifica preesistente alle impostazioni resta nel progetto locale.
 
 Migrazione `20260918_blog_posts.sql` applicata al progetto Supabase Adpilotik (`bktiuhxenxwhkgvdaxnp`) e registrata nello storico. Tabella dedicata con RLS, distinta dai funnel: anon non può leggerla, un closer non può leggere/scrivere gli articoli, scritture per organizzazione diversa rifiutate. Creazione bozza → pubblicazione → ritiro verificati in transazione SQL, annullata con rollback senza contenuti di test pubblici.
 

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-18T13:38:42.252918+00:00",
+  "title": "Design System: Dentro la partita",
+  "extensions": {
+    "visualAuthority": {
+      "reference": "/f/pochi-minuti/anteprima",
+      "selectedAt": "2026-09-18",
+      "supersedes": "Precedente Blog con accento rosso, testata serif e homepage di rivista.",
+      "publicMode": "Persuade",
+      "dashboardMode": "Operate",
+      "primitiveTokens": "DESIGN.md frontmatter"
+    },
+    "sources": [
+      "app/f/pochi-minuti/advertorial.module.css",
+      "components/advertorial/AdvertorialFrame.tsx",
+      "app/blog/BlogViews.tsx",
+      "app/(dashboard)/dashboard/blog/blog-admin.module.css"
+    ],
+    "typographyMeta": {
+      "masthead": {
+        "displayName": "Barlow Condensed Bold",
+        "purpose": "Alias Sincro Editorial: testata e nome autore laterale."
+      },
+      "article-title": {
+        "displayName": "Source Serif 4",
+        "purpose": "Alias Sincro News: titoli."
+      },
+      "article-body": {
+        "displayName": "Georgia",
+        "purpose": "Corpo di lettura lungo."
+      }
+    },
+    "layout": {
+      "advertorial": {
+        "maxWidth": "1120px",
+        "columns": "minmax(0, 760px) 240px",
+        "gap": "72px",
+        "padding": "38px 0 76px"
+      },
+      "advertorialCompact": {
+        "columns": "minmax(0, 1fr) 210px",
+        "gap": "44px",
+        "outerMargin": "32px"
+      },
+      "advertorialSingleColumn": {
+        "maxWidth": "740px",
+        "inlinePadding": "24px",
+        "aside": "hidden"
+      },
+      "advertorialMobile": {
+        "padding": "25px 20px 44px",
+        "titleSize": "clamp(30px, 8.2vw, 39px)",
+        "bodySize": "18px"
+      },
+      "dashboard": {
+        "maxWidth": "1450px",
+        "columns": "minmax(0, 1fr) 310px",
+        "gap": "45px"
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "advertorial-cta",
+        "value": "background-color .18s ease",
+        "purpose": "Hover CTA; disattivata con prefers-reduced-motion: reduce."
+      }
+    ],
+    "focus": {
+      "advertorialLink": {
+        "outline": "3px solid #92501f",
+        "outlineOffset": "5px"
+      },
+      "dashboardControl": {
+        "outline": "3px solid #a23a29",
+        "outlineOffset": "3px"
+      }
+    },
+    "breakpoints": [
+      {
+        "name": "advertorial-compact",
+        "value": "1220px",
+        "query": "max-width"
+      },
+      {
+        "name": "advertorial-single-column",
+        "value": "900px",
+        "query": "max-width"
+      },
+      {
+        "name": "advertorial-mobile",
+        "value": "600px",
+        "query": "max-width"
+      },
+      {
+        "name": "dashboard-compact",
+        "value": "1100px",
+        "query": "max-width"
+      },
+      {
+        "name": "dashboard-mobile",
+        "value": "720px",
+        "query": "max-width"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Consulenza gratuita",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "CTA condivisa della V3 e degli advertorial gestiti dal Blog.",
+      "html": "<a class=\"ds-cta\" href=\"#consulenza\">Richiedi una consulenza gratuita<svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14m-7-7 7 7-7 7\"/></svg></a>",
+      "css": ".ds-cta{display:inline-flex;align-items:center;justify-content:center;gap:15px;min-height:56px;padding:16px 24px;background:#254432;color:#fff;font:700 16px/1.4 Arial,sans-serif;border-radius:3px;text-decoration:none;transition:background-color .18s ease}.ds-cta svg{flex-shrink:0}.ds-cta:hover{background:#163222}.ds-cta:focus-visible{outline:3px solid #92501f;outline-offset:5px}@media(max-width:600px){.ds-cta{padding:16px;font-size:15px}}@media(prefers-reduced-motion:reduce){.ds-cta{transition:none}}"
+    },
+    {
+      "name": "Testata Dentro la partita",
+      "kind": "nav",
+      "description": "Testata Barlow Condensed del modello V3.",
+      "html": "<a class=\"ds-masthead\" href=\"#inizio\">Dentro la partita<span>Calcio, mente e crescita</span></a>",
+      "css": "@font-face{font-family:'DS Editorial';src:url('/fonts/barlow-condensed-bold.ttf') format('truetype');font-weight:700;font-display:swap}.ds-masthead{display:block;color:#20231f;text-decoration:none;font:700 48px/1 'DS Editorial',sans-serif;letter-spacing:-.02em}.ds-masthead span{display:block;margin-top:8px;font:12px/1.4 Arial,sans-serif;letter-spacing:.04em}.ds-masthead:focus-visible{outline:3px solid #92501f;outline-offset:5px}@media(max-width:600px){.ds-masthead{font-size:36px}.ds-masthead span{font-size:10px;margin-top:5px}}"
+    },
+    {
+      "name": "Disclosure advertorial",
+      "kind": "custom",
+      "refersTo": "disclosure",
+      "description": "Fascia pubblicitaria, sostituita dall’avviso di anteprima quando necessario.",
+      "html": "<div class=\"ds-disclosure\">Contenuto pubblicitario a cura di Metodo Sincro®</div>",
+      "css": ".ds-disclosure{padding:7px 20px;text-align:center;background:#eff0eb;color:#4e554c;font:11px/1.6 Arial,Helvetica,sans-serif}@media(max-width:600px){.ds-disclosure{font-size:10px}}"
+    },
+    {
+      "name": "Citazione editoriale",
+      "kind": "custom",
+      "description": "Source Serif, accento marrone e righe orizzontali.",
+      "html": "<blockquote class=\"ds-quote\">Un lavoro individuale su attenzione, pressione e risposta all’errore.</blockquote>",
+      "css": "@font-face{font-family:'DS News';src:url('/fonts/source-serif-4.woff2') format('woff2');font-weight:400 700;font-display:swap}.ds-quote{font:600 30px/1.35 'DS News',Georgia,serif;color:#77421b;margin:30px 0;padding:26px 0;border-top:1px solid #d9dbd4;border-bottom:1px solid #d9dbd4}@media(max-width:600px){.ds-quote{font-size:27px}}"
+    },
+    {
+      "name": "Campo editor gestionale",
+      "kind": "input",
+      "description": "Controllo Operate del gestionale.",
+      "html": "<label class=\"ds-editor-label\">Titolo<input class=\"ds-editor-input\" type=\"text\" placeholder=\"Titolo dell’advertorial\"></label>",
+      "css": ".ds-editor-label{display:block;margin:20px 0 0;color:var(--text-primary,#202326);font:550 12px/1.5 var(--font-sans,Inter,system-ui,sans-serif)}.ds-editor-input{display:block;width:100%;margin-top:8px;padding:11px 12px;border:1px solid var(--border-color,#d8dce0);border-radius:6px;background:var(--bg-card,#fff);color:var(--text-primary,#202326);font:13px/1.5 var(--font-sans,Inter,system-ui,sans-serif)}.ds-editor-input:focus-visible{outline:3px solid #a23a29;outline-offset:3px}.ds-editor-input:disabled{opacity:.65}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Il modello advertorial V3 di Dentro la partita",
+    "overview": "Il 18 settembre 2026 Antonio ha scelto come riferimento visuale `/f/pochi-minuti/anteprima`. Questa decisione **supera la precedente direzione grafica del Blog**, con accento rosso, testata serif e homepage di rivista. Tutte le pagine advertorial condividono il modello V3: carta quasi bianca, testata condensata, titoli Source Serif, corpo Georgia, righe sottili e azioni verdi. Il riferimento è un'implementazione esistente, da riusare senza reinterpretazioni.\n\nLa superficie pubblica è **Persuade**, con lettura lunga e progressione verso la consulenza. Il Blog nel gestionale è **Operate**: raccolta, editor, stati e azioni mantengono le convenzioni dell'app. Il collegamento pubblico `/blog` apre direttamente un advertorial; non è una homepage editoriale. La cornice dichiara firma Metodo Sincro e natura pubblicitaria.",
+    "keyCharacteristics": [
+      "Un'unica cornice advertorial condivisa tra V3 e contenuti gestiti dal Blog.",
+      "Gerarchia distinta tra testata, titoli, lettura e informazioni di servizio.",
+      "Impaginazione piatta, fotografie nel flusso e autore laterale su desktop.",
+      "CTA verdi, firma e trasparenza commerciale visibili anche su mobile."
+    ],
+    "rules": [],
+    "dos": [
+      "Do riusare cornice, font e CSS della V3 scelta il 18 settembre 2026 per tutte le pagine advertorial.",
+      "Do mantenere Barlow Condensed per la testata, Source Serif per i titoli e Georgia per il corpo.",
+      "Do conservare firma Metodo Sincro, disclosure e distinzione tra consulenza gratuita e percorso a pagamento.",
+      "Do mantenere lo stesso template nelle anteprime, con stato di anteprima esplicito.",
+      "Do distinguere Persuade nell'advertorial e Operate nella raccolta gestionale."
+    ],
+    "donts": [
+      "Don't ripristinare accento rosso, testata serif e homepage di rivista del precedente Blog: la scelta di Antonio li supera.",
+      "Don't creare un secondo sistema di stili per gli advertorial gestiti dal Blog.",
+      "Don't trasferire carte, ombre, gradienti o densità del gestionale alle pagine di lettura.",
+      "Don't presentare bozze, anteprime o simulazioni SEO come pubblicazioni o risultati Google verificati."
+    ]
+  }
+}
