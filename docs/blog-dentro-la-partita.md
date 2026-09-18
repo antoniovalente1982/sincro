@@ -34,3 +34,7 @@ Prima del rilascio verificare migrazione/RLS con ruolo anonimo, ruolo non autori
 Test locali: `npx tsx --test lib/blog.test.ts lib/advertorial.test.ts`; ESLint mirato alle nuove superfici; `npm run build`. Verificare 404 delle anteprime in produzione. Dati e problemi conosciuti del database remoto non possono essere dedotti dalla sola build.
 
 Strategia e raccomandazione dominio: `outputs/blog-dentro-la-partita-2026-09-18/STRATEGIA.md`.
+
+## Attivazione 18 settembre 2026
+
+Rilascio produzione completato (`a28838ef`). Blog pubblico e gestionale verificati online; bozza creata e aggiornata dall’editor con sessione autenticata e controllata nel database. Bozza esclusa da archivio/sitemap e URL pubblico 404. RLS e passaggi bozza/pubblicazione/ritiro verificati con SQL transazionale e rollback. Dettagli e link: `outputs/blog-dentro-la-partita-2026-09-18/STATO.md`.
