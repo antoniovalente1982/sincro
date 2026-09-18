@@ -35,10 +35,8 @@
 .skipLink:focus { transform: translateY(0); }
 .disclosure { padding: 7px 20px; text-align: center; background: #eff0eb; color: #4e554c; font-size: 11px; }
 .header { max-width: 1120px; margin: 0 auto; padding: 23px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 3px solid var(--ink); }
-.masthead { display: inline-flex; align-items: center; gap: 8px; min-width: 0; text-decoration: none; }
-.mastheadSymbol { display: block; width: 92px; height: 92px; flex: 0 0 auto; }
-.mastheadWordmark { display: block; font: 700 48px/1 'Sincro Editorial', sans-serif; letter-spacing: -.02em; white-space: nowrap; }
-.mastheadTagline { display: block; margin-top: 8px; font: 12px/1.4 Arial, sans-serif; letter-spacing: .04em; }
+.masthead { display: block; width: 480px; max-width: 100%; min-width: 0; text-decoration: none; }
+.mastheadLogo { display: block; width: 100%; height: auto; }
 .publisher { text-align: right; font-size: 12px; line-height: 1.6; margin: 0; color: var(--muted); }
 .publisher strong { color: var(--ink); font-size: 15px; }
 .edition { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding: 9px 0; font-size: 11px; color: var(--muted); }
@@ -118,10 +116,7 @@
 @media (max-width: 600px) {
     .header, .edition, .footer { margin-left: 20px; margin-right: 20px; }
     .header { padding: 18px 0 15px; gap: 12px; flex-wrap: wrap; }
-    .masthead { gap: 4px; }
-    .mastheadSymbol { width: 60px; height: 60px; }
-    .mastheadWordmark { font-size: 36px; }
-    .mastheadTagline { font-size: 10px; margin-top: 5px; }
+    .masthead { width: 100%; max-width: 480px; }
     .publisher { width: 100%; font-size: 10px; line-height: 1.4; }
     .publisher br { display: none; }
     .publisher strong { font-size: 11px; margin-left: 4px; }
