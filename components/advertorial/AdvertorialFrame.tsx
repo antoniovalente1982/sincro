@@ -35,7 +35,10 @@ export default function AdvertorialFrame({ children, date, preview = false, home
         <a className={styles.skipLink} href="#articolo">Vai all’articolo</a>
         <div className={styles.disclosure}>{preview ? 'Anteprima · Advertorial non pubblicato · ' : 'Contenuto pubblicitario '}a cura di Metodo Sincro®</div>
         <header className={styles.header} id="inizio">
-            <a className={styles.masthead} href={homeHref}>Dentro la partita<span>Calcio, mente e crescita</span></a>
+            <a className={styles.masthead} href={homeHref}>
+                <Image className={styles.mastheadSymbol} src="/images/brand/dentro-la-partita-symbol.webp" alt="" width={92} height={92} sizes="(max-width: 600px) 60px, 92px" priority />
+                <span className={styles.mastheadWordmark}>Dentro la partita<span className={styles.mastheadTagline}>Calcio, mente e crescita</span></span>
+            </a>
             <p className={styles.publisher}>Gli approfondimenti di<br /><strong>Metodo Sincro®</strong></p>
         </header>
         <div className={styles.edition}><span>Calcio giovanile · Atleti e famiglie</span><span>{date}</span></div>
