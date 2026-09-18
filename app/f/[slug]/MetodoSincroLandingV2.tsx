@@ -1106,7 +1106,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                         <p className="lp-section-pre">{parentMessaging ? 'UN METODO, LIVELLI DIVERSI' : 'LA PROVA'}</p>
                         <h2>{parentMessaging ? 'Dalla squadra provinciale ai professionisti.' : <>Lo stesso metodo usato da {sportConfig.athletesProof}</>}</h2>
                         <p className="lp-social-sub">{parentMessaging ? 'Tuo figlio o tua figlia non deve essere un talento selezionato, avere un contratto o puntare alla Serie A. L’esperienza con i professionisti fa parte del lavoro del team; gli obiettivi del percorso si definiscono sulla persona, sull’età e sulla situazione che vive.' : 'Non è teoria: questi professionisti hanno scelto Metodo Sincro® per la loro preparazione mentale. Lo stesso metodo, con gli stessi coach, lo portiamo nel settore giovanile.'}</p>
-                        {parentMessaging && <button type="button" className="lp-professional-toggle" aria-expanded={showProfessionalExamples} aria-controls="professional-examples" onClick={() => setShowProfessionalExamples(value => !value)}>{showProfessionalExamples ? 'Chiudi gli esempi' : 'Scopri anche il lavoro con i professionisti'} <ChevronDown size={18} /></button>}
+                        {parentMessaging && <button type="button" className="lp-professional-toggle" aria-expanded={showProfessionalExamples} aria-controls="professional-examples" onClick={() => setShowProfessionalExamples(value => !value)}>
+                            <Trophy size={28} aria-hidden="true" />
+                            <span><strong>{showProfessionalExamples ? 'Chiudi la galleria dei professionisti' : 'Scopri i professionisti che seguiamo'}</strong><small>Calciatori e calciatrici di Serie A e Nazionale</small></span>
+                            <ChevronDown className="lp-professional-chevron" size={24} aria-hidden="true" />
+                        </button>}
                         <div className="lp-players" id="professional-examples" style={parentMessaging && !showProfessionalExamples ? { display: 'none' } : undefined}>
                             {FAMOUS_PLAYERS.map((p, i) => (
                                 <figure key={p.name} className="lp-player lp-rv" style={{ '--d': `${i * 45}ms` } as CSSProperties}>

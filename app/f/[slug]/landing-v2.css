@@ -1620,5 +1620,16 @@ button.lp-pain-card:focus-visible { outline: 2px solid #facc15; outline-offset: 
 .lp-editorial-image { margin: 0 0 22px; }
 .lp-editorial-image img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 18px; }
 .lp-editorial-image figcaption { margin-top: 9px; font-size: 11px; line-height: 1.5; color: #a1a1aa; }
-.lp-professional-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 9px; margin: 12px 0 28px; min-height: 44px; padding: 12px 18px; border: 1px solid rgba(250,204,21,.35); border-radius: 8px; background: transparent; color: #facc15; font: inherit; cursor: pointer; }
-.lp-professional-toggle:focus-visible { outline: 2px solid #facc15; outline-offset: 4px; }
+.lp-professional-toggle { display: flex; align-items: center; justify-content: center; gap: 16px; width: min(100%, 580px); margin: 18px auto 32px; min-height: 88px; padding: 20px 24px; border: 2px solid #fde047; border-radius: 12px; background: #facc15; color: #171b12; box-shadow: 0 8px 28px rgba(250,204,21,.18); font: inherit; text-align: left; cursor: pointer; }
+.lp-professional-toggle:hover { background: #fde047; box-shadow: 0 10px 32px rgba(250,204,21,.27); }
+.lp-professional-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+.lp-professional-toggle > svg { flex: 0 0 auto; }
+.lp-professional-toggle > span { flex: 1; min-width: 0; }
+.lp-professional-toggle strong { display: block; font-size: 19px; font-weight: 800; line-height: 1.3; }
+.lp-professional-toggle small { display: block; margin-top: 5px; font-size: 13px; line-height: 1.4; }
+.lp-professional-toggle[aria-expanded="true"] .lp-professional-chevron { transform: rotate(180deg); }
+@media (max-width: 600px) {
+    .lp-professional-toggle { gap: 12px; padding: 18px 16px; }
+    .lp-professional-toggle strong { font-size: 17px; }
+    .lp-professional-toggle small { font-size: 12px; }
+}
