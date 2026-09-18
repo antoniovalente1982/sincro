@@ -4,6 +4,8 @@ import { notFound, redirect } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
 import MetodoSincroLanding, { type AbAssignment } from './MetodoSincroLandingV2'
 import categoryCopy from '@/lib/salto-categoria-copy.json'
+import { getEditorialLanding } from '@/lib/editorial-landing-server'
+import { BLOG_ORIGIN } from '@/lib/blog'
 
 // Slugs that redirect to dedicated landing pages
 const SLUG_REDIRECTS: Record<string, string> = {
@@ -66,7 +68,7 @@ export default async function PublicFunnelPage({ params, searchParams }: Props) 
 
     const { data: funnel } = await getSupabaseAdmin()
         .from('funnels')
-        .select('id, name, description, status, meta_pixel_id, objective, settings, organizations!funnels_organization_id_fkey(name, logo_url)')
+        .select('id, organization_id, name, description, status, meta_pixel_id, objective, settings, organizations!funnels_organization_id_fkey(name, logo_url)')
         .eq('slug', slug)
         .eq('status', 'active')
         .single()
@@ -80,25 +82,39 @@ export default async function PublicFunnelPage({ params, searchParams }: Props) 
             .from('funnel_routing_engine')
             .select('*')
 
-        const ab = await resolveAbVariant(funnel.id, funnel.settings, (await searchParams).ab)
+        const query = await searchParams
+        const [ab, editorialLanding] = await Promise.all([
+            resolveAbVariant(funnel.id, funnel.settings, query.ab),
+            getEditorialLanding(slug, query.entry, funnel.organization_id),
+        ])
 
-        return <MetodoSincroLanding funnel={funnel} routingAngles={routingAngles || []} ab={ab} />
+        return <MetodoSincroLanding funnel={funnel} routingAngles={routingAngles || []} ab={ab} editorialLanding={editorialLanding} />
     }
 
     return <FunnelLandingPage funnel={funnel} />
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params, searchParams }: Props) {
     const { slug } = await params
     const { data: funnel } = await getSupabaseAdmin()
         .from('funnels')
-        .select('name, description, settings')
+        .select('name, description, settings, organization_id, status')
         .eq('slug', slug)
         .single()
 
     const template = funnel?.settings?.template
 
     if (template === 'metodo_sincro') {
+        const editorial = funnel?.status === 'active' ? await getEditorialLanding(slug, (await searchParams).entry, funnel.organization_id) : null
+        if (editorial) {
+            const canonical = `${BLOG_ORIGIN.replace(/\/$/, '')}/f/${slug}`
+            return {
+                title: `${editorial.headline} | Metodo Sincro®`,
+                description: editorial.intro,
+                alternates: { canonical },
+                openGraph: { title: editorial.headline, description: editorial.intro, url: canonical, type: 'website' },
+            }
+        }
         if (funnel?.settings?.messaging_theme === categoryCopy.theme) {
             return {
                 title: `${categoryCopy.headline} | Metodo Sincro®`,

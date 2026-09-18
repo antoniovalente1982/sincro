@@ -46,6 +46,10 @@ async function save(req: NextRequest, editing: boolean) {
     }
     const now = new Date().toISOString()
     const data = parsed.data
+    // Older editor sessions do not send landing fields. Preserve saved choices.
+    for (const field of ['landingTheme', 'landingTitle', 'landingIntro'] as const) {
+        if (existing && !Object.prototype.hasOwnProperty.call(body, field)) data[field] = existing.settings.blog?.[field] || ''
+    }
     const record = {
         name: data.title, slug: data.slug, description: data.excerpt, status: data.status, updated_at: now,
         settings: { ...(existing?.settings || {}), template: BLOG_TEMPLATE, blog: { ...data, publishedAt: existing?.settings.blog?.publishedAt || (data.status === 'active' ? now : null) } },

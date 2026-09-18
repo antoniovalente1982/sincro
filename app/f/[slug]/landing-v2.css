@@ -1611,3 +1611,14 @@ button.lp-pain-card:focus-visible { outline: 2px solid #facc15; outline-offset: 
     vertical-align: 0.1em;
     margin-left: 0.1em;
 }
+
+/* Continuità tra advertorial e primo confronto con il genitore. */
+.lp-parent-fit { display: flex; align-items: flex-start; gap: 10px; margin: 20px 0; padding: 16px 18px; border-left: 3px solid #22c55e; background: rgba(34,197,94,.07); color: #d4d4d8; font-size: 15px; line-height: 1.6; }
+.lp-parent-fit svg { flex: 0 0 auto; margin-top: 4px; color: #22c55e; }
+.lp-parent-fit strong { color: #fff; }
+.lp-form-fit { margin: 12px 0 20px; padding: 12px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 13px; line-height: 1.5; }
+.lp-editorial-image { margin: 0 0 22px; }
+.lp-editorial-image img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 18px; }
+.lp-editorial-image figcaption { margin-top: 9px; font-size: 11px; line-height: 1.5; color: #a1a1aa; }
+.lp-professional-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 9px; margin: 12px 0 28px; min-height: 44px; padding: 12px 18px; border: 1px solid rgba(250,204,21,.35); border-radius: 8px; background: transparent; color: #facc15; font: inherit; cursor: pointer; }
+.lp-professional-toggle:focus-visible { outline: 2px solid #facc15; outline-offset: 4px; }

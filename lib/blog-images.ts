@@ -1,4 +1,5 @@
 export const BLOG_IMAGES = [
+    { path: '/images/blog/storie/calciatrice-fiducia-calcio-femminile-01.webp', label: 'Fiducia nel calcio femminile · storia', alt: 'Emma, giovane calciatrice in maglia verde, si prepara a bordo di un campo dilettantistico. Personaggio e scena illustrativi generati con AI.' },
     { path: '/images/blog/storie/incoraggiare-figlio-calcio-01.webp', label: 'Incoraggiare un figlio · storia', alt: 'Un ragazzo dai capelli biondi, in maglia verde, parla con il padre accanto alla recinzione del campo dopo l’allenamento. Scena illustrativa generata con AI.' },
     { path: '/images/blog/storie/salto-di-categoria-fiducia-01.webp', label: 'Il salto di categoria · storia', alt: 'Un ragazzo dai capelli rossi e con lentiggini arriva al nuovo campo con il borsone e osserva i compagni che si scaldano. Scena illustrativa generata con AI.' },
     { path: '/images/blog/storie/cosa-dire-dopo-brutta-partita-01.webp', label: 'Dopo una brutta partita · storia', alt: 'Un ragazzo dai capelli neri molto corti, in tuta rossa, siede accanto al padre in un’auto parcheggiata dopo la partita. Scena illustrativa generata con AI.' },

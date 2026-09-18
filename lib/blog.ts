@@ -1,3 +1,5 @@
+import { isEditorialTheme } from './editorial-landing-themes'
+
 export const BLOG_NAME = 'Dentro la partita'
 export const BLOG_DEFAULT_COVER = '/advertorial-pochi-minuti/calciatore-17-anni.webp'
 export const BLOG_DEFAULT_COVER_ALT = 'Un calciatore a bordo campo. Scena illustrativa generata con AI.'
@@ -10,11 +12,13 @@ export const BLOG_TOPICS = [
     { id: 'genitori', label: 'Essere genitori a bordo campo' },
     { id: 'pressione', label: 'Pressione e partita' },
     { id: 'ripartenza', label: 'Motivazione e ripartenza' },
+    { id: 'femminile', label: 'Calcio femminile' },
 ] as const
 
 export interface BlogInput {
     title: string; slug: string; excerpt: string; body: string; topic: string
     seoTitle: string; seoDescription: string; cover: string; coverAlt: string
+    landingTheme?: string; landingTitle?: string; landingIntro?: string
     status: 'draft' | 'active' | 'archived'
 }
 export interface BlogPost extends BlogInput {
@@ -103,6 +107,12 @@ export function validateBlogInput(value: unknown): { ok: true; data: BlogInput }
         if (typeof source[field] !== 'string') return { ok: false, error: `Campo mancante: ${field}.` }
         data[field] = source[field].trim()
     }
+    for (const field of ['landingTheme', 'landingTitle', 'landingIntro'] as const) {
+        if (source[field] !== undefined && typeof source[field] !== 'string') return { ok: false, error: 'Testi della landing non validi.' }
+        data[field] = typeof source[field] === 'string' ? source[field].trim() : ''
+    }
+    if (data.landingTheme && !isEditorialTheme(data.landingTheme)) return { ok: false, error: 'Scegli un tema valido per la landing.' }
+    if (data.landingTitle!.length > 200 || data.landingIntro!.length > 500) return { ok: false, error: 'Titolo landing: massimo 200 caratteri. Introduzione: massimo 500.' }
     if (!['draft', 'active', 'archived'].includes(String(source.status))) return { ok: false, error: 'Stato non valido.' }
     data.status = source.status as BlogInput['status']
     if (!data.title || data.title.length > 200) return { ok: false, error: 'Inserisci un titolo entro 200 caratteri.' }

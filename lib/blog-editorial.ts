@@ -1,5 +1,13 @@
 export const EDITORIAL_PLAN = [
     {
+        "topic": "femminile",
+        "title": "Tua figlia ama il calcio. Ma in partita sembra dover dimostrare di meritarsi il campo.",
+        "query": "figlia calcio femminile poca fiducia in partita",
+        "angle": "Sostenere una giovane calciatrice dopo un errore e prendere sul serio il suo sport anche nel dilettantismo.",
+        "slug": "calciatrice-fiducia-calcio-femminile",
+        "evidence": "Storia e immagini illustrative; fonti FIGC Play Days e UEFA sugli ambienti accoglienti, senza attribuire risultati al coaching."
+    },
+    {
         "topic": "fiducia",
         "title": "«In allenamento è un altro». Perché tuo figlio si blocca proprio quando vuole farsi vedere.",
         "query": "mio figlio in partita si blocca",
