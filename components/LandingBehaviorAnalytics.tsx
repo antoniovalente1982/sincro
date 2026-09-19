@@ -3,15 +3,30 @@
 import { useEffect, useRef, useState } from 'react'
 import { clarityProjectId, readAnalyticsConsent, startLandingAnalytics, stopLandingAnalytics, trackLandingEvent, type AnalyticsConsent, type LandingEvent } from '@/lib/landing-behavior'
 import './landing-behavior.css'
+import { journeyConsent } from '@/lib/editorial-tracking-client'
 
 /** Opt-in recorder, mounted only on the configured parent-facing funnel. */
-export default function LandingBehaviorAnalytics({ projectId, preview = false }: { projectId: unknown; preview?: boolean }) {
+export default function LandingBehaviorAnalytics({ projectId, preview = false, respectJourneyConsent = false }: { projectId: unknown; preview?: boolean; respectJourneyConsent?: boolean }) {
     const project = clarityProjectId(projectId)
     const storageKey = `ms_clarity_consent_v1_${project}`
     const [consent, setConsent] = useState<AnalyticsConsent | null>(null)
     const [ready, setReady] = useState(false)
     const [open, setOpen] = useState(false)
+    const [journeyAllowed, setJourneyAllowed] = useState(!respectJourneyConsent)
     const seen = useRef(new Set<LandingEvent>())
+
+    useEffect(() => {
+        if (!respectJourneyConsent) return
+        const sync = () => {
+            const allowed = !!journeyConsent()?.analytics
+            if (!allowed) stopLandingAnalytics(true)
+            setJourneyAllowed(allowed)
+        }
+        sync()
+        window.addEventListener('sincro:tracking-consent', sync)
+        window.addEventListener('storage', sync)
+        return () => { window.removeEventListener('sincro:tracking-consent', sync); window.removeEventListener('storage', sync) }
+    }, [respectJourneyConsent])
 
     useEffect(() => {
         if (!project || preview) return
@@ -34,7 +49,7 @@ export default function LandingBehaviorAnalytics({ projectId, preview = false }:
     }, [project, preview, storageKey])
 
     useEffect(() => {
-        if (!ready || !project || !startLandingAnalytics(project, consent, preview)) return
+        if (!ready || !project || !journeyAllowed || !startLandingAnalytics(project, consent, preview)) return
         const once = (event: LandingEvent) => {
             if (seen.current.has(event)) return
             seen.current.add(event)
@@ -70,7 +85,7 @@ export default function LandingBehaviorAnalytics({ projectId, preview = false }:
             document.removeEventListener('focusin', focus)
             stopLandingAnalytics()
         }
-    }, [ready, project, consent, preview])
+    }, [ready, project, consent, preview, journeyAllowed])
 
     const choose = (choice: AnalyticsConsent) => {
         if (choice === 'denied') stopLandingAnalytics(true)
@@ -79,7 +94,7 @@ export default function LandingBehaviorAnalytics({ projectId, preview = false }:
         setOpen(false)
     }
 
-    if (!project || preview || !ready) return null
+    if (!project || preview || !ready || !journeyAllowed) return null
     return <>
         {open && <section className="ms-analytics-choice" aria-label="Preferenze analisi delle visite">
             <strong>Ci aiuti a migliorare questa pagina?</strong>

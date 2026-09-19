@@ -67,7 +67,7 @@ export function blogNavigationHref(path: string, search: string): string {
         const value = incoming.get(key)
         if (value) params.set(key, value.slice(0, 500))
     }
-    if (incoming.get('ab') === 'A') params.set('ab', 'A')
+    if (['A', 'B'].includes(incoming.get('ab') || '')) params.set('ab', incoming.get('ab')!)
     return `${path}${params.size ? `?${params}` : ''}`
 }
 export function blogEntryHref(posts: BlogPost[], legacy: LegacyArticle[], search = ''): string | null {

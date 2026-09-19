@@ -6,6 +6,7 @@ import MetodoSincroLanding, { type AbAssignment } from './MetodoSincroLandingV2'
 import categoryCopy from '@/lib/salto-categoria-copy.json'
 import { getEditorialLanding } from '@/lib/editorial-landing-server'
 import { BLOG_ORIGIN } from '@/lib/blog'
+import { getEditorialPixel } from '@/lib/editorial-tracking-server'
 
 // Slugs that redirect to dedicated landing pages
 const SLUG_REDIRECTS: Record<string, string> = {
@@ -78,6 +79,7 @@ export default async function PublicFunnelPage({ params, searchParams }: Props) 
     // Use dedicated template if specified in settings
     const template = funnel.settings?.template
     if (template === 'metodo_sincro') {
+        funnel.meta_pixel_id = await getEditorialPixel(funnel.organization_id, funnel.meta_pixel_id)
         const { data: routingAngles } = await getSupabaseAdmin()
             .from('funnel_routing_engine')
             .select('*')

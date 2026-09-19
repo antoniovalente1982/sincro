@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { canMoveLead, isCrmReadOnly, shouldFilterOwnLeads, canDeleteLead, canEditSetterFields, type Role, type Department } from '@/lib/permissions'
 import { linkWhatsApp } from '@/lib/whatsapp'
 import HowItWorks from '@/components/HowItWorks'
+import LeadEditorialJourney from '@/components/LeadEditorialJourney'
 import FastBookModal from './FastBookModal'
 import { createClient } from '@/lib/supabase/client'
 
@@ -2155,6 +2156,8 @@ function LeadDetail({ lead, stages, members, activities, loadingActivities, traf
                         </div>
                     </div>
                 )}
+
+                <LeadEditorialJourney key={lead.id} leadId={lead.id} />
 
                 {/* Notes */}
                 {lead.notes && (

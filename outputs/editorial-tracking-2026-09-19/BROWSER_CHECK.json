@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-19T08:17:36.058Z",
+  "origin": "http://localhost:3011",
+  "results": [
+    {
+      "check": "article -> personalized landing -> mocked form + failed-response retry, same visitor and event IDs",
+      "pass": true
+    },
+    {
+      "check": "denied at 320px including consent persistence",
+      "pass": true
+    },
+    {
+      "check": "analytics at 320px including consent persistence",
+      "pass": true
+    },
+    {
+      "check": "preview at 320px including consent persistence",
+      "pass": true
+    },
+    {
+      "check": "blog preview B stays preview through landing CTA",
+      "pass": true
+    },
+    {
+      "check": "Clarity stops on global withdrawal; regrant and cross-tab identity reset keep valid pageviews",
+      "pass": true
+    }
+  ]
+}

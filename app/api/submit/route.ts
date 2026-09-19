@@ -1,5 +1,7 @@
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { blogEntry } from '@/lib/blog'
+import { TRACKING_COOKIE, readTrackingConsent, normalizePageUrl } from '@/lib/editorial-tracking'
+import { resolveSubmissionJourney, saveEditorialSubmission, getEditorialPixel } from '@/lib/editorial-tracking-server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
         const { funnel_id, name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term, extra_data, page_variant, event_id, tag } = body
-        const editorialEntry = blogEntry(extra_data?.editorial_entry)
+        let editorialEntry = blogEntry(extra_data?.editorial_entry)
 
         if (!funnel_id || !name) {
             return NextResponse.json({ error: 'Name and funnel_id are required' }, { headers: CORS_HEADERS, status: 400 })
@@ -75,6 +77,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Funnel is not active' }, { headers: CORS_HEADERS, status: 400 })
         }
 
+        const managedJourney = funnel.settings?.template === 'metodo_sincro'
+        let consent = null
+        try { consent = readTrackingConsent(decodeURIComponent(req.cookies.get(TRACKING_COOKIE)?.value || '')) } catch { /* denied */ }
+        const journey = managedJourney ? await resolveSubmissionJourney(funnel.organization_id, body, consent) : null
+        const journeyPixelId = managedJourney ? await getEditorialPixel(funnel.organization_id, funnel.meta_pixel_id) : null
+        if (journey?.preview) return NextResponse.json({ error: 'Questa è un’anteprima: la richiesta non viene inviata.' }, { headers: CORS_HEADERS, status: 400 })
+        if (journey) editorialEntry = journey.entry
+        const sourceUrl = journey ? journey.url : normalizePageUrl(body.landing_url) || (typeof body.landing_url === 'string' ? (/^https?:\/\//.test(body.landing_url) ? body.landing_url : `https://${body.landing_url}`) : null)
+        const submissionEventId = managedJourney && typeof event_id === 'string' && /^[a-zA-Z0-9_-]{8,100}$/.test(event_id) ? event_id : null
+
         // Create submission
         const { data: submission, error: subError } = await getSupabaseAdmin()
             .from('funnel_submissions')
@@ -89,7 +101,8 @@ export async function POST(req: NextRequest) {
                 utm_campaign: utm_campaign || null,
                 utm_content: utm_content || null,
                 utm_term: utm_term || null,
-                extra_data: { ...(extra_data || {}), editorial_entry: editorialEntry },
+                extra_data: { ...(extra_data || {}), editorial_entry: editorialEntry,
+                    ...(journey ? { editorial_event_id: submissionEventId, editorial_visitor_id: journey.visitorId, editorial_session_id: journey.sessionId, editorial_attribution: journey.attribution, tracking_consent: consent } : {}) },
                 page_variant: page_variant || 'A',
                 ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null,
                 user_agent: req.headers.get('user-agent') || null,
@@ -97,8 +110,16 @@ export async function POST(req: NextRequest) {
             .select()
             .single()
 
+        if (subError?.code === '23505' && submissionEventId) {
+            return NextResponse.json({ success: true, duplicate: true }, { headers: CORS_HEADERS })
+        }
         if (subError) {
             return NextResponse.json({ error: subError.message }, { headers: CORS_HEADERS, status: 500 })
+        }
+
+        if (journey) {
+            try { await saveEditorialSubmission(funnel.organization_id, funnel_id, submission.id, journey, body) }
+            catch { console.error('[Editorial] Unable to record saved request') }
         }
 
         // ── EARLY RETURN: Only funnel validation + submission insert are synchronous ──
@@ -175,6 +196,7 @@ export async function POST(req: NextRequest) {
                             ...((!existingMeta.utm_term && body.utm_term) ? { utm_term: body.utm_term } : {}),
                             ...((!existingMeta.fbc && body.fbc) ? { fbc: body.fbc } : {}),
                             ...((!existingMeta.fbp && body.fbp) ? { fbp: body.fbp } : {}),
+                            ...(journey?.visitorId ? { visitor_id: existingMeta.visitor_id || journey.visitorId, last_editorial_visitor_id: journey.visitorId } : {}),
                             last_submission_at: new Date().toISOString(),
                             resubmit_count: (existingMeta.resubmit_count || 0) + 1,
                         }
@@ -249,10 +271,10 @@ export async function POST(req: NextRequest) {
                                 child_age: body.extra_data?.child_age || null,
                                 adset_angle: body.extra_data?.adset_angle || null,
                                 fbc: body.fbc || null, fbp: body.fbp || null,
-                                visitor_id: body.visitor_id || null,
+                                visitor_id: journey ? journey.visitorId : body.visitor_id || null,
                                 client_ip: clientIp || null,
                                 client_user_agent: clientUserAgent || null,
-                                event_source_url: body.landing_url ? `https://${body.landing_url}` : null,
+                                event_source_url: sourceUrl,
                             },
                         })
                         .select().single()
@@ -298,6 +320,11 @@ export async function POST(req: NextRequest) {
                     }
                 }
 
+                if (lead && journey) {
+                    const { error } = await getSupabaseAdmin().from('editorial_events').update({ lead_id: lead.id }).eq('organization_id', funnel.organization_id).eq('submission_id', submission.id)
+                    if (error) console.error('[Editorial] Unable to link contact:', error.code)
+                }
+
                 // ── 4. CAPI + Telegram + Google Sheets in parallel ──
                 if (lead) {
                     if (tag) {
@@ -308,16 +335,17 @@ export async function POST(req: NextRequest) {
                     // CAPI Lead — ALWAYS fire using pixel_id from connections table
                     // Previously gated on funnel.meta_pixel_id, causing 5/7 funnels to silently skip CAPI.
                     // Now resolves pixel_id from connections (always present), falling back to funnel config.
-                    const capiPromise = fireCapiEvent(funnel.organization_id, 'Lead', {
+                    const capiPromise = (!journey || (journey.marketing && journeyPixelId)) ? fireCapiEvent(funnel.organization_id, 'Lead', {
                         name: name || undefined, email: email || undefined, phone: phone || undefined,
                         fbc: body.fbc || undefined, fbp: body.fbp || undefined,
                         content_category: funnel.objective || 'cliente',
                         content_name: funnel.name || undefined,
                         value: PREDICTIVE_LEAD_VALUE,
                         client_ip: clientIp, client_user_agent: clientUserAgent,
-                        event_source_url: body.landing_url ? `https://${body.landing_url}` : undefined,
+                        event_source_url: sourceUrl || undefined,
+                        editorial_entry: editorialEntry || undefined,
                         event_id: event_id || undefined, external_id: body.visitor_id || undefined,
-                    }, funnel.meta_pixel_id || null, lead.id).catch(err => console.error('CAPI error:', name, err))
+                    }, (journey ? journeyPixelId : funnel.meta_pixel_id) || null, lead.id).catch(err => console.error('CAPI error:', name, err)) : Promise.resolve()
 
                     const childAge = body.extra_data?.child_age
                     const adsetAngleNotif = body.extra_data?.adset_angle
@@ -440,6 +468,7 @@ async function fireCapiEvent(orgId: string, eventName: string, userData: any, pi
                 custom_data: {
                     content_category: userData.content_category || undefined,
                     content_name: userData.content_name || undefined,
+                    editorial_entry: userData.editorial_entry || undefined,
                     currency: LEAD_CURRENCY,
                     value: userData.value || undefined,  // Never send 0 — Meta treats it as missing
                 },

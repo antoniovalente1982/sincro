@@ -39,6 +39,9 @@ test('link del testo ammettono HTTPS e percorsi locali, mai javascript o protoco
 test('la navigazione tra articoli mantiene UTM ma esclude identificatori personali', () => {
     assert.equal(blogNavigationHref('/blog/uno', 'utm_source=meta&email=privata&ab=A'), '/blog/uno?utm_source=meta&ab=A')
 })
+test('la variante B di anteprima rimane tale anche negli articoli correlati', () => {
+    assert.equal(blogNavigationHref('/blog/uno', 'ab=B'), '/blog/uno?ab=B')
+})
 test('la provenienza editoriale accetta soltanto identificatori riconoscibili', () => {
     assert.equal(blogEntry('blog-paura-di-sbagliare'), 'blog-paura-di-sbagliare')
     assert.equal(blogEntry('advertorial-pochi-minuti'), 'advertorial-pochi-minuti')

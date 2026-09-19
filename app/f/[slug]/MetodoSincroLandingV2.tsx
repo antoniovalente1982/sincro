@@ -8,7 +8,9 @@ import Script from 'next/script'
 import { parseVturbEmbed, vturbFrameSrc, VTURB_SDK_SRC } from '@/lib/vturb'
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { Check, CheckCircle, ShieldCheck, ArrowRight, ArrowLeft, Star, Shield, Clock, Trophy, Phone, Mail, User, Sparkles, ChevronDown, Zap, Target, Brain, Award, Users, TrendingUp, Lock, MessageCircle } from 'lucide-react'
-import { useMetaTracking, fireAdvancedMatching, firePixelEvent, fireStartForm } from '@/lib/useMetaTracking'
+import { leadAttempt } from '@/lib/editorial-tracking'
+import EditorialTracking from '@/components/EditorialTracking'
+import { getJourneySubmission, sendJourneyEvent, fireJourneyLead } from '@/lib/editorial-tracking-client'
 import categoryCopy from '@/lib/salto-categoria-copy.json'
 import LandingBehaviorAnalytics from '@/components/LandingBehaviorAnalytics'
 import { trackLandingEvent } from '@/lib/landing-behavior'
@@ -190,7 +192,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
     const [showProfessionalExamples, setShowProfessionalExamples] = useState(false)
     const [activeAngle, setActiveAngle] = useState<any>(null)
     const [customHeadline, setCustomHeadline] = useState<string | null>(null)
-    const checkoutFiredRef = useRef(false)
+    const leadAttemptRef = useRef<{ fingerprint: string; id: string } | null>(null)
+    const sendingRef = useRef(false)
 
     // ── Video: l'embed VTurb si incolla dalla dashboard, in impostazioni funnel ──
     // Da qualsiasi variante del codice ricaviamo gli identificativi e mostriamo
@@ -320,27 +323,11 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
         })
     }
 
-    // ── Shared Meta Tracking (fbc/fbp, UTMs, PageView CAPI) ──
-    const orgId = funnel.settings?.organization_id || (funnel as any).organizations?.id || 'a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5'
-    const { getFbIds, getUtmParams, getVisitorId } = useMetaTracking({
-        orgId,
-        funnelId: funnel.id,
-        pixelId: funnel.meta_pixel_id,
-        abVariant,
-        disabled: ab?.preview,
-    })
-
-    // Fire StartForm on first form field focus (with CAPI context)
     const handleFirstFieldFocus = useCallback(() => {
-        if (checkoutFiredRef.current) return
-        checkoutFiredRef.current = true
-        fireStartForm(funnel.name, {
-            orgId,
-            visitorId: getVisitorId(),
-            fbc: getFbIds().fbc,
-            fbp: getFbIds().fbp,
-        })
-    }, [funnel.name, orgId, getVisitorId, getFbIds])
+        if (ab?.preview) return
+        void sendJourneyEvent('form_start', funnel.meta_pixel_id, true, abVariant)
+    }, [ab?.preview, funnel.meta_pixel_id, abVariant])
+
 
     // Detect ad angle / adset angle from global UTM string matching against the database
     useEffect(() => {
@@ -496,6 +483,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
     }
 
     const handleSubmit = async () => {
+        if (sendingRef.current) return
         trackLandingEvent('form_submit_attempt')
         setSubmitAttempted(true)
 
@@ -512,19 +500,19 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
         }
 
         trackLandingEvent('form_submit_started')
+        sendingRef.current = true
         setLoading(true)
         setError('')
 
         // Generate Lead event_id for dedup
-        const leadEventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        leadAttemptRef.current = leadAttempt(leadAttemptRef.current, JSON.stringify([funnel.id, fullName.trim(), email.trim(), phone.trim(), childAge, pains]))
+        const leadEventId = leadAttemptRef.current.id
         let submissionAccepted = false
 
         try {
             const nameToPass = fullName.trim()
             // Advanced Matching via shared helper: we split the name for fn and ln locally, same as backend
-            const fn = nameToPass.split(' ')[0] || ''
-            const ln = nameToPass.split(' ').slice(1).join(' ') || ''
-            if (funnel.meta_pixel_id) fireAdvancedMatching(funnel.meta_pixel_id, { email, phone, fn, ln })
+            const journey = getJourneySubmission()
 
             const res = await fetch('/api/submit', {
                 method: 'POST',
@@ -533,8 +521,9 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                     funnel_id: funnel.id,
                     name: nameToPass, email, phone,
                     page_variant: abVariant,
+                    ...journey,
                     extra_data: {
-                        editorial_entry: new URLSearchParams(window.location.search).get('entry') || undefined,
+                        ...journey.extra_data,
                         sport: sportConfig.sportName,
                         child_age: childAge,
                         adset_angle: activeAngle ? activeAngle.trigger_keyword : undefined,
@@ -542,9 +531,6 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                     },
                     landing_url: window.location.href,
                     event_id: leadEventId,
-                    visitor_id: getVisitorId(),
-                    ...getUtmParams(),
-                    ...getFbIds(),
                 }),
             })
 
@@ -556,7 +542,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
             submissionAccepted = true
             trackLandingEvent('form_submit_success')
             // Fire standard event immediately
-            firePixelEvent('Lead', leadEventId, {
+            fireJourneyLead(funnel.meta_pixel_id, leadEventId, {
                 content_category: funnel.objective || 'cliente',
                 content_name: funnel.name || undefined,
                 // Stessi valore e valuta della CAPI: in caso di duplicato Meta
@@ -572,6 +558,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
             if (!submissionAccepted) trackLandingEvent('form_submit_error')
             setError(err.message)
         } finally {
+            sendingRef.current = false
             setLoading(false)
         }
     }
@@ -632,7 +619,8 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                         </a>
                     </div>
                 </main>
-                <LandingBehaviorAnalytics projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
+                <EditorialTracking pageVariant={abVariant} kind="landing" pixelId={funnel.meta_pixel_id} preview={ab?.preview} />
+                <LandingBehaviorAnalytics respectJourneyConsent projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
                 <style>{STYLES}</style>
                 <style dangerouslySetInnerHTML={{__html: `
                     /* Thank you page — riscritta: era larga 500px con testi da
@@ -1339,7 +1327,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                     <p>C.F: 13508690966 · P.IVA: 13508690966</p>
                 </div>
             </footer>
-            <LandingBehaviorAnalytics projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
+            <LandingBehaviorAnalytics respectJourneyConsent projectId={funnel.settings?.clarity_project_id} preview={ab?.preview} />
 
             {/* ══════════ EXIT INTENT POPUP ══════════ */}
             {showExitPopup && (
@@ -1373,10 +1361,7 @@ export default function MetodoSincroLandingV2({ funnel, routingAngles, ab, edito
                 </div>
             )}
 
-            {/* Pixel */}
-            {funnel.meta_pixel_id && (
-                <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${funnel.meta_pixel_id}',{});` }} />
-            )}
+            <EditorialTracking pageVariant={abVariant} kind="landing" pixelId={funnel.meta_pixel_id} preview={ab?.preview} />
 
             <style>{STYLES}</style>
         </div>

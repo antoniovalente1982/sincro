@@ -5,7 +5,7 @@ import { BLOG_TEMPLATE, isPublishedBlog, rowToBlogPost, type BlogRow, type Legac
 export const BLOG_SELECT = 'id, name, slug, description, status, settings, created_at, updated_at'
 
 // This public publication belongs to one organization. Never aggregate tenants.
-const getPublicOrgId = cache(async () => {
+export const getPublicOrgId = cache(async () => {
     if (process.env.BLOG_ORGANIZATION_ID) return process.env.BLOG_ORGANIZATION_ID
     const { data, error } = await getSupabaseAdmin().from('funnels').select('organization_id').eq('slug', 'pochi-minuti').maybeSingle()
     if (error) throw new Error('Il blog non è al momento disponibile. Riprova tra poco.')

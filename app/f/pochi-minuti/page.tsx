@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import Advertorial from './Advertorial'
 import { advertorialConsultationHref } from '@/lib/advertorial'
 import content from './content.json'
+import { getEditorialPixel } from '@/lib/editorial-tracking-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,6 @@ export default async function PochiMinutiPage({ searchParams }: {
         subheadline={funnel.settings?.subheadline || content.subheadline}
         ctaText={funnel.settings?.cta_text || content.ctaText}
         consultationHref={advertorialConsultationHref(query.toString(), preview)}
-        tracking={{ funnelId: funnel.id, orgId: funnel.organization_id, pixelId: funnel.meta_pixel_id || undefined, disabled: preview }}
+        tracking={{ funnelId: funnel.id, orgId: funnel.organization_id, pixelId: (await getEditorialPixel(funnel.organization_id, funnel.meta_pixel_id)) || undefined, disabled: preview }}
     />
 }
