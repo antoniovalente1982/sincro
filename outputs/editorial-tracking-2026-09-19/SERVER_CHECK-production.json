@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-19T08:25:10.001Z",
+  "origin": "https://landing.metodosincro.com",
+  "results": [
+    {
+      "check": "saved actions ordered despite reversed request arrival; duplicate event suppressed; variant B retained; Lead injection/origin/consent/auth checked",
+      "pass": true
+    }
+  ]
+}

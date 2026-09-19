@@ -1,6 +1,6 @@
 # Tracciamento advertorial → landing → richiesta
 
-Implementato il 19 settembre 2026. Migrazione database applicata; verifiche locali completate. Pubblicazione in corso di verifica.
+**Online e verificato il 19 settembre 2026**, commit `29eeebcc`. Migrazione database applicata e pubblicazione Vercel completata. [Ricevuta del rilascio](RELEASE.json).
 
 ## Cosa cambia
 
@@ -21,6 +21,10 @@ Crea e pubblica l’articolo nel Blog. Titolo, immagine e tema alimentano la lan
 - TypeScript, lint mirato, build Next.js e controllo patch superati.
 - [Sei scenari browser locali](BROWSER_CHECK.json): percorso completo con form simulato, retry dopo errore di rete, pixel lento, identità e ID eventi, rifiuto e analisi a 320 px, anteprime, revoca anche fra schede e interazione con Clarity.
 - [Prova endpoint/database](SERVER_CHECK.json): ordine cronologico anche con richieste fuori ordine, deduplicazione, variante B, rifiuto di Lead pubblici e origini estranee, consenso e API protette. Dati tecnici di prova rimossi tramite UUID dedicato.
+- [19 advertorial online](PUBLISHED_ARTICLES_CHECK.json): HTTP 200, pixel presente e collegamento alla landing personalizzata.
+- [Sei scenari browser ripetuti in produzione](BROWSER_CHECK-production.json) e [verifica reale endpoint/database online](SERVER_CHECK-production.json), senza invii Meta o contatti commerciali di prova.
+- [Connessione Meta verificata in sola lettura](META_CONNECTION_CHECK.json): HTTP 200, ID `311586900940615`, nome “Pixel Nuovo METODO SINCRO”.
+- Vista Risultati controllata in anteprima mobile a 390 px, senza overflow; i dati aggregati e i permessi sono coperti da test e controlli API.
 - Migrazione privata con RLS e vincoli verificati; revisione indipendente della specifica e della qualità approvata.
 
 ## Limiti della verifica
@@ -29,4 +33,4 @@ Gli invii browser e CAPI a Meta sono verificati tramite configurazione e simulaz
 
 ## Ripetere i controlli
 
-`browser-check.mjs` richiede Playwright/Chromium. Si possono impostare `PLAYWRIGHT_MODULE`, `CHROMIUM_PATH`, `CHECK_ORIGIN` e `CHECK_LABEL`. Tutti gli endpoint di tracking e invio modulo sono intercettati; le destinazioni esterne sono bloccate. `server-check.mjs` usa il server locale su porta 3011 e `DATABASE_URL` da `.env.local`, salva soltanto telemetria tecnica con marketing disattivato e la rimuove in `finally`.
+`browser-check.mjs` richiede Playwright/Chromium. Si possono impostare `PLAYWRIGHT_MODULE`, `CHROMIUM_PATH`, `CHECK_ORIGIN` e `CHECK_LABEL`. Tutti gli endpoint di tracking e invio modulo sono intercettati; le destinazioni esterne sono bloccate. `server-check.mjs` usa per impostazione predefinita il server locale su porta 3011 (oppure `CHECK_ORIGIN`) e `DATABASE_URL` da `.env.local`, salva soltanto telemetria tecnica con marketing disattivato e la rimuove in `finally`.

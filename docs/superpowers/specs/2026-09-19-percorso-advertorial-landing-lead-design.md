@@ -1,6 +1,6 @@
 # Percorso advertorial → landing → lead
 
-Data: 19 settembre 2026. Stato: implementazione autorizzata e completata, verifiche locali superate e migrazione applicata. Stato della pubblicazione e limiti della verifica Meta nel [resoconto operativo](../../../outputs/editorial-tracking-2026-09-19/README.md).
+Data: 19 settembre 2026. Stato: implementazione autorizzata, pubblicata e verificata online; migrazione applicata. Stato della pubblicazione e limiti della verifica Meta nel [resoconto operativo](../../../outputs/editorial-tracking-2026-09-19/README.md).
 
 ## Risultato richiesto
 

@@ -5,10 +5,11 @@ import pg from 'pg'
 import dotenv from 'dotenv'
 dotenv.config({path:'.env.local',quiet:true})
 const db=new pg.Client({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});await db.connect()
-const origin='http://localhost:3011', visitor=randomUUID(), session=randomUUID(), base=Date.now()-5000
+const origin=process.env.CHECK_ORIGIN||'http://localhost:3011', visitor=randomUUID(), session=randomUUID(), base=Date.now()-5000
 const consent=encodeURIComponent(JSON.stringify({analytics:true,marketing:false,at:Date.now()}))
 const headers={'Content-Type':'application/json',origin,'User-Agent':'Mozilla/5.0 Chrome/120.0 Safari/537.36',cookie:`ms_tracking_consent_v1=${consent}`}
 const results=[]
+const suffix=process.env.CHECK_LABEL ? '-'+process.env.CHECK_LABEL.replace(/[^a-zA-Z0-9_-]/g,'') : ''
 async function send(data,extra={}){return fetch(origin+'/api/track/editorial',{method:'POST',headers:{...headers,...extra},body:JSON.stringify({visitor_id:visitor,session_id:session,...data})})}
 try{
  const landing={event_id:randomUUID(),event_name:'landing_view',page_path:'/f/salto-di-qualita',page_variant:'B',entry:'blog-calciatrice-fiducia-calcio-femminile',occurred_at:new Date(base+100).toISOString()}
@@ -25,5 +26,5 @@ try{
  assert.equal((await fetch(origin+'/api/blog/results')).status,401)
  assert.equal((await fetch(origin+`/api/leads/${randomUUID()}/editorial-journey`)).status,401)
  results.push({check:'saved actions ordered despite reversed request arrival; duplicate event suppressed; variant B retained; Lead injection/origin/consent/auth checked',pass:true})
- console.log(JSON.stringify({results}));await fs.writeFile('outputs/editorial-tracking-2026-09-19/SERVER_CHECK.json',JSON.stringify({at:new Date().toISOString(),results},null,2))
+ console.log(JSON.stringify({results}));await fs.writeFile(`outputs/editorial-tracking-2026-09-19/SERVER_CHECK${suffix}.json`,JSON.stringify({at:new Date().toISOString(),origin,results},null,2))
 }finally{await db.query('delete from editorial_events where visitor_id=$1',[visitor]);await db.query('delete from page_views where visitor_id=$1',[visitor]);await db.end()}

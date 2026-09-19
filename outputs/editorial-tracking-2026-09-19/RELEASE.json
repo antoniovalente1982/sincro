@@ -1,0 +1,15 @@
+{
+  "verifiedAt": "2026-09-19T08:26:42.897097+00:00",
+  "productionOrigin": "https://landing.metodosincro.com",
+  "codeCommit": "29eeebcc41a83f63e5200c2992a1119d3eef113d",
+  "deployment": "https://vercel.com/antonio-personales-projects/adpilotik/EzdqN4hJVDkmBeS68tnhNewgayAj",
+  "vercelStatus": "success",
+  "migrationApplied": "20260919_editorial_events",
+  "publishedArticlesVerified": 19,
+  "browserScenariosPassed": 6,
+  "serverChecksPassed": true,
+  "metaReadOnlyConnectionStatus": 200,
+  "metaPixelId": "311586900940615",
+  "metaEventReceiptVerified": false,
+  "commercialTestLeadsCreated": false
+}
