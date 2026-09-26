@@ -71,9 +71,29 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const [error, setError] = useState('')
     const leadAttemptRef = useRef<{ fingerprint: string; id: string } | null>(null)
     const sendingRef = useRef(false)
+    const formRef = useRef<HTMLFormElement>(null)
+    const submitRef = useRef<HTMLButtonElement>(null)
+    // Barra fissa in basso su mobile: visibile finché il pulsante di invio non è sullo
+    // schermo e il genitore non ha ancora iniziato a compilare
+    const [submitInView, setSubmitInView] = useState(false)
+    const [started, setStarted] = useState(false)
+    const showBar = !submitInView && !started
 
     // Chi ha già accettato su un'altra pagina Sincro ritrova la casella spuntata
     useEffect(() => { if (journeyConsent()?.marketing) setAdConsent(true) }, [])
+
+    useEffect(() => {
+        const button = submitRef.current
+        if (!button || typeof IntersectionObserver === 'undefined') return
+        const observer = new IntersectionObserver(([entry]) => setSubmitInView(entry.isIntersecting))
+        observer.observe(button)
+        return () => observer.disconnect()
+    }, [submitted])
+
+    const goToForm = () => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        document.getElementById('cf-name')?.focus({ preventScroll: true })
+    }
 
     const errors = {
         name: !fullName.trim() ? 'Inserisci nome e cognome' : !fullName.trim().includes(' ') ? 'Inserisci anche il cognome' : '',
@@ -218,7 +238,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                     </div>
                 </section>
 
-                <form id="ms-form" className={styles.card} onSubmit={handleSubmit} noValidate data-clarity-mask="true">
+                <form id="ms-form" ref={formRef} onFocus={() => setStarted(true)} className={styles.card} onSubmit={handleSubmit} noValidate data-clarity-mask="true">
                     <h2 className={styles.cardTitle}>Prenota la telefonata</h2>
 
                     <div className={styles.field}>
@@ -272,12 +292,18 @@ export default function ContactFormPage({ funnel, ab }: Props) {
 
                     {error && <p className={styles.submitError} role="alert">{error}</p>}
 
-                    <button type="submit" className={styles.submit} disabled={loading}>
+                    <button type="submit" ref={submitRef} className={styles.submit} disabled={loading}>
                         {loading ? <span className={styles.spinner} aria-label="Invio in corso" /> : <>{ctaText} <ArrowRight size={18} /></>}
                     </button>
                     <p className={styles.privacy}><Lock size={12} /> Usiamo i tuoi dati solo per ricontattarti. Niente spam.</p>
                 </form>
             </main>
+            <div className={styles.stickyBar} data-visible={showBar} aria-hidden={!showBar}>
+                <button type="button" className={styles.stickyButton} onClick={goToForm} tabIndex={showBar ? 0 : -1}>
+                    {ctaText} <ArrowRight size={18} />
+                </button>
+                <p><Clock size={12} /> Un minuto per compilare · Telefonata gratuita</p>
+            </div>
             {tracking}
         </div>
     )

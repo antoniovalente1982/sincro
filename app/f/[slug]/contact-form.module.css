@@ -149,7 +149,29 @@
 .thanksPrep li { font-size: 15px; line-height: 1.8; color: #c4c4cc; }
 .thanksLink { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #facc15; text-decoration: underline; text-underline-offset: 3px; }
 
+.stickyBar { display: none; }
+
 @media (max-width: 860px) {
+    .stickyBar {
+        display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+        background: rgba(5, 5, 8, 0.94); backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(250, 204, 21, 0.2);
+        transform: translateY(110%); transition: transform 0.25s ease;
+    }
+    .stickyBar[data-visible='true'] { transform: none; }
+    .stickyBar p { margin: 6px 0 0; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; color: #a1a1aa; }
+    .stickyButton {
+        width: 100%; min-height: 52px; padding: 12px 18px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        font: inherit; font-size: 17px; font-weight: 800; color: #0a0a0a;
+        background: linear-gradient(135deg, #facc15, #eab308); border: 0; border-radius: 12px; cursor: pointer;
+    }
+    .title { font-size: 28px; margin-bottom: 14px; }
+    .lead { font-size: 16px; }
+    .card { scroll-margin-top: 64px; }
+    .main { padding-bottom: 120px; }
+
     .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'intro' 'form' 'details'; grid-template-rows: none; gap: 0; padding-top: 32px; }
     .lead { margin-bottom: 24px; }
     .proof { margin-top: -8px; margin-bottom: 24px; font-size: 14px; }
@@ -162,6 +184,7 @@
     .headerNote { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+    .stickyBar { transition: none; }
     .submit, .choice, .field input { transition: none; }
     .spinner { animation-duration: 1.5s; }
 }
