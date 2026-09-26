@@ -1,0 +1,138 @@
+[
+  {
+    "slug": "incoraggiare-figlio-calcio",
+    "title": "Gli dici di stare tranquillo. Ma alla partita dopo succede di nuovo.",
+    "words": 1373,
+    "images": 3,
+    "status": "draft",
+    "sha256": "2f7995809baef811a45cf2be1bfcb74a35adfc220fbd211efea11c51cd4767e9"
+  },
+  {
+    "slug": "salto-di-categoria-fiducia",
+    "title": "È arrivato nella squadra che voleva. Ora sembra aver perso fiducia.",
+    "words": 1299,
+    "images": 3,
+    "status": "draft",
+    "sha256": "38c34681ae5ce5d73a11e526f0646a1160e3117d4fd6b3190e25b3c52cef9340"
+  },
+  {
+    "slug": "cosa-dire-dopo-brutta-partita",
+    "title": "La partita è finita. In macchina, però, non sai più che cosa dirgli.",
+    "words": 1370,
+    "images": 3,
+    "status": "draft",
+    "sha256": "b462aa350d0093bab0d5671dd3187b788a7789b9cc61705712f21e36fcd490a9"
+  },
+  {
+    "slug": "mio-figlio-gioca-poco",
+    "title": "Mio figlio gioca poco: restare, cambiare squadra o capire meglio che cosa succede?",
+    "words": 1290,
+    "images": 3,
+    "status": "draft",
+    "sha256": "a79bc2ee7b12d92b7159a57ed15320e87cd893c5605b4261ac07bbdf16193c7c"
+  },
+  {
+    "slug": "figlio-non-si-diverte-calcio",
+    "title": "Si impegna ancora, ma il calcio non gli piace più come prima.",
+    "words": 1399,
+    "images": 3,
+    "status": "draft",
+    "sha256": "78cd8693d7b7c9799c896614f413dd24db403c4fa3e445b790763b490ba0da0a"
+  },
+  {
+    "slug": "paura-rientro-infortunio-calcio",
+    "title": "L'infortunio lo ha fermato proprio quando stava trovando spazio.",
+    "words": 1136,
+    "images": 3,
+    "status": "draft",
+    "sha256": "c462c6914d6322ea9180f5335c7271e1d698947518674ad1fa78c85cb7fbff71"
+  },
+  {
+    "slug": "allenamento-extra-partita",
+    "title": "Si allena anche da solo. Perché in partita continua a trattenersi?",
+    "words": 1314,
+    "images": 3,
+    "status": "draft",
+    "sha256": "6c2f6d814b953c2b5bc061b77fd8f87439bc99a20517a9386ebd12d5e4acc084"
+  },
+  {
+    "slug": "fiducia-dopo-errore-calcio",
+    "title": "Sbaglia un pallone. Poi sembra uscire dalla partita: che cosa succede dopo l’errore?",
+    "words": 1301,
+    "images": 3,
+    "status": "draft",
+    "sha256": "685e55811bde965212aeaf30d7f2c112a85156d8b5d1f69c3ec1c3d8794af09a"
+  },
+  {
+    "slug": "pressione-prima-della-partita",
+    "title": "Mancano ore alla partita. Ma tuo figlio sembra già sotto esame.",
+    "words": 1103,
+    "images": 3,
+    "status": "draft",
+    "sha256": "1a24e70d8414826d8c8e40a5ddb622f8f2d41e382530fd00ba069c0a0031170e"
+  },
+  {
+    "slug": "genitori-pressione-calcio",
+    "title": "Dalla tribuna vorresti aiutarlo. Ma lui come vive la tua presenza?",
+    "words": 1330,
+    "images": 3,
+    "status": "draft",
+    "sha256": "8087eb7a6224f21091c9e9ad10a327c38e2081320ccd13f32dbccc6bf8a8b960"
+  },
+  {
+    "slug": "pressione-provino-calcio",
+    "title": "Il provino si avvicina. Come evitare che una giornata pesi quanto tutto il suo futuro.",
+    "words": 1111,
+    "images": 3,
+    "status": "draft",
+    "sha256": "328077a6a7393e9b9394633d50c6901a94f2ee1cc74b58c438128a72b119185e"
+  },
+  {
+    "slug": "confronto-fisico-calcio-ragazzi",
+    "title": "Gli altri sono cresciuti. Tuo figlio si sente rimasto indietro.",
+    "words": 1333,
+    "images": 3,
+    "status": "draft",
+    "sha256": "046138591b4d3f95f6c38766dbfc070004593cc72c51875813674c47b8cc4028"
+  },
+  {
+    "slug": "figlio-rifiuta-mental-coach",
+    "title": "Gli proponi un aiuto. Lui risponde: «Non mi serve». Da dove cominciare?",
+    "words": 1349,
+    "images": 3,
+    "status": "draft",
+    "sha256": "938654d90dc301306eb09a432270feff6b01632e33c3af23ea7f390aefb1349d"
+  },
+  {
+    "slug": "figlio-escluso-gruppo-squadra",
+    "title": "Nella nuova squadra non si sente parte del gruppo. Come capire che cosa sta vivendo.",
+    "words": 1325,
+    "images": 3,
+    "status": "draft",
+    "sha256": "857fe12d50525828f7b21ead6708d1101440ee4ad3e80ee358f0e217763d1ee1"
+  },
+  {
+    "slug": "scuola-famiglia-calcio",
+    "title": "Scuola, allenamenti, trasferte: quando tutta la settimana gira intorno al calcio.",
+    "words": 1213,
+    "images": 3,
+    "status": "draft",
+    "sha256": "12e1e2782297f71444c043054429518e4bf9bfd11b2fe308725868021b5c8dc9"
+  },
+  {
+    "slug": "figlio-non-confermato-squadra",
+    "title": "La società non lo conferma. Come stargli vicino quando cambia il futuro che immaginava.",
+    "words": 1308,
+    "images": 3,
+    "status": "draft",
+    "sha256": "6d404d7360fb5b96952e0753ce7a424833246546a9230da0375adc7f38605abf"
+  },
+  {
+    "slug": "mental-coaching-calcio-ragazzi",
+    "title": "Prima di investire in un mental coach per tuo figlio, guarda come si lavora davvero.",
+    "words": 1348,
+    "images": 3,
+    "status": "draft",
+    "sha256": "8ca3c9abeb39b4196219ade2d42c63b608939a8400b7be9d85d140666de28a7d"
+  }
+]

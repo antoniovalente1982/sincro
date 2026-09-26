@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-17T12:38:00Z",
+  "source": "Facebook authenticated UI; direct Page settings",
+  "page_name": "Antonio Valente \"Mental Coach\"",
+  "page_id": "108451268302248",
+  "profile_id": "100077693974692",
+  "recommendations": {
+    "url": "https://www.facebook.com/settings/?tab=profile_recommendations",
+    "status": "Raccomandabile",
+    "interpretation": "Pagina idonea a essere suggerita a persone nuove"
+  },
+  "page_status": {
+    "url": "https://www.facebook.com/settings/?tab=profile_quality",
+    "status": "La Pagina non presenta problemi",
+    "community_violations": "Nessuna violazione da mostrare",
+    "account_restrictions": "Nessuna restrizione",
+    "recommendations": "Attivi",
+    "monetization": "Attiva"
+  },
+  "scope_limit": "Non certifica stato organico Instagram né rendimento futuro delle inserzioni; nessuna modifica a impostazioni o campagne."
+}

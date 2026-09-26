@@ -1,0 +1,665 @@
+{
+  "fetched_at": "2026-09-17T12:21:19.326Z",
+  "submissions": [
+    {
+      "created_at": "2026-09-12T04:59:42.604358+00:00",
+      "owner": false,
+      "test": false,
+      "utm_source": "fb",
+      "utm_campaign": "120251644311030047",
+      "utm_content": "120251644311010047",
+      "variant": "A"
+    },
+    {
+      "created_at": "2026-09-12T13:55:50.861324+00:00",
+      "owner": false,
+      "test": false,
+      "utm_source": "fb",
+      "utm_campaign": "120251644311030047",
+      "utm_content": "120251644311010047",
+      "variant": "A"
+    },
+    {
+      "created_at": "2026-09-13T06:58:51.22887+00:00",
+      "owner": false,
+      "test": false,
+      "utm_source": "fb",
+      "utm_campaign": "120251644311030047",
+      "utm_content": "120251644311010047",
+      "variant": "A"
+    },
+    {
+      "created_at": "2026-09-13T14:34:07.336362+00:00",
+      "owner": false,
+      "test": false,
+      "utm_source": null,
+      "utm_campaign": null,
+      "utm_content": null,
+      "variant": "A"
+    },
+    {
+      "created_at": "2026-09-17T07:29:22.720864+00:00",
+      "owner": true,
+      "test": false,
+      "utm_source": null,
+      "utm_campaign": null,
+      "utm_content": "V02 | Talento e continuità",
+      "variant": "A"
+    }
+  ],
+  "activities_today": [
+    {
+      "event_time": "2026-09-17T12:16:59+0000",
+      "event_type": "create_audience",
+      "object_id": "120251738006770047",
+      "object_name": "asa_auto_custom_audience",
+      "translated_event_type": "Pubblico personalizzato creato",
+      "extra_data": "{\"type\":4,\"name\":\"asa_auto_custom_audience\"}"
+    },
+    {
+      "event_time": "2026-09-17T12:02:20+0000",
+      "event_type": "update_campaign_run_status",
+      "object_id": "120251644311030047",
+      "object_name": "Nuova Campagna Settembre 2026",
+      "translated_event_type": "Stato della campagna aggiornato",
+      "extra_data": "{\"run_status\":{\"old_value\":1,\"new_value\":15},\"old_value\":\"Attiva\",\"new_value\":\"Non attiva\",\"type\":\"run_status\"}"
+    },
+    {
+      "event_time": "2026-09-17T12:02:18+0000",
+      "event_type": "update_campaign_run_status",
+      "object_id": "120251721514160047",
+      "object_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "translated_event_type": "Stato della campagna aggiornato",
+      "extra_data": "{\"run_status\":{\"old_value\":1,\"new_value\":15},\"old_value\":\"Attiva\",\"new_value\":\"Non attiva\",\"type\":\"run_status\"}"
+    },
+    {
+      "event_time": "2026-09-17T10:34:54+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251673940780047",
+      "object_name": "video 1 Settembre_Group_1shadow",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251644311020047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    },
+    {
+      "event_time": "2026-09-17T06:03:29+0000",
+      "event_type": "update_ad_run_status",
+      "object_id": "120251721514180047",
+      "object_name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "translated_event_type": "Stato dell'inserzione aggiornato",
+      "extra_data": "{\"old_value\":\"In attesa di analisi\",\"new_value\":\"Attivo\\/a\",\"campaign_id\":120251721514170047,\"run_status\":{\"old_value\":9,\"new_value\":1},\"type\":\"run_status\"}"
+    },
+    {
+      "event_time": "2026-09-17T06:01:20+0000",
+      "event_type": "update_ad_run_status",
+      "object_id": "120251721835570047",
+      "object_name": "V02 | Talento e continuità",
+      "translated_event_type": "Stato dell'inserzione aggiornato",
+      "extra_data": "{\"old_value\":\"In attesa di elaborazione\",\"new_value\":\"In attesa di analisi\",\"campaign_id\":120251721514170047,\"run_status\":{\"old_value\":17,\"new_value\":9},\"type\":\"run_status\"}"
+    },
+    {
+      "event_time": "2026-09-17T05:29:15+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251723966970047",
+      "object_name": "V02 | Talento e continuità_Group_1_Image",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251721514170047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    },
+    {
+      "event_time": "2026-09-17T04:57:14+0000",
+      "event_type": "update_campaign_run_status",
+      "object_id": "120251644311030047",
+      "object_name": "Nuova Campagna Settembre 2026",
+      "translated_event_type": "Stato della campagna aggiornato",
+      "extra_data": "{\"run_status\":{\"old_value\":15,\"new_value\":1},\"old_value\":\"Non attiva\",\"new_value\":\"Attiva\",\"type\":\"run_status\"}"
+    },
+    {
+      "event_time": "2026-09-17T04:48:51+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251723983790047",
+      "object_name": "V03 | Salto di categoria_Group_1_Image",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251721514170047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    },
+    {
+      "event_time": "2026-09-17T04:45:38+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251723967040047",
+      "object_name": "V02 | Talento e continuità_Group_1_Image",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251721514170047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    },
+    {
+      "event_time": "2026-09-17T04:25:53+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251724011230047",
+      "object_name": "V04 | Preparazione alla partita_Group_1_Image",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251721514170047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    },
+    {
+      "event_time": "2026-09-17T03:58:17+0000",
+      "event_type": "first_delivery_event",
+      "object_id": "120251724022050047",
+      "object_name": "V01 | 3 chiavi mentali | Salto di qualità_Group_1_Image",
+      "translated_event_type": "Inserzione pubblicata",
+      "extra_data": "{\"campaign_id\":120251721514170047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}"
+    }
+  ],
+  "history_monthly": [
+    {
+      "spend": "4264.2",
+      "impressions": "1034840",
+      "inline_link_clicks": "5844",
+      "actions": [
+        {
+          "action_type": "offsite_complete_registration_add_meta_leads",
+          "value": "158"
+        },
+        {
+          "action_type": "web_in_store_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "link_click",
+          "value": "5844"
+        },
+        {
+          "action_type": "initiate_checkout",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_search_add_meta_leads",
+          "value": "158"
+        },
+        {
+          "action_type": "offsite_purchase_add_20_s_calls",
+          "value": "4"
+        },
+        {
+          "action_type": "add_to_cart",
+          "value": "18"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_initiate_checkout",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_custom",
+          "value": "25"
+        },
+        {
+          "action_type": "offsite_initiate_checkout_add_20_s_calls",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_add_to_cart",
+          "value": "18"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "489"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_add_payment_info",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "279"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "583"
+        },
+        {
+          "action_type": "onsite_web_lead",
+          "value": "135"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "583"
+        },
+        {
+          "action_type": "onsite_conversion.messaging_block",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "103"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "91713"
+        },
+        {
+          "action_type": "like",
+          "value": "7"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "580"
+        },
+        {
+          "action_type": "comment",
+          "value": "13"
+        },
+        {
+          "action_type": "onsite_web_app_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "91720"
+        },
+        {
+          "action_type": "purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "279"
+        },
+        {
+          "action_type": "onsite_web_add_to_cart",
+          "value": "18"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "685"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "279"
+        },
+        {
+          "action_type": "post",
+          "value": "37"
+        },
+        {
+          "action_type": "onsite_conversion.post_unsave",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "279"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "41"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "13"
+        },
+        {
+          "action_type": "web_app_in_store_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_add_to_cart",
+          "value": "18"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "39"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "386"
+        },
+        {
+          "action_type": "onsite_web_initiate_checkout",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_initiated_checkout",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_add_to_cart",
+          "value": "18"
+        },
+        {
+          "action_type": "lead",
+          "value": "293"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "437"
+        },
+        {
+          "action_type": "onsite_web_purchase",
+          "value": "4"
+        },
+        {
+          "action_type": "add_payment_info",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_conversion.lead_grouped",
+          "value": "158"
+        },
+        {
+          "action_type": "offsite_add_to_cart_add_20_s_calls",
+          "value": "18"
+        },
+        {
+          "action_type": "video_view",
+          "value": "85289"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_lead",
+          "value": "135"
+        },
+        {
+          "action_type": "offsite_lead_add_20_s_calls",
+          "value": "135"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "279"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "279"
+        }
+      ],
+      "reach": "387565",
+      "frequency": "2.670107",
+      "date_start": "2026-06-01",
+      "date_stop": "2026-06-30"
+    },
+    {
+      "spend": "841.27",
+      "impressions": "123282",
+      "inline_link_clicks": "1469",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1469"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_custom",
+          "value": "5"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "317"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "3"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "1255"
+        },
+        {
+          "action_type": "onsite_web_lead",
+          "value": "16"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "1255"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "22"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "37315"
+        },
+        {
+          "action_type": "like",
+          "value": "6"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "338"
+        },
+        {
+          "action_type": "comment",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "37321"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "360"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "post",
+          "value": "11"
+        },
+        {
+          "action_type": "view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "295"
+        },
+        {
+          "action_type": "lead",
+          "value": "16"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "35508"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_lead",
+          "value": "16"
+        },
+        {
+          "action_type": "offsite_lead_add_20_s_calls",
+          "value": "16"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "3"
+        }
+      ],
+      "reach": "64268",
+      "frequency": "1.918249",
+      "date_start": "2026-07-01",
+      "date_stop": "2026-07-31"
+    },
+    {
+      "spend": "308.5",
+      "impressions": "49519",
+      "inline_link_clicks": "403",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "403"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "107"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "293"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "292"
+        },
+        {
+          "action_type": "onsite_web_lead",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "292"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "8"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "8855"
+        },
+        {
+          "action_type": "like",
+          "value": "3"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "145"
+        },
+        {
+          "action_type": "comment",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "8858"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "293"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "154"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "293"
+        },
+        {
+          "action_type": "post",
+          "value": "20"
+        },
+        {
+          "action_type": "onsite_conversion.post_unsave",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "293"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "13"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "12"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "99"
+        },
+        {
+          "action_type": "lead",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "293"
+        },
+        {
+          "action_type": "video_view",
+          "value": "8307"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_lead",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_lead_add_20_s_calls",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "293"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "293"
+        }
+      ],
+      "reach": "25742",
+      "frequency": "1.923666",
+      "date_start": "2026-09-01",
+      "date_stop": "2026-09-17"
+    }
+  ],
+  "videos": {
+    "1807600154011061": {
+      "id": "1807600154011061",
+      "title": "CALCIO_ 3 chiavi mentali per il salto di qualità di tuo figlio. La terza è decisiva..mp4",
+      "length": 80.573,
+      "source": "https://video.fvbs1-1.fna.fbcdn.net/o1/v/t2/f2/m366/AQPStdMmRobRE7M0Voh7DFoFW6U1RRv0EUrhpHsDkPqFGxNBMFMRH3cG5lJGN6olu5Z9hyWTyKHf8en5LNitZI4p7-6sB5lTcqG6iNbAMBFMiw.mp4?_nc_cat=105&_nc_oc=Adr7mKHD2c8vtlrJQMxM30w-YfHZKkeLvjd3ktJmqMqAQSQ9Cd2cL1SSN-EN06tQw8U&_nc_sid=5e9851&_nc_ht=video.fvbs1-1.fna.fbcdn.net&_nc_ohc=Do77I4rRT4cQ7kNvwFTUZ84&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjo5OTM5NzMwMDcwNDExODEsImFzc2V0X2FnZV9kYXlzIjowLCJ2aV91c2VjYXNlX2lkIjoxMDc5OSwiZHVyYXRpb25fcyI6ODAsInVybGdlbl9zb3VyY2UiOiJ3d3cifQ%3D%3D&ccb=17-1&vs=e1cf8b5b60e7c3cb&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC85RjRBODgwQTJCRjA4MkQ5RDg3Njk3ODVGQzNCOTA4QV9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50LzU4NENBRjJBNDY5OUI3NkRCQjc0NDQ0ODQ5Mzg5QTkwX2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACa6ioKA7IDEAxUCKAJDMywXQFQj1wo9cKQYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZd6oAQA&_nc_gid=aNphJOyA7gm3_k0KtIKCEg&edm=APRAPSkEAAAA&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_tpa=Q5bMBQJEf3KVsCMmZCjpki4ARtSxM6TfLCw0NgrnMjDLYatZz4I0YF9IgVbcAgg3L42FQfB5QK9JajLnhw&oh=00_AQL_nO1bA6LM1bpfg4VmTgcLjeuk09gM_ynSSoAwC6-RHw&oe=6AB194FB&bitrate=595654&tag=dash_h264-basic-gen2_720p",
+      "permalink_url": "/23847217831710046/videos/1807600154011061/?idorvanity=23847217831710046"
+    },
+    "1414272527331432": {
+      "id": "1414272527331432",
+      "title": "CALCIO_ Tuo figlio ha talento, ma non è costante_ 3 aspetti da osservare..mp4",
+      "length": 95.968,
+      "source": "https://video.fvbs1-1.fna.fbcdn.net/o1/v/t2/f2/m366/AQOV8PArMGuKoL8z8hHQD1lz8At7jkFmlHo7Sh1qOvAQ72YEFeI4Eyj4sbagBlPPJipmdKAzc6Q1ABtqDBf3UGkGOqnzduhMKhXkLcpcfDps8g.mp4?_nc_cat=109&_nc_oc=Ado8C_Rm10exN2R9LKBT4u4oONDZJT7feJ-WjLhpIjVK5DGVOyIDYmKdHDy8m3A6o4I&_nc_sid=5e9851&_nc_ht=video.fvbs1-1.fna.fbcdn.net&_nc_ohc=7umcMs0VFlYQ7kNvwFt9ctX&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoxNDQ5NDc5OTE3MTI0ODM2LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTA3OTksImR1cmF0aW9uX3MiOjk1LCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&vs=d91bc9f9ccdfdcbb&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC8xNTQ4OUFFMTM3NjJFRUVGRTJDMjNFODJFMTBBMzk4QV9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50L0RFNDJBRjcyQ0Y3QTdDMDI2QUI3N0EzQzE3Mzg2MDk3X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbI84356pKTBRUCKAJDMywXQFf9cKPXCj0YGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZd6oAQA&_nc_gid=PbAtAeADk43b7esA0SON8w&edm=APRAPSkEAAAA&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_tpa=Q5bMBQLQS6CN_UGOEhtnHJ6HAjpy-efcm7ZAJqIGLj483DaW9LT-V02cav_3NLXRGHiLzaRhb-l5yiikGg&oh=00_AQIMpdRa0jU0L87hMKK0Muw-Nr1HiSr3R7WvcqMz2jBHuw&oe=6AB19483&bitrate=903639&tag=dash_h264-basic-gen2_720p",
+      "permalink_url": "/23847217831710046/videos/1414272527331432/?idorvanity=23847217831710046"
+    },
+    "1872129986835742": {
+      "id": "1872129986835742",
+      "title": "CALCIO_ Tuo figlio vuole salire di categoria. È pronto a giocare meno_.mp4",
+      "length": 90.302,
+      "source": "https://video.fvbs1-1.fna.fbcdn.net/o1/v/t2/f2/m366/AQNGkrEFKaKWNCltRGYiCxQSjzPOOBY32CwSRh43CjNLFuEP0Ib-_UHooeQF8CRA0ct2mail3Ka5hKVi0Lm0Zx3YBa34XVNpUmZhvRcyHfB3JQ.mp4?_nc_cat=103&_nc_oc=AdpNLmfj3rJKC9GUfu0LyPycH4lVNIO65O2mTehtmPlODwJh6lHGEFbj1JWHwKOYoek&_nc_sid=5e9851&_nc_ht=video.fvbs1-1.fna.fbcdn.net&_nc_ohc=SrQs8Xep7HMQ7kNvwEkUH9y&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoxNjQxMDY3NDEwOTE4NjU3LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTA3OTksImR1cmF0aW9uX3MiOjkwLCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&vs=7e064ddaa5255b9f&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC9EMDQ3QTQ1OUNENUJFOTBDNTU0NDcwN0Y3MjBGNTRCNl9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50LzY4NDc3OTk0QzU3QTQ4RTQ0ODMzMkI5RURBNjg4OEI1X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACaCtKSB2aLqBRUCKAJDMywXQFaR64UeuFIYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZd6oAQA&_nc_gid=H2hhbl3iMw4H8BfimInq3A&edm=APRAPSkEAAAA&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_tpa=Q5bMBQKPaIQ2B3l6fFGox0ZNJoBh1FjU9_6JgFjCz07G44rXeH6pzscN_m0OQYFl4g7P_TPtCFFgzoII5Q&oh=00_AQIgb6sSE3RfmvqVpL59nBVOlUS7HYM1Tg0r5eU-ITYXqA&oe=6AB1C379&bitrate=789285&tag=dash_h264-basic-gen2_720p",
+      "permalink_url": "/23847217831710046/videos/1872129986835742/?idorvanity=23847217831710046"
+    },
+    "2956279714719416": {
+      "id": "2956279714719416",
+      "title": "CALCIO_ Tuo figlio è in ansia prima della partita_ “Stai tranquillo” non basta!.mp4",
+      "length": 78.088,
+      "source": "https://video.fvbs1-1.fna.fbcdn.net/o1/v/t2/f2/m366/AQORuckwiRZ3aVm4VQ6BB2Z-FW-yB6yY2VvQUFKjsjVSSYBvkv_Ye_kJWdt6DmkDX709tpA4ilE1bpZe3ZFyF38g7WrZ5AkLW9xV8kROv7Vtxw.mp4?_nc_cat=104&_nc_oc=AdrNp_R97lbvg2Lci72zmP4V5jGhyGgYTPg8mKHm_nTXhujJjmHzIH42aePuPhgRioI&_nc_sid=5e9851&_nc_ht=video.fvbs1-1.fna.fbcdn.net&_nc_ohc=AO8UziLcBiEQ7kNvwFWFDzM&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoxOTUzMTQyODUyMDIzNTQyLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTA3OTksImR1cmF0aW9uX3MiOjc4LCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&vs=32d9974f6a46921d&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC9BODRFODVBRjdDQTQ3REMxNTgyMEY1OENBNDBGNjk4OF9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50LzVFNDBBQzhDMTVDRDY1QkFBRjJFMTkyNzhBQkE2OUI1X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbs05-e8Jf4BhUCKAJDMywXQFOEOVgQYk4YGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZd6oAQA&_nc_gid=AR-QhjhpAYRUSp5tNJPfMA&edm=APRAPSkEAAAA&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_tpa=Q5bMBQIwMMtct7d-HGqeKjgVTMsjjl80IHLHQSl_Iazu9MJrU5P0SIbM3RT6NlR6VxiWXN5zDrUsHGUlzg&oh=00_AQIeNbzgEFdLAdCbYrI_TkRACQilnUHD04u41qeMMe6M6w&oe=6AB1B00C&bitrate=673798&tag=dash_h264-basic-gen2_720p",
+      "permalink_url": "/23847217831710046/videos/2956279714719416/?idorvanity=23847217831710046"
+    }
+  }
+}

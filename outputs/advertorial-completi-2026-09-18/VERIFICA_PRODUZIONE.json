@@ -1,0 +1,187 @@
+{
+  "at": "2026-09-18T15:05:32.566Z",
+  "checks": [
+    {
+      "path": "/api/blog",
+      "expected": 401,
+      "status": 401,
+      "ok": true
+    },
+    {
+      "path": "/blog/allenamento-extra-partita",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/confronto-fisico-calcio-ragazzi",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/cosa-dire-dopo-brutta-partita",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/fiducia-dopo-errore-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/figlio-escluso-gruppo-squadra",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/figlio-non-confermato-squadra",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/figlio-non-si-diverte-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/figlio-rifiuta-mental-coach",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/genitori-pressione-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/incoraggiare-figlio-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/mental-coaching-calcio-ragazzi",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/mio-figlio-gioca-poco",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/paura-rientro-infortunio-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/pressione-prima-della-partita",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/pressione-provino-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/salto-di-categoria-fiducia",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/blog/scuola-famiglia-calcio",
+      "expected": 404,
+      "status": 404,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/allenamento-extra.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/cambio-squadra.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/dopo-partita.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/genitore-tribuna.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/gruppo-squadra.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/incoraggiare-figlio.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/infortunio.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/motivazione.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/panchina.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/pressione-partita.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/provino.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/images/blog/scuola-calcio.webp",
+      "expected": 200,
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "sitemapStatus": 200,
+  "sitemapExcludesAllDrafts": true
+}

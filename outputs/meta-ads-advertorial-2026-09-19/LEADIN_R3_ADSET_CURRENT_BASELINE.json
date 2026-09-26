@@ -1,0 +1,82 @@
+{
+  "checked_at": "2026-09-19T11:22:37.500Z",
+  "reason": "Concurrent targeting change confirmed in Meta activity history. Preserve current settings; publication writes only ads, never targeting.",
+  "event": {
+    "event_time": "2026-09-19T11:20:03+0000",
+    "event_type": "update_ad_set_target_spec",
+    "object_id": "120251780591590047",
+    "object_name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+    "extra_data": "{\"old_value\":[{\"content\":\"Esclusione del pubblico personalizzato:\",\"children\":[\"HERMES \\u2014 \\ufffd Lead Recenti (30gg) \\u2014 Esclusione\"]},{\"content\":\"Luogo:\",\"children\":[\"Italia\"]},{\"content\":\"Et\\u00e0:\",\"children\":[\"38 - 65+\"]},{\"content\":\"Lingua:\",\"children\":[\"Italiano\"]},{\"content\":\"Posizionamenti:\",\"children\":[\"sulle Pagine: Feed su computer, Feed di Instagram, Feed di Instagram Web o Feed su dispositivi mobili\"]},{\"content\":\"Criteri di corrispondenza:\",\"children\":[\"Genitori: Genitori con figli adolescenti (13-17 anni) o Genitori con figli grandi (18-26 anni)\"]},{\"content\":\"Pubblico simile Advantage+:\",\"children\":[\"no\"]},{\"content\":\"Pubblico Advantage+:\",\"children\":[\"No\"]}],\"new_value\":[{\"content\":\"Luogo:\",\"children\":[\"Italia\"]},{\"content\":\"Et\\u00e0:\",\"children\":[\"38 - 65+\"]},{\"content\":\"Lingua:\",\"children\":[\"Italiano\"]},{\"content\":\"Posizionamenti:\",\"children\":[\"sulle Pagine: Feed su computer, Feed di Instagram, Feed di Instagram Web o Feed su dispositivi mobili\"]},{\"content\":\"Criteri di corrispondenza:\",\"children\":[\"Genitori: Genitori con figli adolescenti (13-17 anni) o Genitori con figli grandi (18-26 anni)\"]},{\"content\":\"Pubblico personalizzato Advantage+:\",\"children\":[\"No\"]},{\"content\":\"Pubblico Advantage+:\",\"children\":[\"No\"]}],\"type\":\"targets_spec\"}",
+    "translated_event_type": "Targetizzazione del gruppo di inserzioni aggiornata",
+    "actor_name": "Federica Sigu"
+  },
+  "adset": {
+    "id": "120251780591590047",
+    "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+    "status": "ACTIVE",
+    "effective_status": "ACTIVE",
+    "updated_time": "2026-09-19T13:20:19+0200",
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "targeting": {
+      "age_max": 65,
+      "age_min": 38,
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "countries": [
+          "IT"
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "locales": [
+        10
+      ],
+      "targeting_relaxation_types": {
+        "lookalike": 0,
+        "custom_audience": 0
+      },
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed"
+      ],
+      "instagram_positions": [
+        "stream"
+      ],
+      "device_platforms": [
+        "mobile",
+        "desktop"
+      ]
+    }
+  }
+}

@@ -1,0 +1,396 @@
+{
+  "checked_at": "2026-09-19T09:46:29.966Z",
+  "account": {
+    "id": "act_511099830249139",
+    "name": "Antonio Valente Mental Coach Calciatori",
+    "currency": "EUR",
+    "timezone_name": "Europe/Rome",
+    "account_status": 1,
+    "disable_reason": 0
+  },
+  "campaigns": [
+    {
+      "id": "120251721514160047",
+      "name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "10000"
+    },
+    {
+      "id": "120251644311030047",
+      "name": "Nuova Campagna Settembre 2026",
+      "status": "PAUSED",
+      "effective_status": "PAUSED"
+    },
+    {
+      "id": "120250122431060047",
+      "name": "MS - sport - 6/07/2026 - CBO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120249909381570047",
+      "name": "MS - sport - x angolo",
+      "status": "PAUSED",
+      "effective_status": "PAUSED"
+    },
+    {
+      "id": "120249274119740047",
+      "name": "MS - Testing - Quiz - modulo interattivo - Tennis",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120249084594750047",
+      "name": "MS - [ECOM] Scaling Bundle CBO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "15000"
+    },
+    {
+      "id": "120249082390630047",
+      "name": "MS - [ECOM] Scaling Bundle CBO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "15000"
+    },
+    {
+      "id": "120249018103230047",
+      "name": "MS - [ECOM] Testing Creative ABO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED"
+    },
+    {
+      "id": "120249018095780047",
+      "name": "MS - [ECOM] Retargeting ABO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED"
+    },
+    {
+      "id": "120249018083390047",
+      "name": "MS - [ECOM] Prospecting CBO",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120248873939530047",
+      "name": "MS - ABO - 16/06/2026",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120247761506580047",
+      "name": "MS - Testing - Quiz - modulo interattivo",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120247291893540047",
+      "name": "MS - Testing - Quiz",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120246907525070047",
+      "name": "MS - TESTING X GUIDE",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120246796549720047",
+      "name": "MS - Testing - SUMMER EDITION - pubblico personalizzato",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120245963393700047",
+      "name": "MS - Testing - SUMMER EDITION",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "15000"
+    },
+    {
+      "id": "120245687081260047",
+      "name": "MS - TESTING X GUIDE - BID CAP",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "200000"
+    },
+    {
+      "id": "120244112131310047",
+      "name": "MS - TESTING - BID CAP",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "200000"
+    },
+    {
+      "id": "120243861437670047",
+      "name": "MS - SCALING",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "30000"
+    },
+    {
+      "id": "120243861179740047",
+      "name": "MS - TESTING",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "10000"
+    },
+    {
+      "id": "120242756251050047",
+      "name": "MS - Lead Gen - Andromeda",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "30000"
+    },
+    {
+      "id": "120242234788000047",
+      "name": "11/03/2026 ABO - Calcio",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120242197273790047",
+      "name": "11/03/2026 ABO - Sport",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "6000"
+    },
+    {
+      "id": "120241944467950047",
+      "name": "26/02/2026 ABO - \"pressione\" - 200 €",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120241944153310047",
+      "name": "20/02/2026 ABO - \"ansia\" pt.3 - 200 €",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120241577145460047",
+      "name": "26/02/2026 ABO - \"pressione\"",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "6000"
+    },
+    {
+      "id": "120241486683660047",
+      "name": "24/02/2026 ABO - \"infortunio\"",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "6000"
+    },
+    {
+      "id": "120241439096000047",
+      "name": "23/02/2026 ABO - \"fiducia\"",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "6000"
+    },
+    {
+      "id": "120241265570790047",
+      "name": "20/02/2026 ABO - \"ansia\" pt.3",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "20000"
+    },
+    {
+      "id": "120241135880290047",
+      "name": "16/02/2026 ABO - \"ansia\" pt.2",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": "6000"
+    }
+  ],
+  "permissions": [
+    {
+      "permission": "ads_management",
+      "status": "granted"
+    },
+    {
+      "permission": "ads_read",
+      "status": "granted"
+    },
+    {
+      "permission": "business_management",
+      "status": "granted"
+    },
+    {
+      "permission": "leads_retrieval",
+      "status": "granted"
+    },
+    {
+      "permission": "pages_manage_ads",
+      "status": "granted"
+    },
+    {
+      "permission": "pages_manage_metadata",
+      "status": "granted"
+    },
+    {
+      "permission": "pages_read_engagement",
+      "status": "granted"
+    },
+    {
+      "permission": "pages_show_list",
+      "status": "granted"
+    },
+    {
+      "permission": "public_profile",
+      "status": "granted"
+    }
+  ],
+  "page": {
+    "id": "108451268302248",
+    "name": "Antonio Valente \"Mental Coach\"",
+    "instagram_business_account": {
+      "id": "17841449195220971",
+      "username": "antoniovalente_mentalcoach"
+    }
+  },
+  "reference_adset": {
+    "id": "120251721514170047",
+    "name": "Genitori | 40-60 | Nord Italia + Lazio | Lead 615",
+    "targeting": {
+      "age_max": 60,
+      "age_min": 40,
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        },
+        {
+          "interests": [
+            {
+              "id": "6003442346642",
+              "name": "Calcio (sport)"
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "regions": [
+          {
+            "key": "1845",
+            "name": "Emilia-Romagna",
+            "country": "IT"
+          },
+          {
+            "key": "1846",
+            "name": "Friuli-Venezia Giulia",
+            "country": "IT"
+          },
+          {
+            "key": "1847",
+            "name": "Lazio",
+            "country": "IT"
+          },
+          {
+            "key": "1848",
+            "name": "Liguria",
+            "country": "IT"
+          },
+          {
+            "key": "1849",
+            "name": "Lombardia",
+            "country": "IT"
+          },
+          {
+            "key": "1852",
+            "name": "Piedmont",
+            "country": "IT"
+          },
+          {
+            "key": "1857",
+            "name": "Trentino-Alto Adige",
+            "country": "IT"
+          },
+          {
+            "key": "1859",
+            "name": "Aosta Valley",
+            "country": "IT"
+          },
+          {
+            "key": "1860",
+            "name": "Veneto",
+            "country": "IT"
+          }
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "brand_safety_content_filter_levels": [
+        "FACEBOOK_RELAXED",
+        "AN_RELAXED"
+      ],
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      }
+    },
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "destination_type": "UNDEFINED",
+    "billing_event": "IMPRESSIONS",
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      },
+      {
+        "event_type": "ENGAGED_VIDEO_VIEW",
+        "window_days": 1
+      }
+    ],
+    "dsa_beneficiary": "Antonio Valente",
+    "dsa_payor": "Antonio Valente"
+  },
+  "selected_tags": [
+    {
+      "trigger_keyword": "mental_coaching"
+    },
+    {
+      "trigger_keyword": "blocchi"
+    },
+    {
+      "trigger_keyword": "emotional"
+    }
+  ]
+}

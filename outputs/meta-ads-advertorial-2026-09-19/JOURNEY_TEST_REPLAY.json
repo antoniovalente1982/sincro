@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-09-19T09:54:27.126Z",
+  "purpose": "Test-mode replay of observed browser event IDs to inspect browser/server deduplication. Original server events also sent in production by website.",
+  "events": [
+    {
+      "event_name": "advertorial_view",
+      "event_id": "039ae5e3-9798-4c81-8f2f-b19c8790a611",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:52:15.191+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    },
+    {
+      "event_name": "advertorial_engaged",
+      "event_id": "a768ec5b-3193-428e-8b0f-e217f580de64",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:52:45.216+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    },
+    {
+      "event_name": "advertorial_cta",
+      "event_id": "36e2c976-bde8-407f-af90-04cd2564a76a",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:53:22.053+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    },
+    {
+      "event_name": "landing_view",
+      "event_id": "b2449ccb-4c7d-4b69-b508-f279bf70c132",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:23.261+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    },
+    {
+      "event_name": "landing_engaged",
+      "event_id": "07d9d58e-6643-4d5a-80fe-6519b3324c6f",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:26.472+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    },
+    {
+      "event_name": "form_start",
+      "event_id": "2d54dd9c-0277-42eb-893a-28ea97d82040",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:55.691+00:00",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional"
+    }
+  ],
+  "test_receipts": [
+    {
+      "event_id": "039ae5e3-9798-4c81-8f2f-b19c8790a611",
+      "event_name": "PageView",
+      "result": {
+        "events_received": 1,
+        "messages": [],
+        "fbtrace_id": "ATCC52X9QZe_NNfS4dfDlCG"
+      }
+    },
+    {
+      "event_id": "a768ec5b-3193-428e-8b0f-e217f580de64",
+      "event_name": "AdvertorialEngaged",
+      "result": {
+        "events_received": 1,
+        "messages": [],
+        "fbtrace_id": "Ah5ahWemh8v0zCKTOeSiL7u"
+      }
+    },
+    {
+      "event_id": "b2449ccb-4c7d-4b69-b508-f279bf70c132",
+      "event_name": "PageView",
+      "result": {
+        "events_received": 1,
+        "messages": [],
+        "fbtrace_id": "An2X1SQ2LNOjlRoqz6Ua6zw"
+      }
+    },
+    {
+      "event_id": "2d54dd9c-0277-42eb-893a-28ea97d82040",
+      "event_name": "StartForm",
+      "result": {
+        "events_received": 1,
+        "messages": [],
+        "fbtrace_id": "AqLIM4otDtPk4i-SkLOJ8R5"
+      }
+    }
+  ]
+}

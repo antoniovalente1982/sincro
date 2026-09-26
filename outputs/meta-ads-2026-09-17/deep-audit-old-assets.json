@@ -1,0 +1,24 @@
+{
+  "old_creative": {
+    "call_to_action_type": "LEARN_MORE",
+    "id": "2045873939397143",
+    "video_id": "951614177300194"
+  },
+  "old_video": {
+    "id": "951614177300194",
+    "title": "TUO FIGLIO GIOCA A CALCIO?",
+    "length": 152.5
+  },
+  "old_quiz_adsets": [
+    {
+      "id": "120247761506570047",
+      "name": "AD SET - video - modulo interno",
+      "destination_type": "ON_AD",
+      "optimization_goal": "LEAD_GENERATION",
+      "promoted_object": {
+        "page_id": "108451268302248",
+        "smart_pse_enabled": false
+      }
+    }
+  ]
+}

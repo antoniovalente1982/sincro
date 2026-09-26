@@ -1,0 +1,1566 @@
+{
+  "started_at": "2026-09-17T05:49:44.004Z",
+  "ads": {
+    "120251721514180047": {
+      "creative_id": "1137373622297606",
+      "previous_creative_id": "1070058382337206",
+      "created_at": "2026-09-17T05:50:09.686Z",
+      "verified_at": "2026-09-17T05:50:09.974Z",
+      "applied_at": "2026-09-17T06:00:58.016Z",
+      "after": {
+        "id": "120251721514180047",
+        "name": "V01 | 3 chiavi mentali | Salto di qualità",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "campaign_id": "120251721514160047",
+        "adset_id": "120251721514170047",
+        "creative": {
+          "id": "1137373622297606",
+          "object_story_spec": {
+            "page_id": "108451268302248",
+            "instagram_user_id": "17841449195220971",
+            "video_data": {
+              "video_id": "1807600154011061",
+              "title": "Aiutalo a fare il salto di categoria",
+              "message": "Aiutalo a fare il salto di categoria. La preparazione passa anche dalla mente: avere una direzione, restare concentrato e ripartire dopo un errore.\n\nNel video Antonio Valente presenta tre chiavi mentali da allenare. Con Metodo Sincro®, tuo figlio può lavorarci in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita: valutiamo insieme come prepararlo al prossimo livello e se il percorso è adatto. Il percorso di coaching è a pagamento.",
+              "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+              "call_to_action": {
+                "type": "LEARN_MORE",
+                "value": {
+                  "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+                }
+              },
+              "image_url": "https://www.facebook.com/ads/image/?d=AQKqg1h5JquCYHy05x5GWAy1TfrgmXEg1UHBXKOFPXb13lnS5J0IZuNHkKQRu-OB8uottvW0Pi2CyLXCsq4P_Sf7cZ_tQATKsWkmJNJssDcM_tsEsgL8EIdbYQo9dakel3_WSR-CbChsK9qoCsMePHIQ",
+              "image_hash": "d7f0a83124d4a48b5bfb115a8f729625"
+            }
+          },
+          "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+          "degrees_of_freedom_spec": {
+            "creative_features_spec": {
+              "adapt_to_placement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "add_text_overlay": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ads_with_benefits": {
+                "enroll_status": "OPT_IN"
+              },
+              "advantage_plus_creative": {
+                "enroll_status": "OPT_IN"
+              },
+              "app_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "audio": {
+                "enroll_status": "OPT_OUT"
+              },
+              "auto_promotion_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "biz_ai": {
+                "enroll_status": "OPT_OUT"
+              },
+              "carousel_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "catalog_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "creative_stickers": {
+                "enroll_status": "OPT_OUT"
+              },
+              "customize_product_recommendation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "cv_transformation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "description_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dha_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_cta_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_partner_content": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enable_ncs_testimonials": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enhance_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_story_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "feed_caption_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "generate_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hide_price": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hyperlink_formatting": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_glados_feed": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_stream_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_video_native_subtitle": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_animation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_auto_crop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_background_gen": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_banner": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_brightness_and_contrast": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_end_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_enhancement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_templates": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_touchups": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_uncrop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "inline_comment": {
+                "enroll_status": "OPT_IN"
+              },
+              "local_store_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_liquidity_animated_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_order": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_type_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_creative_post_carousel": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_photo_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "music_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_genai_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_relaxation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_browsing": {
+                "enroll_status": "OPT_IN"
+              },
+              "product_extensions": {
+                "enroll_status": "OPT_IN",
+                "customizations": {
+                  "pe_carousel": {
+                    "enroll_status": "OPT_IN"
+                  }
+                }
+              },
+              "product_metadata_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_tags": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "replace_media_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "reveal_details_over_time": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_destination_blurbs": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_summary": {
+                "enroll_status": "OPT_OUT"
+              },
+              "site_extensions": {
+                "enroll_status": "OPT_OUT"
+              },
+              "standard_enhancements_catalog": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_headline": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_tap_target": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_formatting_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_optimizations": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_overlay_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "translate_voiceover": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_auto_crop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_filtering": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_highlight": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_to_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_uncrop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_uncrop_9x16_to_9x18": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_voiceover": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_image_filtering": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_text_truncation_length": {
+                "enroll_status": "OPT_OUT"
+              }
+            }
+          }
+        },
+        "tracking_specs": [
+          {
+            "action.type": [
+              "offsite_conversion"
+            ],
+            "fb_pixel": [
+              "311586900940615"
+            ]
+          },
+          {
+            "action.type": [
+              "commerce_event"
+            ],
+            "page": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ],
+            "conversion_id": [
+              "9606058292747006"
+            ]
+          },
+          {
+            "action.type": [
+              "post_interaction_gross"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908155142307"
+            ]
+          },
+          {
+            "action.type": [
+              "post_engagement"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908155142307"
+            ]
+          },
+          {
+            "action.type": [
+              "link_click"
+            ],
+            "post": [
+              "1107908155142307"
+            ],
+            "post.wall": [
+              "108451268302248"
+            ]
+          }
+        ]
+      }
+    },
+    "120251721835570047": {
+      "creative_id": "1079202107844408",
+      "previous_creative_id": "2670328580090432",
+      "created_at": "2026-09-17T05:50:11.496Z",
+      "verified_at": "2026-09-17T05:50:11.791Z",
+      "applied_at": "2026-09-17T06:01:03.391Z",
+      "after": {
+        "id": "120251721835570047",
+        "name": "V02 | Talento e continuità",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "campaign_id": "120251721514160047",
+        "adset_id": "120251721514170047",
+        "creative": {
+          "id": "1079202107844408",
+          "object_story_spec": {
+            "page_id": "108451268302248",
+            "instagram_user_id": "17841449195220971",
+            "video_data": {
+              "video_id": "1414272527331432",
+              "title": "Aiutalo a fare il salto di categoria",
+              "message": "Aiutalo a fare il salto di categoria. Portare il proprio talento in partita con continuità richiede anche fiducia, concentrazione e capacità di reagire agli errori.\n\nNel video Antonio Valente presenta tre aspetti della crescita di un giovane calciatore. Metodo Sincro® li affronta con un percorso di Mental Coaching individuale online e un coach dedicato.\n\nPrenota una consulenza gratuita: partiamo dalla situazione di tuo figlio e dagli obiettivi che vuole raggiungere. Il percorso di coaching è a pagamento.",
+              "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+              "call_to_action": {
+                "type": "LEARN_MORE",
+                "value": {
+                  "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+                }
+              },
+              "image_url": "https://www.facebook.com/ads/image/?d=AQIX8fsLRh1VUgiNRFdVmzQAf_IieY9p3fSy3DKUMdiSMgJIbVJv9Zc5ha5Q65nqgS-vYe5p2otlkreIXOzstGYvxIOQE9JY4dJsQB8m3NOICr-jmca0y9BdOEOeAM0c_R5EPCQ5ZFKsfJIPFupfDQVi",
+              "image_hash": "64823d2db53dca602747e716e44e1925"
+            }
+          },
+          "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+          "degrees_of_freedom_spec": {
+            "creative_features_spec": {
+              "adapt_to_placement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "add_text_overlay": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ads_with_benefits": {
+                "enroll_status": "OPT_IN"
+              },
+              "advantage_plus_creative": {
+                "enroll_status": "OPT_IN"
+              },
+              "app_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "audio": {
+                "enroll_status": "OPT_OUT"
+              },
+              "auto_promotion_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "biz_ai": {
+                "enroll_status": "OPT_OUT"
+              },
+              "carousel_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "catalog_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "creative_stickers": {
+                "enroll_status": "OPT_OUT"
+              },
+              "customize_product_recommendation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "cv_transformation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "description_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dha_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_cta_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_partner_content": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enable_ncs_testimonials": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enhance_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_story_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "feed_caption_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "generate_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hide_price": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hyperlink_formatting": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_glados_feed": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_stream_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_video_native_subtitle": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_animation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_auto_crop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_background_gen": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_banner": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_brightness_and_contrast": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_end_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_enhancement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_templates": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_touchups": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_uncrop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "inline_comment": {
+                "enroll_status": "OPT_IN"
+              },
+              "local_store_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_liquidity_animated_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_order": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_type_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_creative_post_carousel": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_photo_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "music_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_genai_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_relaxation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_browsing": {
+                "enroll_status": "OPT_IN"
+              },
+              "product_extensions": {
+                "enroll_status": "OPT_IN",
+                "customizations": {
+                  "pe_carousel": {
+                    "enroll_status": "OPT_IN"
+                  }
+                }
+              },
+              "product_metadata_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_tags": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "replace_media_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "reveal_details_over_time": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_destination_blurbs": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_summary": {
+                "enroll_status": "OPT_OUT"
+              },
+              "site_extensions": {
+                "enroll_status": "OPT_OUT"
+              },
+              "standard_enhancements_catalog": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_headline": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_tap_target": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_formatting_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_optimizations": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_overlay_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "translate_voiceover": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_auto_crop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_filtering": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_highlight": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_to_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_uncrop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_uncrop_9x16_to_9x18": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_voiceover": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_image_filtering": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_text_truncation_length": {
+                "enroll_status": "OPT_OUT"
+              }
+            }
+          }
+        },
+        "tracking_specs": [
+          {
+            "action.type": [
+              "offsite_conversion"
+            ],
+            "fb_pixel": [
+              "311586900940615"
+            ]
+          },
+          {
+            "action.type": [
+              "commerce_event"
+            ],
+            "page": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ],
+            "conversion_id": [
+              "9606058292747006"
+            ]
+          },
+          {
+            "action.type": [
+              "post_engagement"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908175142305"
+            ]
+          },
+          {
+            "action.type": [
+              "link_click"
+            ],
+            "post": [
+              "1107908175142305"
+            ],
+            "post.wall": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "post_interaction_gross"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908175142305"
+            ]
+          }
+        ]
+      }
+    },
+    "120251721835580047": {
+      "creative_id": "1095783009609984",
+      "previous_creative_id": "1055059947533475",
+      "created_at": "2026-09-17T05:50:13.580Z",
+      "verified_at": "2026-09-17T05:50:13.855Z",
+      "applied_at": "2026-09-17T06:01:08.422Z",
+      "after": {
+        "id": "120251721835580047",
+        "name": "V03 | Salto di categoria",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "campaign_id": "120251721514160047",
+        "adset_id": "120251721514170047",
+        "creative": {
+          "id": "1095783009609984",
+          "object_story_spec": {
+            "page_id": "108451268302248",
+            "instagram_user_id": "17841449195220971",
+            "video_data": {
+              "video_id": "1872129986835742",
+              "title": "Aiutalo a fare il salto di categoria",
+              "message": "Aiutalo a fare il salto di categoria. Un livello più alto porta ritmi, concorrenza e aspettative nuove: prepararsi significa allenare anche la mente.\n\nNel video Antonio Valente spiega come accompagnare un giovane calciatore in questo passaggio. Con Metodo Sincro®, tuo figlio lavora su sicurezza, concentrazione e gestione della pressione in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita e scopriamo insieme come prepararlo al prossimo livello. Il percorso di coaching è a pagamento.",
+              "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+              "call_to_action": {
+                "type": "LEARN_MORE",
+                "value": {
+                  "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+                }
+              },
+              "image_url": "https://www.facebook.com/ads/image/?d=AQLKwQSVB8DF6BzXCOn8eoyREv5rHm5hPOij2e9k-3gcGR88ybvBU7TxBI9fwFBnJx2_zG1ZJHERFWK9jQIjVEUXqCgBR1BjGa1M6exlUZNKhN37Ib0zHM38_tlLRmR1eznzviR9qKPoANS8DKAMQ7Ut",
+              "image_hash": "8d038a7e6d0aadf280951d735ea69b0c"
+            }
+          },
+          "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+          "degrees_of_freedom_spec": {
+            "creative_features_spec": {
+              "adapt_to_placement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "add_text_overlay": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ads_with_benefits": {
+                "enroll_status": "OPT_IN"
+              },
+              "advantage_plus_creative": {
+                "enroll_status": "OPT_IN"
+              },
+              "app_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "audio": {
+                "enroll_status": "OPT_OUT"
+              },
+              "auto_promotion_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "biz_ai": {
+                "enroll_status": "OPT_OUT"
+              },
+              "carousel_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "catalog_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "creative_stickers": {
+                "enroll_status": "OPT_OUT"
+              },
+              "customize_product_recommendation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "cv_transformation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "description_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dha_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_cta_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_partner_content": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enable_ncs_testimonials": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enhance_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_story_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "feed_caption_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "generate_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hide_price": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hyperlink_formatting": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_glados_feed": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_stream_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_video_native_subtitle": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_animation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_auto_crop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_background_gen": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_banner": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_brightness_and_contrast": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_end_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_enhancement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_templates": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_touchups": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_uncrop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "inline_comment": {
+                "enroll_status": "OPT_IN"
+              },
+              "local_store_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_liquidity_animated_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_order": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_type_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_creative_post_carousel": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_photo_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "music_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_genai_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_relaxation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_browsing": {
+                "enroll_status": "OPT_IN"
+              },
+              "product_extensions": {
+                "enroll_status": "OPT_IN",
+                "customizations": {
+                  "pe_carousel": {
+                    "enroll_status": "OPT_IN"
+                  }
+                }
+              },
+              "product_metadata_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_tags": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "replace_media_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "reveal_details_over_time": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_destination_blurbs": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_summary": {
+                "enroll_status": "OPT_OUT"
+              },
+              "site_extensions": {
+                "enroll_status": "OPT_OUT"
+              },
+              "standard_enhancements_catalog": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_headline": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_tap_target": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_formatting_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_optimizations": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_overlay_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "translate_voiceover": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_auto_crop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_filtering": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_highlight": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_to_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_uncrop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_uncrop_9x16_to_9x18": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_voiceover": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_image_filtering": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_text_truncation_length": {
+                "enroll_status": "OPT_OUT"
+              }
+            }
+          }
+        },
+        "tracking_specs": [
+          {
+            "action.type": [
+              "offsite_conversion"
+            ],
+            "fb_pixel": [
+              "311586900940615"
+            ]
+          },
+          {
+            "action.type": [
+              "commerce_event"
+            ],
+            "page": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ],
+            "conversion_id": [
+              "9606058292747006"
+            ]
+          },
+          {
+            "action.type": [
+              "link_click"
+            ],
+            "post": [
+              "1107908198475636"
+            ],
+            "post.wall": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "post_engagement"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908198475636"
+            ]
+          },
+          {
+            "action.type": [
+              "post_interaction_gross"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908198475636"
+            ]
+          }
+        ]
+      }
+    },
+    "120251721835590047": {
+      "creative_id": "4519716061642659",
+      "previous_creative_id": "1124993409859760",
+      "created_at": "2026-09-17T05:50:15.520Z",
+      "verified_at": "2026-09-17T05:50:15.807Z",
+      "applied_at": "2026-09-17T06:01:13.722Z",
+      "after": {
+        "id": "120251721835590047",
+        "name": "V04 | Preparazione alla partita",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "campaign_id": "120251721514160047",
+        "adset_id": "120251721514170047",
+        "creative": {
+          "id": "4519716061642659",
+          "object_story_spec": {
+            "page_id": "108451268302248",
+            "instagram_user_id": "17841449195220971",
+            "video_data": {
+              "video_id": "2956279714719416",
+              "title": "Aiutalo a fare il salto di categoria",
+              "message": "Aiutalo a fare il salto di categoria, una partita alla volta. Anche il modo di prepararsi e il sostegno dei genitori fanno parte della crescita sportiva.\n\nNel video Antonio Valente condivide tre indicazioni pratiche per accompagnarlo prima della partita. Con Metodo Sincro®, tuo figlio può allenare concentrazione, fiducia e gestione della pressione con un coach dedicato, in un percorso individuale online.\n\nPrenota una consulenza gratuita per capire insieme da dove partire. Il percorso di coaching è a pagamento.",
+              "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+              "call_to_action": {
+                "type": "LEARN_MORE",
+                "value": {
+                  "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+                }
+              },
+              "image_url": "https://www.facebook.com/ads/image/?d=AQLpUhHRe4RJ7DRebAxkyuWBxi-TWQxuM_Rg4SOzHLEWw-6JHiHz5g3KzgBDayYp3cFCd6m7Wwjr8jhawkvWKrqE_HmKMmrD-NdncSxXfKdq6mhzqhbY7oLLnHh9J_CwAHsa1SMfAmTuB4Ub8QGZ3JCs",
+              "image_hash": "13604afc2e0c950d85f57582f2d6a715"
+            }
+          },
+          "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+          "degrees_of_freedom_spec": {
+            "creative_features_spec": {
+              "adapt_to_placement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "add_text_overlay": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ads_with_benefits": {
+                "enroll_status": "OPT_IN"
+              },
+              "advantage_plus_creative": {
+                "enroll_status": "OPT_IN"
+              },
+              "app_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "audio": {
+                "enroll_status": "OPT_OUT"
+              },
+              "auto_promotion_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "biz_ai": {
+                "enroll_status": "OPT_OUT"
+              },
+              "carousel_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "catalog_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "creative_stickers": {
+                "enroll_status": "OPT_OUT"
+              },
+              "customize_product_recommendation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "cv_transformation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "description_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dha_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_cta_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "dynamic_partner_content": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enable_ncs_testimonials": {
+                "enroll_status": "OPT_OUT"
+              },
+              "enhance_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "fb_story_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "feed_caption_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "generate_cta": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hide_price": {
+                "enroll_status": "OPT_OUT"
+              },
+              "hyperlink_formatting": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_feed_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_glados_feed": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_reels_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_stream_tag": {
+                "enroll_status": "OPT_OUT"
+              },
+              "ig_video_native_subtitle": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_animation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_auto_crop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_background_gen": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_banner": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_brightness_and_contrast": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_end_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_enhancement": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_templates": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_touchups": {
+                "enroll_status": "OPT_OUT"
+              },
+              "image_uncrop": {
+                "enroll_status": "OPT_OUT"
+              },
+              "inline_comment": {
+                "enroll_status": "OPT_IN"
+              },
+              "local_store_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_liquidity_animated_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_order": {
+                "enroll_status": "OPT_OUT"
+              },
+              "media_type_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_creative_post_carousel": {
+                "enroll_status": "OPT_OUT"
+              },
+              "multi_photo_to_video": {
+                "enroll_status": "OPT_OUT"
+              },
+              "music_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_genai_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_recomposition": {
+                "enroll_status": "OPT_OUT"
+              },
+              "pac_relaxation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_browsing": {
+                "enroll_status": "OPT_IN"
+              },
+              "product_extensions": {
+                "enroll_status": "OPT_IN",
+                "customizations": {
+                  "pe_carousel": {
+                    "enroll_status": "OPT_IN"
+                  }
+                }
+              },
+              "product_metadata_automation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "product_tags": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_card": {
+                "enroll_status": "OPT_OUT"
+              },
+              "profile_extension": {
+                "enroll_status": "OPT_OUT"
+              },
+              "replace_media_text": {
+                "enroll_status": "OPT_OUT"
+              },
+              "reveal_details_over_time": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_destination_blurbs": {
+                "enroll_status": "OPT_OUT"
+              },
+              "show_summary": {
+                "enroll_status": "OPT_OUT"
+              },
+              "site_extensions": {
+                "enroll_status": "OPT_OUT"
+              },
+              "standard_enhancements_catalog": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_headline": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_extraction_for_tap_target": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_formatting_optimization": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_generation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_optimizations": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_overlay_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "text_translation": {
+                "enroll_status": "OPT_OUT"
+              },
+              "translate_voiceover": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_auto_crop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_filtering": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_highlight": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_highlights": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_to_image": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_uncrop": {
+                "enroll_status": "OPT_IN"
+              },
+              "video_uncrop_9x16_to_9x18": {
+                "enroll_status": "OPT_OUT"
+              },
+              "video_voiceover": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_image_filtering": {
+                "enroll_status": "OPT_OUT"
+              },
+              "wa_mm_text_truncation_length": {
+                "enroll_status": "OPT_OUT"
+              }
+            }
+          }
+        },
+        "tracking_specs": [
+          {
+            "action.type": [
+              "offsite_conversion"
+            ],
+            "fb_pixel": [
+              "311586900940615"
+            ]
+          },
+          {
+            "action.type": [
+              "commerce_event"
+            ],
+            "page": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ]
+          },
+          {
+            "action.type": [
+              "onsite_conversion"
+            ],
+            "conversion_id": [
+              "9606058292747006"
+            ]
+          },
+          {
+            "action.type": [
+              "post_engagement"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908215142301"
+            ]
+          },
+          {
+            "action.type": [
+              "link_click"
+            ],
+            "post": [
+              "1107908215142301"
+            ],
+            "post.wall": [
+              "108451268302248"
+            ]
+          },
+          {
+            "action.type": [
+              "post_interaction_gross"
+            ],
+            "page": [
+              "108451268302248"
+            ],
+            "post": [
+              "1107908215142301"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "campaign_before": {
+    "id": "120251721514160047",
+    "name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+    "status": "ACTIVE",
+    "objective": "OUTCOME_LEADS",
+    "daily_budget": "10000"
+  },
+  "adset_before": {
+    "id": "120251721514170047",
+    "name": "Genitori | 40-60 | Nord Italia + Lazio | Lead 615",
+    "status": "ACTIVE",
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "targeting": {
+      "age_max": 60,
+      "age_min": 40,
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        },
+        {
+          "interests": [
+            {
+              "id": "6003442346642",
+              "name": "Calcio (sport)"
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "regions": [
+          {
+            "key": "1845",
+            "name": "Emilia-Romagna",
+            "country": "IT"
+          },
+          {
+            "key": "1846",
+            "name": "Friuli-Venezia Giulia",
+            "country": "IT"
+          },
+          {
+            "key": "1847",
+            "name": "Lazio",
+            "country": "IT"
+          },
+          {
+            "key": "1848",
+            "name": "Liguria",
+            "country": "IT"
+          },
+          {
+            "key": "1849",
+            "name": "Lombardia",
+            "country": "IT"
+          },
+          {
+            "key": "1852",
+            "name": "Piedmont",
+            "country": "IT"
+          },
+          {
+            "key": "1857",
+            "name": "Trentino-Alto Adige",
+            "country": "IT"
+          },
+          {
+            "key": "1859",
+            "name": "Aosta Valley",
+            "country": "IT"
+          },
+          {
+            "key": "1860",
+            "name": "Veneto",
+            "country": "IT"
+          }
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "brand_safety_content_filter_levels": [
+        "FACEBOOK_RELAXED",
+        "AN_RELAXED"
+      ],
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      }
+    },
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      },
+      {
+        "event_type": "ENGAGED_VIDEO_VIEW",
+        "window_days": 1
+      }
+    ]
+  },
+  "verified_at": "2026-09-17T06:01:14.830Z"
+}

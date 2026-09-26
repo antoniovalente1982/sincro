@@ -1,0 +1,3442 @@
+{
+  "checked_at": "2026-09-19T10:00:55.310Z",
+  "result": "PASS",
+  "campaign": {
+    "id": "120251780591420047",
+    "name": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "objective": "OUTCOME_LEADS",
+    "daily_budget": "5700",
+    "spend_cap": "50000",
+    "bid_strategy": "LOWEST_COST_WITHOUT_CAP"
+  },
+  "adset": {
+    "id": "120251780591590047",
+    "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "campaign_id": "120251780591420047",
+    "targeting": {
+      "age_max": 65,
+      "age_min": 38,
+      "excluded_custom_audiences": [
+        {
+          "id": "120243946766660047",
+          "name": "HERMES — � Lead Recenti (30gg) — Esclusione"
+        }
+      ],
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "countries": [
+          "IT"
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "locales": [
+        10
+      ],
+      "targeting_relaxation_types": {
+        "lookalike": 0,
+        "custom_audience": 0
+      },
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed"
+      ],
+      "instagram_positions": [
+        "stream"
+      ]
+    },
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "destination_type": "WEBSITE",
+    "start_time": "2026-09-19T11:50:15+0200",
+    "end_time": "2026-09-24T11:50:14+0200",
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      }
+    ],
+    "dsa_beneficiary": "Antonio Valente",
+    "dsa_payor": "Antonio Valente"
+  },
+  "ads": [
+    {
+      "id": "120251780634110047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V1 Il silenzio in auto T: emotional",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109727781627011"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109727781627011"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109727781627011"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1631692138617463",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita",
+            "message": "La partita è finita. Ma in macchina continua, anche senza parlare.\n\nImmagina il rientro dopo una gara difficile: un ragazzo sale con il borsone, il padre cerca le parole. «Volevo soltanto aiutarti», pensa uno. «Adesso non voglio parlarne», risponde l’altro.\n\nUna scena illustrativa che mette a fuoco un dubbio concreto: come lasciare spazio senza far sentire un figlio solo?\n\nIl primo passo può essere capire quale conversazione sia possibile in quel momento. Nell’articolo di Dentro la partita trovi un modo per chiedere spazio al dialogo e distinguere ciò che è successo in campo dal giudizio sulla persona.\n\nÈ un approfondimento del Metodo Sincro per i genitori che accompagnano un figlio o una figlia nel calcio, anche dilettantistico. Con un passo successivo per chi desidera confrontarsi con il nostro team.\n\nScopri da dove può ripartire il prossimo rientro.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Dopo la partita, da dove si riparte?",
+            "caption": "landing.metodosincro.com",
+            "description": "Un articolo per i genitori",
+            "image_hash": "3f962b2486c4463f24013e2064f69b13",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780641200047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V3 Restare o cambiare? T: mental_coaching",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729314960191"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729314960191"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109729314960191"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1063821909758820",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco",
+            "message": "Restare e insistere, oppure cambiare squadra? Prima servono tre risposte concrete.\n\nChe cosa gli è stato chiesto di migliorare?\nQuali occasioni ha per lavorarci e ricevere un riscontro?\nCome vive lui l’esperienza, oltre ai minuti giocati?\n\nIl minutaggio è un dato. Da solo non spiega perché un ragazzo trovi poco spazio né quale alternativa possa essergli utile.\n\nL’articolo di Dentro la partita parte da queste domande per aiutare la famiglia a valutare il passo successivo. Chiarisce anche quando il mental coaching può essere pertinente; la formazione rimane una scelta dell’allenatore.\n\nLeggi l’approfondimento Metodo Sincro per genitori di giovani calciatori.\n\nIllustrazione generata con AI.",
+            "name": "Pochi minuti: tre cose da chiarire",
+            "caption": "landing.metodosincro.com",
+            "description": "Le domande prima di scegliere",
+            "image_hash": "c19c86b79e3d19e9425f5bafdf1d5fa4",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780635790047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V3 Adesso o dopo? T: emotional",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109728811626908"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728811626908"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728811626908"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1081731087575876",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita",
+            "message": "Dopo una brutta partita, la prima domanda può riguardare quando parlarne insieme.\n\n«Ti va di raccontarmi com’è andata per te, o preferisci parlarne più tardi?»\n\nÈ un esempio di apertura: ha senso se la risposta viene ascoltata, anche quando è «dopo». Può aiutare a capire se il ragazzo desidera essere ascoltato o ragionare su una difficoltà.\n\nNell’articolo trovi questo passaggio, un esempio per riaprire il dialogo dopo una discussione e il ruolo possibile del mental coaching.\n\nPer i genitori che accompagnano un figlio o una figlia nel calcio. Leggi l’approfondimento Metodo Sincro.\n\nIllustrazione generata con AI.",
+            "name": "Ne parliamo adesso o dopo?",
+            "caption": "landing.metodosincro.com",
+            "description": "Una domanda per ripartire",
+            "image_hash": "8b8dbbf463f6f2f99807427565629ed0",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780640320047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V2 La scelta arriva a cena T: mental_coaching",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109729241626865"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729241626865"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729241626865"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1773359967305306",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco",
+            "message": "Prima di cambiare squadra, manca una voce da ascoltare: la sua.\n\nImmagina la cena dopo un’altra partita con pochi minuti in campo. I genitori discutono le alternative. Il ragazzo, intanto, non ha ancora raccontato come vive gli allenamenti o che cosa desidera.\n\nCambiare ambiente è una possibilità. Per valutarla, servono anche la sua esperienza e le indicazioni ricevute da chi lo allena.\n\nNell’articolo trovi le informazioni da cercare prima di scegliere e come distinguere una questione tecnica, il contesto della squadra e una possibile difficoltà nella gestione della pressione.\n\nUn approfondimento Metodo Sincro per genitori di giovani calciatori. Leggi da quale conversazione partire.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Cambiare squadra: lui cosa pensa?",
+            "caption": "landing.metodosincro.com",
+            "description": "Prima di scegliere la squadra",
+            "image_hash": "693d8bc0fd093053ee30956f725d51b7",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780639490047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729101626879"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109729101626879"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729101626879"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1816452406374321",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco",
+            "message": "Un’altra domenica in panchina. A cena qualcuno dice: «Forse dobbiamo cambiare».\n\nImmagina il silenzio che segue. Restare sembra voler dire aspettare ancora. Cambiare sembra una possibilità, ma nessuno sa davvero che cosa troverebbe nella nuova squadra.\n\nÈ una scena illustrativa. Il dubbio che racconta merita qualche informazione in più: che cosa dice il ragazzo? Quali indicazioni ha ricevuto? I minuti limitati dipendono da un aspetto tecnico, dalle scelte del gruppo o da una difficoltà che si può affrontare?\n\nNell’articolo di Dentro la partita trovi domande da chiarire prima di scegliere e il ruolo possibile del mental coaching. Le decisioni sulla formazione restano dell’allenatore; quelle sul percorso sportivo coinvolgono la famiglia e il ragazzo.\n\nUn approfondimento del Metodo Sincro per genitori di giovani calciatori.\n\nScopri da quali informazioni partire prima di un altro cambio.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Panchina: restare o cambiare?",
+            "caption": "landing.metodosincro.com",
+            "description": "Le domande prima di scegliere",
+            "image_hash": "2b3c1710a0ca3954e8fbcca9fe8618bd",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780638860047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V3 Cerca ancora il pallone? T: blocchi",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729034960219"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109729034960219"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109729034960219"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1105060582231195",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio",
+            "message": "Il passaggio sbagliato è finito. La prossima azione chiede ancora la sua attenzione.\n\nSi ripropone? Guarda il gioco? Oppure resta sullo sbaglio appena commesso?\n\nQueste domande possono aiutare un genitore a osservare un momento preciso. Il racconto del ragazzo serve poi per capire che cosa stesse vivendo.\n\nNell’articolo trovi un modo per ricostruire ciò che è successo, ciò che si è detto e ciò che ha fatto dopo. Da lì si può valutare un lavoro sulla risposta all’errore, rispettando le indicazioni tecniche dell’allenatore.\n\nLeggi l’approfondimento Metodo Sincro dedicato ai genitori di giovani calciatori e calciatrici.\n\nIllustrazione generata con AI.",
+            "name": "Dopo l’errore cerca ancora palla?",
+            "caption": "landing.metodosincro.com",
+            "description": "Un episodio da capire insieme",
+            "image_hash": "321c90bd72eedf6bd2d4dca581f06205",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780638310047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V2 Lo sguardo dalla tribuna T: blocchi",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728964960226"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109728964960226"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728964960226"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "2530961447423890",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio",
+            "message": "Dalla tribuna si vede il passaggio sbagliato. Ma che cosa succede dopo?\n\nImmagina un ragazzo che perde palla e, nell’azione seguente, smette di proporsi. Il genitore vorrebbe gridare «Non pensarci!». Ma da fuori non può sapere se stia ripensando all’errore, se sia stanco o se non abbia capito un’indicazione.\n\nUn comportamento si vede. Il suo significato va chiarito ascoltando chi lo ha vissuto.\n\nL’articolo di Dentro la partita aiuta a ricostruire un episodio senza trasformarlo in un processo e spiega su che cosa può lavorare il mental coaching.\n\nUn approfondimento Metodo Sincro per genitori di giovani calciatori. Scopri quali domande portare nel prossimo confronto.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Dalla tribuna manca un pezzo",
+            "caption": "landing.metodosincro.com",
+            "description": "Ascoltare la giocata dopo",
+            "image_hash": "78d8c39129987f1325b13a1138a15284",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780637630047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728888293567"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728888293567"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109728888293567"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1588601042665259",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio",
+            "message": "Il pallone è già ripartito. Lui è ancora fermo a quell’errore.\n\nImmagina questa scena: fino a un minuto prima un ragazzo chiedeva palla. Sbaglia un appoggio, abbassa la testa. Nell’azione successiva potrebbe proporsi, ma resta dietro l’avversario.\n\nDalla tribuna un genitore vede il passaggio. Il segnale da osservare, però, può essere ciò che accade dopo: partecipa ancora al gioco? Cerca subito una soluzione? Continua a ripensare allo sbaglio?\n\nL’articolo parte da questa scena illustrativa e aiuta a ricostruire un episodio, senza trasformarlo in un processo. Spiega anche su che cosa può lavorare il mental coaching quando la difficoltà si ripete.\n\nUn approfondimento del Metodo Sincro per genitori di giovani calciatori e calciatrici, anche nelle squadre dilettantistiche.\n\nScopri quali domande possono aiutare a capire la giocata dopo.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Conta anche la giocata dopo",
+            "caption": "landing.metodosincro.com",
+            "description": "Capire la risposta all’errore",
+            "image_hash": "3f2d672cb79fb873f697074de9cce1ea",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251780635230047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V2 Volevo soltanto aiutare T: emotional",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "campaign_id": "120251780591420047",
+      "adset_id": "120251780591590047",
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1109728728293583"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728728293583"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1109728728293583"
+          ]
+        }
+      ],
+      "creative": {
+        "id": "1822753152473758",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "link_data": {
+            "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita",
+            "message": "Voleva soltanto aiutarlo. Il dopo partita è diventato un’altra discussione in famiglia.\n\nImmagina un padre che torna sulla gara mentre suo figlio vorrebbe soltanto cambiarsi e mangiare. Il consiglio nasce con una buona intenzione. Il momento, però, potrebbe non essere quello giusto.\n\nPrima di trovare la frase perfetta, può essere utile chiedere quale spazio ci sia per parlarne. Anche dopo una discussione, un genitore può ripartire da ciò che ha fatto lui.\n\nNell’articolo di Dentro la partita trovi esempi per aprire questo confronto e distinguere il racconto della gara dal giudizio sul ragazzo.\n\nUn approfondimento Metodo Sincro per i genitori di giovani calciatori e calciatrici. Leggi da dove può ricominciare la conversazione.\n\nScena e immagine illustrative generate con AI.",
+            "name": "Quando un consiglio non arriva",
+            "caption": "landing.metodosincro.com",
+            "description": "Da dove riaprire il dialogo",
+            "image_hash": "9d01900b4ac775c956c4fbf9b89b1ae6",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "previous_campaign": {
+    "id": "120251721514160047",
+    "name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+    "status": "PAUSED"
+  },
+  "pages": [
+    {
+      "code": "A01-V1",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V1+Il+silenzio+in+auto+T%3A+emotional&fbadid=120251780634110047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-cosa-dire-dopo-brutta-partita&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V1+Il+silenzio+in+auto+T%3A+emotional&fbadid=120251780634110047",
+      "landing_title": "Dopo una brutta partita non sai più cosa dirgli. Parliamone. | Metodo Sincro®"
+    },
+    {
+      "code": "A01-V2",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V2+Volevo+soltanto+aiutare+T%3A+emotional&fbadid=120251780635230047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-cosa-dire-dopo-brutta-partita&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V2+Volevo+soltanto+aiutare+T%3A+emotional&fbadid=120251780635230047",
+      "landing_title": "Dopo una brutta partita non sai più cosa dirgli. Parliamone. | Metodo Sincro®"
+    },
+    {
+      "code": "A01-V3",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V3+Adesso+o+dopo%3F+T%3A+emotional&fbadid=120251780635790047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-cosa-dire-dopo-brutta-partita&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2345+Stress-Driven+Buyers+%7C+Emotional+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A01-V3+Adesso+o+dopo%3F+T%3A+emotional&fbadid=120251780635790047",
+      "landing_title": "Dopo una brutta partita non sai più cosa dirgli. Parliamone. | Metodo Sincro®"
+    },
+    {
+      "code": "A02-V1",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V1+La+giocata+dopo+T%3A+blocchi&fbadid=120251780637630047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-fiducia-dopo-errore-calcio&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V1+La+giocata+dopo+T%3A+blocchi&fbadid=120251780637630047",
+      "landing_title": "Dopo un errore smette di chiedere palla. Partiamo dalla prossima azione. | Metodo Sincro®"
+    },
+    {
+      "code": "A02-V2",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V2+Lo+sguardo+dalla+tribuna+T%3A+blocchi&fbadid=120251780638310047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-fiducia-dopo-errore-calcio&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V2+Lo+sguardo+dalla+tribuna+T%3A+blocchi&fbadid=120251780638310047",
+      "landing_title": "Dopo un errore smette di chiedere palla. Partiamo dalla prossima azione. | Metodo Sincro®"
+    },
+    {
+      "code": "A02-V3",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V3+Cerca+ancora+il+pallone%3F+T%3A+blocchi&fbadid=120251780638860047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-fiducia-dopo-errore-calcio&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2393+Problem-Aware+Buyers+%7C+Education+%7C+TOFU+%E2%80%94+IMG+Feed+%7C+A02-V3+Cerca+ancora+il+pallone%3F+T%3A+blocchi&fbadid=120251780638860047",
+      "landing_title": "Dopo un errore smette di chiedere palla. Partiamo dalla prossima azione. | Metodo Sincro®"
+    },
+    {
+      "code": "A03-V1",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V1+Un%E2%80%99altra+domenica+in+panchina+T%3A+mental_coaching&fbadid=120251780639490047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-mio-figlio-gioca-poco&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V1+Un%E2%80%99altra+domenica+in+panchina+T%3A+mental_coaching&fbadid=120251780639490047",
+      "landing_title": "Tuo figlio gioca poco. Da dove partire per aiutarlo? | Metodo Sincro®"
+    },
+    {
+      "code": "A03-V2",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V2+La+scelta+arriva+a+cena+T%3A+mental_coaching&fbadid=120251780640320047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-mio-figlio-gioca-poco&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V2+La+scelta+arriva+a+cena+T%3A+mental_coaching&fbadid=120251780640320047",
+      "landing_title": "Tuo figlio gioca poco. Da dove partire per aiutarlo? | Metodo Sincro®"
+    },
+    {
+      "code": "A03-V3",
+      "article_status": 200,
+      "landing_status": 200,
+      "article_url": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco?utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V3+Restare+o+cambiare%3F+T%3A+mental_coaching&fbadid=120251780641200047",
+      "landing_url": "https://landing.metodosincro.com/f/salto-di-qualita?entry=blog-mio-figlio-gioca-poco&utm_source=facebook&utm_medium=paid&utm_campaign=MS+%7C+LEAD+WEB+%7C+IT+38%2B+%7C+3+Advertorial+%7C+Test+01&utm_term=IT+%7C+38%2B+%7C+Genitori+%7C+3+Advertorial+9+Creativita+%7C+Lead+615&utm_content=%2334+Loss-Avoidance+Buyers+%7C+Trauma+%7C+MOFU+%E2%80%94+IMG+Feed+%7C+A03-V3+Restare+o+cambiare%3F+T%3A+mental_coaching&fbadid=120251780641200047",
+      "landing_title": "Tuo figlio gioca poco. Da dove partire per aiutarlo? | Metodo Sincro®"
+    }
+  ],
+  "journey": [
+    {
+      "event_name": "advertorial_view",
+      "event_id": "039ae5e3-9798-4c81-8f2f-b19c8790a611",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_engaged",
+      "event_id": "a768ec5b-3193-428e-8b0f-e217f580de64",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_cta",
+      "event_id": "36e2c976-bde8-407f-af90-04cd2564a76a",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_view",
+      "event_id": "b2449ccb-4c7d-4b69-b508-f279bf70c132",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_engaged",
+      "event_id": "07d9d58e-6643-4d5a-80fe-6519b3324c6f",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "form_start",
+      "event_id": "2d54dd9c-0277-42eb-893a-28ea97d82040",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "A01-V1_T:_emotional",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_view",
+      "event_id": "265a5ea0-e060-486f-ac3e-fa95f381eba7",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_cta",
+      "event_id": "b4a85778-4a14-4d84-bac7-b70effc48ab5",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_view",
+      "event_id": "60018b80-c4c4-4aa3-9a80-1d1e3e465e88",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_engaged",
+      "event_id": "7fd22eef-e4f0-4105-803e-23119b4a23fa",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_view",
+      "event_id": "7efb3c98-2dff-4143-b3fa-16ab7661429e",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "advertorial_cta",
+      "event_id": "afa31e79-b3e3-40eb-9942-417b8687b751",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_view",
+      "event_id": "6ad77b9c-8097-4e6d-8eaf-e4b1977215d9",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    },
+    {
+      "event_name": "landing_engaged",
+      "event_id": "154e0695-5b43-466b-bb79-432285beaa33",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "utm_campaign": "qa_lancio_advertorial_20260919"
+    }
+  ],
+  "ui_budget": {
+    "nominal_daily_eur": 57,
+    "displayed_max_daily_eur": 99.75,
+    "displayed_max_weekly_eur": 399,
+    "campaign_cap_eur": 500,
+    "observed_in_new_campaign": true
+  },
+  "tracking": {
+    "capi_lead_test_received": true,
+    "browser_advertorial_engaged_received": true,
+    "browser_cta_received": true,
+    "browser_startform_received": true,
+    "browser_server_event_ids_match": [
+      "a768ec5b-3193-428e-8b0f-e217f580de64",
+      "2d54dd9c-0277-42eb-893a-28ea97d82040"
+    ],
+    "deduplication_contract_verified": true,
+    "aggregate_deduplication_rate_not_yet_available": true,
+    "live_production_lead_submission_performed": false,
+    "form_save_and_retry_covered_by_prior_release_tests": true
+  },
+  "previews_generated": 18,
+  "automated_creative_changes_enabled": false
+}

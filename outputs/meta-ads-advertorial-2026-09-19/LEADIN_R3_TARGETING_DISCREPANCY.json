@@ -1,0 +1,285 @@
+{
+  "checked_at": "2026-09-19T11:22:37.500Z",
+  "results": [
+    {
+      "id": "120251780591590047",
+      "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "updated_time": "2026-09-19T13:20:19+0200",
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD",
+        "smart_pse_enabled": false
+      },
+      "targeting": {
+        "age_max": 65,
+        "age_min": 38,
+        "flexible_spec": [
+          {
+            "family_statuses": [
+              {
+                "id": "6023005681983",
+                "name": "Parents with teenagers (13-17 years)"
+              },
+              {
+                "id": "6023005718983",
+                "name": "Parents with adult children (18-26 years) "
+              }
+            ]
+          }
+        ],
+        "geo_locations": {
+          "countries": [
+            "IT"
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "locales": [
+          10
+        ],
+        "targeting_relaxation_types": {
+          "lookalike": 0,
+          "custom_audience": 0
+        },
+        "targeting_automation": {
+          "advantage_audience": 0,
+          "individual_setting": {
+            "age": 0,
+            "gender": 1,
+            "geo": 0
+          }
+        },
+        "publisher_platforms": [
+          "facebook",
+          "instagram"
+        ],
+        "facebook_positions": [
+          "feed"
+        ],
+        "instagram_positions": [
+          "stream"
+        ],
+        "device_platforms": [
+          "mobile",
+          "desktop"
+        ]
+      }
+    },
+    {
+      "id": "120251780591590047",
+      "status": "ACTIVE",
+      "targeting": {
+        "age_max": 65,
+        "age_min": 38,
+        "flexible_spec": [
+          {
+            "family_statuses": [
+              {
+                "id": "6023005681983",
+                "name": "Parents with teenagers (13-17 years)"
+              },
+              {
+                "id": "6023005718983",
+                "name": "Parents with adult children (18-26 years) "
+              }
+            ]
+          }
+        ],
+        "geo_locations": {
+          "countries": [
+            "IT"
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "locales": [
+          10
+        ],
+        "targeting_relaxation_types": {
+          "lookalike": 0,
+          "custom_audience": 0
+        },
+        "targeting_automation": {
+          "advantage_audience": 0,
+          "individual_setting": {
+            "age": 0,
+            "gender": 1,
+            "geo": 0
+          }
+        },
+        "publisher_platforms": [
+          "facebook",
+          "instagram"
+        ],
+        "facebook_positions": [
+          "feed"
+        ],
+        "instagram_positions": [
+          "stream"
+        ],
+        "device_platforms": [
+          "mobile",
+          "desktop"
+        ]
+      },
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD",
+        "smart_pse_enabled": false
+      }
+    },
+    {
+      "data": [
+        {
+          "event_time": "2026-09-19T11:20:19+0000",
+          "event_type": "update_ad_set_run_status",
+          "object_id": "120251780591590047",
+          "object_name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+          "extra_data": "{\"old_value\":\"In attesa di elaborazione\",\"new_value\":\"Attivo\",\"run_status\":{\"old_value\":17,\"new_value\":1},\"type\":\"run_status\"}",
+          "translated_event_type": "Stato del gruppo di inserzioni aggiornato",
+          "actor_name": "Federica Sigu"
+        },
+        {
+          "event_time": "2026-09-19T11:20:03+0000",
+          "event_type": "update_ad_set_target_spec",
+          "object_id": "120251780591590047",
+          "object_name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+          "extra_data": "{\"old_value\":[{\"content\":\"Esclusione del pubblico personalizzato:\",\"children\":[\"HERMES \\u2014 \\ufffd Lead Recenti (30gg) \\u2014 Esclusione\"]},{\"content\":\"Luogo:\",\"children\":[\"Italia\"]},{\"content\":\"Et\\u00e0:\",\"children\":[\"38 - 65+\"]},{\"content\":\"Lingua:\",\"children\":[\"Italiano\"]},{\"content\":\"Posizionamenti:\",\"children\":[\"sulle Pagine: Feed su computer, Feed di Instagram, Feed di Instagram Web o Feed su dispositivi mobili\"]},{\"content\":\"Criteri di corrispondenza:\",\"children\":[\"Genitori: Genitori con figli adolescenti (13-17 anni) o Genitori con figli grandi (18-26 anni)\"]},{\"content\":\"Pubblico simile Advantage+:\",\"children\":[\"no\"]},{\"content\":\"Pubblico Advantage+:\",\"children\":[\"No\"]}],\"new_value\":[{\"content\":\"Luogo:\",\"children\":[\"Italia\"]},{\"content\":\"Et\\u00e0:\",\"children\":[\"38 - 65+\"]},{\"content\":\"Lingua:\",\"children\":[\"Italiano\"]},{\"content\":\"Posizionamenti:\",\"children\":[\"sulle Pagine: Feed su computer, Feed di Instagram, Feed di Instagram Web o Feed su dispositivi mobili\"]},{\"content\":\"Criteri di corrispondenza:\",\"children\":[\"Genitori: Genitori con figli adolescenti (13-17 anni) o Genitori con figli grandi (18-26 anni)\"]},{\"content\":\"Pubblico personalizzato Advantage+:\",\"children\":[\"No\"]},{\"content\":\"Pubblico Advantage+:\",\"children\":[\"No\"]}],\"type\":\"targets_spec\"}",
+          "translated_event_type": "Targetizzazione del gruppo di inserzioni aggiornata",
+          "actor_name": "Federica Sigu"
+        },
+        {
+          "event_time": "2026-09-19T11:20:03+0000",
+          "event_type": "update_ad_set_run_status",
+          "object_id": "120251780591590047",
+          "object_name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+          "extra_data": "{\"old_value\":\"Attivo\",\"new_value\":\"In attesa di elaborazione\",\"run_status\":{\"old_value\":1,\"new_value\":17},\"type\":\"run_status\"}",
+          "translated_event_type": "Stato del gruppo di inserzioni aggiornato",
+          "actor_name": "Federica Sigu"
+        },
+        {
+          "event_time": "2026-09-19T11:17:40+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780718290047",
+          "object_name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V2 Volevo soltanto aiutare T: emotional_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T11:05:18+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780723730047",
+          "object_name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V3 Restare o cambiare? T: mental_coaching_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T11:04:11+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780717060047",
+          "object_name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V1 Il silenzio in auto T: emotional_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T11:04:00+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780723510047",
+          "object_name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V2 La scelta arriva a cena T: mental_coaching_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:59:10+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780722440047",
+          "object_name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:59:01+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780717100047",
+          "object_name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V1 Il silenzio in auto T: emotional_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:49:32+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780720940047",
+          "object_name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V2 Lo sguardo dalla tribuna T: blocchi_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:49:04+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780722420047",
+          "object_name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:40:40+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780720510047",
+          "object_name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:40:39+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780721190047",
+          "object_name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:39:40+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780723750047",
+          "object_name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V3 Restare o cambiare? T: mental_coaching_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        },
+        {
+          "event_time": "2026-09-19T10:38:23+0000",
+          "event_type": "first_delivery_event",
+          "object_id": "120251780721310047",
+          "object_name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V3 Cerca ancora il pallone? T: blocchi_Group_1",
+          "extra_data": "{\"campaign_id\":120251780591590047,\"old_value\":null,\"new_value\":\"Inizio pubblicazione\",\"type\":\"delivery_event\"}",
+          "translated_event_type": "Inserzione pubblicata",
+          "actor_name": "Meta"
+        }
+      ],
+      "paging": {
+        "cursors": {
+          "after": "cHVtYV9hbmNob3I6IzE1"
+        },
+        "next": "https://graph.facebook.com/v25.0/act_511099830249139/activities?fields=event_time%2Cevent_type%2Cobject_id%2Cobject_name%2Cextra_data%2Ctranslated_event_type%2Cactor_name&limit=15&after=cHVtYV9hbmNob3I6IzE1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,651 @@
+{
+  "read_at": "2026-09-17T05:41:00.503Z",
+  "ads": [
+    {
+      "id": "120251721514180047",
+      "name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251721514170047",
+      "campaign_id": "120251721514160047",
+      "creative": {
+        "id": "1070058382337206",
+        "name": "Allena la mente per il salto di qualità 2026-09-16-1b02821c25be942ace9f39955e197025",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1807600154011061",
+            "title": "Allena la mente per il salto di qualità",
+            "message": "Nel calcio, il salto di qualità si costruisce anche con la preparazione mentale. Direzione, attenzione e capacità di ripartire dopo un errore sono abilità da allenare.\n\nMetodo Sincro® affianca i giovani calciatori con un percorso individuale online e un coach dedicato. Per le famiglie che vogliono investire nella crescita sportiva del proprio figlio con un lavoro personalizzato.\n\nGuarda il video e richiedi una prima consulenza gratuita: il team valuterà insieme a te se il percorso è adatto. Il percorso di coaching è a pagamento.",
+            "link_description": "Coaching individuale online. Prima consulenza gratuita.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQIixF15SzjO-YC-x-h7PMd8hNW1Js5ABz7XY-GcKvFFrBpracShSjlie_jbcNOQxVw9h_HbeK16D7EXtGL2PBR9Y0zKOWdytoG2IZ3Fzf2z5OZ-ZzR8Hr8UKVnMVzhMurZXC7LgiDOydok3M6my68Ng",
+            "image_hash": "d7f0a83124d4a48b5bfb115a8f729625"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "ads_with_benefits": {
+              "enroll_status": "OPT_IN"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_IN"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_IN"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "pe_carousel": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_IN"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements": {
+              "enroll_status": "OPT_IN"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "text_extraction": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "object_type": "VIDEO",
+        "effective_object_story_id": "108451268302248_1107453645187758"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107453645187758"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107453645187758"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107453645187758"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721835590047",
+      "name": "V04 | Preparazione alla partita",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251721514170047",
+      "campaign_id": "120251721514160047",
+      "creative": {
+        "id": "1124993409859760",
+        "name": "La preparazione comincia prima del fischio 2026-09-16-53c3959ca9d2166cd9972c4f259cf253",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "2956279714719416",
+            "title": "La preparazione comincia prima del fischio",
+            "message": "Prima di una partita, le parole dei genitori possono fare la differenza. Ascoltare, fare domande e costruire una routine sono passi concreti per accompagnare un giovane calciatore.\n\nNel video trovi tre indicazioni pratiche di Antonio Valente, fondatore di Metodo Sincro®.\n\nPer approfondire, scopri il percorso individuale online con un coach dedicato. Richiedi una prima consulenza gratuita per capire se è adatto alla tua famiglia. Il percorso di coaching è a pagamento e richiede un impegno condiviso.",
+            "link_description": "Prima consulenza gratuita con il team.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQI-Z_MuM4I8zoIHaDUizSNK2eyRvL299-Ko4wimws0JCbUK9iCmVTNOm_7VXVawOkhAkJyBzaD75bmvhYAYdGNXvZcGHdEQpHHUSjnplEce2zFjoPWRnGy2ysti9FHbyHSGj-qAH2wfPpIKA-1cUwEE",
+            "image_hash": "13604afc2e0c950d85f57582f2d6a715"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "ads_with_benefits": {
+              "enroll_status": "OPT_IN"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_IN"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_IN"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "pe_carousel": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_IN"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements": {
+              "enroll_status": "OPT_IN"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "text_extraction": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "object_type": "VIDEO",
+        "effective_object_story_id": "108451268302248_1107452168521239"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107452168521239"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107452168521239"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107452168521239"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721835580047",
+      "name": "V03 | Salto di categoria",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251721514170047",
+      "campaign_id": "120251721514160047",
+      "creative": {
+        "id": "1055059947533475",
+        "name": "Prepararsi al salto di categoria 2026-09-16-df7770d42d57997bcb8cceac24d7696d",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1872129986835742",
+            "title": "Prepararsi al salto di categoria",
+            "message": "Salire di categoria significa confrontarsi con ritmi, compagni e aspettative nuove. Anche affrontare una panchina può diventare parte della crescita.\n\nNel video, Antonio Valente spiega cosa osservare per accompagnare un giovane calciatore in questo passaggio.\n\nCon Metodo Sincro® la preparazione mentale entra in un percorso individuale online, con un coach dedicato. Per le famiglie che vogliono investire nella crescita sportiva con un lavoro personalizzato. Richiedi la prima consulenza gratuita; il percorso di coaching è a pagamento.",
+            "link_description": "Scopri il percorso individuale Metodo Sincro®.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQKc_iBs4FqPPFy5lTX9wOHA5tvFFFfEIR2ipOBveyrg-Nrlaj3PoxI-3FQ68q-K_j7AwN3xsNJXS8uvlpagKBqu2_eUo8y-J0X6DRqvlyH35gnK3RWx5UIUQqZYR3t7zyEC7FxkTl4AoBBefgjtZE0M",
+            "image_hash": "8d038a7e6d0aadf280951d735ea69b0c"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "ads_with_benefits": {
+              "enroll_status": "OPT_IN"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_IN"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_IN"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "pe_carousel": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_IN"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements": {
+              "enroll_status": "OPT_IN"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "text_extraction": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "object_type": "VIDEO",
+        "effective_object_story_id": "108451268302248_1107449918521464"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107449918521464"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107449918521464"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107449918521464"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721835570047",
+      "name": "V02 | Talento e continuità",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251721514170047",
+      "campaign_id": "120251721514160047",
+      "creative": {
+        "id": "2670328580090432",
+        "name": "Dal talento alla continuità in campo 2026-09-16-aa8de6542a39fbde677077cfa22a92ec",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1414272527331432",
+            "title": "Dal talento alla continuità in campo",
+            "message": "Il talento conta. Esprimerlo con continuità richiede anche abitudini mentali: restare nel gioco, scegliere con coraggio e ripartire dopo un errore.\n\nIn questo video Antonio Valente presenta tre aspetti da osservare nel percorso di crescita di un giovane calciatore.\n\nMetodo Sincro® offre un percorso individuale online con un coach dedicato, per le famiglie pronte a investire in un lavoro personalizzato. Richiedi una prima consulenza gratuita e scopri se è adatto a tuo figlio. Il percorso di coaching è a pagamento.",
+            "link_description": "Un coach dedicato. Un percorso su misura.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQKfoxJSD2I3dmOe8iHb8a6TCZE_VcnSBmH35KArwR03z8Jkskm9uBylB3VzCFFB2Wwe7IiECo1_McXlHQqn_0OVwQ_v2E2mVYNZPZweIy43VhbhIK1liNa2sEhERvgDl7yY3SjUoT8bkUbJZ1w6fTfp",
+            "image_hash": "64823d2db53dca602747e716e44e1925"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "ads_with_benefits": {
+              "enroll_status": "OPT_IN"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_IN"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_IN"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_IN"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "pe_carousel": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_IN"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements": {
+              "enroll_status": "OPT_IN"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_IN",
+              "customizations": {
+                "text_extraction": {
+                  "enroll_status": "OPT_IN"
+                }
+              }
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_IN"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "object_type": "VIDEO",
+        "effective_object_story_id": "108451268302248_1107448071854982"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107448071854982"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107448071854982"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107448071854982"
+          ]
+        }
+      ]
+    }
+  ],
+  "funnel": {
+    "id": "bb4f12d9-4709-4ecf-9d1a-1a96c0960e46",
+    "slug": "salto-di-qualita",
+    "status": "active",
+    "settings": {
+      "sport": "calcio",
+      "cta_text": "Prenota una consulenza gratuita",
+      "headline": "Moltiplica <span class=\"lp-gold\">fino a 10 volte le probabilità</span> che tuo figlio diventi un calciatore professionista <span class=\"lp-emoji\">⚽</span>",
+      "template": "metodo_sincro",
+      "thank_you": "La richiesta è stata inviata correttamente! Un nostro coach ti contatterà al telefono a breve.",
+      "ab_variant": "A",
+      "sport_name": "calcio",
+      "subheadline": "Il percorso di <strong>Mental Coaching per calciatori ONE-TO-ONE</strong> con coach specializzati.",
+      "video_embed": "<vturb-smartplayer id=\"vid-6aa2c34558d18024915cc00a\" style=\"display: block; margin: 0 auto; width: 100%; \"><div class=\"vturb-player-placeholder\" style=\"position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;\"></div></vturb-smartplayer> <script type=\"text/javascript\"> var s=document.createElement(\"script\"); s.src=\"https://scripts.converteai.net/aa89ca91-c4e7-487e-aa5a-13ea76503b32/players/6aa2c34558d18024915cc00a/v4/player.js\", s.async=!0,document.head.appendChild(s); </script>",
+      "accent_color": "#facc15",
+      "ab_test_active": false,
+      "target_athletes": "Calciatori",
+      "hide_soccer_proof": false,
+      "ab_test_started_at": "2026-09-13T09:36:39.116Z",
+      "conversion_revision": "direct-consultation-20260917",
+      "direct_consultation_form": true,
+      "conversion_revision_started_at": "2026-09-17T05:29:33.577Z"
+    },
+    "updated_at": "2026-09-17T05:29:33.577+00:00"
+  }
+}

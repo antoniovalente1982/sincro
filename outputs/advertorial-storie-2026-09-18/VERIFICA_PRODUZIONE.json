@@ -1,0 +1,399 @@
+{
+  "verifiedAt": "2026-09-18T15:43:29.151Z",
+  "commit": "80318b04",
+  "passed": 68,
+  "total": 68,
+  "checks": [
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/incoraggiare-figlio-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/incoraggiare-figlio-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/salto-di-categoria-fiducia-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/salto-di-categoria-fiducia-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/incoraggiare-figlio-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/salto-di-categoria-fiducia-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/cosa-dire-dopo-brutta-partita-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/mio-figlio-gioca-poco-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/cosa-dire-dopo-brutta-partita-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/mio-figlio-gioca-poco-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/mio-figlio-gioca-poco-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/cosa-dire-dopo-brutta-partita-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-si-diverte-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/paura-rientro-infortunio-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/paura-rientro-infortunio-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/paura-rientro-infortunio-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-si-diverte-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-si-diverte-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/allenamento-extra-partita-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/fiducia-dopo-errore-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/fiducia-dopo-errore-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/fiducia-dopo-errore-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/allenamento-extra-partita-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/allenamento-extra-partita-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/genitori-pressione-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/genitori-pressione-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/genitori-pressione-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-prima-della-partita-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-prima-della-partita-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-prima-della-partita-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/confronto-fisico-calcio-ragazzi-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/confronto-fisico-calcio-ragazzi-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/confronto-fisico-calcio-ragazzi-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-provino-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-provino-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/pressione-provino-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-escluso-gruppo-squadra-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-escluso-gruppo-squadra-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-escluso-gruppo-squadra-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-rifiuta-mental-coach-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-rifiuta-mental-coach-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-rifiuta-mental-coach-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-confermato-squadra-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/scuola-famiglia-calcio-03.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-confermato-squadra-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/figlio-non-confermato-squadra-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/scuola-famiglia-calcio-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/scuola-famiglia-calcio-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/mental-coaching-calcio-ragazzi-02.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/blog/storie/mental-coaching-calcio-ragazzi-01.webp",
+      "status": 200,
+      "matchesLocalFile": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/salto-di-categoria-fiducia",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/incoraggiare-figlio-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/pressione-prima-della-partita",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/allenamento-extra-partita",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/genitori-pressione-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/paura-rientro-infortunio-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-non-si-diverte-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/confronto-fisico-calcio-ragazzi",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-rifiuta-mental-coach",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-escluso-gruppo-squadra",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-non-confermato-squadra",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/scuola-famiglia-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/pressione-provino-calcio",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/mental-coaching-calcio-ragazzi",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/sitemap.xml",
+      "status": 200,
+      "draftsExcluded": true,
+      "pass": true
+    }
+  ]
+}

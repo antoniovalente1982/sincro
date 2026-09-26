@@ -1,0 +1,93 @@
+{
+  "at": "2026-09-18T14:57:13.286Z",
+  "organizationId": "a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5",
+  "publicArticlesChanged": false,
+  "backup": "database-before-2026-09-18T14-57-12-679Z.json",
+  "results": [
+    {
+      "id": "ffa89715-902e-4200-a146-8ab7481999d7",
+      "slug": "incoraggiare-figlio-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "26832863-1115-44d6-881e-4cabc577f5f7",
+      "slug": "salto-di-categoria-fiducia",
+      "action": "created_draft"
+    },
+    {
+      "id": "43d29f27-5e2b-4dc1-a51c-22974a69d000",
+      "slug": "cosa-dire-dopo-brutta-partita",
+      "action": "created_draft"
+    },
+    {
+      "id": "1cfe9fec-549c-4915-8b22-3a50ad764d8b",
+      "slug": "mio-figlio-gioca-poco",
+      "action": "completed_existing_draft"
+    },
+    {
+      "id": "84a624bc-c043-4f04-a6b3-cd71842340af",
+      "slug": "figlio-non-si-diverte-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "82deaa3e-00bb-48ab-a9dc-1588e15c6521",
+      "slug": "paura-rientro-infortunio-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "0cd23b43-af08-4c39-bac7-ecf83f872722",
+      "slug": "allenamento-extra-partita",
+      "action": "created_draft"
+    },
+    {
+      "id": "4433a395-5071-4169-a94c-198e42743aa5",
+      "slug": "fiducia-dopo-errore-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "7938ae4a-849e-47d0-b2c1-745eb0e3ede3",
+      "slug": "pressione-prima-della-partita",
+      "action": "created_draft"
+    },
+    {
+      "id": "984c557f-471f-4671-bfdb-577290dd74dc",
+      "slug": "genitori-pressione-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "92838fda-e633-470a-acf1-4fe510039c54",
+      "slug": "pressione-provino-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "f87e8e97-05af-4a6b-988e-3731c117b456",
+      "slug": "confronto-fisico-calcio-ragazzi",
+      "action": "created_draft"
+    },
+    {
+      "id": "d2df1071-2ad6-4544-83c8-95adc1f12a90",
+      "slug": "figlio-rifiuta-mental-coach",
+      "action": "created_draft"
+    },
+    {
+      "id": "0204d29c-89d2-4e7b-8668-1f24c5702737",
+      "slug": "figlio-escluso-gruppo-squadra",
+      "action": "created_draft"
+    },
+    {
+      "id": "2b135ae5-362f-4df9-8295-b51167ba2874",
+      "slug": "scuola-famiglia-calcio",
+      "action": "created_draft"
+    },
+    {
+      "id": "47454e8f-1dd4-4d21-9d1c-2c7c120dbeb7",
+      "slug": "figlio-non-confermato-squadra",
+      "action": "created_draft"
+    },
+    {
+      "id": "828d35e9-3a1a-419c-a10c-51b4f3bf2621",
+      "slug": "mental-coaching-calcio-ragazzi",
+      "action": "created_draft"
+    }
+  ]
+}

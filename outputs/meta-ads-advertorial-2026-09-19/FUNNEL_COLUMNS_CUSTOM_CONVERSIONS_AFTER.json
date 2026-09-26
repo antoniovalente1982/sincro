@@ -1,0 +1,94 @@
+{
+  "data": [
+    {
+      "id": "2366913450713482",
+      "name": "FA 07 - Lead landing",
+      "description": "Evento Lead dopo richiesta salvata. Questa regola non emette nuovi eventi. Landing Salto di qualita comprese varianti editoriali. Conteggi attribuiti Meta, non persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"Lead\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/f/salto-di-qualita\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "LEAD",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:59:36+0000"
+    },
+    {
+      "id": "1801912774276966",
+      "name": "FA 06 - Moduli iniziati",
+      "description": "Prima interazione con il modulo, non invio riuscito. Landing Salto di qualita comprese varianti editoriali. Conteggi attribuiti Meta, non persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"StartForm\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/f/salto-di-qualita\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "OTHER",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:59:35+0000"
+    },
+    {
+      "id": "1071451772258575",
+      "name": "FA 05 - Landing coinvolta",
+      "description": "Evento ViewContent di coinvolgimento della landing. Landing Salto di qualita comprese varianti editoriali. Conteggi attribuiti Meta, non persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"ViewContent\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/f/salto-di-qualita\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "CONTENT_VIEW",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:59:33+0000"
+    },
+    {
+      "id": "1549761069805437",
+      "name": "FA 04 - Visite landing",
+      "description": "Caricamento della landing Salto di qualita, comprese le varianti editoriali. Conteggi attribuiti Meta, non un funnel di persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"PageView\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/f/salto-di-qualita\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "OTHER",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:58:35+0000"
+    },
+    {
+      "id": "1638734644277771",
+      "name": "FA 03 - Clic verso landing",
+      "description": "Clic sulla CTA dell advertorial. Non equivale a un arrivo effettivo. Conteggi attribuiti Meta, non un funnel di persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"AdvertorialCTAClick\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/blog/\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "OTHER",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:58:34+0000"
+    },
+    {
+      "id": "2321604448628374",
+      "name": "FA 02 - Letture coinvolte",
+      "description": "Almeno 30 secondi visibili e 50% articolo. Segnale di coinvolgimento, non lettura integrale. Conteggi attribuiti Meta, non un funnel di persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"AdvertorialEngaged\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/blog/\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "OTHER",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:58:32+0000"
+    },
+    {
+      "id": "1058561253611317",
+      "name": "FA 01 - Visite advertorial",
+      "description": "PageView degli articoli pubblici /blog/ su landing.metodosincro.com. Conteggio eventi attribuiti, non persone uniche.",
+      "rule": "{\"and\":[{\"event\":{\"eq\":\"PageView\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/blog/\"}}]}",
+      "pixel": {
+        "id": "311586900940615"
+      },
+      "custom_event_type": "OTHER",
+      "is_archived": false,
+      "creation_time": "2026-09-19T11:57:52+0000"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "QVFIVGg3OFM2M0ltUlB4dEtCajhCM0E5bHY2U3lyUndKRDVDckxTYk5oWlFrM3FfT3kwVFRoX3RsU2dZAUXhzTlJjWkh1NU91bEYxQXlCYWt1ZAkFTYzJDcTlR",
+      "after": "QVFIVEgtWG1XQTEtRUkyOHpTWnZAMT2tQT2xiTWJBNUNPSnpYV1llRnItWmJrV0lPTzdiUmhCMWJnY0FKcW5qa1hnd3ZAOd0UzX3cwQV9lSk1rRnE3bG1YOFdB"
+    }
+  }
+}

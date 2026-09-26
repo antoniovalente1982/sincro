@@ -1,0 +1,26 @@
+{
+  "id": "bb4f12d9-4709-4ecf-9d1a-1a96c0960e46",
+  "slug": "salto-di-qualita",
+  "status": "active",
+  "settings": {
+    "sport": "calcio",
+    "cta_text": "Prenota una consulenza gratuita",
+    "headline": "Aiutalo a fare il <span class=\"lp-gold\">salto di categoria.</span>",
+    "template": "metodo_sincro",
+    "thank_you": "La richiesta è stata inviata correttamente! Un nostro coach ti contatterà al telefono a breve.",
+    "ab_variant": "A",
+    "sport_name": "calcio",
+    "subheadline": "Per affrontare un livello più alto, allena anche la mente. Con Metodo Sincro®, tuo figlio lavora su <strong>sicurezza, concentrazione e gestione della pressione</strong> con un coach dedicato, in un percorso individuale online.",
+    "video_embed": "<vturb-smartplayer id=\"vid-6aa2c34558d18024915cc00a\" style=\"display: block; margin: 0 auto; width: 100%; \"><div class=\"vturb-player-placeholder\" style=\"position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;\"></div></vturb-smartplayer> <script type=\"text/javascript\"> var s=document.createElement(\"script\"); s.src=\"https://scripts.converteai.net/aa89ca91-c4e7-487e-aa5a-13ea76503b32/players/6aa2c34558d18024915cc00a/v4/player.js\", s.async=!0,document.head.appendChild(s); </script>",
+    "accent_color": "#facc15",
+    "ab_test_active": false,
+    "messaging_theme": "salto_categoria",
+    "target_athletes": "Calciatori",
+    "hide_soccer_proof": false,
+    "ab_test_started_at": "2026-09-13T09:36:39.116Z",
+    "conversion_revision": "salto-categoria-20260917",
+    "direct_consultation_form": true,
+    "conversion_revision_started_at": "2026-09-17T05:59:59.704Z"
+  },
+  "updated_at": "2026-09-17T05:59:59.704+00:00"
+}

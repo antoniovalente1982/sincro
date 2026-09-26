@@ -95,16 +95,19 @@ export async function PUT(req: NextRequest) {
     }
 
     if (body.action === 'create_stage') {
-        const { name, slug, color, fire_capi_event, sort_order } = body
+        const { name, slug, color, fire_capi_event, sort_order, pipeline_id, is_won, is_lost } = body
         const { data, error } = await supabase
             .from('pipeline_stages')
             .insert({
                 organization_id: ctx.organization_id,
+                pipeline_id: pipeline_id || null,
                 name,
                 slug: slug || name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
                 color: color || '#6366f1',
                 fire_capi_event: fire_capi_event || null,
                 sort_order: sort_order || 0,
+                is_won: !!is_won,
+                is_lost: !!is_lost,
             })
             .select()
             .single()

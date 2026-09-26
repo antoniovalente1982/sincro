@@ -1,0 +1,1671 @@
+{
+  "fetched_at": "2026-09-17T05:11:05.644Z",
+  "database_since": "2026-09-15T22:00:00Z",
+  "ads": [
+    {
+      "ad_id": "120251721514180047",
+      "ad_name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "spend": "8.84",
+      "impressions": "1538",
+      "reach": "1374",
+      "frequency": "1.11936",
+      "inline_link_clicks": "7",
+      "inline_link_click_ctr": "0.455137",
+      "cost_per_inline_link_click": "1.262857",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "7"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "106"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "106"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "94"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "7"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "26"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "13"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "31"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "ad_id": "120251721835570047",
+      "ad_name": "V02 | Talento e continuità",
+      "spend": "3.72",
+      "impressions": "417",
+      "reach": "369",
+      "frequency": "1.130081",
+      "inline_link_clicks": "4",
+      "inline_link_click_ctr": "0.959233",
+      "cost_per_inline_link_click": "0.93",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "4"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "48"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "48"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "42"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "7"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "16"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "ad_id": "120251721835580047",
+      "ad_name": "V03 | Salto di categoria",
+      "spend": "46.19",
+      "impressions": "7627",
+      "reach": "5680",
+      "frequency": "1.342782",
+      "inline_link_clicks": "68",
+      "inline_link_click_ctr": "0.891569",
+      "cost_per_inline_link_click": "0.679265",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "68"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "27"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "41"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "46"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "46"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1745"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "30"
+        },
+        {
+          "action_type": "comment",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1745"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "41"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "31"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "41"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "41"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "26"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "41"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1647"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "41"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "41"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "67"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "431"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "268"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "70"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "538"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "ad_id": "120251721835590047",
+      "ad_name": "V04 | Preparazione alla partita",
+      "spend": "12.2",
+      "impressions": "1697",
+      "reach": "1487",
+      "frequency": "1.141224",
+      "inline_link_clicks": "15",
+      "inline_link_click_ctr": "0.883913",
+      "cost_per_inline_link_click": "0.813333",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "15"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "9"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "376"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "comment",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "376"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "9"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "9"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "9"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "9"
+        },
+        {
+          "action_type": "video_view",
+          "value": "357"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "9"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "15"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "67"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "45"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "78"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    }
+  ],
+  "placements": [
+    {
+      "spend": "0.010117",
+      "impressions": "10",
+      "inline_link_clicks": "2",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "7"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "audience_network",
+      "platform_position": "an_classic"
+    },
+    {
+      "spend": "0.010117",
+      "impressions": "1",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_notification"
+    },
+    {
+      "spend": "0.080935",
+      "impressions": "12",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_profile_feed"
+    },
+    {
+      "spend": "20.335021",
+      "impressions": "3096",
+      "inline_link_clicks": "30",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "30"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "18"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "20"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "25"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "25"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "724"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "19"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "724"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "20"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "20"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "20"
+        },
+        {
+          "action_type": "view_content",
+          "value": "20"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "17"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "20"
+        },
+        {
+          "action_type": "video_view",
+          "value": "675"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "20"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "20"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels"
+    },
+    {
+      "spend": "0.020234",
+      "impressions": "12",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels_overlay"
+    },
+    {
+      "spend": "1.092628",
+      "impressions": "93",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "11"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "11"
+        },
+        {
+          "action_type": "video_view",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_stories"
+    },
+    {
+      "spend": "22.489926",
+      "impressions": "5294",
+      "inline_link_clicks": "33",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "33"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "13"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "18"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "18"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "915"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "7"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "915"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "13"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "13"
+        },
+        {
+          "action_type": "view_content",
+          "value": "13"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "13"
+        },
+        {
+          "action_type": "video_view",
+          "value": "875"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "13"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "13"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "spend": "1.031926",
+      "impressions": "89",
+      "inline_link_clicks": "5",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "51"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "51"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "46"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "instream_video"
+    },
+    {
+      "spend": "0.030351",
+      "impressions": "19",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "5"
+        },
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "marketplace"
+    },
+    {
+      "spend": "0",
+      "impressions": "1",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "right_hand_column"
+    },
+    {
+      "spend": "0.010117",
+      "impressions": "10",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "search"
+    },
+    {
+      "spend": "9.368273",
+      "impressions": "1011",
+      "inline_link_clicks": "8",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "8"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "6"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "208"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "208"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "6"
+        },
+        {
+          "action_type": "video_view",
+          "value": "195"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "feed"
+    },
+    {
+      "spend": "12.211129",
+      "impressions": "1276",
+      "inline_link_clicks": "8",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "8"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "5"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "321"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "10"
+        },
+        {
+          "action_type": "comment",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "321"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "10"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "post",
+          "value": "3"
+        },
+        {
+          "action_type": "view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "5"
+        },
+        {
+          "action_type": "video_view",
+          "value": "303"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "5"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_reels"
+    },
+    {
+      "spend": "4.158056",
+      "impressions": "344",
+      "inline_link_clicks": "7",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "6"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "29"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "29"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "6"
+        },
+        {
+          "action_type": "video_view",
+          "value": "22"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_stories"
+    },
+    {
+      "spend": "0.101169",
+      "impressions": "11",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "3"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "threads",
+      "platform_position": "threads_feed"
+    }
+  ],
+  "campaign": {
+    "id": "120251721514160047",
+    "name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+    "status": "ACTIVE",
+    "objective": "OUTCOME_LEADS",
+    "created_time": "2026-09-16T15:46:50+0200",
+    "start_time": "2026-09-16T15:46:52+0200",
+    "daily_budget": "10000"
+  },
+  "adset": {
+    "id": "120251721514170047",
+    "name": "Genitori | 40-60 | Nord Italia + Lazio | Lead 615",
+    "status": "ACTIVE",
+    "effective_status": "ACTIVE",
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "billing_event": "IMPRESSIONS",
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "targeting": {
+      "age_max": 60,
+      "age_min": 40,
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        },
+        {
+          "interests": [
+            {
+              "id": "6003442346642",
+              "name": "Calcio (sport)"
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "regions": [
+          {
+            "key": "1845",
+            "name": "Emilia-Romagna",
+            "country": "IT"
+          },
+          {
+            "key": "1846",
+            "name": "Friuli-Venezia Giulia",
+            "country": "IT"
+          },
+          {
+            "key": "1847",
+            "name": "Lazio",
+            "country": "IT"
+          },
+          {
+            "key": "1848",
+            "name": "Liguria",
+            "country": "IT"
+          },
+          {
+            "key": "1849",
+            "name": "Lombardia",
+            "country": "IT"
+          },
+          {
+            "key": "1852",
+            "name": "Piedmont",
+            "country": "IT"
+          },
+          {
+            "key": "1857",
+            "name": "Trentino-Alto Adige",
+            "country": "IT"
+          },
+          {
+            "key": "1859",
+            "name": "Aosta Valley",
+            "country": "IT"
+          },
+          {
+            "key": "1860",
+            "name": "Veneto",
+            "country": "IT"
+          }
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "brand_safety_content_filter_levels": [
+        "FACEBOOK_RELAXED",
+        "AN_RELAXED"
+      ],
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      }
+    },
+    "start_time": "2026-09-16T15:46:52+0200",
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      },
+      {
+        "event_type": "ENGAGED_VIDEO_VIEW",
+        "window_days": 1
+      }
+    ]
+  },
+  "pageviews": {
+    "total": 122,
+    "excluding_recognized_bots": 114,
+    "summary": {
+      "(none) | (none) | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T06:41:03.684578+00:00",
+        "last": "2026-09-16T21:05:41.139682+00:00"
+      },
+      "(none) | (none) | B | desktop": {
+        "views": 9,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:14:20.800652+00:00",
+        "last": "2026-09-16T15:33:12.786008+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:19.684358+00:00",
+        "last": "2026-09-16T13:49:19.684358+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | B | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:20.121932+00:00",
+        "last": "2026-09-16T13:49:20.121932+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:20.129526+00:00",
+        "last": "2026-09-16T13:49:20.166686+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | B | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:21.752932+00:00",
+        "last": "2026-09-16T13:49:21.752932+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | A | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:23.57492+00:00",
+        "last": "2026-09-16T13:49:23.57492+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | B | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:24.107935+00:00",
+        "last": "2026-09-16T13:49:24.53209+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | A | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:25.373602+00:00",
+        "last": "2026-09-16T13:49:25.373602+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | B | desktop": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:27.50891+00:00",
+        "last": "2026-09-16T13:49:31.822039+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | A | mobile": {
+        "views": 3,
+        "visitor_ids": 3,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:28.953639+00:00",
+        "last": "2026-09-16T13:49:31.221364+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:29.305882+00:00",
+        "last": "2026-09-16T13:49:29.305882+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | A | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:29.770625+00:00",
+        "last": "2026-09-16T13:49:29.770625+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:31.966927+00:00",
+        "last": "2026-09-16T13:54:26.72826+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04 | Preparazione alla partita | B | mobile": {
+        "views": 7,
+        "visitor_ids": 6,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:17:52.374411+00:00",
+        "last": "2026-09-17T03:04:12.184739+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04 | Preparazione alla partita | A | mobile": {
+        "views": 5,
+        "visitor_ids": 5,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:28:54.445229+00:00",
+        "last": "2026-09-16T21:40:06.45797+00:00"
+      },
+      "(none) | (none) | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:33:05.320649+00:00",
+        "last": "2026-09-16T14:33:05.320649+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03 | Salto di categoria | A | mobile": {
+        "views": 29,
+        "visitor_ids": 29,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:47:27.907457+00:00",
+        "last": "2026-09-17T04:50:55.126555+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02 | Talento e continuità | B | mobile": {
+        "views": 3,
+        "visitor_ids": 3,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:58:23.559019+00:00",
+        "last": "2026-09-16T19:49:55.836888+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03 | Salto di categoria | B | mobile": {
+        "views": 33,
+        "visitor_ids": 30,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T15:06:01.629471+00:00",
+        "last": "2026-09-17T05:10:46.161994+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01 | 3 chiavi mentali | Salto di qualità | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T15:41:56.964528+00:00",
+        "last": "2026-09-16T17:19:07.934726+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01 | 3 chiavi mentali | Salto di qualità | B | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T16:13:42.682923+00:00",
+        "last": "2026-09-16T19:15:37.936398+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | {{ad.name}} | A | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T20:10:21.772786+00:00",
+        "last": "2026-09-16T20:10:21.772786+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | {{ad.name}} | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T20:26:48.726849+00:00",
+        "last": "2026-09-16T20:26:48.726849+00:00"
+      },
+      "(none) | (none) | A | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T21:05:43.971121+00:00",
+        "last": "2026-09-16T21:05:43.971121+00:00"
+      }
+    }
+  },
+  "new_campaign_views": {
+    "total": 101,
+    "recognized_bots": 0,
+    "visitor_ids": 92,
+    "summary": {
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:19.684358+00:00",
+        "last": "2026-09-16T13:49:19.684358+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | B | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:20.121932+00:00",
+        "last": "2026-09-16T13:49:20.121932+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01+%7C+3+chiavi+mentali+%7C+Salto+di+qualit%C3%A0 | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:20.129526+00:00",
+        "last": "2026-09-16T13:49:20.166686+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | B | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:21.752932+00:00",
+        "last": "2026-09-16T13:49:21.752932+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | A | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:23.57492+00:00",
+        "last": "2026-09-16T13:49:23.57492+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04+%7C+Preparazione+alla+partita | B | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:24.107935+00:00",
+        "last": "2026-09-16T13:49:24.53209+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | A | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:25.373602+00:00",
+        "last": "2026-09-16T13:49:25.373602+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | B | desktop": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:27.50891+00:00",
+        "last": "2026-09-16T13:49:31.822039+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | A | mobile": {
+        "views": 3,
+        "visitor_ids": 3,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:28.953639+00:00",
+        "last": "2026-09-16T13:49:31.221364+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:29.305882+00:00",
+        "last": "2026-09-16T13:49:29.305882+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02+%7C+Talento+e+continuit%C3%A0 | A | desktop": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:29.770625+00:00",
+        "last": "2026-09-16T13:49:29.770625+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03+%7C+Salto+di+categoria | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T13:49:31.966927+00:00",
+        "last": "2026-09-16T13:54:26.72826+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04 | Preparazione alla partita | B | mobile": {
+        "views": 7,
+        "visitor_ids": 6,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:17:52.374411+00:00",
+        "last": "2026-09-17T03:04:12.184739+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V04 | Preparazione alla partita | A | mobile": {
+        "views": 5,
+        "visitor_ids": 5,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:28:54.445229+00:00",
+        "last": "2026-09-16T21:40:06.45797+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03 | Salto di categoria | A | mobile": {
+        "views": 29,
+        "visitor_ids": 29,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:47:27.907457+00:00",
+        "last": "2026-09-17T04:50:55.126555+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V02 | Talento e continuità | B | mobile": {
+        "views": 3,
+        "visitor_ids": 3,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T14:58:23.559019+00:00",
+        "last": "2026-09-16T19:49:55.836888+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V03 | Salto di categoria | B | mobile": {
+        "views": 33,
+        "visitor_ids": 30,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T15:06:01.629471+00:00",
+        "last": "2026-09-17T05:10:46.161994+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01 | 3 chiavi mentali | Salto di qualità | A | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T15:41:56.964528+00:00",
+        "last": "2026-09-16T17:19:07.934726+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | V01 | 3 chiavi mentali | Salto di qualità | B | mobile": {
+        "views": 2,
+        "visitor_ids": 2,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T16:13:42.682923+00:00",
+        "last": "2026-09-16T19:15:37.936398+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | {{ad.name}} | A | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T20:10:21.772786+00:00",
+        "last": "2026-09-16T20:10:21.772786+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | {{ad.name}} | B | mobile": {
+        "views": 1,
+        "visitor_ids": 1,
+        "missing_visitor_id": 0,
+        "first": "2026-09-16T20:26:48.726849+00:00",
+        "last": "2026-09-16T20:26:48.726849+00:00"
+      }
+    },
+    "hourly": {
+      "2026-09-16T13": 18,
+      "2026-09-16T14": 5,
+      "2026-09-16T15": 5,
+      "2026-09-16T16": 8,
+      "2026-09-16T17": 11,
+      "2026-09-16T18": 9,
+      "2026-09-16T19": 13,
+      "2026-09-16T20": 11,
+      "2026-09-16T21": 3,
+      "2026-09-16T22": 4,
+      "2026-09-16T23": 1,
+      "2026-09-17T00": 1,
+      "2026-09-17T01": 1,
+      "2026-09-17T02": 2,
+      "2026-09-17T03": 2,
+      "2026-09-17T04": 4,
+      "2026-09-17T05": 3
+    }
+  },
+  "submissions": [],
+  "events": {
+    "PageView | 311586900940615 | true": {
+      "count": 117,
+      "last": "2026-09-17T05:10:46.364945+00:00",
+      "errors": []
+    },
+    "ViewContent | 311586900940615 | true": {
+      "count": 103,
+      "last": "2026-09-17T05:10:45.820119+00:00",
+      "errors": []
+    },
+    "Lead | 311586900940615 | true": {
+      "count": 1,
+      "last": "2026-09-16T13:30:56.697944+00:00",
+      "errors": []
+    },
+    "StartForm | 311586900940615 | true": {
+      "count": 4,
+      "last": "2026-09-16T21:05:13.396968+00:00",
+      "errors": []
+    }
+  }
+}

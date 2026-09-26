@@ -1,0 +1,291 @@
+[
+  {
+    "ad_id": "120251721514180047",
+    "name": "V01 | 3 chiavi mentali | Salto di qualità | Salto categoria | 17.09.2026",
+    "object_story_spec": {
+      "page_id": "108451268302248",
+      "instagram_user_id": "17841449195220971",
+      "video_data": {
+        "video_id": "1807600154011061",
+        "title": "Aiutalo a fare il salto di categoria",
+        "message": "Aiutalo a fare il salto di categoria. La preparazione passa anche dalla mente: avere una direzione, restare concentrato e ripartire dopo un errore.\n\nNel video Antonio Valente presenta tre chiavi mentali da allenare. Con Metodo Sincro®, tuo figlio può lavorarci in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita: valutiamo insieme come prepararlo al prossimo livello e se il percorso è adatto. Il percorso di coaching è a pagamento.",
+        "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+        "call_to_action": {
+          "type": "LEARN_MORE",
+          "value": {
+            "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+          }
+        },
+        "image_hash": "d7f0a83124d4a48b5bfb115a8f729625"
+      }
+    },
+    "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "ads_with_benefits": {
+          "enroll_status": "OPT_IN"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_IN"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "inline_comment": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_IN",
+          "customizations": {
+            "pe_carousel": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "show_destination_blurbs": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_IN"
+        }
+      }
+    }
+  },
+  {
+    "ad_id": "120251721835570047",
+    "name": "V02 | Talento e continuità | Salto categoria | 17.09.2026",
+    "object_story_spec": {
+      "page_id": "108451268302248",
+      "instagram_user_id": "17841449195220971",
+      "video_data": {
+        "video_id": "1414272527331432",
+        "title": "Aiutalo a fare il salto di categoria",
+        "message": "Aiutalo a fare il salto di categoria. Portare il proprio talento in partita con continuità richiede anche fiducia, concentrazione e capacità di reagire agli errori.\n\nNel video Antonio Valente presenta tre aspetti della crescita di un giovane calciatore. Metodo Sincro® li affronta con un percorso di Mental Coaching individuale online e un coach dedicato.\n\nPrenota una consulenza gratuita: partiamo dalla situazione di tuo figlio e dagli obiettivi che vuole raggiungere. Il percorso di coaching è a pagamento.",
+        "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+        "call_to_action": {
+          "type": "LEARN_MORE",
+          "value": {
+            "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+          }
+        },
+        "image_hash": "64823d2db53dca602747e716e44e1925"
+      }
+    },
+    "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "ads_with_benefits": {
+          "enroll_status": "OPT_IN"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_IN"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "inline_comment": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_IN",
+          "customizations": {
+            "pe_carousel": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "show_destination_blurbs": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "translate_voiceover": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_IN"
+        }
+      }
+    }
+  },
+  {
+    "ad_id": "120251721835580047",
+    "name": "V03 | Salto di categoria | Salto categoria | 17.09.2026",
+    "object_story_spec": {
+      "page_id": "108451268302248",
+      "instagram_user_id": "17841449195220971",
+      "video_data": {
+        "video_id": "1872129986835742",
+        "title": "Aiutalo a fare il salto di categoria",
+        "message": "Aiutalo a fare il salto di categoria. Un livello più alto porta ritmi, concorrenza e aspettative nuove: prepararsi significa allenare anche la mente.\n\nNel video Antonio Valente spiega come accompagnare un giovane calciatore in questo passaggio. Con Metodo Sincro®, tuo figlio lavora su sicurezza, concentrazione e gestione della pressione in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita e scopriamo insieme come prepararlo al prossimo livello. Il percorso di coaching è a pagamento.",
+        "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+        "call_to_action": {
+          "type": "LEARN_MORE",
+          "value": {
+            "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+          }
+        },
+        "image_hash": "8d038a7e6d0aadf280951d735ea69b0c"
+      }
+    },
+    "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "ads_with_benefits": {
+          "enroll_status": "OPT_IN"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_IN"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "inline_comment": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_IN",
+          "customizations": {
+            "pe_carousel": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "show_destination_blurbs": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "translate_voiceover": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_IN"
+        }
+      }
+    }
+  },
+  {
+    "ad_id": "120251721835590047",
+    "name": "V04 | Preparazione alla partita | Salto categoria | 17.09.2026",
+    "object_story_spec": {
+      "page_id": "108451268302248",
+      "instagram_user_id": "17841449195220971",
+      "video_data": {
+        "video_id": "2956279714719416",
+        "title": "Aiutalo a fare il salto di categoria",
+        "message": "Aiutalo a fare il salto di categoria, una partita alla volta. Anche il modo di prepararsi e il sostegno dei genitori fanno parte della crescita sportiva.\n\nNel video Antonio Valente condivide tre indicazioni pratiche per accompagnarlo prima della partita. Con Metodo Sincro®, tuo figlio può allenare concentrazione, fiducia e gestione della pressione con un coach dedicato, in un percorso individuale online.\n\nPrenota una consulenza gratuita per capire insieme da dove partire. Il percorso di coaching è a pagamento.",
+        "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+        "call_to_action": {
+          "type": "LEARN_MORE",
+          "value": {
+            "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+          }
+        },
+        "image_hash": "13604afc2e0c950d85f57582f2d6a715"
+      }
+    },
+    "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "ads_with_benefits": {
+          "enroll_status": "OPT_IN"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_IN"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "inline_comment": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_IN"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_IN",
+          "customizations": {
+            "pe_carousel": {
+              "enroll_status": "OPT_IN"
+            }
+          }
+        },
+        "show_destination_blurbs": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "translate_voiceover": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_IN"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_IN"
+        }
+      }
+    }
+  }
+]

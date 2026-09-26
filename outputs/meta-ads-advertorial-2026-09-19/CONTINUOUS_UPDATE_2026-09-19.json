@@ -1,0 +1,101 @@
+{
+  "checked_at": "2026-09-19T10:32:08.055Z",
+  "authorization": "Antonio: le campagne devono essere continuative, senza fine; 100 euro al giorno significa budget medio giornaliero.",
+  "method": "Meta Ads Manager: spending limit set to Non impostata; end-date checkbox cleared; both changes published and read back through Marketing API.",
+  "before": {
+    "checked_at": "2026-09-19T10:29:21.051Z",
+    "campaign": {
+      "id": "120251780591420047",
+      "name": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "stop_time": "2026-09-24T11:50:14+0200",
+      "daily_budget": "10000",
+      "spend_cap": "50000"
+    },
+    "adsets": [
+      {
+        "id": "120251780591590047",
+        "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+        "campaign_id": "120251780591420047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE",
+        "start_time": "2026-09-19T11:50:15+0200",
+        "end_time": "2026-09-24T11:50:14+0200"
+      }
+    ]
+  },
+  "after": {
+    "campaign": {
+      "id": "120251780591420047",
+      "name": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "daily_budget": "10000"
+    },
+    "adsets": [
+      {
+        "id": "120251780591590047",
+        "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+        "campaign_id": "120251780591420047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE",
+        "start_time": "2026-09-19T11:50:15+0200"
+      }
+    ],
+    "ads": [
+      {
+        "id": "120251780641200047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780640320047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780639490047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780638860047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780638310047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780637630047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780635790047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780635230047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      {
+        "id": "120251780634110047",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      }
+    ]
+  },
+  "verified": {
+    "average_daily_budget_eur": 100,
+    "campaign_spend_cap_removed": true,
+    "all_adsets_without_end_time": true,
+    "all_nine_ads_configured_active": true
+  },
+  "status": "PASS"
+}

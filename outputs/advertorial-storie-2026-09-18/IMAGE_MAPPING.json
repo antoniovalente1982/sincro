@@ -1,0 +1,442 @@
+{
+  "schemaVersion": 1,
+  "organizationId": "a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5",
+  "sourceDirectory": "outputs/advertorial-completi-2026-09-18/articles",
+  "baselineFile": "BASELINE.json",
+  "baselineSha256": "5dc01bbcc3424858c5073686b9c7b5016ac7a4e1a6accc07f7d8beac6150ceae",
+  "expected": {
+    "stories": 17,
+    "distinctFictionalIdentities": 17,
+    "generatedAssets": 50,
+    "preservedRealPhotos": 1
+  },
+  "scope": "Sole immagini delle 17 nuove bozze. Nessuna modifica alla pagina pubblica /f/pochi-minuti.",
+  "editorialNote": "Personaggi e scene di fantasia: queste immagini non sono testimonianze di clienti e non documentano risultati. Le 50 immagini finali sono state revisionate per continuità del protagonista e corrispondenza con le descrizioni. Prevalenza di ragazzi e famiglie europee, in ambienti calcistici italiani ed europei.",
+  "articles": [
+    {
+      "slug": "incoraggiare-figlio-calcio",
+      "identity": "fair-skinned 17-year-old boy, straight sandy-blond hair swept sideways, pale blue eyes, narrow face, light eyebrows, lanky build",
+      "fictional": true,
+      "cover": "/images/blog/storie/incoraggiare-figlio-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai capelli biondi, in maglia verde, parla con il padre accanto alla recinzione del campo dopo l’allenamento. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/incoraggiare-figlio-calcio-02.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigia, ascolta il padre al tavolo di casa. Scena illustrativa generata con AI.",
+          "caption": "A casa, padre e figlio cercano un punto di partenza nel racconto di ciò che è successo in campo. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/incoraggiare-figlio-calcio-03.webp",
+          "alt": "Lo stesso ragazzo prende appunti a una scrivania, accanto al computer aperto per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "L’episodio raccontato dal ragazzo diventa il punto di partenza per il confronto e per una pratica da valutare insieme. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "salto-di-categoria-fiducia",
+      "identity": "fair-skinned 17-year-old boy, copper-red short wavy hair, visible freckles on cheeks, grey-green eyes, long face, tall slender build",
+      "fictional": true,
+      "cover": "/images/blog/storie/salto-di-categoria-fiducia-01.webp",
+      "coverAlt": "Un ragazzo dai capelli rossi e con lentiggini arriva al nuovo campo con il borsone e osserva i compagni che si scaldano. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/salto-di-categoria-fiducia-02.webp",
+          "alt": "Lo stesso ragazzo, in maglia bordeaux, partecipa a un esercizio di passaggi con un compagno. Scena illustrativa generata con AI.",
+          "caption": "Nel nuovo gruppo, una richiesta sul campo offre un episodio concreto da comprendere e affrontare. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/salto-di-categoria-fiducia-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa blu, è alla scrivania con un quaderno e il computer per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Rileggere un episodio della nuova squadra aiuta a chiarire quale difficoltà il ragazzo desidera affrontare. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "cosa-dire-dopo-brutta-partita",
+      "identity": "olive-skinned 17-year-old boy, close-cropped black buzz cut, thick straight eyebrows, brown eyes, square face, medium athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/cosa-dire-dopo-brutta-partita-01.webp",
+      "coverAlt": "Un ragazzo dai capelli neri molto corti, in tuta rossa, siede accanto al padre in un’auto parcheggiata dopo la partita. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/cosa-dire-dopo-brutta-partita-02.webp",
+          "alt": "Lo stesso ragazzo e il padre parlano seduti su una panchina vicino a casa. Scena illustrativa generata con AI.",
+          "caption": "Dopo il silenzio del ritorno, padre e figlio cercano insieme un momento in cui parlare della partita. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/cosa-dire-dopo-brutta-partita-03.webp",
+          "alt": "Lo stesso ragazzo, in maglietta bianca, consulta i propri appunti accanto al computer durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Il punto di vista del ragazzo serve per capire come vive la gara e le conversazioni che la seguono. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "mio-figlio-gioca-poco",
+      "identity": "Mediterranean European 17-year-old boy, light olive skin, very short black hair, hazel-brown eyes, broad angular nose and square jaw, slim athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/mio-figlio-gioca-poco-01.webp",
+      "coverAlt": "Un ragazzo in giacca gialla e nera segue il gioco dalla panchina dei sostituti. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/mio-figlio-gioca-poco-02.webp",
+          "alt": "Lo stesso ragazzo, in giacca gialla e nera, parla con la madre accanto alla recinzione del campo. Scena illustrativa generata con AI.",
+          "caption": "Prima di decidere il passo successivo, la madre ascolta come il figlio vive il tempo trascorso in panchina. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/mio-figlio-gioca-poco-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa color crema, è alla scrivania con quaderno e computer per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Un episodio concreto permette di chiarire quali comportamenti dipendono dal ragazzo e su che cosa vuole lavorare. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "figlio-non-si-diverte-calcio",
+      "identity": "fair-skinned 17-year-old boy, straight medium-length light-brown hair parted in the middle, hazel eyes, round cheeks, slim build",
+      "fictional": true,
+      "cover": "/images/blog/storie/figlio-non-si-diverte-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai capelli castano chiaro con la riga centrale siede fuori dallo spogliatoio, con scarpe e borsone accanto. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/figlio-non-si-diverte-calcio-02.webp",
+          "alt": "Lo stesso ragazzo, in felpa beige, cammina e parla con la madre in un parco. Scena illustrativa generata con AI.",
+          "caption": "La conversazione lascia spazio a ciò che il ragazzo desidera oggi dal calcio. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/figlio-non-si-diverte-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa beige, riflette davanti al computer con un quaderno aperto sulla scrivania. Scena illustrativa generata con AI.",
+          "caption": "Chiarire gli obiettivi di un eventuale lavoro personale richiede la voce e il coinvolgimento del ragazzo. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "paura-rientro-infortunio-calcio",
+      "identity": "light olive-skinned 17-year-old boy, short chestnut curls, amber-brown eyes, softly rounded jaw, medium sturdy athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/paura-rientro-infortunio-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai capelli castani ricci, in felpa verde petrolio, osserva l’allenamento dalle gradinate con il borsone ai piedi. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/paura-rientro-infortunio-calcio-02.webp",
+          "alt": "Lo stesso ragazzo passeggia con il padre lungo il perimetro del campo e gli parla. Scena illustrativa generata con AI.",
+          "caption": "Padre e figlio trovano uno spazio per parlare mentre le giornate sportive sono cambiate. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/paura-rientro-infortunio-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa verde petrolio, prende appunti accanto al computer durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Il ragazzo racconta ciò che sta vivendo, nel rispetto del percorso di recupero seguito dagli altri professionisti. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "allenamento-extra-partita",
+      "identity": "Eastern European 17-year-old boy, fair skin, straight dark-ash-blond hair with a neat undercut and long top, grey eyes, angular cheekbones, long slim face, lean build",
+      "fictional": true,
+      "cover": "/images/blog/storie/allenamento-extra-partita-01.webp",
+      "coverAlt": "Un ragazzo in maglia blu si allena da solo con un pallone e tre coni su un campo. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/allenamento-extra-partita-02.webp",
+          "alt": "Lo stesso ragazzo, in maglia blu, guarda i compagni durante un esercizio di passaggi. Scena illustrativa generata con AI.",
+          "caption": "Quando entrano in gioco i compagni, al gesto tecnico si aggiungono letture e decisioni. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/allenamento-extra-partita-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigio scuro, è alla scrivania con quaderno e computer per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "L’episodio di campo aiuta a capire quale lavoro abbia senso aggiungere alla settimana del ragazzo. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "fiducia-dopo-errore-calcio",
+      "identity": "South Asian 17-year-old boy, medium-brown skin, neatly side-parted short black hair, dark almond-shaped eyes, longer nose, lean athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/fiducia-dopo-errore-calcio-01.webp",
+      "coverAlt": "Un ragazzo dalla pelle bruna e dai capelli neri con riga laterale, in maglia verde, guarda il pallone dopo un passaggio sbagliato. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/fiducia-dopo-errore-calcio-02.webp",
+          "alt": "Lo stesso ragazzo, in maglia verde e pantaloncini bianchi, si rende disponibile per il passaggio di un compagno. Scena illustrativa generata con AI.",
+          "caption": "La prossima azione offre un comportamento concreto da provare dopo un errore. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/fiducia-dopo-errore-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigio chiaro, ricostruisce una giocata con appunti e computer durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Ricostruire la giocata permette di ascoltare ciò che il ragazzo ha pensato e fatto dopo l’errore. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "pressione-prima-della-partita",
+      "identity": "fair-skinned 17-year-old boy, light-brown wavy cropped hair, green eyes, narrow face, small upturned nose, slender athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/pressione-prima-della-partita-01.webp",
+      "coverAlt": "Un ragazzo dai capelli castano chiaro ondulati, in maglia viola e blu, si allaccia le scarpe sulla panchina dello spogliatoio. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/pressione-prima-della-partita-02.webp",
+          "alt": "Lo stesso ragazzo, in giacca grigia, è con entrambi i genitori all’ingresso del campo prima della partita. Scena illustrativa generata con AI.",
+          "caption": "Anche i genitori vivono l’attesa: parlarne con il figlio aiuta a capire quale presenza desidera. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/pressione-prima-della-partita-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa blu, prepara appunti alla scrivania durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "La preparazione personale parte dagli episodi del ragazzo e dalle risposte che vuole provare. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "genitori-pressione-calcio",
+      "identity": "olive-skinned 17-year-old boy, dark wavy shoulder-length hair tied into a small low ponytail, strong dark eyebrows, long oval face, athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/genitori-pressione-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai capelli scuri raccolti in una piccola coda, in maglia rossa e bianca, guarda verso il padre oltre la recinzione. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/genitori-pressione-calcio-02.webp",
+          "alt": "Lo stesso ragazzo e il padre, in giacca blu, parlano camminando lungo la recinzione dopo la partita. Scena illustrativa generata con AI.",
+          "caption": "Il ragazzo racconta quali gesti nota dalla tribuna e come vorrebbe essere sostenuto. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/genitori-pressione-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, con i capelli raccolti e una maglietta bianca, è alla scrivania durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Il racconto del ragazzo aiuta a comprendere il significato che attribuisce alle reazioni esterne. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "pressione-provino-calcio",
+      "identity": "fair-skinned 17-year-old boy, very short pale-blond buzz cut, grey-blue eyes, angular cheekbones, tall athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/pressione-provino-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai capelli biondi rasati, con casacca arancione, attende a bordo campo durante un provino. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/pressione-provino-calcio-02.webp",
+          "alt": "Lo stesso ragazzo, con casacca arancione su maglia blu, si propone durante un esercizio di passaggi al provino. Scena illustrativa generata con AI.",
+          "caption": "Concentrarsi su una richiesta di gioco concreta dà una direzione alla preparazione. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/pressione-provino-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, in tuta blu, parla con la madre seduto su un muretto dopo il provino. Scena illustrativa generata con AI.",
+          "caption": "Dopo il provino, la madre lascia spazio al racconto del figlio senza anticipare l’esito della selezione. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "confronto-fisico-calcio-ragazzi",
+      "identity": "North African 17-year-old boy, medium olive skin, very short dark tightly curled hair, brown eyes, fine narrow face, short and slender athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/confronto-fisico-calcio-ragazzi-01.webp",
+      "coverAlt": "Un ragazzo dai capelli scuri molto ricci e corti, in maglia azzurra, è accanto a due compagni più alti durante l’allenamento. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/confronto-fisico-calcio-ragazzi-02.webp",
+          "alt": "Lo stesso ragazzo, in felpa blu, parla con il padre seduto sul balcone di casa. Scena illustrativa generata con AI.",
+          "caption": "Il padre ascolta come il figlio vive il confronto con i compagni e che cosa quel confronto significa per lui. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/confronto-fisico-calcio-ragazzi-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa blu, è alla scrivania con computer e quaderno per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Il lavoro individuale può dare spazio al vissuto sportivo del ragazzo, distinguendolo dalla valutazione fisica. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "figlio-rifiuta-mental-coach",
+      "identity": "fair-skinned 17-year-old boy, dark auburn thick wavy mop hair, dark brown eyes, rounded face, stocky athletic build",
+      "fictional": true,
+      "cover": "/images/blog/storie/figlio-rifiuta-mental-coach-01.webp",
+      "coverAlt": "Un ragazzo dai capelli mossi castano ramato, in felpa blu, siede al tavolo di cucina con la madre durante una pausa del dialogo. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/figlio-rifiuta-mental-coach-02.webp",
+          "alt": "Lo stesso ragazzo e la madre sono seduti sul divano; lui esprime il proprio punto di vista e lei ascolta. Scena illustrativa generata con AI.",
+          "caption": "Ascoltare anche una risposta contraria aiuta a capire che cosa il ragazzo ha compreso della proposta. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/figlio-rifiuta-mental-coach-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa blu, è solo alla scrivania davanti a un quaderno aperto, con il computer chiuso accanto. Scena illustrativa generata con AI.",
+          "caption": "Prima di un eventuale percorso, il ragazzo ha spazio per formulare le proprie domande e scegliere se partecipare. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "figlio-escluso-gruppo-squadra",
+      "identity": "Central European 17-year-old boy, fair skin, short dark-blond wavy hair styled in a small quiff, grey-blue eyes, long narrow face with prominent ears, tall slim build",
+      "fictional": true,
+      "cover": "/images/blog/storie/figlio-escluso-gruppo-squadra-01.webp",
+      "coverAlt": "Un ragazzo in maglia turchese è ai margini di un gruppo di compagni fuori dallo spogliatoio. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/figlio-escluso-gruppo-squadra-02.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigia, parla con il padre al tavolino esterno di un bar. Scena illustrativa generata con AI.",
+          "caption": "Raccontare un episodio aiuta a capire come il ragazzo vive il gruppo e quali interlocutori cercare. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/figlio-escluso-gruppo-squadra-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigia, è alla scrivania con quaderno e computer per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Ascoltare il vissuto del ragazzo permette di valutare quale sostegno sia pertinente alla sua situazione. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "scuola-famiglia-calcio",
+      "identity": "17-year-old boy with light-brown skin, short golden-brown loose curls, green-hazel eyes, wide rounded face, medium lean build",
+      "fictional": true,
+      "cover": "/images/blog/storie/scuola-famiglia-calcio-01.webp",
+      "coverAlt": "Un ragazzo dai ricci castano dorato, in felpa grigia, studia al tavolo di cucina con il borsone vicino e la madre accanto. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/scuola-famiglia-calcio-02.webp",
+          "alt": "Lo stesso ragazzo e la madre guardano insieme un calendario al tavolo di cucina per organizzare gli impegni. Scena illustrativa generata con AI.",
+          "caption": "Una settimana concreta offre il punto di partenza per accordi che tengano conto di entrambi. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/scuola-famiglia-calcio-03.webp",
+          "alt": "Lo stesso ragazzo, in felpa grigia, è alla scrivania con computer e quaderno; il borsone è accanto. Scena illustrativa generata con AI.",
+          "caption": "Un eventuale confronto individuale deve trovare posto in un’organizzazione sostenibile e condivisa. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "figlio-non-confermato-squadra",
+      "identity": "fair-skinned 17-year-old boy, straight dark-brown hair with a short blunt fringe, brown eyes, long narrow face with prominent ears, slender build",
+      "fictional": true,
+      "cover": "/images/blog/storie/figlio-non-confermato-squadra-01.webp",
+      "coverAlt": "Un ragazzo dai capelli castano scuro con frangia corta, in tuta nera, si allontana dallo spogliatoio portando il borsone. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/figlio-non-confermato-squadra-02.webp",
+          "alt": "Lo stesso ragazzo parla con il padre seduto su una panchina vicino a casa, con il borsone accanto. Scena illustrativa generata con AI.",
+          "caption": "Prima di scegliere una nuova direzione, il padre dà spazio a ciò che il ragazzo vuole raccontare. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": 3,
+          "src": "/images/blog/storie/figlio-non-confermato-squadra-03.webp",
+          "alt": "Lo stesso ragazzo, in maglietta grigio chiaro, riflette alla scrivania con quaderno e computer durante un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Valutare il passo successivo richiede obiettivi pertinenti e la disponibilità del ragazzo a partecipare. Scena illustrativa generata con AI.",
+          "generated": true
+        }
+      ]
+    },
+    {
+      "slug": "mental-coaching-calcio-ragazzi",
+      "identity": "olive-skinned 17-year-old boy, short dense black curls, thick curved eyebrows, dark eyes, soft square face, slim athletic build, thin black rectangular eyeglasses",
+      "fictional": true,
+      "cover": "/images/blog/storie/mental-coaching-calcio-ragazzi-01.webp",
+      "coverAlt": "Un ragazzo dai ricci neri, con occhiali rettangolari e maglietta gialla, guarda un computer e un quaderno insieme al padre. Scena illustrativa generata con AI.",
+      "bodyImages": [
+        {
+          "position": 1,
+          "scene": 2,
+          "src": "/images/blog/storie/mental-coaching-calcio-ragazzi-02.webp",
+          "alt": "Lo stesso ragazzo, con occhiali rettangolari e maglietta gialla, è alla scrivania con computer e quaderno per un confronto online. Scena illustrativa generata con AI.",
+          "caption": "Un incontro individuale illustra il tipo di impegno da comprendere insieme alla pratica fra le sessioni. Scena illustrativa generata con AI.",
+          "generated": true
+        },
+        {
+          "position": 2,
+          "scene": null,
+          "src": "/images/team/antonio-valente.jpg",
+          "alt": "Antonio Valente, fondatore di Metodo Sincro, in una fotografia reale.",
+          "caption": "Antonio Valente, fondatore di Metodo Sincro. Fotografia reale.",
+          "generated": false
+        }
+      ]
+    }
+  ]
+}

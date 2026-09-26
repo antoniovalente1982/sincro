@@ -1,0 +1,20 @@
+{
+  "mode": "image_gen integrato",
+  "images": [
+    {
+      "prompt": "Create one photorealistic editorial photograph, landscape 3:2, for an Italian advertorial about a teenage girl playing amateur women's football. Fictional story, not a testimonial. Main protagonist Emma, 16 years old, European Italian appearance, fair olive skin, light freckles, oval face, dark brown hair in a simple ponytail, brown eyes, wearing a plain forest green football jersey, navy shorts and knee high dark socks, age-appropriate ordinary sports clothing. She is sitting on a modest outdoor team bench by a local Italian amateur football pitch after training, adjusting her boots, slightly pensive but composed, looking toward the field. Background: two other teenage girl teammates out of focus, simple chain link fence, low concrete stand, European residential buildings and trees. Natural late afternoon light, candid documentary photography, believable ordinary family football life, no professional stadium, no trophies, no luxurious amenities, no dramatic crying, no stereotypes or glamour, no makeup styling, no text, no logos, no watermark. She must look like a different young person from previous male advertorial characters. Compose her face centrally enough to survive a wide 1.95:1 website crop while keeping the full 3:2 image.",
+      "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-58f0a180-d39f-4c47-83ed-4ced50d8e886.png",
+      "destination": "public/images/blog/storie/calciatrice-fiducia-calcio-femminile-01.webp"
+    },
+    {
+      "prompt": "Use the reference to keep exactly the same fictional 16-year-old girl Emma: Italian European appearance, lightly freckled olive skin, brown eyes and brown ponytail, green football jersey. Create a new single 3:2 photorealistic editorial photo of her after practice, wearing a plain navy tracksuit jacket over the jersey, talking to her 43-year-old mother, European Italian woman with shoulder-length chestnut hair, beige light jacket and jeans. Both standing beside a small parked family car outside a modest Italian local football ground. Her mother listens at eye level with a calm open expression, not lecturing; the girl carries a dark sports bag and looks thoughtful, no dramatic distress. Authentic family moment, natural late afternoon light, documentary photography, no text/logos/watermarks, no glamour or professional arena. Preserve character identity from reference. Fictional illustrative story, not a client testimonial.",
+      "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-7d021985-7823-4576-afed-793adce74d65.png",
+      "destination": "public/images/blog/storie/calciatrice-fiducia-calcio-femminile-02.webp"
+    },
+    {
+      "prompt": "Use the reference to keep exactly the same fictional 16-year-old girl Emma: Italian European appearance, lightly freckled olive skin, brown eyes, dark brown ponytail, plain forest green football jersey, navy shorts and dark knee socks. Create a new single landscape 3:2 photorealistic editorial photograph showing her in action during an ordinary girls' football practice at the same modest local Italian football pitch. She raises one hand to ask for a pass and looks toward an approaching football, three teenage girl teammates in plain green or white bibs are visible in a small-sided practice game. Realistic ordinary amateur setting with mesh fence, old low stands, European houses, natural afternoon light, credible body anatomy and football action. This illustrates participation, not a miraculous transformation or victory; no medals, no trophy, no text, no logos, no professional arena. Preserve protagonist identity.",
+      "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-b655d819-f89f-438c-a5ca-faca841a8b83.png",
+      "destination": "public/images/blog/storie/calciatrice-fiducia-calcio-femminile-03.webp"
+    }
+  ]
+}

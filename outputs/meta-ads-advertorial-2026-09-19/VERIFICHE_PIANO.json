@@ -1,0 +1,36 @@
+{
+  "prepared_at": "2026-09-19T09:22:40.100040+00:00",
+  "read_only_meta_review": false,
+  "new_campaign_created": true,
+  "new_visuals_generated": true,
+  "draft_ads_written": 9,
+  "headline_and_description_counts_valid": true,
+  "source_images_inspected": 3,
+  "observed_meta": {
+    "objective": "Contatti",
+    "conversion_location": "Sito web",
+    "performance_goal": "Massimizza il numero di contatti",
+    "dataset": "Pixel Nuovo METODO SINCRO",
+    "event": "Acquisizione contatti",
+    "age_control_available": true,
+    "detailed_targeting_always_suggestions": true,
+    "daily_budget_100_displays_max_175_and_weekly_700": true,
+    "editor_closed_no_unpublished_changes": true
+  },
+  "notes": [
+    "Counts are editorial targets, not a declaration of universal platform limits.",
+    "The three article scenes and images are illustrative.",
+    "The read-only routing table has the selected trigger keywords.",
+    "Nine distinct AI-generated original portrait masters and nine fixed copy packages are now saved. Actual dimensions in MANIFEST_IMMAGINI.json. Meta upload and placement previews remain pending."
+  ],
+  "creative_update_at": "2026-09-19T09:39:46.700176+00:00",
+  "creative_masters_generated": 9,
+  "creative_masters_visually_inspected": 9,
+  "new_campaign_activated": true,
+  "placement_previews_verified": "Representative visual checks; all nine payloads and image hashes checked",
+  "publication_receipt": "PUBLICATION_RECEIPT.json",
+  "launch_verification": "LAUNCH_VERIFICATION.json",
+  "placement_previews_generated": 18,
+  "budget_update_receipt": "BUDGET_UPDATE_2026-09-19.json",
+  "continuous_update_receipt": "CONTINUOUS_UPDATE_2026-09-19.json"
+}

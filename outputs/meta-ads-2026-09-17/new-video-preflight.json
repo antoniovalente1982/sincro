@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://scripts.converteai.net/aa89ca91-c4e7-487e-aa5a-13ea76503b32/players/6aab8c0b901f91136b129b4b/v4/player.js",
+    "status": 200,
+    "bytes": 12169,
+    "content_type": "text/javascript"
+  },
+  {
+    "url": "https://scripts.converteai.net/aa89ca91-c4e7-487e-aa5a-13ea76503b32/players/6aab8c0b901f91136b129b4b/v4/embed.html",
+    "status": 200,
+    "bytes": 12923,
+    "content_type": "text/html; charset=utf-8",
+    "has_player_script": false,
+    "has_preloads": true
+  },
+  {
+    "url": "https://cdn.converteai.net/aa89ca91-c4e7-487e-aa5a-13ea76503b32/6aab8c059fb45fdc15d78c4c/main.m3u8",
+    "status": 200,
+    "bytes": 459,
+    "content_type": "application/x-mpegURL"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "id": "120243946766660047",
+  "name": "HERMES — � Lead Recenti (30gg) — Esclusione",
+  "subtype": "WEBSITE",
+  "rule": "{\"inclusions\":{\"operator\":\"or\",\"rules\":[{\"event_sources\":[{\"type\":\"pixel\",\"id\":311586900940615}],\"retention_seconds\":2592000,\"filter\":{\"operator\":\"and\",\"filters\":[{\"field\":\"event\",\"operator\":\"eq\",\"value\":\"Lead\"}]}}]}}",
+  "operation_status": {
+    "code": 450,
+    "description": "Questo pubblico non è stato usato in un'inserzione per almeno 30 giorni oppure è stato creato oltre 90 giorni fa e non è mai stato usato. Per questo motivo, non è aggiornato."
+  },
+  "delivery_status": {
+    "code": 200,
+    "description": "Il pubblico è pronto per essere usato."
+  },
+  "retention_days": 30
+}

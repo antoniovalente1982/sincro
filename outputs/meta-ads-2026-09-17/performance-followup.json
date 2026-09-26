@@ -1,0 +1,127 @@
+{
+  "fetched_at": "2026-09-17T11:51:35.907Z",
+  "submissions": [
+    {
+      "submission_id": "ae202d22-c1db-4fe4-b1c7-549d36fd0ef2",
+      "created_at": "2026-09-17T07:29:22.720864+00:00",
+      "name": "Antonio Valente",
+      "explicit_test_marker": false,
+      "matches_owner_email": true,
+      "utm_source": null,
+      "utm_campaign": null,
+      "utm_content": "V02 | Talento e continuità",
+      "has_email": true,
+      "has_phone": true,
+      "browser_in_app": false,
+      "crm": [
+        {
+          "lead_id": "e1a38390-a336-42a2-a2f3-22b9a931a7eb",
+          "created_at": "2026-09-17T07:29:22.948481+00:00",
+          "source_label": "Fonte: Organico",
+          "utm_campaign": null,
+          "assigned": true,
+          "has_fb_click_id": true,
+          "has_fb_browser_id": true,
+          "meta_test_flag": false
+        }
+      ]
+    }
+  ],
+  "old_ads": [
+    {
+      "id": "120251644311010047",
+      "name": "video 1 Settembre",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251644311020047",
+      "creative": {
+        "id": "2045873939397143"
+      }
+    },
+    {
+      "id": "120251673940220047",
+      "name": "video 1 Settembre - genitori",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "adset_id": "120251673939250047",
+      "creative": {
+        "id": "1970197563644034"
+      }
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-09-12",
+      "spend": "98.28",
+      "impressions": "17671",
+      "clicks": "160",
+      "lpv": "124",
+      "actual_lead_actions": [
+        {
+          "action_type": "onsite_web_lead",
+          "value": "2"
+        },
+        {
+          "action_type": "lead",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_lead",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "spend": "53.23",
+      "impressions": "8093",
+      "clicks": "60",
+      "lpv": "40",
+      "actual_lead_actions": [
+        {
+          "action_type": "onsite_web_lead",
+          "value": "2"
+        },
+        {
+          "action_type": "lead",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_lead",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-16",
+      "spend": "0",
+      "impressions": "0",
+      "clicks": "0",
+      "lpv": "0",
+      "actual_lead_actions": []
+    },
+    {
+      "date": "2026-09-17",
+      "spend": "72.3",
+      "impressions": "10423",
+      "clicks": "72",
+      "lpv": "53",
+      "actual_lead_actions": []
+    }
+  ],
+  "new_adset_delivery": {
+    "id": "120251721514170047",
+    "name": "Genitori | 40-60 | Nord Italia + Lazio | Lead 615",
+    "status": "ACTIVE",
+    "effective_status": "ACTIVE",
+    "learning_stage_info": {
+      "attribution_windows": [
+        "7d_click",
+        "1d_view"
+      ],
+      "conversions": 0,
+      "last_sig_edit_ts": 1789640065,
+      "status": "LEARNING"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-09-19T09:50:40.812Z",
+  "synthetic_isolated_test": true,
+  "crm_submission_created": false,
+  "commercial_notifications_sent": false,
+  "event_id": "qa_launch_lead_bf0c5c6d-faf4-4bec-8326-1f9d07e6254e",
+  "test_event_code": "TEST74872",
+  "provider_response": {
+    "events_received": 1,
+    "messages": [],
+    "fbtrace_id": "AqP4RFMpR0qs9OVsFVqa-mu"
+  },
+  "scope": "CAPI Lead transport/acceptance only; not a live production form submission."
+}

@@ -1,0 +1,6338 @@
+{
+  "fetched_at": "2026-09-17T11:49:14.155Z",
+  "database_since": "2026-09-15T22:00:00Z",
+  "submissions": [
+    {
+      "created_at": "2026-09-17T07:29:22.720864+00:00",
+      "page_variant": "A",
+      "utm_source": null,
+      "utm_campaign": null,
+      "utm_content": "V02 | Talento e continuità"
+    }
+  ],
+  "account": {
+    "name": "Antonio Valente Mental Coach Calciatori",
+    "currency": "EUR",
+    "timezone_name": "Europe/Rome",
+    "id": "act_511099830249139"
+  },
+  "ads_new": [
+    {
+      "id": "120251721835570047",
+      "name": "V02 | Talento e continuità",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "updated_time": "2026-09-17T08:04:29+0200",
+      "creative": {
+        "id": "1079202107844408",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1414272527331432",
+            "title": "Aiutalo a fare il salto di categoria",
+            "message": "Aiutalo a fare il salto di categoria. Portare il proprio talento in partita con continuità richiede anche fiducia, concentrazione e capacità di reagire agli errori.\n\nNel video Antonio Valente presenta tre aspetti della crescita di un giovane calciatore. Metodo Sincro® li affronta con un percorso di Mental Coaching individuale online e un coach dedicato.\n\nPrenota una consulenza gratuita: partiamo dalla situazione di tuo figlio e dagli obiettivi che vuole raggiungere. Il percorso di coaching è a pagamento.",
+            "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQLPQlK9eUQ9kEMVwk_mv6DS9_i85XHUQSlfKzJ611Ek-lHBZQOKeH_-TgH0M6qIsLCe7xM2fh36PWKuDwxzOylR17UWDyhrOYVVIGiMnZ6wX4mKEjZQGO7CKhBKpXy2YHHRf5xigyZhVo_psBd8EOsO",
+            "image_hash": "64823d2db53dca602747e716e44e1925"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908175142305"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107908175142305"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908175142305"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721835580047",
+      "name": "V03 | Salto di categoria",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "updated_time": "2026-09-17T08:03:43+0200",
+      "creative": {
+        "id": "1095783009609984",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1872129986835742",
+            "title": "Aiutalo a fare il salto di categoria",
+            "message": "Aiutalo a fare il salto di categoria. Un livello più alto porta ritmi, concorrenza e aspettative nuove: prepararsi significa allenare anche la mente.\n\nNel video Antonio Valente spiega come accompagnare un giovane calciatore in questo passaggio. Con Metodo Sincro®, tuo figlio lavora su sicurezza, concentrazione e gestione della pressione in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita e scopriamo insieme come prepararlo al prossimo livello. Il percorso di coaching è a pagamento.",
+            "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQJwjS_e-Z3_ZKpfQ8YFq7pG67FZ5cmUvRa9iCqTuXEyD45GSqYKbBGAsJ08BNYYEUtFvre-zevzV9uRaxgZaoqtp69XSg1HstkY1enH-36-5dEqwOmayHjaDuA58G7P5GQf_S9OEoBozL6Tm9zf577O",
+            "image_hash": "8d038a7e6d0aadf280951d735ea69b0c"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107908198475636"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908198475636"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908198475636"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721835590047",
+      "name": "V04 | Preparazione alla partita",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "updated_time": "2026-09-17T08:03:42+0200",
+      "creative": {
+        "id": "4519716061642659",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "2956279714719416",
+            "title": "Aiutalo a fare il salto di categoria",
+            "message": "Aiutalo a fare il salto di categoria, una partita alla volta. Anche il modo di prepararsi e il sostegno dei genitori fanno parte della crescita sportiva.\n\nNel video Antonio Valente condivide tre indicazioni pratiche per accompagnarlo prima della partita. Con Metodo Sincro®, tuo figlio può allenare concentrazione, fiducia e gestione della pressione con un coach dedicato, in un percorso individuale online.\n\nPrenota una consulenza gratuita per capire insieme da dove partire. Il percorso di coaching è a pagamento.",
+            "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQJAbT59geL5-s7hYr92_6kQpBMR1dtnG5aptAEdleZ89af15SodTxxkGC1yqLmIecfr1QRteugWJW1RVXkYAMQ510ymrQzpyDjkfUmIN9pPO1ipItuTCQq8O4aZIeTmuV4w4qYPjjmD2q7TgHfqN3Qz",
+            "image_hash": "13604afc2e0c950d85f57582f2d6a715"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908215142301"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107908215142301"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908215142301"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "120251721514180047",
+      "name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "updated_time": "2026-09-17T08:03:29+0200",
+      "creative": {
+        "id": "1137373622297606",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1807600154011061",
+            "title": "Aiutalo a fare il salto di categoria",
+            "message": "Aiutalo a fare il salto di categoria. La preparazione passa anche dalla mente: avere una direzione, restare concentrato e ripartire dopo un errore.\n\nNel video Antonio Valente presenta tre chiavi mentali da allenare. Con Metodo Sincro®, tuo figlio può lavorarci in un percorso individuale online, con un coach dedicato.\n\nPrenota una consulenza gratuita: valutiamo insieme come prepararlo al prossimo livello e se il percorso è adatto. Il percorso di coaching è a pagamento.",
+            "link_description": "Prenota una consulenza gratuita. Percorso individuale online.",
+            "call_to_action": {
+              "type": "LEARN_MORE",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/salto-di-qualita"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQLKCTurxJaNX2why7xujKBB8Xcy4YUk__hbDovUBgHjnyw4pXArRvGcYSj21u_9tTBpkqcTdC-hMlN7G7PMRkeHNGV-OMQa6CcnSHInOmYE3PQcq4IKf1_5I5nOy3SAhIK2trKV4sK8ORH2Am1vt79s",
+            "image_hash": "d7f0a83124d4a48b5bfb115a8f729625"
+          }
+        },
+        "url_tags": "utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign=ms_genitori_nord_lazio_20260916&utm_content={{ad.name}}&utm_term={{adset.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}"
+      },
+      "tracking_specs": [
+        {
+          "action.type": [
+            "offsite_conversion"
+          ],
+          "fb_pixel": [
+            "311586900940615"
+          ]
+        },
+        {
+          "action.type": [
+            "commerce_event"
+          ],
+          "page": [
+            "108451268302248"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ]
+        },
+        {
+          "action.type": [
+            "onsite_conversion"
+          ],
+          "conversion_id": [
+            "9606058292747006"
+          ]
+        },
+        {
+          "action.type": [
+            "post_interaction_gross"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908155142307"
+          ]
+        },
+        {
+          "action.type": [
+            "post_engagement"
+          ],
+          "page": [
+            "108451268302248"
+          ],
+          "post": [
+            "1107908155142307"
+          ]
+        },
+        {
+          "action.type": [
+            "link_click"
+          ],
+          "post": [
+            "1107908155142307"
+          ],
+          "post.wall": [
+            "108451268302248"
+          ]
+        }
+      ]
+    }
+  ],
+  "ad_daily": [
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "0",
+      "impressions": "0",
+      "reach": "0",
+      "frequency": "0",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "4"
+        }
+      ],
+      "ad_id": "120251644311010047",
+      "ad_name": "video 1 Settembre",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "6.5",
+      "impressions": "1162",
+      "reach": "1039",
+      "frequency": "1.118383",
+      "inline_link_clicks": "6",
+      "inline_link_click_ctr": "0.516351",
+      "cost_per_inline_link_click": "1.083333",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "101"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "101"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "91"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "6"
+        }
+      ],
+      "ad_id": "120251721514180047",
+      "ad_name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "324"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "24"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "11"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "29"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "2.21",
+      "impressions": "296",
+      "reach": "264",
+      "frequency": "1.121212",
+      "inline_link_clicks": "4",
+      "inline_link_click_ctr": "1.351351",
+      "cost_per_inline_link_click": "0.5525",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "4"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "42"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "42"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "37"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "4"
+        }
+      ],
+      "ad_id": "120251721835570047",
+      "ad_name": "V02 | Talento e continuità",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "183"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "11"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "15"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "32.01",
+      "impressions": "5647",
+      "reach": "4376",
+      "frequency": "1.290448",
+      "inline_link_clicks": "54",
+      "inline_link_click_ctr": "0.95626",
+      "cost_per_inline_link_click": "0.592778",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "54"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "22"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "33"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "37"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "37"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1296"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "25"
+        },
+        {
+          "action_type": "comment",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1296"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "33"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "26"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "33"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "33"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "21"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "33"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1217"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "33"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "33"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "53"
+        }
+      ],
+      "ad_id": "120251721835580047",
+      "ad_name": "V03 | Salto di categoria",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4755"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "329"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "202"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "53"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "409"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "11.67",
+      "impressions": "1579",
+      "reach": "1406",
+      "frequency": "1.123044",
+      "inline_link_clicks": "14",
+      "inline_link_click_ctr": "0.886637",
+      "cost_per_inline_link_click": "0.833571",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "14"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "8"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "364"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "comment",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "364"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "8"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "8"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "8"
+        },
+        {
+          "action_type": "video_view",
+          "value": "346"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "8"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "8"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "14"
+        }
+      ],
+      "ad_id": "120251721835590047",
+      "ad_name": "V04 | Preparazione alla partita",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "1221"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "62"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "41"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "9"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "73"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "35.04",
+      "impressions": "4887",
+      "reach": "4371",
+      "frequency": "1.118051",
+      "inline_link_clicks": "40",
+      "inline_link_click_ctr": "0.818498",
+      "cost_per_inline_link_click": "0.876",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "40"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "37"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "27"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "27"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "940"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "12"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "940"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "37"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "13"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "37"
+        },
+        {
+          "action_type": "post",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "37"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "37"
+        },
+        {
+          "action_type": "video_view",
+          "value": "888"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "37"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "37"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "40"
+        }
+      ],
+      "ad_id": "120251644311010047",
+      "ad_name": "video 1 Settembre",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4471"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "121"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "73"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "17"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "260"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "36.39",
+      "impressions": "5449",
+      "reach": "4604",
+      "frequency": "1.183536",
+      "inline_link_clicks": "32",
+      "inline_link_click_ctr": "0.587264",
+      "cost_per_inline_link_click": "1.137188",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "32"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "19"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "26"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "26"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1214"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "16"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1214"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "18"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "post",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "19"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1166"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "19"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "32"
+        }
+      ],
+      "ad_id": "120251673940220047",
+      "ad_name": "video 1 Settembre - genitori",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "4863"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "150"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "86"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "12"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "323"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "4.42",
+      "impressions": "686",
+      "reach": "634",
+      "frequency": "1.082019",
+      "inline_link_clicks": "1",
+      "inline_link_click_ctr": "0.145773",
+      "cost_per_inline_link_click": "4.42",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "8"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "8"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "1"
+        }
+      ],
+      "ad_id": "120251721514180047",
+      "ad_name": "V01 | 3 chiavi mentali | Salto di qualità",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "26"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "1"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "2.63",
+      "impressions": "200",
+      "reach": "181",
+      "frequency": "1.104972",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "10"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "10"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "8"
+        }
+      ],
+      "ad_id": "120251721835570047",
+      "ad_name": "V02 | Talento e continuità",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "45"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "20.65",
+      "impressions": "2913",
+      "reach": "2472",
+      "frequency": "1.178398",
+      "inline_link_clicks": "22",
+      "inline_link_click_ctr": "0.755235",
+      "cost_per_inline_link_click": "0.938636",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "22"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "16"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "18"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "18"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "688"
+        },
+        {
+          "action_type": "like",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "8"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "689"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "16"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "16"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "16"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "16"
+        },
+        {
+          "action_type": "video_view",
+          "value": "658"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "16"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "16"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "22"
+        }
+      ],
+      "ad_id": "120251721835580047",
+      "ad_name": "V03 | Salto di categoria",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "2302"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "169"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "105"
+        }
+      ],
+      "video_p100_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "30"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "213"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "1.25",
+      "impressions": "222",
+      "reach": "202",
+      "frequency": "1.09901",
+      "inline_link_clicks": "2",
+      "inline_link_click_ctr": "0.900901",
+      "cost_per_inline_link_click": "0.625",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "3"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "17"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "17"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "15"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "3"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "2"
+        }
+      ],
+      "ad_id": "120251721835590047",
+      "ad_name": "V04 | Preparazione alla partita",
+      "video_play_actions": [
+        {
+          "action_type": "video_view",
+          "value": "72"
+        }
+      ],
+      "video_p25_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "video_p50_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "video_thruplay_watched_actions": [
+        {
+          "action_type": "video_view",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    }
+  ],
+  "campaign_daily": [
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "0",
+      "impressions": "0",
+      "reach": "0",
+      "frequency": "0",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "4"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "52.39",
+      "impressions": "8684",
+      "reach": "6165",
+      "frequency": "1.408597",
+      "inline_link_clicks": "78",
+      "inline_link_click_ctr": "0.898204",
+      "cost_per_inline_link_click": "0.671667",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "78"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "27"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "44"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "51"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "51"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1803"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "34"
+        },
+        {
+          "action_type": "comment",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1803"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "44"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "35"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "44"
+        },
+        {
+          "action_type": "post",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "44"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "26"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "44"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1691"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "44"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "44"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "77"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-16"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "71.43",
+      "impressions": "10336",
+      "reach": "8387",
+      "frequency": "1.232383",
+      "inline_link_clicks": "72",
+      "inline_link_click_ctr": "0.696594",
+      "cost_per_inline_link_click": "0.992083",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "72"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "16"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "56"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "53"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "53"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "2179"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "28"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "2179"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "56"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "31"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "56"
+        },
+        {
+          "action_type": "post",
+          "value": "8"
+        },
+        {
+          "action_type": "view_content",
+          "value": "56"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "13"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "56"
+        },
+        {
+          "action_type": "video_view",
+          "value": "2079"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "56"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "56"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "72"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "28.95",
+      "impressions": "4021",
+      "reach": "3297",
+      "frequency": "1.219594",
+      "inline_link_clicks": "25",
+      "inline_link_click_ctr": "0.621736",
+      "cost_per_inline_link_click": "1.158",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "25"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "10"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "19"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "20"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "20"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "723"
+        },
+        {
+          "action_type": "like",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "12"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "724"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "12"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "10"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "19"
+        },
+        {
+          "action_type": "video_view",
+          "value": "686"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "19"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "19"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "25"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17"
+    }
+  ],
+  "adsets": [
+    {
+      "id": "120251721514170047",
+      "name": "Genitori | 40-60 | Nord Italia + Lazio | Lead 615",
+      "campaign_id": "120251721514160047",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "optimization_goal": "OFFSITE_CONVERSIONS",
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD",
+        "smart_pse_enabled": false
+      },
+      "start_time": "2026-09-16T15:46:52+0200",
+      "updated_time": "2026-09-16T15:47:10+0200",
+      "targeting": {
+        "age_max": 60,
+        "age_min": 40,
+        "flexible_spec": [
+          {
+            "family_statuses": [
+              {
+                "id": "6023005681983",
+                "name": "Parents with teenagers (13-17 years)"
+              },
+              {
+                "id": "6023005718983",
+                "name": "Parents with adult children (18-26 years) "
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6003442346642",
+                "name": "Calcio (sport)"
+              }
+            ]
+          }
+        ],
+        "geo_locations": {
+          "regions": [
+            {
+              "key": "1845",
+              "name": "Emilia-Romagna",
+              "country": "IT"
+            },
+            {
+              "key": "1846",
+              "name": "Friuli-Venezia Giulia",
+              "country": "IT"
+            },
+            {
+              "key": "1847",
+              "name": "Lazio",
+              "country": "IT"
+            },
+            {
+              "key": "1848",
+              "name": "Liguria",
+              "country": "IT"
+            },
+            {
+              "key": "1849",
+              "name": "Lombardia",
+              "country": "IT"
+            },
+            {
+              "key": "1852",
+              "name": "Piedmont",
+              "country": "IT"
+            },
+            {
+              "key": "1857",
+              "name": "Trentino-Alto Adige",
+              "country": "IT"
+            },
+            {
+              "key": "1859",
+              "name": "Aosta Valley",
+              "country": "IT"
+            },
+            {
+              "key": "1860",
+              "name": "Veneto",
+              "country": "IT"
+            }
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "brand_safety_content_filter_levels": [
+          "FACEBOOK_RELAXED",
+          "AN_RELAXED"
+        ],
+        "targeting_automation": {
+          "advantage_audience": 0,
+          "individual_setting": {
+            "age": 0,
+            "gender": 1,
+            "geo": 0
+          }
+        }
+      },
+      "attribution_spec": [
+        {
+          "event_type": "CLICK_THROUGH",
+          "window_days": 7
+        },
+        {
+          "event_type": "VIEW_THROUGH",
+          "window_days": 1
+        },
+        {
+          "event_type": "ENGAGED_VIDEO_VIEW",
+          "window_days": 1
+        }
+      ]
+    },
+    {
+      "id": "120251673939250047",
+      "name": "genitori figli 13-26 + calcio 38-60",
+      "campaign_id": "120251644311030047",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "daily_budget": "5000",
+      "optimization_goal": "OFFSITE_CONVERSIONS",
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD",
+        "smart_pse_enabled": false
+      },
+      "start_time": "2026-09-13T11:36:25+0200",
+      "updated_time": "2026-09-13T14:34:06+0200",
+      "targeting": {
+        "age_max": 60,
+        "age_min": 38,
+        "flexible_spec": [
+          {
+            "family_statuses": [
+              {
+                "id": "6023005681983",
+                "name": "Parents with teenagers (13-17 years)"
+              },
+              {
+                "id": "6023005718983",
+                "name": "Parents with adult children (18-26 years) "
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6002995710444",
+                "name": "UEFA Champions League"
+              },
+              {
+                "id": "6003030389007",
+                "name": "Tottenham Hotspur Football Club"
+              },
+              {
+                "id": "6003062447007",
+                "name": "Lionel Messi"
+              },
+              {
+                "id": "6003064617670",
+                "name": "Arsenal Football Club"
+              },
+              {
+                "id": "6003066202070",
+                "name": "Primera División"
+              },
+              {
+                "id": "6003095982582",
+                "name": "Liverpool Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6003107902433",
+                "name": "Calcio (calcio)"
+              },
+              {
+                "id": "6003108404190",
+                "name": "Real Madrid Club de Fútbol"
+              },
+              {
+                "id": "6003110325672",
+                "name": "Cristiano Ronaldo"
+              },
+              {
+                "id": "6003147437665",
+                "name": "Futbol Club Barcelona"
+              },
+              {
+                "id": "6003162931434",
+                "name": "Football universitario (sport universitario)"
+              },
+              {
+                "id": "6003175194449",
+                "name": "Campionato mondiale di calcio"
+              },
+              {
+                "id": "6003220643158",
+                "name": "Manchester United Football Club"
+              },
+              {
+                "id": "6003221970476",
+                "name": "FC Bayern Monaco"
+              },
+              {
+                "id": "6003239921001",
+                "name": "Serie A"
+              },
+              {
+                "id": "6003269553527",
+                "name": "Sport (sport)"
+              },
+              {
+                "id": "6003280305243",
+                "name": "West Ham United Football Club"
+              },
+              {
+                "id": "6003285600543",
+                "name": "Newcastle United Football Club"
+              },
+              {
+                "id": "6003297665308",
+                "name": "Associazione Calcio Milan"
+              },
+              {
+                "id": "6003306191253",
+                "name": "Premier League (campionato di calcio)"
+              },
+              {
+                "id": "6003319357759",
+                "name": "Chelsea Football Club"
+              },
+              {
+                "id": "6003350242199",
+                "name": "UEFA Europa League (competizione di calcio)"
+              },
+              {
+                "id": "6003354236021",
+                "name": "Bundesliga"
+              },
+              {
+                "id": "6003359788860",
+                "name": "Nazionale di calcio dell'Italia"
+              },
+              {
+                "id": "6003424358337",
+                "name": "Crystal Palace Football Club"
+              },
+              {
+                "id": "6003432221791",
+                "name": "FIFA (lega professionistica)"
+              },
+              {
+                "id": "6003440191931",
+                "name": "Juventus Football Club"
+              },
+              {
+                "id": "6003442346642",
+                "name": "Calcio (sport)"
+              },
+              {
+                "id": "6003655184478",
+                "name": "Leicester City Football Club"
+              },
+              {
+                "id": "6003703378313",
+                "name": "Union of European Football Associations"
+              },
+              {
+                "id": "6003760502478",
+                "name": "Everton Football Club"
+              },
+              {
+                "id": "6004034488209",
+                "name": "Ligue 1"
+              },
+              {
+                "id": "6004177298095",
+                "name": "Manchester City Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6004905707670",
+                "name": "Inter"
+              },
+              {
+                "id": "6788976336705",
+                "name": "Squadre di calcio internazionali (sport)"
+              }
+            ]
+          }
+        ],
+        "geo_locations": {
+          "regions": [
+            {
+              "key": "1845",
+              "name": "Emilia-Romagna",
+              "country": "IT"
+            },
+            {
+              "key": "1846",
+              "name": "Friuli-Venezia Giulia",
+              "country": "IT"
+            },
+            {
+              "key": "1847",
+              "name": "Lazio",
+              "country": "IT"
+            },
+            {
+              "key": "1848",
+              "name": "Liguria",
+              "country": "IT"
+            },
+            {
+              "key": "1849",
+              "name": "Lombardia",
+              "country": "IT"
+            },
+            {
+              "key": "1852",
+              "name": "Piedmont",
+              "country": "IT"
+            },
+            {
+              "key": "1853",
+              "name": "Puglia",
+              "country": "IT"
+            },
+            {
+              "key": "1856",
+              "name": "Tuscany",
+              "country": "IT"
+            },
+            {
+              "key": "1857",
+              "name": "Trentino-Alto Adige",
+              "country": "IT"
+            },
+            {
+              "key": "1860",
+              "name": "Veneto",
+              "country": "IT"
+            }
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "locales": [
+          10
+        ],
+        "targeting_relaxation_types": {
+          "lookalike": 0,
+          "custom_audience": 0
+        },
+        "targeting_automation": {
+          "advantage_audience": 0
+        },
+        "publisher_platforms": [
+          "facebook",
+          "instagram"
+        ],
+        "facebook_positions": [
+          "feed",
+          "right_hand_column",
+          "instream_video",
+          "marketplace",
+          "story",
+          "search",
+          "facebook_reels",
+          "facebook_reels_overlay",
+          "profile_feed",
+          "notification"
+        ],
+        "instagram_positions": [
+          "stream",
+          "story",
+          "explore",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "device_platforms": [
+          "mobile",
+          "desktop"
+        ]
+      },
+      "attribution_spec": [
+        {
+          "event_type": "CLICK_THROUGH",
+          "window_days": 7
+        },
+        {
+          "event_type": "VIEW_THROUGH",
+          "window_days": 1
+        },
+        {
+          "event_type": "ENGAGED_VIDEO_VIEW",
+          "window_days": 1
+        }
+      ]
+    },
+    {
+      "id": "120251644311020047",
+      "name": "imprenditori nr lusso nr calcio 38-60",
+      "campaign_id": "120251644311030047",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "daily_budget": "5000",
+      "optimization_goal": "OFFSITE_CONVERSIONS",
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD",
+        "lead_ads_offsite_conversion_type": "default",
+        "smart_pse_enabled": false
+      },
+      "start_time": "2026-09-12T00:00:00+0200",
+      "updated_time": "2026-09-13T12:10:05+0200",
+      "targeting": {
+        "age_max": 60,
+        "age_min": 38,
+        "flexible_spec": [
+          {
+            "interests": [
+              {
+                "id": "6002884511422",
+                "name": "Piccola impresa (affari e finanza)"
+              },
+              {
+                "id": "6003136069408",
+                "name": "Piccole e medie imprese (affari e finanza)"
+              },
+              {
+                "id": "6003371567474",
+                "name": "Imprenditorialità (affari e finanza)"
+              },
+              {
+                "id": "6003375611996",
+                "name": "Impresa individuale (affari e finanza)"
+              },
+              {
+                "id": "6003388314512",
+                "name": "Investimento (affari e finanza)"
+              },
+              {
+                "id": "6003402305839",
+                "name": "Azienda (affari e finanza)"
+              },
+              {
+                "id": "6003587074473",
+                "name": "Investitore (investimenti)"
+              }
+            ],
+            "behaviors": [
+              {
+                "id": "6002714898572",
+                "name": "Small business owners"
+              }
+            ],
+            "work_employers": [
+              {
+                "id": "109288035760640",
+                "name": "Business Owner"
+              },
+              {
+                "id": "137642586254132",
+                "name": "Owner at own business"
+              },
+              {
+                "id": "1393087040960895",
+                "name": "Business Owners"
+              },
+              {
+                "id": "140296506001448",
+                "name": "Own Business"
+              },
+              {
+                "id": "164608847064376",
+                "name": "Owner"
+              },
+              {
+                "id": "373921602761077",
+                "name": "Self-Employed"
+              },
+              {
+                "id": "680461205375055",
+                "name": "Business Owner"
+              }
+            ],
+            "work_positions": [
+              {
+                "id": "104096132959364",
+                "name": "Business"
+              },
+              {
+                "id": "105563979478424",
+                "name": "Executive director"
+              },
+              {
+                "id": "108595432498170",
+                "name": "Senior management"
+              },
+              {
+                "id": "109288035760640",
+                "name": "Business Owner"
+              },
+              {
+                "id": "110722838955052",
+                "name": "Owner"
+              },
+              {
+                "id": "112558655421889",
+                "name": "Chief financial officer"
+              },
+              {
+                "id": "116885444988542",
+                "name": "Director general"
+              },
+              {
+                "id": "117677474946712",
+                "name": "Owner/Manager/CEO"
+              },
+              {
+                "id": "124458480932025",
+                "name": "Co-Founder and COO"
+              },
+              {
+                "id": "125701090809960",
+                "name": "Founder/Manager"
+              },
+              {
+                "id": "126237404086327",
+                "name": "Co Owner"
+              },
+              {
+                "id": "133337610036491",
+                "name": "Founder, Director, CEO"
+              },
+              {
+                "id": "138050029568986",
+                "name": "Owner and Founder"
+              },
+              {
+                "id": "138434539530345",
+                "name": "Owner/Managing Director"
+              },
+              {
+                "id": "140296506001448",
+                "name": "Own Business"
+              },
+              {
+                "id": "140984096035383",
+                "name": "Chairman & Managing Director"
+              },
+              {
+                "id": "142177312468564",
+                "name": "Franchise Owner/Operator"
+              },
+              {
+                "id": "143727678985148",
+                "name": "Founder and Managing Director"
+              },
+              {
+                "id": "144007428961004",
+                "name": "Owner/Sole Proprietor"
+              },
+              {
+                "id": "149598488387016",
+                "name": "Owner and CEO"
+              },
+              {
+                "id": "149657818421934",
+                "name": "Director (business)"
+              },
+              {
+                "id": "183861164967987",
+                "name": "Managing Director"
+              },
+              {
+                "id": "321873851343665",
+                "name": "Business Owner/Engineer"
+              },
+              {
+                "id": "874842615892965",
+                "name": "Managing Director"
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6002983066219",
+                "name": "Balenciaga (brand di moda)"
+              },
+              {
+                "id": "6003028976219",
+                "name": "Land Rover (veicolo)"
+              },
+              {
+                "id": "6003029763455",
+                "name": "International Watch Company"
+              },
+              {
+                "id": "6003069363782",
+                "name": "Ferrari (veicoli)"
+              },
+              {
+                "id": "6003076027139",
+                "name": "Viaggio in prima classe (azienda viaggi e turismo)"
+              },
+              {
+                "id": "6003121397334",
+                "name": "circolo nautico (club e associazioni di interesse)"
+              },
+              {
+                "id": "6003122958658",
+                "name": "Nautica (attività all'aperto)"
+              },
+              {
+                "id": "6003133223328",
+                "name": "Lusso (magazine)"
+              },
+              {
+                "id": "6003137508950",
+                "name": "Giorgio Armani"
+              },
+              {
+                "id": "6003161093178",
+                "name": "Porsche"
+              },
+              {
+                "id": "6003165411122",
+                "name": "Gucci (brand di moda)"
+              },
+              {
+                "id": "6003200432882",
+                "name": "Givenchy (brand di moda)"
+              },
+              {
+                "id": "6003202336613",
+                "name": "Hermès (abbigliamento)"
+              },
+              {
+                "id": "6003241598211",
+                "name": "Rolls-Royce Motor Cars"
+              },
+              {
+                "id": "6003241714213",
+                "name": "Burberry (abbigliamento)"
+              },
+              {
+                "id": "6003246597567",
+                "name": "Hublot"
+              },
+              {
+                "id": "6003257785488",
+                "name": "BMW (veicoli)"
+              },
+              {
+                "id": "6003279451780",
+                "name": "Chanel (brand di moda)"
+              },
+              {
+                "id": "6003280577423",
+                "name": "yachting (imbarcazioni e natanti)"
+              },
+              {
+                "id": "6003283305854",
+                "name": "Vacheron Constantin"
+              },
+              {
+                "id": "6003284637727",
+                "name": "Lexus (veicoli)"
+              },
+              {
+                "id": "6003293721530",
+                "name": "Mercedes-Benz (veicoli)"
+              },
+              {
+                "id": "6003306942514",
+                "name": "Patek Philippe & Co. (orologi)"
+              },
+              {
+                "id": "6003308770453",
+                "name": "Moschino"
+              },
+              {
+                "id": "6003338009689",
+                "name": "Yacht (natante)"
+              },
+              {
+                "id": "6003352779232",
+                "name": "Business class (viaggi in aereo)"
+              },
+              {
+                "id": "6003368599202",
+                "name": "Louis Vuitton (brand di moda)"
+              },
+              {
+                "id": "6003371567474",
+                "name": "Imprenditorialità (affari e finanza)"
+              },
+              {
+                "id": "6003382700604",
+                "name": "Audemars Piguet"
+              },
+              {
+                "id": "6003383552337",
+                "name": "Resort di lusso (alloggio)"
+              },
+              {
+                "id": "6003397425735",
+                "name": "Tennis (sport)"
+              },
+              {
+                "id": "6003397432935",
+                "name": "Audi (veicoli)"
+              },
+              {
+                "id": "6003402305839",
+                "name": "Azienda (affari e finanza)"
+              },
+              {
+                "id": "6003431493391",
+                "name": "Bulgari (beni di lusso)"
+              },
+              {
+                "id": "6003435546331",
+                "name": "Versace (brand di moda)"
+              },
+              {
+                "id": "6003456879344",
+                "name": "Lamborghini (veicoli)"
+              },
+              {
+                "id": "6003481889069",
+                "name": "Tennis Channel"
+              },
+              {
+                "id": "6003496694880",
+                "name": "Jaguar"
+              },
+              {
+                "id": "6003508325964",
+                "name": "Tiffany & Co. (beni di lusso)"
+              },
+              {
+                "id": "6003510075864",
+                "name": "Golf (sport)"
+              },
+              {
+                "id": "6003516735664",
+                "name": "Yves Saint Laurent (brand)"
+              },
+              {
+                "id": "6003567824118",
+                "name": "Maserati"
+              },
+              {
+                "id": "6003587678073",
+                "name": "Rolex (orologi)"
+              },
+              {
+                "id": "6003702639291",
+                "name": "Bentley"
+              },
+              {
+                "id": "6003713880583",
+                "name": "Armani (abbigliamento)"
+              },
+              {
+                "id": "6003715005316",
+                "name": "Yacht di lusso (natante)"
+              },
+              {
+                "id": "6003762134517",
+                "name": "Cartier (gioielliere)"
+              },
+              {
+                "id": "6003954452466",
+                "name": "Panerai"
+              },
+              {
+                "id": "6004037107009",
+                "name": "Barche (natante)"
+              },
+              {
+                "id": "6004048615096",
+                "name": "Veicolo di lusso (veicoli)"
+              },
+              {
+                "id": "6005522768944",
+                "name": "Breitling"
+              },
+              {
+                "id": "6007828099136",
+                "name": "Beni di lusso (vendita al dettaglio)"
+              }
+            ],
+            "behaviors": [
+              {
+                "id": "6002714895372",
+                "name": "Frequent Travelers"
+              },
+              {
+                "id": "6022788483583",
+                "name": "Frequent international travelers"
+              }
+            ],
+            "work_employers": [
+              {
+                "id": "157271317637124",
+                "name": "Tennis"
+              }
+            ],
+            "work_positions": [
+              {
+                "id": "1550034451925087",
+                "name": "Tennis Professional"
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6002995710444",
+                "name": "UEFA Champions League"
+              },
+              {
+                "id": "6003030389007",
+                "name": "Tottenham Hotspur Football Club"
+              },
+              {
+                "id": "6003062447007",
+                "name": "Lionel Messi"
+              },
+              {
+                "id": "6003064617670",
+                "name": "Arsenal Football Club"
+              },
+              {
+                "id": "6003066202070",
+                "name": "Primera División"
+              },
+              {
+                "id": "6003095982582",
+                "name": "Liverpool Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6003107902433",
+                "name": "Calcio (calcio)"
+              },
+              {
+                "id": "6003108404190",
+                "name": "Real Madrid Club de Fútbol"
+              },
+              {
+                "id": "6003110325672",
+                "name": "Cristiano Ronaldo"
+              },
+              {
+                "id": "6003147437665",
+                "name": "Futbol Club Barcelona"
+              },
+              {
+                "id": "6003162931434",
+                "name": "Football universitario (sport universitario)"
+              },
+              {
+                "id": "6003175194449",
+                "name": "Campionato mondiale di calcio"
+              },
+              {
+                "id": "6003220643158",
+                "name": "Manchester United Football Club"
+              },
+              {
+                "id": "6003221970476",
+                "name": "FC Bayern Monaco"
+              },
+              {
+                "id": "6003239921001",
+                "name": "Serie A"
+              },
+              {
+                "id": "6003269553527",
+                "name": "Sport (sport)"
+              },
+              {
+                "id": "6003280305243",
+                "name": "West Ham United Football Club"
+              },
+              {
+                "id": "6003285600543",
+                "name": "Newcastle United Football Club"
+              },
+              {
+                "id": "6003297665308",
+                "name": "Associazione Calcio Milan"
+              },
+              {
+                "id": "6003306191253",
+                "name": "Premier League (campionato di calcio)"
+              },
+              {
+                "id": "6003319357759",
+                "name": "Chelsea Football Club"
+              },
+              {
+                "id": "6003350242199",
+                "name": "UEFA Europa League (competizione di calcio)"
+              },
+              {
+                "id": "6003354236021",
+                "name": "Bundesliga"
+              },
+              {
+                "id": "6003359788860",
+                "name": "Nazionale di calcio dell'Italia"
+              },
+              {
+                "id": "6003424358337",
+                "name": "Crystal Palace Football Club"
+              },
+              {
+                "id": "6003432221791",
+                "name": "FIFA (lega professionistica)"
+              },
+              {
+                "id": "6003440191931",
+                "name": "Juventus Football Club"
+              },
+              {
+                "id": "6003442346642",
+                "name": "Calcio (sport)"
+              },
+              {
+                "id": "6003655184478",
+                "name": "Leicester City Football Club"
+              },
+              {
+                "id": "6003703378313",
+                "name": "Union of European Football Associations"
+              },
+              {
+                "id": "6003760502478",
+                "name": "Everton Football Club"
+              },
+              {
+                "id": "6004034488209",
+                "name": "Ligue 1"
+              },
+              {
+                "id": "6004177298095",
+                "name": "Manchester City Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6004905707670",
+                "name": "Inter"
+              },
+              {
+                "id": "6788976336705",
+                "name": "Squadre di calcio internazionali (sport)"
+              }
+            ]
+          }
+        ],
+        "geo_locations": {
+          "regions": [
+            {
+              "key": "1845",
+              "name": "Emilia-Romagna",
+              "country": "IT"
+            },
+            {
+              "key": "1846",
+              "name": "Friuli-Venezia Giulia",
+              "country": "IT"
+            },
+            {
+              "key": "1847",
+              "name": "Lazio",
+              "country": "IT"
+            },
+            {
+              "key": "1848",
+              "name": "Liguria",
+              "country": "IT"
+            },
+            {
+              "key": "1849",
+              "name": "Lombardia",
+              "country": "IT"
+            },
+            {
+              "key": "1852",
+              "name": "Piedmont",
+              "country": "IT"
+            },
+            {
+              "key": "1853",
+              "name": "Puglia",
+              "country": "IT"
+            },
+            {
+              "key": "1856",
+              "name": "Tuscany",
+              "country": "IT"
+            },
+            {
+              "key": "1857",
+              "name": "Trentino-Alto Adige",
+              "country": "IT"
+            },
+            {
+              "key": "1860",
+              "name": "Veneto",
+              "country": "IT"
+            }
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "locales": [
+          10
+        ],
+        "brand_safety_content_filter_levels": [
+          "FACEBOOK_RELAXED"
+        ],
+        "targeting_automation": {
+          "advantage_audience": 0,
+          "individual_setting": {
+            "age": 0,
+            "gender": 1,
+            "geo": 1
+          }
+        },
+        "publisher_platforms": [
+          "facebook",
+          "instagram"
+        ],
+        "facebook_positions": [
+          "feed",
+          "right_hand_column",
+          "instream_video",
+          "marketplace",
+          "story",
+          "search",
+          "facebook_reels",
+          "facebook_reels_overlay",
+          "profile_feed",
+          "notification"
+        ],
+        "instagram_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "device_platforms": [
+          "mobile",
+          "desktop"
+        ]
+      },
+      "attribution_spec": [
+        {
+          "event_type": "CLICK_THROUGH",
+          "window_days": 7
+        },
+        {
+          "event_type": "VIEW_THROUGH",
+          "window_days": 1
+        },
+        {
+          "event_type": "ENGAGED_VIDEO_VIEW",
+          "window_days": 1
+        }
+      ]
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "120251721514160047",
+      "name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "objective": "OUTCOME_LEADS",
+      "daily_budget": "10000",
+      "created_time": "2026-09-16T15:46:50+0200",
+      "updated_time": "2026-09-16T15:46:50+0200",
+      "start_time": "2026-09-16T15:46:52+0200"
+    },
+    {
+      "id": "120251644311030047",
+      "name": "Nuova Campagna Settembre 2026",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "objective": "OUTCOME_LEADS",
+      "created_time": "2026-09-11T17:27:56+0200",
+      "updated_time": "2026-09-17T06:57:14+0200",
+      "start_time": "2026-09-12T00:00:00+0200"
+    }
+  ],
+  "campaign_totals": [
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "71.43",
+      "impressions": "10336",
+      "reach": "8387",
+      "frequency": "1.232383",
+      "inline_link_clicks": "72",
+      "inline_link_click_ctr": "0.696594",
+      "cost_per_inline_link_click": "0.992083",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "72"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "16"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "60"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "53"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "53"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "2179"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "28"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "2179"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "60"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "31"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "60"
+        },
+        {
+          "action_type": "post",
+          "value": "8"
+        },
+        {
+          "action_type": "view_content",
+          "value": "60"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "13"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "60"
+        },
+        {
+          "action_type": "video_view",
+          "value": "2079"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "60"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "60"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "72"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "81.34",
+      "impressions": "12705",
+      "reach": "8414",
+      "frequency": "1.509983",
+      "inline_link_clicks": "103",
+      "inline_link_click_ctr": "0.810704",
+      "cost_per_inline_link_click": "0.789709",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "103"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "37"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "63"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "71"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "71"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "2526"
+        },
+        {
+          "action_type": "like",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "46"
+        },
+        {
+          "action_type": "comment",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "2527"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "63"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "47"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "63"
+        },
+        {
+          "action_type": "post",
+          "value": "6"
+        },
+        {
+          "action_type": "view_content",
+          "value": "63"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "36"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "63"
+        },
+        {
+          "action_type": "video_view",
+          "value": "2377"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "63"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "63"
+        }
+      ],
+      "outbound_clicks": [
+        {
+          "action_type": "outbound_click",
+          "value": "102"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17"
+    }
+  ],
+  "hourly_today": [
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "3.25",
+      "impressions": "516",
+      "inline_link_clicks": "4",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "91"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "91"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "87"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "00:00:00 - 00:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "1.33",
+      "impressions": "188",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "33"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "33"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "32"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "01:00:00 - 01:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "1.33",
+      "impressions": "117",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "22"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "22"
+        },
+        {
+          "action_type": "video_view",
+          "value": "21"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "02:00:00 - 02:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "0.94",
+      "impressions": "121",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "28"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "28"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "27"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "03:00:00 - 03:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "0.81",
+      "impressions": "160",
+      "inline_link_clicks": "2",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "2"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "34"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "34"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "30"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "04:00:00 - 04:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "3.8",
+      "impressions": "457",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "71"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "71"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "70"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "05:00:00 - 05:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "8.78",
+      "impressions": "1206",
+      "inline_link_clicks": "9",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "4"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "225"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "225"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "211"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "06:00:00 - 06:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "16.84",
+      "impressions": "2048",
+      "inline_link_clicks": "11",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "11"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "11"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "485"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "6"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "485"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "11"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "11"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "11"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "11"
+        },
+        {
+          "action_type": "video_view",
+          "value": "468"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "11"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "11"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "07:00:00 - 07:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "8.54",
+      "impressions": "1240",
+      "inline_link_clicks": "6",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "7"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "7"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "7"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "218"
+        },
+        {
+          "action_type": "like",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "219"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "7"
+        },
+        {
+          "action_type": "video_view",
+          "value": "207"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "7"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "07:00:00 - 07:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "12.64",
+      "impressions": "1523",
+      "inline_link_clicks": "12",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "12"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "360"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "360"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "12"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "12"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "12"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "12"
+        },
+        {
+          "action_type": "video_view",
+          "value": "344"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "12"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "12"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "08:00:00 - 08:59:59"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "campaign_name": "MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+      "spend": "0.17",
+      "impressions": "16",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "08:00:00 - 08:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "11.07",
+      "impressions": "1484",
+      "inline_link_clicks": "12",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "12"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "10"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "8"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "328"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "8"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "328"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "10"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "9"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "10"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "10"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "10"
+        },
+        {
+          "action_type": "video_view",
+          "value": "308"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "10"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "10"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "09:00:00 - 09:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "8.02",
+      "impressions": "1284",
+      "inline_link_clicks": "8",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "8"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "7"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "229"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "229"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "7"
+        },
+        {
+          "action_type": "video_view",
+          "value": "220"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "7"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "10:00:00 - 10:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "8.86",
+      "impressions": "1208",
+      "inline_link_clicks": "6",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "6"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "5"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "223"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "6"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "223"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "5"
+        },
+        {
+          "action_type": "video_view",
+          "value": "211"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "5"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "11:00:00 - 11:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "8.13",
+      "impressions": "1680",
+      "inline_link_clicks": "14",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "14"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "6"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "343"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "3"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "343"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "6"
+        },
+        {
+          "action_type": "video_view",
+          "value": "326"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "12:00:00 - 12:59:59"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "campaign_name": "Nuova Campagna Settembre 2026",
+      "spend": "5.87",
+      "impressions": "1109",
+      "inline_link_clicks": "9",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "5"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "7"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "7"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "165"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "165"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "5"
+        },
+        {
+          "action_type": "video_view",
+          "value": "156"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "5"
+        }
+      ],
+      "date_start": "2026-09-17",
+      "date_stop": "2026-09-17",
+      "hourly_stats_aggregated_by_advertiser_time_zone": "13:00:00 - 13:59:59"
+    }
+  ],
+  "placements": [
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "0",
+      "impressions": "1",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_notification"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "0",
+      "impressions": "2",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_profile_feed"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "19.127571",
+      "impressions": "2983",
+      "inline_link_clicks": "7",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "7"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "3"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "604"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "604"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "593"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "0",
+      "impressions": "3",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels_overlay"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "0.897721",
+      "impressions": "88",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "14"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "14"
+        },
+        {
+          "action_type": "video_view",
+          "value": "13"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_stories"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "20.963817",
+      "impressions": "4572",
+      "inline_link_clicks": "42",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "42"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "27"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "28"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "28"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "769"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "769"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "27"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "27"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "27"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "27"
+        },
+        {
+          "action_type": "video_view",
+          "value": "722"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "27"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "27"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "1.387386",
+      "impressions": "76",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "57"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "57"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "56"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "instream_video"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "0.020403",
+      "impressions": "3",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "marketplace"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "14.43494",
+      "impressions": "1400",
+      "inline_link_clicks": "13",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "13"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "23"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "444"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "14"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "444"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "23"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "17"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "23"
+        },
+        {
+          "action_type": "post",
+          "value": "4"
+        },
+        {
+          "action_type": "view_content",
+          "value": "23"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "4"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "23"
+        },
+        {
+          "action_type": "video_view",
+          "value": "417"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "23"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "23"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "feed"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "12.568089",
+      "impressions": "974",
+      "inline_link_clicks": "3",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "3"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "3"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "246"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "246"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "5"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "238"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_reels"
+    },
+    {
+      "campaign_id": "120251644311030047",
+      "spend": "3.427661",
+      "impressions": "234",
+      "inline_link_clicks": "5",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "3"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "4"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "4"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "44"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "44"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "39"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_stories"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.040005",
+      "impressions": "11",
+      "inline_link_clicks": "3",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "9"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "9"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "6"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "audience_network",
+      "platform_position": "an_classic"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.010001",
+      "impressions": "1",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_notification"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.090011",
+      "impressions": "13",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_profile_feed"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "22.182727",
+      "impressions": "3354",
+      "inline_link_clicks": "32",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "32"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "20"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "22"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "27"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "27"
+        },
+        {
+          "action_type": "onsite_conversion.post_unlike",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "797"
+        },
+        {
+          "action_type": "like",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "22"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "798"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "22"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "23"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "22"
+        },
+        {
+          "action_type": "post",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "22"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_save",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "19"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "22"
+        },
+        {
+          "action_type": "video_view",
+          "value": "743"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "22"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "22"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.020002",
+      "impressions": "14",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_reels_overlay"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "1.170144",
+      "impressions": "101",
+      "inline_link_clicks": "1",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "1"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "12"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "12"
+        },
+        {
+          "action_type": "video_view",
+          "value": "11"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "facebook_stories"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "28.073451",
+      "impressions": "6240",
+      "inline_link_clicks": "37",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "37"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "8"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "18"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "23"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "23"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "1037"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "8"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1037"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "18"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "8"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "18"
+        },
+        {
+          "action_type": "view_content",
+          "value": "18"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "8"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "18"
+        },
+        {
+          "action_type": "video_view",
+          "value": "992"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "18"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "18"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "feed"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "1.06013",
+      "impressions": "92",
+      "inline_link_clicks": "5",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "2"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "2"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "53"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "53"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "2"
+        },
+        {
+          "action_type": "video_view",
+          "value": "48"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "2"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "2"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "instream_video"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.040005",
+      "impressions": "20",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "5"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "5"
+        },
+        {
+          "action_type": "video_view",
+          "value": "5"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "marketplace"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0",
+      "impressions": "5",
+      "inline_link_clicks": "0",
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "right_hand_column"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.010001",
+      "impressions": "10",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "1"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "facebook",
+      "platform_position": "search"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "11.251383",
+      "impressions": "1121",
+      "inline_link_clicks": "9",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "6"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "5"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "239"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "6"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "239"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "post",
+          "value": "2"
+        },
+        {
+          "action_type": "view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "6"
+        },
+        {
+          "action_type": "video_view",
+          "value": "224"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "feed"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "12.85158",
+      "impressions": "1337",
+      "inline_link_clicks": "9",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "9"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "7"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "6"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "6"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "340"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "10"
+        },
+        {
+          "action_type": "comment",
+          "value": "2"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "340"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "post_interaction_net",
+          "value": "10"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "post",
+          "value": "3"
+        },
+        {
+          "action_type": "view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_comment",
+          "value": "2"
+        },
+        {
+          "action_type": "onsite_conversion.post_net_like",
+          "value": "5"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "7"
+        },
+        {
+          "action_type": "video_view",
+          "value": "321"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "7"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_reels"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "4.440546",
+      "impressions": "374",
+      "inline_link_clicks": "7",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "7"
+        },
+        {
+          "action_type": "offsite_content_view_add_20_s_calls",
+          "value": "6"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "6"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "6"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "30"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "30"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "6"
+        },
+        {
+          "action_type": "video_view",
+          "value": "23"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "6"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "6"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "instagram",
+      "platform_position": "instagram_stories"
+    },
+    {
+      "campaign_id": "120251721514160047",
+      "spend": "0.100012",
+      "impressions": "12",
+      "inline_link_clicks": "0",
+      "actions": [
+        {
+          "action_type": "post_engagement",
+          "value": "3"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "3"
+        },
+        {
+          "action_type": "video_view",
+          "value": "3"
+        }
+      ],
+      "date_start": "2026-09-16",
+      "date_stop": "2026-09-17",
+      "publisher_platform": "threads",
+      "platform_position": "threads_feed"
+    }
+  ],
+  "pageviews": {
+    "total": {
+      "pageviews": 218,
+      "distinct_browser_ids": 172,
+      "missing_visitor_ids": 0,
+      "recognized_bots": 11,
+      "marked_test_views": 2,
+      "first": "2026-09-16T06:09:44.591144+00:00",
+      "last": "2026-09-17T11:43:52.537293+00:00"
+    },
+    "by_campaign": {
+      "(none)": {
+        "pageviews": 41,
+        "distinct_browser_ids": 18,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 11,
+        "marked_test_views": 0,
+        "first": "2026-09-16T06:09:44.591144+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916": {
+        "pageviews": 114,
+        "distinct_browser_ids": 99,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T13:49:19.684358+00:00",
+        "last": "2026-09-17T06:18:31.16928+00:00"
+      },
+      "120251644311030047": {
+        "pageviews": 61,
+        "distinct_browser_ids": 59,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T05:16:03.973581+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "clarity_20260917": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      }
+    },
+    "by_campaign_day": {
+      "(none) | 2026-09-16": {
+        "pageviews": 19,
+        "distinct_browser_ids": 11,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 6,
+        "marked_test_views": 0,
+        "first": "2026-09-16T06:09:44.591144+00:00",
+        "last": "2026-09-16T21:05:43.971121+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16": {
+        "pageviews": 83,
+        "distinct_browser_ids": 74,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T13:49:19.684358+00:00",
+        "last": "2026-09-16T21:45:17.403459+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17": {
+        "pageviews": 31,
+        "distinct_browser_ids": 26,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T22:21:52.70062+00:00",
+        "last": "2026-09-17T06:18:31.16928+00:00"
+      },
+      "(none) | 2026-09-17": {
+        "pageviews": 22,
+        "distinct_browser_ids": 8,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 5,
+        "marked_test_views": 0,
+        "first": "2026-09-16T22:31:54.588074+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      },
+      "120251644311030047 | 2026-09-17": {
+        "pageviews": 61,
+        "distinct_browser_ids": 59,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T05:16:03.973581+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "clarity_20260917 | 2026-09-17": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      }
+    },
+    "by_campaign_hour_rome": {
+      "(none) | 2026-09-16T08": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 1,
+        "marked_test_views": 0,
+        "first": "2026-09-16T06:09:44.591144+00:00",
+        "last": "2026-09-16T06:41:03.684578+00:00"
+      },
+      "(none) | 2026-09-16T15": {
+        "pageviews": 4,
+        "distinct_browser_ids": 3,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 2,
+        "marked_test_views": 0,
+        "first": "2026-09-16T13:14:20.800652+00:00",
+        "last": "2026-09-16T13:52:07.954732+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T15": {
+        "pageviews": 18,
+        "distinct_browser_ids": 17,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T13:49:19.684358+00:00",
+        "last": "2026-09-16T13:54:26.72826+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T16": {
+        "pageviews": 5,
+        "distinct_browser_ids": 4,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T14:17:52.374411+00:00",
+        "last": "2026-09-16T14:58:23.559019+00:00"
+      },
+      "(none) | 2026-09-16T16": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T14:27:07.816206+00:00",
+        "last": "2026-09-16T14:33:05.320649+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T17": {
+        "pageviews": 5,
+        "distinct_browser_ids": 4,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T15:00:12.794253+00:00",
+        "last": "2026-09-16T15:41:56.964528+00:00"
+      },
+      "(none) | 2026-09-16T17": {
+        "pageviews": 9,
+        "distinct_browser_ids": 4,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 3,
+        "marked_test_views": 0,
+        "first": "2026-09-16T15:27:48.880776+00:00",
+        "last": "2026-09-16T15:59:28.454783+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T18": {
+        "pageviews": 8,
+        "distinct_browser_ids": 8,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T16:11:03.622116+00:00",
+        "last": "2026-09-16T16:56:39.035514+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T19": {
+        "pageviews": 11,
+        "distinct_browser_ids": 9,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T17:01:53.00086+00:00",
+        "last": "2026-09-16T17:53:49.537527+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T20": {
+        "pageviews": 9,
+        "distinct_browser_ids": 9,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T18:04:23.924997+00:00",
+        "last": "2026-09-16T18:52:45.380814+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T21": {
+        "pageviews": 13,
+        "distinct_browser_ids": 13,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T19:01:31.553398+00:00",
+        "last": "2026-09-16T19:54:51.663891+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T22": {
+        "pageviews": 11,
+        "distinct_browser_ids": 11,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T20:00:45.455458+00:00",
+        "last": "2026-09-16T20:50:39.083223+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-16T23": {
+        "pageviews": 3,
+        "distinct_browser_ids": 3,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T21:04:33.869974+00:00",
+        "last": "2026-09-16T21:45:17.403459+00:00"
+      },
+      "(none) | 2026-09-16T23": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T21:05:41.139682+00:00",
+        "last": "2026-09-16T21:05:43.971121+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T00": {
+        "pageviews": 4,
+        "distinct_browser_ids": 4,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T22:21:52.70062+00:00",
+        "last": "2026-09-16T22:37:38.714323+00:00"
+      },
+      "(none) | 2026-09-17T00": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 1,
+        "marked_test_views": 0,
+        "first": "2026-09-16T22:31:54.588074+00:00",
+        "last": "2026-09-16T22:31:54.588074+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T01": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-16T23:08:26.175316+00:00",
+        "last": "2026-09-16T23:08:26.175316+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T02": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T00:56:58.717754+00:00",
+        "last": "2026-09-17T00:56:58.717754+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T03": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T01:39:13.406013+00:00",
+        "last": "2026-09-17T01:39:13.406013+00:00"
+      },
+      "(none) | 2026-09-17T03": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 1,
+        "marked_test_views": 0,
+        "first": "2026-09-17T01:56:01.400462+00:00",
+        "last": "2026-09-17T01:56:01.400462+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T04": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T02:42:57.575614+00:00",
+        "last": "2026-09-17T02:53:35.572591+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T05": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T03:04:12.184739+00:00",
+        "last": "2026-09-17T03:49:56.90073+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T06": {
+        "pageviews": 4,
+        "distinct_browser_ids": 4,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T04:29:51.173927+00:00",
+        "last": "2026-09-17T04:59:22.712827+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T07": {
+        "pageviews": 14,
+        "distinct_browser_ids": 10,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T05:03:27.711901+00:00",
+        "last": "2026-09-17T05:58:32.344856+00:00"
+      },
+      "120251644311030047 | 2026-09-17T07": {
+        "pageviews": 10,
+        "distinct_browser_ids": 10,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T05:16:03.973581+00:00",
+        "last": "2026-09-17T05:56:08.61965+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916 | 2026-09-17T08": {
+        "pageviews": 2,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:00:37.984979+00:00",
+        "last": "2026-09-17T06:18:31.16928+00:00"
+      },
+      "120251644311030047 | 2026-09-17T08": {
+        "pageviews": 10,
+        "distinct_browser_ids": 9,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:03:38.302898+00:00",
+        "last": "2026-09-17T06:42:22.146586+00:00"
+      },
+      "(none) | 2026-09-17T08": {
+        "pageviews": 11,
+        "distinct_browser_ids": 6,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 3,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:04:00.560268+00:00",
+        "last": "2026-09-17T06:58:00.870311+00:00"
+      },
+      "(none) | 2026-09-17T09": {
+        "pageviews": 7,
+        "distinct_browser_ids": 3,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T07:00:09.974201+00:00",
+        "last": "2026-09-17T07:37:43.273084+00:00"
+      },
+      "120251644311030047 | 2026-09-17T09": {
+        "pageviews": 11,
+        "distinct_browser_ids": 11,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T07:03:50.174565+00:00",
+        "last": "2026-09-17T07:58:48.859182+00:00"
+      },
+      "120251644311030047 | 2026-09-17T10": {
+        "pageviews": 8,
+        "distinct_browser_ids": 8,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T08:01:25.894853+00:00",
+        "last": "2026-09-17T08:59:03.283049+00:00"
+      },
+      "120251644311030047 | 2026-09-17T11": {
+        "pageviews": 4,
+        "distinct_browser_ids": 3,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T09:04:51.171267+00:00",
+        "last": "2026-09-17T09:32:44.659968+00:00"
+      },
+      "clarity_20260917 | 2026-09-17T11": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      },
+      "120251644311030047 | 2026-09-17T12": {
+        "pageviews": 9,
+        "distinct_browser_ids": 9,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T10:02:16.862702+00:00",
+        "last": "2026-09-17T10:59:47.548023+00:00"
+      },
+      "(none) | 2026-09-17T12": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T10:57:48.393733+00:00",
+        "last": "2026-09-17T10:57:48.393733+00:00"
+      },
+      "120251644311030047 | 2026-09-17T13": {
+        "pageviews": 9,
+        "distinct_browser_ids": 9,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T11:01:06.583476+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "(none) | 2026-09-17T13": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T11:43:52.537293+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      }
+    },
+    "since_copy_revision": {
+      "120251644311030047": {
+        "pageviews": 51,
+        "distinct_browser_ids": 49,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:03:38.302898+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "(none)": {
+        "pageviews": 20,
+        "distinct_browser_ids": 6,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 3,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:04:00.560268+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      },
+      "ms_genitori_nord_lazio_20260916": {
+        "pageviews": 1,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:18:31.16928+00:00",
+        "last": "2026-09-17T06:18:31.16928+00:00"
+      },
+      "clarity_20260917": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      }
+    },
+    "since_new_video": {
+      "(none)": {
+        "pageviews": 11,
+        "distinct_browser_ids": 3,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T06:57:20.254315+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      },
+      "120251644311030047": {
+        "pageviews": 41,
+        "distinct_browser_ids": 40,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T07:03:50.174565+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "clarity_20260917": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      }
+    },
+    "since_clarity": {
+      "(none)": {
+        "pageviews": 3,
+        "distinct_browser_ids": 2,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T07:37:43.273084+00:00",
+        "last": "2026-09-17T11:43:52.537293+00:00"
+      },
+      "120251644311030047": {
+        "pageviews": 34,
+        "distinct_browser_ids": 33,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 0,
+        "first": "2026-09-17T07:38:02.50226+00:00",
+        "last": "2026-09-17T11:43:42.08737+00:00"
+      },
+      "clarity_20260917": {
+        "pageviews": 2,
+        "distinct_browser_ids": 1,
+        "missing_visitor_ids": 0,
+        "recognized_bots": 0,
+        "marked_test_views": 2,
+        "first": "2026-09-17T09:22:13.562879+00:00",
+        "last": "2026-09-17T09:22:36.635396+00:00"
+      }
+    }
+  },
+  "events": {
+    "2026-09-16 | PageView | 311586900940615 | true": {
+      "count": 104,
+      "first": "2026-09-16T04:32:16.601274+00:00",
+      "last": "2026-09-16T23:08:26.709163+00:00"
+    },
+    "2026-09-16 | ViewContent | 311586900940615 | true": {
+      "count": 91,
+      "first": "2026-09-16T04:32:18.444645+00:00",
+      "last": "2026-09-16T23:08:26.72625+00:00"
+    },
+    "2026-09-16 | Lead | 311586900940615 | true": {
+      "count": 1,
+      "first": "2026-09-16T13:30:56.697944+00:00",
+      "last": "2026-09-16T13:30:56.697944+00:00"
+    },
+    "2026-09-16 | StartForm | 311586900940615 | true": {
+      "count": 4,
+      "first": "2026-09-16T14:32:44.796133+00:00",
+      "last": "2026-09-16T21:05:13.396968+00:00"
+    },
+    "2026-09-17 | PageView | 311586900940615 | true": {
+      "count": 107,
+      "first": "2026-09-17T00:56:59.30457+00:00",
+      "last": "2026-09-17T11:43:52.782118+00:00"
+    },
+    "2026-09-17 | ViewContent | 311586900940615 | true": {
+      "count": 99,
+      "first": "2026-09-17T00:56:59.344927+00:00",
+      "last": "2026-09-17T11:43:55.655775+00:00"
+    },
+    "2026-09-17 | StartForm | 311586900940615 | true": {
+      "count": 3,
+      "first": "2026-09-17T05:11:50.202376+00:00",
+      "last": "2026-09-17T07:29:18.504358+00:00"
+    },
+    "2026-09-17 | Lead | 311586900940615 | true": {
+      "count": 1,
+      "first": "2026-09-17T07:29:23.497027+00:00",
+      "last": "2026-09-17T07:29:23.497027+00:00"
+    }
+  },
+  "funnel": {
+    "slug": "salto-di-qualita",
+    "status": "active",
+    "settings": {
+      "template": "metodo_sincro",
+      "ab_variant": "A",
+      "ab_test_active": false,
+      "video_revision": "6aab8c0b901f91136b129b4b",
+      "messaging_theme": "salto_categoria",
+      "ab_test_started_at": "2026-09-13T09:36:39.116Z",
+      "clarity_project_id": "yjm4a7mui9",
+      "clarity_started_at": "2026-09-17T07:36:45.973Z",
+      "conversion_revision": "salto-categoria-20260917",
+      "direct_consultation_form": true,
+      "video_revision_started_at": "2026-09-17T06:56:56.206Z",
+      "conversion_revision_started_at": "2026-09-17T05:59:59.704Z"
+    }
+  }
+}

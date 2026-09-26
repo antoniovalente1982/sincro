@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1cfe9fec-549c-4915-8b22-3a50ad764d8b",
+    "organization_id": "a5dd4842-f0ea-4909-b4a3-be2cb1c6ffa5",
+    "name": "Mio figlio gioca poco: come stargli vicino senza aumentare la pressione",
+    "slug": "mio-figlio-gioca-poco",
+    "description": "Distinguere minutaggio, fiducia e confronto con l’allenatore.",
+    "status": "draft",
+    "settings": {
+      "blog": {
+        "body": "Scaletta editoriale da sviluppare e revisionare prima della pubblicazione.\n\n## Capire che cosa pesa davvero\n- Distinguere il poco spazio in campo dalla paura di sbagliare e dal rapporto con l’allenatore.\n- Partire da un episodio concreto raccontato dal ragazzo.\n\n## Parlare con tuo figlio senza aggiungere pressione\n- Individuare il momento per ascoltarlo.\n- Raccogliere esempi di domande e frasi utili dal team Metodo Sincro.\n\n## Il confronto con l’allenatore\n- Chiarire aspettative, ruoli e obiettivi di lavoro.\n\n## Un possibile passo successivo\n- Spiegare quando può essere utile un confronto sul lavoro mentale, senza promettere più minuti in campo.",
+        "slug": "mio-figlio-gioca-poco",
+        "cover": "",
+        "title": "Mio figlio gioca poco: come stargli vicino senza aumentare la pressione",
+        "topic": "panchina",
+        "status": "draft",
+        "excerpt": "Distinguere minutaggio, fiducia e confronto con l’allenatore.",
+        "coverAlt": "",
+        "seoTitle": "Mio figlio gioca poco: come stargli vicino senza aumentare la pressione",
+        "publishedAt": null,
+        "seoDescription": "Mio figlio gioca poco: domande per capire come vive la panchina, ascoltarlo e confrontarsi sul suo percorso senza aumentare la pressione."
+      },
+      "template": "blog_article"
+    },
+    "created_at": "2026-09-18T13:16:31.826Z",
+    "updated_at": "2026-09-18T13:16:47.311Z"
+  }
+]

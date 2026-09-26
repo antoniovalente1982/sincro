@@ -1,0 +1,11 @@
+{
+  "id": "1058561253611317",
+  "name": "FA 01 - Visite advertorial",
+  "rule": "{\"and\":[{\"event\":{\"eq\":\"PageView\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/blog/\"}}]}",
+  "pixel": {
+    "id": "311586900940615"
+  },
+  "custom_event_type": "OTHER",
+  "creation_time": "2026-09-19T11:57:52+0000",
+  "is_archived": false
+}

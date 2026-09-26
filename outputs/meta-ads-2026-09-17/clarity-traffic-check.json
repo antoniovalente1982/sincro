@@ -1,0 +1,121 @@
+{
+  "fetched_at": "2026-09-17T09:15:19.112Z",
+  "since": "2026-09-17T07:36:45.973Z",
+  "slug": "salto-di-qualita",
+  "clarity_project_id": "yjm4a7mui9",
+  "total": {
+    "pageviews": 15,
+    "distinct_browser_ids": 14,
+    "missing_ids": 0,
+    "recognized_bot_views": 0,
+    "in_app_browser_views": 14,
+    "first": "2026-09-17T07:37:43.273084+00:00",
+    "last": "2026-09-17T09:04:51.881615+00:00"
+  },
+  "by_campaign": {
+    "(none)": {
+      "pageviews": 1,
+      "distinct_browser_ids": 1,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 0,
+      "first": "2026-09-17T07:37:43.273084+00:00",
+      "last": "2026-09-17T07:37:43.273084+00:00"
+    },
+    "120251644311030047": {
+      "pageviews": 14,
+      "distinct_browser_ids": 13,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 14,
+      "first": "2026-09-17T07:38:02.50226+00:00",
+      "last": "2026-09-17T09:04:51.881615+00:00"
+    }
+  },
+  "by_device": {
+    "desktop": {
+      "pageviews": 1,
+      "distinct_browser_ids": 1,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 0,
+      "first": "2026-09-17T07:37:43.273084+00:00",
+      "last": "2026-09-17T07:37:43.273084+00:00"
+    },
+    "mobile": {
+      "pageviews": 14,
+      "distinct_browser_ids": 13,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 14,
+      "first": "2026-09-17T07:38:02.50226+00:00",
+      "last": "2026-09-17T09:04:51.881615+00:00"
+    }
+  },
+  "quarter_hour_utc": {
+    "2026-09-17T07:30:00.000Z": {
+      "pageviews": 2,
+      "distinct_browser_ids": 2,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 1,
+      "first": "2026-09-17T07:37:43.273084+00:00",
+      "last": "2026-09-17T07:38:02.50226+00:00"
+    },
+    "2026-09-17T07:45:00.000Z": {
+      "pageviews": 3,
+      "distinct_browser_ids": 3,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 3,
+      "first": "2026-09-17T07:45:55.447371+00:00",
+      "last": "2026-09-17T07:58:48.859182+00:00"
+    },
+    "2026-09-17T08:00:00.000Z": {
+      "pageviews": 2,
+      "distinct_browser_ids": 2,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 2,
+      "first": "2026-09-17T08:01:25.894853+00:00",
+      "last": "2026-09-17T08:02:49.120536+00:00"
+    },
+    "2026-09-17T08:15:00.000Z": {
+      "pageviews": 4,
+      "distinct_browser_ids": 4,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 4,
+      "first": "2026-09-17T08:19:32.915715+00:00",
+      "last": "2026-09-17T08:28:20.114553+00:00"
+    },
+    "2026-09-17T08:30:00.000Z": {
+      "pageviews": 1,
+      "distinct_browser_ids": 1,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 1,
+      "first": "2026-09-17T08:41:02.352977+00:00",
+      "last": "2026-09-17T08:41:02.352977+00:00"
+    },
+    "2026-09-17T08:45:00.000Z": {
+      "pageviews": 1,
+      "distinct_browser_ids": 1,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 1,
+      "first": "2026-09-17T08:59:03.283049+00:00",
+      "last": "2026-09-17T08:59:03.283049+00:00"
+    },
+    "2026-09-17T09:00:00.000Z": {
+      "pageviews": 2,
+      "distinct_browser_ids": 1,
+      "missing_ids": 0,
+      "recognized_bot_views": 0,
+      "in_app_browser_views": 2,
+      "first": "2026-09-17T09:04:51.171267+00:00",
+      "last": "2026-09-17T09:04:51.881615+00:00"
+    }
+  },
+  "submissions": 0
+}

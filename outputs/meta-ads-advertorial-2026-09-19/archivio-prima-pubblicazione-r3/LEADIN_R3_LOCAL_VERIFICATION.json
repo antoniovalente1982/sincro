@@ -1,0 +1,20 @@
+{
+  "status": "LOCAL_COPY_VERIFIED_NOT_PUBLISHED",
+  "ads": 9,
+  "opening_words": [
+    12,
+    11,
+    12,
+    13,
+    12,
+    12,
+    11,
+    12,
+    12
+  ],
+  "within_each_group_only_opening_varies": true,
+  "r2_not_attached_to_live_ads": true,
+  "live_campaign_unchanged": true,
+  "pending": "Written testimonial usage consent confirmation",
+  "checked_live_at": "2026-09-19T11:08:16.868Z"
+}

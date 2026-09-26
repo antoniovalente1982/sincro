@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-18T15:23:50.476Z",
+  "method": "Fixture isolata con copie delle fonti; nessuna applicazione locale o DB.",
+  "results": [
+    {
+      "check": "reject_concurrent_body_edit",
+      "passed": true
+    },
+    {
+      "check": "reject_protected_or_unknown_slug",
+      "passed": true
+    },
+    {
+      "check": "reject_duplicate_identity",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,649 @@
+{
+  "at": "2026-09-19T13:12:16.196Z",
+  "formEvents": [
+    {
+      "event_name": "form_start",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:55.691+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:53:56.221Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1,
+      "hasLead": false,
+      "hasSubmission": false
+    }
+  ],
+  "journeys": [
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:52:15.191+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:52:16.671Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_engaged",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:52:45.216+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:52:45.951Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T09:53:22.053+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:53:22.480Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:23.261+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:53:23.637Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:26.472+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:53:26.762Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "form_start",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:53:55.691+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "A01-V1_T:_emotional",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:53:56.221Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "occurred_at": "2026-09-19T09:58:09.428+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:58:10.109Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "occurred_at": "2026-09-19T09:58:21.458+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:58:21.957Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:58:21.972+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:58:22.452Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:58:24.998+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:58:25.323Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T09:58:37.657+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:58:38.123Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T09:59:06.7+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:59:07.226Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:59:07.416+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:59:07.876Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T09:59:10.58+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T09:59:10.895Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T10:29:26.028+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T10:29:26.548Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T11:04:39.113+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:04:40.595Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T11:04:54.113+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:04:54.707Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T11:33:14.303+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:33:15.647Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/blog/cosa-dire-dopo-brutta-partita",
+      "occurred_at": "2026-09-19T11:33:41.489+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:33:41.924Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:33:41.783+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:33:42.172Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-cosa-dire-dopo-brutta-partita",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:33:44.787+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:33:45.237Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "occurred_at": "2026-09-19T11:38:35.38+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:38:36.531Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/blog/fiducia-dopo-errore-calcio",
+      "occurred_at": "2026-09-19T11:38:55.425+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:38:56.160Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:38:55.752+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:38:56.204Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:38:58.764+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:38:59.082Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:42.152+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:43.396Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:45.159+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:45.502Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:50.299+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:50.784Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:53.308+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:53.736Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:55.233+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:55.640Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-fiducia-dopo-errore-calcio",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T13:08:58.893+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "qa_lancio_advertorial_20260919",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "previous_visit",
+        "received_at": "2026-09-19T13:08:59.241Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    }
+  ]
+}

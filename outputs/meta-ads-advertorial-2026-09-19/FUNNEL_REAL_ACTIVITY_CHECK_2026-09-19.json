@@ -1,0 +1,176 @@
+{
+  "at": "2026-09-19T13:17:42.497Z",
+  "rows": 43,
+  "all": {
+    "advertorial_view": {
+      "events": 16,
+      "browsers": 8
+    },
+    "advertorial_engaged": {
+      "events": 2,
+      "browsers": 2
+    },
+    "advertorial_cta": {
+      "events": 6,
+      "browsers": 2
+    },
+    "landing_view": {
+      "events": 9,
+      "browsers": 2
+    },
+    "landing_engaged": {
+      "events": 9,
+      "browsers": 2
+    },
+    "form_start": {
+      "events": 1,
+      "browsers": 1
+    },
+    "lead_submitted": {
+      "events": 0,
+      "browsers": 0
+    }
+  },
+  "qa": {
+    "advertorial_view": {
+      "events": 8,
+      "browsers": 1
+    },
+    "advertorial_engaged": {
+      "events": 1,
+      "browsers": 1
+    },
+    "advertorial_cta": {
+      "events": 5,
+      "browsers": 1
+    },
+    "landing_view": {
+      "events": 8,
+      "browsers": 1
+    },
+    "landing_engaged": {
+      "events": 8,
+      "browsers": 1
+    },
+    "form_start": {
+      "events": 1,
+      "browsers": 1
+    },
+    "lead_submitted": {
+      "events": 0,
+      "browsers": 0
+    }
+  },
+  "nonQa": {
+    "advertorial_view": {
+      "events": 8,
+      "browsers": 7
+    },
+    "advertorial_engaged": {
+      "events": 1,
+      "browsers": 1
+    },
+    "advertorial_cta": {
+      "events": 1,
+      "browsers": 1
+    },
+    "landing_view": {
+      "events": 1,
+      "browsers": 1
+    },
+    "landing_engaged": {
+      "events": 1,
+      "browsers": 1
+    },
+    "form_start": {
+      "events": 0,
+      "browsers": 0
+    },
+    "lead_submitted": {
+      "events": 0,
+      "browsers": 0
+    }
+  },
+  "nonQaSteps": [
+    {
+      "event_name": "advertorial_engaged",
+      "entry_key": "blog-calciatrice-fiducia-calcio-femminile",
+      "page_path": "/blog/calciatrice-fiducia-calcio-femminile",
+      "occurred_at": "2026-09-19T08:39:58.669+00:00",
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_content": null,
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T08:39:59.219Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 1
+    },
+    {
+      "event_name": "advertorial_cta",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/blog/mio-figlio-gioca-poco",
+      "occurred_at": "2026-09-19T11:43:24.553+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:43:25.075Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 2
+    },
+    {
+      "event_name": "landing_view",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:43:25.11+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:43:25.512Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 2
+    },
+    {
+      "event_name": "landing_engaged",
+      "entry_key": "blog-mio-figlio-gioca-poco",
+      "page_path": "/f/salto-di-qualita",
+      "occurred_at": "2026-09-19T11:43:28.12+00:00",
+      "utm_source": "facebook",
+      "utm_medium": "paid",
+      "utm_campaign": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+      "utm_content": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "metadata": {
+        "meta": {
+          "sent": true
+        },
+        "attribution": "direct",
+        "received_at": "2026-09-19T11:43:28.376Z",
+        "page_variant": "A",
+        "marketing_consent": true
+      },
+      "visitorGroup": 2
+    }
+  ]
+}

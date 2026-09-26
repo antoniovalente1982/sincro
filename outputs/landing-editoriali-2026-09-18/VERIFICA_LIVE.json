@@ -1,0 +1,139 @@
+{
+  "at": "2026-09-18T16:59:22.013Z",
+  "origin": "https://landing.metodosincro.com",
+  "passed": 22,
+  "total": 22,
+  "checks": [
+    {
+      "entry": "blog-cosa-dire-dopo-brutta-partita",
+      "status": 200,
+      "h1": "Dopo una brutta partita non sai più cosa dirgli. Parliamone.",
+      "pass": true
+    },
+    {
+      "entry": "blog-salto-di-categoria-fiducia",
+      "status": 200,
+      "h1": "Nella nuova squadra sembra aver perso fiducia. Partiamo da qui.",
+      "pass": true
+    },
+    {
+      "entry": "blog-incoraggiare-figlio-calcio",
+      "status": 200,
+      "h1": "Gli dici di stare tranquillo. E se servisse un passo diverso?",
+      "pass": true
+    },
+    {
+      "entry": "blog-figlio-non-si-diverte-calcio",
+      "status": 200,
+      "h1": "Il calcio non gli piace più come prima. Che cosa è cambiato?",
+      "pass": true
+    },
+    {
+      "entry": "blog-paura-rientro-infortunio-calcio",
+      "status": 200,
+      "h1": "Dopo l’infortunio, come sta vivendo il ritorno in campo?",
+      "pass": true
+    },
+    {
+      "entry": "blog-mio-figlio-gioca-poco",
+      "status": 200,
+      "h1": "Tuo figlio gioca poco. Da dove partire per aiutarlo?",
+      "pass": true
+    },
+    {
+      "entry": "blog-allenamento-extra-partita",
+      "status": 200,
+      "h1": "Si allena di più, ma in partita si trattiene. Cosa manca da capire?",
+      "pass": true
+    },
+    {
+      "entry": "blog-pressione-prima-della-partita",
+      "status": 200,
+      "h1": "La partita deve ancora iniziare. Lui si sente già sotto esame.",
+      "pass": true
+    },
+    {
+      "entry": "blog-fiducia-dopo-errore-calcio",
+      "status": 200,
+      "h1": "Dopo un errore smette di chiedere palla. Partiamo dalla prossima azione.",
+      "pass": true
+    },
+    {
+      "entry": "blog-pressione-provino-calcio",
+      "status": 200,
+      "h1": "Il provino si avvicina. Aiutiamolo a viverlo come un’occasione.",
+      "pass": true
+    },
+    {
+      "entry": "blog-confronto-fisico-calcio-ragazzi",
+      "status": 200,
+      "h1": "Gli altri sono cresciuti. Aiutiamolo a non sentirsi meno capace.",
+      "pass": true
+    },
+    {
+      "entry": "blog-genitori-pressione-calcio",
+      "status": 200,
+      "h1": "Vuoi sostenerlo dalla tribuna. Come vive lui la tua presenza?",
+      "pass": true
+    },
+    {
+      "entry": "blog-figlio-escluso-gruppo-squadra",
+      "status": 200,
+      "h1": "È nella squadra, ma non si sente parte del gruppo. Capiamo cosa vive.",
+      "pass": true
+    },
+    {
+      "entry": "blog-scuola-famiglia-calcio",
+      "status": 200,
+      "h1": "Scuola, calcio, trasferte. La vostra settimana ha ancora spazio?",
+      "pass": true
+    },
+    {
+      "entry": "blog-figlio-rifiuta-mental-coach",
+      "status": 200,
+      "h1": "Lui dice «non mi serve». Il primo confronto puoi farlo tu.",
+      "pass": true
+    },
+    {
+      "entry": "blog-calciatrice-fiducia-calcio-femminile",
+      "status": 200,
+      "h1": "Tua figlia ama il calcio. Aiutiamola a viverlo con più fiducia.",
+      "pass": true
+    },
+    {
+      "entry": "blog-figlio-non-confermato-squadra",
+      "status": 200,
+      "h1": "La società non lo conferma. Come stargli vicino adesso?",
+      "pass": true
+    },
+    {
+      "entry": "blog-mental-coaching-calcio-ragazzi",
+      "status": 200,
+      "h1": "Prima di investire, capiamo se il mental coaching fa per voi.",
+      "pass": true
+    },
+    {
+      "entry": "generale",
+      "status": 200,
+      "h1": "Aiutalo a fare il salto di categoria.",
+      "pass": true
+    },
+    {
+      "entry": "?entry=blog-non-esiste-2027",
+      "status": 200,
+      "h1": "Aiutalo a fare il salto di categoria.",
+      "pass": true
+    },
+    {
+      "entry": "?entry=blog-uno&entry=blog-due",
+      "status": 200,
+      "h1": "Aiutalo a fare il salto di categoria.",
+      "pass": true
+    },
+    {
+      "entry": "advertorial-pochi-minuti",
+      "status": 200,
+      "pass": true
+    }
+  ]
+}

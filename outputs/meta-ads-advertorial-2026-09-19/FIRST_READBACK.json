@@ -1,0 +1,117 @@
+{
+  "campaign": {
+    "id": "120251780591420047",
+    "name": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+    "status": "PAUSED",
+    "daily_budget": "5700",
+    "spend_cap": "50000"
+  },
+  "adset": {
+    "id": "120251780591590047",
+    "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "targeting": {
+      "age_max": 65,
+      "age_min": 38,
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "countries": [
+          "IT"
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "locales": [
+        10
+      ],
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed"
+      ],
+      "instagram_positions": [
+        "stream"
+      ]
+    },
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "destination_type": "WEBSITE",
+    "start_time": "2026-09-19T11:50:15+0200",
+    "end_time": "2026-09-24T11:50:14+0200",
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      }
+    ]
+  },
+  "tracking": [
+    {
+      "event_name": "AdvertorialEngaged",
+      "event_id": "a768ec5b-3193-428e-8b0f-e217f580de64",
+      "sent_to_provider": true,
+      "provider_response": {
+        "messages": [],
+        "fbtrace_id": "A68Qf_MqM6B_z6DiegEr6em",
+        "events_received": 1
+      },
+      "event_params": {
+        "pixel_id": "311586900940615",
+        "page_type": "advertorial",
+        "editorial_entry": "blog-cosa-dire-dopo-brutta-partita"
+      },
+      "created_at": "2026-09-19T09:52:45.939942+00:00"
+    },
+    {
+      "event_name": "PageView",
+      "event_id": "039ae5e3-9798-4c81-8f2f-b19c8790a611",
+      "sent_to_provider": true,
+      "provider_response": {
+        "messages": [],
+        "fbtrace_id": "Asjegeo8wkpPEkiR1jEA1iV",
+        "events_received": 1
+      },
+      "event_params": {
+        "pixel_id": "311586900940615",
+        "page_type": "advertorial",
+        "editorial_entry": "blog-cosa-dire-dopo-brutta-partita"
+      },
+      "created_at": "2026-09-19T09:52:16.624835+00:00"
+    }
+  ]
+}

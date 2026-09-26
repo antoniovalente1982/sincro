@@ -1,0 +1,272 @@
+[
+  {
+    "slug": "incoraggiare-figlio-calcio",
+    "identity": "fair-skinned 17-year-old boy, straight sandy-blond hair swept sideways, pale blue eyes, narrow face, light eyebrows, lanky build",
+    "wardrobe": "forest-green training jersey, black training trousers",
+    "scenes": [
+      "At the fence of a small Italian football training ground, the boy stands with his father after practice, father listening, boy thoughtful. Dad is 45, short greying dark hair, olive jacket. Medium shot; both faces visible.",
+      "At home that evening, same boy and same father sit at a modest kitchen table and listen to each other; boy in a grey casual sweatshirt. Keep the father's face consistent.",
+      "Same boy, grey sweatshirt, in his bedroom at a wooden desk with a laptop and a notebook, taking notes during an online conversation. Camera from the front side so his face is clearly visible. Screen content blurred."
+    ],
+    "labels": [
+      "Incoraggiamenti a bordo campo",
+      "Parlare a casa",
+      "Confronto e appunti"
+    ],
+    "index": 2
+  },
+  {
+    "slug": "salto-di-categoria-fiducia",
+    "identity": "fair-skinned 17-year-old boy, copper-red short wavy hair, visible freckles on cheeks, grey-green eyes, long face, tall slender build",
+    "wardrobe": "plain burgundy football jersey and black shorts",
+    "scenes": [
+      "Boy arriving at a new training pitch carrying a black kit bag; a small group of teenage teammates warming up farther away, quietly observing the unfamiliar setting. Three-quarter face visible, medium shot.",
+      "Same boy joining a passing drill on a grass pitch, communicating with a teammate, practical ordinary moment rather than a triumphant win. His freckles and red hair clearly visible.",
+      "Same boy at his bedroom desk in a navy sweatshirt, open notebook beside a laptop for an online conversation. Three-quarter face visible, authentic lived-in room."
+    ],
+    "labels": [
+      "L’arrivo nella nuova squadra",
+      "Una richiesta sul campo",
+      "Rileggere l’esperienza"
+    ],
+    "index": 3
+  },
+  {
+    "slug": "cosa-dire-dopo-brutta-partita",
+    "identity": "olive-skinned 17-year-old boy, close-cropped black buzz cut, thick straight eyebrows, brown eyes, square face, medium athletic build",
+    "wardrobe": "plain red zip-up tracksuit over white T-shirt",
+    "scenes": [
+      "Inside a safely parked compact family car after a football game, boy in passenger seat looking thoughtful, father at the wheel listening. Father short dark hair greying at temples, dark sweater. Both wearing seatbelts, no driving, medium view from back seat with boy in three-quarter profile.",
+      "Same boy and same father later seated on an outside bench near their home, calmer conversation, open listening posture, same red tracksuit. Both faces visible; no dramatic embrace.",
+      "Same boy in a plain white T-shirt at a modest home desk, considering notes beside a laptop in an online conversation. Face visible in three-quarter view."
+    ],
+    "labels": [
+      "Il silenzio al ritorno",
+      "Trovare il momento per parlare",
+      "Dare voce al proprio punto di vista"
+    ],
+    "index": 4
+  },
+  {
+    "slug": "mio-figlio-gioca-poco",
+    "identity": "Mediterranean European 17-year-old boy, light olive skin, very short black hair, hazel-brown eyes, broad angular nose and square jaw, slim athletic build",
+    "wardrobe": "plain yellow training jacket with black sleeves, black track pants",
+    "scenes": [
+      "Boy seated as a substitute on a simple football dugout bench, boots on, watching play with a reflective expression. Daylight, face clearly visible, a ball and kit bag nearby.",
+      "Same boy in same yellow jacket speaking with his mother beside the pitch fence after the game. Mother is a southern European woman, 43, straight dark hair cut just below the ears, brown coat, attentive listening.",
+      "Same boy in a cream sweatshirt at a home desk with a notebook and laptop; three-quarter frontal view, attentive online conversation, no readable screen."
+    ],
+    "labels": [
+      "Aspettare il proprio turno",
+      "Ascoltare prima di decidere",
+      "Partire da un episodio"
+    ],
+    "index": 5
+  },
+  {
+    "slug": "figlio-non-si-diverte-calcio",
+    "identity": "fair-skinned 17-year-old boy, straight medium-length light-brown hair parted in the middle, hazel eyes, round cheeks, slim build",
+    "wardrobe": "plain white football shirt with dark-green collar, dark-green shorts",
+    "scenes": [
+      "Boy sitting just outside a modest changing-room building after practice, boots and bag beside him, looking at the pitch with a subdued reflective expression. Not crying, normal real-life moment, face visible.",
+      "Same boy in a beige hoodie walking slowly with his mother in a small town park, talking quietly. Mother has chin-length chestnut bob hair, dark-green coat. Both faces visible.",
+      "Same boy in the beige hoodie at his desk with an open notebook and a laptop, reflecting on what he wants from sport during an online conversation. Face clearly visible."
+    ],
+    "labels": [
+      "Quando il piacere cambia",
+      "Ascoltare ciò che desidera",
+      "Chiarire gli obiettivi"
+    ],
+    "index": 6
+  },
+  {
+    "slug": "paura-rientro-infortunio-calcio",
+    "identity": "light olive-skinned 17-year-old boy, short chestnut curls, amber-brown eyes, softly rounded jaw, medium sturdy athletic build",
+    "wardrobe": "plain teal hoodie and charcoal track pants",
+    "scenes": [
+      "Boy watching his football team's normal practice from empty concrete bleachers, his kit bag at his feet, quiet thoughtful mood. He is simply resting away from the activity; no medical equipment or visible injuries. Medium shot with his face clearly visible.",
+      "Same boy walking gently along the outside of the pitch with his father, both in casual clothes, father in grey coat with short salt-and-pepper hair. They talk calmly, no sports exertion or treatment depicted.",
+      "Same boy in the teal hoodie at home taking notes beside a laptop, thoughtful online conversation. Clear front-side view of his face, plain comfortable room."
+    ],
+    "labels": [
+      "La squadra continua ad allenarsi",
+      "Restare vicini nell’attesa",
+      "Raccontare l’esperienza"
+    ],
+    "index": 7
+  },
+  {
+    "slug": "allenamento-extra-partita",
+    "identity": "Eastern European 17-year-old boy, fair skin, straight dark-ash-blond hair with a neat undercut and long top, grey eyes, angular cheekbones, long slim face, lean build",
+    "wardrobe": "plain cobalt-blue training shirt and black shorts",
+    "scenes": [
+      "Boy training alone with a ball and three cones on a small empty football pitch in soft morning light, pausing to consider the next drill. Medium-wide shot, face visible.",
+      "Same boy in same blue kit during a small passing exercise with two teammates, looking up to read their positions before receiving the ball. Ordinary training, no victory celebration, identifiable face.",
+      "Same boy wearing a charcoal sweatshirt at a home desk, notebook and laptop, face visible in a three-quarter frontal online conversation scene."
+    ],
+    "labels": [
+      "L’allenamento in più",
+      "Decidere mentre il gioco continua",
+      "Capire quale lavoro serve"
+    ],
+    "index": 8
+  },
+  {
+    "slug": "fiducia-dopo-errore-calcio",
+    "identity": "South Asian 17-year-old boy, medium-brown skin, neatly side-parted short black hair, dark almond-shaped eyes, longer nose, lean athletic build",
+    "wardrobe": "plain emerald-green shirt with white cuffs and white shorts",
+    "scenes": [
+      "Boy on a football pitch between two phases of play, looking sideways toward a ball that has gone away, reflective but composed after a missed pass. Medium shot from waist up, face clearly visible.",
+      "Same boy on the pitch in the same green-white kit, turning toward the next action and making himself available for a teammate's pass. Ordinary training moment, no triumphant result implied.",
+      "Same boy in a light-grey sweatshirt, seated at a wooden desk with notebook and laptop, calmly reconstructing a play in an online conversation; face clearly visible."
+    ],
+    "labels": [
+      "Dopo un pallone perso",
+      "Ritrovare la prossima azione",
+      "Ricostruire una giocata"
+    ],
+    "index": 9
+  },
+  {
+    "slug": "pressione-prima-della-partita",
+    "identity": "fair-skinned 17-year-old boy, light-brown wavy cropped hair, green eyes, narrow face, small upturned nose, slender athletic build",
+    "wardrobe": "plain purple-blue football jersey, dark shorts",
+    "scenes": [
+      "Boy tying football boots while seated on a wooden changing-room bench before a game, bag at his side, thoughtful calm concentration. Face visible as he looks slightly up, natural window light.",
+      "Same boy in a grey warm-up jacket standing at the entrance to a small pitch with both parents before the game. Mother short dark bob, father bald with light stubble. Supportive ordinary presence, no hugs or victory poses.",
+      "Same boy in a navy sweatshirt sitting at a home desk with notebook and laptop, face visible, planning his preparation during a quiet online conversation."
+    ],
+    "labels": [
+      "L’attesa prima della partita",
+      "Anche la famiglia vive l’attesa",
+      "Prepararsi partendo dagli episodi"
+    ],
+    "index": 10
+  },
+  {
+    "slug": "genitori-pressione-calcio",
+    "identity": "olive-skinned 17-year-old boy, dark wavy shoulder-length hair tied into a small low ponytail, strong dark eyebrows, long oval face, athletic build",
+    "wardrobe": "plain red football shirt with white sleeves and black shorts",
+    "scenes": [
+      "Boy near the touchline glancing toward his father behind the low pitch barrier. Father olive-skinned, short dark hair, blue casual jacket; focus on boy's visible face and quiet exchange of a look, not a confrontation.",
+      "Same boy and same father talking while walking along the perimeter fence after the game, father listening rather than pointing. Keep red-white kit and father's blue jacket.",
+      "Same boy, hair tied back, in a white casual T-shirt at his desk with notebook and laptop, considering the meaning of sideline reactions in an online conversation. Face visible."
+    ],
+    "labels": [
+      "Uno sguardo verso la tribuna",
+      "Chiarire il sostegno che desidera",
+      "Il significato delle reazioni esterne"
+    ],
+    "index": 11
+  },
+  {
+    "slug": "pressione-provino-calcio",
+    "identity": "fair-skinned 17-year-old boy, very short pale-blond buzz cut, grey-blue eyes, angular cheekbones, tall athletic build",
+    "wardrobe": "plain orange training bib over navy shirt and navy shorts",
+    "scenes": [
+      "Boy waiting beside a football pitch at a trial session, ball near his boots, a coach with a clipboard softly out of focus in distance. Face clearly visible, anticipation without melodrama.",
+      "Same boy in same orange bib during an ordinary trial passing exercise, looking up before offering for the ball. Face visible, no selection result or celebration.",
+      "Same boy in a navy tracksuit after the trial seated with his mother on a low wall, mother with long dark-blond hair and beige jacket, both talking calmly. Medium shot, faces visible."
+    ],
+    "labels": [
+      "Aspettare il provino",
+      "Concentrarsi sul compito di gioco",
+      "Parlarne con il genitore"
+    ],
+    "index": 12
+  },
+  {
+    "slug": "confronto-fisico-calcio-ragazzi",
+    "identity": "North African 17-year-old boy, medium olive skin, very short dark tightly curled hair, brown eyes, fine narrow face, short and slender athletic build",
+    "wardrobe": "plain sky-blue training top and navy shorts",
+    "scenes": [
+      "Boy standing with two visibly taller teenage teammates during normal training, looking attentive rather than ashamed. All are same general age, natural variety in height, main boy's face is sharp and visible.",
+      "Same boy wearing a navy hoodie sitting with his father on a modest home balcony and talking calmly. Father medium olive skin, short black hair with some grey, cream sweater. No measuring or medical scene.",
+      "Same boy in the navy hoodie at a home desk with a laptop and notebook, face clearly visible, online conversation about his lived experience of sport."
+    ],
+    "labels": [
+      "Il confronto con i compagni",
+      "Ascoltare il suo punto di vista",
+      "Dare spazio al vissuto"
+    ],
+    "index": 13
+  },
+  {
+    "slug": "figlio-rifiuta-mental-coach",
+    "identity": "fair-skinned 17-year-old boy, dark auburn thick wavy mop hair, dark brown eyes, rounded face, stocky athletic build",
+    "wardrobe": "plain navy sweatshirt and grey casual trousers",
+    "scenes": [
+      "Boy at a kitchen table with his mother, boy reserved but composed as a conversation pauses, no hostility. Mother 44, straight black shoulder-length hair, rust-coloured sweater; warm modest Italian home. Boy's face visible.",
+      "Same boy and same mother sitting farther apart on a living-room sofa, she listens with open posture while he explains his point of view, natural daylight, faces visible.",
+      "Same boy alone at his desk in the navy sweatshirt looking at an open notebook, considering his own questions beside a closed laptop. No coach or imposed session, face visible."
+    ],
+    "labels": [
+      "Quando la proposta incontra un rifiuto",
+      "Ascoltare la risposta",
+      "Lasciare spazio alle sue domande"
+    ],
+    "index": 14
+  },
+  {
+    "slug": "figlio-escluso-gruppo-squadra",
+    "identity": "Central European 17-year-old boy, fair skin, short dark-blond wavy hair styled in a small quiff, grey-blue eyes, long narrow face with prominent ears, tall slim build",
+    "wardrobe": "plain turquoise training shirt and black shorts",
+    "scenes": [
+      "Boy standing at the edge of a small group of teenage teammates outside a changing room, uncertain how to join their conversation. No bullying, no pointing, no hostility, natural social distance, his face clearly visible.",
+      "Same boy in a grey hoodie sitting with his father at a small cafe's outdoor table, father is a Central European man with fair skin, short sandy-brown hair and a navy jacket, talking quietly about training. Focus on listening, both faces visible.",
+      "Same boy in grey hoodie at a home desk, notebook beside a laptop, face visible, thoughtful online conversation about how he experiences the group."
+    ],
+    "labels": [
+      "Trovare il proprio posto nel gruppo",
+      "Raccontare un episodio",
+      "Capire quale sostegno cercare"
+    ],
+    "index": 15
+  },
+  {
+    "slug": "scuola-famiglia-calcio",
+    "identity": "17-year-old boy with light-brown skin, short golden-brown loose curls, green-hazel eyes, wide rounded face, medium lean build",
+    "wardrobe": "plain light-grey hoodie and dark casual trousers",
+    "scenes": [
+      "Boy studying at a kitchen table with school notebooks, football kit bag beside his chair, mother nearby listening. Mother light-brown skin with shoulder-length curly dark hair, sage-green sweater. Boy's face clearly visible.",
+      "Same boy and same mother planning the week's commitments at the same kitchen table, blank or unreadable calendar page between them, no readable text, calm collaborative conversation.",
+      "Same boy at a separate small home desk for an online conversation, laptop and notebook, football bag by desk, grey hoodie, face clearly visible."
+    ],
+    "labels": [
+      "Tra compiti e allenamenti",
+      "Accordi condivisi in famiglia",
+      "Un impegno sostenibile"
+    ],
+    "index": 16
+  },
+  {
+    "slug": "figlio-non-confermato-squadra",
+    "identity": "fair-skinned 17-year-old boy, straight dark-brown hair with a short blunt fringe, brown eyes, long narrow face with prominent ears, slender build",
+    "wardrobe": "plain black zip-up tracksuit over a light-grey T-shirt",
+    "scenes": [
+      "Boy carrying a football kit bag away from a small club changing-room entrance, looking thoughtful about what comes next. No crying, no rejection letter or text, overcast soft light, face visible.",
+      "Same boy sitting with his father on a bench outside their home, father fair-skinned with receding brown hair and dark-green sweater, listening while boy talks; kit bag nearby, faces visible.",
+      "Same boy in light-grey T-shirt at his bedroom desk with notebook and laptop, face visible, considering next steps during an online conversation. No triumphant success cues."
+    ],
+    "labels": [
+      "Quando cambia il futuro immaginato",
+      "Ascoltare prima di scegliere",
+      "Valutare il passo successivo"
+    ],
+    "index": 17
+  },
+  {
+    "slug": "mental-coaching-calcio-ragazzi",
+    "identity": "olive-skinned 17-year-old boy, short dense black curls, thick curved eyebrows, dark eyes, soft square face, slim athletic build, thin black rectangular eyeglasses",
+    "wardrobe": "plain mustard-yellow T-shirt and open red casual jacket",
+    "scenes": [
+      "Boy and his father at a home table reviewing an open laptop and a blank notebook together, father olive-skinned, trimmed salt-and-pepper beard, blue shirt, ordinary thoughtful decision moment. Both faces clearly visible, screen not readable.",
+      "Same boy wearing the mustard-yellow T-shirt and his same eyeglasses at a separate desk for an online conversation, open notebook, face clearly visible from a frontal three-quarter view, no readable screen or logos."
+    ],
+    "labels": [
+      "Valutare insieme il percorso",
+      "Un incontro individuale"
+    ],
+    "index": 18
+  }
+]

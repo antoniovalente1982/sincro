@@ -1,0 +1,17 @@
+{
+  "mode": "built-in image_gen",
+  "symbol": {
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-06aa92d1-3cc6-440a-a57e-d7b859aa07b1.png",
+    "prompt": "Use case: logo-brand. Create one original, compact standalone emblem for the Italian editorial publication 'Dentro la partita', about youth football, mindset and families. SYMBOL ONLY, absolutely no words or letters outside the symbol. A beautifully resolved geometric D-shaped mark that encloses a very simple football midfield line and centre circle, suggesting being inside the game. The D should have a confident flat vertical spine on the left and a smooth generous round right side; clever balanced negative space, a sparse centre circle with a short midfield line, clear at 32 pixels. Refined sports journalism identity, restrained, timeless, strong and humane. Flat monochrome very dark forest green #293d2e; no other colours. Transparent background with genuine alpha channel. Square canvas, one centered symbol taking about 80 percent of the canvas, comfortable clear space. Crisp vector-like edges, no texture, no gradients, no shadows, no mockup, no paper, no watermark, no badge or crest, no shield, no star, no football pentagons, no brain icon, no human silhouette, no additional elements. This is an actual clean logo asset for a website masthead, not a presentation board.",
+    "assets": [
+      "public/images/brand/dentro-la-partita-symbol.png",
+      "public/images/brand/dentro-la-partita-symbol.webp"
+    ]
+  },
+  "fullLogo": {
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-8ba21b82-3cdb-4576-88e1-e25c22a52a63.png",
+    "prompt": "Use case: logo-brand. Create a clean horizontal complete logo lockup for the Italian publication 'Dentro la partita'. Input image 1 is the exact approved emblem: preserve that D-shaped football-midfield symbol, its geometry and dark forest green colour, and use it once on the left. On the right put the exact text 'Dentro la partita' in one line, using bold condensed editorial sans-serif typography similar in proportions to Barlow Condensed Bold, confident and easy to read. Beneath the name, small restrained sans-serif lettering: 'Calcio, mente e crescita'. No other text. Match the height of the emblem to the height of the two text lines combined. Excellent optical alignment and spacing, professional newspaper masthead feel. Wide 3:1 canvas. Generous but economical transparent padding around the whole logo. Genuine transparent background with alpha. Flat monochrome dark forest green #293d2e, crisp vector-like edges. No mockup, no paper, no texture, no gradients, no shadows, no extra badge or lines. This must be a usable high-resolution transparent PNG logo, not a brand presentation. Exact text spelling: Dentro la partita; Calcio, mente e crescita.",
+    "reference": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-06aa92d1-3cc6-440a-a57e-d7b859aa07b1.png",
+    "asset": "public/images/brand/dentro-la-partita-logo.png"
+  }
+}

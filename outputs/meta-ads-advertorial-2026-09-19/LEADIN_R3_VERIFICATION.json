@@ -1,0 +1,16 @@
+{
+  "status": "PUBLISHED_VERIFIED",
+  "live_checked_at": "2026-09-19T11:28:21.272Z",
+  "ads": 9,
+  "configured_active": 9,
+  "effective_active": 9,
+  "canonical_copy_csv_and_gallery_match_receipt": true,
+  "same_pixel": "311586900940615",
+  "daily_budget_eur": 100,
+  "continuous": true,
+  "only_opening_varies_within_each_group": true,
+  "facebook_preview_checked": "A01-V1",
+  "instagram_preview_checked": "A03-V1, full text expanded",
+  "targeting_change_preserved": "External removal of recent lead exclusion recorded at 13:20; see LEADIN_R3_ADSET_CURRENT_BASELINE.json",
+  "new_fake_leads_created": 0
+}

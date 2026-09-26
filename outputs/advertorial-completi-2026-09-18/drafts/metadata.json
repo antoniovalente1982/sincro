@@ -1,0 +1,35 @@
+[
+  {
+    "slug": "paura-rientro-infortunio-calcio",
+    "title": "L'infortunio lo ha fermato proprio quando stava trovando spazio.",
+    "excerpt": "Il recupero ha i suoi tempi. Intanto tuo figlio guarda la squadra andare avanti e teme di perdere il posto. Come stargli vicino, distinguere le domande aperte e valutare un sostegno adatto alla sua situazione.",
+    "topic": "ripartenza",
+    "seoTitle": "Figlio infortunato a calcio: paura di perdere il posto",
+    "seoDescription": "Tuo figlio teme di perdere spazio dopo un infortunio? Come ascoltarlo, chiarire le domande sul rientro e valutare il sostegno della famiglia.",
+    "cover": "/images/blog/infortunio.webp",
+    "coverAlt": "Scarpe da calcio, maglia e borsa su una panchina vuota vicino al campo: l'attesa del ritorno. Scena illustrativa generata con AI.",
+    "status": "draft"
+  },
+  {
+    "slug": "pressione-prima-della-partita",
+    "title": "Mancano ore alla partita. Ma tuo figlio sembra già sotto esame.",
+    "excerpt": "Le domande su chi giocherà, la paura di sbagliare, i tuoi tentativi di rassicurarlo. Quando l'attesa della gara occupa tutta la famiglia, vale la pena capire quale momento rende difficile prepararsi.",
+    "topic": "pressione",
+    "seoTitle": "Pressione prima della partita: come aiutare tuo figlio",
+    "seoDescription": "Prima della partita tuo figlio pensa già agli errori e al giudizio del mister? Da dove partire per capire l'attesa e sostenerlo come genitore.",
+    "cover": "/images/blog/pressione-partita.webp",
+    "coverAlt": "Un giovane calciatore si prepara nello spogliatoio prima di una partita. Scena illustrativa generata con AI.",
+    "status": "draft"
+  },
+  {
+    "slug": "pressione-provino-calcio",
+    "title": "Il provino si avvicina. Come evitare che una giornata pesi quanto tutto il suo futuro.",
+    "excerpt": "Desidera quell'occasione, ma ogni allenamento sembra diventare una previsione di come andrà. Che cosa può fare il genitore per accompagnarlo prima, durante e dopo una selezione.",
+    "topic": "pressione",
+    "seoTitle": "Provino di calcio: come aiutare un figlio sotto pressione",
+    "seoDescription": "Come accompagnare tuo figlio a un provino di calcio: aspettative, preparazione, risposta all'errore e confronto dopo la selezione.",
+    "cover": "/images/blog/provino.webp",
+    "coverAlt": "Un giovane calciatore attende a bordo campo durante una selezione. Scena illustrativa generata con AI.",
+    "status": "draft"
+  }
+]

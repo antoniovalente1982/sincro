@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "headline": true,
+  "canonical": true,
+  "schema": true,
+  "femaleCta": true,
+  "landing": true,
+  "sitemap": true,
+  "images": true
+}

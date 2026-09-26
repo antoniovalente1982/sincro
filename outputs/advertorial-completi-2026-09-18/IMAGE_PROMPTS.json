@@ -1,0 +1,86 @@
+[
+  {
+    "key": "incoraggiare-figlio",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph for an Italian youth football parenting advertorial, 3:2 aspect ratio. Primary request: a father aged about 45 and his 17-year-old footballer son talking quietly beside a local Italian training pitch after practice. Father listens with open, relaxed posture, teenager in plain navy training shirt and tracksuit gestures thoughtfully with hands; football bag on ground. Candid, grounded moment, not posing for camera. Natural autumn late-afternoon light, muted greens and warm skin tones, documentary photography with realistic skin texture and restrained depth of field. Medium-wide composition showing both people and recognizable pitch, faces unobstructed. Fictional people, ordinary amateur club, no celebrity, no logos, no text, no watermark. Supportive without exaggerated happiness or distress. Deliver one finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-cb270486-d1f1-4ce8-b61e-cfe55d19a26d.png",
+    "destination": "public/images/blog/incoraggiare-figlio.webp"
+  },
+  {
+    "key": "dopo-partita",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. Quiet aftermath of a football match: inside a parked family car at an Italian amateur pitch, seen from the rear seat in a balanced candid composition. A 17-year-old male footballer in a plain navy tracksuit sits in the passenger seat looking thoughtfully out of the window, his mother aged about45 sits in the driver's seat waiting calmly, not driving, hands resting naturally. Sports bag visible, soft overcast daylight, understated emotion and space between them; no argument or exaggerated distress. Realistic candid photography, natural skin and hands, restrained contrast, muted greens, warm natural skin tones, no polished advertising pose. Fictional people, no real identifiable club or celebrity. No text, no logos, no watermark, no collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-a3421b9a-d246-45a9-81ab-34217bc132f6.png",
+    "destination": "public/images/blog/dopo-partita.webp"
+  },
+  {
+    "key": "cambio-squadra",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male footballer has just arrived for training at a new, larger Italian football club. Foreground teenage player in plain dark navy kit, sports bag over one shoulder, pauses at edge of pitch; a small group of similar-age players warming up naturally in distant background. Body language thoughtful and a little uncertain, no humiliation or hostility. Wide pitch, simple covered bench and trees, autumn natural light. Show adaptation and belonging without drama. Realistic candid photography, natural skin and hands, restrained contrast, muted greens, warm natural skin tones, no polished advertising pose. Fictional people, no real identifiable club or celebrity. No text, no logos, no watermark, no collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-9da781ae-4662-4d16-8d86-bae6fdf69ac8.png",
+    "destination": "public/images/blog/cambio-squadra.webp"
+  },
+  {
+    "key": "panchina",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male substitute footballer sitting on a modest Italian amateur dugout bench, fully dressed in plain navy sportswear and an orange substitute bib, leaning slightly forward watching the game beyond camera. Two other substitutes softly visible deeper in frame, grassy pitch and worn bench textures. Quiet anticipation, thoughtful eyes, no tears or melodrama. Documentary medium wide shot in soft daylight. Realistic candid photography, natural skin and hands, restrained contrast, muted greens, warm natural skin tones, no polished advertising pose. Fictional people, no real identifiable club or celebrity. No text, no logos, no watermark, no collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-7068c89b-73b7-4db3-9c79-ca6774f00353.png",
+    "destination": "public/images/blog/panchina.webp"
+  },
+  {
+    "key": "motivazione",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male footballer sitting on a low wall outside a modest Italian changing room after training, football boots tied and sports bag beside him, hands resting naturally, gazing toward an empty pitch with a quiet reflective expression. Capture fading enthusiasm without tears or intense distress, ordinary familiar surroundings, soft late afternoon light, medium-wide candid composition. Realistic candid photography, natural skin and hands, restrained contrast, muted greens, warm natural skin tones, no polished advertising pose. Fictional people, no identifiable club or celebrity. No text, no logos, no watermark, no collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-7e3d11a4-bc8e-4e6f-ae59-0e9056c6848c.png",
+    "destination": "public/images/blog/motivazione.webp"
+  },
+  {
+    "key": "allenamento-extra",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male footballer practicing alone at a local Italian training pitch, plain navy kit, ball close to his foot and three training cones visible, thoughtful concentrated expression during a pause, sports bag at sideline. Show effort and commitment, not an elite athlete or heroic action; natural autumn light, landscape medium-wide composition, body and football fully coherent. Realistic candid photography, natural skin and hands, restrained contrast, muted greens, warm natural skin tones, no polished advertising pose. Fictional people, no identifiable club or celebrity. No text, no logos, no watermark, no collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-9544c180-eaf9-4864-a46e-e0255571bfe1.png",
+    "destination": "public/images/blog/allenamento-extra.webp"
+  },
+  {
+    "key": "infortunio",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial still-life photograph, 3:2. For an article about a young footballer's pause from competition and waiting to return: a pair of worn football boots neatly placed beside a folded plain navy football jersey and closed sports bag on an empty wooden bench beside a local Italian training pitch. Teammates are not shown. The pitch is softly out of focus in the background, overcast autumn light, quiet atmosphere of waiting, ordinary realistic materials and natural colors. No people, no medical objects, no text, no logos, no watermark, no collage. One finished editorial photograph.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-2267e7ff-50ec-4b9f-b51d-411a392181b6.png",
+    "destination": "public/images/blog/infortunio.webp"
+  },
+  {
+    "key": "pressione-partita",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male footballer with short brown hair seated alone on a simple changing-room bench just before a match, wearing a plain navy kit, tying football boots carefully. His posture is composed but concentrated, a closed sports bag nearby, doorway showing a glimpse of green Italian local pitch. Natural sidelight, medium-wide angle, hands and shoe laces anatomically correct; anticipation rather than sadness. Realistic natural skin texture, restrained colors, natural faces and hands, no advertising pose. Fictional people and generic amateur club. No text, logos, watermark or collage. One image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-d591647d-f69c-4320-928c-c7a340c1dc3a.png",
+    "destination": "public/images/blog/pressione-partita.webp"
+  },
+  {
+    "key": "provino",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old male footballer wearing a plain navy training kit and simple unnumbered orange bib waits near the touchline at an unfamiliar Italian football training ground for a trial. He watches a modest group of players practicing; a coach in the distance observes holding a blank clipboard. Candid wide documentary photograph, hopeful but focused, no stadium crowds or spectacle, natural daylight. Realistic natural skin texture, restrained colors, natural faces and hands, no advertising pose. Fictional people and generic amateur club. No text, logos, watermark or collage. One image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-dfed9dc6-c4dd-4335-8868-48f7d3fcebb0.png",
+    "destination": "public/images/blog/provino.webp"
+  },
+  {
+    "key": "genitore-tribuna",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. An Italian mother aged about43 and father aged about47 seated among a few spectators in a modest local football stand, watching their teenager's match on the pitch. Foreground on the father holding his hands together quietly, mother attentive beside him; expressions invested and restrained, no yelling, no gestures at referee. Documentary medium-wide photograph in warm autumn daylight, casual clothing and realistic modest surroundings. Realistic natural skin texture, restrained colors, natural faces and hands, no advertising pose. Fictional people and generic amateur club. No text, logos, watermark or collage. One image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-5d5aabb1-146f-4d98-882a-e577d8484e5a.png",
+    "destination": "public/images/blog/genitore-tribuna.webp"
+  },
+  {
+    "key": "scuola-calcio",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. A 17-year-old Italian male footballer at a modest family kitchen table doing schoolwork in the early evening, notebooks and textbooks open with no legible writing, plain navy training jacket over chair and football sports bag under nearby chair. His mother aged about45 sits beside him calmly discussing the week with a simple blank paper planner. Warm domestic lighting mixed with blue dusk through window, both thoughtful, organized everyday scene without exhaustion or melodrama. Realistic natural skin and anatomy, ordinary furnishings or club, restrained palette, candid unposed composition. Fictional people. No logos, text, watermark, infographic or collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-0ce7282c-9b74-4bb9-aec7-90f01c9b5919.png",
+    "destination": "public/images/blog/scuola-calcio.webp"
+  },
+  {
+    "key": "gruppo-squadra",
+    "mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: landscape editorial photograph 3:2 for an Italian youth football parent advertorial. At an Italian local football training ground, a 17-year-old male footballer with short dark hair walks toward three teammates his age standing near the sideline in generic navy and muted blue training kits. A teammate turns slightly toward him, an ordinary moment of joining a new group, no mockery or bullying. Medium-wide documentary landscape showing facial expressions and natural body language, calm autumn daylight, belonging and uncertainty rather than confrontation. Realistic natural skin and anatomy, ordinary furnishings or club, restrained palette, candid unposed composition. Fictional people. No logos, text, watermark, infographic or collage. One finished image.",
+    "source": "/Users/antoniovalente/.codex/generated_images/01a0b462-08ca-7c83-a423-c540d98f9005/exec-847c9d0e-4708-4135-a198-d4cc231c0f3a.png",
+    "destination": "public/images/blog/gruppo-squadra.webp"
+  }
+]

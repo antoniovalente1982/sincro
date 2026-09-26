@@ -1,0 +1,131 @@
+{
+  "checkedAt": "2026-09-18T16:25:45.599Z",
+  "commit": "b54dd596",
+  "passed": 21,
+  "total": 21,
+  "checks": [
+    {
+      "url": "https://landing.metodosincro.com/blog/allenamento-extra-partita",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/confronto-fisico-calcio-ragazzi",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/cosa-dire-dopo-brutta-partita",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/fiducia-dopo-errore-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-escluso-gruppo-squadra",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-non-confermato-squadra",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-non-si-diverte-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/figlio-rifiuta-mental-coach",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/mental-coaching-calcio-ragazzi",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/mio-figlio-gioca-poco",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/incoraggiare-figlio-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/genitori-pressione-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/salto-di-categoria-fiducia",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/paura-rientro-infortunio-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/pressione-prima-della-partita",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/pressione-provino-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/f/pochi-minuti",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/blog/scuola-famiglia-calcio",
+      "status": 200,
+      "containsLogo": true,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/brand/dentro-la-partita-logo.png",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/brand/dentro-la-partita-symbol.png",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "url": "https://landing.metodosincro.com/images/brand/dentro-la-partita-symbol.webp",
+      "status": 200,
+      "pass": true
+    }
+  ]
+}

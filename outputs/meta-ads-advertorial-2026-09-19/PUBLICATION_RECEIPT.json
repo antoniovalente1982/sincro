@@ -1,0 +1,209 @@
+{
+  "started_at": "2026-09-19T10:02:59.840Z",
+  "authorization": "Antonio: ok fai e poi crea le campagne e pubblica",
+  "campaign_id": "120251780591420047",
+  "adset_id": "120251780591590047",
+  "actions": [
+    {
+      "code": "A01-V1",
+      "ad_id": "120251780634110047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:02.063Z"
+    },
+    {
+      "code": "A01-V2",
+      "ad_id": "120251780635230047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:04.141Z"
+    },
+    {
+      "code": "A01-V3",
+      "ad_id": "120251780635790047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:06.151Z"
+    },
+    {
+      "code": "A02-V1",
+      "ad_id": "120251780637630047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:08.113Z"
+    },
+    {
+      "code": "A02-V2",
+      "ad_id": "120251780638310047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:10.211Z"
+    },
+    {
+      "code": "A02-V3",
+      "ad_id": "120251780638860047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:12.562Z"
+    },
+    {
+      "code": "A03-V1",
+      "ad_id": "120251780639490047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:14.565Z"
+    },
+    {
+      "code": "A03-V2",
+      "ad_id": "120251780640320047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:16.730Z"
+    },
+    {
+      "code": "A03-V3",
+      "ad_id": "120251780641200047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:18.788Z"
+    },
+    {
+      "adset_id": "120251780591590047",
+      "status": "ACTIVE",
+      "at": "2026-09-19T10:03:20.800Z"
+    }
+  ],
+  "activation_complete": true,
+  "activated_at": "2026-09-19T10:03:21.707Z",
+  "verified_at": "2026-09-19T10:03:22.001Z",
+  "campaign": {
+    "id": "120251780591420047",
+    "name": "MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+    "status": "ACTIVE",
+    "effective_status": "ACTIVE",
+    "daily_budget": "5700",
+    "spend_cap": "50000"
+  },
+  "adset": {
+    "id": "120251780591590047",
+    "name": "IT | 38+ | Genitori | 3 Advertorial 9 Creativita | Lead 615",
+    "status": "ACTIVE",
+    "effective_status": "ACTIVE",
+    "end_time": "2026-09-24T11:50:14+0200",
+    "targeting": {
+      "age_max": 65,
+      "age_min": 38,
+      "excluded_custom_audiences": [
+        {
+          "id": "120243946766660047",
+          "name": "HERMES — � Lead Recenti (30gg) — Esclusione"
+        }
+      ],
+      "flexible_spec": [
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "countries": [
+          "IT"
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "locales": [
+        10
+      ],
+      "targeting_relaxation_types": {
+        "lookalike": 0,
+        "custom_audience": 0
+      },
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 0
+        }
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed"
+      ],
+      "instagram_positions": [
+        "stream"
+      ]
+    },
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    }
+  },
+  "ads": [
+    {
+      "id": "120251780641200047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V3 Restare o cambiare? T: mental_coaching",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780640320047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V2 La scelta arriva a cena T: mental_coaching",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780639490047",
+      "name": "#34 Loss-Avoidance Buyers | Trauma | MOFU — IMG Feed | A03-V1 Un’altra domenica in panchina T: mental_coaching",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780638860047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V3 Cerca ancora il pallone? T: blocchi",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780638310047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V2 Lo sguardo dalla tribuna T: blocchi",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780637630047",
+      "name": "#93 Problem-Aware Buyers | Education | TOFU — IMG Feed | A02-V1 La giocata dopo T: blocchi",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780635790047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V3 Adesso o dopo? T: emotional",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780635230047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V2 Volevo soltanto aiutare T: emotional",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    },
+    {
+      "id": "120251780634110047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — IMG Feed | A01-V1 Il silenzio in auto T: emotional",
+      "status": "ACTIVE",
+      "effective_status": "IN_PROCESS"
+    }
+  ],
+  "previous_campaign": {
+    "id": "120251721514160047",
+    "status": "PAUSED"
+  }
+}

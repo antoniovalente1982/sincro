@@ -1,0 +1,161 @@
+{
+  "data": [
+    {
+      "id": "120249017987090047",
+      "name": "ECOM - Buyers Shop (180d)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120249017986070047",
+      "name": "ECOM - ViewContent Shop (30d)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120249017985540047",
+      "name": "ECOM - AddToCart (14d)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946766660047",
+      "name": "HERMES — � Lead Recenti (30gg) — Esclusione",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946766420047",
+      "name": "HERMES — � Top 25% Tempo sul Sito (30gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946765730047",
+      "name": "HERMES — � Tutti i Visitatori (180gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946765210047",
+      "name": "HERMES — � Lead Tutti (180gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946763270047",
+      "name": "HERMES — � COLD — Visitatori Sito (60gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946762400047",
+      "name": "HERMES — � WARM — Visitatori Engaged (30gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946760270047",
+      "name": "HERMES — � HOT — Form Iniziato (14gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946708170047",
+      "name": "TEST - Aggregation Test 3 - 0.6210521699122894",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946706840047",
+      "name": "TEST - Aggregation Test 1 - 0.5433565267318505",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946479160047",
+      "name": "HERMES — LAL 1% — CSV Storico 3 Anni (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243946478270047",
+      "name": "HERMES — � Clienti Reali (CSV Storico 3 Anni)",
+      "subtype": "CUSTOM"
+    },
+    {
+      "id": "120243946319860047",
+      "name": "HERMES — LAL 2% — Lead (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243946319190047",
+      "name": "HERMES — � Lead Recenti (30gg) — Esclusione",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946318880047",
+      "name": "HERMES — � Tutti i Visitatori (180gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946318370047",
+      "name": "HERMES — � Lead Tutti (180gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946318170047",
+      "name": "HERMES — � COLD — Visitatori Sito (60gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946316820047",
+      "name": "HERMES — � WARM — Visitatori Engaged (30gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243946316710047",
+      "name": "HERMES — � HOT — Form Iniziato (14gg)",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243944245830047",
+      "name": "HERMES — LAL 1% — Clienti Reali (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243944241820047",
+      "name": "HERMES — � Clienti Reali (Database)",
+      "subtype": "CUSTOM"
+    },
+    {
+      "id": "120243944101570047",
+      "name": "HERMES — � Clienti Reali (Database)",
+      "subtype": "CUSTOM"
+    },
+    {
+      "id": "120243944057290047",
+      "name": "HERMES — � Clienti Reali (Database)",
+      "subtype": "CUSTOM"
+    },
+    {
+      "id": "120243943438090047",
+      "name": "HERMES — LAL 3% — Tutti i Visitatori (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243943436090047",
+      "name": "HERMES — LAL 1% — Engaged Visitors (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243943433460047",
+      "name": "HERMES — LAL 1% — Lead (Italia)",
+      "subtype": "LOOKALIKE"
+    },
+    {
+      "id": "120243943432880047",
+      "name": "HERMES — � Lead Recenti (30gg) — Esclusione",
+      "subtype": "WEBSITE"
+    },
+    {
+      "id": "120243943432090047",
+      "name": "HERMES — � Tutti i Visitatori (180gg)",
+      "subtype": "WEBSITE"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "QVFIVF9HbU12R1NwbzJaNF9GTzI1ckx1RjVhbGk1VFVSbEE0UzRCMWtlT1J6UHpJVnIyemJQNV9mSnRSYW1XdXhXZAEFnNVhGbDZAteTVlNFBwYk5lbWJKMHhn",
+      "after": "QVFIVFZAYbFBJZAWw5RUhiUnZADb2pQeVR2b2FFNkhCbUhIU19wZA0ZAfQ3NxQl8xbGQtQmpYcDU0eHNLVEZAobHBHZA0FyQmV0cS15ZA212MVBvRjFBRXdBelBZAb0F3"
+    },
+    "next": "https://graph.facebook.com/v25.0/act_511099830249139/customaudiences?fields=id%2Cname%2Csubtype&limit=30&after=QVFIVFZAYbFBJZAWw5RUhiUnZADb2pQeVR2b2FFNkhCbUhIU19wZA0ZAfQ3NxQl8xbGQtQmpYcDU0eHNLVEZAobHBHZA0FyQmV0cS15ZA212MVBvRjFBRXdBelBZAb0F3"
+  }
+}

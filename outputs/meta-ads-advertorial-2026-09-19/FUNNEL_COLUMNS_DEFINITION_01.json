@@ -1,0 +1,7 @@
+{
+  "name": "FA 01 - Visite advertorial",
+  "description": "PageView degli articoli pubblici /blog/ su landing.metodosincro.com. Conteggio eventi attribuiti, non persone uniche.",
+  "event_source_id": "311586900940615",
+  "custom_event_type": "OTHER",
+  "rule": "{\"and\":[{\"event\":{\"eq\":\"PageView\"}},{\"url\":{\"i_contains\":\"landing.metodosincro.com/blog/\"}}]}"
+}
