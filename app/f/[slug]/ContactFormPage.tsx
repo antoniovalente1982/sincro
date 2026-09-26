@@ -34,11 +34,6 @@ const AGE_OPTIONS = [
     { value: '20+', label: 'Oltre 20 anni' },
 ]
 
-const CHILD_OPTIONS = [
-    { value: 'figlio', label: 'Mio figlio' },
-    { value: 'figlia', label: 'Mia figlia' },
-]
-
 const CALL_OPTIONS = [
     { value: 'mattina', label: 'Mattina', hint: '9-13' },
     { value: 'pomeriggio', label: 'Pomeriggio', hint: '14-18' },
@@ -55,8 +50,8 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const settings: Record<string, unknown> = funnel.settings || {}
     const abVariant = ab?.variant ?? (settings.ab_variant === 'B' ? 'B' : 'A')
 
-    const headline = plain(settings.headline) || 'Prenota una telefonata per capire se possiamo aiutare tuo figlio o tua figlia'
-    const subheadline = plain(settings.subheadline) || 'Lascia i tuoi recapiti: ti chiamiamo noi. In circa 15 minuti ascoltiamo la situazione e ti diciamo con sincerità se e come il Metodo Sincro® può esservi utile.'
+    const headline = plain(settings.headline) || 'Aiutiamo tuo figlio a giocare in partita con la stessa sicurezza con cui si allena'
+    const subheadline = plain(settings.subheadline) || 'Un percorso di mental coaching individuale online, con un coach dedicato. Si parte da una telefonata di 15 minuti per capire se e come possiamo aiutarvi.'
     const ctaText = plain(settings.cta_text) && settings.cta_text !== 'Invia Richiesta' ? plain(settings.cta_text) : 'Prenota la telefonata'
     const thankYou = plain(settings.thank_you) && settings.thank_you !== 'Grazie! Ti contatteremo il prima possibile.'
         ? plain(settings.thank_you)
@@ -65,7 +60,6 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const [fullName, setFullName] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
-    const [child, setChild] = useState('')
     const [childAge, setChildAge] = useState('')
     const [callTime, setCallTime] = useState('')
     const [message, setMessage] = useState('')
@@ -98,7 +92,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         setLoading(true)
         setError('')
 
-        leadAttemptRef.current = leadAttempt(leadAttemptRef.current, JSON.stringify([funnel.id, fullName.trim(), email.trim(), phone.trim(), child, childAge, callTime, message.trim()]))
+        leadAttemptRef.current = leadAttempt(leadAttemptRef.current, JSON.stringify([funnel.id, fullName.trim(), email.trim(), phone.trim(), childAge, callTime, message.trim()]))
         const leadEventId = leadAttemptRef.current.id
 
         try {
@@ -115,7 +109,6 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         ...journey.extra_data,
                         form: 'form_contatto',
                         sport: plain(settings.sport_name) || 'calcio',
-                        child_gender: child || undefined,
                         child_age: childAge,
                         call_preference: callTime || undefined,
                         message: message.trim() || undefined,
@@ -179,7 +172,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         <ul>
                             <li>Qual è la situazione che ti preoccupa di più?</li>
                             <li>Da quanto tempo la noti?</li>
-                            <li>Cosa vorreste ottenere, tu e {child === 'figlia' ? 'tua figlia' : child === 'figlio' ? 'tuo figlio' : 'tuo figlio o tua figlia'}?</li>
+                            <li>Cosa vorreste ottenere, tu e tuo figlio?</li>
                         </ul>
                     </div>
 
@@ -197,14 +190,15 @@ export default function ContactFormPage({ funnel, ab }: Props) {
             {header}
             <main className={styles.main}>
                 <section className={styles.intro}>
-                    <p className={styles.eyebrow}>Telefonata conoscitiva gratuita</p>
+                    <p className={styles.eyebrow}>Per genitori di giovani calciatori dai 10 ai 25 anni:</p>
                     <h1 className={styles.title}>{headline}</h1>
                     <p className={styles.lead}>{subheadline}</p>
+                    <p className={styles.proof}><Star size={16} /> Oltre 1.100 ragazzi seguiti · 4,9/5 su Trustpilot con 359 recensioni</p>
                 </section>
 
                 <section className={styles.details}>
                     <ol className={styles.steps}>
-                        <li><span>1</span><div><strong>Compili il modulo</strong><p>Un minuto, bastano i tuoi recapiti e l’età del ragazzo o della ragazza.</p></div></li>
+                        <li><span>1</span><div><strong>Compili il modulo</strong><p>Un minuto, bastano i tuoi recapiti e l’età di tuo figlio.</p></div></li>
                         <li><span>2</span><div><strong>Ti chiamiamo noi</strong><p>Entro 24-48 ore, nella fascia oraria che preferisci.</p></div></li>
                         <li><span>3</span><div><strong>Valutiamo insieme</strong><p>Se il percorso è adatto te lo diciamo. Se non lo è, te lo diciamo lo stesso.</p></div></li>
                     </ol>
@@ -212,7 +206,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                     <div className={styles.trust}>
                         <span><ShieldCheck size={16} /> Nessun impegno</span>
                         <span><Clock size={16} /> Circa 15 minuti</span>
-                        <span><Star size={16} /> 350+ recensioni su Trustpilot</span>
+                        <span><Phone size={16} /> Telefonata gratuita</span>
                     </div>
                 </section>
 
@@ -238,23 +232,13 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         </div>
                     </div>
 
-                    <div className={styles.row}>
-                        <fieldset className={styles.field}>
-                            <legend>Ci contatti per</legend>
-                            <div className={styles.choices}>
-                                {CHILD_OPTIONS.map(o => (
-                                    <button key={o.value} type="button" className={styles.choice} aria-pressed={child === o.value} onClick={() => setChild(child === o.value ? '' : o.value)}>{o.label}</button>
-                                ))}
-                            </div>
-                        </fieldset>
-                        <div className={styles.field}>
-                            <label htmlFor="cf-childAge">Quanti anni ha?</label>
-                            <select id="cf-childAge" value={childAge} onChange={e => setChildAge(e.target.value)} aria-invalid={!!show('childAge')}>
-                                <option value="">Seleziona</option>
-                                {AGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                            </select>
-                            {show('childAge') && <p className={styles.error}>{show('childAge')}</p>}
-                        </div>
+                    <div className={styles.field}>
+                        <label htmlFor="cf-childAge">Quanti anni ha tuo figlio?</label>
+                        <select id="cf-childAge" value={childAge} onChange={e => setChildAge(e.target.value)} aria-invalid={!!show('childAge')}>
+                            <option value="">Seleziona</option>
+                            {AGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                        {show('childAge') && <p className={styles.error}>{show('childAge')}</p>}
                     </div>
 
                     <fieldset className={styles.field}>

@@ -38,6 +38,8 @@
     margin: 0 0 18px; font-size: clamp(30px, 4.2vw, 44px); font-weight: 800; line-height: 1.12; letter-spacing: -0.02em;
     text-wrap: balance;
 }
+.proof { margin: -12px 0 32px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #e4e4e7; }
+.proof svg { flex-shrink: 0; color: #facc15; fill: #facc15; }
 .lead { margin: 0 0 32px; font-size: 18px; line-height: 1.6; color: #c4c4cc; max-width: 34em; }
 
 .steps { list-style: none; margin: 0 0 32px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
@@ -146,6 +148,7 @@
 @media (max-width: 860px) {
     .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'intro' 'form' 'details'; grid-template-rows: none; gap: 0; padding-top: 32px; }
     .lead { margin-bottom: 24px; }
+    .proof { margin-top: -8px; margin-bottom: 24px; font-size: 14px; }
     .details { margin-top: 36px; }
     .steps { margin-bottom: 24px; }
 }

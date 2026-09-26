@@ -115,7 +115,7 @@ export async function generateMetadata({ params, searchParams }: Props) {
 
     if (template === 'metodo_sincro' && funnel?.settings?.layout === 'form_contatto') {
         const title = 'Prenota una telefonata | Metodo Sincro®'
-        const description = 'Una telefonata conoscitiva per capire se e come il Metodo Sincro® può aiutare tuo figlio o tua figlia.'
+        const description = 'Una telefonata conoscitiva per capire se e come il Metodo Sincro® può aiutare tuo figlio.'
         return { title, description, robots: { index: false }, openGraph: { title, description, type: 'website' } }
     }
 
