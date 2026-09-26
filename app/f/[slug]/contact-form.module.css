@@ -65,7 +65,7 @@
 }
 .cardTitle { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
 
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .field { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .field label, .field legend { padding: 0; font-size: 14px; font-weight: 600; color: #27272a; }
@@ -179,7 +179,6 @@
     .steps { margin-bottom: 24px; }
 }
 @media (max-width: 520px) {
-    .row { grid-template-columns: 1fr; }
     .card { padding: 22px 18px; }
     .headerNote { display: none; }
 }

@@ -26,22 +26,12 @@ interface Props {
     ab?: AbAssignment
 }
 
-const AGE_OPTIONS = [
-    { value: '8-10', label: '8-10 anni' },
-    { value: '11-13', label: '11-13 anni' },
-    { value: '14-16', label: '14-16 anni' },
-    { value: '17-20', label: '17-20 anni' },
-    { value: '20+', label: 'Oltre 20 anni' },
-]
-
 const CALL_OPTIONS = [
     { value: 'mattina', label: 'Mattina', hint: '9-13' },
     { value: 'pomeriggio', label: 'Pomeriggio', hint: '14-18' },
     { value: 'sera', label: 'Sera', hint: '18-20' },
     { value: 'indifferente', label: 'Indifferente', hint: '' },
 ]
-
-const MESSAGE_MAX = 600
 
 // I campi di testo del gestionale sono testo semplice: niente HTML.
 const plain = (value: unknown) => typeof value === 'string' ? value.replace(/<[^>]*>/g, '').trim() : ''
@@ -57,12 +47,10 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         ? plain(settings.thank_you)
         : 'Ti chiamiamo entro 24-48 ore, nella fascia che ci hai indicato. Tieni il telefono a portata di mano: il primo confronto è con te, il genitore.'
 
-    const [fullName, setFullName] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [phone, setPhone] = useState('')
-    const [email, setEmail] = useState('')
-    const [childAge, setChildAge] = useState('')
     const [callTime, setCallTime] = useState('')
-    const [message, setMessage] = useState('')
     // Consenso marketing (Pixel e CAPI): casella facoltativa nel modulo al posto del banner cookie
     const [adConsent, setAdConsent] = useState(false)
     const [attempted, setAttempted] = useState(false)
@@ -92,14 +80,13 @@ export default function ContactFormPage({ funnel, ab }: Props) {
 
     const goToForm = () => {
         formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        document.getElementById('cf-name')?.focus({ preventScroll: true })
+        document.getElementById('cf-firstName')?.focus({ preventScroll: true })
     }
 
     const errors = {
-        name: !fullName.trim() ? 'Inserisci nome e cognome' : !fullName.trim().includes(' ') ? 'Inserisci anche il cognome' : '',
+        firstName: !firstName.trim() ? 'Inserisci il nome' : '',
+        lastName: !lastName.trim() ? 'Inserisci il cognome' : '',
         phone: !phone.trim() ? 'Il telefono serve per chiamarti' : !/^[+\d\s\-()]+$/.test(phone) || phone.replace(/\D/g, '').length < 6 ? 'Inserisci un numero valido' : '',
-        email: !email.trim() ? 'Inserisci la tua email' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? 'Controlla l’email' : '',
-        childAge: !childAge ? 'Indica l’età' : '',
     }
     const show = (key: keyof typeof errors) => attempted && errors[key] ? errors[key] : ''
 
@@ -117,7 +104,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         setLoading(true)
         setError('')
 
-        leadAttemptRef.current = leadAttempt(leadAttemptRef.current, JSON.stringify([funnel.id, fullName.trim(), email.trim(), phone.trim(), childAge, callTime, message.trim()]))
+        leadAttemptRef.current = leadAttempt(leadAttemptRef.current, JSON.stringify([funnel.id, firstName.trim(), lastName.trim(), phone.trim(), callTime]))
         const leadEventId = leadAttemptRef.current.id
 
         try {
@@ -130,16 +117,14 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     funnel_id: funnel.id,
-                    name: fullName.trim(), email: email.trim(), phone: phone.trim(),
+                    name: `${firstName.trim()} ${lastName.trim()}`, phone: phone.trim(),
                     page_variant: abVariant,
                     ...journey,
                     extra_data: {
                         ...journey.extra_data,
                         form: 'form_contatto',
                         sport: plain(settings.sport_name) || 'calcio',
-                        child_age: childAge,
                         call_preference: callTime || undefined,
-                        message: message.trim() || undefined,
                     },
                     landing_url: window.location.href,
                     event_id: leadEventId,
@@ -184,7 +169,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                 {header}
                 <main className={styles.thanks} data-clarity-mask="true">
                     <CheckCircle size={56} className={styles.thanksIcon} />
-                    <h1>Richiesta ricevuta{fullName ? `, ${fullName.trim().split(' ')[0]}` : ''}.</h1>
+                    <h1>Richiesta ricevuta{firstName.trim() ? `, ${firstName.trim()}` : ''}.</h1>
                     <p className={styles.thanksLead}>{thankYou}</p>
 
                     <div className={styles.thanksCard}>
@@ -226,7 +211,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
 
                 <section className={styles.details}>
                     <ol className={styles.steps}>
-                        <li><span>1</span><div><strong>Compili il modulo</strong><p>Un minuto, bastano i tuoi recapiti e l’età di tuo figlio.</p></div></li>
+                        <li><span>1</span><div><strong>Compili il modulo</strong><p>Bastano nome, cognome e telefono: meno di un minuto.</p></div></li>
                         <li><span>2</span><div><strong>Ti chiamiamo noi</strong><p>Entro 24-48 ore, nella fascia oraria che preferisci.</p></div></li>
                         <li><span>3</span><div><strong>Valutiamo insieme</strong><p>Se il percorso è adatto te lo diciamo. Se non lo è, te lo diciamo lo stesso.</p></div></li>
                     </ol>
@@ -241,32 +226,23 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                 <form id="ms-form" ref={formRef} onFocus={() => setStarted(true)} className={styles.card} onSubmit={handleSubmit} noValidate data-clarity-mask="true">
                     <h2 className={styles.cardTitle}>Prenota la telefonata</h2>
 
-                    <div className={styles.field}>
-                        <label htmlFor="cf-name">Il tuo nome e cognome</label>
-                        <input id="cf-name" type="text" autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} aria-invalid={!!show('name')} placeholder="Es. Laura Bianchi" />
-                        {show('name') && <p className={styles.error}>{show('name')}</p>}
-                    </div>
-
-                    <div className={styles.row}>
+                    <div className={styles.pair}>
                         <div className={styles.field}>
-                            <label htmlFor="cf-phone">Telefono</label>
-                            <input id="cf-phone" type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={e => setPhone(e.target.value)} aria-invalid={!!show('phone')} placeholder="+39 ..." />
-                            {show('phone') && <p className={styles.error}>{show('phone')}</p>}
+                            <label htmlFor="cf-firstName">Nome</label>
+                            <input id="cf-firstName" type="text" autoComplete="given-name" value={firstName} onChange={e => setFirstName(e.target.value)} aria-invalid={!!show('firstName')} placeholder="Es. Laura" />
+                            {show('firstName') && <p className={styles.error}>{show('firstName')}</p>}
                         </div>
                         <div className={styles.field}>
-                            <label htmlFor="cf-email">Email</label>
-                            <input id="cf-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} aria-invalid={!!show('email')} placeholder="nome@email.it" />
-                            {show('email') && <p className={styles.error}>{show('email')}</p>}
+                            <label htmlFor="cf-lastName">Cognome</label>
+                            <input id="cf-lastName" type="text" autoComplete="family-name" value={lastName} onChange={e => setLastName(e.target.value)} aria-invalid={!!show('lastName')} placeholder="Es. Bianchi" />
+                            {show('lastName') && <p className={styles.error}>{show('lastName')}</p>}
                         </div>
                     </div>
 
                     <div className={styles.field}>
-                        <label htmlFor="cf-childAge">Quanti anni ha tuo figlio?</label>
-                        <select id="cf-childAge" value={childAge} onChange={e => setChildAge(e.target.value)} aria-invalid={!!show('childAge')}>
-                            <option value="">Seleziona</option>
-                            {AGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                        </select>
-                        {show('childAge') && <p className={styles.error}>{show('childAge')}</p>}
+                        <label htmlFor="cf-phone">Telefono</label>
+                        <input id="cf-phone" type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={e => setPhone(e.target.value)} aria-invalid={!!show('phone')} placeholder="+39 ..." />
+                        {show('phone') && <p className={styles.error}>{show('phone')}</p>}
                     </div>
 
                     <fieldset className={styles.field}>
@@ -279,11 +255,6 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                             ))}
                         </div>
                     </fieldset>
-
-                    <div className={styles.field}>
-                        <label htmlFor="cf-message">Raccontaci in breve la situazione <span className={styles.optional}>(facoltativo)</span></label>
-                        <textarea id="cf-message" rows={3} maxLength={MESSAGE_MAX} value={message} onChange={e => setMessage(e.target.value)} placeholder="Es. gioca negli Allievi, in partita si blocca e ha perso fiducia..." />
-                    </div>
 
                     <label className={styles.consent}>
                         <input type="checkbox" checked={adConsent} onChange={e => setAdConsent(e.target.checked)} />
@@ -302,7 +273,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                 <button type="button" className={styles.stickyButton} onClick={goToForm} tabIndex={showBar ? 0 : -1}>
                     {ctaText} <ArrowRight size={18} />
                 </button>
-                <p><Clock size={12} /> Un minuto per compilare · Telefonata gratuita</p>
+                <p><Clock size={12} /> Bastano nome e telefono · Telefonata gratuita</p>
             </div>
             {tracking}
         </div>
