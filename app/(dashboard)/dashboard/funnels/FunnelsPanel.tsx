@@ -1037,6 +1037,14 @@ function FunnelModal({ funnel, pipelines, saving, onSave, onClose }: {
                     </div>
 
                     {form.settings.template === 'metodo_sincro' && <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
+                        <label className="label" htmlFor="page-layout">Tipo di pagina</label>
+                        <select id="page-layout" className="input" value={form.settings.layout || ''} onChange={e => updateSettings('layout', e.target.value || undefined)}>
+                            <option value="">Landing completa</option>
+                            <option value="form_contatto">Solo form di contatto (prenota telefonata)</option>
+                        </select>
+                    </div>}
+
+                    {form.settings.template === 'metodo_sincro' && <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--color-surface-200)' }}>
                         <label className="label" htmlFor="clarity-project-id">Microsoft Clarity — registrazioni e mappe di calore</label>
                         <input id="clarity-project-id" className="input" value={form.settings.clarity_project_id} onChange={e => updateSettings('clarity_project_id', e.target.value.trim())} placeholder="ID progetto Clarity" pattern="[a-z0-9]{6,20}" title="Inserisci solo l’ID alfanumerico del progetto, non il codice script" />
                         <p className="text-xs mt-2" style={{ color: 'var(--color-surface-500)' }}>Per landing rivolte a genitori maggiorenni. Registra solo dopo il consenso; modulo e conferma sono oscurati. Campo vuoto: registrazioni disattivate.</p>

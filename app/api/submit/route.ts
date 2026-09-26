@@ -270,6 +270,11 @@ export async function POST(req: NextRequest) {
                                 utm_medium: body.utm_medium || null, utm_content: body.utm_content || null, utm_term: body.utm_term || null,
                                 child_age: body.extra_data?.child_age || null,
                                 adset_angle: body.extra_data?.adset_angle || null,
+                                ...(body.extra_data?.form === 'form_contatto' ? {
+                                    child_gender: body.extra_data.child_gender || null,
+                                    call_preference: body.extra_data.call_preference || null,
+                                    message: typeof body.extra_data.message === 'string' ? body.extra_data.message.slice(0, 600) : null,
+                                } : {}),
                                 fbc: body.fbc || null, fbp: body.fbp || null,
                                 visitor_id: journey ? journey.visitorId : body.visitor_id || null,
                                 client_ip: clientIp || null,
@@ -349,6 +354,11 @@ export async function POST(req: NextRequest) {
 
                     const childAge = body.extra_data?.child_age
                     const adsetAngleNotif = body.extra_data?.adset_angle
+                    // Campi del Form di contatto: testo scritto dal genitore, va neutralizzato per l'HTML di Telegram
+                    const tgText = (v: unknown) => typeof v === 'string' ? v.slice(0, 600).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''
+                    const childGender = tgText(body.extra_data?.child_gender)
+                    const callPreference = tgText(body.extra_data?.call_preference)
+                    const leadMessage = tgText(body.extra_data?.message)
 
                     // ── ActiveCampaign sync (se configurato nel funnel) ──
                     // Atteso PRIMA di Telegram così la notifica può riportarne l'esito.
@@ -387,7 +397,9 @@ export async function POST(req: NextRequest) {
                         `👤 <b>Nome:</b> ${name}\n` +
                         (email ? `📧 <b>Email:</b> ${email}\n` : '') +
                         (phone ? `📱 <b>Tel:</b> ${phone}\n` : '') +
-                        (childAge ? `🎂 <b>Età figlio:</b> ${childAge} anni\n` : '') +
+                        (childAge ? `🎂 <b>Età ${childGender === 'figlia' ? 'figlia' : 'figlio'}:</b> ${childAge} anni\n` : '') +
+                        (callPreference ? `🕐 <b>Chiamare:</b> ${callPreference}\n` : '') +
+                        (leadMessage ? `💬 <b>Situazione:</b> ${leadMessage}\n` : '') +
                         (isWebinar && webinarDate ? `📅 <b>Evento:</b> ${webinarDate}\n` : '') +
                         `🔗 <b>Funnel:</b> ${funnel.name}\n` +
                         (adsetAngleNotif ? `🎯 <b>Angolo AdSet:</b> ${adsetAngleNotif}\n` : '') +

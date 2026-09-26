@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import FunnelLandingPage from './FunnelLandingPage'
+import ContactFormPage from './ContactFormPage'
 import MetodoSincroLanding, { type AbAssignment } from './MetodoSincroLandingV2'
 import categoryCopy from '@/lib/salto-categoria-copy.json'
 import { getEditorialLanding } from '@/lib/editorial-landing-server'
@@ -80,11 +81,17 @@ export default async function PublicFunnelPage({ params, searchParams }: Props) 
     const template = funnel.settings?.template
     if (template === 'metodo_sincro') {
         funnel.meta_pixel_id = await getEditorialPixel(funnel.organization_id, funnel.meta_pixel_id)
+        const query = await searchParams
+
+        // Pagina con il solo modulo per prenotare la telefonata
+        if (funnel.settings?.layout === 'form_contatto') {
+            return <ContactFormPage funnel={funnel} ab={await resolveAbVariant(funnel.id, funnel.settings, query.ab)} />
+        }
+
         const { data: routingAngles } = await getSupabaseAdmin()
             .from('funnel_routing_engine')
             .select('*')
 
-        const query = await searchParams
         const [ab, editorialLanding] = await Promise.all([
             resolveAbVariant(funnel.id, funnel.settings, query.ab),
             getEditorialLanding(slug, query.entry, funnel.organization_id),
@@ -105,6 +112,12 @@ export async function generateMetadata({ params, searchParams }: Props) {
         .single()
 
     const template = funnel?.settings?.template
+
+    if (template === 'metodo_sincro' && funnel?.settings?.layout === 'form_contatto') {
+        const title = 'Prenota una telefonata | Metodo Sincro®'
+        const description = 'Una telefonata conoscitiva per capire se e come il Metodo Sincro® può aiutare tuo figlio o tua figlia.'
+        return { title, description, robots: { index: false }, openGraph: { title, description, type: 'website' } }
+    }
 
     if (template === 'metodo_sincro') {
         const editorial = funnel?.status === 'active' ? await getEditorialLanding(slug, (await searchParams).entry, funnel.organization_id) : null
