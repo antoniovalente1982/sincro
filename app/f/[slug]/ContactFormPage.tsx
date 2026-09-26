@@ -1,11 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, CheckCircle, Clock, Lock, Phone, ShieldCheck, Star } from 'lucide-react'
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { leadAttempt } from '@/lib/editorial-tracking'
 import EditorialTracking from '@/components/EditorialTracking'
-import { getJourneySubmission, fireJourneyLead } from '@/lib/editorial-tracking-client'
+import { getJourneySubmission, fireJourneyLead, journeyConsent, setJourneyConsent } from '@/lib/editorial-tracking-client'
 import type { AbAssignment } from './MetodoSincroLandingV2'
 import styles from './contact-form.module.css'
 
@@ -63,12 +63,17 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const [childAge, setChildAge] = useState('')
     const [callTime, setCallTime] = useState('')
     const [message, setMessage] = useState('')
+    // Consenso marketing (Pixel e CAPI): casella facoltativa nel modulo al posto del banner cookie
+    const [adConsent, setAdConsent] = useState(false)
     const [attempted, setAttempted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [error, setError] = useState('')
     const leadAttemptRef = useRef<{ fingerprint: string; id: string } | null>(null)
     const sendingRef = useRef(false)
+
+    // Chi ha già accettato su un'altra pagina Sincro ritrova la casella spuntata
+    useEffect(() => { if (journeyConsent()?.marketing) setAdConsent(true) }, [])
 
     const errors = {
         name: !fullName.trim() ? 'Inserisci nome e cognome' : !fullName.trim().includes(' ') ? 'Inserisci anche il cognome' : '',
@@ -96,6 +101,9 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         const leadEventId = leadAttemptRef.current.id
 
         try {
+            // Il cookie del consenso va scritto prima dell'invio: il server lo legge per decidere se mandare il Lead a Meta
+            const current = journeyConsent()
+            if (adConsent !== !!current?.marketing) setJourneyConsent(adConsent || !!current?.analytics, adConsent)
             const journey = getJourneySubmission()
             const res = await fetch('/api/submit', {
                 method: 'POST',
@@ -139,7 +147,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         }
     }
 
-    const tracking = <EditorialTracking pageVariant={abVariant} kind="landing" pixelId={funnel.meta_pixel_id} preview={ab?.preview} />
+    const tracking = <EditorialTracking pageVariant={abVariant} kind="landing" pixelId={funnel.meta_pixel_id} preview={ab?.preview} consentUi={false} />
     const header = (
         <header className={styles.header}>
             <div className={styles.headerIn}>
@@ -256,6 +264,11 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         <label htmlFor="cf-message">Raccontaci in breve la situazione <span className={styles.optional}>(facoltativo)</span></label>
                         <textarea id="cf-message" rows={3} maxLength={MESSAGE_MAX} value={message} onChange={e => setMessage(e.target.value)} placeholder="Es. gioca negli Allievi, in partita si blocca e ha perso fiducia..." />
                     </div>
+
+                    <label className={styles.consent}>
+                        <input type="checkbox" checked={adConsent} onChange={e => setAdConsent(e.target.checked)} />
+                        <span>Acconsento all’uso di cookie e dati di contatto per misurare l’efficacia delle nostre inserzioni su Facebook e Instagram (Meta). <em>Facoltativo: la richiesta arriva anche senza.</em></span>
+                    </label>
 
                     {error && <p className={styles.submitError} role="alert">{error}</p>}
 

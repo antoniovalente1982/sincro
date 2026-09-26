@@ -99,6 +99,10 @@
 .choice:focus-visible { outline: 3px solid rgba(250, 204, 21, 0.5); outline-offset: 1px; }
 .choice[aria-pressed='true'] { color: #0a0a0a; background: #fef9c3; border-color: #ca8a04; }
 
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: #52525b; cursor: pointer; }
+.consent input { flex-shrink: 0; width: 18px; height: 18px; margin: 1px 0 0; accent-color: #ca8a04; cursor: pointer; }
+.consent em { font-style: normal; color: #71717a; }
+
 .submitError {
     margin: 0; padding: 12px 14px; font-size: 14px; border-radius: 10px;
     color: #991b1b; background: #fef2f2; border: 1px solid #fecaca;

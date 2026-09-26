@@ -5,7 +5,8 @@ import { synchronizeJourneyConsent, sendJourneyEvent, setJourneyConsent } from '
 import type { TrackingConsent } from '@/lib/editorial-tracking'
 import styles from './editorial-tracking.module.css'
 
-export default function EditorialTracking({ pixelId, kind, preview = false, pageVariant = 'A' }: { pixelId?: string | null; kind: 'advertorial' | 'landing'; preview?: boolean; pageVariant?: 'A' | 'B' }) {
+// consentUi={false}: nessun banner, la pagina raccoglie il consenso da sé (es. casella nel Form di contatto)
+export default function EditorialTracking({ pixelId, kind, preview = false, pageVariant = 'A', consentUi = true }: { pixelId?: string | null; kind: 'advertorial' | 'landing'; preview?: boolean; pageVariant?: 'A' | 'B'; consentUi?: boolean }) {
     const [consent, setConsent] = useState<TrackingConsent | null>(null)
     const [ready, setReady] = useState(false)
     const [editing, setEditing] = useState(false)
@@ -46,7 +47,7 @@ export default function EditorialTracking({ pixelId, kind, preview = false, page
         window.addEventListener('scroll', scroll, { passive: true }); document.addEventListener('click', click); document.addEventListener('focusin', focus)
         return () => { if (landingTimer) clearTimeout(landingTimer); if (timer) clearInterval(timer); window.removeEventListener('scroll', scroll); document.removeEventListener('click', click); document.removeEventListener('focusin', focus) }
     }, [ready, preview, consent?.analytics, consent?.marketing, consent?.at, identityRevision, kind, pixelId, pageVariant])
-    if (!ready || preview) return null
+    if (!ready || preview || !consentUi) return null
     const choose = (analytics: boolean, marketing: boolean) => { setJourneyConsent(analytics, marketing); setEditing(false) }
     return <>
         <button type="button" data-kind={kind} className={styles.preferences} onClick={() => setEditing(true)}>Preferenze cookie e tracciamento</button>
