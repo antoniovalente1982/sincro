@@ -1,0 +1,75 @@
+{
+  "request": "Antonio, 2026-09-30: nuova campagna con pubblico e impostazioni di \"Nuova Campagna Settembre 2026\" / adset \"imprenditori nr lusso nr calcio 38-60\" + categoria genitori con figli 10-25; 6 video da ~/Desktop/Video ads meta per claude; un adset; testo personalizzato per tema; 100 €/giorno; destinazione Form di contatto; partenza 1 ottobre 2026 00:01",
+  "source_adset_id": "120251644311020047",
+  "campaign_name": "MS | LEAD WEB | Form contatto | 6 Video | 01.10.2026",
+  "adset_name": "Imprenditori lusso calcio + Genitori 9-26 | 38-60 | 10 regioni | Form contatto",
+  "daily_budget_cents": 10000,
+  "start_time": "2026-10-01T00:01:00+0200",
+  "destination_url": "https://landing.metodosincro.com/f/form-di-contatto",
+  "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+  "page_id": "108451268302248",
+  "instagram_user_id": "17841449195220971",
+  "parents_group": [
+    { "id": "6023080302983", "name": "Genitori con figli preadolescenti (09-12 anni)" },
+    { "id": "6023005681983", "name": "Genitori con figli adolescenti (13-17 anni)" },
+    { "id": "6023005718983", "name": "Genitori con figli grandi (18-26 anni)" }
+  ],
+  "cta": "BOOK_NOW",
+  "description": "Telefonata conoscitiva gratuita · 15 minuti",
+  "ads": [
+    {
+      "code": "V01",
+      "file": "0930.mp4",
+      "theme": "Correzione del mister vissuta come giudizio",
+      "trigger": "blocchi",
+      "ad_name": "#15 Diagnostic Buyers | Authority | MOFU — Video | V01 R1 T: blocchi",
+      "headline": "Quando la correzione diventa «sono scarso»",
+      "body": "Il mister lo corregge. Due secondi dopo, tuo figlio non gioca più.\n\nNon perché non abbia capito l’indicazione. Perché in quei due secondi, dentro la sua testa, «devi muoverti prima» è diventato «sono scarso».\n\nÈ uno dei meccanismi che vediamo più spesso nei ragazzi che seguiamo: una correzione tecnica vissuta come un giudizio sul proprio valore. Da lì arrivano le giocate nascoste, la paura di sbagliare di nuovo, il rendimento che cala.\n\nNel video ti spiego cosa succede in quei due secondi e quali domande fargli a casa, senza trasformarle in un interrogatorio.\n\nSe pensi che sia quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti con il nostro team: ascoltiamo la situazione e ti diciamo con sincerità se e come possiamo aiutarlo."
+    },
+    {
+      "code": "V02",
+      "file": "0930(1).mp4",
+      "theme": "La mentalità dei campioni (Antonelli, LeBron James, Cristiano Ronaldo)",
+      "trigger": "sport_performance",
+      "ad_name": "#10 Why-Y-Works Buyers | Decision | BOFU — Video | V02 R1 T: sport_performance",
+      "headline": "La mente si allena, come il fisico",
+      "body": "Kimi Antonelli, LeBron James, Cristiano Ronaldo. Tre sport diversi, un punto in comune: allenano anche la testa.\n\nVisualizzazione, concentrazione, dialogo interno: per i campioni sono parte della preparazione, non un extra.\n\nNei ragazzi succede spesso il contrario. Si lavora su tecnica e fisico, e la testa si lascia al caso, finché in partita non arriva il blocco.\n\nCon il Metodo Sincro® un coach dedicato allena tuo figlio su sicurezza, concentrazione e gestione della pressione, in un percorso individuale online.\n\nPrenota una telefonata di 15 minuti: capiamo insieme se il percorso è adatto a lui.\n\nGli atleti citati non sono collegati al Metodo Sincro®."
+    },
+    {
+      "code": "V03",
+      "file": "0930(2).mp4",
+      "theme": "Le 3 chiavi mentali: direzione, attenzione, ripartire",
+      "trigger": "mental_coaching",
+      "ad_name": "#13 Method Buyers | Authority | MOFU — Video | V03 R1 T: mental_coaching",
+      "headline": "Le 3 chiavi mentali di chi cresce in campo",
+      "body": "«Non sono abbastanza bravo» e «cosa posso fare meglio?». Sembrano simili. Portano in direzioni opposte.\n\nLa differenza tra i ragazzi che crescono e quelli che si fermano si vede soprattutto quando le cose vanno male.\n\nNel video ti mostro le 3 chiavi mentali su cui lavoriamo con i ragazzi che seguiamo:\n1. Direzione: un obiettivo concreto, non un desiderio generico\n2. Attenzione: un compito preciso su cui concentrarsi in campo\n3. Ripartire: cosa fare subito dopo l’errore\n\nSe vuoi capire come si applicano a tuo figlio, prenota una telefonata di 15 minuti con il nostro team."
+    },
+    {
+      "code": "V04",
+      "file": "0930(3).mp4",
+      "theme": "Ha talento ma non è costante",
+      "trigger": "talento",
+      "ad_name": "#58 Plateau-Break Buyers | Growth | MOFU — Video | V04 R1 T: talento",
+      "headline": "Talento sì. Costanza no. Perché?",
+      "body": "Ha talento. Una partita è il migliore in campo, quella dopo sparisce.\n\nSe tuo figlio è così, non è solo una questione tecnica. La costanza si costruisce con comportamenti che restano utili anche nelle giornate storte.\n\nNel video ti mostro le tre cose da osservare nella sua prossima partita:\n1. La prima giocata: prende coraggio o si nasconde?\n2. Restare coinvolto: comunica, cerca spazio, si fa trovare disponibile?\n3. Dopo l’errore: alza lo sguardo, riprende posizione, offre una soluzione?\n\nPoi, se vuoi, parliamone: prenota una telefonata di 15 minuti e ti diciamo con sincerità se e come possiamo aiutarlo."
+    },
+    {
+      "code": "V05",
+      "file": "0930(4).mp4",
+      "theme": "Le due ore prima della partita",
+      "trigger": "pressione",
+      "ad_name": "#45 Stress-Driven Buyers | Emotional | MOFU — Video | V05 R1 T: pressione",
+      "headline": "Cosa dirgli prima della partita",
+      "body": "Mancano due ore alla partita. Tuo figlio è sul divano, teso. E «stai tranquillo» non basta.\n\nAnzi, spesso peggiora le cose: gli dice che la sua tensione è sbagliata, senza dargli niente da fare.\n\nNel video ti spiego cosa fare in quelle due ore, in tre passi:\n1. Ascolta senza giudicare\n2. Chiedi: «cosa ti preoccupa di più?»\n3. Costruite insieme una routine pre-partita\n\nIl tuo compito non è togliergli la pressione, è aiutarlo a gestirla. Se vuoi un confronto su come farlo con tuo figlio, prenota una telefonata di 15 minuti con il nostro team."
+    },
+    {
+      "code": "V06",
+      "file": "0930(5).mp4",
+      "theme": "Sale di categoria e gioca meno",
+      "trigger": "growth",
+      "ad_name": "#57 Next-Level Buyers | Growth | MOFU — Video | V06 R1 T: growth",
+      "headline": "Salto di categoria: e se gioca meno?",
+      "body": "È salito di categoria. Ora gioca meno. E a casa lo vedi spegnersi.\n\nPassare da titolare a panchina è uno dei momenti più delicati per un ragazzo. Giocare meno non significa automaticamente crescere: dipende da come vive questo periodo.\n\nNel video ti mostro tre cose che fanno la differenza:\n1. Cambiare ruolo: da titolare a chi conquista il proprio spazio\n2. Chiedere all’allenatore indicazioni precise, non un generico «impegnati di più»\n3. Come reagire a casa dopo la prima esclusione\n\nSe è quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti: capiamo insieme come aiutarlo a restare, lavorare e costruire nel tempo."
+    }
+  ]
+}

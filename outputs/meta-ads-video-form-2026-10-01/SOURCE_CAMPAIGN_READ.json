@@ -1,0 +1,1579 @@
+{
+  "read_at": "2026-09-30T13:54:51.663Z",
+  "account": {
+    "name": "Antonio Valente Mental Coach Calciatori",
+    "currency": "EUR",
+    "timezone_name": "Europe/Rome",
+    "account_status": 1,
+    "amount_spent": "40082865",
+    "id": "act_511099830249139"
+  },
+  "matching_campaigns": [
+    {
+      "id": "120251644311030047",
+      "name": "Nuova Campagna Settembre 2026",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "objective": "OUTCOME_LEADS",
+      "special_ad_categories": [],
+      "buying_type": "AUCTION",
+      "created_time": "2026-09-11T17:27:56+0200",
+      "adsets": [
+        {
+          "id": "120251673939250047",
+          "name": "genitori figli 13-26 + calcio 38-60",
+          "status": "ACTIVE",
+          "effective_status": "CAMPAIGN_PAUSED",
+          "optimization_goal": "OFFSITE_CONVERSIONS",
+          "billing_event": "IMPRESSIONS",
+          "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+          "daily_budget": "5000",
+          "promoted_object": {
+            "pixel_id": "311586900940615",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "destination_type": "UNDEFINED",
+          "attribution_spec": [
+            {
+              "event_type": "CLICK_THROUGH",
+              "window_days": 7
+            },
+            {
+              "event_type": "VIEW_THROUGH",
+              "window_days": 1
+            },
+            {
+              "event_type": "ENGAGED_VIDEO_VIEW",
+              "window_days": 1
+            }
+          ],
+          "targeting": {
+            "age_max": 60,
+            "age_min": 38,
+            "flexible_spec": [
+              {
+                "family_statuses": [
+                  {
+                    "id": "6023005681983",
+                    "name": "Parents with teenagers (13-17 years)"
+                  },
+                  {
+                    "id": "6023005718983",
+                    "name": "Parents with adult children (18-26 years) "
+                  }
+                ]
+              },
+              {
+                "interests": [
+                  {
+                    "id": "6002995710444",
+                    "name": "UEFA Champions League"
+                  },
+                  {
+                    "id": "6003030389007",
+                    "name": "Tottenham Hotspur Football Club"
+                  },
+                  {
+                    "id": "6003062447007",
+                    "name": "Lionel Messi"
+                  },
+                  {
+                    "id": "6003064617670",
+                    "name": "Arsenal Football Club"
+                  },
+                  {
+                    "id": "6003066202070",
+                    "name": "Primera División"
+                  },
+                  {
+                    "id": "6003095982582",
+                    "name": "Liverpool Football Club (squadra di calcio)"
+                  },
+                  {
+                    "id": "6003107902433",
+                    "name": "Calcio (calcio)"
+                  },
+                  {
+                    "id": "6003108404190",
+                    "name": "Real Madrid Club de Fútbol"
+                  },
+                  {
+                    "id": "6003110325672",
+                    "name": "Cristiano Ronaldo"
+                  },
+                  {
+                    "id": "6003147437665",
+                    "name": "Futbol Club Barcelona"
+                  },
+                  {
+                    "id": "6003162931434",
+                    "name": "Football universitario (sport universitario)"
+                  },
+                  {
+                    "id": "6003175194449",
+                    "name": "Campionato mondiale di calcio"
+                  },
+                  {
+                    "id": "6003220643158",
+                    "name": "Manchester United Football Club"
+                  },
+                  {
+                    "id": "6003221970476",
+                    "name": "FC Bayern Monaco"
+                  },
+                  {
+                    "id": "6003239921001",
+                    "name": "Serie A"
+                  },
+                  {
+                    "id": "6003269553527",
+                    "name": "Sport (sport)"
+                  },
+                  {
+                    "id": "6003280305243",
+                    "name": "West Ham United Football Club"
+                  },
+                  {
+                    "id": "6003285600543",
+                    "name": "Newcastle United Football Club"
+                  },
+                  {
+                    "id": "6003297665308",
+                    "name": "Associazione Calcio Milan"
+                  },
+                  {
+                    "id": "6003306191253",
+                    "name": "Premier League (campionato di calcio)"
+                  },
+                  {
+                    "id": "6003319357759",
+                    "name": "Chelsea Football Club"
+                  },
+                  {
+                    "id": "6003350242199",
+                    "name": "UEFA Europa League (competizione di calcio)"
+                  },
+                  {
+                    "id": "6003354236021",
+                    "name": "Bundesliga"
+                  },
+                  {
+                    "id": "6003359788860",
+                    "name": "Nazionale di calcio dell'Italia"
+                  },
+                  {
+                    "id": "6003424358337",
+                    "name": "Crystal Palace Football Club"
+                  },
+                  {
+                    "id": "6003432221791",
+                    "name": "FIFA (lega professionistica)"
+                  },
+                  {
+                    "id": "6003440191931",
+                    "name": "Juventus Football Club"
+                  },
+                  {
+                    "id": "6003442346642",
+                    "name": "Calcio (sport)"
+                  },
+                  {
+                    "id": "6003655184478",
+                    "name": "Leicester City Football Club"
+                  },
+                  {
+                    "id": "6003703378313",
+                    "name": "Union of European Football Associations"
+                  },
+                  {
+                    "id": "6003760502478",
+                    "name": "Everton Football Club"
+                  },
+                  {
+                    "id": "6004034488209",
+                    "name": "Ligue 1"
+                  },
+                  {
+                    "id": "6004177298095",
+                    "name": "Manchester City Football Club (squadra di calcio)"
+                  },
+                  {
+                    "id": "6004905707670",
+                    "name": "Inter"
+                  },
+                  {
+                    "id": "6788976336705",
+                    "name": "Squadre di calcio internazionali (sport)"
+                  }
+                ]
+              }
+            ],
+            "geo_locations": {
+              "regions": [
+                {
+                  "key": "1845",
+                  "name": "Emilia-Romagna",
+                  "country": "IT"
+                },
+                {
+                  "key": "1846",
+                  "name": "Friuli-Venezia Giulia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1847",
+                  "name": "Lazio",
+                  "country": "IT"
+                },
+                {
+                  "key": "1848",
+                  "name": "Liguria",
+                  "country": "IT"
+                },
+                {
+                  "key": "1849",
+                  "name": "Lombardia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1852",
+                  "name": "Piedmont",
+                  "country": "IT"
+                },
+                {
+                  "key": "1853",
+                  "name": "Puglia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1856",
+                  "name": "Tuscany",
+                  "country": "IT"
+                },
+                {
+                  "key": "1857",
+                  "name": "Trentino-Alto Adige",
+                  "country": "IT"
+                },
+                {
+                  "key": "1860",
+                  "name": "Veneto",
+                  "country": "IT"
+                }
+              ],
+              "location_types": [
+                "frequently_in",
+                "home",
+                "recent"
+              ]
+            },
+            "locales": [
+              10
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": 0,
+              "custom_audience": 0
+            },
+            "targeting_automation": {
+              "advantage_audience": 0
+            },
+            "publisher_platforms": [
+              "facebook",
+              "instagram"
+            ],
+            "facebook_positions": [
+              "feed",
+              "right_hand_column",
+              "instream_video",
+              "marketplace",
+              "story",
+              "search",
+              "facebook_reels",
+              "facebook_reels_overlay",
+              "profile_feed",
+              "notification"
+            ],
+            "instagram_positions": [
+              "stream",
+              "story",
+              "explore",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "device_platforms": [
+              "mobile",
+              "desktop"
+            ]
+          },
+          "start_time": "2026-09-13T11:36:25+0200",
+          "dsa_beneficiary": "Antonio Valente",
+          "dsa_payor": "Antonio Valente"
+        },
+        {
+          "id": "120251644311020047",
+          "name": "imprenditori nr lusso nr calcio 38-60",
+          "status": "ACTIVE",
+          "effective_status": "CAMPAIGN_PAUSED",
+          "optimization_goal": "OFFSITE_CONVERSIONS",
+          "billing_event": "IMPRESSIONS",
+          "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+          "daily_budget": "5000",
+          "promoted_object": {
+            "pixel_id": "311586900940615",
+            "custom_event_type": "LEAD",
+            "lead_ads_offsite_conversion_type": "default",
+            "smart_pse_enabled": false
+          },
+          "destination_type": "UNDEFINED",
+          "attribution_spec": [
+            {
+              "event_type": "CLICK_THROUGH",
+              "window_days": 7
+            },
+            {
+              "event_type": "VIEW_THROUGH",
+              "window_days": 1
+            },
+            {
+              "event_type": "ENGAGED_VIDEO_VIEW",
+              "window_days": 1
+            }
+          ],
+          "targeting": {
+            "age_max": 60,
+            "age_min": 38,
+            "flexible_spec": [
+              {
+                "interests": [
+                  {
+                    "id": "6002884511422",
+                    "name": "Piccola impresa (affari e finanza)"
+                  },
+                  {
+                    "id": "6003136069408",
+                    "name": "Piccole e medie imprese (affari e finanza)"
+                  },
+                  {
+                    "id": "6003371567474",
+                    "name": "Imprenditorialità (affari e finanza)"
+                  },
+                  {
+                    "id": "6003375611996",
+                    "name": "Impresa individuale (affari e finanza)"
+                  },
+                  {
+                    "id": "6003388314512",
+                    "name": "Investimento (affari e finanza)"
+                  },
+                  {
+                    "id": "6003402305839",
+                    "name": "Azienda (affari e finanza)"
+                  },
+                  {
+                    "id": "6003587074473",
+                    "name": "Investitore (investimenti)"
+                  }
+                ],
+                "behaviors": [
+                  {
+                    "id": "6002714898572",
+                    "name": "Small business owners"
+                  }
+                ],
+                "work_employers": [
+                  {
+                    "id": "109288035760640",
+                    "name": "Business Owner"
+                  },
+                  {
+                    "id": "137642586254132",
+                    "name": "Owner at own business"
+                  },
+                  {
+                    "id": "1393087040960895",
+                    "name": "Business Owners"
+                  },
+                  {
+                    "id": "140296506001448",
+                    "name": "Own Business"
+                  },
+                  {
+                    "id": "164608847064376",
+                    "name": "Owner"
+                  },
+                  {
+                    "id": "373921602761077",
+                    "name": "Self-Employed"
+                  },
+                  {
+                    "id": "680461205375055",
+                    "name": "Business Owner"
+                  }
+                ],
+                "work_positions": [
+                  {
+                    "id": "104096132959364",
+                    "name": "Business"
+                  },
+                  {
+                    "id": "105563979478424",
+                    "name": "Executive director"
+                  },
+                  {
+                    "id": "108595432498170",
+                    "name": "Senior management"
+                  },
+                  {
+                    "id": "109288035760640",
+                    "name": "Business Owner"
+                  },
+                  {
+                    "id": "110722838955052",
+                    "name": "Owner"
+                  },
+                  {
+                    "id": "112558655421889",
+                    "name": "Chief financial officer"
+                  },
+                  {
+                    "id": "116885444988542",
+                    "name": "Director general"
+                  },
+                  {
+                    "id": "117677474946712",
+                    "name": "Owner/Manager/CEO"
+                  },
+                  {
+                    "id": "124458480932025",
+                    "name": "Co-Founder and COO"
+                  },
+                  {
+                    "id": "125701090809960",
+                    "name": "Founder/Manager"
+                  },
+                  {
+                    "id": "126237404086327",
+                    "name": "Co Owner"
+                  },
+                  {
+                    "id": "133337610036491",
+                    "name": "Founder, Director, CEO"
+                  },
+                  {
+                    "id": "138050029568986",
+                    "name": "Owner and Founder"
+                  },
+                  {
+                    "id": "138434539530345",
+                    "name": "Owner/Managing Director"
+                  },
+                  {
+                    "id": "140296506001448",
+                    "name": "Own Business"
+                  },
+                  {
+                    "id": "140984096035383",
+                    "name": "Chairman & Managing Director"
+                  },
+                  {
+                    "id": "142177312468564",
+                    "name": "Franchise Owner/Operator"
+                  },
+                  {
+                    "id": "143727678985148",
+                    "name": "Founder and Managing Director"
+                  },
+                  {
+                    "id": "144007428961004",
+                    "name": "Owner/Sole Proprietor"
+                  },
+                  {
+                    "id": "149598488387016",
+                    "name": "Owner and CEO"
+                  },
+                  {
+                    "id": "149657818421934",
+                    "name": "Director (business)"
+                  },
+                  {
+                    "id": "183861164967987",
+                    "name": "Managing Director"
+                  },
+                  {
+                    "id": "321873851343665",
+                    "name": "Business Owner/Engineer"
+                  },
+                  {
+                    "id": "874842615892965",
+                    "name": "Managing Director"
+                  }
+                ]
+              },
+              {
+                "interests": [
+                  {
+                    "id": "6002983066219",
+                    "name": "Balenciaga (brand di moda)"
+                  },
+                  {
+                    "id": "6003028976219",
+                    "name": "Land Rover (veicolo)"
+                  },
+                  {
+                    "id": "6003029763455",
+                    "name": "International Watch Company"
+                  },
+                  {
+                    "id": "6003069363782",
+                    "name": "Ferrari (veicoli)"
+                  },
+                  {
+                    "id": "6003076027139",
+                    "name": "Viaggio in prima classe (azienda viaggi e turismo)"
+                  },
+                  {
+                    "id": "6003121397334",
+                    "name": "circolo nautico (club e associazioni di interesse)"
+                  },
+                  {
+                    "id": "6003122958658",
+                    "name": "Nautica (attività all'aperto)"
+                  },
+                  {
+                    "id": "6003133223328",
+                    "name": "Lusso (magazine)"
+                  },
+                  {
+                    "id": "6003137508950",
+                    "name": "Giorgio Armani"
+                  },
+                  {
+                    "id": "6003161093178",
+                    "name": "Porsche"
+                  },
+                  {
+                    "id": "6003165411122",
+                    "name": "Gucci (brand di moda)"
+                  },
+                  {
+                    "id": "6003200432882",
+                    "name": "Givenchy (brand di moda)"
+                  },
+                  {
+                    "id": "6003202336613",
+                    "name": "Hermès (abbigliamento)"
+                  },
+                  {
+                    "id": "6003241598211",
+                    "name": "Rolls-Royce Motor Cars"
+                  },
+                  {
+                    "id": "6003241714213",
+                    "name": "Burberry (abbigliamento)"
+                  },
+                  {
+                    "id": "6003246597567",
+                    "name": "Hublot"
+                  },
+                  {
+                    "id": "6003257785488",
+                    "name": "BMW (veicoli)"
+                  },
+                  {
+                    "id": "6003279451780",
+                    "name": "Chanel (brand di moda)"
+                  },
+                  {
+                    "id": "6003280577423",
+                    "name": "yachting (imbarcazioni e natanti)"
+                  },
+                  {
+                    "id": "6003283305854",
+                    "name": "Vacheron Constantin"
+                  },
+                  {
+                    "id": "6003284637727",
+                    "name": "Lexus (veicoli)"
+                  },
+                  {
+                    "id": "6003293721530",
+                    "name": "Mercedes-Benz (veicoli)"
+                  },
+                  {
+                    "id": "6003306942514",
+                    "name": "Patek Philippe & Co. (orologi)"
+                  },
+                  {
+                    "id": "6003308770453",
+                    "name": "Moschino"
+                  },
+                  {
+                    "id": "6003338009689",
+                    "name": "Yacht (natante)"
+                  },
+                  {
+                    "id": "6003352779232",
+                    "name": "Business class (viaggi in aereo)"
+                  },
+                  {
+                    "id": "6003368599202",
+                    "name": "Louis Vuitton (brand di moda)"
+                  },
+                  {
+                    "id": "6003371567474",
+                    "name": "Imprenditorialità (affari e finanza)"
+                  },
+                  {
+                    "id": "6003382700604",
+                    "name": "Audemars Piguet"
+                  },
+                  {
+                    "id": "6003383552337",
+                    "name": "Resort di lusso (alloggio)"
+                  },
+                  {
+                    "id": "6003397425735",
+                    "name": "Tennis (sport)"
+                  },
+                  {
+                    "id": "6003397432935",
+                    "name": "Audi (veicoli)"
+                  },
+                  {
+                    "id": "6003402305839",
+                    "name": "Azienda (affari e finanza)"
+                  },
+                  {
+                    "id": "6003431493391",
+                    "name": "Bulgari (beni di lusso)"
+                  },
+                  {
+                    "id": "6003435546331",
+                    "name": "Versace (brand di moda)"
+                  },
+                  {
+                    "id": "6003456879344",
+                    "name": "Lamborghini (veicoli)"
+                  },
+                  {
+                    "id": "6003481889069",
+                    "name": "Tennis Channel"
+                  },
+                  {
+                    "id": "6003496694880",
+                    "name": "Jaguar"
+                  },
+                  {
+                    "id": "6003508325964",
+                    "name": "Tiffany & Co. (beni di lusso)"
+                  },
+                  {
+                    "id": "6003510075864",
+                    "name": "Golf (sport)"
+                  },
+                  {
+                    "id": "6003516735664",
+                    "name": "Yves Saint Laurent (brand)"
+                  },
+                  {
+                    "id": "6003567824118",
+                    "name": "Maserati"
+                  },
+                  {
+                    "id": "6003587678073",
+                    "name": "Rolex (orologi)"
+                  },
+                  {
+                    "id": "6003702639291",
+                    "name": "Bentley"
+                  },
+                  {
+                    "id": "6003713880583",
+                    "name": "Armani (abbigliamento)"
+                  },
+                  {
+                    "id": "6003715005316",
+                    "name": "Yacht di lusso (natante)"
+                  },
+                  {
+                    "id": "6003762134517",
+                    "name": "Cartier (gioielliere)"
+                  },
+                  {
+                    "id": "6003954452466",
+                    "name": "Panerai"
+                  },
+                  {
+                    "id": "6004037107009",
+                    "name": "Barche (natante)"
+                  },
+                  {
+                    "id": "6004048615096",
+                    "name": "Veicolo di lusso (veicoli)"
+                  },
+                  {
+                    "id": "6005522768944",
+                    "name": "Breitling"
+                  },
+                  {
+                    "id": "6007828099136",
+                    "name": "Beni di lusso (vendita al dettaglio)"
+                  }
+                ],
+                "behaviors": [
+                  {
+                    "id": "6002714895372",
+                    "name": "Frequent Travelers"
+                  },
+                  {
+                    "id": "6022788483583",
+                    "name": "Frequent international travelers"
+                  }
+                ],
+                "work_employers": [
+                  {
+                    "id": "157271317637124",
+                    "name": "Tennis"
+                  }
+                ],
+                "work_positions": [
+                  {
+                    "id": "1550034451925087",
+                    "name": "Tennis Professional"
+                  }
+                ]
+              },
+              {
+                "interests": [
+                  {
+                    "id": "6002995710444",
+                    "name": "UEFA Champions League"
+                  },
+                  {
+                    "id": "6003030389007",
+                    "name": "Tottenham Hotspur Football Club"
+                  },
+                  {
+                    "id": "6003062447007",
+                    "name": "Lionel Messi"
+                  },
+                  {
+                    "id": "6003064617670",
+                    "name": "Arsenal Football Club"
+                  },
+                  {
+                    "id": "6003066202070",
+                    "name": "Primera División"
+                  },
+                  {
+                    "id": "6003095982582",
+                    "name": "Liverpool Football Club (squadra di calcio)"
+                  },
+                  {
+                    "id": "6003107902433",
+                    "name": "Calcio (calcio)"
+                  },
+                  {
+                    "id": "6003108404190",
+                    "name": "Real Madrid Club de Fútbol"
+                  },
+                  {
+                    "id": "6003110325672",
+                    "name": "Cristiano Ronaldo"
+                  },
+                  {
+                    "id": "6003147437665",
+                    "name": "Futbol Club Barcelona"
+                  },
+                  {
+                    "id": "6003162931434",
+                    "name": "Football universitario (sport universitario)"
+                  },
+                  {
+                    "id": "6003175194449",
+                    "name": "Campionato mondiale di calcio"
+                  },
+                  {
+                    "id": "6003220643158",
+                    "name": "Manchester United Football Club"
+                  },
+                  {
+                    "id": "6003221970476",
+                    "name": "FC Bayern Monaco"
+                  },
+                  {
+                    "id": "6003239921001",
+                    "name": "Serie A"
+                  },
+                  {
+                    "id": "6003269553527",
+                    "name": "Sport (sport)"
+                  },
+                  {
+                    "id": "6003280305243",
+                    "name": "West Ham United Football Club"
+                  },
+                  {
+                    "id": "6003285600543",
+                    "name": "Newcastle United Football Club"
+                  },
+                  {
+                    "id": "6003297665308",
+                    "name": "Associazione Calcio Milan"
+                  },
+                  {
+                    "id": "6003306191253",
+                    "name": "Premier League (campionato di calcio)"
+                  },
+                  {
+                    "id": "6003319357759",
+                    "name": "Chelsea Football Club"
+                  },
+                  {
+                    "id": "6003350242199",
+                    "name": "UEFA Europa League (competizione di calcio)"
+                  },
+                  {
+                    "id": "6003354236021",
+                    "name": "Bundesliga"
+                  },
+                  {
+                    "id": "6003359788860",
+                    "name": "Nazionale di calcio dell'Italia"
+                  },
+                  {
+                    "id": "6003424358337",
+                    "name": "Crystal Palace Football Club"
+                  },
+                  {
+                    "id": "6003432221791",
+                    "name": "FIFA (lega professionistica)"
+                  },
+                  {
+                    "id": "6003440191931",
+                    "name": "Juventus Football Club"
+                  },
+                  {
+                    "id": "6003442346642",
+                    "name": "Calcio (sport)"
+                  },
+                  {
+                    "id": "6003655184478",
+                    "name": "Leicester City Football Club"
+                  },
+                  {
+                    "id": "6003703378313",
+                    "name": "Union of European Football Associations"
+                  },
+                  {
+                    "id": "6003760502478",
+                    "name": "Everton Football Club"
+                  },
+                  {
+                    "id": "6004034488209",
+                    "name": "Ligue 1"
+                  },
+                  {
+                    "id": "6004177298095",
+                    "name": "Manchester City Football Club (squadra di calcio)"
+                  },
+                  {
+                    "id": "6004905707670",
+                    "name": "Inter"
+                  },
+                  {
+                    "id": "6788976336705",
+                    "name": "Squadre di calcio internazionali (sport)"
+                  }
+                ]
+              }
+            ],
+            "geo_locations": {
+              "regions": [
+                {
+                  "key": "1845",
+                  "name": "Emilia-Romagna",
+                  "country": "IT"
+                },
+                {
+                  "key": "1846",
+                  "name": "Friuli-Venezia Giulia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1847",
+                  "name": "Lazio",
+                  "country": "IT"
+                },
+                {
+                  "key": "1848",
+                  "name": "Liguria",
+                  "country": "IT"
+                },
+                {
+                  "key": "1849",
+                  "name": "Lombardia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1852",
+                  "name": "Piedmont",
+                  "country": "IT"
+                },
+                {
+                  "key": "1853",
+                  "name": "Puglia",
+                  "country": "IT"
+                },
+                {
+                  "key": "1856",
+                  "name": "Tuscany",
+                  "country": "IT"
+                },
+                {
+                  "key": "1857",
+                  "name": "Trentino-Alto Adige",
+                  "country": "IT"
+                },
+                {
+                  "key": "1860",
+                  "name": "Veneto",
+                  "country": "IT"
+                }
+              ],
+              "location_types": [
+                "frequently_in",
+                "home",
+                "recent"
+              ]
+            },
+            "locales": [
+              10
+            ],
+            "brand_safety_content_filter_levels": [
+              "FACEBOOK_RELAXED"
+            ],
+            "targeting_automation": {
+              "advantage_audience": 0,
+              "individual_setting": {
+                "age": 0,
+                "gender": 1,
+                "geo": 1
+              }
+            },
+            "publisher_platforms": [
+              "facebook",
+              "instagram"
+            ],
+            "facebook_positions": [
+              "feed",
+              "right_hand_column",
+              "instream_video",
+              "marketplace",
+              "story",
+              "search",
+              "facebook_reels",
+              "facebook_reels_overlay",
+              "profile_feed",
+              "notification"
+            ],
+            "instagram_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "device_platforms": [
+              "mobile",
+              "desktop"
+            ]
+          },
+          "start_time": "2026-09-12T00:00:00+0200",
+          "dsa_beneficiary": "Antonio Valente",
+          "dsa_payor": "Antonio Valente"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120251644311010047",
+          "name": "video 1 Settembre",
+          "effective_status": "CAMPAIGN_PAUSED",
+          "creative": {
+            "id": "2045873939397143",
+            "degrees_of_freedom_spec": {
+              "creative_features_spec": {
+                "adapt_to_placement": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "add_text_overlay": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ads_with_benefits": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "advantage_plus_creative": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "app_highlights": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "audio": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "biz_ai": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "carousel_to_video": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "catalog_feed_tag": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "creative_stickers": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "cv_transformation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "description_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "dha_optimization": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "dynamic_partner_content": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "enable_ncs_testimonials": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "enhance_cta": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "feed_caption_optimization": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "generate_cta": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "hide_price": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ig_glados_feed": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ig_video_native_subtitle": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_animation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_auto_crop": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_background_gen": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_brightness_and_contrast": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_enhancement": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_templates": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_text_translation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_touchups": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_uncrop": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "inline_comment": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "local_store_extension": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_liquidity_animated_image": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_order": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_type_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "multi_photo_to_video": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "pac_recomposition": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "pac_relaxation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_browsing": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_extensions": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_metadata_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "profile_card": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "replace_media_text": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "reveal_details_over_time": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "show_destination_blurbs": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "show_summary": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "site_extensions": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "standard_enhancements_catalog": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "text_optimizations": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "text_translation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "translate_voiceover": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_auto_crop": {
+                  "enroll_status": "OPT_IN"
+                },
+                "video_filtering": {
+                  "enroll_status": "OPT_IN"
+                },
+                "video_highlight": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_highlights": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_to_image": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_voiceover": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "wa_mm_image_filtering": {
+                  "enroll_status": "OPT_OUT"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "120251673940220047",
+          "name": "video 1 Settembre - genitori",
+          "effective_status": "CAMPAIGN_PAUSED",
+          "creative": {
+            "id": "1970197563644034",
+            "degrees_of_freedom_spec": {
+              "creative_features_spec": {
+                "adapt_to_placement": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "add_text_overlay": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ads_with_benefits": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "advantage_plus_creative": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "app_highlights": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "audio": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "biz_ai": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "carousel_to_video": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "catalog_feed_tag": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "creative_stickers": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "cv_transformation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "description_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "dha_optimization": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "dynamic_partner_content": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "enable_ncs_testimonials": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "enhance_cta": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "feed_caption_optimization": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "generate_cta": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "hide_price": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ig_glados_feed": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "ig_video_native_subtitle": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_animation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_auto_crop": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_background_gen": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_brightness_and_contrast": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_enhancement": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_templates": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_text_translation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_touchups": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "image_uncrop": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "inline_comment": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "local_store_extension": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_liquidity_animated_image": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_order": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "media_type_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "multi_photo_to_video": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "pac_recomposition": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "pac_relaxation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_browsing": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_extensions": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "product_metadata_automation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "profile_card": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "replace_media_text": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "reveal_details_over_time": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "show_destination_blurbs": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "show_summary": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "site_extensions": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "standard_enhancements_catalog": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "text_optimizations": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "text_translation": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "translate_voiceover": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_auto_crop": {
+                  "enroll_status": "OPT_IN"
+                },
+                "video_filtering": {
+                  "enroll_status": "OPT_IN"
+                },
+                "video_highlight": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_highlights": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_to_image": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "video_voiceover": {
+                  "enroll_status": "OPT_OUT"
+                },
+                "wa_mm_image_filtering": {
+                  "enroll_status": "OPT_OUT"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "all_campaign_names": [
+    "120251780591420047 | PAUSED | MS | LEAD WEB | IT 38+ | 3 Advertorial | Test 01",
+    "120251721514160047 | PAUSED | MS | LEAD WEB | Genitori 40-60 | Nord+Lazio | 16.09.2026",
+    "120251644311030047 | PAUSED | Nuova Campagna Settembre 2026",
+    "120250122431060047 | PAUSED | MS - sport - 6/07/2026 - CBO",
+    "120249909381570047 | PAUSED | MS - sport - x angolo",
+    "120249274119740047 | PAUSED | MS - Testing - Quiz - modulo interattivo - Tennis",
+    "120249084594750047 | PAUSED | MS - [ECOM] Scaling Bundle CBO",
+    "120249082390630047 | PAUSED | MS - [ECOM] Scaling Bundle CBO",
+    "120249018103230047 | PAUSED | MS - [ECOM] Testing Creative ABO",
+    "120249018095780047 | PAUSED | MS - [ECOM] Retargeting ABO",
+    "120249018083390047 | PAUSED | MS - [ECOM] Prospecting CBO",
+    "120248873939530047 | PAUSED | MS - ABO - 16/06/2026",
+    "120247761506580047 | PAUSED | MS - Testing - Quiz - modulo interattivo",
+    "120247291893540047 | PAUSED | MS - Testing - Quiz",
+    "120246907525070047 | PAUSED | MS - TESTING X GUIDE",
+    "120246796549720047 | PAUSED | MS - Testing - SUMMER EDITION - pubblico personalizzato",
+    "120245963393700047 | PAUSED | MS - Testing - SUMMER EDITION",
+    "120245687081260047 | PAUSED | MS - TESTING X GUIDE - BID CAP",
+    "120244112131310047 | PAUSED | MS - TESTING - BID CAP",
+    "120243861437670047 | PAUSED | MS - SCALING",
+    "120243861179740047 | PAUSED | MS - TESTING",
+    "120242756251050047 | PAUSED | MS - Lead Gen - Andromeda",
+    "120242234788000047 | PAUSED | 11/03/2026 ABO - Calcio",
+    "120242197273790047 | PAUSED | 11/03/2026 ABO - Sport",
+    "120241944467950047 | PAUSED | 26/02/2026 ABO - \"pressione\" - 200 €",
+    "120241944153310047 | PAUSED | 20/02/2026 ABO - \"ansia\" pt.3 - 200 €",
+    "120241577145460047 | PAUSED | 26/02/2026 ABO - \"pressione\"",
+    "120241486683660047 | PAUSED | 24/02/2026 ABO - \"infortunio\"",
+    "120241439096000047 | PAUSED | 23/02/2026 ABO - \"fiducia\"",
+    "120241265570790047 | PAUSED | 20/02/2026 ABO - \"ansia\" pt.3",
+    "120241135880290047 | PAUSED | 16/02/2026 ABO - \"ansia\" pt.2",
+    "120240888807260047 | PAUSED | 10/02/2026 ABO - \"ansia\"",
+    "120240680604060047 | PAUSED | 05/02/2026 ABO - \"non commettere lo stesso errore\"",
+    "120240600879760047 | PAUSED | 03/02/2026 ABO - \"forza mentale\"",
+    "120240446476720047 | PAUSED | 30/01/2026 ABO - \"Se non lo aiuti ora, lo pagherà dopo\"",
+    "120239975412560047 | PAUSED | 23/01/2026 ABO - \"Sogno proibito\"",
+    "120239906452800047 | PAUSED | 17/01/2026 - ABO - Brand Awareness  localizzato",
+    "120238774247830047 | PAUSED | 17/12/2025- CBO - caroselli",
+    "120238617961300047 | PAUSED | 14/12/2025- CBO - scaling x angolo di lettura validato",
+    "120238358259030047 | PAUSED | 10/12/2025- CBO - Creatività singole",
+    "120238184156560047 | PAUSED | 09/01/2026 - ABO - Immagini",
+    "120238056264140047 | PAUSED | Anthon Chat Lead - Genitori",
+    "120237900823730047 | PAUSED | TOFU | Anthon Chat | Contatti | ABO | Test Creatività",
+    "120237797893620047 | PAUSED | Anthon Chat Lead - Open",
+    "120237699979000047 | PAUSED | Traffico Anthon Chat pagina di test",
+    "120236065224510047 | PAUSED | TOFU | settembre 2025 | ABO | Contatti | Scaling CD",
+    "120234663305610047 | PAUSED | TOFU | settembre 2025 | ABO | Contatti | Scaling",
+    "120233559354500047 | PAUSED | Ret | ABO | Contatti | Settembre 2025",
+    "120233103138280047 | PAUSED | TOFU | settembre 2025 | ABO | Contatti | Test",
+    "120232931695950047 | PAUSED | TOFU | luglio 2025 | CBO | Contatti | Scaling - NUOVA LANDING",
+    "120232892042980047 | PAUSED | TOFU | Contatti | ABO | Candidatura AP | Test | NUOVO PUBBLICO",
+    "120232838566280047 | PAUSED | Test Modulo",
+    "120232809646650047 | PAUSED | ANTONIO 5 SETTEMBRE 2025",
+    "120232495327230047 | PAUSED | TOFU | Contatti | ABO | Candidatura AP | Test",
+    "120230399662490047 | PAUSED | TOFU | Contatti | ABO | Summer Edition | LP | Test",
+    "120229815806020047 | PAUSED | TOFU | Contatti | ABO | Appuntamento diretto",
+    "120229453869390047 | PAUSED | TOFU | Contatti | ABO | Summer Edition | Modulo Contatti | Test - Copia",
+    "120229049272230047 | PAUSED | TOFU | Contatti | ABO | Summer Edition | Modulo Contatti | Test",
+    "120228929032750047 | PAUSED | TOFU | Contatti | ABO | Summer Edition | Scaling",
+    "120228571571220047 | PAUSED | TOFU | CBO | Contatti | Historical Data | Optin Summer Edition",
+    "120228464913320047 | PAUSED | TOFU | CBO | Contatti | Custom Event | Historical Data",
+    "120228274335710047 | PAUSED | TOFU | ABO | Contatti | Mix BP",
+    "120227133820010047 | PAUSED | Ret | Webinar Summer Edition | ABO | Contatti",
+    "120222696715080047 | PAUSED | Antonio TOFU | Contatti | ABO | Cambio Comunicazione | Scaling",
+    "120221988528190047 | PAUSED | TOFU | Contatti | ABO | Cambio Comunicazione | Test LANDING CORTA",
+    "120216983296640047 | PAUSED | TOFU | Contatti | ABO | Test Guida PDF",
+    "120216223278970047 | PAUSED | TOFU | Vendite | ABO | Shop | Antonio | 23/02/2025",
+    "120215435285900047 | PAUSED | TOFU | Vendite | ABO | Shop | Giacomo Ottimizzazione",
+    "120215216527470047 | PAUSED | MOFU | Vendite | ABO | Shop | Giacomo",
+    "120214917577560047 | PAUSED | TOFU | Vendite | ABO | Shop | Giacomo Test Creatività",
+    "120214435321580047 | PAUSED | SHOP FUNNEL | TEST | TOF | ABO | 23/01/2025 - Copia",
+    "120214435251320047 | PAUSED | SHOP | SCALING | TOF | CBO | 23/01/2025",
+    "120214161186120047 | PAUSED | ABO | TRAFFICO | DIRETTO IN DM | MANYCHAT | 16/01/2025",
+    "120214138512620047 | PAUSED | ABO | TRAFFICO | VISITA PROFILO IG | MANYCHAT | 15/01/2025 - Copia",
+    "120214122891820047 | PAUSED | BOFU | Shop | Vendite | Catalogo Dinamico",
+    "120213948188870047 | PAUSED | SHOP  | VALIDAZIONE | TOF | CBO | 10/01/2025 - Copia 3",
+    "120213947888160047 | PAUSED | SHOP  | VALIDAZIONE | TOF | CBO | 10/01/2025| Copia 2",
+    "120213946861220047 | PAUSED | SHOP  | VALIDAZIONE | TOF | CBO | 10/01/2025",
+    "120213814285620047 | PAUSED | SHOP | TEST | TOF | ABO | 05/01/2025",
+    "120213453881630047 | PAUSED | TOFU | Vendite | ABO | Shop | Giacomo Test Ebook singoli",
+    "120212709151090047 | PAUSED | TOFU | CBO | Contatti | Historical Scaling",
+    "120211208197260047 | PAUSED | Ret | ABO | Contatti",
+    "120210916487380047 | PAUSED | Antonio Test Appuntamenti Lead Ads",
+    "120210898345050047 | PAUSED | Antonio Test VSL 2 | 35 - 64",
+    "120210870752430047 | PAUSED | Antonio TEST CREATIVE",
+    "120210706771570047 | PAUSED | TOFU | CBO | Contatti | Scaling",
+    "120210688417980047 | PAUSED | MOFU | Vendite | ABO | Test | Front-end Genitori",
+    "120210629490860047 | PAUSED | TOFU | luglio 2025 | CBO | Contatti | Scaling",
+    "120210491602120047 | PAUSED | Antonio Test VSL",
+    "120210405948640047 | PAUSED | ANTONIO no ADV+| TOFU | CBO | Leads | Interessi Sport | Video Ariele - Copia",
+    "120210404112180047 | PAUSED | ANTONIO pubblico ADV+| TOFU | CBO | Leads | Interessi Sport | Video Ariele",
+    "120210347270320047 | PAUSED | TOFU | Vendite | ABO | Test Antonio | Front-end Genitori",
+    "120210226606590047 | PAUSED | TOFU | Vendite | ABO | Test | Front-end Genitori",
+    "120210160135880047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs",
+    "120210160135520047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real",
+    "120210160135410047 | PAUSED | TOFU | CBO | Leads | Interessi Sport | Video DYN 5",
+    "120210160135400047 | PAUSED | TOFU | ABO | Leads | Interessi Sport | Video New | Multi-Test",
+    "120210160135360047 | PAUSED | TOFU | ABO | Leads | Broad | Split New Video",
+    "120210160135350047 | PAUSED | TOFU | CBO | Leads | Interessi Sport | Video New",
+    "120210160135330047 | PAUSED | TOFU | CBO | Leads | Interessi Sport | Video DYN 3",
+    "120210160135320047 | PAUSED | TOFU | CBO | Leads | Interessi Sport | Video DYN 2",
+    "120210160135310047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 3}",
+    "120210160135300047 | PAUSED | TOFU | ABO | Leads | Sport | DYN IMGs AI",
+    "120209793355530047 | PAUSED | TOFU | Contatti | ABO | Ingresso Community | Scaling",
+    "120209721502520047 | PAUSED | TOFU | Contatti | ABO | Ingresso Community | Test",
+    "120209204765200047 | PAUSED | TOFU | Contatti | App. diretto | ABO Test",
+    "120208851206260047 | PAUSED | MOFU | Contatti | CBO",
+    "120208822535710047 | PAUSED | TOFU | Contatti | ABO | Appuntamento da Blog",
+    "120208617244460047 | PAUSED | MS Team | TOFU | Contatti | ABO | Scaling",
+    "120208540592320047 | PAUSED | MS Team | TOFU | Contatti | ABO | Test",
+    "120207899204350047 | PAUSED | GURU def | TOFU | Contatti | ABO | Scaling",
+    "120207845178120047 | PAUSED | GURU 2 | TOFU | Contatti | ABO | Test Creatività",
+    "120207795322490047 | PAUSED | GURU 1 | TOFU | Contatti | ABO | Test Creatività",
+    "120206597316220047 | PAUSED | TOFU | Contatti | ABO | Test Tour Esperienziale",
+    "120206504645660047 | PAUSED | MOFU | Contatti | ABO |",
+    "120206057068210047 | PAUSED | TOFU | Contatti | ABO | Test Pubblico",
+    "120205886797770047 | PAUSED | TOFU | Contatti | ABO | Scaling",
+    "120205779942950047 | PAUSED | TOFU | Contatti | ABO | Test creatività",
+    "120205380300220047 | PAUSED | TOFU | ABO | Leads | Mindset | Split Video 3 - LP Short",
+    "120205247273420047 | PAUSED | Test Traffico Profilo",
+    "120205171527410047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video 2 - LP Short",
+    "120205162119130047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video - LP Short",
+    "120204958445290047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo 3 + Copy 2 - MultiThumb - LP Short",
+    "120204941835860047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs - LP Short",
+    "120204941835760047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - LP Short",
+    "120204941835750047 | PAUSED | TOFU | ABO | Leads | Sport | DYN IMGs AI - LP Short",
+    "120204932751320047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - New - LP Short",
+    "120204932648310047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo + Copy 2 - MultiThumb - Copy",
+    "120204919837620047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo 2 + Copy 2 - MultiThumb - LP Short",
+    "120204789073220047 | PAUSED | TOFU | ABO | Leads | Split Interessi | 7DC - MultiVideo 2 + Copy 2 - MultiThumb - Copy",
+    "120204788824570047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo 3 + Copy 2 - MultiThumb",
+    "120204611371900047 | PAUSED | TOFU | ABO | Leads | LAL Leads 30D  | 1DC - MultiVideo 2 + Copy 2 - MultiThumb",
+    "120204597752720047 | PAUSED | TOFU | ABO | Leads | Split Interessi | 1DC - MultiVideo 2 + Copy 2 - MultiThumb",
+    "120204510236970047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo 2 + Copy 2 - MultiThumb",
+    "120204397463950047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo + Copy 3 - MultiThumb",
+    "120204397281120047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo + Copy 2 - MultiThumb",
+    "120204396567390047 | PAUSED | TOFU | CBO | Leads | MultiTarget + Broad | MultiVideo + Copy 1 - MultiThumb 1",
+    "120204144628110047 | PAUSED | TOFU | CBO | Leads | Sport/Football/Biz | DYN Video + Copies 2",
+    "120204063846580047 | PAUSED | [RG] [WARM] [MULTI] 25.2 - Lead  - L1/L2 - Dyn Video",
+    "120203963094980047 | PAUSED | TOFU | CBO | Leads | Sport/Football/Biz | DYN Video + Copies",
+    "120203573803230047 | PAUSED | [RG] [COLD] [MULTI] 15.2 - Lead  - L1/L2 - Dyn Video",
+    "120203565253670047 | PAUSED | TOFU | ABO | Leads | Sport | Split Video 3 | 1 day click",
+    "120203122489850047 | PAUSED | [RG] [COLD] [MULTI] 5.2 - Lead  - L1/L2 - Dyn Video",
+    "120203107332830047 | PAUSED | TOFU | ABO | Leads | Sport | Split Video 2 | 1 day click",
+    "120203031237270047 | PAUSED | TOFU | ABO | Leads | Sport | Split Video | 1 day click",
+    "120202570019020047 | PAUSED | [RG] [COLD] [MULTI] 25.1 - Lead  - L2 - Dyn Video",
+    "120202547194410047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video - New - LP2",
+    "120202539305420047 | PAUSED | [RG] [COLD] [MULTI] 24.1 - Lead  - L1 - Dyn Video",
+    "120202452327300047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - New",
+    "120202315472190047 | PAUSED | TOFU | ABO | Leads | Sport | IMGs AI - New",
+    "120202296353020047 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - New",
+    "120202094930000047 | PAUSED | [P5] [COLD] 10.1 - Lead - {Broad} {Mixed}",
+    "120202001845960047 | PAUSED | [P5] [COLD] 7.1 - Lead - {Broad} {18.12 P5 3}",
+    "120202001845840047 | PAUSED | [P5] [COLD] 7.1 - Lead - {Broad} {Mixed}",
+    "120202001845700047 | PAUSED | [P5] [COLD] 7.1 - Lead - {Broad} {Mixed}",
+    "120202001845690047 | PAUSED | [P5] [COLD] 7.1 - Lead - {Broad} {18.12 P5 1}",
+    "120201945417830047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 1}",
+    "120201914658060047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 2}",
+    "120201813303640047 | PAUSED | [P5] [COLD] 31.12 - Lead - {Broad} {Mixed}",
+    "120201667859560047 | PAUSED | [P5] [COLD] 24.12 - Lead - {Broad} {Mixed}",
+    "120201578287890047 | PAUSED | TOFU | ABO | Lead | Football/Biz/Parents | New IMGs",
+    "120201565422620047 | PAUSED | [P5] [COLD] 20.12 - Lead - {Broad} {20.12 Img3}",
+    "120201565416650047 | PAUSED | [P5] [COLD] 20.12 - Lead - {Broad} {20.12 Img2}",
+    "120201565350460047 | PAUSED | [P5] [COLD] 20.12 - Lead - {Broad} {20.12 Img1}",
+    "120201565236170047 | PAUSED | [P5] [COLD] 20.12 - Lead - {Int} {18.12 P5 3}",
+    "120201565226940047 | PAUSED | [P5] [COLD] 20.12 - Lead - {Int} {18.12 P5 3}",
+    "120201515287770047 | PAUSED | [P5] [WARM] 18.12 - Lead - {WV} {Dynamic}",
+    "120201515278250047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 3}",
+    "120201515172420047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 2}",
+    "120201514329420047 | PAUSED | [P5] [COLD] 18.12 - Lead - {Broad} {18.12 P5 1}",
+    "120201467277730047 | PAUSED | TOFU | ABO | Lead | Football/Biz | Video LTB",
+    "120201358586010047 | PAUSED | TOFU | ABO | Lead | Football/Biz/Parents | Video",
+    "120201357917400047 | PAUSED | TOFU | ABO | Lead | Football/Biz/Parents | IMG AI",
+    "120201269292120047 | PAUSED | TOFU | CBO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs",
+    "120201231838460047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs AI + Copies - Split New LPs",
+    "120201150524810047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | Videos + Copies - Split New LPs",
+    "120201148866320047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split New LPs",
+    "120200119963290047 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs",
+    "120200119005570047 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real",
+    "23862139581420046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | Videos 3 + Copies - Split LPs",
+    "23862139561350046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | Videos 2 + Copies - Split LPs",
+    "23862139481980046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | Videos + Copies - Split LPs",
+    "23862136467160046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs",
+    "23862136308050046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs - Copy",
+    "23862130145700046 | PAUSED | TOFU | ABO | Leads | Broad | IMGs + Copies - Split LPs",
+    "23862129592000046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | IMGs + Copies - Split LPs",
+    "23862126083630046 | PAUSED | TOFU | ABO | Leads | Soccer/Biz/Parents | DYN Video AI + Real - Split LPs",
+    "23862104557430046 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - LP1",
+    "23862079625310046 | PAUSED | TOFU | CBO | Leads | Sport/Biz | IMGs + Copies",
+    "23862065961890046 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real | CostCap",
+    "23862043928450046 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real 4",
+    "23862043884030046 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real 3",
+    "23862043769380046 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real 2",
+    "23861945755860046 | PAUSED | TOFU | ABO | Leads | LAL Leads 90D | DYN Video AI + Real",
+    "23861945316480046 | PAUSED | TOFU | CBO | Leads | Sport | DYN Video AI + Real",
+    "23861911440210046 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real - BidCap Acc",
+    "23861849791120046 | PAUSED | TOFU | ABO | Leads | Sport | DYN Video AI + Real",
+    "23861849511210046 | PAUSED | TOFU | ABO | Leads | Sport | DYN IMGs AI GPT",
+    "23861793190720046 | PAUSED | TOFU | ABO | Leads | Sport | DYN IMGs AI 3",
+    "23861793161730046 | PAUSED | TOFU | ABO | Leads | Sport | DYN IMGs AI 2"
+  ]
+}

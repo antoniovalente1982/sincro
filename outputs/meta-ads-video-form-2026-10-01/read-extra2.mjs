@@ -1,0 +1,10 @@
+import { account, graph, save, db } from './meta-client.mjs';
+import fs from 'node:fs';
+const src = JSON.parse(fs.readFileSync(new URL('./SOURCE_CAMPAIGN_READ.json', import.meta.url)));
+const creatives = [];
+for (const a of src.matching_campaigns[0].ads) creatives.push(await graph(a.creative.id, { fields: 'id,actor_id,instagram_user_id,effective_instagram_media_id,object_story_id,effective_object_story_id,call_to_action_type,url_tags,asset_feed_spec{link_urls,call_to_action_types,bodies,titles}' }));
+const pages = await graph(account + '/promote_pages', { fields: 'id,name' });
+const igs = await graph(account + '/instagram_accounts', { fields: 'id,username' }).catch(e => ({ error: String(e) }));
+const { data: tags, error } = await db.from('funnel_routing_engine').select('*').limit(100);
+save('EXTRA_READ2.json', { creatives, pages, igs, tags, tags_error: error?.message });
+console.log(JSON.stringify({ creatives: creatives.map(c => ({ actor: c.actor_id, ig: c.instagram_user_id, cta: c.call_to_action_type, links: c.asset_feed_spec?.link_urls, url_tags: c.url_tags })), pages: pages.data, igs, tags: (tags || []).map(t => t.trigger_keyword + ' — ' + (t.angle || t.angle_name || t.name || '')), tags_error: error?.message }, null, 1));

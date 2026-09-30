@@ -1,0 +1,214 @@
+{
+  "creatives": [
+    {
+      "actor_id": "108451268302248",
+      "call_to_action_type": "LEARN_MORE",
+      "id": "2045873939397143",
+      "instagram_user_id": "17841449195220971",
+      "object_story_id": "108451268302248_1103728872226902",
+      "effective_object_story_id": "108451268302248_1103728872226902",
+      "effective_instagram_media_id": "18006374339978581"
+    },
+    {
+      "actor_id": "108451268302248",
+      "call_to_action_type": "LEARN_MORE",
+      "id": "1970197563644034",
+      "instagram_user_id": "17841449195220971",
+      "object_story_id": "108451268302248_1103728872226902",
+      "effective_object_story_id": "108451268302248_1103728872226902",
+      "effective_instagram_media_id": "17997569390810129"
+    }
+  ],
+  "pages": {
+    "data": [
+      {
+        "id": "108451268302248",
+        "name": "Antonio Valente \"Mental Coach\""
+      }
+    ],
+    "paging": {
+      "cursors": {
+        "before": "QVFIVFpYdWNlMFBkZA2lzbzY3RG5oNGd4Mm1mQmtya0RZAaEpDTkNQdGxpeHZAERGthbGZA2ZAWJ0QVNtX2pmVUpFU3FOd2REREp6UzhsSzNoOV9peG5OLUREOG9B",
+        "after": "QVFIVFpYdWNlMFBkZA2lzbzY3RG5oNGd4Mm1mQmtya0RZAaEpDTkNQdGxpeHZAERGthbGZA2ZAWJ0QVNtX2pmVUpFU3FOd2REREp6UzhsSzNoOV9peG5OLUREOG9B"
+      }
+    }
+  },
+  "igs": {
+    "data": [
+      {
+        "id": "17841449195220971",
+        "username": "antoniovalente_mentalcoach"
+      }
+    ],
+    "paging": {
+      "cursors": {
+        "before": "QVFIVHNsNXlZAZA0g5R05nbWtfaXF6ZA0U4bktfbWROejNUSTFqdW1aZAjFPd2V5VUZAMb0pGNlhOQ1QwUlpybWo2MUJvQ3ZA5RnJWOXZAnVGdKYmMyZAUhpdWhWamlR",
+        "after": "QVFIVHNsNXlZAZA0g5R05nbWtfaXF6ZA0U4bktfbWROejNUSTFqdW1aZAjFPd2V5VUZAMb0pGNlhOQ1QwUlpybWo2MUJvQ3ZA5RnJWOXZAnVGdKYmMyZAUhpdWhWamlR"
+      }
+    }
+  },
+  "tags": [
+    {
+      "id": "02773e6f-7350-4cb5-b624-19c2d198953e",
+      "trigger_keyword": "mental_coaching",
+      "headline_white": "Il Miglior Allenamento Possibile.",
+      "headline_gold": "Quello Che Non Avviene Coi Piedi.",
+      "subtitle": "Lavoriamo individualmente con il ragazzo su intelligenza emotiva, focus, gestione di stress agonistico e visualizzazione. Così il talento torna al comando.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "1aa4c6ba-f84e-4f72-8890-c1087c63f533",
+      "trigger_keyword": "blocchi",
+      "headline_white": "Elimina i Blocchi Mentali",
+      "headline_gold": "di Tuo Figlio!",
+      "subtitle": "Vedi che ha paura di sbagliare? Questo non è un problema tecnico, ma un blocco mentale. Il Metodo Sincro® lo elimina in 90 giorni con un percorso One-To-One specifico per calciatori.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "3bcd7110-ce91-446d-983a-51744274100c",
+      "trigger_keyword": "gap",
+      "headline_white": "Il Gap Si Allarga Ogni Giorno.",
+      "headline_gold": "Fermalo Ora.",
+      "subtitle": "Più aspetti, più la distanza tra il suo potenziale e i risultati cresce. <strong>Il Metodo Sincro® chiude il gap</strong> trasformando la mentalità in 90 giorni.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "962e5843-bcf8-44fd-af61-8a79ce787a4b",
+      "trigger_keyword": "talento",
+      "headline_white": "Non Lasciare Che Il Suo Talento",
+      "headline_gold": "Venga Sprecato.",
+      "subtitle": "Vedi altri ragazzi meno dotati superarlo solo perché hanno <strong>più grinta e meno paura</strong>? Il talento da solo non basta. Il Metodo Sincro® lo trasforma in <strong>mentalità vincente</strong>.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "d57417ae-fb61-4613-bbc5-7eca2d53ddc8",
+      "trigger_keyword": "pressione",
+      "headline_white": "La Pressione Lo Sta Schiacciando?",
+      "headline_gold": "Ecco La Soluzione.",
+      "subtitle": "In partita si spegne, <strong>sbaglia le cose facili</strong> e perde fiducia. Il Metodo Sincro® insegna ai giovani calciatori ad usare la pressione come <strong>carburante, non come freno</strong>.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "e7ab4af0-689c-4042-a6e3-f8d4c2c803f7",
+      "trigger_keyword": "potenziale",
+      "headline_white": "Sblocca Il Suo Vero Potenziale",
+      "headline_gold": "In Soli 90 Giorni.",
+      "subtitle": "Ha talento — lo vedi ogni giorno. Ma sta giocando <strong>al 30% delle sue capacità</strong>. Il Metodo Sincro® è l'unico percorso in Italia che <strong>garantisce risultati per contratto</strong>.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "e5189b31-c795-4e48-aeca-d08d7cd7f87a",
+      "trigger_keyword": "efficiency",
+      "headline_white": "Stesso Ragazzo. Stessa Tecnica.",
+      "headline_gold": "Risultati Opposti.",
+      "subtitle": "Ogni giorno che passa, <strong>il gap tra il suo talento e i suoi risultati si allarga</strong>. Il Metodo Sincro® trasforma la mentalità del tuo figlio e sblocca il suo <strong>potenziale nascosto</strong> in soli 90 giorni.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "93816dd0-22a3-4c93-8fd4-9842a9330dde",
+      "trigger_keyword": "system",
+      "headline_white": "Mentalità Vincente: Non Si Nasce,",
+      "headline_gold": "Si Diventa. Col Giusto Metodo.",
+      "subtitle": "Non lasciare la crescita del tuo figlio al caso o all'ambiente sbagliato. Il Metodo Sincro® fornisce <strong>gli strumenti mentali</strong> usati dai professionisti per <strong>performare sotto pressione</strong> e trasformare i blocchi in sicurezza.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "88c53e01-eee3-47e1-9739-abdb938bdc22",
+      "trigger_keyword": "status",
+      "headline_white": "Unisciti All'Elite.",
+      "headline_gold": "Il Percorso Che Trasforma I Campioni.",
+      "subtitle": "Migliaia di atleti si perdono per strada. <strong>Solo chi domina la propria mente</strong> arriva in alto. Questo è il programma avanzato scelto da <strong>decine di atleti che oggi giocano tra i Professionisti</strong>.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "34d3138c-fe54-44a6-9b37-a06b2b7a3340",
+      "trigger_keyword": "education",
+      "headline_white": "Perché Il 90% Dei Giovani Calciatori",
+      "headline_gold": "Si Perde Prima Dei 18 Anni?",
+      "subtitle": "Non è la mancanza di tecnica. È <strong>l'incapacità di gestire la pressione</strong>, l'ansia e il giudizio. Scopri come il Metodo Sincro® costruisce una <strong>corazza mentale</strong> indistruttibile in 90 giorni.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "9fdd2035-380f-4178-9a63-f9c7ab3a9150",
+      "trigger_keyword": "growth",
+      "headline_white": "Da Bloccato e Insicuro",
+      "headline_gold": "A Leader In Campo In 90 Giorni.",
+      "subtitle": "Vostro figlio ha le qualità. Ma <strong>la paura e l'insicurezza</strong> lo frenano. Il Metodo Sincro® è il percorso che ha già trasformato <strong>1.100 giovani calciatori</strong>. Il percorso formativo mentale N°1 in Italia.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "435c97b0-1c84-4a6a-9129-a001b1e153a3",
+      "trigger_keyword": "authority",
+      "headline_white": "Il Primo Programma In Italia",
+      "headline_gold": "Con Coach Sportivi CONI Certificati.",
+      "subtitle": "Non affidate la mente del tuo figlio a \"motivatori\" improvvisati. Scegli un pool di <strong>psicologi dello sport e coach certificati</strong> dedicati a <strong>settori giovanili e atleti professionisti</strong>.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "2e406199-bedc-4b61-9a10-69c8a2a3c217",
+      "trigger_keyword": "security",
+      "headline_white": "Otteniamo Il Risultato",
+      "headline_gold": "Oppure Sei Rimborsato al 100%. È Matematico.",
+      "subtitle": "L'unico percorso per atleti giovani con la <strong>Garanzia Sincro™</strong>. Eliminiamo ansia e blocchi o <strong>l'intero programma è gratuito</strong>. Non rischi nulla, ma puoi salvare la sua carriera.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "58ac705a-42a2-484b-b61e-df02ca3b7a89",
+      "trigger_keyword": "trauma",
+      "headline_white": "Ti Fa Male Vederlo Così, Vero?",
+      "headline_gold": "Sappiamo Come Farlo Tornare A Sorridere.",
+      "subtitle": "Ogni settimana che aspetti, il suo autostima scende un po'. <strong>Smetti di guardare soffrendo</strong> la sua insicurezza. Il nostro team sa <strong>esattamente come riportarlo in campo</strong> con il sorriso che merita.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "b8c49320-e538-4397-b42d-f8c1111106ab",
+      "trigger_keyword": "decision",
+      "headline_white": "Decine di Video-Testimonianze.",
+      "headline_gold": "Zero Promesse, Solo Fatti.",
+      "subtitle": "Guarda i risultati di chi ci è passato nella <strong>vostra stessa situazione</strong>. 90 giorni sono tutto ciò che serve per <strong>sbloccare la mente</strong> e cambiare i risultati in pagella e sul tabellino.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "53bc00cd-f963-472b-838c-8b720267b44e",
+      "trigger_keyword": "sport_performance",
+      "headline_white": "Il Lato Nascosto del Calcio:",
+      "headline_gold": "La Mente Comanda I Muscoli.",
+      "subtitle": "Gli allenamenti sul campo non bastano più quando <strong>il blocco è nella testa</strong>. Impara le tecniche di <strong>performance-psychology</strong> per massimizzare tempo di reazione e lettura tattica sotto stress.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "3ac0b6f6-135d-461a-bf07-579bfa7f5284",
+      "trigger_keyword": "emotional",
+      "headline_white": "In Allenamento È Un Altro.",
+      "headline_gold": "In Partita Si Spegne.",
+      "subtitle": "Ha il talento. Ma qualcosa <strong>lo blocca ogni volta</strong>. Non è un problema tecnico — è una questione di <strong>approccio mentale</strong>. E con il percorso giusto, si risolve in 90 giorni.",
+      "theme": "default",
+      "created_at": "2026-04-03T10:46:50.437297+00:00"
+    },
+    {
+      "id": "a88c6de5-502c-403a-a75e-75728e8d50e9",
+      "trigger_keyword": "tennis",
+      "headline_white": "Tuo Figlio Gioca A Tennis?",
+      "headline_gold": "La Testa Comanda La Racchetta.",
+      "subtitle": "Vedi tuo figlio spegnersi dopo il primo set, commettere doppi falli nei punti decisivi o perdere fiducia per un errore? Il Metodo Sincro® costruisce una <strong>mentalità vincente</strong> per sbloccare il suo vero potenziale.",
+      "theme": "default",
+      "created_at": "2026-06-23T07:44:13.836812+00:00"
+    }
+  ]
+}

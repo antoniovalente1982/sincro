@@ -1,0 +1,2453 @@
+{
+  "read_at": "2026-09-30T14:09:03.023Z",
+  "campaign": {
+    "id": "120251955029350047",
+    "name": "MS | LEAD WEB | Form contatto | 6 Video | 01.10.2026",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "objective": "OUTCOME_LEADS",
+    "special_ad_categories": []
+  },
+  "adset": {
+    "id": "120251955037690047",
+    "name": "Imprenditori lusso calcio + Genitori 9-26 | 38-60 | 10 regioni | Form contatto",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "daily_budget": "10000",
+    "lifetime_budget": "0",
+    "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+    "optimization_goal": "OFFSITE_CONVERSIONS",
+    "promoted_object": {
+      "pixel_id": "311586900940615",
+      "custom_event_type": "LEAD",
+      "smart_pse_enabled": false
+    },
+    "destination_type": "WEBSITE",
+    "start_time": "2026-10-01T00:01:00+0200",
+    "attribution_spec": [
+      {
+        "event_type": "CLICK_THROUGH",
+        "window_days": 7
+      },
+      {
+        "event_type": "VIEW_THROUGH",
+        "window_days": 1
+      },
+      {
+        "event_type": "ENGAGED_VIDEO_VIEW",
+        "window_days": 1
+      }
+    ],
+    "targeting": {
+      "age_max": 60,
+      "age_min": 38,
+      "flexible_spec": [
+        {
+          "interests": [
+            {
+              "id": "6002884511422",
+              "name": "Piccola impresa (affari e finanza)"
+            },
+            {
+              "id": "6003136069408",
+              "name": "Piccole e medie imprese (affari e finanza)"
+            },
+            {
+              "id": "6003371567474",
+              "name": "Imprenditorialità (affari e finanza)"
+            },
+            {
+              "id": "6003375611996",
+              "name": "Impresa individuale (affari e finanza)"
+            },
+            {
+              "id": "6003388314512",
+              "name": "Investimento (affari e finanza)"
+            },
+            {
+              "id": "6003402305839",
+              "name": "Azienda (affari e finanza)"
+            },
+            {
+              "id": "6003587074473",
+              "name": "Investitore (investimenti)"
+            }
+          ],
+          "behaviors": [
+            {
+              "id": "6002714898572",
+              "name": "Small business owners"
+            }
+          ],
+          "work_employers": [
+            {
+              "id": "109288035760640",
+              "name": "Business Owner"
+            },
+            {
+              "id": "137642586254132",
+              "name": "Owner at own business"
+            },
+            {
+              "id": "1393087040960895",
+              "name": "Business Owners"
+            },
+            {
+              "id": "140296506001448",
+              "name": "Own Business"
+            },
+            {
+              "id": "164608847064376",
+              "name": "Owner"
+            },
+            {
+              "id": "373921602761077",
+              "name": "Self-Employed"
+            },
+            {
+              "id": "680461205375055",
+              "name": "Business Owner"
+            }
+          ],
+          "work_positions": [
+            {
+              "id": "104096132959364",
+              "name": "Business"
+            },
+            {
+              "id": "105563979478424",
+              "name": "Executive director"
+            },
+            {
+              "id": "108595432498170",
+              "name": "Senior management"
+            },
+            {
+              "id": "109288035760640",
+              "name": "Business Owner"
+            },
+            {
+              "id": "110722838955052",
+              "name": "Owner"
+            },
+            {
+              "id": "112558655421889",
+              "name": "Chief financial officer"
+            },
+            {
+              "id": "116885444988542",
+              "name": "Director general"
+            },
+            {
+              "id": "117677474946712",
+              "name": "Owner/Manager/CEO"
+            },
+            {
+              "id": "124458480932025",
+              "name": "Co-Founder and COO"
+            },
+            {
+              "id": "125701090809960",
+              "name": "Founder/Manager"
+            },
+            {
+              "id": "126237404086327",
+              "name": "Co Owner"
+            },
+            {
+              "id": "133337610036491",
+              "name": "Founder, Director, CEO"
+            },
+            {
+              "id": "138050029568986",
+              "name": "Owner and Founder"
+            },
+            {
+              "id": "138434539530345",
+              "name": "Owner/Managing Director"
+            },
+            {
+              "id": "140296506001448",
+              "name": "Own Business"
+            },
+            {
+              "id": "140984096035383",
+              "name": "Chairman & Managing Director"
+            },
+            {
+              "id": "142177312468564",
+              "name": "Franchise Owner/Operator"
+            },
+            {
+              "id": "143727678985148",
+              "name": "Founder and Managing Director"
+            },
+            {
+              "id": "144007428961004",
+              "name": "Owner/Sole Proprietor"
+            },
+            {
+              "id": "149598488387016",
+              "name": "Owner and CEO"
+            },
+            {
+              "id": "149657818421934",
+              "name": "Director (business)"
+            },
+            {
+              "id": "183861164967987",
+              "name": "Managing Director"
+            },
+            {
+              "id": "321873851343665",
+              "name": "Business Owner/Engineer"
+            },
+            {
+              "id": "874842615892965",
+              "name": "Managing Director"
+            }
+          ]
+        },
+        {
+          "interests": [
+            {
+              "id": "6002983066219",
+              "name": "Balenciaga (brand di moda)"
+            },
+            {
+              "id": "6003028976219",
+              "name": "Land Rover (veicolo)"
+            },
+            {
+              "id": "6003029763455",
+              "name": "International Watch Company"
+            },
+            {
+              "id": "6003069363782",
+              "name": "Ferrari (veicoli)"
+            },
+            {
+              "id": "6003076027139",
+              "name": "Viaggio in prima classe (azienda viaggi e turismo)"
+            },
+            {
+              "id": "6003121397334",
+              "name": "circolo nautico (club e associazioni di interesse)"
+            },
+            {
+              "id": "6003122958658",
+              "name": "Nautica (attività all'aperto)"
+            },
+            {
+              "id": "6003133223328",
+              "name": "Lusso (magazine)"
+            },
+            {
+              "id": "6003137508950",
+              "name": "Giorgio Armani"
+            },
+            {
+              "id": "6003161093178",
+              "name": "Porsche"
+            },
+            {
+              "id": "6003165411122",
+              "name": "Gucci (brand di moda)"
+            },
+            {
+              "id": "6003200432882",
+              "name": "Givenchy (brand di moda)"
+            },
+            {
+              "id": "6003202336613",
+              "name": "Hermès (abbigliamento)"
+            },
+            {
+              "id": "6003241598211",
+              "name": "Rolls-Royce Motor Cars"
+            },
+            {
+              "id": "6003241714213",
+              "name": "Burberry (abbigliamento)"
+            },
+            {
+              "id": "6003246597567",
+              "name": "Hublot"
+            },
+            {
+              "id": "6003257785488",
+              "name": "BMW (veicoli)"
+            },
+            {
+              "id": "6003279451780",
+              "name": "Chanel (brand di moda)"
+            },
+            {
+              "id": "6003280577423",
+              "name": "yachting (imbarcazioni e natanti)"
+            },
+            {
+              "id": "6003283305854",
+              "name": "Vacheron Constantin"
+            },
+            {
+              "id": "6003284637727",
+              "name": "Lexus (veicoli)"
+            },
+            {
+              "id": "6003293721530",
+              "name": "Mercedes-Benz (veicoli)"
+            },
+            {
+              "id": "6003306942514",
+              "name": "Patek Philippe & Co. (orologi)"
+            },
+            {
+              "id": "6003308770453",
+              "name": "Moschino"
+            },
+            {
+              "id": "6003338009689",
+              "name": "Yacht (natante)"
+            },
+            {
+              "id": "6003352779232",
+              "name": "Business class (viaggi in aereo)"
+            },
+            {
+              "id": "6003368599202",
+              "name": "Louis Vuitton (brand di moda)"
+            },
+            {
+              "id": "6003371567474",
+              "name": "Imprenditorialità (affari e finanza)"
+            },
+            {
+              "id": "6003382700604",
+              "name": "Audemars Piguet"
+            },
+            {
+              "id": "6003383552337",
+              "name": "Resort di lusso (alloggio)"
+            },
+            {
+              "id": "6003397425735",
+              "name": "Tennis (sport)"
+            },
+            {
+              "id": "6003397432935",
+              "name": "Audi (veicoli)"
+            },
+            {
+              "id": "6003402305839",
+              "name": "Azienda (affari e finanza)"
+            },
+            {
+              "id": "6003431493391",
+              "name": "Bulgari (beni di lusso)"
+            },
+            {
+              "id": "6003435546331",
+              "name": "Versace (brand di moda)"
+            },
+            {
+              "id": "6003456879344",
+              "name": "Lamborghini (veicoli)"
+            },
+            {
+              "id": "6003481889069",
+              "name": "Tennis Channel"
+            },
+            {
+              "id": "6003496694880",
+              "name": "Jaguar"
+            },
+            {
+              "id": "6003508325964",
+              "name": "Tiffany & Co. (beni di lusso)"
+            },
+            {
+              "id": "6003510075864",
+              "name": "Golf (sport)"
+            },
+            {
+              "id": "6003516735664",
+              "name": "Yves Saint Laurent (brand)"
+            },
+            {
+              "id": "6003567824118",
+              "name": "Maserati"
+            },
+            {
+              "id": "6003587678073",
+              "name": "Rolex (orologi)"
+            },
+            {
+              "id": "6003702639291",
+              "name": "Bentley"
+            },
+            {
+              "id": "6003713880583",
+              "name": "Armani (abbigliamento)"
+            },
+            {
+              "id": "6003715005316",
+              "name": "Yacht di lusso (natante)"
+            },
+            {
+              "id": "6003762134517",
+              "name": "Cartier (gioielliere)"
+            },
+            {
+              "id": "6003954452466",
+              "name": "Panerai"
+            },
+            {
+              "id": "6004037107009",
+              "name": "Barche (natante)"
+            },
+            {
+              "id": "6004048615096",
+              "name": "Veicolo di lusso (veicoli)"
+            },
+            {
+              "id": "6005522768944",
+              "name": "Breitling"
+            },
+            {
+              "id": "6007828099136",
+              "name": "Beni di lusso (vendita al dettaglio)"
+            }
+          ],
+          "behaviors": [
+            {
+              "id": "6002714895372",
+              "name": "Frequent Travelers"
+            },
+            {
+              "id": "6022788483583",
+              "name": "Frequent international travelers"
+            }
+          ],
+          "work_employers": [
+            {
+              "id": "157271317637124",
+              "name": "Tennis"
+            }
+          ],
+          "work_positions": [
+            {
+              "id": "1550034451925087",
+              "name": "Tennis Professional"
+            }
+          ]
+        },
+        {
+          "interests": [
+            {
+              "id": "6002995710444",
+              "name": "UEFA Champions League"
+            },
+            {
+              "id": "6003030389007",
+              "name": "Tottenham Hotspur Football Club"
+            },
+            {
+              "id": "6003062447007",
+              "name": "Lionel Messi"
+            },
+            {
+              "id": "6003064617670",
+              "name": "Arsenal Football Club"
+            },
+            {
+              "id": "6003066202070",
+              "name": "Primera División"
+            },
+            {
+              "id": "6003095982582",
+              "name": "Liverpool Football Club (squadra di calcio)"
+            },
+            {
+              "id": "6003107902433",
+              "name": "Calcio (calcio)"
+            },
+            {
+              "id": "6003108404190",
+              "name": "Real Madrid Club de Fútbol"
+            },
+            {
+              "id": "6003110325672",
+              "name": "Cristiano Ronaldo"
+            },
+            {
+              "id": "6003147437665",
+              "name": "Futbol Club Barcelona"
+            },
+            {
+              "id": "6003162931434",
+              "name": "Football universitario (sport universitario)"
+            },
+            {
+              "id": "6003175194449",
+              "name": "Campionato mondiale di calcio"
+            },
+            {
+              "id": "6003220643158",
+              "name": "Manchester United Football Club"
+            },
+            {
+              "id": "6003221970476",
+              "name": "FC Bayern Monaco"
+            },
+            {
+              "id": "6003239921001",
+              "name": "Serie A"
+            },
+            {
+              "id": "6003269553527",
+              "name": "Sport (sport)"
+            },
+            {
+              "id": "6003280305243",
+              "name": "West Ham United Football Club"
+            },
+            {
+              "id": "6003285600543",
+              "name": "Newcastle United Football Club"
+            },
+            {
+              "id": "6003297665308",
+              "name": "Associazione Calcio Milan"
+            },
+            {
+              "id": "6003306191253",
+              "name": "Premier League (campionato di calcio)"
+            },
+            {
+              "id": "6003319357759",
+              "name": "Chelsea Football Club"
+            },
+            {
+              "id": "6003350242199",
+              "name": "UEFA Europa League (competizione di calcio)"
+            },
+            {
+              "id": "6003354236021",
+              "name": "Bundesliga"
+            },
+            {
+              "id": "6003359788860",
+              "name": "Nazionale di calcio dell'Italia"
+            },
+            {
+              "id": "6003424358337",
+              "name": "Crystal Palace Football Club"
+            },
+            {
+              "id": "6003432221791",
+              "name": "FIFA (lega professionistica)"
+            },
+            {
+              "id": "6003440191931",
+              "name": "Juventus Football Club"
+            },
+            {
+              "id": "6003442346642",
+              "name": "Calcio (sport)"
+            },
+            {
+              "id": "6003655184478",
+              "name": "Leicester City Football Club"
+            },
+            {
+              "id": "6003703378313",
+              "name": "Union of European Football Associations"
+            },
+            {
+              "id": "6003760502478",
+              "name": "Everton Football Club"
+            },
+            {
+              "id": "6004034488209",
+              "name": "Ligue 1"
+            },
+            {
+              "id": "6004177298095",
+              "name": "Manchester City Football Club (squadra di calcio)"
+            },
+            {
+              "id": "6004905707670",
+              "name": "Inter"
+            },
+            {
+              "id": "6788976336705",
+              "name": "Squadre di calcio internazionali (sport)"
+            }
+          ]
+        },
+        {
+          "family_statuses": [
+            {
+              "id": "6023005681983",
+              "name": "Parents with teenagers (13-17 years)"
+            },
+            {
+              "id": "6023005718983",
+              "name": "Parents with adult children (18-26 years) "
+            },
+            {
+              "id": "6023080302983",
+              "name": "Parents with preteens (09-12 years)"
+            }
+          ]
+        }
+      ],
+      "geo_locations": {
+        "regions": [
+          {
+            "key": "1845",
+            "name": "Emilia-Romagna",
+            "country": "IT"
+          },
+          {
+            "key": "1846",
+            "name": "Friuli-Venezia Giulia",
+            "country": "IT"
+          },
+          {
+            "key": "1847",
+            "name": "Lazio",
+            "country": "IT"
+          },
+          {
+            "key": "1848",
+            "name": "Liguria",
+            "country": "IT"
+          },
+          {
+            "key": "1849",
+            "name": "Lombardia",
+            "country": "IT"
+          },
+          {
+            "key": "1852",
+            "name": "Piedmont",
+            "country": "IT"
+          },
+          {
+            "key": "1853",
+            "name": "Puglia",
+            "country": "IT"
+          },
+          {
+            "key": "1856",
+            "name": "Tuscany",
+            "country": "IT"
+          },
+          {
+            "key": "1857",
+            "name": "Trentino-Alto Adige",
+            "country": "IT"
+          },
+          {
+            "key": "1860",
+            "name": "Veneto",
+            "country": "IT"
+          }
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "locales": [
+        10
+      ],
+      "brand_safety_content_filter_levels": [
+        "FACEBOOK_RELAXED"
+      ],
+      "targeting_automation": {
+        "advantage_audience": 0,
+        "individual_setting": {
+          "age": 0,
+          "gender": 1,
+          "geo": 1
+        }
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed",
+        "right_hand_column",
+        "instream_video",
+        "marketplace",
+        "story",
+        "search",
+        "facebook_reels",
+        "facebook_reels_overlay",
+        "profile_feed",
+        "notification"
+      ],
+      "instagram_positions": [
+        "stream",
+        "story",
+        "explore",
+        "reels",
+        "explore_home",
+        "profile_feed",
+        "ig_search"
+      ],
+      "device_platforms": [
+        "mobile",
+        "desktop"
+      ]
+    },
+    "dsa_beneficiary": "Antonio Valente"
+  },
+  "ads": [
+    {
+      "id": "120251955041780047",
+      "name": "#15 Diagnostic Buyers | Authority | MOFU — Video | V01 R1 T: blocchi",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "creative": {
+        "id": "1413087326815997",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "3403065486564456",
+            "title": "Quando la correzione diventa «sono scarso»",
+            "message": "Il mister lo corregge. Due secondi dopo, tuo figlio non gioca più.\n\nNon perché non abbia capito l’indicazione. Perché in quei due secondi, dentro la sua testa, «devi muoverti prima» è diventato «sono scarso».\n\nÈ uno dei meccanismi che vediamo più spesso nei ragazzi che seguiamo: una correzione tecnica vissuta come un giudizio sul proprio valore. Da lì arrivano le giocate nascoste, la paura di sbagliare di nuovo, il rendimento che cala.\n\nNel video ti spiego cosa succede in quei due secondi e quali domande fargli a casa, senza trasformarle in un interrogatorio.\n\nSe pensi che sia quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti con il nostro team: ascoltiamo la situazione e ti diciamo con sincerità se e come possiamo aiutarlo.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQIr08wr3auN9XJhNrLENvIOrECgUxNPXXujQ3PHkhQEEljpjwiejdv1m_Ua1T8p3VgyvJouePVUwreE6BJ0lBgsnbtY14QL-kh_AssLU1V44uzx8BPtQMGkkAs58viXrHML6BV_0E7xAgbEZS2fuQ1M",
+            "image_hash": "66b3563b98b9bf98e65b49cc531b9bf6"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251955045850047",
+      "name": "#10 Why-Y-Works Buyers | Decision | BOFU — Video | V02 R1 T: sport_performance",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "creative": {
+        "id": "2316038992488598",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1795496798260358",
+            "title": "La mente si allena, come il fisico",
+            "message": "Kimi Antonelli, LeBron James, Cristiano Ronaldo. Tre sport diversi, un punto in comune: allenano anche la testa.\n\nVisualizzazione, concentrazione, dialogo interno: per i campioni sono parte della preparazione, non un extra.\n\nNei ragazzi succede spesso il contrario. Si lavora su tecnica e fisico, e la testa si lascia al caso, finché in partita non arriva il blocco.\n\nCon il Metodo Sincro® un coach dedicato allena tuo figlio su sicurezza, concentrazione e gestione della pressione, in un percorso individuale online.\n\nPrenota una telefonata di 15 minuti: capiamo insieme se il percorso è adatto a lui.\n\nGli atleti citati non sono collegati al Metodo Sincro®.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQKfWZA2z1bTWYOCzd4A7zMqmD09MH7VgBED6u7UGcm2er9yR7haQSfUndI4h3Z48QyvUq3WmRBXaBEjHjx0-cTaB-yefAuWrfFtBKa0745zlSRBLe13R06jjKxDAKMiah0LCAWRgU7CnXaKiBCfAy9i",
+            "image_hash": "0305d62da4d34eeab80f3e5fb60215a7"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251955050490047",
+      "name": "#13 Method Buyers | Authority | MOFU — Video | V03 R1 T: mental_coaching",
+      "status": "PAUSED",
+      "effective_status": "PENDING_REVIEW",
+      "creative": {
+        "id": "1076587192027308",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1461339359185754",
+            "title": "Le 3 chiavi mentali di chi cresce in campo",
+            "message": "«Non sono abbastanza bravo» e «cosa posso fare meglio?». Sembrano simili. Portano in direzioni opposte.\n\nLa differenza tra i ragazzi che crescono e quelli che si fermano si vede soprattutto quando le cose vanno male.\n\nNel video ti mostro le 3 chiavi mentali su cui lavoriamo con i ragazzi che seguiamo:\n1. Direzione: un obiettivo concreto, non un desiderio generico\n2. Attenzione: un compito preciso su cui concentrarsi in campo\n3. Ripartire: cosa fare subito dopo l’errore\n\nSe vuoi capire come si applicano a tuo figlio, prenota una telefonata di 15 minuti con il nostro team.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQIXzW01RAIgPyuCLOM1dhl2dU09WMuFeiAeYEc1awNs_5vk8KiSjUL-LoTrH5b2QBufNx9ZZl4FknoZYNBjStgSTo29sWpUPOCTe3yYpnfMDuoxEhD2oP7JvwsjjMO8pqfq3RvvqLaGFTBExip9hztI",
+            "image_hash": "00ea753dac15faa70184754e6672bfba"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251955054480047",
+      "name": "#58 Plateau-Break Buyers | Growth | MOFU — Video | V04 R1 T: talento",
+      "status": "PAUSED",
+      "effective_status": "IN_PROCESS",
+      "creative": {
+        "id": "1652122416348256",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1628640385416507",
+            "title": "Talento sì. Costanza no. Perché?",
+            "message": "Ha talento. Una partita è il migliore in campo, quella dopo sparisce.\n\nSe tuo figlio è così, non è solo una questione tecnica. La costanza si costruisce con comportamenti che restano utili anche nelle giornate storte.\n\nNel video ti mostro le tre cose da osservare nella sua prossima partita:\n1. La prima giocata: prende coraggio o si nasconde?\n2. Restare coinvolto: comunica, cerca spazio, si fa trovare disponibile?\n3. Dopo l’errore: alza lo sguardo, riprende posizione, offre una soluzione?\n\nPoi, se vuoi, parliamone: prenota una telefonata di 15 minuti e ti diciamo con sincerità se e come possiamo aiutarlo.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQJsraEB3h95tG8CZaDDXN3DzN7UXMNNBWnOG6HBt9wiZAgXSboRmqV-eAVuwaTKnHaKWjbA274nzbFd8mCteQXBfHTcDDW3h9hQRAR-c-B-l591gc-nDoH_kphhbCjpQctPUJiDWHFSe_6O5ujtaIaI",
+            "image_hash": "7b918cfed1c4aef73a4e2c29f64cdb55"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251955059230047",
+      "name": "#45 Stress-Driven Buyers | Emotional | MOFU — Video | V05 R1 T: pressione",
+      "status": "PAUSED",
+      "effective_status": "IN_PROCESS",
+      "creative": {
+        "id": "1788083245843407",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1098456156225140",
+            "title": "Cosa dirgli prima della partita",
+            "message": "Mancano due ore alla partita. Tuo figlio è sul divano, teso. E «stai tranquillo» non basta.\n\nAnzi, spesso peggiora le cose: gli dice che la sua tensione è sbagliata, senza dargli niente da fare.\n\nNel video ti spiego cosa fare in quelle due ore, in tre passi:\n1. Ascolta senza giudicare\n2. Chiedi: «cosa ti preoccupa di più?»\n3. Costruite insieme una routine pre-partita\n\nIl tuo compito non è togliergli la pressione, è aiutarlo a gestirla. Se vuoi un confronto su come farlo con tuo figlio, prenota una telefonata di 15 minuti con il nostro team.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQLZeNWQ11qoY3zrUhHzIsewnAuezECFLYr_1NOn8m4u6dOR_p2H-hUpInd0U4cG4c-ysfSB_m7jrgav57x8kysYTiZCiPDhphfmNBlz86BYpy94E2i7Zn7yduwzsDikHgnw8b_nB2lwmuIvjmXI2plh",
+            "image_hash": "90198deca5c8123c7749f34fbd07b50c"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "120251955063510047",
+      "name": "#57 Next-Level Buyers | Growth | MOFU — Video | V06 R1 T: growth",
+      "status": "PAUSED",
+      "effective_status": "IN_PROCESS",
+      "creative": {
+        "id": "1081075444521515",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "2283924015763833",
+            "title": "Salto di categoria: e se gioca meno?",
+            "message": "È salito di categoria. Ora gioca meno. E a casa lo vedi spegnersi.\n\nPassare da titolare a panchina è uno dei momenti più delicati per un ragazzo. Giocare meno non significa automaticamente crescere: dipende da come vive questo periodo.\n\nNel video ti mostro tre cose che fanno la differenza:\n1. Cambiare ruolo: da titolare a chi conquista il proprio spazio\n2. Chiedere all’allenatore indicazioni precise, non un generico «impegnati di più»\n3. Come reagire a casa dopo la prima esclusione\n\nSe è quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti: capiamo insieme come aiutarlo a restare, lavorare e costruire nel tempo.",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            },
+            "image_url": "https://www.facebook.com/ads/image/?d=AQLBCmU9q-_b8Tpx1H7qXczAaRjls7QW-y9FzuE2QcT1PTT2mc8-00eJUMAsVSM8sDdyq_otTqScEuogGzWNzkOWQIIyGHr2GjV2W0E8Rb963C9LsLs3PDw_b6oJxmrh8QSNOBrlqeDgCU-GwG7YkYtm",
+            "image_hash": "0e61184ac50dfc98181be3d2af503356"
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ads_with_benefits": {
+              "enroll_status": "OPT_OUT"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "OPT_OUT"
+            },
+            "app_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "biz_ai": {
+              "enroll_status": "OPT_OUT"
+            },
+            "carousel_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "creative_stickers": {
+              "enroll_status": "OPT_OUT"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "cv_transformation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dha_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "dynamic_partner_content": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enable_ncs_testimonials": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "fb_story_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "generate_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hide_price": {
+              "enroll_status": "OPT_OUT"
+            },
+            "hyperlink_formatting": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_feed_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_glados_feed": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_reels_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_stream_tag": {
+              "enroll_status": "OPT_OUT"
+            },
+            "ig_video_native_subtitle": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_animation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_background_gen": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_banner": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_end_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_enhancement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_templates": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_touchups": {
+              "enroll_status": "OPT_OUT"
+            },
+            "image_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "local_store_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_order": {
+              "enroll_status": "OPT_OUT"
+            },
+            "media_type_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "OPT_OUT"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "OPT_OUT"
+            },
+            "music_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_recomposition": {
+              "enroll_status": "OPT_OUT"
+            },
+            "pac_relaxation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_browsing": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "product_tags": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_card": {
+              "enroll_status": "OPT_OUT"
+            },
+            "profile_extension": {
+              "enroll_status": "OPT_OUT"
+            },
+            "replace_media_text": {
+              "enroll_status": "OPT_OUT"
+            },
+            "reveal_details_over_time": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_destination_blurbs": {
+              "enroll_status": "OPT_OUT"
+            },
+            "show_summary": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "standard_enhancements_catalog": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_generation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "translate_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlight": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_highlights": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_to_image": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_voiceover": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_image_filtering": {
+              "enroll_status": "OPT_OUT"
+            },
+            "wa_mm_text_truncation_length": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "campagna OUTCOME_LEADS in pausa",
+      "ok": true
+    },
+    {
+      "name": "budget 100€/giorno sull adset, nessun limite o fine",
+      "ok": false
+    },
+    {
+      "name": "ottimizzazione Lead sul pixel 615",
+      "ok": true
+    },
+    {
+      "name": "partenza 1/10 00:01 Roma",
+      "ok": true
+    },
+    {
+      "name": "gruppo genitori 9-26 presente",
+      "ok": true
+    },
+    {
+      "name": "4 gruppi in AND (imprenditori, lusso, calcio, genitori)",
+      "ok": true
+    },
+    {
+      "name": "età 38-60, italiano, 10 regioni",
+      "ok": true
+    },
+    {
+      "name": "V01 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    },
+    {
+      "name": "V02 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    },
+    {
+      "name": "V03 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    },
+    {
+      "name": "V04 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    },
+    {
+      "name": "V05 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    },
+    {
+      "name": "V06 testo/titolo/link/CTA/pagina/IG",
+      "ok": true
+    }
+  ]
+}

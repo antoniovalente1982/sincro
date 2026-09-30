@@ -1,0 +1,1172 @@
+{
+  "created_at": "2026-09-30T14:02:55.922Z",
+  "campaign": {
+    "id": "120251955029350047",
+    "requested": {
+      "name": "MS | LEAD WEB | Form contatto | 6 Video | 01.10.2026",
+      "objective": "OUTCOME_LEADS",
+      "buying_type": "AUCTION",
+      "status": "PAUSED",
+      "special_ad_categories": [],
+      "is_adset_budget_sharing_enabled": false
+    }
+  },
+  "adset": {
+    "id": "120251955037690047",
+    "requested": {
+      "name": "Imprenditori lusso calcio + Genitori 9-26 | 38-60 | 10 regioni | Form contatto",
+      "campaign_id": "120251955029350047",
+      "status": "PAUSED",
+      "daily_budget": 10000,
+      "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+      "billing_event": "IMPRESSIONS",
+      "optimization_goal": "OFFSITE_CONVERSIONS",
+      "destination_type": "WEBSITE",
+      "promoted_object": {
+        "pixel_id": "311586900940615",
+        "custom_event_type": "LEAD"
+      },
+      "attribution_spec": [
+        {
+          "event_type": "CLICK_THROUGH",
+          "window_days": 7
+        },
+        {
+          "event_type": "VIEW_THROUGH",
+          "window_days": 1
+        },
+        {
+          "event_type": "ENGAGED_VIDEO_VIEW",
+          "window_days": 1
+        }
+      ],
+      "start_time": "2026-10-01T00:01:00+0200",
+      "dsa_beneficiary": "Antonio Valente",
+      "dsa_payor": "Antonio Valente",
+      "targeting": {
+        "age_min": 38,
+        "age_max": 60,
+        "geo_locations": {
+          "regions": [
+            {
+              "key": "1845",
+              "name": "Emilia-Romagna",
+              "country": "IT"
+            },
+            {
+              "key": "1846",
+              "name": "Friuli-Venezia Giulia",
+              "country": "IT"
+            },
+            {
+              "key": "1847",
+              "name": "Lazio",
+              "country": "IT"
+            },
+            {
+              "key": "1848",
+              "name": "Liguria",
+              "country": "IT"
+            },
+            {
+              "key": "1849",
+              "name": "Lombardia",
+              "country": "IT"
+            },
+            {
+              "key": "1852",
+              "name": "Piedmont",
+              "country": "IT"
+            },
+            {
+              "key": "1853",
+              "name": "Puglia",
+              "country": "IT"
+            },
+            {
+              "key": "1856",
+              "name": "Tuscany",
+              "country": "IT"
+            },
+            {
+              "key": "1857",
+              "name": "Trentino-Alto Adige",
+              "country": "IT"
+            },
+            {
+              "key": "1860",
+              "name": "Veneto",
+              "country": "IT"
+            }
+          ],
+          "location_types": [
+            "frequently_in",
+            "home",
+            "recent"
+          ]
+        },
+        "locales": [
+          10
+        ],
+        "flexible_spec": [
+          {
+            "interests": [
+              {
+                "id": "6002884511422",
+                "name": "Piccola impresa (affari e finanza)"
+              },
+              {
+                "id": "6003136069408",
+                "name": "Piccole e medie imprese (affari e finanza)"
+              },
+              {
+                "id": "6003371567474",
+                "name": "Imprenditorialità (affari e finanza)"
+              },
+              {
+                "id": "6003375611996",
+                "name": "Impresa individuale (affari e finanza)"
+              },
+              {
+                "id": "6003388314512",
+                "name": "Investimento (affari e finanza)"
+              },
+              {
+                "id": "6003402305839",
+                "name": "Azienda (affari e finanza)"
+              },
+              {
+                "id": "6003587074473",
+                "name": "Investitore (investimenti)"
+              }
+            ],
+            "behaviors": [
+              {
+                "id": "6002714898572",
+                "name": "Small business owners"
+              }
+            ],
+            "work_employers": [
+              {
+                "id": "109288035760640",
+                "name": "Business Owner"
+              },
+              {
+                "id": "137642586254132",
+                "name": "Owner at own business"
+              },
+              {
+                "id": "1393087040960895",
+                "name": "Business Owners"
+              },
+              {
+                "id": "140296506001448",
+                "name": "Own Business"
+              },
+              {
+                "id": "164608847064376",
+                "name": "Owner"
+              },
+              {
+                "id": "373921602761077",
+                "name": "Self-Employed"
+              },
+              {
+                "id": "680461205375055",
+                "name": "Business Owner"
+              }
+            ],
+            "work_positions": [
+              {
+                "id": "104096132959364",
+                "name": "Business"
+              },
+              {
+                "id": "105563979478424",
+                "name": "Executive director"
+              },
+              {
+                "id": "108595432498170",
+                "name": "Senior management"
+              },
+              {
+                "id": "109288035760640",
+                "name": "Business Owner"
+              },
+              {
+                "id": "110722838955052",
+                "name": "Owner"
+              },
+              {
+                "id": "112558655421889",
+                "name": "Chief financial officer"
+              },
+              {
+                "id": "116885444988542",
+                "name": "Director general"
+              },
+              {
+                "id": "117677474946712",
+                "name": "Owner/Manager/CEO"
+              },
+              {
+                "id": "124458480932025",
+                "name": "Co-Founder and COO"
+              },
+              {
+                "id": "125701090809960",
+                "name": "Founder/Manager"
+              },
+              {
+                "id": "126237404086327",
+                "name": "Co Owner"
+              },
+              {
+                "id": "133337610036491",
+                "name": "Founder, Director, CEO"
+              },
+              {
+                "id": "138050029568986",
+                "name": "Owner and Founder"
+              },
+              {
+                "id": "138434539530345",
+                "name": "Owner/Managing Director"
+              },
+              {
+                "id": "140296506001448",
+                "name": "Own Business"
+              },
+              {
+                "id": "140984096035383",
+                "name": "Chairman & Managing Director"
+              },
+              {
+                "id": "142177312468564",
+                "name": "Franchise Owner/Operator"
+              },
+              {
+                "id": "143727678985148",
+                "name": "Founder and Managing Director"
+              },
+              {
+                "id": "144007428961004",
+                "name": "Owner/Sole Proprietor"
+              },
+              {
+                "id": "149598488387016",
+                "name": "Owner and CEO"
+              },
+              {
+                "id": "149657818421934",
+                "name": "Director (business)"
+              },
+              {
+                "id": "183861164967987",
+                "name": "Managing Director"
+              },
+              {
+                "id": "321873851343665",
+                "name": "Business Owner/Engineer"
+              },
+              {
+                "id": "874842615892965",
+                "name": "Managing Director"
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6002983066219",
+                "name": "Balenciaga (brand di moda)"
+              },
+              {
+                "id": "6003028976219",
+                "name": "Land Rover (veicolo)"
+              },
+              {
+                "id": "6003029763455",
+                "name": "International Watch Company"
+              },
+              {
+                "id": "6003069363782",
+                "name": "Ferrari (veicoli)"
+              },
+              {
+                "id": "6003076027139",
+                "name": "Viaggio in prima classe (azienda viaggi e turismo)"
+              },
+              {
+                "id": "6003121397334",
+                "name": "circolo nautico (club e associazioni di interesse)"
+              },
+              {
+                "id": "6003122958658",
+                "name": "Nautica (attività all'aperto)"
+              },
+              {
+                "id": "6003133223328",
+                "name": "Lusso (magazine)"
+              },
+              {
+                "id": "6003137508950",
+                "name": "Giorgio Armani"
+              },
+              {
+                "id": "6003161093178",
+                "name": "Porsche"
+              },
+              {
+                "id": "6003165411122",
+                "name": "Gucci (brand di moda)"
+              },
+              {
+                "id": "6003200432882",
+                "name": "Givenchy (brand di moda)"
+              },
+              {
+                "id": "6003202336613",
+                "name": "Hermès (abbigliamento)"
+              },
+              {
+                "id": "6003241598211",
+                "name": "Rolls-Royce Motor Cars"
+              },
+              {
+                "id": "6003241714213",
+                "name": "Burberry (abbigliamento)"
+              },
+              {
+                "id": "6003246597567",
+                "name": "Hublot"
+              },
+              {
+                "id": "6003257785488",
+                "name": "BMW (veicoli)"
+              },
+              {
+                "id": "6003279451780",
+                "name": "Chanel (brand di moda)"
+              },
+              {
+                "id": "6003280577423",
+                "name": "yachting (imbarcazioni e natanti)"
+              },
+              {
+                "id": "6003283305854",
+                "name": "Vacheron Constantin"
+              },
+              {
+                "id": "6003284637727",
+                "name": "Lexus (veicoli)"
+              },
+              {
+                "id": "6003293721530",
+                "name": "Mercedes-Benz (veicoli)"
+              },
+              {
+                "id": "6003306942514",
+                "name": "Patek Philippe & Co. (orologi)"
+              },
+              {
+                "id": "6003308770453",
+                "name": "Moschino"
+              },
+              {
+                "id": "6003338009689",
+                "name": "Yacht (natante)"
+              },
+              {
+                "id": "6003352779232",
+                "name": "Business class (viaggi in aereo)"
+              },
+              {
+                "id": "6003368599202",
+                "name": "Louis Vuitton (brand di moda)"
+              },
+              {
+                "id": "6003371567474",
+                "name": "Imprenditorialità (affari e finanza)"
+              },
+              {
+                "id": "6003382700604",
+                "name": "Audemars Piguet"
+              },
+              {
+                "id": "6003383552337",
+                "name": "Resort di lusso (alloggio)"
+              },
+              {
+                "id": "6003397425735",
+                "name": "Tennis (sport)"
+              },
+              {
+                "id": "6003397432935",
+                "name": "Audi (veicoli)"
+              },
+              {
+                "id": "6003402305839",
+                "name": "Azienda (affari e finanza)"
+              },
+              {
+                "id": "6003431493391",
+                "name": "Bulgari (beni di lusso)"
+              },
+              {
+                "id": "6003435546331",
+                "name": "Versace (brand di moda)"
+              },
+              {
+                "id": "6003456879344",
+                "name": "Lamborghini (veicoli)"
+              },
+              {
+                "id": "6003481889069",
+                "name": "Tennis Channel"
+              },
+              {
+                "id": "6003496694880",
+                "name": "Jaguar"
+              },
+              {
+                "id": "6003508325964",
+                "name": "Tiffany & Co. (beni di lusso)"
+              },
+              {
+                "id": "6003510075864",
+                "name": "Golf (sport)"
+              },
+              {
+                "id": "6003516735664",
+                "name": "Yves Saint Laurent (brand)"
+              },
+              {
+                "id": "6003567824118",
+                "name": "Maserati"
+              },
+              {
+                "id": "6003587678073",
+                "name": "Rolex (orologi)"
+              },
+              {
+                "id": "6003702639291",
+                "name": "Bentley"
+              },
+              {
+                "id": "6003713880583",
+                "name": "Armani (abbigliamento)"
+              },
+              {
+                "id": "6003715005316",
+                "name": "Yacht di lusso (natante)"
+              },
+              {
+                "id": "6003762134517",
+                "name": "Cartier (gioielliere)"
+              },
+              {
+                "id": "6003954452466",
+                "name": "Panerai"
+              },
+              {
+                "id": "6004037107009",
+                "name": "Barche (natante)"
+              },
+              {
+                "id": "6004048615096",
+                "name": "Veicolo di lusso (veicoli)"
+              },
+              {
+                "id": "6005522768944",
+                "name": "Breitling"
+              },
+              {
+                "id": "6007828099136",
+                "name": "Beni di lusso (vendita al dettaglio)"
+              }
+            ],
+            "behaviors": [
+              {
+                "id": "6002714895372",
+                "name": "Frequent Travelers"
+              },
+              {
+                "id": "6022788483583",
+                "name": "Frequent international travelers"
+              }
+            ],
+            "work_employers": [
+              {
+                "id": "157271317637124",
+                "name": "Tennis"
+              }
+            ],
+            "work_positions": [
+              {
+                "id": "1550034451925087",
+                "name": "Tennis Professional"
+              }
+            ]
+          },
+          {
+            "interests": [
+              {
+                "id": "6002995710444",
+                "name": "UEFA Champions League"
+              },
+              {
+                "id": "6003030389007",
+                "name": "Tottenham Hotspur Football Club"
+              },
+              {
+                "id": "6003062447007",
+                "name": "Lionel Messi"
+              },
+              {
+                "id": "6003064617670",
+                "name": "Arsenal Football Club"
+              },
+              {
+                "id": "6003066202070",
+                "name": "Primera División"
+              },
+              {
+                "id": "6003095982582",
+                "name": "Liverpool Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6003107902433",
+                "name": "Calcio (calcio)"
+              },
+              {
+                "id": "6003108404190",
+                "name": "Real Madrid Club de Fútbol"
+              },
+              {
+                "id": "6003110325672",
+                "name": "Cristiano Ronaldo"
+              },
+              {
+                "id": "6003147437665",
+                "name": "Futbol Club Barcelona"
+              },
+              {
+                "id": "6003162931434",
+                "name": "Football universitario (sport universitario)"
+              },
+              {
+                "id": "6003175194449",
+                "name": "Campionato mondiale di calcio"
+              },
+              {
+                "id": "6003220643158",
+                "name": "Manchester United Football Club"
+              },
+              {
+                "id": "6003221970476",
+                "name": "FC Bayern Monaco"
+              },
+              {
+                "id": "6003239921001",
+                "name": "Serie A"
+              },
+              {
+                "id": "6003269553527",
+                "name": "Sport (sport)"
+              },
+              {
+                "id": "6003280305243",
+                "name": "West Ham United Football Club"
+              },
+              {
+                "id": "6003285600543",
+                "name": "Newcastle United Football Club"
+              },
+              {
+                "id": "6003297665308",
+                "name": "Associazione Calcio Milan"
+              },
+              {
+                "id": "6003306191253",
+                "name": "Premier League (campionato di calcio)"
+              },
+              {
+                "id": "6003319357759",
+                "name": "Chelsea Football Club"
+              },
+              {
+                "id": "6003350242199",
+                "name": "UEFA Europa League (competizione di calcio)"
+              },
+              {
+                "id": "6003354236021",
+                "name": "Bundesliga"
+              },
+              {
+                "id": "6003359788860",
+                "name": "Nazionale di calcio dell'Italia"
+              },
+              {
+                "id": "6003424358337",
+                "name": "Crystal Palace Football Club"
+              },
+              {
+                "id": "6003432221791",
+                "name": "FIFA (lega professionistica)"
+              },
+              {
+                "id": "6003440191931",
+                "name": "Juventus Football Club"
+              },
+              {
+                "id": "6003442346642",
+                "name": "Calcio (sport)"
+              },
+              {
+                "id": "6003655184478",
+                "name": "Leicester City Football Club"
+              },
+              {
+                "id": "6003703378313",
+                "name": "Union of European Football Associations"
+              },
+              {
+                "id": "6003760502478",
+                "name": "Everton Football Club"
+              },
+              {
+                "id": "6004034488209",
+                "name": "Ligue 1"
+              },
+              {
+                "id": "6004177298095",
+                "name": "Manchester City Football Club (squadra di calcio)"
+              },
+              {
+                "id": "6004905707670",
+                "name": "Inter"
+              },
+              {
+                "id": "6788976336705",
+                "name": "Squadre di calcio internazionali (sport)"
+              }
+            ]
+          },
+          {
+            "family_statuses": [
+              {
+                "id": "6023080302983"
+              },
+              {
+                "id": "6023005681983"
+              },
+              {
+                "id": "6023005718983"
+              }
+            ]
+          }
+        ],
+        "brand_safety_content_filter_levels": [
+          "FACEBOOK_RELAXED"
+        ],
+        "targeting_automation": {
+          "advantage_audience": 0,
+          "individual_setting": {
+            "age": 0,
+            "gender": 1,
+            "geo": 1
+          }
+        },
+        "publisher_platforms": [
+          "facebook",
+          "instagram"
+        ],
+        "facebook_positions": [
+          "feed",
+          "right_hand_column",
+          "instream_video",
+          "marketplace",
+          "story",
+          "search",
+          "facebook_reels",
+          "facebook_reels_overlay",
+          "profile_feed",
+          "notification"
+        ],
+        "instagram_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search",
+          "explore"
+        ],
+        "device_platforms": [
+          "mobile",
+          "desktop"
+        ]
+      }
+    }
+  },
+  "ads": [
+    {
+      "code": "V01",
+      "file": "0930.mp4",
+      "video_id": "3403065486564456",
+      "thumb_hash": "66b3563b98b9bf98e65b49cc531b9bf6",
+      "video_status": "ready",
+      "creative_id": "1413087326815997",
+      "creative_requested": {
+        "name": "MS Video V01 Correzione del mister vissuta come giudizio",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "3403065486564456",
+            "image_hash": "66b3563b98b9bf98e65b49cc531b9bf6",
+            "message": "Il mister lo corregge. Due secondi dopo, tuo figlio non gioca più.\n\nNon perché non abbia capito l’indicazione. Perché in quei due secondi, dentro la sua testa, «devi muoverti prima» è diventato «sono scarso».\n\nÈ uno dei meccanismi che vediamo più spesso nei ragazzi che seguiamo: una correzione tecnica vissuta come un giudizio sul proprio valore. Da lì arrivano le giocate nascoste, la paura di sbagliare di nuovo, il rendimento che cala.\n\nNel video ti spiego cosa succede in quei due secondi e quali domande fargli a casa, senza trasformarle in un interrogatorio.\n\nSe pensi che sia quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti con il nostro team: ascoltiamo la situazione e ti diciamo con sincerità se e come possiamo aiutarlo.",
+            "title": "Quando la correzione diventa «sono scarso»",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955041780047"
+    },
+    {
+      "code": "V02",
+      "file": "0930(1).mp4",
+      "video_id": "1795496798260358",
+      "thumb_hash": "0305d62da4d34eeab80f3e5fb60215a7",
+      "video_status": "ready",
+      "creative_id": "2316038992488598",
+      "creative_requested": {
+        "name": "MS Video V02 La mentalità dei campioni (Antonelli, LeBron James, Cristiano Ronaldo)",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1795496798260358",
+            "image_hash": "0305d62da4d34eeab80f3e5fb60215a7",
+            "message": "Kimi Antonelli, LeBron James, Cristiano Ronaldo. Tre sport diversi, un punto in comune: allenano anche la testa.\n\nVisualizzazione, concentrazione, dialogo interno: per i campioni sono parte della preparazione, non un extra.\n\nNei ragazzi succede spesso il contrario. Si lavora su tecnica e fisico, e la testa si lascia al caso, finché in partita non arriva il blocco.\n\nCon il Metodo Sincro® un coach dedicato allena tuo figlio su sicurezza, concentrazione e gestione della pressione, in un percorso individuale online.\n\nPrenota una telefonata di 15 minuti: capiamo insieme se il percorso è adatto a lui.\n\nGli atleti citati non sono collegati al Metodo Sincro®.",
+            "title": "La mente si allena, come il fisico",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955045850047"
+    },
+    {
+      "code": "V03",
+      "file": "0930(2).mp4",
+      "video_id": "1461339359185754",
+      "thumb_hash": "00ea753dac15faa70184754e6672bfba",
+      "video_status": "ready",
+      "creative_id": "1076587192027308",
+      "creative_requested": {
+        "name": "MS Video V03 Le 3 chiavi mentali: direzione, attenzione, ripartire",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1461339359185754",
+            "image_hash": "00ea753dac15faa70184754e6672bfba",
+            "message": "«Non sono abbastanza bravo» e «cosa posso fare meglio?». Sembrano simili. Portano in direzioni opposte.\n\nLa differenza tra i ragazzi che crescono e quelli che si fermano si vede soprattutto quando le cose vanno male.\n\nNel video ti mostro le 3 chiavi mentali su cui lavoriamo con i ragazzi che seguiamo:\n1. Direzione: un obiettivo concreto, non un desiderio generico\n2. Attenzione: un compito preciso su cui concentrarsi in campo\n3. Ripartire: cosa fare subito dopo l’errore\n\nSe vuoi capire come si applicano a tuo figlio, prenota una telefonata di 15 minuti con il nostro team.",
+            "title": "Le 3 chiavi mentali di chi cresce in campo",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955050490047"
+    },
+    {
+      "code": "V04",
+      "file": "0930(3).mp4",
+      "video_id": "1628640385416507",
+      "thumb_hash": "7b918cfed1c4aef73a4e2c29f64cdb55",
+      "video_status": "ready",
+      "creative_id": "1652122416348256",
+      "creative_requested": {
+        "name": "MS Video V04 Ha talento ma non è costante",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1628640385416507",
+            "image_hash": "7b918cfed1c4aef73a4e2c29f64cdb55",
+            "message": "Ha talento. Una partita è il migliore in campo, quella dopo sparisce.\n\nSe tuo figlio è così, non è solo una questione tecnica. La costanza si costruisce con comportamenti che restano utili anche nelle giornate storte.\n\nNel video ti mostro le tre cose da osservare nella sua prossima partita:\n1. La prima giocata: prende coraggio o si nasconde?\n2. Restare coinvolto: comunica, cerca spazio, si fa trovare disponibile?\n3. Dopo l’errore: alza lo sguardo, riprende posizione, offre una soluzione?\n\nPoi, se vuoi, parliamone: prenota una telefonata di 15 minuti e ti diciamo con sincerità se e come possiamo aiutarlo.",
+            "title": "Talento sì. Costanza no. Perché?",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955054480047"
+    },
+    {
+      "code": "V05",
+      "file": "0930(4).mp4",
+      "video_id": "1098456156225140",
+      "thumb_hash": "90198deca5c8123c7749f34fbd07b50c",
+      "video_status": "ready",
+      "creative_id": "1788083245843407",
+      "creative_requested": {
+        "name": "MS Video V05 Le due ore prima della partita",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "1098456156225140",
+            "image_hash": "90198deca5c8123c7749f34fbd07b50c",
+            "message": "Mancano due ore alla partita. Tuo figlio è sul divano, teso. E «stai tranquillo» non basta.\n\nAnzi, spesso peggiora le cose: gli dice che la sua tensione è sbagliata, senza dargli niente da fare.\n\nNel video ti spiego cosa fare in quelle due ore, in tre passi:\n1. Ascolta senza giudicare\n2. Chiedi: «cosa ti preoccupa di più?»\n3. Costruite insieme una routine pre-partita\n\nIl tuo compito non è togliergli la pressione, è aiutarlo a gestirla. Se vuoi un confronto su come farlo con tuo figlio, prenota una telefonata di 15 minuti con il nostro team.",
+            "title": "Cosa dirgli prima della partita",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955059230047"
+    },
+    {
+      "code": "V06",
+      "file": "0930(5).mp4",
+      "video_id": "2283924015763833",
+      "thumb_hash": "0e61184ac50dfc98181be3d2af503356",
+      "video_status": "ready",
+      "creative_id": "1081075444521515",
+      "creative_requested": {
+        "name": "MS Video V06 Sale di categoria e gioca meno",
+        "object_story_spec": {
+          "page_id": "108451268302248",
+          "instagram_user_id": "17841449195220971",
+          "video_data": {
+            "video_id": "2283924015763833",
+            "image_hash": "0e61184ac50dfc98181be3d2af503356",
+            "message": "È salito di categoria. Ora gioca meno. E a casa lo vedi spegnersi.\n\nPassare da titolare a panchina è uno dei momenti più delicati per un ragazzo. Giocare meno non significa automaticamente crescere: dipende da come vive questo periodo.\n\nNel video ti mostro tre cose che fanno la differenza:\n1. Cambiare ruolo: da titolare a chi conquista il proprio spazio\n2. Chiedere all’allenatore indicazioni precise, non un generico «impegnati di più»\n3. Come reagire a casa dopo la prima esclusione\n\nSe è quello che sta vivendo tuo figlio, prenota una telefonata di 15 minuti: capiamo insieme come aiutarlo a restare, lavorare e costruire nel tempo.",
+            "title": "Salto di categoria: e se gioca meno?",
+            "link_description": "Telefonata conoscitiva gratuita · 15 minuti",
+            "call_to_action": {
+              "type": "BOOK_NOW",
+              "value": {
+                "link": "https://landing.metodosincro.com/f/form-di-contatto"
+              }
+            }
+          }
+        },
+        "url_tags": "utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&fbadid={{ad.id}}",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "OPT_OUT"
+            },
+            "add_text_overlay": {
+              "enroll_status": "OPT_OUT"
+            },
+            "audio": {
+              "enroll_status": "OPT_OUT"
+            },
+            "description_automation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "enhance_cta": {
+              "enroll_status": "OPT_OUT"
+            },
+            "inline_comment": {
+              "enroll_status": "OPT_OUT"
+            },
+            "site_extensions": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_optimizations": {
+              "enroll_status": "OPT_OUT"
+            },
+            "text_translation": {
+              "enroll_status": "OPT_OUT"
+            },
+            "video_auto_crop": {
+              "enroll_status": "OPT_OUT"
+            }
+          }
+        }
+      },
+      "creative_opt_out": [
+        "adapt_to_placement",
+        "add_text_overlay",
+        "audio",
+        "description_automation",
+        "enhance_cta",
+        "inline_comment",
+        "site_extensions",
+        "text_optimizations",
+        "text_translation",
+        "video_auto_crop"
+      ],
+      "ad_id": "120251955063510047"
+    }
+  ],
+  "completed_at": "2026-09-30T14:08:40.735Z"
+}

@@ -1,0 +1,109 @@
+{
+  "ads": [
+    {
+      "name": "video 1 Settembre"
+    },
+    {
+      "name": "video 1 Settembre - genitori"
+    }
+  ],
+  "family_statuses": [
+    {
+      "id": "6002714398372",
+      "name": "Genitori (figli di qualsiasi età)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori (figli di qualsiasi età)"
+      ],
+      "description": "Persone che potrebbero essere genitori",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 365692232,
+      "audience_size_upper_bound": 430054066
+    },
+    {
+      "id": "6023005372383",
+      "name": "Genitori (fino a 12 mesi)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori (fino a 12 mesi)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli di 0-12 mesi.",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 6008340,
+      "audience_size_upper_bound": 7065809
+    },
+    {
+      "id": "6023005458383",
+      "name": "Genitori con bimbi (1-2 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con bimbi (1-2 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con bimbi",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 3966380,
+      "audience_size_upper_bound": 4664464
+    },
+    {
+      "id": "6023005529383",
+      "name": "Genitori con figli in età prescolare (3-5 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con figli in età prescolare (3-5 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli in età prescolare",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 6566625,
+      "audience_size_upper_bound": 7722352
+    },
+    {
+      "id": "6023005570783",
+      "name": "Genitori con figli ai primi anni di scuola (6-8 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con figli ai primi anni di scuola (6-8 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli ai primi anni di scuola",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 1663790,
+      "audience_size_upper_bound": 1956618
+    },
+    {
+      "id": "6023005681983",
+      "name": "Genitori con figli adolescenti (13-17 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con figli adolescenti (13-17 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli adolescenti",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 20749562,
+      "audience_size_upper_bound": 24401485
+    },
+    {
+      "id": "6023005718983",
+      "name": "Genitori con figli grandi (18-26 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con figli grandi (18-26 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli adulti",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 76582504,
+      "audience_size_upper_bound": 90061025
+    },
+    {
+      "id": "6023080302983",
+      "name": "Genitori con figli preadolescenti (09-12 anni)",
+      "type": "family_statuses",
+      "path": [
+        "Genitori con figli preadolescenti (09-12 anni)"
+      ],
+      "description": "Persone che potrebbero essere genitori con figli preadolescenti",
+      "real_time_cluster": false,
+      "audience_size_lower_bound": 25088488,
+      "audience_size_upper_bound": 29504063
+    }
+  ],
+  "tags": null
+}

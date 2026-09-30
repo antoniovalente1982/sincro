@@ -1,0 +1,99 @@
+{
+  "activated_at": "2026-09-30T14:09:53.823Z",
+  "hold": [
+    "V02"
+  ],
+  "results": [
+    {
+      "campaign": "120251955029350047",
+      "success": true
+    },
+    {
+      "adset": "120251955037690047",
+      "success": true
+    },
+    {
+      "ad": "V01",
+      "id": "120251955041780047",
+      "success": true
+    },
+    {
+      "ad": "V03",
+      "id": "120251955050490047",
+      "success": true
+    },
+    {
+      "ad": "V04",
+      "id": "120251955054480047",
+      "success": true
+    },
+    {
+      "ad": "V05",
+      "id": "120251955059230047",
+      "success": true
+    },
+    {
+      "ad": "V06",
+      "id": "120251955063510047",
+      "success": true
+    }
+  ],
+  "readback": {
+    "campaign": {
+      "id": "120251955029350047",
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE"
+    },
+    "adset": {
+      "status": "ACTIVE",
+      "effective_status": "ACTIVE",
+      "start_time": "2026-10-01T00:01:00+0200",
+      "daily_budget": "10000",
+      "id": "120251955037690047"
+    },
+    "ads": [
+      {
+        "code": "V01",
+        "name": "#15 Diagnostic Buyers | Authority | MOFU — Video | V01 R1 T: blocchi",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "id": "120251955041780047"
+      },
+      {
+        "code": "V02",
+        "name": "#10 Why-Y-Works Buyers | Decision | BOFU — Video | V02 R1 T: sport_performance",
+        "status": "PAUSED",
+        "effective_status": "PENDING_REVIEW",
+        "id": "120251955045850047"
+      },
+      {
+        "code": "V03",
+        "name": "#13 Method Buyers | Authority | MOFU — Video | V03 R1 T: mental_coaching",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "id": "120251955050490047"
+      },
+      {
+        "code": "V04",
+        "name": "#58 Plateau-Break Buyers | Growth | MOFU — Video | V04 R1 T: talento",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "id": "120251955054480047"
+      },
+      {
+        "code": "V05",
+        "name": "#45 Stress-Driven Buyers | Emotional | MOFU — Video | V05 R1 T: pressione",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "id": "120251955059230047"
+      },
+      {
+        "code": "V06",
+        "name": "#57 Next-Level Buyers | Growth | MOFU — Video | V06 R1 T: growth",
+        "status": "ACTIVE",
+        "effective_status": "IN_PROCESS",
+        "id": "120251955063510047"
+      }
+    ]
+  }
+}
