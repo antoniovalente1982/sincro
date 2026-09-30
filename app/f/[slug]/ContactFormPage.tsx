@@ -181,6 +181,17 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         </div>
                     </div>
 
+                    <div className={styles.reviews}>
+                        <div className={styles.reviewsStars} aria-hidden="true">
+                            {[0, 1, 2, 3, 4].map(i => <span key={i}><Star size={18} /></span>)}
+                        </div>
+                        <p className={styles.reviewsScore}><strong>4,9/5 su Trustpilot</strong> · 359 recensioni</p>
+                        <p className={styles.reviewsText}>Mentre aspetti la chiamata, leggi cosa raccontano i genitori che hanno già fatto il percorso.</p>
+                        <a href="https://it.trustpilot.com/review/valenteantonio.it" target="_blank" rel="noopener noreferrer" className={styles.reviewsButton}>
+                            Leggi le recensioni dei genitori <ArrowRight size={18} />
+                        </a>
+                    </div>
+
                     <div className={styles.thanksPrep}>
                         <h2>Per arrivare preparato alla chiamata</h2>
                         <ul>
@@ -190,9 +201,6 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         </ul>
                     </div>
 
-                    <a href="https://it.trustpilot.com/review/valenteantonio.it" target="_blank" rel="noopener noreferrer" className={styles.thanksLink}>
-                        <Star size={16} /> Leggi le recensioni dei genitori su Trustpilot
-                    </a>
                 </main>
                 {tracking}
             </div>
