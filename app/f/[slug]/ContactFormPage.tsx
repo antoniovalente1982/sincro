@@ -52,7 +52,8 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const [phone, setPhone] = useState('')
     const [callTime, setCallTime] = useState('')
     // Consenso marketing (Pixel e CAPI): casella facoltativa nel modulo al posto del banner cookie
-    const [adConsent, setAdConsent] = useState(false)
+    // Pre-spuntata su scelta di Antonio (30/09/2026); il genitore può toglierla
+    const [adConsent, setAdConsent] = useState(true)
     const [attempted, setAttempted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)
@@ -67,8 +68,8 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const [started, setStarted] = useState(false)
     const showBar = !submitInView && !started
 
-    // Chi ha già accettato su un'altra pagina Sincro ritrova la casella spuntata
-    useEffect(() => { if (journeyConsent()?.marketing) setAdConsent(true) }, [])
+    // Chi ha già rifiutato il marketing su un'altra pagina Sincro ritrova la casella vuota
+    useEffect(() => { const c = journeyConsent(); if (c && !c.marketing) setAdConsent(false) }, [])
 
     useEffect(() => {
         const button = submitRef.current
