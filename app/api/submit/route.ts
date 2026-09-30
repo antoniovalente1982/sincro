@@ -5,7 +5,7 @@ import { resolveSubmissionJourney, saveEditorialSubmission, getEditorialPixel } 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { after } from 'next/server'
-import { sendTelegramMessage, notifyAssignedSeller } from '@/lib/telegram'
+import { sendTelegramMessage, notifyAssignedSeller, whatsAppButton } from '@/lib/telegram'
 import { appendLeadToSheet } from '@/lib/google-sheets'
 import { assignLeadRoundRobin } from '@/lib/lead-routing'
 import { syncToActiveCampaign } from '@/lib/activecampaign'
@@ -320,6 +320,9 @@ export async function POST(req: NextRequest) {
                                 phone: phone || null,
                                 funnel: funnel.name,
                                 source: utm_source || null,
+                                callPreference: typeof body.extra_data?.call_preference === 'string' ? body.extra_data.call_preference : null,
+                                childAge: typeof body.extra_data?.child_age === 'string' ? body.extra_data.child_age : null,
+                                createdAt: lead.created_at || null,
                             }).catch(err => console.error('[Submit] Seller notify error:', err))
                         }
                     }
@@ -409,7 +412,7 @@ export async function POST(req: NextRequest) {
 
                     await Promise.allSettled([
                         capiPromise,
-                        sendTelegramMessage(funnel.organization_id, tgMsg).catch(err => console.error('TG error:', name, err)),
+                        sendTelegramMessage(funnel.organization_id, tgMsg, 'HTML', whatsAppButton(phone, { nome: name, creatoIl: lead.created_at, etaFiglio: childAge, nomeFunnel: funnel.name })).catch(err => console.error('TG error:', name, err)),
                         appendLeadToSheet(funnel.organization_id, {
                             name, email: email || '', phone: phone || '',
                             funnel: funnel.name, utm_source: utm_source || '',

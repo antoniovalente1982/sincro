@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { linkWhatsApp, type DatiPrimoContatto } from './whatsapp'
 
 function getSupabaseAdmin() {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -9,6 +10,18 @@ function getSupabaseAdmin() {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
+}
+
+/** Pulsanti sotto il messaggio (inline keyboard di Telegram) */
+export type TelegramReplyMarkup = { inline_keyboard: { text: string; url: string }[][] }
+
+/**
+ * Pulsante "Scrivi su WhatsApp": apre la chat col lead e la stessa frase pronta
+ * del pulsante nel CRM. undefined se il numero non e' utilizzabile.
+ */
+export function whatsAppButton(phone: string | null | undefined, dati: DatiPrimoContatto): TelegramReplyMarkup | undefined {
+    const url = linkWhatsApp(phone, dati)
+    return url ? { inline_keyboard: [[{ text: '💬 Scrivi su WhatsApp', url }]] } : undefined
 }
 
 interface TelegramCredentials {
@@ -66,6 +79,10 @@ export async function notifyAssignedSeller(
         phone?: string | null
         funnel?: string | null
         source?: string | null
+        /** Fascia oraria scelta nel Form di contatto (mattina, pomeriggio, sera, indifferente) */
+        callPreference?: string | null
+        childAge?: string | null
+        createdAt?: string | null
     }
 ): Promise<boolean> {
     try {
@@ -83,17 +100,21 @@ export async function notifyAssignedSeller(
         if (!creds) return false
 
         const sellerName = profile.full_name || 'Venditore'
+        const escape = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        const whatsapp = whatsAppButton(lead.phone, { nome: lead.name, creatoIl: lead.createdAt || new Date().toISOString(), etaFiglio: lead.childAge, nomeFunnel: lead.funnel })
 
         const msg =
             `🎯 <b>Lead assegnato a te, ${sellerName}!</b>\n\n` +
             `👤 <b>Nome:</b> ${lead.name}\n` +
             (lead.phone ? `📱 <b>Tel:</b> ${lead.phone}\n` : '') +
             (lead.email ? `📧 <b>Email:</b> ${lead.email}\n` : '') +
+            (lead.childAge ? `🎂 <b>Età figlio:</b> ${escape(lead.childAge)} anni\n` : '') +
+            (lead.callPreference ? `🕐 <b>Chiamare:</b> ${escape(lead.callPreference)}\n` : '') +
             (lead.funnel ? `🔗 <b>Funnel:</b> ${lead.funnel}\n` : '') +
             (lead.source ? `📡 <b>Fonte:</b> ${lead.source}\n` : '') +
-            `\n💬 Contattalo ora dal CRM!`
+            (whatsapp ? `\n💬 Scrivigli subito con il pulsante qui sotto.` : `\n💬 Contattalo ora dal CRM!`)
 
-        return sendTelegramDirect(creds.bot_token, profile.telegram_chat_id, msg)
+        return sendTelegramDirect(creds.bot_token, profile.telegram_chat_id, msg, 'HTML', whatsapp)
     } catch (err) {
         console.error('[Telegram] notifyAssignedSeller error:', err)
         return false
@@ -106,12 +127,13 @@ export async function notifyAssignedSeller(
 export async function sendTelegramMessage(
     orgId: string,
     text: string,
-    parseMode: 'HTML' | 'Markdown' = 'HTML'
+    parseMode: 'HTML' | 'Markdown' = 'HTML',
+    replyMarkup?: TelegramReplyMarkup
 ): Promise<boolean> {
     const creds = await getTelegramCredentials(orgId)
     if (!creds) return false
 
-    return sendTelegramDirect(creds.bot_token, creds.chat_id, text, parseMode)
+    return sendTelegramDirect(creds.bot_token, creds.chat_id, text, parseMode, replyMarkup)
 }
 
 /**
@@ -121,7 +143,8 @@ export async function sendTelegramDirect(
     botToken: string,
     chatId: string,
     text: string,
-    parseMode: 'HTML' | 'Markdown' = 'HTML'
+    parseMode: 'HTML' | 'Markdown' = 'HTML',
+    replyMarkup?: TelegramReplyMarkup
 ): Promise<boolean> {
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -131,6 +154,7 @@ export async function sendTelegramDirect(
                 chat_id: chatId,
                 text,
                 parse_mode: parseMode,
+                ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
             }),
         })
         const result = await res.json()
