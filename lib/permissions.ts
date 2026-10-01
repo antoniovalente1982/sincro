@@ -52,6 +52,7 @@ const HREF_TO_SECTION: Record<string, Section> = {
     '/dashboard/leads-station':       'leads_station',
     '/dashboard/calendar':            'calendar',
     '/dashboard/funnels':             'funnels',
+    '/dashboard/funnel-report':       'funnels',
     '/dashboard/blog':                'blog',
     '/dashboard/operations':          'operations',
     '/dashboard/analytics':           'analytics',

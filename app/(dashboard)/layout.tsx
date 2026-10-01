@@ -51,6 +51,7 @@ const allNavGroups: NavGroup[] = [
         label: 'MARKETING',
         items: [
             { label: 'Funnel',    href: '/dashboard/funnels',   icon: Target },
+            { label: 'Report Funnel', href: '/dashboard/funnel-report', icon: TrendingUp },
             { label: 'Blog',      href: '/dashboard/blog',      icon: BookOpen },
             { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
         ]

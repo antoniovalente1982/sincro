@@ -1,0 +1,65 @@
+/* Report Funnel — usa i token del gestionale, quindi segue tema chiaro e scuro */
+
+.page { padding: 24px; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; }
+
+.header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.title { font-size: 22px; font-weight: 700; color: var(--color-surface-900); }
+.subtitle { margin-top: 4px; font-size: 13px; color: var(--color-surface-500); }
+
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.filters :global(.input) { width: auto; }
+.presets { display: flex; gap: 4px; }
+.preset {
+    padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--color-surface-700); background: var(--color-surface-100);
+    border: 1px solid var(--color-surface-200); border-radius: 7px;
+}
+.preset[aria-pressed='true'] { color: #fff; background: var(--color-sincro-600); border-color: var(--color-sincro-600); }
+.date { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-surface-600); }
+
+.error {
+    padding: 12px 14px; font-size: 14px; border-radius: 10px;
+    color: var(--color-danger); background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile {
+    padding: 16px; display: flex; flex-direction: column; gap: 4px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px;
+}
+.tileLabel { font-size: 12px; font-weight: 600; color: var(--color-surface-500); }
+.tileValue { font-size: 26px; font-weight: 700; line-height: 1.15; color: var(--color-surface-900); font-variant-numeric: tabular-nums; }
+.tileHint { font-size: 12px; color: var(--color-surface-500); }
+
+.funnels { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+
+.card { padding: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; min-width: 0; }
+.cardTitle { font-size: 15px; font-weight: 700; color: var(--color-surface-900); margin-bottom: 4px; }
+.cardNote { font-size: 12px; color: var(--color-surface-500); margin-bottom: 12px; }
+
+.funnel { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.step { display: flex; flex-direction: column; gap: 4px; cursor: help; }
+.stepHead { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.stepLabel { color: var(--color-surface-700); }
+.stepValue { font-weight: 700; color: var(--color-surface-900); font-variant-numeric: tabular-nums; }
+.track { height: 10px; border-radius: 4px; background: var(--color-surface-100); overflow: hidden; }
+.bar { height: 100%; border-radius: 4px; background: var(--color-sincro-500); }
+.stepRate { font-size: 12px; color: var(--color-surface-500); }
+
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: 9px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--color-surface-200); color: var(--color-surface-800); }
+.table thead th { font-size: 11px; font-weight: 600; color: var(--color-surface-500); vertical-align: bottom; white-space: normal; min-width: 72px; }
+.table th[scope='row'], .table thead th:first-child { text-align: left; position: sticky; left: 0; background: var(--color-surface-0); font-weight: 600; z-index: 1; }
+.table td[title] { cursor: help; }
+.table tbody tr:hover td, .table tbody tr:hover th { background: var(--color-surface-50); }
+.totalRow th, .totalRow td { font-weight: 700; border-top: 2px solid var(--color-surface-300); }
+
+.notes { display: flex; flex-direction: column; gap: 8px; padding-left: 18px; font-size: 13px; line-height: 1.55; color: var(--color-surface-700); }
+.notes strong { color: var(--color-surface-900); }
+
+@media (max-width: 640px) {
+    .page { padding: 16px; }
+    .tileValue { font-size: 22px; }
+}

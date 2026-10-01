@@ -71,6 +71,29 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     // Chi ha già rifiutato il marketing su un'altra pagina Sincro ritrova la casella vuota
     useEffect(() => { const c = journeyConsent(); if (c && !c.marketing) setAdConsent(false) }, [])
 
+    // Conteggio anonimo (visita, form iniziato) per chi non ha ancora dato il consenso:
+    // con il consenso le stesse tappe le registra EditorialTracking.
+    const anonFormStartRef = useRef(false)
+    const trackAnon = (event: 'view' | 'form_start') => {
+        const c = journeyConsent()
+        if (ab?.preview || c?.analytics || c?.marketing) return
+        const params = new URLSearchParams(window.location.search)
+        const body = JSON.stringify({
+            event, slug: window.location.pathname.split('/').filter(Boolean).pop(), page_variant: abVariant,
+            utm_source: params.get('utm_source'), utm_medium: params.get('utm_medium'), utm_campaign: params.get('utm_campaign'),
+            utm_content: params.get('utm_content'), utm_term: params.get('utm_term'), fbadid: params.get('fbadid'),
+        })
+        fetch('/api/track/funnel-anon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => { trackAnon('view') }, [])
+    const handleFormFocus = () => {
+        setStarted(true)
+        if (anonFormStartRef.current) return
+        anonFormStartRef.current = true
+        trackAnon('form_start')
+    }
+
     useEffect(() => {
         const button = submitRef.current
         if (!button || typeof IntersectionObserver === 'undefined') return
@@ -232,7 +255,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                     </div>
                 </section>
 
-                <form id="ms-form" ref={formRef} onFocus={() => setStarted(true)} className={styles.card} onSubmit={handleSubmit} noValidate data-clarity-mask="true">
+                <form id="ms-form" ref={formRef} onFocus={handleFormFocus} className={styles.card} onSubmit={handleSubmit} noValidate data-clarity-mask="true">
                     <h2 className={styles.cardTitle}>Prenota la telefonata</h2>
 
                     <div className={styles.pair}>
