@@ -73,10 +73,14 @@ export default function ContactFormPage({ funnel, ab }: Props) {
 
     // Conteggio anonimo (visita, form iniziato) per chi non ha ancora dato il consenso:
     // con il consenso le stesse tappe le registra EditorialTracking.
-    const anonFormStartRef = useRef(false)
     const trackAnon = (event: 'view' | 'form_start') => {
         const c = journeyConsent()
         if (ab?.preview || c?.analytics || c?.marketing) return
+        // Una volta per apertura di pagina: il componente può montarsi due volte
+        // (verificato il 01/10/2026: due POST da un solo caricamento)
+        const sent = ((window as unknown as { __sincroAnonSent?: Set<string> }).__sincroAnonSent ??= new Set())
+        if (sent.has(event)) return
+        sent.add(event)
         const params = new URLSearchParams(window.location.search)
         const body = JSON.stringify({
             event, slug: window.location.pathname.split('/').filter(Boolean).pop(), page_variant: abVariant,
@@ -89,8 +93,6 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     useEffect(() => { trackAnon('view') }, [])
     const handleFormFocus = () => {
         setStarted(true)
-        if (anonFormStartRef.current) return
-        anonFormStartRef.current = true
         trackAnon('form_start')
     }
 
