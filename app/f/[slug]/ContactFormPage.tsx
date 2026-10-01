@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle, Clock, Lock, Phone, ShieldCheck, Star } from '
 import { PREDICTIVE_LEAD_VALUE, LEAD_CURRENCY } from '@/lib/meta-events'
 import { leadAttempt } from '@/lib/editorial-tracking'
 import EditorialTracking from '@/components/EditorialTracking'
-import { getJourneySubmission, fireJourneyLead, journeyConsent, setJourneyConsent } from '@/lib/editorial-tracking-client'
+import { getJourneySubmission, fireJourneyLead, journeyConsent, setJourneyConsent, setJourneyAlwaysTrack } from '@/lib/editorial-tracking-client'
 import type { AbAssignment } from './MetodoSincroLandingV2'
 import styles from './contact-form.module.css'
 
@@ -39,6 +39,10 @@ const plain = (value: unknown) => typeof value === 'string' ? value.replace(/<[^
 export default function ContactFormPage({ funnel, ab }: Props) {
     const settings: Record<string, unknown> = funnel.settings || {}
     const abVariant = ab?.variant ?? (settings.ab_variant === 'B' ? 'B' : 'A')
+    // Modalità "sempre" (settings.tracking_mode): pixel e CAPI senza attendere il consenso.
+    // Va impostata durante il render: gli effetti di EditorialTracking (figlio) partono prima dei nostri.
+    const alwaysTrack = settings.tracking_mode === 'always'
+    if (typeof window !== 'undefined') setJourneyAlwaysTrack(alwaysTrack)
 
     const headline = plain(settings.headline) || 'Aiutiamo tuo figlio a giocare in partita con la stessa sicurezza con cui si allena'
     const subheadline = plain(settings.subheadline) || 'Un percorso di mental coaching individuale online, con un coach dedicato. Si parte da una telefonata di 15 minuti per capire se e come possiamo aiutarvi.'
@@ -69,7 +73,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
     const showBar = !submitInView && !started
 
     // Chi ha già rifiutato il marketing su un'altra pagina Sincro ritrova la casella vuota
-    useEffect(() => { const c = journeyConsent(); if (c && !c.marketing) setAdConsent(false) }, [])
+    useEffect(() => { if (alwaysTrack) return; const c = journeyConsent(); if (c && !c.marketing) setAdConsent(false) }, [alwaysTrack])
 
     // Conteggio anonimo (visita, form iniziato) per chi non ha ancora dato il consenso:
     // con il consenso le stesse tappe le registra EditorialTracking.
@@ -136,7 +140,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
         try {
             // Il cookie del consenso va scritto prima dell'invio: il server lo legge per decidere se mandare il Lead a Meta
             const current = journeyConsent()
-            if (adConsent !== !!current?.marketing) setJourneyConsent(adConsent || !!current?.analytics, adConsent)
+            if (!alwaysTrack && adConsent !== !!current?.marketing) setJourneyConsent(adConsent || !!current?.analytics, adConsent)
             const journey = getJourneySubmission()
             const res = await fetch('/api/submit', {
                 method: 'POST',
@@ -290,10 +294,10 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         </div>
                     </fieldset>
 
-                    <label className={styles.consent}>
+                    {!alwaysTrack && <label className={styles.consent}>
                         <input type="checkbox" checked={adConsent} onChange={e => setAdConsent(e.target.checked)} />
                         <span>Acconsento all’uso di cookie e dati di contatto per misurare l’efficacia delle nostre inserzioni su Facebook e Instagram (Meta). <em>Facoltativo: la richiesta arriva anche senza.</em></span>
-                    </label>
+                    </label>}
 
                     {error && <p className={styles.submitError} role="alert">{error}</p>}
 
@@ -301,6 +305,7 @@ export default function ContactFormPage({ funnel, ab }: Props) {
                         {loading ? <span className={styles.spinner} aria-label="Invio in corso" /> : <>{ctaText} <ArrowRight size={18} /></>}
                     </button>
                     <p className={styles.privacy}><Lock size={12} /> Usiamo i tuoi dati solo per ricontattarti. Niente spam.</p>
+                    {alwaysTrack && <p className={styles.privacy}>Questa pagina usa cookie e strumenti di Meta (Facebook e Instagram) per misurare le nostre inserzioni.</p>}
                 </form>
             </main>
             <div className={styles.stickyBar} data-visible={showBar} aria-hidden={!showBar}>

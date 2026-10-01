@@ -80,6 +80,9 @@ export async function POST(req: NextRequest) {
         const managedJourney = funnel.settings?.template === 'metodo_sincro'
         let consent = null
         try { consent = readTrackingConsent(decodeURIComponent(req.cookies.get(TRACKING_COOKIE)?.value || '')) } catch { /* denied */ }
+        // Funnel in modalità "sempre" (Form di contatto): Lead a Meta anche senza consenso cookie
+        const alwaysTrack = managedJourney && funnel.settings?.tracking_mode === 'always'
+        if (alwaysTrack) consent = { analytics: true, marketing: true, at: Date.now() }
         const journey = managedJourney ? await resolveSubmissionJourney(funnel.organization_id, body, consent) : null
         const journeyPixelId = managedJourney ? await getEditorialPixel(funnel.organization_id, funnel.meta_pixel_id) : null
         if (journey?.preview) return NextResponse.json({ error: 'Questa è un’anteprima: la richiesta non viene inviata.' }, { headers: CORS_HEADERS, status: 400 })
@@ -102,7 +105,7 @@ export async function POST(req: NextRequest) {
                 utm_content: utm_content || null,
                 utm_term: utm_term || null,
                 extra_data: { ...(extra_data || {}), editorial_entry: editorialEntry,
-                    ...(journey ? { editorial_event_id: submissionEventId, editorial_visitor_id: journey.visitorId, editorial_session_id: journey.sessionId, editorial_attribution: journey.attribution, tracking_consent: consent } : {}) },
+                    ...(journey ? { editorial_event_id: submissionEventId, editorial_visitor_id: journey.visitorId, editorial_session_id: journey.sessionId, editorial_attribution: journey.attribution, tracking_consent: alwaysTrack ? null : consent, tracking_mode: alwaysTrack ? 'always' : 'consent' } : {}) },
                 page_variant: page_variant || 'A',
                 ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null,
                 user_agent: req.headers.get('user-agent') || null,

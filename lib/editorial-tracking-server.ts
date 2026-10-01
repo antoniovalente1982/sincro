@@ -5,7 +5,9 @@ import { getPublicOrgId } from './blog-server'
 import { blogEntry, isPublishedBlog } from './blog'
 import { ATTRIBUTION_TTL, CAMPAIGN_KEYS, META_EVENTS, UUID, normalizePageUrl, resolvePixelId, supportedPage, type EditorialInput, type TrackingConsent } from './editorial-tracking'
 
-export type EditorialContext = { orgId: string; articleId: string | null; funnelId: string | null; entry: string | null; pixelId: string | null; pagePath: string }
+export type EditorialContext = { orgId: string; articleId: string | null; funnelId: string | null; entry: string | null; pixelId: string | null; pagePath: string; alwaysTrack?: boolean }
+/** Funnel con tracking_mode 'always': Meta e analisi senza attendere il consenso cookie (scelta di Antonio, 01/10/2026) */
+export const ALWAYS_TRACK_CONSENT = (): TrackingConsent => ({ analytics: true, marketing: true, at: Date.now() })
 export const getEditorialPixel = cache(async (orgId: string, funnelPixel?: string | null) => {
     try {
     const db = getSupabaseAdmin()
@@ -49,7 +51,7 @@ export const resolveEditorialPage = cache(async (path: string): Promise<Editoria
     const { data } = await db.from('funnels').select('id,organization_id,meta_pixel_id,settings').eq('slug',path.slice(3)).eq('status','active').maybeSingle()
     if (!data || (kind === 'landing' && data.settings?.template !== 'metodo_sincro')) return null
     return { orgId: data.organization_id, articleId: null, funnelId: data.id, entry: kind === 'advertorial' ? 'advertorial-pochi-minuti' : null,
-        pixelId: await getEditorialPixel(data.organization_id, data.meta_pixel_id), pagePath: path }
+        pixelId: await getEditorialPixel(data.organization_id, data.meta_pixel_id), pagePath: path, alwaysTrack: data.settings?.tracking_mode === 'always' }
 })
 export function editorialBot(agent: string): boolean { return agent.length < 10 || /bot|crawler|spider|facebookexternalhit|preview|headless|lighthouse|puppeteer|selenium/i.test(agent) }
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')

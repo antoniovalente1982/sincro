@@ -1,6 +1,6 @@
 import { after, NextRequest, NextResponse } from 'next/server'
 import { readTrackingConsent, TRACKING_COOKIE, validateEditorialEvent } from '@/lib/editorial-tracking'
-import { editorialBot, resolveEditorialPage, resolveEditorialEntry, saveEditorialEvent, sendEditorialMeta } from '@/lib/editorial-tracking-server'
+import { ALWAYS_TRACK_CONSENT, editorialBot, resolveEditorialPage, resolveEditorialEntry, saveEditorialEvent, sendEditorialMeta } from '@/lib/editorial-tracking-server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 const limits = new Map<string,{ count: number; until: number }>()
@@ -17,9 +17,10 @@ export async function POST(req: NextRequest) {
         if (raw.length > 6000) return NextResponse.json({ error:'Richiesta troppo grande.' }, { status:413 })
         const input = validateEditorialEvent(JSON.parse(raw))
         if (!input) return NextResponse.json({ error:'Evento non valido.' }, { status:400 })
-        const consent = readTrackingConsent(decodeURIComponent(req.cookies.get(TRACKING_COOKIE)?.value || ''))
-        if (!consent?.analytics && !consent?.marketing) return NextResponse.json({ skipped:'consent' })
         const found = await resolveEditorialPage(input.page_path)
+        // Funnel in modalità "sempre": niente attesa del consenso cookie
+        const consent = found?.alwaysTrack ? ALWAYS_TRACK_CONSENT() : readTrackingConsent(decodeURIComponent(req.cookies.get(TRACKING_COOKIE)?.value || ''))
+        if (!consent?.analytics && !consent?.marketing) return NextResponse.json({ skipped:'consent' })
         if (!found) return NextResponse.json({ error:'Pagina non disponibile.' }, { status:404 })
         const context = { ...found }
         if (!context.entry && input.entry) {

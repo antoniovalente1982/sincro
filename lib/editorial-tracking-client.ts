@@ -12,8 +12,14 @@ let memorySession: { id: string; at: number } | null = null
 const read = (key: string) => { try { return window.localStorage.getItem(key) } catch { return null } }
 const write = (key: string, value: string) => { try { window.localStorage.setItem(key, value) } catch { /* memory fallback */ } }
 function json<T>(value: string | null): T | null { try { return JSON.parse(value || 'null') } catch { return null } }
+// Pagine con settings.tracking_mode = 'always' (scelta di Antonio, 01/10/2026):
+// tracciamento Meta e analisi attivi senza attendere il consenso cookie.
+let alwaysTrack = false
+export function setJourneyAlwaysTrack(value: boolean): void { alwaysTrack = value }
+export function journeyAlwaysTrack(): boolean { return alwaysTrack }
 export function journeyConsent(): TrackingConsent | null {
     if (typeof document === 'undefined') return null
+    if (alwaysTrack) return { analytics: true, marketing: true, at: Date.now() }
     try {
         const cookie = document.cookie.split(';').map(x => x.trim()).find(x => x.startsWith(`${TRACKING_COOKIE}=`))?.slice(TRACKING_COOKIE.length + 1)
         return readTrackingConsent(cookie ? decodeURIComponent(cookie) : null)
@@ -92,7 +98,7 @@ export function getJourneySubmission() {
     const entry = source(active)
     return { ...ids, ...campaign(active), ...journeyFbIds(), tracking_version: 1,
         extra_data: { editorial_entry: entry.entry || undefined, editorial_attribution: entry.attribution,
-            editorial_session_id: ids.session_id, tracking_consent: c, tracking_preview: isJourneyPreview() } }
+            editorial_session_id: ids.session_id, tracking_consent: alwaysTrack ? null : c, tracking_mode: alwaysTrack ? 'always' : 'consent', tracking_preview: isJourneyPreview() } }
 }
 export function ensureJourneyPixel(pixelId: string | null | undefined): Pixel | null {
     if (!pixelId || !/^\d{5,25}$/.test(pixelId) || !journeyConsent()?.marketing || isJourneyPreview()) return null
